@@ -3,8 +3,8 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonValue>
 #include <QJsonParseError>
+#include <QJsonValue>
 #include <QString>
 
 #include <utility>
@@ -71,10 +71,10 @@ std::expected<void, ApiError> parseEndStream(const QByteArray& payload) {
     QJsonParseError parseError{};
     const QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
     if (parseError.error != QJsonParseError::NoError || !document.isObject()) {
-        return std::unexpected(ApiError{.kind = ApiErrorKind::Decoding,
-                                        .httpStatus = 200,
-                                        .message = "Malformed end-of-stream message: " +
-                                                   parseError.errorString().toStdString()});
+        return std::unexpected(
+            ApiError{.kind = ApiErrorKind::Decoding,
+                     .httpStatus = 200,
+                     .message = "Malformed end-of-stream message: " + parseError.errorString().toStdString()});
     }
     const QJsonValue error = document.object().value(QStringLiteral("error"));
     if (!error.isObject()) {

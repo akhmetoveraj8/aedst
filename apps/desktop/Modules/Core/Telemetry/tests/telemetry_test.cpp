@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include <QSignalSpy>
 #include <QTimeZone>
+
 #include <gtest/gtest.h>
 #include <spdlog/sinks/ostream_sink.h>
 
@@ -190,8 +191,8 @@ struct CapturedCrumb {
     BreadcrumbLevel level;
 };
 
-// The sink is a plain function pointer (QtLogBridgeOptions::BreadcrumbSink), so the capture list is a global of this file.
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+// The sink is a plain function pointer (QtLogBridgeOptions::BreadcrumbSink), so the capture list is a global of this
+// file. NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::vector<CapturedCrumb> gCrumbs;
 
 void captureCrumb(std::string_view category, std::string_view message, BreadcrumbLevel level) {
@@ -208,10 +209,12 @@ protected:
         core::AedstLogger::init(config, {std::make_shared<spdlog::sinks::ostream_sink_mt>(captured_)});
         installQtLogBridge({.breadcrumbs = true, .breadcrumbSink = &captureCrumb});
     }
+
     void TearDown() override {
         uninstallQtLogBridge();
         core::AedstLogger::shutdown();
     }
+
     std::ostringstream captured_;
 };
 

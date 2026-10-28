@@ -22,8 +22,8 @@ public:
     StartupTrace() noexcept { timer_.start(); }
 
     void mark(std::string_view phase) const {
-        qCInfo(lcApp, "startup +%lld ms: %.*s", static_cast<long long>(timer_.elapsed()), static_cast<int>(phase.size()),
-               phase.data());
+        qCInfo(lcApp, "startup +%lld ms: %.*s", static_cast<long long>(timer_.elapsed()),
+               static_cast<int>(phase.size()), phase.data());
     }
 
 private:

@@ -2,11 +2,10 @@
 
 #if defined(AEDST_HAVE_LIBSECRET) && !defined(_WIN32)
 
-#include <libsecret/secret.h>
-
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <libsecret/secret.h>
 #include <memory>
 #include <optional>
 #include <span>
@@ -101,9 +100,9 @@ public:
         const core::SecretString secretHex(std::move(hex));
 
         GError* error = nullptr;
-        const gboolean stored = secret_password_store_sync(schema_.get(), SECRET_COLLECTION_DEFAULT, kLabel,
-                                                           secretHex.reveal().c_str(), nullptr, &error,
-                                                           kAttributeName, kAccount, nullptr);
+        const gboolean stored =
+            secret_password_store_sync(schema_.get(), SECRET_COLLECTION_DEFAULT, kLabel, secretHex.reveal().c_str(),
+                                       nullptr, &error, kAttributeName, kAccount, nullptr);
         if (error != nullptr) {
             return core::fail(core::Error::storage("Secret Service store failed: " + takeErrorMessage(error)));
         }

@@ -1,6 +1,5 @@
-#include "connect_client_test_support.hpp"
-
 #include "aedst/core/correlation.hpp"
+#include "connect_client_test_support.hpp"
 
 #include <gtest/gtest.h>
 
@@ -13,7 +12,8 @@ namespace {
 using namespace testsupport;
 
 TEST_F(ConnectClientTest, ServerStreamDeliversMessagesAcrossArbitraryChunkBoundaries) {
-    const QByteArray wire = envelope::encode(0, loginResponseBytes("m1")) + envelope::encode(0, loginResponseBytes("m2")) +
+    const QByteArray wire = envelope::encode(0, loginResponseBytes("m1")) +
+                            envelope::encode(0, loginResponseBytes("m2")) +
                             envelope::encode(envelope::kFlagEndStream, "{}");
     server_.enqueue(FakeResponse::connectStream({wire.left(3), wire.mid(3, 20), wire.mid(23)}));
     StreamOutcome out;
@@ -33,9 +33,9 @@ TEST_F(ConnectClientTest, ServerStreamDeliversMessagesAcrossArbitraryChunkBounda
 }
 
 TEST_F(ConnectClientTest, ServerStreamSurfacesAnErrorInTheEndOfStreamFrame) {
-    const QByteArray wire = envelope::encode(0, loginResponseBytes("m1")) +
-                            envelope::encode(envelope::kFlagEndStream,
-                                             R"({"error":{"code":"unavailable","message":"draining"}})");
+    const QByteArray wire =
+        envelope::encode(0, loginResponseBytes("m1")) +
+        envelope::encode(envelope::kFlagEndStream, R"({"error":{"code":"unavailable","message":"draining"}})");
     server_.enqueue(FakeResponse::connectStream({wire}));
     StreamOutcome out;
 

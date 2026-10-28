@@ -16,7 +16,7 @@
 #else
 #include <cstring>
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
-#include <string.h> // NOLINT(modernize-deprecated-headers): explicit_bzero is C, not std::
+#include <string.h>  // NOLINT(modernize-deprecated-headers): explicit_bzero is C, not std::
 #include <strings.h> // NOLINT(modernize-deprecated-headers): explicit_bzero on BSD-derived libcs
 #endif
 #endif
@@ -60,9 +60,14 @@ inline void secureWipe(std::vector<unsigned char>& bytes) noexcept {
 class SecretString final {
 public:
     SecretString() = default;
-    SecretString(std::string value) : value_(std::move(value)) {} // NOLINT(google-explicit-constructor): lets aggregates take string literals
+
+    // NOLINTNEXTLINE(google-explicit-constructor): lets aggregates take string literals
+    SecretString(std::string value) : value_(std::move(value)) {}
+
     SecretString(const char* value) : value_(value != nullptr ? value : "") {} // NOLINT(google-explicit-constructor)
+
     SecretString(const SecretString&) = default;
+
     SecretString& operator=(const SecretString& other) {
         if (this != &other) {
             secureWipe(value_);
@@ -70,10 +75,12 @@ public:
         }
         return *this;
     }
+
     /// Content equality (not constant-time: used for session bookkeeping and tests, never to authenticate a caller).
     friend bool operator==(const SecretString& a, const SecretString& b) noexcept { return a.value_ == b.value_; }
 
     SecretString(SecretString&& other) noexcept : value_(std::move(other.value_)) { other.value_.clear(); }
+
     SecretString& operator=(SecretString&& other) noexcept {
         if (this != &other) {
             secureWipe(value_);
@@ -82,10 +89,13 @@ public:
         }
         return *this;
     }
+
     ~SecretString() { secureWipe(value_); }
 
     [[nodiscard]] const std::string& reveal() const noexcept { return value_; }
+
     [[nodiscard]] bool empty() const noexcept { return value_.empty(); }
+
     void clear() noexcept { secureWipe(value_); }
 
 private:

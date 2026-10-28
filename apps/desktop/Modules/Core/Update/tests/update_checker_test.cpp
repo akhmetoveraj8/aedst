@@ -1,5 +1,4 @@
 #include "aedst/update/update_checker.hpp"
-
 #include "test_support.hpp"
 
 #include <gtest/gtest.h>
@@ -39,6 +38,7 @@ public:
 class InMemoryStateStore final : public UpdateStateStore {
 public:
     [[nodiscard]] core::Outcome<UpdateState> load() const override { return state; }
+
     [[nodiscard]] core::VoidOutcome save(const UpdateState& next) override {
         state = next;
         ++saves;
@@ -121,7 +121,8 @@ TEST_F(UpdateCheckerTest, PrereleaseIsOlderThanItsRelease) {
 }
 
 /// manifestJson() with "rollback":true spliced in.
-std::string rollbackManifest(const std::string& version, std::int64_t publishedAt, const std::string& channel = "stable") {
+std::string rollbackManifest(const std::string& version, std::int64_t publishedAt,
+                             const std::string& channel = "stable") {
     std::string json = manifestJson(version, channel, publishedAt, "1.0.0");
     json.replace(json.find('{') + 1, 0, "\"rollback\":true,");
     return json;

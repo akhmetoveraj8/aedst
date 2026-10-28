@@ -54,17 +54,16 @@ core::VoidOutcome TokenStore::save(const StoredTokens& tokens) {
         return core::fail(fingerprint.error());
     }
 
-    auto statement = connection_->prepare(
-        "INSERT OR REPLACE INTO auth_session "
-        "(id, user_id, access_token, refresh_token, access_expires_at, refresh_fingerprint) "
-        "VALUES (1, ?1, ?2, ?3, ?4, ?5)");
+    auto statement =
+        connection_->prepare("INSERT OR REPLACE INTO auth_session "
+                             "(id, user_id, access_token, refresh_token, access_expires_at, refresh_fingerprint) "
+                             "VALUES (1, ?1, ?2, ?3, ?4, ?5)");
     if (!statement) {
         return core::fail(statement.error());
     }
     for (auto bound : {statement->bind(1, tokens.userId), statement->bind(2, std::span<const std::uint8_t>(*access)),
                        statement->bind(3, std::span<const std::uint8_t>(*refresh)),
-                       statement->bind(4, tokens.accessTokenExpiresAtEpochSeconds),
-                       statement->bind(5, *fingerprint)}) {
+                       statement->bind(4, tokens.accessTokenExpiresAtEpochSeconds), statement->bind(5, *fingerprint)}) {
         if (!bound) {
             return bound;
         }

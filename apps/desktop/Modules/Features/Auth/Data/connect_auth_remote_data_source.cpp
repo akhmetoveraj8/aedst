@@ -27,8 +27,8 @@ template <typename Response>
 network::ApiCompletion<Response> requireComplete(network::ApiCompletion<Response> done, std::string what) {
     return [done = std::move(done), what = std::move(what)](network::ApiResult<Response> result) {
         if (result && !isComplete(*result)) {
-            done(std::unexpected(
-                network::ApiError{.kind = network::ApiErrorKind::Decoding, .httpStatus = 200, .message = "Incomplete " + what}));
+            done(std::unexpected(network::ApiError{
+                .kind = network::ApiErrorKind::Decoding, .httpStatus = 200, .message = "Incomplete " + what}));
             return;
         }
         done(std::move(result));

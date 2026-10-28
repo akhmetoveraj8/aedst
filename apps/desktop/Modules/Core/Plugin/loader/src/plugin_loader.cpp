@@ -208,7 +208,8 @@ std::vector<LoadedPlugin> PluginLoader::loadAll(std::vector<LoadReport>& report)
     std::string policyProblem;
     const TrustPolicy policy = buildPolicy(config_, dir, policyProblem);
     if (!policyProblem.empty()) {
-        report.push_back({.fileName = {}, .verdict = TrustVerdict::BadSignature, .loaded = false, .detail = policyProblem});
+        report.push_back(
+            {.fileName = {}, .verdict = TrustVerdict::BadSignature, .loaded = false, .detail = policyProblem});
         qCWarning(lcApp, "Plugins are not loaded: %s", policyProblem.c_str());
         return loaded;
     }
@@ -220,28 +221,37 @@ std::vector<LoadedPlugin> PluginLoader::loadAll(std::vector<LoadReport>& report)
             continue; // the allowlist and signature files, READMEs, ...
         }
         if (++seen > kMaxPluginFiles) {
-            report.push_back({.fileName = {}, .verdict = TrustVerdict::NotListed, .loaded = false,
+            report.push_back({.fileName = {},
+                              .verdict = TrustVerdict::NotListed,
+                              .loaded = false,
                               .detail = "too many plugin files; the rest were ignored"});
             break;
         }
         const std::string fileName = file.fileName().toStdString();
         if (file.isSymLink()) {
-            report.push_back({.fileName = fileName, .verdict = TrustVerdict::NotListed, .loaded = false,
+            report.push_back({.fileName = fileName,
+                              .verdict = TrustVerdict::NotListed,
+                              .loaded = false,
                               .detail = "symbolic links are never loaded"});
             continue;
         }
         const auto hashed = hashFile(file.absoluteFilePath());
         if (!hashed) {
-            report.push_back({.fileName = fileName, .verdict = TrustVerdict::HashMismatch, .loaded = false,
+            report.push_back({.fileName = fileName,
+                              .verdict = TrustVerdict::HashMismatch,
+                              .loaded = false,
                               .detail = "file could not be read or is too large"});
             continue;
         }
-        const TrustDecision decision =
-            evaluateCandidate(policy, CandidateFile{.fileName = fileName, .sha256 = hashed->sha256, .size = hashed->size});
+        const TrustDecision decision = evaluateCandidate(
+            policy, CandidateFile{.fileName = fileName, .sha256 = hashed->sha256, .size = hashed->size});
         if (!decision.loadable()) {
-            report.push_back({.fileName = fileName, .verdict = decision.verdict, .loaded = false,
+            report.push_back({.fileName = fileName,
+                              .verdict = decision.verdict,
+                              .loaded = false,
                               .detail = std::string(toString(decision.verdict))});
-            qCWarning(lcApp, "Plugin %s was not loaded: %s", fileName.c_str(), std::string(toString(decision.verdict)).c_str());
+            qCWarning(lcApp, "Plugin %s was not loaded: %s", fileName.c_str(),
+                      std::string(toString(decision.verdict)).c_str());
             continue;
         }
 
@@ -253,20 +263,26 @@ std::vector<LoadedPlugin> PluginLoader::loadAll(std::vector<LoadReport>& report)
         const std::string declaredId = pluginMeta.value(QLatin1String("id")).toString().toStdString();
         if (iid != QLatin1String(kExpectedIid) || !isValidPluginId(declaredId) ||
             (decision.entry != nullptr && decision.entry->pluginId != declaredId)) {
-            report.push_back({.fileName = fileName, .verdict = decision.verdict, .loaded = false,
+            report.push_back({.fileName = fileName,
+                              .verdict = decision.verdict,
+                              .loaded = false,
                               .detail = "plugin metadata (IID or id) does not match the allowlist"});
             continue;
         }
         QObject* instance = qtLoader->instance();
         auto* factory = qobject_cast<QtFeaturePluginFactory*>(instance);
         if (factory == nullptr) {
-            report.push_back({.fileName = fileName, .verdict = decision.verdict, .loaded = false,
+            report.push_back({.fileName = fileName,
+                              .verdict = decision.verdict,
+                              .loaded = false,
                               .detail = qtLoader->errorString().toStdString()});
             continue;
         }
         std::unique_ptr<IFeaturePlugin> plugin = factory->create();
         if (!plugin || plugin->descriptor().id != declaredId) {
-            report.push_back({.fileName = fileName, .verdict = decision.verdict, .loaded = false,
+            report.push_back({.fileName = fileName,
+                              .verdict = decision.verdict,
+                              .loaded = false,
                               .detail = "plugin did not create an IFeaturePlugin with the declared id"});
             continue;
         }

@@ -39,8 +39,7 @@ struct CompressedImage {
 /// The result is written to `outputPath`; a failure to write falls back to the
 /// original (`compressed == false`). Blocking: call from a worker thread
 /// (MediaUploadController runs it on QThreadPool).
-[[nodiscard]] std::expected<CompressedImage, QString> compressImage(const QString& inputPath,
-                                                                    const QString& outputPath,
+[[nodiscard]] std::expected<CompressedImage, QString> compressImage(const QString& inputPath, const QString& outputPath,
                                                                     const CompressionOptions& options = {});
 
 /// Decodes `path` scaled to fit `maxPixels` on its longer edge (cheap, for local

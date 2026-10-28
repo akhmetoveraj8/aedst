@@ -108,8 +108,7 @@ public:
     /// HTTPS: the same server behind TLS (QSslServer) with `tls` as its server configuration (certificate + key). A
     /// client that rejects the certificate never completes the handshake, so no request is recorded;
     /// tlsHandshakeAttempts() still counts the connection, which is how a test proves "no retry".
-    explicit FakeHttpServer(const QSslConfiguration& tls, QObject* parent = nullptr)
-        : QObject(parent), tls_(true) {
+    explicit FakeHttpServer(const QSslConfiguration& tls, QObject* parent = nullptr) : QObject(parent), tls_(true) {
         auto sslServer = std::make_unique<QSslServer>();
         sslServer->setSslConfiguration(tls);
         connect(sslServer.get(), &QSslServer::startedEncryptionHandshake, this, [this]() { ++handshakeAttempts_; });
@@ -136,6 +135,7 @@ public:
 
     /// Answers every request with `handler` instead of the queue (routing by method/target).
     using Handler = std::function<FakeResponse(const RecordedRequest&)>;
+
     void setHandler(Handler handler) { handler_ = std::move(handler); }
 
     [[nodiscard]] const std::vector<RecordedRequest>& requests() const { return requests_; }

@@ -1,9 +1,8 @@
 #pragma once
 
-#include <google/protobuf/timestamp.pb.h>
-
 #include <chrono>
 #include <cstdint>
+#include <google/protobuf/timestamp.pb.h>
 #include <optional>
 
 /// google.protobuf.Timestamp <-> std::chrono, shared by every Data layer so no
@@ -13,8 +12,8 @@ namespace aedst::contract {
 
 [[nodiscard]] inline std::chrono::system_clock::time_point toTimePoint(const google::protobuf::Timestamp& ts) {
     using namespace std::chrono;
-    return system_clock::time_point{duration_cast<system_clock::duration>(seconds{ts.seconds()} +
-                                                                         nanoseconds{ts.nanos()})};
+    return system_clock::time_point{
+        duration_cast<system_clock::duration>(seconds{ts.seconds()} + nanoseconds{ts.nanos()})};
 }
 
 [[nodiscard]] inline std::optional<std::chrono::system_clock::time_point>

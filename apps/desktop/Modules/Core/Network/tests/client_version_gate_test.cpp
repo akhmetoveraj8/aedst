@@ -1,10 +1,11 @@
-#include "connect_client_test_support.hpp"
 #include "aedst/testing/behavior_fixture.hpp"
+#include "connect_client_test_support.hpp"
 
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSignalSpy>
+
 #include <gtest/gtest.h>
 
 #include <memory>
@@ -75,9 +76,9 @@ FakeResponse upgradeRequiredResponse(bool withDebug) {
     QByteArray proto;
     proto.append('\x0a').append(static_cast<char>(reason.size())).append(reason);
     proto.append('\x12').append('\x05').append("aedst");
-    QJsonObject detail{{"type", "google.rpc.ErrorInfo"},
-                       {"value", QString::fromLatin1(proto.toBase64(QByteArray::Base64Encoding |
-                                                                   QByteArray::OmitTrailingEquals))}};
+    QJsonObject detail{
+        {"type", "google.rpc.ErrorInfo"},
+        {"value", QString::fromLatin1(proto.toBase64(QByteArray::Base64Encoding | QByteArray::OmitTrailingEquals))}};
     if (withDebug) {
         detail.insert("debug", QJsonObject{{"reason", QString::fromLatin1(reason)}, {"domain", "aedst"}});
     }
@@ -120,12 +121,12 @@ TEST_F(ClientVersionGateTest, ReplaysEveryFixtureCase) {
             const std::string path = c.value("path").toString().toStdString();
             const QJsonObject expect = c.value("expect").toObject();
 
-            ConnectClient client(ClientConfig{.baseUrl = server_.baseUrl(),
-                                              .defaultTimeout = 2s,
-                                              .allowInsecureLoopback = true,
-                                              .clientIdentifier = header.isString() ? header.toString().toStdString()
-                                                                                    : std::string{}},
-                                 nullptr);
+            ConnectClient client(
+                ClientConfig{.baseUrl = server_.baseUrl(),
+                             .defaultTimeout = 2s,
+                             .allowInsecureLoopback = true,
+                             .clientIdentifier = header.isString() ? header.toString().toStdString() : std::string{}},
+                nullptr);
             QSignalSpy upgradeSignal(&client, &ConnectClient::clientUpgradeRequired);
             const std::size_t before = server_.requests().size();
             std::optional<RawResult> result;
@@ -162,8 +163,8 @@ TEST_F(ClientVersionGateTest, ReplaysEveryFixtureCase) {
 
 TEST_F(ClientVersionGateTest, AnOrdinaryFailedPreconditionIsNotAnUpgradeRequest) {
     server_.enqueue(FakeResponse::connectError(400, "failed_precondition", "task is already done"));
-    ConnectClient client(ClientConfig{.baseUrl = server_.baseUrl(), .defaultTimeout = 2s, .allowInsecureLoopback = true},
-                         nullptr);
+    ConnectClient client(
+        ClientConfig{.baseUrl = server_.baseUrl(), .defaultTimeout = 2s, .allowInsecureLoopback = true}, nullptr);
     QSignalSpy upgradeSignal(&client, &ConnectClient::clientUpgradeRequired);
     std::optional<RawResult> result;
 

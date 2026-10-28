@@ -15,9 +15,9 @@
 //   openssl req -new -key leaf.key -subj "/CN=localhost" -out leaf.csr
 //   (ext.cnf: subjectAltName=IP:127.0.0.1,DNS:localhost / basicConstraints=CA:FALSE / keyUsage=digitalSignature /
 //    extendedKeyUsage=serverAuth)
-//   openssl x509 -req -in leaf.csr -CA ca.pem -CAkey ca.key -CAcreateserial -sha256 -days 36500 -extfile ext.cnf -out leaf.pem
-//   openssl pkcs8 -topk8 -nocrypt -in leaf.key -out leaf.p8.pem
-//   openssl x509 -in leaf.pem -noout -pubkey | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl base64
+//   openssl x509 -req -in leaf.csr -CA ca.pem -CAkey ca.key -CAcreateserial -sha256 -days 36500 -extfile ext.cnf -out
+//   leaf.pem openssl pkcs8 -topk8 -nocrypt -in leaf.key -out leaf.p8.pem openssl x509 -in leaf.pem -noout -pubkey |
+//   openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl base64
 
 namespace aedst::testing {
 

@@ -84,7 +84,7 @@ module (`AEDST_SYSTEM_QTKEYCHAIN=ON`) because the sandbox build has no network; 
 ## Consequences
 
 - New dependency: **Velopack** (MIT) C/C++ SDK `velopack_libc` 1.2.161 (CI `vpk` 1.2.161, exists on NuGet) - Library-First
-  entry added. `vpk` needs the .NET SDK on the release runners only.
+  entry added. `vpk` needs the .NET SDK on the release runners only (.NET 10, `dotnet-version: "10.0.x"`; the 1.2.161 nupkg ships a `net10.0` tool build).
 - New required secrets/variables are listed in `docs/release-runbook.md`; everything is optional and degrades to "unsigned,
   no update" with a visible workflow warning.
 

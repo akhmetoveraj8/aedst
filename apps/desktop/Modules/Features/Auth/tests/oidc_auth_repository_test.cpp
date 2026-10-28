@@ -7,6 +7,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+
 #include <gtest/gtest.h>
 
 #include <memory>
@@ -82,7 +83,8 @@ TEST_F(OidcAuthRepositoryTest, BrowserSignInYieldsASessionWithoutExposingTheRefr
 TEST_F(OidcAuthRepositoryTest, RefreshReturnsTheCurrentSession) {
     provider.expiresIn = 1;
     ASSERT_TRUE(signIn().has_value());
-    ASSERT_TRUE(repository->currentSession()->isAccessTokenExpired(std::chrono::system_clock::now() + std::chrono::seconds{2}));
+    ASSERT_TRUE(
+        repository->currentSession()->isAccessTokenExpired(std::chrono::system_clock::now() + std::chrono::seconds{2}));
 
     std::optional<core::Outcome<Session>> refreshed;
     repository->refreshToken([&](core::Outcome<Session> r) { refreshed = std::move(r); });
@@ -118,10 +120,14 @@ TEST(BrowserSignInUseCaseTest, FailsWhenTheRepositoryHasNoBrowserSupport) {
         void login(const Credentials&, core::Completion<Session> done) override {
             done(core::fail(core::Error::unknown("unused")));
         }
+
         void refreshToken(core::Completion<Session> done) override { done(core::fail(core::Error::unknown("unused"))); }
+
         void logout(core::Completion<void> done) override { done(core::ok()); }
+
         [[nodiscard]] std::optional<Session> currentSession() const override { return std::nullopt; }
     };
+
     BrowserSignInUseCase useCase(std::make_shared<PasswordOnlyRepository>());
     EXPECT_FALSE(useCase.isAvailable());
     std::optional<core::Outcome<Session>> result;

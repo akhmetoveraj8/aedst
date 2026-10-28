@@ -30,11 +30,10 @@ bool sameVersion(const std::string& a, const std::string& b) {
     return left && right && update::compareSemVer(*left, *right) == 0;
 }
 
-core::Outcome<std::optional<UpdateOutcome>> runUpdatePipeline(const update::UpdateCheckerConfig& config,
-                                                             update::HttpFetcher& fetcher,
-                                                             const update::ManifestVerifier& verifier,
-                                                             update::UpdateStateStore& stateStore,
-                                                             UpdateInstaller& installer, const PipelineEvents& events) {
+core::Outcome<std::optional<UpdateOutcome>>
+runUpdatePipeline(const update::UpdateCheckerConfig& config, update::HttpFetcher& fetcher,
+                  const update::ManifestVerifier& verifier, update::UpdateStateStore& stateStore,
+                  UpdateInstaller& installer, const PipelineEvents& events) {
     // 1. The signed manifest decides whether there is an update at all.
     notify(events, PipelineStage::CheckingManifest);
     update::UpdateChecker checker(config, fetcher, verifier, stateStore);
@@ -66,9 +65,9 @@ core::Outcome<std::optional<UpdateOutcome>> runUpdatePipeline(const update::Upda
     const InstallerCandidate& candidate = **feed;
     if (!sameVersion(candidate.version, offer.manifest.version) ||
         lowered(candidate.sha256) != lowered(offer.artifact.sha256) || candidate.size != offer.artifact.size) {
-        core::AedstLogger::error(
-            "update: SECURITY: the release feed offers {} (sha256 {}) but the signed manifest names {} (sha256 {}); refusing",
-            candidate.version, candidate.sha256, offer.manifest.version, offer.artifact.sha256);
+        core::AedstLogger::error("update: SECURITY: the release feed offers {} (sha256 {}) but the signed manifest "
+                                 "names {} (sha256 {}); refusing",
+                                 candidate.version, candidate.sha256, offer.manifest.version, offer.artifact.sha256);
         return core::fail(core::Error::unauthenticated(
             "update: the release feed does not match the signed manifest; the update was refused"));
     }

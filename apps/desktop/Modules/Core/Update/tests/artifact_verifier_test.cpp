@@ -1,7 +1,5 @@
 #include "aedst/update/artifact_verifier.hpp"
-
 #include "aedst/update/manifest.hpp"
-
 #include "aedst/update/update_state_store.hpp"
 #include "test_support.hpp"
 
@@ -25,7 +23,8 @@ protected:
     void SetUp() override {
         std::error_code ec;
         const auto* info = ::testing::UnitTest::GetInstance()->current_test_info();
-        root_ = fs::temp_directory_path(ec) / (std::string{"aedst_update_"} + info->test_suite_name() + "_" + info->name());
+        root_ =
+            fs::temp_directory_path(ec) / (std::string{"aedst_update_"} + info->test_suite_name() + "_" + info->name());
         fs::remove_all(root_, ec);
         fs::create_directories(root_, ec);
     }

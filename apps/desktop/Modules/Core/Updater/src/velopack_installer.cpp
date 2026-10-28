@@ -1,16 +1,16 @@
 #include "velopack_installer.hpp"
 
 #include <Velopack.hpp>
-
 #include <exception>
 #include <optional>
 #include <utility>
 
-// UNVERIFIED against a build: written from the Velopack C++ documentation (velopack_libc 1.2.x): VelopackApp::Build().Run(),
-// UpdateManager(url, options), CheckForUpdates() -> optional<UpdateInfo>, DownloadUpdates(info, progress),
-// WaitExitThenApplyUpdate(asset, silent, restart). Field names of UpdateInfo/VelopackAsset (TargetFullRelease, Version,
-// SHA256, Size, FileName) and UpdateOptions (ExplicitChannel, AllowVersionDowngrade) follow the SDK's C++ header; if a
-// name differs, only this file changes (the pipeline and the service talk to UpdateInstaller).
+// UNVERIFIED against a build: written from the Velopack C++ documentation (velopack_libc 1.2.x):
+// VelopackApp::Build().Run(), UpdateManager(url, options), CheckForUpdates() -> optional<UpdateInfo>,
+// DownloadUpdates(info, progress), WaitExitThenApplyUpdate(asset, silent, restart). Field names of
+// UpdateInfo/VelopackAsset (TargetFullRelease, Version, SHA256, Size, FileName) and UpdateOptions (ExplicitChannel,
+// AllowVersionDowngrade) follow the SDK's C++ header; if a name differs, only this file changes (the pipeline and the
+// service talk to UpdateInstaller).
 
 namespace aedst::updater {
 
@@ -20,7 +20,8 @@ struct VelopackInstaller::Impl {
     bool allowDowngrade{false};
 };
 
-VelopackInstaller::VelopackInstaller(std::string feedUrl) : impl_(std::make_unique<Impl>()), feedUrl_(std::move(feedUrl)) {}
+VelopackInstaller::VelopackInstaller(std::string feedUrl)
+    : impl_(std::make_unique<Impl>()), feedUrl_(std::move(feedUrl)) {}
 
 VelopackInstaller::~VelopackInstaller() = default;
 
@@ -85,8 +86,8 @@ core::Outcome<std::filesystem::path> VelopackInstaller::download(const Installer
             }
         });
         // Velopack verifies the package against the feed's SHA-256 itself and keeps it in its own packages directory,
-        // whose location the C++ SDK does not expose. The pipeline already bound that SHA-256 to the signed manifest, so
-        // the independent re-hash is skipped (empty path) rather than guessed.
+        // whose location the C++ SDK does not expose. The pipeline already bound that SHA-256 to the signed manifest,
+        // so the independent re-hash is skipped (empty path) rather than guessed.
         return std::filesystem::path{};
     } catch (const std::exception& e) {
         return core::fail(core::Error::unavailable(std::string("update download: ") + e.what()));

@@ -1,6 +1,5 @@
-#include "Presentation/notifications_view_model.hpp"
-
 #include "Navigation/notifications_destinations.hpp"
+#include "Presentation/notifications_view_model.hpp"
 #include "aedst/core/error_sink.hpp"
 #include "aedst/navigation/router.hpp"
 

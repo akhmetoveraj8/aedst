@@ -34,12 +34,12 @@ TranslationLoader::~TranslationLoader() {
 }
 
 void TranslationLoader::installSystemLanguage() {
-    setLanguage(QString::fromStdString(resolveLanguage(toStdList(QLocale::system().uiLanguages()), supportedLanguages())));
+    setLanguage(
+        QString::fromStdString(resolveLanguage(toStdList(QLocale::system().uiLanguages()), supportedLanguages())));
 }
 
 QString TranslationLoader::setLanguage(const QString& language) {
-    const QString resolved =
-        QString::fromStdString(resolveLanguage({language.toStdString()}, supportedLanguages()));
+    const QString resolved = QString::fromStdString(resolveLanguage({language.toStdString()}, supportedLanguages()));
     if (resolved == language_) {
         return resolved;
     }
@@ -64,7 +64,7 @@ QString TranslationLoader::setLanguage(const QString& language) {
     QLocale::setDefault(locale);
     if (qobject_cast<QGuiApplication*>(QCoreApplication::instance()) != nullptr) {
         QGuiApplication::setLayoutDirection(isRightToLeftLanguage(resolved.toStdString()) ? Qt::RightToLeft
-                                                                                           : Qt::LeftToRight);
+                                                                                          : Qt::LeftToRight);
     }
     emit languageChanged();
     return resolved;

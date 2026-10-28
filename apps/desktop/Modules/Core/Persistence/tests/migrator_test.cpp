@@ -42,7 +42,9 @@ protected:
 
 constexpr std::array<Migration, 2> kTwoSteps{{
     {.version = 1, .name = "create_a", .sql = "CREATE TABLE a (id INTEGER PRIMARY KEY);"},
-    {.version = 2, .name = "create_b", .sql = "CREATE TABLE b (id INTEGER PRIMARY KEY); INSERT INTO b (id) VALUES (1);"},
+    {.version = 2,
+     .name = "create_b",
+     .sql = "CREATE TABLE b (id INTEGER PRIMARY KEY); INSERT INTO b (id) VALUES (1);"},
 }};
 
 TEST_F(MigratorTest, FreshDatabaseReachesLatestVersion) {
@@ -96,9 +98,7 @@ TEST_F(MigratorTest, RefusesDatabaseNewerThanKnown) {
 TEST_F(MigratorTest, FailingMigrationRollsBackAndKeepsVersion) {
     static constexpr std::array<Migration, 2> kFailing{{
         {.version = 1, .name = "ok", .sql = "CREATE TABLE good (id INTEGER PRIMARY KEY);"},
-        {.version = 2,
-         .name = "broken",
-         .sql = "CREATE TABLE half_done (id INTEGER PRIMARY KEY); THIS IS NOT SQL;"},
+        {.version = 2, .name = "broken", .sql = "CREATE TABLE half_done (id INTEGER PRIMARY KEY); THIS IS NOT SQL;"},
     }};
     const Migrator migrator(kFailing);
 

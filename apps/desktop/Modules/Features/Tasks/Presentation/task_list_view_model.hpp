@@ -55,6 +55,7 @@ public:
     static TaskListViewModel* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<TaskListViewModel>::create(engine, script);
     }
+
     static constexpr int kFilterDebounceMs = 300;
 
     TaskListViewModel(std::shared_ptr<TaskRepository> repository, std::shared_ptr<CreateTaskUseCase> createTask,
@@ -62,19 +63,30 @@ public:
                       navigation::Router* router, QObject* parent = nullptr);
 
     [[nodiscard]] QAbstractItemModel* tasks() noexcept { return &model_; }
+
     [[nodiscard]] TaskListModel& model() noexcept { return model_; }
+
     [[nodiscard]] bool isLoading() const noexcept { return isLoading_; }
+
     [[nodiscard]] bool isCreating() const noexcept { return isCreating_; }
+
     [[nodiscard]] QString errorMessage() const { return errorMessage_; }
+
     [[nodiscard]] int totalCount() const noexcept { return totalCount_; }
+
     [[nodiscard]] bool hasMore() const { return !nextPageToken_.empty(); }
+
     [[nodiscard]] int pendingSyncCount() const;
     /// Enables offline writes: a create or a complete/reopen that fails for lack of a connection is queued in `outbox`
     /// (which must outlive this view model) and shown as pending until the server confirms it.
     void setOutbox(outbox::OutboxService* outbox);
+
     [[nodiscard]] QString filter() const { return filter_; }
+
     void setFilter(const QString& filter);
+
     [[nodiscard]] bool showCompleted() const noexcept { return showCompleted_; }
+
     void setShowCompleted(bool show);
 
     Q_INVOKABLE void reload();

@@ -2,14 +2,13 @@
 
 #include "aedst/qmlsupport/singleton_slot.hpp"
 
-#include <aedst/media/v1/media.pb.h>
-
 #include <QObject>
 #include <QString>
 #include <QTimer>
 #include <QUrl>
 #include <QtQml/qqmlregistration.h>
 
+#include <aedst/media/v1/media.pb.h>
 #include <memory>
 #include <optional>
 
@@ -48,11 +47,14 @@ public:
     static MediaViewerViewModel* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<MediaViewerViewModel>::create(engine, script);
     }
+
     MediaViewerViewModel(std::shared_ptr<aedst::media::MediaRemoteDataSource> remote,
                          std::shared_ptr<core::ErrorSink> errors, QObject* parent = nullptr);
 
     [[nodiscard]] QString mediaId() const { return requestedId_; }
+
     [[nodiscard]] bool hasMedia() const noexcept { return media_.has_value(); }
+
     [[nodiscard]] QString kind() const;
     [[nodiscard]] QString status() const;
     [[nodiscard]] QString fileName() const;
@@ -61,7 +63,9 @@ public:
     [[nodiscard]] QUrl playbackUrl() const;
     [[nodiscard]] QString posterSource() const;
     [[nodiscard]] qint64 sizeBytes() const;
+
     [[nodiscard]] bool isLoading() const noexcept { return isLoading_; }
+
     [[nodiscard]] QString errorMessage() const { return errorMessage_; }
 
     Q_INVOKABLE void load(const QString& mediaId);

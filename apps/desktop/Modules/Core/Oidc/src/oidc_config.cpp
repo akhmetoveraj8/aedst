@@ -18,9 +18,9 @@ namespace {
 }
 
 /// Environment wins over QSettings; an empty environment value counts as unset.
-// aedst-allow: non-secret OIDC client configuration (issuer, client id), not a credential store; tokens use QtKeychain (ADR-0025)
-[[nodiscard]] QString lookup(const QSettings& settings, const QProcessEnvironment& environment,
-                             const QString& envName, const QString& settingsKey) {
+// aedst-allow: non-secret OIDC client configuration (issuer, client id); tokens use QtKeychain (ADR-0025)
+[[nodiscard]] QString lookup(const QSettings& settings, const QProcessEnvironment& environment, const QString& envName,
+                             const QString& settingsKey) {
     const QString fromEnvironment = environment.value(envName).trimmed();
     if (!fromEnvironment.isEmpty()) {
         return fromEnvironment;
@@ -93,7 +93,7 @@ core::VoidOutcome validateOidcConfig(const OidcConfig& config) {
     return core::ok();
 }
 
-// aedst-allow: non-secret OIDC client configuration (issuer, client id), not a credential store; tokens use QtKeychain (ADR-0025)
+// aedst-allow: non-secret OIDC client configuration (issuer, client id); tokens use QtKeychain (ADR-0025)
 OidcConfig loadOidcConfig(const QSettings& settings, const QProcessEnvironment& environment) {
     OidcConfig config;
     config.issuer =

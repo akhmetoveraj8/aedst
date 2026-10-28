@@ -9,6 +9,7 @@
 #include <QSslConfiguration>
 #include <QSslKey>
 #include <QSslSocket>
+
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -55,7 +56,8 @@ protected:
         ASSERT_TRUE(server_->isListening());
     }
 
-    /// A client for the HTTPS fake; `retry` is generous so a wrongly retried TLS failure would show up as a 2nd handshake.
+    /// A client for the HTTPS fake; `retry` is generous so a wrongly retried TLS failure would show up as a 2nd
+    /// handshake.
     std::unique_ptr<ConnectClient> client(QByteArray extraCa = {}, std::vector<std::string> pins = {}) const {
         return std::make_unique<ConnectClient>(
             ClientConfig{.baseUrl = server_->baseUrl(),

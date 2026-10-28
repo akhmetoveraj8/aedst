@@ -32,10 +32,12 @@ public:
                 ("aedst-outbox-" + std::to_string(ticks) + "-" + std::to_string(counter.fetch_add(1)));
         std::filesystem::create_directories(path_);
     }
+
     TempDir(const TempDir&) = delete;
     TempDir& operator=(const TempDir&) = delete;
     TempDir(TempDir&&) = delete;
     TempDir& operator=(TempDir&&) = delete;
+
     ~TempDir() {
         std::error_code ignored;
         std::filesystem::remove_all(path_, ignored);

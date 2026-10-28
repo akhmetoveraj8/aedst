@@ -1,5 +1,4 @@
 #include "aedst/crash/consent_store.hpp"
-
 #include "temp_dir_fixture.hpp"
 
 #include <gtest/gtest.h>

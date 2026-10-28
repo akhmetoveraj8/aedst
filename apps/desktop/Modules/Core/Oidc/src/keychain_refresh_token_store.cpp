@@ -19,8 +19,8 @@ namespace aedst::oidc {
 namespace {
 
 [[nodiscard]] core::Error storageError(const char* action, const QKeychain::Job& job) {
-    std::string message = std::string("Secure credential storage is unavailable (") + action + "): " +
-                          job.errorString().toStdString();
+    std::string message =
+        std::string("Secure credential storage is unavailable (") + action + "): " + job.errorString().toStdString();
     switch (job.error()) {
     case QKeychain::NoBackendAvailable:
         message += ". Install and unlock a Secret Service provider (GNOME Keyring or KWallet).";

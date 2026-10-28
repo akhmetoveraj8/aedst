@@ -81,11 +81,12 @@ private:
     std::unique_ptr<LoginViewModel> viewModel_;
 
 private slots:
+
     void init() {
         repository_ = std::make_shared<FakeAuthRepository>();
         viewModel_ = std::make_unique<LoginViewModel>(std::make_shared<LoginUseCase>(repository_),
-                                                       std::make_shared<LogoutUseCase>(repository_),
-                                                       std::make_shared<analytics::NoOpAnalyticsTracker>(), nullptr);
+                                                      std::make_shared<LogoutUseCase>(repository_),
+                                                      std::make_shared<analytics::NoOpAnalyticsTracker>(), nullptr);
     }
 
     void cleanup() {
@@ -155,7 +156,8 @@ private slots:
         repository_->completeLogin(core::fail(core::Error::unauthenticated("invalid credentials")));
 
         QCOMPARE(failed.count(), 1);
-        QCOMPARE(viewModel_->errorMessage(), QStringLiteral("Wrong e-mail or password.")); // by code, not the server text
+        QCOMPARE(viewModel_->errorMessage(),
+                 QStringLiteral("Wrong e-mail or password.")); // by code, not the server text
         // Kept so the user can retry without retyping.
         QVERIFY(viewModel_->hasPassword());
         QVERIFY(!viewModel_->isLoading());
@@ -276,7 +278,8 @@ private slots:
         repository_->completeBrowser(core::fail(core::Error::storage("Secure credential storage is unavailable")));
 
         QCOMPARE(failed.count(), 1);
-        QCOMPARE(viewModel_->errorMessage(), QStringLiteral("Your session could not be stored securely on this device."));
+        QCOMPARE(viewModel_->errorMessage(),
+                 QStringLiteral("Your session could not be stored securely on this device."));
         QVERIFY(!viewModel_->isLoading());
         viewModel_->signInWithBrowser(); // the user can retry
         QCOMPARE(repository_->browserCalls, 2);

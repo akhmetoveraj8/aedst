@@ -1,5 +1,4 @@
 #include "Data/connect_auth_remote_data_source.hpp"
-
 #include "aedst/network/auth_interceptor.hpp"
 #include "aedst/network/connect_client.hpp"
 #include "aedst/testing/fake_http_server.hpp"
@@ -7,6 +6,7 @@
 #include "aedst/testing/test_main.hpp"
 
 #include <QByteArray>
+
 #include <gtest/gtest.h>
 
 #include <memory>
@@ -34,8 +34,8 @@ protected:
     void SetUp() override {
         ASSERT_TRUE(server_.isListening());
         auto interceptor = std::make_shared<network::AuthInterceptor>(std::make_shared<testing::StubTokenProvider>());
-        auto client = std::make_shared<network::ConnectClient>(network::ClientConfig{.baseUrl = server_.baseUrl(), .allowInsecureLoopback = true},
-                                                               std::move(interceptor));
+        auto client = std::make_shared<network::ConnectClient>(
+            network::ClientConfig{.baseUrl = server_.baseUrl(), .allowInsecureLoopback = true}, std::move(interceptor));
         dataSource_ = std::make_unique<ConnectAuthRemoteDataSource>(std::move(client));
     }
 
@@ -84,7 +84,8 @@ TEST_F(ConnectAuthRemoteDataSourceTest, ServerRejectionKeepsTheConnectCode) {
     server_.enqueue(FakeResponse::connectError(401, "unauthenticated", "revoked"));
     std::optional<network::ApiResult<authv1::RefreshTokenResponse>> result;
 
-    dataSource_->refreshToken({}, [&result](network::ApiResult<authv1::RefreshTokenResponse> r) { result = std::move(r); });
+    dataSource_->refreshToken({},
+                              [&result](network::ApiResult<authv1::RefreshTokenResponse> r) { result = std::move(r); });
     ASSERT_TRUE(waitUntil([&] { return result.has_value(); }));
 
     ASSERT_FALSE(result->has_value());

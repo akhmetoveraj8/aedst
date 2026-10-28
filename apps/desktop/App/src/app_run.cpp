@@ -1,11 +1,7 @@
 #include "app_run.hpp"
 
-#include "activation.hpp"
-#include "app_dependencies.hpp"
-#include "app_updater.hpp"
-#include "qml_singletons.hpp"
-#include "startup_config.hpp"
 #include "Presentation/notifications_view_model.hpp"
+#include "activation.hpp"
 #include "aedst/capabilities/capabilities_service.hpp"
 #include "aedst/connectivity/connectivity_monitor.hpp"
 #include "aedst/designsystem/translation_loader.hpp"
@@ -20,6 +16,10 @@
 #include "aedst/platform/single_instance_guard.hpp"
 #include "aedst/platform/tray_notification_service.hpp"
 #include "aedst/telemetry/posthog_analytics_tracker.hpp"
+#include "app_dependencies.hpp"
+#include "app_updater.hpp"
+#include "qml_singletons.hpp"
+#include "startup_config.hpp"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -57,7 +57,7 @@ constexpr const char* kAppId = "com.aedst.Desktop";
     };
     config.appVersion = AEDST_VERSION; // X-Aedst-Client: desktop/<version> (ADR-0009)
     // Identity provider (ZITADEL). Configured -> browser sign-in; not configured -> first-party password login.
-    // aedst-allow: non-secret OIDC client configuration (issuer, client id), not a credential store; tokens use QtKeychain (ADR-0025)
+    // aedst-allow: non-secret OIDC client configuration (issuer, client id); tokens use QtKeychain (ADR-0025)
     config.oidc = oidc::loadOidcConfig(QSettings(), QProcessEnvironment::systemEnvironment());
     if (config.oidc.isConfigured()) {
         if (auto valid = oidc::validateOidcConfig(config.oidc); !valid) {
@@ -139,10 +139,9 @@ void wireNotifications(QApplication& app, AppDependencies& deps, platform::TrayN
     QObject::connect(&viewModel, &feature::notifications::NotificationsViewModel::unreadCountChanged, &tray,
                      [&tray, &viewModel]() { tray.setBadgeCount(viewModel.unreadCount()); });
     // Poll faster while the user is looking at the app.
-    QObject::connect(&app, &QGuiApplication::applicationStateChanged, &viewModel,
-                     [&viewModel](Qt::ApplicationState state) {
-                         viewModel.setForeground(state == Qt::ApplicationActive);
-                     });
+    QObject::connect(
+        &app, &QGuiApplication::applicationStateChanged, &viewModel,
+        [&viewModel](Qt::ApplicationState state) { viewModel.setForeground(state == Qt::ApplicationActive); });
 }
 
 } // namespace
@@ -158,11 +157,10 @@ int runApplication(QApplication& app, const StartupTrace& startup, const RunOpti
     }
 
     // Self-update: signed manifest + the installer that fits this installation; off without a manifest URL or key.
-    AppUpdater appUpdater(
-        options.dataDirectory,
-        {.manifestUrl = configured("AEDST_UPDATE_MANIFEST_URL", AEDST_UPDATE_MANIFEST_URL_DEFAULT),
-         .feedUrl = configured("AEDST_UPDATE_FEED_URL", AEDST_UPDATE_FEED_URL_DEFAULT),
-         .channel = configured("AEDST_UPDATE_CHANNEL", AEDST_UPDATE_CHANNEL_DEFAULT)});
+    AppUpdater appUpdater(options.dataDirectory,
+                          {.manifestUrl = configured("AEDST_UPDATE_MANIFEST_URL", AEDST_UPDATE_MANIFEST_URL_DEFAULT),
+                           .feedUrl = configured("AEDST_UPDATE_FEED_URL", AEDST_UPDATE_FEED_URL_DEFAULT),
+                           .channel = configured("AEDST_UPDATE_CHANNEL", AEDST_UPDATE_CHANNEL_DEFAULT)});
 
     AppConfig config;
     if (!buildConfig(options, config)) {
@@ -244,8 +242,9 @@ int runApplication(QApplication& app, const StartupTrace& startup, const RunOpti
             Qt::SingleShotConnection);
     }
     AppDependencies* depsPointer = &deps;
-    QObject::connect(&instanceGuard, &platform::SingleInstanceGuard::activationRequested, &app,
-                     [window, depsPointer](const QStringList& arguments) { handleActivation(arguments, window, depsPointer); });
+    QObject::connect(
+        &instanceGuard, &platform::SingleInstanceGuard::activationRequested, &app,
+        [window, depsPointer](const QStringList& arguments) { handleActivation(arguments, window, depsPointer); });
     // Deep links passed to this (first) instance on its own command line: held until the user is signed in.
     handleActivation(platform::SingleInstanceGuard::sanitizeArguments(app.arguments()), QPointer<QQuickWindow>(),
                      depsPointer);

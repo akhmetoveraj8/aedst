@@ -33,6 +33,12 @@ IncludeCategories:
   # Qt
   - Regex: '^<Q[A-Za-z]'
     Priority: 2
+  # Win32 headers: windows.h must precede every other Windows SDK header (and <winrt/...>), so it gets its own
+  # block before them. Alphabetical sorting alone would put wincrypt.h/dpapi.h/dbghelp.h ahead of it.
+  - Regex: '^<windows\.h>'
+    Priority: 5
+  - Regex: '^<(winrt/|dbghelp\.h|dpapi\.h|propkey\.h|propvarutil\.h|psapi\.h|shlobj\.h|shobjidl\.h|wincrypt\.h)'
+    Priority: 6
   # Third-party
   - Regex: '^<(spdlog|fmt|gtest|gmock|openssl|sqlite3|boost)'
     Priority: 3

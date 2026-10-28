@@ -70,7 +70,9 @@ public:
     }
 
     /// Where activations of showRequest() notifications are reported. Services that wrap another one forward it.
-    virtual void setActivationHandler(NotificationActivationHandler handler) { activationHandler_ = std::move(handler); }
+    virtual void setActivationHandler(NotificationActivationHandler handler) {
+        activationHandler_ = std::move(handler);
+    }
 
 protected:
     /// Implementations call this (on the GUI thread) when the user clicked a notification with a link.
@@ -97,6 +99,7 @@ public:
     static InAppNotificationService* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<InAppNotificationService>::create(engine, script);
     }
+
     explicit InAppNotificationService(QObject* parent = nullptr);
 
     [[nodiscard]] bool isAvailable() const override;
@@ -111,14 +114,15 @@ signals:
 ///    server: a native desktop notification (falling back to `inAppFallback` if
 ///    the call cannot be sent);
 ///  - otherwise `nativeDesktop` when given and available - the app passes its
-///    TrayNotificationService (QSystemTrayIcon::showMessage: Windows toast/balloon, Linux tray), see tray_notification_service.hpp;
+///    TrayNotificationService (QSystemTrayIcon::showMessage: Windows toast/balloon, Linux tray), see
+///    tray_notification_service.hpp;
 ///  - otherwise forwards to `inAppFallback` (AedstToast).
 /// `inAppFallback` and `nativeDesktop` must outlive the returned service.
 ///
 /// Still not implemented: WinRT ToastNotificationManager (actions, history;
 /// needs an AppUserModelID shortcut). The tray path covers "show a native notification"
 /// without it.
-[[nodiscard]] std::unique_ptr<NotificationService> makeNotificationService(NotificationService& inAppFallback,
-                                                                           NotificationService* nativeDesktop = nullptr);
+[[nodiscard]] std::unique_ptr<NotificationService>
+makeNotificationService(NotificationService& inAppFallback, NotificationService* nativeDesktop = nullptr);
 
 } // namespace aedst::platform

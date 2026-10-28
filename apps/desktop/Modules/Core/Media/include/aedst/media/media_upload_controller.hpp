@@ -84,14 +84,23 @@ public:
     MediaUploadController& operator=(MediaUploadController&&) = delete;
 
     [[nodiscard]] State state() const noexcept { return state_; }
+
     [[nodiscard]] bool busy() const noexcept;
+
     [[nodiscard]] double progress() const noexcept { return progress_; }
+
     [[nodiscard]] QString fileName() const;
+
     [[nodiscard]] QUrl fileUrl() const { return current_; }
+
     [[nodiscard]] QString contentType() const { return QString::fromUtf8(prepared_.contentType); }
+
     [[nodiscard]] QString errorMessage() const { return errorMessage_; }
+
     [[nodiscard]] int queuedCount() const noexcept { return static_cast<int>(queue_.size()); }
+
     [[nodiscard]] QString taskId() const { return taskId_; }
+
     void setTaskId(const QString& taskId);
 
     /// Adds local files (file:// URLs from FileDialog or a DropArea) and starts if idle.
@@ -148,9 +157,10 @@ private:
     double progress_{0.0};
     bool restartFromCreate_{true};
     quint64 generation_{0};
-    /// generation_ as the worker threads see it: a preparation whose generation is no longer current (cancelled, replaced,
-    /// controller destroyed) stops before the next expensive step instead of finishing work nobody will use.
+    /// generation_ as the worker threads see it: a preparation whose generation is no longer current (cancelled,
+    /// replaced, controller destroyed) stops before the next expensive step instead of finishing work nobody will use.
     std::shared_ptr<std::atomic<quint64>> liveGeneration_{std::make_shared<std::atomic<quint64>>(0)};
+
     quint64 bumpGeneration() {
         liveGeneration_->store(++generation_);
         return generation_;

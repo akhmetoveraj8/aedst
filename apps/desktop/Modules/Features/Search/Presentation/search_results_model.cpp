@@ -70,8 +70,13 @@ QVariant SearchResultsModel::data(const QModelIndex& index, int role) const {
 
 QHash<int, QByteArray> SearchResultsModel::roleNames() const {
     return {
-        {HitIdRole, "hitId"},         {KindRole, "kind"}, {TitleRole, "title"},         {SnippetRole, "snippet"},
-        {SnippetPlainRole, "snippetPlain"}, {LinkRole, "link"}, {UpdatedAtRole, "updatedAt"},
+        {HitIdRole, "hitId"},
+        {KindRole, "kind"},
+        {TitleRole, "title"},
+        {SnippetRole, "snippet"},
+        {SnippetPlainRole, "snippetPlain"},
+        {LinkRole, "link"},
+        {UpdatedAtRole, "updatedAt"},
     };
 }
 

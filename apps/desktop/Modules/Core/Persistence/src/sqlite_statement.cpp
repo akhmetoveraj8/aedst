@@ -15,8 +15,8 @@ void SqliteStatement::Finalizer::operator()(sqlite3_stmt* statement) const noexc
 SqliteStatement::SqliteStatement(sqlite3_stmt* statement) noexcept : statement_(statement) {}
 
 core::VoidOutcome SqliteStatement::bind(int index, std::string_view value) {
-    return check(sqlite3_bind_text(statement_.get(), index, value.empty() ? "" : value.data(), static_cast<int>(value.size()),
-                                   kTransient));
+    return check(sqlite3_bind_text(statement_.get(), index, value.empty() ? "" : value.data(),
+                                   static_cast<int>(value.size()), kTransient));
 }
 
 core::VoidOutcome SqliteStatement::bind(int index, std::int64_t value) {
@@ -28,8 +28,7 @@ core::VoidOutcome SqliteStatement::bind(int index, std::span<const std::uint8_t>
         // A null data pointer would bind SQL NULL; an empty blob is a distinct value.
         return check(sqlite3_bind_zeroblob(statement_.get(), index, 0));
     }
-    return check(
-        sqlite3_bind_blob(statement_.get(), index, blob.data(), static_cast<int>(blob.size()), kTransient));
+    return check(sqlite3_bind_blob(statement_.get(), index, blob.data(), static_cast<int>(blob.size()), kTransient));
 }
 
 core::VoidOutcome SqliteStatement::bindNull(int index) {

@@ -19,6 +19,7 @@ protected:
         std::filesystem::create_directories(dir_);
         file_ = dir_ / "nested" / "update_health";
     }
+
     void TearDown() override {
         std::error_code ignored;
         std::filesystem::remove_all(dir_, ignored);

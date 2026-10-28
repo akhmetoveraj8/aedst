@@ -30,6 +30,7 @@ public:
 
     void signInWithBrowser(core::Completion<Session> done) override;
     void cancelBrowserSignIn() override;
+
     [[nodiscard]] bool supportsBrowserSignIn() const override { return true; }
 
 private:

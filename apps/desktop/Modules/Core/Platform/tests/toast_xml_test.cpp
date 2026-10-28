@@ -51,8 +51,8 @@ TEST(ToastXmlTest, OverlongTextIsTruncated) {
 }
 
 TEST(ToastXmlTest, UnsafeLinksAreDroppedButTheToastStillShows) {
-    for (const char* bad : {"https://evil.example/x", "//evil.example/x", "tasks/1", "/a\"b", "/a<b", "/a&b",
-                            "/a\\b", "/a\nb", "javascript:alert(1)"}) {
+    for (const char* bad : {"https://evil.example/x", "//evil.example/x", "tasks/1", "/a\"b", "/a<b", "/a&b", "/a\\b",
+                            "/a\nb", "javascript:alert(1)"}) {
         const std::wstring xml = buildToastXml({.title = "t", .body = "b", .link = bad});
         EXPECT_FALSE(contains(xml, L"launch=")) << bad;
         EXPECT_FALSE(contains(xml, L"<actions>")) << bad;
@@ -75,9 +75,11 @@ TEST(ToastXmlTest, ActivatableLinkRules) {
 class RecordingService final : public NotificationService {
 public:
     [[nodiscard]] bool isAvailable() const override { return true; }
+
     void show(std::string_view title, std::string_view body, NotificationSeverity severity) override {
         shown.push_back(std::string(title) + "|" + std::string(body) + "|" + std::string(toString(severity)));
     }
+
     void activate(const std::string& link) { notifyActivated(link); }
 
     std::vector<std::string> shown;

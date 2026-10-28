@@ -35,14 +35,18 @@ mediav1::Media mediaItem(const std::string& id, mediav1::MediaStatus status = me
 /// Scripted data source. A completion is held (`hold`) so a test can answer out of order.
 class FakeRemote final : public aedst::media::MediaRemoteDataSource {
 public:
-    void createUpload(const mediav1::CreateUploadRequest&, network::ApiCompletion<mediav1::CreateUploadResponse> done) override {
+    void createUpload(const mediav1::CreateUploadRequest&,
+                      network::ApiCompletion<mediav1::CreateUploadResponse> done) override {
         done(std::unexpected(network::ApiError{.kind = network::ApiErrorKind::Internal, .message = "not used"}));
     }
+
     void completeUpload(const mediav1::CompleteUploadRequest&,
                         network::ApiCompletion<mediav1::CompleteUploadResponse> done) override {
         done(std::unexpected(network::ApiError{.kind = network::ApiErrorKind::Internal, .message = "not used"}));
     }
-    void getMedia(const mediav1::GetMediaRequest& request, network::ApiCompletion<mediav1::GetMediaResponse> done) override {
+
+    void getMedia(const mediav1::GetMediaRequest& request,
+                  network::ApiCompletion<mediav1::GetMediaResponse> done) override {
         requestedIds.push_back(request.id());
         if (hold) {
             held.push_back(std::move(done));
@@ -56,7 +60,9 @@ public:
         *response.mutable_media() = nextMedia;
         done(std::move(response));
     }
-    void listMedia(const mediav1::ListMediaRequest& request, network::ApiCompletion<mediav1::ListMediaResponse> done) override {
+
+    void listMedia(const mediav1::ListMediaRequest& request,
+                   network::ApiCompletion<mediav1::ListMediaResponse> done) override {
         listRequests.push_back(request);
         if (failWith) {
             done(std::unexpected(*failWith));
@@ -68,6 +74,7 @@ public:
         }
         done(std::move(response));
     }
+
     void deleteMedia(const mediav1::DeleteMediaRequest& request, network::ApiCompletion<void> done) override {
         deletedIds.push_back(request.id());
         done({});
@@ -89,6 +96,7 @@ class MediaViewModelsTest : public QObject {
     Q_OBJECT
 
 private slots:
+
     void init() {
         remote_ = std::make_shared<FakeRemote>();
         errors_ = std::make_shared<core::NullErrorSink>();
@@ -150,7 +158,8 @@ private slots:
         deps.remote = remote_;
         deps.errors = errors_;
         deps.analytics = std::make_shared<aedst::analytics::NoOpAnalyticsTracker>();
-        deps.upload = aedst::media::MediaUploadController::Dependencies{.remote = remote_, .network = &network, .errors = errors_};
+        deps.upload = aedst::media::MediaUploadController::Dependencies{
+            .remote = remote_, .network = &network, .errors = errors_};
         MediaLibraryViewModel viewModel(std::move(deps));
 
         viewModel.reload();
@@ -168,7 +177,8 @@ private slots:
         MediaLibraryViewModel::Dependencies deps;
         deps.remote = remote_;
         deps.errors = errors_;
-        deps.upload = aedst::media::MediaUploadController::Dependencies{.remote = remote_, .network = &network, .errors = errors_};
+        deps.upload = aedst::media::MediaUploadController::Dependencies{
+            .remote = remote_, .network = &network, .errors = errors_};
         MediaLibraryViewModel viewModel(std::move(deps));
         viewModel.reload();
 
@@ -184,7 +194,8 @@ private slots:
         MediaLibraryViewModel::Dependencies deps;
         deps.remote = remote_;
         deps.errors = errors_;
-        deps.upload = aedst::media::MediaUploadController::Dependencies{.remote = remote_, .network = &network, .errors = errors_};
+        deps.upload = aedst::media::MediaUploadController::Dependencies{
+            .remote = remote_, .network = &network, .errors = errors_};
         MediaLibraryViewModel viewModel(std::move(deps));
         viewModel.reload();
         QCOMPARE(viewModel.items()->count(), 1);

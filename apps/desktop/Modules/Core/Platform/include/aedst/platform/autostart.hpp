@@ -48,7 +48,7 @@ public:
 /// `$XDG_CONFIG_HOME/autostart/<appId>.desktop` (XDG_CONFIG_HOME only when
 /// absolute, per the basedir spec), else `$HOME/.config/autostart/...`.
 [[nodiscard]] core::Outcome<std::filesystem::path> xdgAutostartFilePath(const EnvironmentMap& env,
-                                                                         std::string_view appId);
+                                                                        std::string_view appId);
 
 /// Freedesktop Desktop Entry with a correctly quoted/escaped Exec line.
 [[nodiscard]] core::Outcome<std::string> renderDesktopEntry(const AutostartConfig& config);
@@ -110,6 +110,6 @@ private:
 /// missing HOME, invalid config).
 [[nodiscard]] std::unique_ptr<AutostartManager> makeAutostartManager(AutostartConfig config);
 [[nodiscard]] std::unique_ptr<AutostartManager> makeAutostartManager(AutostartConfig config,
-                                                                      const PlatformProbe& probe);
+                                                                     const PlatformProbe& probe);
 
 } // namespace aedst::platform

@@ -17,8 +17,8 @@ namespace {
 
 /// One QNetworkAccessManager per calling thread, reused by every fetch on that thread (keep-alive, DNS and TLS session
 /// reuse). A QNetworkAccessManager is thread-affine, so it is never shared across threads, and a thread_local is
-/// destroyed on the thread that created it. UpdateService runs all its work on ONE never-expiring pool thread, so in the
-/// app exactly one QNetworkAccessManager exists for the updater.
+/// destroyed on the thread that created it. UpdateService runs all its work on ONE never-expiring pool thread, so in
+/// the app exactly one QNetworkAccessManager exists for the updater.
 QNetworkAccessManager& networkForThisThread() {
     thread_local QNetworkAccessManager network;
     return network;
@@ -60,7 +60,7 @@ core::Outcome<std::string> QtHttpFetcher::fetch(std::string_view url, std::size_
     loop.exec();
 
     const std::unique_ptr<QNetworkReply, void (*)(QNetworkReply*)> owned(reply,
-                                                                          [](QNetworkReply* r) { r->deleteLater(); });
+                                                                         [](QNetworkReply* r) { r->deleteLater(); });
     if (tooLarge) {
         return core::fail(core::Error::invalidInput("update: response larger than allowed"));
     }

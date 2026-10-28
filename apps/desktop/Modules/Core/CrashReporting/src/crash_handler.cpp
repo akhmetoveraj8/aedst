@@ -4,8 +4,8 @@
 
 #include <array>
 #include <atomic>
-#include <chrono>
 #include <cerrno>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -15,15 +15,16 @@
 #include <system_error>
 
 #if defined(_WIN32)
+#include <cwchar>
+
 #include <windows.h>
 // dbghelp.h must come after windows.h.
 #include <dbghelp.h>
-#include <cwchar>
 #else
 #include <fcntl.h>
 #include <signal.h>
-#include <unistd.h>
 #include <time.h>
+#include <unistd.h>
 #if defined(__has_include)
 #if __has_include(<execinfo.h>)
 #include <execinfo.h>
@@ -123,8 +124,7 @@ LONG WINAPI unhandledExceptionFilter(EXCEPTION_POINTERS* exceptionInfo) {
             mei.ExceptionPointers = exceptionInfo;
             mei.ClientPointers = FALSE;
             // MiniDumpNormal: thread stacks + module list, no heap.
-            MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, &mei, nullptr,
-                              nullptr);
+            MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, &mei, nullptr, nullptr);
             CloseHandle(file);
         }
     }
@@ -209,7 +209,7 @@ void handleFatalSignal(int signalNumber) {
     }
     // Restore the default disposition and re-raise so the OS still terminates
     // the process (and writes its own core/crash report) as usual.
-    struct sigaction dfl {};
+    struct sigaction dfl{};
     dfl.sa_handler = SIG_DFL;
     ::sigemptyset(&dfl.sa_mask);
     ::sigaction(signalNumber, &dfl, nullptr);
@@ -217,7 +217,7 @@ void handleFatalSignal(int signalNumber) {
 }
 
 void resetDefaultHandlers() {
-    struct sigaction dfl {};
+    struct sigaction dfl{};
     dfl.sa_handler = SIG_DFL;
     ::sigemptyset(&dfl.sa_mask);
     for (const int signalNumber : kFatalSignals) {
@@ -298,8 +298,8 @@ core::VoidOutcome CrashHandler::install(const std::filesystem::path& directory, 
     std::memcpy(s.version.data(), version.data(), version.size());
     s.versionLength = version.size();
 
-    s.preopenedReport = crashes / crashFileName(std::chrono::system_clock::now(),
-                                                static_cast<unsigned long>(::getpid()), ".txt");
+    s.preopenedReport =
+        crashes / crashFileName(std::chrono::system_clock::now(), static_cast<unsigned long>(::getpid()), ".txt");
     s.fd = ::open(s.preopenedReport.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
     if (s.fd < 0) {
         return core::fail(core::Error::storage("crash handler: cannot open the report file"));
@@ -318,7 +318,7 @@ core::VoidOutcome CrashHandler::install(const std::filesystem::path& directory, 
     altStack.ss_flags = 0;
     ::sigaltstack(&altStack, nullptr);
 
-    struct sigaction action {};
+    struct sigaction action{};
     action.sa_handler = &handleFatalSignal;
     ::sigemptyset(&action.sa_mask);
     // SA_RESETHAND/SA_NODEFER: the second fatal signal (including the re-raise)

@@ -69,8 +69,11 @@ public:
     void reconnectNow();
 
     [[nodiscard]] Mode mode() const noexcept { return mode_; }
+
     [[nodiscard]] bool isStreaming() const noexcept { return mode_ == Mode::Streaming; }
+
     [[nodiscard]] const std::string& lastEventId() const noexcept { return lastEventId_; }
+
     [[nodiscard]] int consecutiveFailures() const noexcept { return failures_; }
 
     [[nodiscard]] static QString toString(Mode mode);

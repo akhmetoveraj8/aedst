@@ -1,12 +1,12 @@
-#include "app_run.hpp"
-#include "startup_config.hpp"
-#include "startup_trace.hpp"
 #include "aedst/core/logger.hpp"
 #include "aedst/crash/consent_store.hpp"
 #include "aedst/crash/crash_handler.hpp"
 #include "aedst/logging/log_categories.hpp"
 #include "aedst/telemetry/qt_log_bridge.hpp"
 #include "aedst/telemetry/sentry_reporter.hpp"
+#include "app_run.hpp"
+#include "startup_config.hpp"
+#include "startup_trace.hpp"
 
 #if defined(AEDST_HAS_VELOPACK)
 #include "velopack_installer.hpp"
@@ -24,13 +24,13 @@
 
 namespace {
 
-using aedst::core::AedstLogger;
 using aedst::app::startup::configured;
 using aedst::app::startup::crashpadHandlerPath;
 using aedst::app::startup::dataDirectory;
 using aedst::app::startup::logLevel;
 using aedst::app::startup::selectTlsBackend;
 using aedst::app::startup::wantsVersionOnly;
+using aedst::core::AedstLogger;
 
 /// Tears the telemetry down in the reverse order of the setup in main(). The CRASH HANDLER goes last of all, so a
 /// crash during any earlier teardown step (or while the application objects are destroyed) is still captured.
@@ -118,11 +118,10 @@ int main(int argc, char* argv[]) {
 
     // Every application object (dependencies, engine, view models, the database thread) lives inside this call and
     // is destroyed when it returns - BEFORE the telemetry below is shut down, so teardown crashes are still reported.
-    const int exitCode = aedst::app::runApplication(
-        app, startup,
-        aedst::app::RunOptions{.dataDirectory = profileDirectory,
-                               .crashReportingConfigured = sentryActive,
-                               .perfExitAfterMs = perfExitAfterMs});
+    const int exitCode = aedst::app::runApplication(app, startup,
+                                                    aedst::app::RunOptions{.dataDirectory = profileDirectory,
+                                                                           .crashReportingConfigured = sentryActive,
+                                                                           .perfExitAfterMs = perfExitAfterMs});
 
     qCInfo(lcApp, "AEDST desktop exited with code %d", exitCode);
     shutdownTelemetry();

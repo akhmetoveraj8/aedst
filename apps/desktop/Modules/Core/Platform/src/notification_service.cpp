@@ -47,8 +47,7 @@ bool InAppNotificationService::isAvailable() const {
 }
 
 void InAppNotificationService::show(std::string_view title, std::string_view body, NotificationSeverity severity) {
-    const QString qTitle =
-        QString::fromUtf8(title.data(), static_cast<qsizetype>(title.size())).left(kMaxTitleChars);
+    const QString qTitle = QString::fromUtf8(title.data(), static_cast<qsizetype>(title.size())).left(kMaxTitleChars);
     const QString qBody = QString::fromUtf8(body.data(), static_cast<qsizetype>(body.size())).left(kMaxBodyChars);
     const std::string_view severityName = toString(severity);
     emit notificationRaised(qTitle, qBody,

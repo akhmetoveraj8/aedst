@@ -54,16 +54,20 @@ namespace aedst::feature::tasks {
 class TaskListViewModel;
 class TaskDetailViewModel;
 } // namespace aedst::feature::tasks
+
 namespace aedst::feature::search {
 class SearchViewModel;
 } // namespace aedst::feature::search
+
 namespace aedst::feature::notifications {
 class NotificationsViewModel;
 } // namespace aedst::feature::notifications
+
 namespace aedst::feature::media {
 class MediaLibraryViewModel;
 class MediaViewerViewModel;
 } // namespace aedst::feature::media
+
 namespace aedst::feature::admin {
 class AdminViewModel;
 } // namespace aedst::feature::admin
@@ -85,8 +89,8 @@ struct AppConfig {
     /// OpenID Connect (ZITADEL). When configured, sign-in happens in the system browser and password
     /// login is not offered; otherwise the first-party e-mail/password API is used (until its sunset).
     oidc::OidcConfig oidc;
-    /// Semantic version of this build (AEDST_VERSION); sent as `X-Aedst-Client: desktop/<version>` on every API request.
-    /// Empty or not a semver = no header.
+    /// Semantic version of this build (AEDST_VERSION); sent as `X-Aedst-Client: desktop/<version>` on every API
+    /// request. Empty or not a semver = no header.
     std::string appVersion;
 };
 

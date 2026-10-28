@@ -176,8 +176,9 @@ TEST_F(CapabilitiesServiceTest, ADestroyedServiceIsNeverCalledBack) {
 // The production cache: the `kv` table on the database thread. Completions are delivered on that thread, which is
 // enough here because the test only waits on a future.
 TEST(SqliteCapabilityCacheTest, RoundTripsTheSerializedAnswerThroughTheDatabaseThread) {
-    const auto directory = std::filesystem::temp_directory_path() /
-                           ("aedst-capabilities-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    const auto directory =
+        std::filesystem::temp_directory_path() /
+        ("aedst-capabilities-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
     std::filesystem::create_directories(directory);
     {
         auto worker = std::make_shared<persistence::DatabaseWorker>(directory / "test.sqlite3");
@@ -192,7 +193,8 @@ TEST(SqliteCapabilityCacheTest, RoundTripsTheSerializedAnswerThroughTheDatabaseT
         ServerCapabilities answer;
         addFeature(answer, "media", false);
         std::promise<bool> saved;
-        cache.save(answer.SerializeAsString(), [&saved](core::Outcome<void> result) { saved.set_value(result.has_value()); });
+        cache.save(answer.SerializeAsString(),
+                   [&saved](core::Outcome<void> result) { saved.set_value(result.has_value()); });
         ASSERT_TRUE(saved.get_future().get());
 
         std::promise<std::optional<std::string>> loaded;

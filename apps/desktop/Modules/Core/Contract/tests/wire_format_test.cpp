@@ -1,6 +1,7 @@
 #include "aedst/contract/methods.hpp"
 
 #include <QByteArray>
+
 #include <gtest/gtest.h>
 
 #include <string>
@@ -24,8 +25,8 @@ TEST(WireFormatTest, LoginRequestEncodesAsThreeLengthDelimitedStrings) {
     request.set_device_id("d");
 
     EXPECT_EQ(hex(request.SerializeAsString()), "0a066140622e636f"
-                                                 "120178"
-                                                 "1a0164");
+                                                "120178"
+                                                "1a0164");
 }
 
 TEST(WireFormatTest, ProtoThreeDefaultsAreOmitted) {
@@ -83,7 +84,7 @@ TEST(WireFormatTest, WellKnownTypesAndEnumsAreWiredThroughGeneratedCode) {
 
     // status = field 4 varint 3; due_date = field 6, Timestamp{seconds: 1}.
     EXPECT_EQ(hex(task.SerializeAsString()), "2003"
-                                              "32020801");
+                                             "32020801");
 }
 
 TEST(WireFormatTest, TruncatedInputFailsToParse) {

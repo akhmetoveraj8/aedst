@@ -29,8 +29,9 @@ defaults:
     shell: bash
 
 env:
-  CMAKE_VERSION: "3.30.5"
-  CLANG_FORMAT_VERSION: "18"
+  CMAKE_VERSION: "4.4.5"
+  # Exact PyPI release of the clang-format wheel (the formatter is pinned to the patch version, not to a distro package).
+  CLANG_FORMAT_VERSION: "23.1.3"
   # Qt comes from official binaries via aqtinstall (install-qt-action), never
   # from a package manager. The version is read from apps/desktop/qt-version.txt
   # (single source of truth, also enforced by cmake/AedstQtVersion.cmake).
@@ -49,27 +50,35 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # License gate: no GPL-only Qt module without a documented waiver (compliance/policy.json, docs/compliance.md).
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "24"
+          node-version: "26"
       - name: Qt module licenses
         run: node scripts/compliance/compliance.mjs qt
 
-      - uses: bufbuild/buf-setup-action@a47c93e0b1648d5651a065437926377d060baa99 # v1
+      - uses: bufbuild/buf-setup-action@a47c93e0b1648d5651a065437926377d060baa99 # v1.50.0
 
-      - name: Install clang-format and Qt runtime libraries
+      - name: Install Qt runtime libraries
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-format-${{ env.CLANG_FORMAT_VERSION }} libgl1 libxkbcommon0 libegl1 libfontconfig1
+          sudo apt-get install -y libgl1 libxkbcommon0 libegl1 libfontconfig1
+
+      # clang-format from the PyPI wheel (a static LLVM build): the same bytes on every runner image, unlike the
+      # distro package whose version follows the runner OS. scripts/check-format.sh fails if the version differs.
+      - name: Install clang-format ${{ env.CLANG_FORMAT_VERSION }}
+        run: |
+          python3 -m venv "$RUNNER_TEMP/clang-format-venv"
+          "$RUNNER_TEMP/clang-format-venv/bin/pip" install --disable-pip-version-check "clang-format==${CLANG_FORMAT_VERSION}"
+          echo "CLANG_FORMAT=$RUNNER_TEMP/clang-format-venv/bin/clang-format" >> "$GITHUB_ENV"
 
       # qmllint/qmlformat ship with Qt (never from apt).
       - name: Read pinned Qt version
         run: echo "QT_VERSION=$(tr -d '[:space:]' < qt-version.txt)" >> "$GITHUB_ENV"
 
-      - uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4
+      - uses: jurplel/install-qt-action@b344308e4483fc892e0d27b3cd1b173ebdd95f06 # v4.5.0
         with:
           version: ${{ env.QT_VERSION }}
           # Add-on modules: Aedst::Media (MediaPlayer, VideoOutput, QVideoSink), Aedst::Oidc (QtNetworkAuth).
@@ -172,9 +181,9 @@ jobs:
           - { preset: coverage, os: ubuntu-latest, kind: coverage }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: lukka/get-cmake@a89e43e22a96abafcd7a62db652a65ecd33052c9 # latest at pin time
+      - uses: lukka/get-cmake@fffaaafeea488556c2c12dad60690008bc1caacb # v4.4.2
         with:
           cmakeVersion: ${{ env.CMAKE_VERSION }}
 
@@ -192,13 +201,13 @@ jobs:
           fi
 
       # Ninja + MSVC: put cl.exe and the Windows SDK on PATH.
-      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
         if: runner.os == 'Windows'
 
       - name: Read pinned Qt version
         run: echo "QT_VERSION=$(tr -d '[:space:]' < qt-version.txt)" >> "$GITHUB_ENV"
 
-      - uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4
+      - uses: jurplel/install-qt-action@b344308e4483fc892e0d27b3cd1b173ebdd95f06 # v4.5.0
         with:
           version: ${{ env.QT_VERSION }}
           # Add-on modules: Aedst::Media (MediaPlayer, VideoOutput, QVideoSink), Aedst::Oidc (QtNetworkAuth).
@@ -206,7 +215,7 @@ jobs:
           cache: true
 
       - name: Restore vcpkg binary cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .vcpkg-binary-cache
           key: vcpkg-${{ runner.os }}-${{ matrix.preset }}-${{ hashFiles('apps/desktop/vcpkg.json') }}
@@ -233,7 +242,7 @@ jobs:
         if: matrix.preset == 'clang-debug'
         run: bash ./scripts/run-clang-tidy.sh build/clang-debug
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always() && matrix.preset == 'clang-debug'
         with:
           name: clang-tidy-log
@@ -253,7 +262,7 @@ jobs:
           AEDST_TIDY_LOG: clang-tidy-msvc.log
           RUN_CLANG_TIDY: C:/Program Files/LLVM/bin/run-clang-tidy.py
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always() && matrix.preset == 'msvc-debug'
         with:
           name: clang-tidy-msvc-log
@@ -280,7 +289,7 @@ jobs:
           cmake --build --preset coverage-report | tee coverage.log
           { echo "### Coverage (gcovr, Modules/ + App/)"; echo; echo '```'; grep -E "^(lines|functions|branches):" coverage.log || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: matrix.kind == 'coverage'
         with:
           name: coverage-report
@@ -305,9 +314,9 @@ jobs:
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: lukka/get-cmake@a89e43e22a96abafcd7a62db652a65ecd33052c9 # latest at pin time
+      - uses: lukka/get-cmake@fffaaafeea488556c2c12dad60690008bc1caacb # v4.4.2
         with:
           cmakeVersion: ${{ env.CMAKE_VERSION }}
 
@@ -318,20 +327,20 @@ jobs:
           sudo apt-get install -y libgl1-mesa-dev libxkbcommon-dev libegl1 libfontconfig1 \
             libsecret-1-dev libdbus-1-dev pkg-config xvfb mesa-utils
 
-      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
         if: runner.os == 'Windows'
 
       - name: Read pinned Qt version
         run: echo "QT_VERSION=$(tr -d '[:space:]' < qt-version.txt)" >> "$GITHUB_ENV"
 
-      - uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4
+      - uses: jurplel/install-qt-action@b344308e4483fc892e0d27b3cd1b173ebdd95f06 # v4.5.0
         with:
           version: ${{ env.QT_VERSION }}
           modules: qtmultimedia qtnetworkauth
           cache: true
 
       - name: Restore vcpkg binary cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .vcpkg-binary-cache
           key: vcpkg-${{ runner.os }}-bench-${{ hashFiles('apps/desktop/vcpkg.json') }}
@@ -341,9 +350,9 @@ jobs:
       - name: Point VCPKG_ROOT at the runner's vcpkg
         run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> "$GITHUB_ENV"
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "24"
+          node-version: "26"
 
       - name: Configure
         run: cmake --preset bench
@@ -364,7 +373,7 @@ jobs:
             node scripts/perf/run-perf.mjs --build-dir build/bench --only "$PERF_ONLY" --report perf-report.json
           fi
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: perf-report-${{ runner.os }}
@@ -386,9 +395,9 @@ jobs:
           - { preset: gcc-release, os: ubuntu-latest, cpack: "DEB;RPM;TGZ" }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: lukka/get-cmake@a89e43e22a96abafcd7a62db652a65ecd33052c9 # latest at pin time
+      - uses: lukka/get-cmake@fffaaafeea488556c2c12dad60690008bc1caacb # v4.4.2
         with:
           cmakeVersion: ${{ env.CMAKE_VERSION }}
 
@@ -399,13 +408,13 @@ jobs:
           sudo apt-get install -y libgl1-mesa-dev libxkbcommon-dev libegl1 libfontconfig1 \
             libsecret-1-dev libdbus-1-dev pkg-config rpm
 
-      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
         if: runner.os == 'Windows'
 
       - name: Read pinned Qt version
         run: echo "QT_VERSION=$(tr -d '[:space:]' < qt-version.txt)" >> "$GITHUB_ENV"
 
-      - uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4
+      - uses: jurplel/install-qt-action@b344308e4483fc892e0d27b3cd1b173ebdd95f06 # v4.5.0
         with:
           version: ${{ env.QT_VERSION }}
           # Add-on modules: Aedst::Media (MediaPlayer, VideoOutput, QVideoSink), Aedst::Oidc (QtNetworkAuth).
@@ -413,7 +422,7 @@ jobs:
           cache: true
 
       - name: Restore vcpkg binary cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .vcpkg-binary-cache
           key: vcpkg-${{ runner.os }}-${{ matrix.preset }}-${{ hashFiles('apps/desktop/vcpkg.json') }}
@@ -469,9 +478,9 @@ jobs:
 
       # Third-party notices + SPDX SBOM from vcpkg's per-port SBOMs and compliance/components.json; strict = an undeclared,
       # denied or unlisted license fails the build. They are installed into the package by cmake/AedstPackaging.cmake.
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "24"
+          node-version: "26"
       - name: Third-party notices and SBOM
         run: >-
           node scripts/compliance/compliance.mjs notices
@@ -479,7 +488,7 @@ jobs:
           --out build/${{ matrix.preset }}/compliance --strict
       - name: FFmpeg build flags (Qt Multimedia backend)
         run: node scripts/compliance/compliance.mjs ffmpeg --dir "$QT_ROOT_DIR"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: compliance-${{ runner.os }}
           path: apps/desktop/build/${{ matrix.preset }}/compliance/*
@@ -521,7 +530,7 @@ jobs:
             gpg --batch --yes --pinentry-mode loopback --passphrase "${GPG_PASSPHRASE:-}" --armor --detach-sign "$f"
           done
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aedst-desktop-${{ runner.os }}
           path: apps/desktop/build/${{ matrix.preset }}/packages/*
@@ -530,7 +539,7 @@ jobs:
       # PDB (Windows), .debug split by build-id (Linux): produced by the
       # aedst_split_debug_symbols target (cmake/AedstBuildOptions.cmake). Keep them: a
       # release crash dump is unreadable without the symbols of THAT build.
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aedst-symbols-${{ runner.os }}
           path: apps/desktop/build/${{ matrix.preset }}/symbols
@@ -589,7 +598,7 @@ jobs:
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Read project version
         run: |
@@ -598,7 +607,7 @@ jobs:
           echo "AEDST_VERSION=$version" >> "$GITHUB_ENV"
 
       # Same major as the upload-artifact@v4 already used in this repo's workflows.
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: aedst-desktop-${{ runner.os }}
           path: apps/desktop/verify-pkg

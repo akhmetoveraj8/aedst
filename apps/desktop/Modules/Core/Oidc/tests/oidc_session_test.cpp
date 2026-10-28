@@ -5,6 +5,7 @@
 #include <QNetworkReply>
 #include <QSignalSpy>
 #include <QUrlQuery>
+
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -88,7 +89,8 @@ TEST_F(OidcSessionTest, SignInUsesPkceS256AndStoresOnlyTheRefreshToken) {
 
     EXPECT_EQ(provider.lastChallengeMethod, QStringLiteral("S256"));
     EXPECT_TRUE(provider.pkceVerified) << "the token request must carry the verifier matching the challenge";
-    for (const char* scope : {"openid", "profile", "email", "offline_access", "urn:zitadel:iam:org:project:id:proj-9:aud"}) {
+    for (const char* scope :
+         {"openid", "profile", "email", "offline_access", "urn:zitadel:iam:org:project:id:proj-9:aud"}) {
         EXPECT_TRUE(provider.lastScope.contains(QString::fromLatin1(scope))) << scope;
     }
 
@@ -136,7 +138,8 @@ TEST_F(OidcSessionTest, ConcurrentCallersShareOneRefreshRequest) {
     constexpr int kCallers = 6;
     std::vector<std::optional<core::Outcome<std::string>>> results(kCallers);
     for (int i = 0; i < kCallers; ++i) {
-        session->ensureFreshAccessToken([&results, i](core::Outcome<std::string> r) { results[static_cast<std::size_t>(i)] = std::move(r); });
+        session->ensureFreshAccessToken(
+            [&results, i](core::Outcome<std::string> r) { results[static_cast<std::size_t>(i)] = std::move(r); });
     }
     ASSERT_TRUE(waitUntil(
         [&] {

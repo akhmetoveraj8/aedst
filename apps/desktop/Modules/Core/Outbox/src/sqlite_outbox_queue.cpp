@@ -1,5 +1,4 @@
 #include "aedst/outbox/outbox_queue.hpp"
-
 #include "aedst/outbox/outbox_store.hpp"
 
 #include <utility>
@@ -33,8 +32,9 @@ void SqliteOutboxQueue::snapshot(core::Completion<std::vector<OutboxItem>> done)
 }
 
 void SqliteOutboxQueue::pendingCount(core::Completion<int> done) {
-    worker_->run<int>([](const std::shared_ptr<SqliteConnection>& connection) { return store::pendingCount(*connection); },
-                      dispatcher_, std::move(done));
+    worker_->run<int>(
+        [](const std::shared_ptr<SqliteConnection>& connection) { return store::pendingCount(*connection); },
+        dispatcher_, std::move(done));
 }
 
 void SqliteOutboxQueue::remove(std::string id, core::Completion<void> done) {

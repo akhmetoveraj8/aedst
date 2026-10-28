@@ -10,15 +10,16 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#include <windows.h>
-#include <wincrypt.h>
-#include <dpapi.h>
-
 #include <cstddef>
 #include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <windows.h>
+
+#include <dpapi.h>
+#include <wincrypt.h>
 
 namespace aedst::persistence {
 namespace {
@@ -44,6 +45,7 @@ public:
     LocalBlob& operator=(const LocalBlob&) = delete;
     LocalBlob(LocalBlob&&) = delete;
     LocalBlob& operator=(LocalBlob&&) = delete;
+
     ~LocalBlob() {
         if (blob.pbData != nullptr) {
             core::secureWipe(blob.pbData, blob.cbData);
@@ -70,8 +72,8 @@ core::Outcome<SecretBytes> unwrap(const std::vector<std::uint8_t>& wrapped) {
     DATA_BLOB input{static_cast<DWORD>(wrapped.size()), const_cast<BYTE*>(wrapped.data())};
     DATA_BLOB entropy = entropyBlob();
     LocalBlob output;
-    if (CryptUnprotectData(&input, nullptr, &entropy, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN,
-                           &output.blob) == FALSE) {
+    if (CryptUnprotectData(&input, nullptr, &entropy, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN, &output.blob) ==
+        FALSE) {
         return core::fail(core::Error::storage("CryptUnprotectData failed: " + std::to_string(GetLastError())));
     }
     if (output.blob.cbData != kMasterKeySize) {

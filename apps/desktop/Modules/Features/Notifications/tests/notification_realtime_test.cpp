@@ -3,6 +3,7 @@
 #include "aedst/testing/test_main.hpp"
 
 #include <QSignalSpy>
+
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -132,7 +133,8 @@ TEST_F(NotificationRealtimeTest, AStreamThatStayedUpResetsTheFailureCount) {
         stream->heartbeat(cycle);
         waitUntil([] { return false; }, 60ms); // longer than stableAfter
         stream->end(cycle, StreamEndKind::Transient);
-        EXPECT_EQ(realtime->mode(), Mode::Backoff) << "cycle " << cycle << ": a healthy stream dropping is not a failure streak";
+        EXPECT_EQ(realtime->mode(), Mode::Backoff)
+            << "cycle " << cycle << ": a healthy stream dropping is not a failure streak";
         EXPECT_EQ(realtime->consecutiveFailures(), 1);
     }
 }
@@ -141,7 +143,7 @@ TEST_F(NotificationRealtimeTest, AFlappingServerCannotResetTheBackoff) {
     realtime->start();
     for (std::size_t cycle = 0; cycle < 3; ++cycle) {
         ASSERT_TRUE(waitForAttempts(cycle + 1));
-        stream->heartbeat(cycle);               // accepted...
+        stream->heartbeat(cycle);                     // accepted...
         stream->end(cycle, StreamEndKind::Transient); // ...and dropped at once
     }
     EXPECT_EQ(realtime->mode(), Mode::Polling);

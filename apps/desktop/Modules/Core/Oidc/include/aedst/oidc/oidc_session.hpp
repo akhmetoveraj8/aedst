@@ -96,6 +96,7 @@ public:
     [[nodiscard]] std::optional<OidcUser> user() const;
     [[nodiscard]] std::chrono::system_clock::time_point accessTokenExpiresAt() const noexcept;
     [[nodiscard]] bool hasValidAccessToken() const;
+
     [[nodiscard]] const OidcConfig& config() const noexcept { return config_; }
 
 signals:

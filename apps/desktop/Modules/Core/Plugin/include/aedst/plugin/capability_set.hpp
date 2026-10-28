@@ -31,7 +31,9 @@ public:
     }
 
     [[nodiscard]] bool isKnown() const noexcept { return known_; }
+
     [[nodiscard]] bool hasCapability(std::string_view name) const { return known_ && capabilities_.contains(name); }
+
     [[nodiscard]] bool isFlagEnabled(std::string_view name) const { return known_ && flags_.contains(name); }
 
 private:
@@ -40,8 +42,8 @@ private:
     Names flags_;
 };
 
-/// Seam for the capabilities source. The server-backed implementation (Aedst::Capabilities, ADR-0035: the CapabilitiesService client
-/// plus an on-disk cache) lives in Core/Capabilities; tests use StaticCapabilitySource.
+/// Seam for the capabilities source. The server-backed implementation (Aedst::Capabilities, ADR-0035: the
+/// CapabilitiesService client plus an on-disk cache) lives in Core/Capabilities; tests use StaticCapabilitySource.
 class ICapabilitySource {
 public:
     ICapabilitySource() = default;
@@ -59,6 +61,7 @@ public:
 class StaticCapabilitySource final : public ICapabilitySource {
 public:
     StaticCapabilitySource() = default;
+
     explicit StaticCapabilitySource(CapabilitySet set) : set_(std::move(set)) {}
 
     [[nodiscard]] CapabilitySet current() const override { return set_; }

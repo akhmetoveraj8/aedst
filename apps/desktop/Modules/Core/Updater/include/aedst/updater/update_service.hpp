@@ -25,15 +25,18 @@ namespace aedst::updater {
 ///
 ///  - `Available`: a signed newer version exists but this install cannot replace itself (deb/rpm/Flatpak/portable):
 ///    the UI shows "version X is available, update with your package manager" and the release notes link.
-///  - `ReadyToInstall`: the package was downloaded and verified; installAndRestart() hands it to the installer and quits.
+///  - `ReadyToInstall`: the package was downloaded and verified; installAndRestart() hands it to the installer and
+///  quits.
 ///  - A mandatory update (below the manifest's minSupportedVersion, or a signed rollback) sets `mandatory`; the UI
 ///    blocks on it instead of offering "later".
-///  - Safe mode: when the previous starts of this version never became healthy (StartupHealthGuard), updates are checked
+///  - Safe mode: when the previous starts of this version never became healthy (StartupHealthGuard), updates are
+///  checked
 ///    but never applied automatically and `crashLoop` is true - the owner reports it and a signed rollback fixes it.
 ///
-/// The blocking work (manifest fetch, feed query, download, hashing) runs on the service's own one-thread QThreadPool; the state and signals
-/// are touched on the GUI thread only. One run at a time. Checks run `firstCheckDelay` after start() and then every
-/// `interval` (with jitter), never in safe-mode-forbidden situations and never while a run is active.
+/// The blocking work (manifest fetch, feed query, download, hashing) runs on the service's own one-thread QThreadPool;
+/// the state and signals are touched on the GUI thread only. One run at a time. Checks run `firstCheckDelay` after
+/// start() and then every `interval` (with jitter), never in safe-mode-forbidden situations and never while a run is
+/// active.
 class UpdateService final : public QObject {
     Q_OBJECT
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
@@ -46,7 +49,15 @@ class UpdateService final : public QObject {
     Q_PROPERTY(QString errorMessage READ errorMessage NOTIFY stateChanged)
 
 public:
-    enum class State { Idle, Checking, UpToDate, Downloading, ReadyToInstall, Available, Failed };
+    enum class State {
+        Idle,
+        Checking,
+        UpToDate,
+        Downloading,
+        ReadyToInstall,
+        Available,
+        Failed
+    };
     Q_ENUM(State)
 
     struct Timing {
@@ -62,12 +73,17 @@ public:
     ~UpdateService() override;
 
     [[nodiscard]] State state() const noexcept { return state_; }
+
     [[nodiscard]] QString availableVersion() const;
     [[nodiscard]] QString releaseNotesUrl() const;
+
     [[nodiscard]] int progress() const noexcept { return progress_; }
+
     [[nodiscard]] bool mandatory() const noexcept;
     [[nodiscard]] bool isRollback() const noexcept;
+
     [[nodiscard]] bool crashLoop() const noexcept { return crashLoop_; }
+
     [[nodiscard]] QString errorMessage() const { return errorMessage_; }
 
     /// Schedules the periodic checks.

@@ -25,6 +25,7 @@ namespace aedst::app {
 #ifdef AEDST_RUNTIME_PLUGINS
 struct PluginHost::RuntimeLoader {
     explicit RuntimeLoader(plugin::PluginLoaderConfig config) : loader(std::move(config)) {}
+
     plugin::PluginLoader loader;
 };
 #else
@@ -56,13 +57,14 @@ void PluginHost::addRuntimePlugins() {
     std::vector<plugin::LoadReport> report;
     for (plugin::LoadedPlugin& loaded : loader_->loader.loadAll(report)) {
         if (auto added = manager_.add(std::move(loaded.plugin), plugin::PluginOrigin::Runtime); !added) {
-            qCWarning(lcApp, "Run-time plugin %s was not added: %s", loaded.fileName.c_str(), added.error().message.c_str());
+            qCWarning(lcApp, "Run-time plugin %s was not added: %s", loaded.fileName.c_str(),
+                      added.error().message.c_str());
         }
     }
     for (const plugin::LoadReport& line : report) {
         if (!line.loaded) {
-            qCWarning(lcApp, "Plugin file '%s' not loaded (%s): %s", line.fileName.c_str(), plugin::toString(line.verdict).data(),
-                      line.detail.c_str());
+            qCWarning(lcApp, "Plugin file '%s' not loaded (%s): %s", line.fileName.c_str(),
+                      plugin::toString(line.verdict).data(), line.detail.c_str());
         }
     }
 #endif

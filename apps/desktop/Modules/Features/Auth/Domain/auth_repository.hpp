@@ -36,8 +36,10 @@ public:
     virtual void signInWithBrowser(core::Completion<Session> done) {
         done(core::fail(core::Error::invalidInput("Browser sign-in is not available")));
     }
+
     /// Abandons a running browser step; completes the pending signInWithBrowser() with Cancelled.
     virtual void cancelBrowserSignIn() {}
+
     [[nodiscard]] virtual bool supportsBrowserSignIn() const { return false; }
 };
 

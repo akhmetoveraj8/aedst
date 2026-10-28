@@ -1,8 +1,8 @@
 #include "aedst/core/correlation.hpp"
 #include "aedst/core/logger.hpp"
 
-#include <spdlog/sinks/ostream_sink.h>
 #include <gtest/gtest.h>
+#include <spdlog/sinks/ostream_sink.h>
 
 #include <memory>
 #include <set>
@@ -78,6 +78,7 @@ protected:
         config.console = false;
         AedstLogger::init(config, {std::make_shared<spdlog::sinks::ostream_sink_mt>(output_)});
     }
+
     void TearDown() override { AedstLogger::shutdown(); }
 
     std::ostringstream output_;

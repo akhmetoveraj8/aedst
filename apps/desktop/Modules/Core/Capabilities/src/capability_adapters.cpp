@@ -1,5 +1,4 @@
 #include "aedst/capabilities/capability_ports.hpp"
-
 #include "aedst/contract/methods.hpp"
 #include "aedst/persistence/kv_store.hpp"
 
@@ -41,7 +40,8 @@ SqliteCapabilityCache::SqliteCapabilityCache(std::shared_ptr<persistence::Databa
 
 void SqliteCapabilityCache::load(core::Completion<std::optional<std::string>> done) {
     worker_->run<std::optional<std::string>>(
-        [](const std::shared_ptr<persistence::SqliteConnection>& connection) -> core::Outcome<std::optional<std::string>> {
+        [](const std::shared_ptr<persistence::SqliteConnection>& connection)
+            -> core::Outcome<std::optional<std::string>> {
             auto stored = persistence::kv::get(*connection, kCacheKey);
             if (!stored) {
                 return core::fail(stored.error());

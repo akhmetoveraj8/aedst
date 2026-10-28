@@ -105,8 +105,8 @@ core::Outcome<std::vector<std::uint8_t>> SecureStorage::protect(std::span<const 
     if (EVP_EncryptUpdate(ctx.get(), nullptr, &length, aadData(), aadSize()) != 1) {
         return core::fail(core::Error::storage("AES-256-GCM AAD update failed"));
     }
-    if (!plaintext.empty() && EVP_EncryptUpdate(ctx.get(), body.data(), &length, plaintext.data(),
-                                                static_cast<int>(plaintext.size())) != 1) {
+    if (!plaintext.empty() &&
+        EVP_EncryptUpdate(ctx.get(), body.data(), &length, plaintext.data(), static_cast<int>(plaintext.size())) != 1) {
         return core::fail(core::Error::storage("AES-256-GCM encryption failed"));
     }
     std::array<unsigned char, kTagSize> finalBlock{}; // GCM emits nothing here; OpenSSL still wants a buffer

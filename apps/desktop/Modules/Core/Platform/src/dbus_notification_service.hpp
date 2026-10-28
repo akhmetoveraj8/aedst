@@ -30,6 +30,7 @@ public:
     [[nodiscard]] bool isAvailable() const override;
     void show(std::string_view title, std::string_view body, NotificationSeverity severity) override;
     void showRequest(const NotificationRequest& request) override;
+
     /// Clicks on a fallback's notifications (tray balloon) must reach the same handler.
     void setActivationHandler(NotificationActivationHandler handler) override {
         fallback_.setActivationHandler(handler);
@@ -48,8 +49,8 @@ private:
 
     NotificationService& fallback_;
     bool available_;
-    QHash<uint, Pending> pending_;      // server notification id -> what a click opens
-    QHash<QString, uint> idsByTag_;     // tag -> last server id (for replaces_id)
+    QHash<uint, Pending> pending_;  // server notification id -> what a click opens
+    QHash<QString, uint> idsByTag_; // tag -> last server id (for replaces_id)
 };
 
 } // namespace aedst::platform

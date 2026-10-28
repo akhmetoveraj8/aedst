@@ -19,6 +19,7 @@ public:
         value_ = value;
         emit reachabilityChanged();
     }
+
     /// Changes the value without telling anyone, to exercise refresh().
     void setSilently(Reachability value) { value_ = value; }
 
@@ -32,6 +33,7 @@ class ConnectivityMonitorTest : public QObject {
     Q_OBJECT
 
 private slots:
+
     void nullSourceIsUnknownAndNotOffline() {
         ConnectivityMonitor monitor(nullptr);
         QCOMPARE(monitor.state(), ConnectivityMonitor::State::Unknown);

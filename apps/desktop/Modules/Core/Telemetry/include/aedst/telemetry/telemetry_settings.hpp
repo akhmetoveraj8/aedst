@@ -35,11 +35,13 @@ public:
     static TelemetrySettings* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<TelemetrySettings>::create(engine, script);
     }
+
     /// All references must outlive this object. `analytics` may be unconfigured.
     TelemetrySettings(crash::ConsentStore& crashConsent, crash::ConsentStore& analyticsConsent,
                       PostHogAnalyticsTracker& analytics, bool crashReportsAvailable, QObject* parent = nullptr);
 
     [[nodiscard]] bool crashReportsAvailable() const noexcept { return crashReportsAvailable_; }
+
     [[nodiscard]] bool analyticsAvailable() const;
     [[nodiscard]] bool crashReportsEnabled() const;
     [[nodiscard]] bool analyticsEnabled() const;

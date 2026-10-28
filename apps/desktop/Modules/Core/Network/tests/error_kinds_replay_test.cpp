@@ -4,6 +4,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+
 #include <gtest/gtest.h>
 
 #include <array>
@@ -17,10 +18,10 @@ namespace aedst::network {
 namespace {
 
 constexpr std::array kAllCodes{
-    core::ErrorCode::Unknown,     core::ErrorCode::InvalidInput, core::ErrorCode::Unauthenticated,
-    core::ErrorCode::Forbidden,   core::ErrorCode::NotFound,     core::ErrorCode::Conflict,
-    core::ErrorCode::RateLimited, core::ErrorCode::Unavailable,  core::ErrorCode::Offline,
-    core::ErrorCode::Timeout,     core::ErrorCode::Storage,      core::ErrorCode::Cancelled,
+    core::ErrorCode::Unknown,         core::ErrorCode::InvalidInput, core::ErrorCode::Unauthenticated,
+    core::ErrorCode::Forbidden,       core::ErrorCode::NotFound,     core::ErrorCode::Conflict,
+    core::ErrorCode::RateLimited,     core::ErrorCode::Unavailable,  core::ErrorCode::Offline,
+    core::ErrorCode::Timeout,         core::ErrorCode::Storage,      core::ErrorCode::Cancelled,
     core::ErrorCode::UpgradeRequired,
 };
 
@@ -63,8 +64,8 @@ TEST(ErrorKindsReplayTest, EveryKindOfTheVocabularyIsAnErrorCodeWithTheDeclaredF
     const QJsonObject kinds = aedst::testing::loadBehaviorFixture("error-kinds").value("kinds").toObject();
     EXPECT_EQ(static_cast<std::size_t>(kinds.size()), kAllCodes.size());
     for (const core::ErrorCode code : kAllCodes) {
-        const QString name = QString::fromUtf8(core::toString(code).data(),
-                                               static_cast<qsizetype>(core::toString(code).size()));
+        const QString name =
+            QString::fromUtf8(core::toString(code).data(), static_cast<qsizetype>(core::toString(code).size()));
         ASSERT_TRUE(kinds.contains(name)) << qPrintable(name) << " is not a kind of error-kinds.json";
         const QJsonObject flags = kinds.value(name).toObject();
         EXPECT_EQ(core::isRetryable(code), flags.value("retryable").toBool()) << qPrintable(name);

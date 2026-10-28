@@ -1,8 +1,8 @@
 #include "aedst/network/connect_envelope.hpp"
 
-#include <gtest/gtest.h>
-
 #include <QByteArray>
+
+#include <gtest/gtest.h>
 
 #include <vector>
 
@@ -11,9 +11,14 @@ namespace {
 
 TEST(EnvelopeTest, EncodesFlagsAndBigEndianLength) {
     // Spec framing: 1 flag byte, 4-byte big-endian length, payload.
-    EXPECT_EQ(encode(0, "hello"), QByteArray::fromHex("00" "00000005" "68656c6c6f"));
-    EXPECT_EQ(encode(kFlagEndStream, "{}"), QByteArray::fromHex("02" "00000002" "7b7d"));
-    EXPECT_EQ(encode(0, ""), QByteArray::fromHex("00" "00000000"));
+    EXPECT_EQ(encode(0, "hello"), QByteArray::fromHex("00"
+                                                      "00000005"
+                                                      "68656c6c6f"));
+    EXPECT_EQ(encode(kFlagEndStream, "{}"), QByteArray::fromHex("02"
+                                                                "00000002"
+                                                                "7b7d"));
+    EXPECT_EQ(encode(0, ""), QByteArray::fromHex("00"
+                                                 "00000000"));
 }
 
 TEST(EnvelopeTest, LengthUsesAllFourBytes) {
@@ -22,7 +27,8 @@ TEST(EnvelopeTest, LengthUsesAllFourBytes) {
     const QByteArray framed = encode(0, payload);
 
     ASSERT_EQ(framed.size(), 5 + 0x010203);
-    EXPECT_EQ(framed.left(5), QByteArray::fromHex("00" "00010203"));
+    EXPECT_EQ(framed.left(5), QByteArray::fromHex("00"
+                                                  "00010203"));
 }
 
 TEST(EnvelopeTest, ReaderDecodesBackToBackFrames) {

@@ -92,7 +92,7 @@ if [ -z "$preset" ]; then
   esac
 fi
 
-need cmake  "https://cmake.org/download, >= 3.25 (CI uses 3.30.5)"
+need cmake  "https://cmake.org/download, >= 3.25 (CI uses 4.4.5)"
 need ctest  "ships with cmake"
 need ninja  "apt install ninja-build | VS installs one"
 

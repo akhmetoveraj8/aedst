@@ -19,8 +19,9 @@ constexpr std::size_t kMaxTokenBytes = 16U * 1024U;
 } // namespace
 
 std::string decodeBase64Url(std::string_view segment) {
-    const QByteArray decoded = QByteArray::fromBase64(QByteArray(segment.data(), static_cast<qsizetype>(segment.size())),
-                                                      QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+    const QByteArray decoded =
+        QByteArray::fromBase64(QByteArray(segment.data(), static_cast<qsizetype>(segment.size())),
+                               QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
     return std::string(decoded.constData(), static_cast<std::size_t>(decoded.size()));
 }
 

@@ -95,7 +95,8 @@ TEST_F(DatabaseWorkerTest, WorkRunsOnTheWorkerThreadAndCompletionsOnTheCallersTh
             workThread = std::this_thread::get_id();
             return 7;
         },
-        pump.dispatcher(), [&](core::Outcome<int> r) {
+        pump.dispatcher(),
+        [&](core::Outcome<int> r) {
             completionThread = std::this_thread::get_id();
             result = std::move(r);
         });
@@ -270,8 +271,7 @@ TEST_F(AsyncTokenStoreTest, SaveLoadClearRoundTripOffTheCallerThread) {
     std::thread::id keyThread;
     auto store = makeStore(worker, &keyThread);
 
-    const auto empty = await<std::optional<StoredTokens>>(
-        [&](auto done) { store->load(std::move(done)); });
+    const auto empty = await<std::optional<StoredTokens>>([&](auto done) { store->load(std::move(done)); });
     ASSERT_TRUE(empty.has_value()) << empty.error().message;
     EXPECT_FALSE(empty->has_value());
 

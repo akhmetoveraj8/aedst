@@ -1,12 +1,10 @@
-#include "app_dependencies.hpp"
-
 #include "Data/connect_admin_repository.hpp"
 #include "Data/connect_auth_remote_data_source.hpp"
 #include "Data/connect_notification_repository.hpp"
 #include "Data/connect_notification_stream.hpp"
-#include "Data/oidc_auth_repository.hpp"
 #include "Data/connect_search_repository.hpp"
 #include "Data/connect_task_repository.hpp"
+#include "Data/oidc_auth_repository.hpp"
 #include "Domain/browser_sign_in_use_case.hpp"
 #include "Domain/create_task_use_case.hpp"
 #include "Domain/login_use_case.hpp"
@@ -29,12 +27,12 @@
 #include "aedst/logging/log_categories.hpp"
 #include "aedst/media/media_remote_data_source.hpp"
 #include "aedst/network/access_token_claims.hpp"
-
 #include "aedst/network/transport_policy.hpp"
 #include "aedst/oidc/oidc_session.hpp"
 #include "aedst/oidc/refresh_token_store.hpp"
 #include "aedst/persistence/master_key_provider.hpp"
 #include "aedst/telemetry/sentry_reporter.hpp"
+#include "app_dependencies.hpp"
 #include "plugin_host.hpp"
 
 #include <QCoreApplication>

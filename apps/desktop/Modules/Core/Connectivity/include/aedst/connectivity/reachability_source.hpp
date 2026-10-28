@@ -6,7 +6,11 @@ namespace aedst::connectivity {
 
 /// What a platform backend can tell us about the network. `Unknown` means "no
 /// backend / cannot tell" and must be treated as "assume online".
-enum class Reachability { Unknown, Online, Offline };
+enum class Reachability {
+    Unknown,
+    Online,
+    Offline
+};
 
 /// Seam between ConnectivityMonitor and the OS. Production code uses
 /// QtNetworkInformationSource (QNetworkInformation); tests inject a fake.

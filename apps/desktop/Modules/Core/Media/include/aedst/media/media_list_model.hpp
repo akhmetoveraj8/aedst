@@ -1,12 +1,11 @@
 #pragma once
 
-#include <aedst/media/v1/media.pb.h>
-
 #include <QAbstractListModel>
 #include <QHash>
 #include <QString>
 #include <QtQmlIntegration/qqmlintegration.h>
 
+#include <aedst/media/v1/media.pb.h>
 #include <vector>
 
 namespace aedst::media {
@@ -47,6 +46,7 @@ public:
     [[nodiscard]] int rowCount(const QModelIndex& parent = {}) const override;
     [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
     [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
+
     [[nodiscard]] int count() const { return rowCount(); }
 
     void setItems(std::vector<mediav1::Media> items);

@@ -1,8 +1,8 @@
 #include "aedst/core/correlation.hpp"
 #include "aedst/core/logger.hpp"
 
-#include <spdlog/sinks/ostream_sink.h>
 #include <gtest/gtest.h>
+#include <spdlog/sinks/ostream_sink.h>
 
 #include <algorithm>
 #include <memory>
@@ -21,6 +21,7 @@ protected:
         config.format = LogFormat::Json;
         AedstLogger::init(config, {std::make_shared<spdlog::sinks::ostream_sink_mt>(output_)});
     }
+
     void TearDown() override { AedstLogger::shutdown(); }
 
     std::string captured() {
@@ -55,8 +56,7 @@ TEST_F(JsonFormatTest, EscapesQuotesBackslashesNewlinesAndControlCharacters) {
 
     const std::string text = captured();
 
-    EXPECT_NE(text.find("\"msg\":\"say \\\"hi\\\" \\\\ line1\\nline2\\ttab \\u0001 end\"}"), std::string::npos)
-        << text;
+    EXPECT_NE(text.find("\"msg\":\"say \\\"hi\\\" \\\\ line1\\nline2\\ttab \\u0001 end\"}"), std::string::npos) << text;
     EXPECT_EQ(std::count(text.begin(), text.end(), '\n'), 1) << "a newline in the message must not split the record";
 }
 

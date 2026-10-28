@@ -26,7 +26,8 @@ public:
         // plugins' registration) is a no-op. Only a DIFFERENT view for an existing route is a conflict worth a warning.
         if (const auto existing = destinations_.find(routeName); existing != destinations_.end()) {
             if (existing->second != view) {
-                qCWarning(lcNavigation, "NavGraph: destination for '%s' re-registered with a different view; last one wins",
+                qCWarning(lcNavigation,
+                          "NavGraph: destination for '%s' re-registered with a different view; last one wins",
                           existing->first.c_str());
                 existing->second = std::move(view);
             }

@@ -1,8 +1,7 @@
 #include "aedst/update/manifest_verifier.hpp"
 
-#include "hex.hpp"
-
 #include "aedst/core/logger.hpp"
+#include "hex.hpp"
 
 #include <QByteArray>
 #include <QJsonArray>
@@ -41,6 +40,7 @@ constexpr std::size_t kMaxSignaturesPerEnvelope = 8;
 struct PkeyDeleter {
     void operator()(EVP_PKEY* key) const noexcept { EVP_PKEY_free(key); }
 };
+
 struct MdCtxDeleter {
     void operator()(EVP_MD_CTX* ctx) const noexcept { EVP_MD_CTX_free(ctx); }
 };
@@ -60,8 +60,8 @@ std::optional<std::vector<std::uint8_t>> decodeBase64(const QString& text, std::
     if (static_cast<std::size_t>(ascii.size()) > (maxDecodedBytes / 3 + 1) * 4) {
         return std::nullopt;
     }
-    const auto result = QByteArray::fromBase64Encoding(
-        ascii, QByteArray::Base64Encoding | QByteArray::AbortOnBase64DecodingErrors);
+    const auto result =
+        QByteArray::fromBase64Encoding(ascii, QByteArray::Base64Encoding | QByteArray::AbortOnBase64DecodingErrors);
     if (!result || static_cast<std::size_t>(result.decoded.size()) > maxDecodedBytes) {
         return std::nullopt;
     }
@@ -112,7 +112,7 @@ core::Outcome<std::vector<TrustedKey>> parseTrustedKeys(std::string_view spec) {
 std::vector<TrustedKey> embeddedTrustedKeys() {
     auto keys = parseTrustedKeys(AEDST_UPDATE_PUBLIC_KEYS);
     if (!keys) {
-        // aedst-allow: Update is a Qt-free layer that uses QtJson only to parse (ADR-0024 lists it as an AedstLogger consumer)
+        // aedst-allow: Update is a Qt-free layer that uses QtJson only to parse (AedstLogger consumer, ADR-0024)
         core::AedstLogger::error("update: AEDST_UPDATE_PUBLIC_KEYS is malformed; no update key is trusted");
         return {};
     }

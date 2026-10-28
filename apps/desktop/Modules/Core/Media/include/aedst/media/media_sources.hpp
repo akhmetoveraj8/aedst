@@ -1,9 +1,9 @@
 #pragma once
 
-#include <aedst/media/v1/media.pb.h>
-
 #include <QString>
 #include <QUrl>
+
+#include <aedst/media/v1/media.pb.h>
 
 namespace aedst::media {
 
@@ -49,6 +49,7 @@ struct ImageRequest {
     QString cacheKey;
     QUrl url;
 };
+
 [[nodiscard]] ImageRequest parseImageId(const QString& id);
 
 } // namespace aedst::media

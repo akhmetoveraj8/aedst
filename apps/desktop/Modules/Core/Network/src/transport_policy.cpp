@@ -12,7 +12,8 @@ namespace aedst::network {
 namespace {
 
 [[nodiscard]] std::unexpected<ApiError> rejected(std::string message) {
-    return std::unexpected(ApiError{.kind = ApiErrorKind::InvalidArgument, .httpStatus = 0, .message = std::move(message)});
+    return std::unexpected(
+        ApiError{.kind = ApiErrorKind::InvalidArgument, .httpStatus = 0, .message = std::move(message)});
 }
 
 } // namespace
@@ -81,9 +82,8 @@ ApiResult<void> validateEndpoint(const QUrl& baseUrl, bool allowInsecureLoopback
                         "' is not allowed: use https (plain http is only permitted to loopback hosts)");
     }
     if (!allowInsecureLoopback) {
-        return rejected(
-            "Plain http to a loopback host is disabled in this build: use https, or set "
-            "AEDST_ALLOW_INSECURE_LOCALHOST=1 for local development");
+        return rejected("Plain http to a loopback host is disabled in this build: use https, or set "
+                        "AEDST_ALLOW_INSECURE_LOCALHOST=1 for local development");
     }
     return {};
 }

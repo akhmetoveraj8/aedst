@@ -3,7 +3,7 @@
   "name": "aedst-desktop",
   "version-string": "0.1.0",
   "description": "Third-party C++ dependencies for apps/desktop. Qt is NOT listed: it comes from the official binaries (see qt-version.txt).",
-  "builtin-baseline": "2cfff9c458d9dcf642e9fa09ba624f9931bb5358",
+  "builtin-baseline": "15b12b99a227d51e21c86dffd40385439eac87a0",
   "dependencies": [
     "fmt",
     "openssl",

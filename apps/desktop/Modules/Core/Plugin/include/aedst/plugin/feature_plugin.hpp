@@ -31,14 +31,14 @@ struct RouteContribution {
     /// First path segments this screen opens, lower-case `[a-z]+` ("tasks" for `/tasks/<id>` and `aedst://tasks`).
     /// While the route is active they are the ONLY allow-list for in-app links and `aedst://` deep links
     /// (navigation::NavGraph::linkPrefixes()). Empty = the screen is reached by navigation only, never by a link.
-    std::vector<std::string> linkPrefixes{};  // default member initializer: {name, url} stays warning-free
+    std::vector<std::string> linkPrefixes{}; // default member initializer: {name, url} stays warning-free
 
     friend bool operator==(const RouteContribution&, const RouteContribution&) = default;
 };
 
 struct PluginDescriptor {
-    /// Stable identity: lower-case `[a-z][a-z0-9._-]{2,63}`. A built-in feature uses its feature id (`tasks`, the same id as
-    /// features.yaml, the server capability and ClientBuild::features); a third-party plugin uses `vendor.name`.
+    /// Stable identity: lower-case `[a-z][a-z0-9._-]{2,63}`. A built-in feature uses its feature id (`tasks`, the same
+    /// id as features.yaml, the server capability and ClientBuild::features); a third-party plugin uses `vendor.name`.
     std::string id;
     /// Semantic version of the plugin itself (semver 2.0.0).
     std::string version;
@@ -84,7 +84,9 @@ public:
         : descriptor_(std::move(descriptor)), routes_(std::move(routes)) {}
 
     [[nodiscard]] const PluginDescriptor& descriptor() const noexcept override { return descriptor_; }
+
     [[nodiscard]] std::vector<RouteContribution> routes() const override { return routes_; }
+
     [[nodiscard]] core::VoidOutcome registerServices(ServiceRegistry& /*registry*/) override { return core::ok(); }
 
 private:

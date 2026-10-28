@@ -12,12 +12,12 @@ namespace {
 // only uncropped preset. A video's POSTER is the stored frame, the presets are
 // derived from it by the server.
 [[nodiscard]] std::span<const mediav1::VariantKind> preferenceFor(DisplayPurpose purpose) {
-    static constexpr std::array kThumbnail{
-        mediav1::VARIANT_KIND_AVATAR_256,    mediav1::VARIANT_KIND_CARD_400,       mediav1::VARIANT_KIND_THUMB_64,
-        mediav1::VARIANT_KIND_FEED_800X600,  mediav1::VARIANT_KIND_STORY_1080X1350, mediav1::VARIANT_KIND_POSTER};
-    static constexpr std::array kPreview{
-        mediav1::VARIANT_KIND_POSTER,        mediav1::VARIANT_KIND_FEED_800X600,   mediav1::VARIANT_KIND_STORY_1080X1350,
-        mediav1::VARIANT_KIND_CARD_400,      mediav1::VARIANT_KIND_AVATAR_256,     mediav1::VARIANT_KIND_THUMB_64};
+    static constexpr std::array kThumbnail{mediav1::VARIANT_KIND_AVATAR_256,      mediav1::VARIANT_KIND_CARD_400,
+                                           mediav1::VARIANT_KIND_THUMB_64,        mediav1::VARIANT_KIND_FEED_800X600,
+                                           mediav1::VARIANT_KIND_STORY_1080X1350, mediav1::VARIANT_KIND_POSTER};
+    static constexpr std::array kPreview{mediav1::VARIANT_KIND_POSTER,          mediav1::VARIANT_KIND_FEED_800X600,
+                                         mediav1::VARIANT_KIND_STORY_1080X1350, mediav1::VARIANT_KIND_CARD_400,
+                                         mediav1::VARIANT_KIND_AVATAR_256,      mediav1::VARIANT_KIND_THUMB_64};
     switch (purpose) {
     case DisplayPurpose::Thumbnail:
         return kThumbnail;
@@ -107,7 +107,8 @@ QString imageSourceFor(const mediav1::Media& media, DisplayPurpose purpose, int 
     }
     const DisplayPurpose imagePurpose = purpose == DisplayPurpose::Playback ? DisplayPurpose::Preview : purpose;
     const QUrl url = urlFor(media, imagePurpose, targetPixels);
-    if (url.isEmpty() || (media.kind() == mediav1::MEDIA_KIND_VIDEO && url == QUrl(QString::fromStdString(media.url())))) {
+    if (url.isEmpty() ||
+        (media.kind() == mediav1::MEDIA_KIND_VIDEO && url == QUrl(QString::fromStdString(media.url())))) {
         return {}; // never hand a video file to an image decoder
     }
     const auto* variant = selectVariant(media, imagePurpose, targetPixels);

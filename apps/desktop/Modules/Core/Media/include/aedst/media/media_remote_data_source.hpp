@@ -3,7 +3,6 @@
 #include "aedst/network/api_error.hpp"
 
 #include <aedst/media/v1/media.pb.h>
-
 #include <memory>
 
 namespace aedst::network {

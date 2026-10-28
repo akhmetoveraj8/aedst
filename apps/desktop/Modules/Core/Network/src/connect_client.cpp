@@ -2,12 +2,11 @@
 // Streaming lives in connect_client_stream.cpp, TLS policy in connect_client_tls.cpp, shared helpers
 // in connect_client_support.cpp.
 
-#include "connect_client_internal.hpp"
-
 #include "aedst/core/correlation.hpp"
 #include "aedst/logging/log_categories.hpp"
 #include "aedst/network/auth_interceptor.hpp"
 #include "aedst/network/connect_error.hpp"
+#include "connect_client_internal.hpp"
 
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -20,7 +19,6 @@
 namespace aedst::network {
 
 using namespace internal;
-
 
 ConnectClient::ConnectClient(ClientConfig config, std::shared_ptr<const AuthInterceptor> interceptor, QObject* parent)
     : QObject(parent), config_(std::move(config)), interceptor_(std::move(interceptor)) {
@@ -108,8 +106,8 @@ CallHandle ConnectClient::unaryRaw(const MethodInfo& method, QByteArray body, co
     call->path = std::string(method.path);
     call->body = std::move(body);
     call->auth = method.auth;
-    call->retry = method.idempotency == Idempotency::Idempotent ? options.retry.value_or(config_.retry)
-                                                                : RetryPolicy::none();
+    call->retry =
+        method.idempotency == Idempotency::Idempotent ? options.retry.value_or(config_.retry) : RetryPolicy::none();
     call->timeout = options.timeout.value_or(config_.defaultTimeout);
     call->done = std::move(done);
 
@@ -205,7 +203,8 @@ void ConnectClient::sendUnaryAttempt(const std::shared_ptr<detail::CallState>& s
     if (interceptor_) {
         interceptor_->apply(request, call->auth); // per attempt: picks up a rotated token
         const QByteArray authorization = request.rawHeader("Authorization");
-        call->sentToken = core::SecretString{authorization.startsWith("Bearer ") ? authorization.mid(7).toStdString() : std::string{}};
+        call->sentToken = core::SecretString{authorization.startsWith("Bearer ") ? authorization.mid(7).toStdString()
+                                                                                 : std::string{}};
     }
     hardenRequest(request, sslConfig_, call->correlationId, config_.clientIdentifier);
     if (!call->idempotencyKey.empty()) {
@@ -255,20 +254,21 @@ void ConnectClient::onUnaryFinished(QNetworkReply& reply, const std::shared_ptr<
         // for non-idempotent methods. A second rejection is final.
         call->refreshedAfterRejection = true;
         QPointer<ConnectClient> self(this);
-        interceptor_->refreshAfterRejection(call->sentToken.reveal(), [self, state, call, attempt](std::optional<ApiError> failure) {
-            if (!self || state->finished) {
-                return;
-            }
-            if (state->cancelled) {
-                completeUnary(state, *call, std::unexpected(cancelledError()));
-                return;
-            }
-            if (failure) {
-                completeUnary(state, *call, std::unexpected(std::move(*failure)));
-                return;
-            }
-            self->runUnaryAttempt(state, call, attempt); // same attempt number: the retry budget is untouched
-        });
+        interceptor_->refreshAfterRejection(
+            call->sentToken.reveal(), [self, state, call, attempt](std::optional<ApiError> failure) {
+                if (!self || state->finished) {
+                    return;
+                }
+                if (state->cancelled) {
+                    completeUnary(state, *call, std::unexpected(cancelledError()));
+                    return;
+                }
+                if (failure) {
+                    completeUnary(state, *call, std::unexpected(std::move(*failure)));
+                    return;
+                }
+                self->runUnaryAttempt(state, call, attempt); // same attempt number: the retry budget is untouched
+            });
         return;
     }
     if (!result) {
@@ -284,7 +284,8 @@ void ConnectClient::onUnaryFinished(QNetworkReply& reply, const std::shared_ptr<
             qCWarning(lcNetwork, "%s failed (http=%d code=%s message=%s); retrying in %lld ms", call->path.c_str(),
                       static_cast<int>(error.httpStatus), loggable(error.connectCode).c_str(),
                       loggable(error.message).c_str(), static_cast<long long>(delay.count()));
-            QTimer::singleShot(delay, this, [this, state, call, attempt]() { runUnaryAttempt(state, call, attempt + 1); });
+            QTimer::singleShot(delay, this,
+                               [this, state, call, attempt]() { runUnaryAttempt(state, call, attempt + 1); });
             return;
         }
         qCWarning(lcNetwork, "%s failed: http=%d code=%s message=%s", call->path.c_str(),

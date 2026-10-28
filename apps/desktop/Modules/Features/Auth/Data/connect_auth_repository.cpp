@@ -10,28 +10,27 @@ namespace aedst::feature::auth {
 using core::AedstLogger;
 
 ConnectAuthRepository::ConnectAuthRepository(std::shared_ptr<AuthRemoteDataSource> remote,
-                                       std::shared_ptr<LocalTokenStoreAdapter> local,
-                                       std::shared_ptr<const core::Clock> clock, std::string deviceId)
-    : remote_(std::move(remote)), local_(std::move(local)), clock_(std::move(clock)),
-      deviceId_(std::move(deviceId)) {}
+                                             std::shared_ptr<LocalTokenStoreAdapter> local,
+                                             std::shared_ptr<const core::Clock> clock, std::string deviceId)
+    : remote_(std::move(remote)), local_(std::move(local)), clock_(std::move(clock)), deviceId_(std::move(deviceId)) {}
 
 void ConnectAuthRepository::login(const Credentials& credentials, core::Completion<Session> done) {
     authv1::LoginRequest request;
     request.set_email(credentials.email);
     request.set_password(credentials.password.reveal());
     request.set_device_id(deviceId_);
-    remote_->login(request, [weak = weak_from_this(), done = std::move(done)](
-                                 network::ApiResult<authv1::LoginResponse> result) {
-        const auto self = weak.lock();
-        if (!self) {
-            return;
-        }
-        if (!result) {
-            done(core::fail(result.error().toCoreError()));
-            return;
-        }
-        self->persistAndComplete(self->toSession(result->user_id(), result->tokens()), done);
-    });
+    remote_->login(request,
+                   [weak = weak_from_this(), done = std::move(done)](network::ApiResult<authv1::LoginResponse> result) {
+                       const auto self = weak.lock();
+                       if (!self) {
+                           return;
+                       }
+                       if (!result) {
+                           done(core::fail(result.error().toCoreError()));
+                           return;
+                       }
+                       self->persistAndComplete(self->toSession(result->user_id(), result->tokens()), done);
+                   });
 }
 
 void ConnectAuthRepository::refreshToken(core::Completion<Session> done) {
@@ -47,8 +46,8 @@ void ConnectAuthRepository::refreshToken(core::Completion<Session> done) {
 
     authv1::RefreshTokenRequest request;
     request.set_refresh_token((*current)->refreshToken.reveal());
-    remote_->refreshToken(request, [weak = weak_from_this(), userId = (*current)->userId, done = std::move(done)](
-                                        network::ApiResult<authv1::RefreshTokenResponse> result) {
+    remote_->refreshToken(request, [weak = weak_from_this(), userId = (*current)->userId,
+                                    done = std::move(done)](network::ApiResult<authv1::RefreshTokenResponse> result) {
         const auto self = weak.lock();
         if (!self) {
             return;

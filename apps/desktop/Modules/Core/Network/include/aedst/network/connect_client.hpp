@@ -13,12 +13,11 @@
 #include <QSslConfiguration>
 #include <QUrl>
 
-#include <google/protobuf/message_lite.h>
-
 #include <chrono>
 #include <cstddef>
 #include <expected>
 #include <functional>
+#include <google/protobuf/message_lite.h>
 #include <memory>
 #include <optional>
 #include <string>
@@ -62,6 +61,7 @@ public:
 
 private:
     friend class ConnectClient;
+
     explicit CallHandle(std::shared_ptr<detail::CallState> state) noexcept : state_(std::move(state)) {}
 
     std::shared_ptr<detail::CallState> state_;
@@ -77,6 +77,7 @@ public:
     CallScope& operator=(const CallScope&) = delete;
     CallScope(CallScope&&) = delete;
     CallScope& operator=(CallScope&&) = delete;
+
     ~CallScope() { cancelAll(); }
 
     void add(CallHandle handle);
@@ -155,8 +156,7 @@ class ConnectClient final : public QObject {
     Q_OBJECT
 
 public:
-    ConnectClient(ClientConfig config, std::shared_ptr<const AuthInterceptor> interceptor,
-                  QObject* parent = nullptr);
+    ConnectClient(ClientConfig config, std::shared_ptr<const AuthInterceptor> interceptor, QObject* parent = nullptr);
     /// Every call still in flight completes with ApiErrorKind::Cancelled before the client goes away (calls bound to a
     /// context or a CallScope were already cancelled silently and are not completed).
     ~ConnectClient() override;
@@ -167,8 +167,8 @@ public:
 
     /// Typed unary call. Retried per the RetryPolicy only when `method` is Idempotent.
     template <typename Req, typename Res>
-    CallHandle unary(const Method<Req, Res>& method, const Req& request,
-                     std::type_identity_t<ApiCompletion<Res>> done, const CallOptions& options = {});
+    CallHandle unary(const Method<Req, Res>& method, const Req& request, std::type_identity_t<ApiCompletion<Res>> done,
+                     const CallOptions& options = {});
 
     /// Typed server-streaming call: `onMessage` per message, then `onDone` once
     /// (success = the server sent a clean end-of-stream). Never retried.
@@ -214,8 +214,8 @@ signals:
 
 private:
     /// Refreshes the token if needed (AuthInterceptor::prepare), then sends the attempt.
-    void runUnaryAttempt(const std::shared_ptr<detail::CallState>& state, const std::shared_ptr<detail::UnaryCall>& call,
-                         int attempt);
+    void runUnaryAttempt(const std::shared_ptr<detail::CallState>& state,
+                         const std::shared_ptr<detail::UnaryCall>& call, int attempt);
     void sendUnaryAttempt(const std::shared_ptr<detail::CallState>& state,
                           const std::shared_ptr<detail::UnaryCall>& call, int attempt);
     void openStream(const std::shared_ptr<detail::CallState>& state, const std::shared_ptr<detail::StreamCall>& stream);
@@ -246,8 +246,9 @@ template <typename Res>
 [[nodiscard]] ApiResult<Res> parseMessage(const QByteArray& bytes) {
     Res message;
     if (!message.ParseFromArray(bytes.constData(), static_cast<int>(bytes.size()))) {
-        return std::unexpected(ApiError{
-            .kind = ApiErrorKind::Decoding, .httpStatus = 200, .message = std::string("Malformed ").append(message.GetTypeName())});
+        return std::unexpected(ApiError{.kind = ApiErrorKind::Decoding,
+                                        .httpStatus = 200,
+                                        .message = std::string("Malformed ").append(message.GetTypeName())});
     }
     return message;
 }
@@ -262,10 +263,11 @@ CallHandle ConnectClient::unary(const Method<Req, Res>& method, const Req& reque
 
     auto body = detail::serialize(request);
     if (!body) {
-        return failAsync(ApiError{.kind = ApiErrorKind::Internal,
-                                  .httpStatus = 0,
-                                  .message = std::string("Cannot serialize ").append(request.GetTypeName())},
-                         [done = std::move(done)](RawResult result) { done(std::unexpected(std::move(result.error()))); });
+        return failAsync(
+            ApiError{.kind = ApiErrorKind::Internal,
+                     .httpStatus = 0,
+                     .message = std::string("Cannot serialize ").append(request.GetTypeName())},
+            [done = std::move(done)](RawResult result) { done(std::unexpected(std::move(result.error()))); });
     }
     return unaryRaw(method.info, std::move(*body), options, [done = std::move(done)](RawResult raw) {
         if (!raw) {
@@ -314,12 +316,11 @@ CallHandle ConnectClient::serverStream(const Method<Req, Res>& method, const Req
 
     auto body = detail::serialize(request);
     if (!body) {
-        return failAsync(ApiError{.kind = ApiErrorKind::Internal,
-                                  .httpStatus = 0,
-                                  .message = std::string("Cannot serialize ").append(request.GetTypeName())},
-                         [onDone = std::move(onDone)](RawResult result) {
-                             onDone(std::unexpected(std::move(result.error())));
-                         });
+        return failAsync(
+            ApiError{.kind = ApiErrorKind::Internal,
+                     .httpStatus = 0,
+                     .message = std::string("Cannot serialize ").append(request.GetTypeName())},
+            [onDone = std::move(onDone)](RawResult result) { onDone(std::unexpected(std::move(result.error()))); });
     }
     return serverStreamRaw(
         method.info, std::move(*body), options,

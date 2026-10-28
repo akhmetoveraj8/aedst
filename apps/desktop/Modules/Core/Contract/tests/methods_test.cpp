@@ -1,13 +1,13 @@
 #include "aedst/contract/methods.hpp"
 #include "aedst/contract/streaming_methods.hpp"
 
-#include <google/protobuf/descriptor.h>
-#include <google/protobuf/descriptor.pb.h>
 #include <gtest/gtest.h>
 
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/descriptor.pb.h>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -40,10 +40,8 @@ void expectMatchesDescriptor(const network::Method<Req, Res>& method) {
     const MethodDescriptor* descriptor = findMethod(method.info.path);
     ASSERT_NE(descriptor, nullptr) << path << " does not exist in the generated protos";
 
-    EXPECT_EQ(std::string(descriptor->input_type()->full_name()), std::string(Req::descriptor()->full_name()))
-        << path;
-    EXPECT_EQ(std::string(descriptor->output_type()->full_name()), std::string(Res::descriptor()->full_name()))
-        << path;
+    EXPECT_EQ(std::string(descriptor->input_type()->full_name()), std::string(Req::descriptor()->full_name())) << path;
+    EXPECT_EQ(std::string(descriptor->output_type()->full_name()), std::string(Res::descriptor()->full_name())) << path;
     EXPECT_FALSE(descriptor->client_streaming()) << path << ": streaming RPCs need a dedicated entry point";
     EXPECT_FALSE(descriptor->server_streaming()) << path;
 

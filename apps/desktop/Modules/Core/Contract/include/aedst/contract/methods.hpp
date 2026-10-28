@@ -10,7 +10,6 @@
 #include <aedst/notifications/v1/notifications.pb.h>
 #include <aedst/search/v1/search.pb.h>
 #include <aedst/tasks/v1/tasks.pb.h>
-
 #include <array>
 #include <string_view>
 
@@ -53,7 +52,8 @@ inline constexpr auto kAuthLogout = makeMethod<authv1::LogoutRequest, authv1::Lo
     "/aedst.auth.v1.AuthService/Logout", AuthRequirement::Public);
 inline constexpr auto kAuthGetCurrentUser = makeMethod<authv1::GetCurrentUserRequest, authv1::GetCurrentUserResponse>(
     "/aedst.auth.v1.AuthService/GetCurrentUser", AuthRequirement::Required, Idempotency::Idempotent);
-// Not Idempotent: a replay finds no credentials and is answered NOT_FOUND, so a blind retry would report a false failure.
+// Not Idempotent: a replay finds no credentials and is answered NOT_FOUND, so a blind retry would report a false
+// failure.
 inline constexpr auto kAuthDeleteAccount = makeMethod<authv1::DeleteAccountRequest, authv1::DeleteAccountResponse>(
     "/aedst.auth.v1.AuthService/DeleteAccount", AuthRequirement::Required);
 
@@ -90,8 +90,9 @@ inline constexpr auto kNotificationsGetUnreadCount =
         "/aedst.notifications.v1.NotificationsService/GetUnreadCount", AuthRequirement::Required,
         Idempotency::Idempotent);
 // Marking an already-read notification read again changes nothing: safe to replay.
-inline constexpr auto kNotificationsMarkRead = makeMethod<notificationsv1::MarkReadRequest, notificationsv1::MarkReadResponse>(
-    "/aedst.notifications.v1.NotificationsService/MarkRead", AuthRequirement::Required, Idempotency::Idempotent);
+inline constexpr auto kNotificationsMarkRead =
+    makeMethod<notificationsv1::MarkReadRequest, notificationsv1::MarkReadResponse>(
+        "/aedst.notifications.v1.NotificationsService/MarkRead", AuthRequirement::Required, Idempotency::Idempotent);
 inline constexpr auto kNotificationsMarkAllRead =
     makeMethod<notificationsv1::MarkAllReadRequest, notificationsv1::MarkAllReadResponse>(
         "/aedst.notifications.v1.NotificationsService/MarkAllRead", AuthRequirement::Required);
@@ -158,8 +159,7 @@ inline constexpr auto kAdminListAuditLog = makeMethod<adminv1::ListAuditLogReque
 
 inline constexpr auto kCapabilitiesGetCapabilities =
     makeMethod<capabilitiesv1::GetCapabilitiesRequest, capabilitiesv1::GetCapabilitiesResponse>(
-        "/aedst.capabilities.v1.CapabilitiesService/GetCapabilities", AuthRequirement::Public,
-        Idempotency::Idempotent);
+        "/aedst.capabilities.v1.CapabilitiesService/GetCapabilities", AuthRequirement::Public, Idempotency::Idempotent);
 
 /// Every path above; the completeness test compares it with the generated service descriptors.
 inline constexpr std::array kAllMethodPaths = std::to_array<std::string_view>({

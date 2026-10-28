@@ -3,7 +3,6 @@
 #include "aedst/plugin/capability_set.hpp"
 
 #include <aedst/capabilities/v1/capabilities.pb.h>
-
 #include <set>
 #include <string>
 

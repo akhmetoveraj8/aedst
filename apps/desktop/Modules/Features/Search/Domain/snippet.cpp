@@ -32,7 +32,7 @@ std::vector<SnippetSegment> parseSnippet(std::string_view marked) {
             continue;
         }
         appendRun(segments, marked.substr(runStart, pos - runStart), highlighted);
-        highlighted = isStart; // start while open: stays open; end while closed: stays closed
+        highlighted = isStart;         // start while open: stays open; end while closed: stays closed
         pos += kHighlightStart.size(); // both markers are 3 bytes
         runStart = pos;
     }

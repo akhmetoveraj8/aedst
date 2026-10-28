@@ -1,6 +1,6 @@
-// QtQuickTest runner for AdminView.qml. The view is loaded from its source path against the REAL AdminViewModel fed by a
-// scripted repository (the module's static plugin is not linked into this executable, so the singleton is registered here
-// under the URI the QML imports).
+// QtQuickTest runner for AdminView.qml. The view is loaded from its source path against the REAL AdminViewModel fed by
+// a scripted repository (the module's static plugin is not linked into this executable, so the singleton is registered
+// here under the URI the QML imports).
 #include "Domain/admin_repository.hpp"
 #include "Presentation/admin_view_model.hpp"
 #include "aedst/analytics/no_op_analytics_tracker.hpp"
@@ -39,6 +39,7 @@ public:
         response.set_tasks_done(60);
         done(std::move(response));
     }
+
     void listUsers(const adminv1::ListUsersRequest&, network::ApiCompletion<adminv1::ListUsersResponse> done) override {
         if (denyIfForbidden(done)) {
             return;
@@ -50,7 +51,9 @@ public:
         user->set_display_name("Ada Lovelace");
         done(std::move(response));
     }
-    void listAuditLog(const adminv1::ListAuditLogRequest&, network::ApiCompletion<adminv1::ListAuditLogResponse> done) override {
+
+    void listAuditLog(const adminv1::ListAuditLogRequest&,
+                      network::ApiCompletion<adminv1::ListAuditLogResponse> done) override {
         if (denyIfForbidden(done)) {
             return;
         }
@@ -58,6 +61,7 @@ public:
         response.add_entries()->set_action("broadcast");
         done(std::move(response));
     }
+
     void broadcast(const adminv1::BroadcastNotificationRequest&,
                    network::ApiCompletion<adminv1::BroadcastNotificationResponse> done) override {
         ++broadcastCalls;
@@ -72,7 +76,8 @@ private:
         if (!forbidden) {
             return false;
         }
-        done(std::unexpected(network::ApiError{.kind = network::ApiErrorKind::PermissionDenied, .httpStatus = 403, .message = "no"}));
+        done(std::unexpected(
+            network::ApiError{.kind = network::ApiErrorKind::PermissionDenied, .httpStatus = 403, .message = "no"}));
         return true;
     }
 };
@@ -81,6 +86,7 @@ class Setup final : public QObject {
     Q_OBJECT
 
 public slots:
+
     void qmlEngineAvailable(QQmlEngine* engine) {
         aedst::qmlsupport::SingletonSlot<aedst::designsystem::ThemeController>::provide(&theme_);
         viewModel_ = std::make_unique<AdminViewModel>(repository_, std::make_shared<aedst::core::NullErrorSink>(),
@@ -94,6 +100,7 @@ public slots:
 
 public:
     Q_INVOKABLE void setForbidden(bool value) { repository_->forbidden = value; }
+
     Q_INVOKABLE int broadcastCalls() const { return repository_->broadcastCalls; }
 
 private:

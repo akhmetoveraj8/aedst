@@ -24,10 +24,10 @@ namespace aedst::core {
 /// idempotent. It is best effort, not a substitute for not logging secrets.
 [[nodiscard]] std::string redactSecrets(std::string_view text);
 
-/// What may leave the machine in a crash report or an error event: everything redactSecrets() masks, plus the account name
-/// inside user-profile paths (`C:\Users\alice\AppData\...`, `/home/alice/.config`), which crash reporters embed in file
-/// names and messages. The name becomes `<user>`; the rest of the path is kept because it tells where the failure is.
-/// Idempotent, best effort.
+/// What may leave the machine in a crash report or an error event: everything redactSecrets() masks, plus the account
+/// name inside user-profile paths (`C:\Users\alice\AppData\...`, `/home/alice/.config`), which crash reporters embed in
+/// file names and messages. The name becomes `<user>`; the rest of the path is kept because it tells where the failure
+/// is. Idempotent, best effort.
 [[nodiscard]] std::string scrubPii(std::string_view text);
 
 } // namespace aedst::core

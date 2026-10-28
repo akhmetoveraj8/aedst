@@ -1,8 +1,8 @@
 #include "activation.hpp"
 
-#include "app_dependencies.hpp"
 #include "aedst/logging/log_categories.hpp"
 #include "aedst/platform/deep_link.hpp"
+#include "app_dependencies.hpp"
 
 #include <QString>
 
@@ -17,7 +17,8 @@ void handleActivation(const QStringList& arguments, const QPointer<QQuickWindow>
         if (deps == nullptr || !platform::looksLikeDeepLink(text)) {
             continue;
         }
-        // The hosts come from the active routes, the same set Router::openLink checks: the two allow-lists cannot diverge.
+        // The hosts come from the active routes, the same set Router::openLink checks: the two allow-lists cannot
+        // diverge.
         const std::vector<std::string> routeHosts = deps->router().linkPrefixes();
         if (auto link = platform::parseDeepLink(text, routeHosts)) {
             qCInfo(lcApp, "Deep link received (route=%s)", link->route.c_str());

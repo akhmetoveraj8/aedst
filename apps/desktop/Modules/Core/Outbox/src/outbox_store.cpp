@@ -61,8 +61,7 @@ OutboxItem readRow(const SqliteStatement& row) {
 constexpr std::string_view kColumns = "id, type, payload, attempts, status, created_at, last_error";
 
 template <typename... Args>
-core::Outcome<std::vector<OutboxItem>> select(SqliteConnection& connection, std::string_view sql,
-                                              const Args&... args) {
+core::Outcome<std::vector<OutboxItem>> select(SqliteConnection& connection, std::string_view sql, const Args&... args) {
     auto statement = prepared(connection, sql, args...);
     if (!statement) {
         return core::fail(statement.error());
@@ -83,14 +82,13 @@ core::Outcome<std::vector<OutboxItem>> select(SqliteConnection& connection, std:
 } // namespace
 
 core::VoidOutcome enqueue(SqliteConnection& connection, const OutboxItem& item) {
-    return run(connection,
-               "INSERT OR IGNORE INTO outbox (id, type, payload, created_at) VALUES (?1, ?2, ?3, ?4)", item.id,
-               item.type, item.payload, item.createdAtMs);
+    return run(connection, "INSERT OR IGNORE INTO outbox (id, type, payload, created_at) VALUES (?1, ?2, ?3, ?4)",
+               item.id, item.type, item.payload, item.createdAtMs);
 }
 
 core::Outcome<std::vector<OutboxItem>> pending(SqliteConnection& connection, int limit) {
-    return select(connection,
-                  "SELECT " + std::string(kColumns) + " FROM outbox WHERE status = 0 ORDER BY seq LIMIT ?1", limit);
+    return select(connection, "SELECT " + std::string(kColumns) + " FROM outbox WHERE status = 0 ORDER BY seq LIMIT ?1",
+                  limit);
 }
 
 core::Outcome<std::vector<OutboxItem>> all(SqliteConnection& connection) {

@@ -24,6 +24,7 @@ public:
     static ThemeController* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<ThemeController>::create(engine, script);
     }
+
     explicit ThemeController(QObject* parent = nullptr);
 
     [[nodiscard]] bool isDark() const noexcept;

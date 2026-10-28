@@ -11,6 +11,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -22,14 +23,15 @@
 #include <vector>
 
 // Replays docs/contract/behavior/session-refresh.json against the real stack: OidcSession (single-flight refresh,
-// invalid_grant handling) behind AuthInterceptor, inside ConnectClient, talking to a scripted loopback identity provider
-// and a scripted loopback API. Only the two servers are scripted; the 401 -> refresh -> replay logic is production code.
+// invalid_grant handling) behind AuthInterceptor, inside ConnectClient, talking to a scripted loopback identity
+// provider and a scripted loopback API. Only the two servers are scripted; the 401 -> refresh -> replay logic is
+// production code.
 
 namespace aedst::oidc {
 namespace {
 
-using aedst::testing::FakeResponse;
 using aedst::testing::FakeHttpServer;
+using aedst::testing::FakeResponse;
 using aedst::testing::waitUntil;
 using testing::MockOidcProvider;
 namespace tasksv1 = ::aedst::tasks::v1;
@@ -45,6 +47,7 @@ struct Browser {
         QObject::connect(reply, &QNetworkReply::finished, reply, &QObject::deleteLater);
         return true;
     }
+
     QNetworkAccessManager network;
 };
 
@@ -143,11 +146,10 @@ TEST(SessionRefreshFixtureTest, ReplaysEveryCase) {
             api.script(request.value("id").toString().toStdString(), std::move(statuses));
         }
 
-        network::ConnectClient client(
-            network::ClientConfig{.baseUrl = apiServer.baseUrl(),
-                                  .defaultTimeout = std::chrono::seconds{10},
-                                  .allowInsecureLoopback = true},
-            std::make_shared<network::AuthInterceptor>(session, session));
+        network::ConnectClient client(network::ClientConfig{.baseUrl = apiServer.baseUrl(),
+                                                            .defaultTimeout = std::chrono::seconds{10},
+                                                            .allowInsecureLoopback = true},
+                                      std::make_shared<network::AuthInterceptor>(session, session));
 
         // All requests start together, so concurrent 401s really overlap.
         std::map<std::string, std::optional<network::ApiResult<tasksv1::CreateTaskResponse>>> results;
@@ -156,8 +158,9 @@ TEST(SessionRefreshFixtureTest, ReplaysEveryCase) {
             tasksv1::CreateTaskRequest message;
             message.set_title(id);
             results[id] = std::nullopt;
-            client.unary(contract::kTasksCreateTask, message,
-                         [&results, id](network::ApiResult<tasksv1::CreateTaskResponse> r) { results[id] = std::move(r); });
+            client.unary(
+                contract::kTasksCreateTask, message,
+                [&results, id](network::ApiResult<tasksv1::CreateTaskResponse> r) { results[id] = std::move(r); });
         }
         ASSERT_TRUE(waitUntil(
             [&] {

@@ -4,6 +4,7 @@
 #include "updater_test_support.hpp"
 
 #include <QSignalSpy>
+
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -34,11 +35,12 @@ protected:
         update::TrustedKey key;
         key.keyId = "k1";
         key.publicKey = keys.publicKey;
-        return std::make_unique<UpdateService>(config, fetcher, update::ManifestVerifier({key}), store, installer, timing);
+        return std::make_unique<UpdateService>(config, fetcher, update::ManifestVerifier({key}), store, installer,
+                                               timing);
     }
 
-    void serve(const std::string& version, const std::string& minSupported = "1.0.0", std::int64_t publishedAt = 1'700'000'000,
-               bool rollback = false) {
+    void serve(const std::string& version, const std::string& minSupported = "1.0.0",
+               std::int64_t publishedAt = 1'700'000'000, bool rollback = false) {
         std::string json =
             manifestJson(version, "stable", publishedAt, minSupported, sha256Hex(kPackage), sizeof(kPackage) - 1);
         if (rollback) {

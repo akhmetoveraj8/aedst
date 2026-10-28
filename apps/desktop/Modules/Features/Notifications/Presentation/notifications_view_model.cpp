@@ -21,19 +21,24 @@ NotificationsViewModel::NotificationsViewModel(std::shared_ptr<NotificationRepos
                                                std::shared_ptr<analytics::AnalyticsTracker> analytics,
                                                platform::NotificationService* desktopNotifier,
                                                navigation::Router* router, QObject* parent)
-    : QObject(parent), repository_(std::move(repository)), errors_(std::move(errors)),
-      analytics_(std::move(analytics)), desktopNotifier_(desktopNotifier), router_(router),
+    : QObject(parent),
+      repository_(std::move(repository)),
+      errors_(std::move(errors)),
+      analytics_(std::move(analytics)),
+      desktopNotifier_(desktopNotifier),
+      router_(router),
       detector_(std::chrono::system_clock::now()) {
     pollTimer_.setSingleShot(true);
     pollTimer_.setTimerType(Qt::VeryCoarseTimer); // 30 s and longer: one-second accuracy is plenty
     connect(&pollTimer_, &QTimer::timeout, this, &NotificationsViewModel::pollNow);
     if (desktopNotifier_ != nullptr) {
         // Marshalled to the GUI thread by the service; the link is validated by Router::openLink.
-        desktopNotifier_->setActivationHandler([guard = QPointer<NotificationsViewModel>(this)](const std::string& link) {
-            if (guard) {
-                emit guard->notificationActivated(QString::fromStdString(link));
-            }
-        });
+        desktopNotifier_->setActivationHandler(
+            [guard = QPointer<NotificationsViewModel>(this)](const std::string& link) {
+                if (guard) {
+                    emit guard->notificationActivated(QString::fromStdString(link));
+                }
+            });
     }
 }
 
@@ -41,7 +46,8 @@ QString NotificationsViewModel::deliveryMode() const {
     return realtime_ && realtime_->isStreaming() ? QStringLiteral("stream") : QStringLiteral("polling");
 }
 
-void NotificationsViewModel::setStream(std::shared_ptr<NotificationStream> stream, NotificationRealtime::Timing timing) {
+void NotificationsViewModel::setStream(std::shared_ptr<NotificationStream> stream,
+                                       NotificationRealtime::Timing timing) {
     realtime_ = std::make_unique<NotificationRealtime>(std::move(stream), timing);
     connect(realtime_.get(), &NotificationRealtime::eventReceived, this, &NotificationsViewModel::onStreamEvent);
     connect(realtime_.get(), &NotificationRealtime::modeChanged, this, &NotificationsViewModel::onDeliveryModeChanged);
@@ -215,8 +221,10 @@ void NotificationsViewModel::announce(const std::vector<Notification>& unread) {
     if (detected.overflow > 0) {
         const QString summary = QCoreApplication::translate("NotificationsViewModel", "%n more new notification(s)",
                                                             nullptr, static_cast<int>(detected.overflow));
-        desktopNotifier_->showRequest(platform::NotificationRequest{
-            .title = summary.toStdString(), .link = "/notifications", .tag = "aedst-summary", .actionLabel = openLabel});
+        desktopNotifier_->showRequest(platform::NotificationRequest{.title = summary.toStdString(),
+                                                                    .link = "/notifications",
+                                                                    .tag = "aedst-summary",
+                                                                    .actionLabel = openLabel});
     }
 }
 

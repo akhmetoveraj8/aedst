@@ -3,6 +3,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+
 #include <gtest/gtest.h>
 
 #include <memory>
@@ -11,7 +12,8 @@
 #include <vector>
 
 // Replays docs/contract/behavior/offline-outbox.json (the file Web, Android and Apple replay too) against the REAL
-// OutboxDrainer and the real SQLite queue on a temp database. Handlers are scripted; everything else is production code.
+// OutboxDrainer and the real SQLite queue on a temp database. Handlers are scripted; everything else is production
+// code.
 
 namespace aedst::outbox {
 namespace {
@@ -97,8 +99,8 @@ TEST(OutboxFixtureTest, ReplaysEveryCase) {
             const QJsonObject step = stepValue.toObject();
             if (step.contains("enqueue")) {
                 const QJsonObject item = step.value("enqueue").toObject();
-                ASSERT_TRUE(db.enqueue(item.value("id").toString().toStdString(),
-                                       item.value("type").toString().toStdString()));
+                ASSERT_TRUE(
+                    db.enqueue(item.value("id").toString().toStdString(), item.value("type").toString().toStdString()));
                 continue;
             }
             const int times = step.contains("repeatRun") ? step.value("repeatRun").toInt() : 1;
@@ -141,8 +143,10 @@ TEST(OutboxFixtureTest, AThrowingHandlerParksTheItemAndTheRunContinues) {
     class Throwing final : public OutboxHandler {
     public:
         [[nodiscard]] std::string type() const override { return "task.create"; }
+
         void deliver(const OutboxDelivery&, DeliveryCompletion) override { throw std::runtime_error("boom"); }
     };
+
     SqliteFixture db;
     auto script = std::make_shared<ScriptedHandler::Script>();
     auto handlers = std::make_shared<OutboxHandlers>();
@@ -189,10 +193,10 @@ TEST(DeliveryResultTest, MapsCoreErrorsToTheDeliveryVerdict) {
 TEST(DeliveryResultTest, EveryKindGetsTheVerdictDeclaredInErrorKindsJson) {
     const QJsonObject kinds = aedst::testing::loadBehaviorFixture("error-kinds").value("kinds").toObject();
     const core::ErrorCode all[] = {
-        core::ErrorCode::Unknown,     core::ErrorCode::InvalidInput, core::ErrorCode::Unauthenticated,
-        core::ErrorCode::Forbidden,   core::ErrorCode::NotFound,     core::ErrorCode::Conflict,
-        core::ErrorCode::RateLimited, core::ErrorCode::Unavailable,  core::ErrorCode::Offline,
-        core::ErrorCode::Timeout,     core::ErrorCode::Storage,      core::ErrorCode::Cancelled,
+        core::ErrorCode::Unknown,         core::ErrorCode::InvalidInput, core::ErrorCode::Unauthenticated,
+        core::ErrorCode::Forbidden,       core::ErrorCode::NotFound,     core::ErrorCode::Conflict,
+        core::ErrorCode::RateLimited,     core::ErrorCode::Unavailable,  core::ErrorCode::Offline,
+        core::ErrorCode::Timeout,         core::ErrorCode::Storage,      core::ErrorCode::Cancelled,
         core::ErrorCode::UpgradeRequired,
     };
     for (const core::ErrorCode code : all) {
@@ -210,10 +214,10 @@ TEST(DeliveryResultTest, EveryKindGetsTheVerdictDeclaredInErrorKindsJson) {
 TEST(DeliveryResultTest, EveryKindGetsTheVerdictDeclaredInErrorKindsJson) {
     const QJsonObject kinds = aedst::testing::loadBehaviorFixture("error-kinds").value("kinds").toObject();
     const core::ErrorCode all[] = {
-        core::ErrorCode::Unknown,     core::ErrorCode::InvalidInput, core::ErrorCode::Unauthenticated,
-        core::ErrorCode::Forbidden,   core::ErrorCode::NotFound,     core::ErrorCode::Conflict,
-        core::ErrorCode::RateLimited, core::ErrorCode::Unavailable,  core::ErrorCode::Offline,
-        core::ErrorCode::Timeout,     core::ErrorCode::Storage,      core::ErrorCode::Cancelled,
+        core::ErrorCode::Unknown,         core::ErrorCode::InvalidInput, core::ErrorCode::Unauthenticated,
+        core::ErrorCode::Forbidden,       core::ErrorCode::NotFound,     core::ErrorCode::Conflict,
+        core::ErrorCode::RateLimited,     core::ErrorCode::Unavailable,  core::ErrorCode::Offline,
+        core::ErrorCode::Timeout,         core::ErrorCode::Storage,      core::ErrorCode::Cancelled,
         core::ErrorCode::UpgradeRequired,
     };
     for (const core::ErrorCode code : all) {

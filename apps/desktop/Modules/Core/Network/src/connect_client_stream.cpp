@@ -1,12 +1,11 @@
 // Server-streaming half of ConnectClient. Split out of connect_client.cpp without behaviour change.
 
-#include "connect_client_internal.hpp"
-
 #include "aedst/core/correlation.hpp"
 #include "aedst/logging/log_categories.hpp"
 #include "aedst/network/auth_interceptor.hpp"
 #include "aedst/network/connect_envelope.hpp"
 #include "aedst/network/connect_error.hpp"
+#include "connect_client_internal.hpp"
 
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -98,13 +97,13 @@ void ConnectClient::sendStream(const std::shared_ptr<detail::CallState>& state,
     request.setRawHeader("Connect-Accept-Encoding", "identity"); // no per-message compression
     request.setRawHeader("Accept-Encoding", "identity");         // and no intermediary re-encoding
     if (stream->timeout.count() > 0) {
-        request.setRawHeader("Connect-Timeout-Ms",
-                             QByteArray::number(static_cast<qlonglong>(stream->timeout.count())));
+        request.setRawHeader("Connect-Timeout-Ms", QByteArray::number(static_cast<qlonglong>(stream->timeout.count())));
     }
     if (interceptor_) {
         interceptor_->apply(request, stream->auth);
         const QByteArray authorization = request.rawHeader("Authorization");
-        stream->sentToken = core::SecretString{authorization.startsWith("Bearer ") ? authorization.mid(7).toStdString() : std::string{}};
+        stream->sentToken = core::SecretString{authorization.startsWith("Bearer ") ? authorization.mid(7).toStdString()
+                                                                                   : std::string{}};
     }
     hardenRequest(request, sslConfig_, stream->correlationId, config_.clientIdentifier);
     {

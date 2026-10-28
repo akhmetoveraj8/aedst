@@ -24,10 +24,12 @@ inline constexpr std::string_view kTaskUpdateOutboxType = "task.update";
 
 /// Parsed payloads; nullopt for anything malformed or incomplete.
 [[nodiscard]] std::optional<NewTask> parseTaskCreatePayload(const std::string& payload);
+
 struct TaskUpdate {
     std::string id;
     bool done{false};
 };
+
 [[nodiscard]] std::optional<TaskUpdate> parseTaskUpdatePayload(const std::string& payload);
 
 /// Delivers queued creates: CreateTask with the item id as Idempotency-Key.
@@ -36,6 +38,7 @@ public:
     explicit TaskCreateOutboxHandler(std::shared_ptr<TaskRepository> repository);
 
     [[nodiscard]] std::string type() const override { return std::string(kTaskCreateOutboxType); }
+
     void deliver(const outbox::OutboxDelivery& delivery, outbox::DeliveryCompletion done) override;
 
 private:
@@ -48,6 +51,7 @@ public:
     explicit TaskUpdateOutboxHandler(std::shared_ptr<TaskRepository> repository);
 
     [[nodiscard]] std::string type() const override { return std::string(kTaskUpdateOutboxType); }
+
     void deliver(const outbox::OutboxDelivery& delivery, outbox::DeliveryCompletion done) override;
 
 private:

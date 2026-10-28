@@ -18,8 +18,8 @@ namespace aedst::persistence::detail {
 /// Reads the whole file, failing if it is larger than `maxSize`. nullopt when the
 /// file does not exist. The returned buffer is NOT wiped: callers holding secrets
 /// must wipe it (readKeyFile does).
-[[nodiscard]] core::Outcome<std::optional<std::vector<std::uint8_t>>> readFileBytes(
-    const std::filesystem::path& file, std::size_t maxSize);
+[[nodiscard]] core::Outcome<std::optional<std::vector<std::uint8_t>>> readFileBytes(const std::filesystem::path& file,
+                                                                                    std::size_t maxSize);
 
 /// Reads a raw 32-byte key file. nullopt when absent; Error when the size is not
 /// exactly kMasterKeySize (corrupt file: never silently replaced).

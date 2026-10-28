@@ -3,7 +3,6 @@
 #include "Domain/task_repository.hpp"
 
 #include <aedst/tasks/v1/tasks.pb.h>
-
 #include <memory>
 
 namespace aedst::network {

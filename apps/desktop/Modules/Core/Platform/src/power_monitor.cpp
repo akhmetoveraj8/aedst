@@ -4,8 +4,7 @@
 
 namespace aedst::platform {
 
-PowerMonitor::PowerMonitor(std::chrono::milliseconds interval, QObject* parent)
-    : QObject(parent), detector_(interval) {
+PowerMonitor::PowerMonitor(std::chrono::milliseconds interval, QObject* parent) : QObject(parent), detector_(interval) {
     timer_.setTimerType(Qt::VeryCoarseTimer);
     timer_.setInterval(interval);
     connect(&timer_, &QTimer::timeout, this, [this]() { tick(ResumeDetector::Clock::now()); });

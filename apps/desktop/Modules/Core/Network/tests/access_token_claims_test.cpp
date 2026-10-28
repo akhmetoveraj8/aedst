@@ -10,8 +10,7 @@ namespace aedst::network {
 namespace {
 
 std::string tokenWithPayload(const QByteArray& json) {
-    const QByteArray payload =
-        json.toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+    const QByteArray payload = json.toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
     return "eyJhbGciOiJFZERTQSJ9." + payload.toStdString() + ".c2ln";
 }
 
@@ -24,8 +23,8 @@ TEST(AccessTokenClaimsTest, ReadsSubjectAndTopLevelRoles) {
 }
 
 TEST(AccessTokenClaimsTest, FollowsADottedPathLikeKeycloak) {
-    const auto claims = parseAccessTokenClaims(
-        tokenWithPayload(R"({"sub":"u","realm_access":{"roles":["admin"]}})"), "realm_access.roles");
+    const auto claims = parseAccessTokenClaims(tokenWithPayload(R"({"sub":"u","realm_access":{"roles":["admin"]}})"),
+                                               "realm_access.roles");
     ASSERT_TRUE(claims.has_value());
     EXPECT_TRUE(claims->hasRole("admin"));
 }

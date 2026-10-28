@@ -29,9 +29,11 @@ public:
     static SessionInfo* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<SessionInfo>::create(engine, script);
     }
+
     explicit SessionInfo(QObject* parent = nullptr) : QObject(parent) {}
 
     [[nodiscard]] bool signedIn() const noexcept { return signedIn_; }
+
     [[nodiscard]] bool isAdmin() const noexcept { return isAdmin_; }
 
     void set(bool signedIn, bool isAdmin) {

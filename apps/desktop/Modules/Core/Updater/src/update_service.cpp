@@ -16,8 +16,13 @@ namespace aedst::updater {
 UpdateService::UpdateService(update::UpdateCheckerConfig config, update::HttpFetcher& fetcher,
                              update::ManifestVerifier verifier, update::UpdateStateStore& stateStore,
                              UpdateInstaller& installer, Timing timing, QObject* parent)
-    : QObject(parent), config_(std::move(config)), fetcher_(fetcher), verifier_(std::move(verifier)),
-      stateStore_(stateStore), installer_(installer), timing_(timing) {
+    : QObject(parent),
+      config_(std::move(config)),
+      fetcher_(fetcher),
+      verifier_(std::move(verifier)),
+      stateStore_(stateStore),
+      installer_(installer),
+      timing_(timing) {
     timer_.setSingleShot(true);
     timer_.setTimerType(Qt::VeryCoarseTimer); // minutes to hours: no precision needed
     connect(&timer_, &QTimer::timeout, this, &UpdateService::checkNow);
@@ -30,8 +35,9 @@ UpdateService::UpdateService(update::UpdateCheckerConfig config, update::HttpFet
 UpdateService::~UpdateService() {
     ++generation_; // a result that arrives after destruction is dropped by the guard in checkNow()
     stop();
-    // The worker uses the fetcher, state store and installer the owner passed in; they must not die under it. Every call in
-    // the pipeline has its own timeout, so this is bounded. Only THIS service's pool is waited for, never the global one.
+    // The worker uses the fetcher, state store and installer the owner passed in; they must not die under it. Every
+    // call in the pipeline has its own timeout, so this is bounded. Only THIS service's pool is waited for, never the
+    // global one.
     pool_.waitForDone(15'000);
 }
 
@@ -135,7 +141,8 @@ void UpdateService::checkNow() {
                 },
                 Qt::QueuedConnection);
         };
-        // Blocking; touches nothing of the service (the owner keeps fetcher, store and installer alive, see ~UpdateService).
+        // Blocking; touches nothing of the service (the owner keeps fetcher, store and installer alive, see
+        // ~UpdateService).
         RunResult result = runUpdatePipeline(config, *fetcher, verifier, *stateStore, *installer, events);
         if (!self) {
             return;

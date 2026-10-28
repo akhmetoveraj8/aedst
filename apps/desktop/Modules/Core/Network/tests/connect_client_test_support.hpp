@@ -14,6 +14,7 @@
 #include <QByteArray>
 #include <QString>
 #include <QUrl>
+
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -78,6 +79,7 @@ protected:
     struct Outcome {
         std::optional<ApiResult<Res>> result;
         int completions{0};
+
         bool done() const { return result.has_value(); }
     };
 

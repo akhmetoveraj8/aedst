@@ -73,9 +73,9 @@ DBusNotificationService::DBusNotificationService(NotificationService& fallback)
     }
     const QDBusConnection bus = QDBusConnection::sessionBus();
     bus.connect(serviceName(), objectPath(), serviceName(), QStringLiteral("ActionInvoked"), this,
-                SLOT(onActionInvoked(uint,QString)));
+                SLOT(onActionInvoked(uint, QString)));
     bus.connect(serviceName(), objectPath(), serviceName(), QStringLiteral("NotificationClosed"), this,
-                SLOT(onNotificationClosed(uint,uint)));
+                SLOT(onNotificationClosed(uint, uint)));
 }
 
 bool DBusNotificationService::isAvailable() const {
@@ -103,8 +103,8 @@ void DBusNotificationService::showRequest(const NotificationRequest& request) {
     // under the given label.
     QStringList actions;
     if (!request.link.empty()) {
-        const QString label = request.actionLabel.empty() ? QStringLiteral("Open")
-                                                          : toQString(request.actionLabel, kMaxTitleChars);
+        const QString label =
+            request.actionLabel.empty() ? QStringLiteral("Open") : toQString(request.actionLabel, kMaxTitleChars);
         actions << QStringLiteral("default") << label;
     }
 
@@ -113,14 +113,14 @@ void DBusNotificationService::showRequest(const NotificationRequest& request) {
 
     QDBusMessage message =
         QDBusMessage::createMethodCall(serviceName(), objectPath(), serviceName(), QStringLiteral("Notify"));
-    message << QCoreApplication::applicationName()      // app_name
-            << QVariant::fromValue(quint32{replaces})   // replaces_id
-            << iconFor(request.severity)                // app_icon
-            << summary                                  // summary
-            << text                                     // body
-            << actions                                  // actions
-            << hints                                    // hints
-            << -1;                                      // expire_timeout: server default
+    message << QCoreApplication::applicationName()    // app_name
+            << QVariant::fromValue(quint32{replaces}) // replaces_id
+            << iconFor(request.severity)              // app_icon
+            << summary                                // summary
+            << text                                   // body
+            << actions                                // actions
+            << hints                                  // hints
+            << -1;                                    // expire_timeout: server default
 
     const QDBusPendingCall call = QDBusConnection::sessionBus().asyncCall(message);
     if (call.isError()) {

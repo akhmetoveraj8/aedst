@@ -49,6 +49,7 @@ public:
 
     /// Shown in the tray tooltip ("AEDST - 3 unread"); 0 hides the count.
     [[nodiscard]] int badgeCount() const noexcept { return badgeCount_; }
+
     void setBadgeCount(int count);
 
 signals:

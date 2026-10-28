@@ -8,7 +8,6 @@
 #include "Presentation/search_view_model.hpp"
 #include "Presentation/task_detail_view_model.hpp"
 #include "Presentation/task_list_view_model.hpp"
-#include "app_dependencies.hpp"
 #include "aedst/connectivity/connectivity_monitor.hpp"
 #include "aedst/designsystem/theme_controller.hpp"
 #include "aedst/navigation/router.hpp"
@@ -17,6 +16,7 @@
 #include "aedst/telemetry/error_center.hpp"
 #include "aedst/telemetry/posthog_analytics_tracker.hpp"
 #include "aedst/telemetry/telemetry_settings.hpp"
+#include "app_dependencies.hpp"
 #include "session_info.hpp"
 
 namespace aedst::app {

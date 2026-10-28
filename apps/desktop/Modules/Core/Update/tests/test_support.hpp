@@ -28,7 +28,7 @@ struct TestKeyPair {
 inline TestKeyPair generateKeyPair() {
     TestKeyPair pair;
     std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)> ctx{EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr),
-                                                                     &EVP_PKEY_CTX_free};
+                                                                    &EVP_PKEY_CTX_free};
     EVP_PKEY* raw = nullptr;
     if (!ctx || EVP_PKEY_keygen_init(ctx.get()) != 1 || EVP_PKEY_keygen(ctx.get(), &raw) != 1) {
         return pair;
@@ -44,8 +44,8 @@ inline std::vector<std::uint8_t> sign(const TestKeyPair& pair, std::string_view 
     std::vector<std::uint8_t> signature(64);
     std::size_t length = signature.size();
     if (!ctx || EVP_DigestSignInit(ctx.get(), nullptr, nullptr, nullptr, pair.privateKey.get()) != 1 ||
-        EVP_DigestSign(ctx.get(), signature.data(), &length,
-                       reinterpret_cast<const unsigned char*>(message.data()), message.size()) != 1) {
+        EVP_DigestSign(ctx.get(), signature.data(), &length, reinterpret_cast<const unsigned char*>(message.data()),
+                       message.size()) != 1) {
         return {};
     }
     signature.resize(length);
@@ -109,8 +109,7 @@ inline std::string signedEnvelope(const TestKeyPair& pair, const std::string& ke
 
 /// A valid manifest for tests; `extra` is spliced in before "artifacts" is closed.
 inline std::string manifestJson(const std::string& version = "2.0.0", const std::string& channel = "stable",
-                                std::int64_t publishedAt = 1'700'000'000,
-                                const std::string& minSupported = "1.0.0",
+                                std::int64_t publishedAt = 1'700'000'000, const std::string& minSupported = "1.0.0",
                                 const std::string& sha256 = std::string(64, 'a'), std::uint64_t size = 1234) {
     return "{\"version\":\"" + version + "\",\"channel\":\"" + channel +
            "\",\"releaseNotesUrl\":\"https://aedst.com/releases/" + version + "\",\"minSupportedVersion\":\"" +
@@ -118,8 +117,8 @@ inline std::string manifestJson(const std::string& version = "2.0.0", const std:
            ",\"artifacts\":[{\"platform\":\"windows\",\"arch\":\"x86_64\",\"url\":\"https://downloads.aedst.com/" +
            version + "/aedst-setup.exe\",\"sha256\":\"" + sha256 + "\",\"size\":" + std::to_string(size) +
            ",\"signature\":\"detached\"},{\"platform\":\"linux\",\"arch\":\"x86_64\",\"url\":"
-           "\"https://downloads.aedst.com/" + version + "/aedst.AppImage\",\"sha256\":\"" + sha256 +
-           "\",\"size\":" + std::to_string(size) + "}]}";
+           "\"https://downloads.aedst.com/" +
+           version + "/aedst.AppImage\",\"sha256\":\"" + sha256 + "\",\"size\":" + std::to_string(size) + "}]}";
 }
 
 } // namespace aedst::update::test_support

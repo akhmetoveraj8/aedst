@@ -48,19 +48,28 @@ public:
     static AdminViewModel* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<AdminViewModel>::create(engine, script);
     }
+
     static constexpr int kQueryDebounceMs = 300;
 
     AdminViewModel(std::shared_ptr<AdminRepository> repository, std::shared_ptr<core::ErrorSink> errors,
                    std::shared_ptr<analytics::AnalyticsTracker> analytics, QObject* parent = nullptr);
 
     [[nodiscard]] QVariantMap overview() const { return overview_; }
+
     [[nodiscard]] QAbstractItemModel* users() noexcept { return &users_; }
+
     [[nodiscard]] QAbstractItemModel* auditLog() noexcept { return &auditLog_; }
+
     [[nodiscard]] QString userQuery() const { return userQuery_; }
+
     void setUserQuery(const QString& query);
+
     [[nodiscard]] bool isLoading() const noexcept { return pending_ > 0; }
+
     [[nodiscard]] bool forbidden() const noexcept { return forbidden_; }
+
     [[nodiscard]] bool isBroadcasting() const noexcept { return isBroadcasting_; }
+
     [[nodiscard]] QString errorMessage() const { return errorMessage_; }
 
     Q_INVOKABLE void reload();

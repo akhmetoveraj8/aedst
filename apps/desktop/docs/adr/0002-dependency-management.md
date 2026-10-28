@@ -35,7 +35,7 @@ via `jurplel/install-qt-action`), found through `CMAKE_PREFIX_PATH` (presets rea
 |---|---|---|
 | Configure flow | Two steps: `conan install` (per build type, into a folder the preset must point at), then `cmake --preset`. IDEs (Qt Creator, CLion, VS) do not run step one. | One step: the vcpkg toolchain file installs the manifest during `cmake --preset ...`. IDE-friendly. |
 | Version pinning | Per-package versions in the recipe; lockfiles. | One `builtin-baseline` git commit pins every port version; per-package `overrides` when needed. |
-| Freshness | ConanCenter lags on protobuf/abseil. | Ports track upstream closely (at the pinned baseline: protobuf 6.33.4, spdlog 1.17.0). |
+| Freshness | ConanCenter lags on protobuf/abseil. | Ports track upstream closely (at the pinned baseline: protobuf 7.36.2, spdlog 1.17.0). |
 | Binary caching | Server or local cache; needs a remote for CI speed. | Built-in providers (`files`, GitHub Actions cache, NuGet); preinstalled on GitHub runners (`VCPKG_INSTALLATION_ROOT`). |
 | Windows/MSVC | Good. | Good; `x64-windows-static-md` gives static libs with the dynamic CRT Qt uses — nothing to copy next to test executables. |
 | Ecosystem fit | Python tooling in the C++ build. | CMake-native, no Python. |

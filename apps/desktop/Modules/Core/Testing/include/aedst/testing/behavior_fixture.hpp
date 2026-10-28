@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QString>
+
 #include <gtest/gtest.h>
 
 #include <string_view>
@@ -21,8 +22,7 @@ namespace aedst::testing {
 
 [[nodiscard]] inline QJsonObject loadBehaviorFixture(std::string_view name) {
     const QString path = QStringLiteral(AEDST_BEHAVIOR_FIXTURE_DIR "/") +
-                         QString::fromUtf8(name.data(), static_cast<qsizetype>(name.size())) +
-                         QStringLiteral(".json");
+                         QString::fromUtf8(name.data(), static_cast<qsizetype>(name.size())) + QStringLiteral(".json");
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
         ADD_FAILURE() << "cannot open behavior fixture " << qPrintable(path);

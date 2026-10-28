@@ -5,14 +5,14 @@
 namespace aedst::updater {
 
 /// The installer of every build that cannot replace itself: portable runs, deb/rpm (the package manager updates them),
-/// Flatpak (the Flatpak repo does) and builds without the Velopack SDK. The pipeline then verifies the signed manifest and
-/// the UI announces "version X is available"; nothing is downloaded or installed here.
+/// Flatpak (the Flatpak repo does) and builds without the Velopack SDK. The pipeline then verifies the signed manifest
+/// and the UI announces "version X is available"; nothing is downloaded or installed here.
 class ReportOnlyInstaller final : public UpdateInstaller {
 public:
     [[nodiscard]] bool canSelfUpdate() const override { return false; }
 
     [[nodiscard]] core::Outcome<std::optional<InstallerCandidate>> checkFeed(const std::string& /*channel*/,
-                                                                              bool /*allowDowngrade*/) override {
+                                                                             bool /*allowDowngrade*/) override {
         return core::fail(core::Error::unknown("this installation is updated by its package manager"));
     }
 

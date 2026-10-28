@@ -57,6 +57,7 @@ public:
     static LoginViewModel* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<LoginViewModel>::create(engine, script);
     }
+
     LoginViewModel(std::shared_ptr<LoginUseCase> login, std::shared_ptr<LogoutUseCase> logout,
                    std::shared_ptr<analytics::AnalyticsTracker> analytics, navigation::Router* router,
                    QObject* parent = nullptr);

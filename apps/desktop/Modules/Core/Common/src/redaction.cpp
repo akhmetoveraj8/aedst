@@ -60,8 +60,8 @@ bool containsAny(const std::string& lower, const Needles& needles) {
     return false;
 }
 
-constexpr std::array<std::string_view, 9> kSensitiveNeedles{
-    "password", "passwd", "token", "secret", "api_key", "api-key", "apikey", "authorization", "cookie"};
+constexpr std::array<std::string_view, 9> kSensitiveNeedles{"password", "passwd", "token",         "secret", "api_key",
+                                                            "api-key",  "apikey", "authorization", "cookie"};
 constexpr std::array<std::string_view, 2> kLineValueNeedles{"authorization", "cookie"};
 
 bool endsUnquotedValue(char c, bool wholeLine) noexcept {
@@ -250,8 +250,8 @@ std::string maskProfilePaths(std::string_view text) {
         }
         const std::size_t nameStart = best + bestLength + 1;
         std::size_t nameEnd = nameStart;
-        while (nameEnd < size && !isPathSeparator(text[nameEnd]) && !isBlank(text[nameEnd]) && !isQuote(text[nameEnd]) &&
-               text[nameEnd] != '\r' && text[nameEnd] != '\n') {
+        while (nameEnd < size && !isPathSeparator(text[nameEnd]) && !isBlank(text[nameEnd]) &&
+               !isQuote(text[nameEnd]) && text[nameEnd] != '\r' && text[nameEnd] != '\n') {
             ++nameEnd;
         }
         out.append(text.substr(pos, nameStart - pos));

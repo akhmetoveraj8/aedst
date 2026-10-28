@@ -44,8 +44,7 @@ constexpr auto kTextPattern = "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%n] [t:%t] [cid:
 /// format() runs on that thread), or "-" outside a CorrelationScope.
 class CorrelationFlag final : public spdlog::custom_flag_formatter {
 public:
-    void format(const spdlog::details::log_msg& /*msg*/, const std::tm& /*time*/,
-                spdlog::memory_buf_t& dest) override {
+    void format(const spdlog::details::log_msg& /*msg*/, const std::tm& /*time*/, spdlog::memory_buf_t& dest) override {
         const std::string_view id = currentCorrelationId();
         const std::string_view text = id.empty() ? std::string_view{"-"} : id;
         dest.append(text.data(), text.data() + text.size());
@@ -91,9 +90,9 @@ void appendJsonTimestamp(std::string& out, spdlog::log_clock::time_point time) {
     const std::time_t epochSeconds = spdlog::log_clock::to_time_t(seconds);
     const std::tm utc = spdlog::details::os::gmtime(epochSeconds);
     std::array<char, 40> text{};
-    const int written = std::snprintf(text.data(), text.size(), "%04d-%02d-%02dT%02d:%02d:%02d.%03dZ",
-                                      utc.tm_year + 1900, utc.tm_mon + 1, utc.tm_mday, utc.tm_hour, utc.tm_min,
-                                      utc.tm_sec, static_cast<int>(millis));
+    const int written =
+        std::snprintf(text.data(), text.size(), "%04d-%02d-%02dT%02d:%02d:%02d.%03dZ", utc.tm_year + 1900,
+                      utc.tm_mon + 1, utc.tm_mday, utc.tm_hour, utc.tm_min, utc.tm_sec, static_cast<int>(millis));
     if (written > 0) {
         out.append(text.data(), static_cast<std::size_t>(written));
     }
@@ -260,8 +259,8 @@ void AedstLogger::init(const LoggerConfig& config, std::vector<spdlog::sink_ptr>
     }
 
     // ONE redaction pass for all sinks (RedactingSink); the per-sink formatters only format.
-    auto logger = std::make_shared<spdlog::logger>(
-        config.name, std::make_shared<RedactingSink>(std::move(sinks), config.redact));
+    auto logger =
+        std::make_shared<spdlog::logger>(config.name, std::make_shared<RedactingSink>(std::move(sinks), config.redact));
     logger->set_level(toSpdlog(config.level));
     logger->set_formatter(makeFormatter(config.format, false)); // cloned onto every wrapped sink
     logger->flush_on(spdlog::level::warn);

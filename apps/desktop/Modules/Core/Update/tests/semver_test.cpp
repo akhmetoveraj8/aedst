@@ -67,10 +67,11 @@ TEST(SemVerTest, RejectsInvalidVersions) {
 TEST(SemVerTest, OrdersPerSemverSpecification) {
     // Strictly ascending chain from semver.org section 11, extended.
     const std::vector<std::string> ascending{
-        "0.9.9",     "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
-        "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",  "1.0.0",           "1.0.1",
-        "1.1.0",     "1.2.9",        "1.2.10",        "1.10.0",          "2.0.0-0",
-        "2.0.0",     "10.0.0",
+        "0.9.9",      "1.0.0-alpha",  "1.0.0-alpha.1", "1.0.0-alpha.beta",
+        "1.0.0-beta", "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1",
+        "1.0.0",      "1.0.1",        "1.1.0",         "1.2.9",
+        "1.2.10",     "1.10.0",       "2.0.0-0",       "2.0.0",
+        "10.0.0",
     };
     for (std::size_t i = 0; i < ascending.size(); ++i) {
         for (std::size_t j = 0; j < ascending.size(); ++j) {

@@ -12,17 +12,15 @@ namespace {
 // busy_timeout first so the WAL switch below waits for a competing process
 // instead of failing. secure_delete zero-fills freed content; TokenStore::clear()
 // additionally truncates the WAL so nothing lingers there either.
-constexpr std::string_view kFilePragmas =
-    "PRAGMA busy_timeout = 5000;"
-    "PRAGMA journal_mode = WAL;"
-    "PRAGMA synchronous = NORMAL;"
-    "PRAGMA foreign_keys = ON;"
-    "PRAGMA secure_delete = ON;";
+constexpr std::string_view kFilePragmas = "PRAGMA busy_timeout = 5000;"
+                                          "PRAGMA journal_mode = WAL;"
+                                          "PRAGMA synchronous = NORMAL;"
+                                          "PRAGMA foreign_keys = ON;"
+                                          "PRAGMA secure_delete = ON;";
 
-constexpr std::string_view kMemoryPragmas =
-    "PRAGMA busy_timeout = 5000;"
-    "PRAGMA foreign_keys = ON;"
-    "PRAGMA secure_delete = ON;";
+constexpr std::string_view kMemoryPragmas = "PRAGMA busy_timeout = 5000;"
+                                            "PRAGMA foreign_keys = ON;"
+                                            "PRAGMA secure_delete = ON;";
 
 } // namespace
 
@@ -77,8 +75,7 @@ core::VoidOutcome SqliteConnection::execute(std::string_view sql) {
 
 core::Outcome<SqliteStatement> SqliteConnection::prepare(std::string_view sql) {
     sqlite3_stmt* raw = nullptr;
-    const int rc =
-        sqlite3_prepare_v2(database_.get(), sql.data(), static_cast<int>(sql.size()), &raw, nullptr);
+    const int rc = sqlite3_prepare_v2(database_.get(), sql.data(), static_cast<int>(sql.size()), &raw, nullptr);
     SqliteStatement statement(raw);
     if (rc != SQLITE_OK) {
         return core::fail(core::Error::storage("prepare failed: " + lastErrorMessage()));

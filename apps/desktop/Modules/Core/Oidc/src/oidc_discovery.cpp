@@ -41,8 +41,7 @@ constexpr qint64 kMaxDocumentBytes = 1024 * 1024;
     }
     const QUrl url(value.toString());
     if (!endpointAllowed(url, config)) {
-        return core::fail(
-            core::Error::invalidInput("OIDC discovery: " + name.toStdString() + " must be an https URL"));
+        return core::fail(core::Error::invalidInput("OIDC discovery: " + name.toStdString() + " must be an https URL"));
     }
     return url;
 }

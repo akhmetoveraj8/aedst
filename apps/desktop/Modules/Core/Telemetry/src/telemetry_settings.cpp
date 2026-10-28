@@ -22,7 +22,10 @@ void store(crash::ConsentStore& consent, bool enabled, const char* what) {
 
 TelemetrySettings::TelemetrySettings(crash::ConsentStore& crashConsent, crash::ConsentStore& analyticsConsent,
                                      PostHogAnalyticsTracker& analytics, bool crashReportsAvailable, QObject* parent)
-    : QObject(parent), crashConsent_(crashConsent), analyticsConsent_(analyticsConsent), analytics_(analytics),
+    : QObject(parent),
+      crashConsent_(crashConsent),
+      analyticsConsent_(analyticsConsent),
+      analytics_(analytics),
       crashReportsAvailable_(crashReportsAvailable) {}
 
 bool TelemetrySettings::analyticsAvailable() const {

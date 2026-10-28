@@ -2,6 +2,7 @@
 #include "aedst/testing/fake_http_server.hpp"
 
 #include <QNetworkAccessManager>
+
 #include <gtest/gtest.h>
 
 #include <optional>
@@ -22,7 +23,8 @@ OidcConfig config() {
 
 QByteArray document(const QString& issuer = QStringLiteral("https://id.example.com")) {
     return QByteArray(R"({
-      "issuer": ")" + issuer.toUtf8() + R"(",
+      "issuer": ")" + issuer.toUtf8() +
+                      R"(",
       "authorization_endpoint": "https://id.example.com/oauth/v2/authorize",
       "token_endpoint": "https://id.example.com/oauth/v2/token",
       "revocation_endpoint": "https://id.example.com/oauth/v2/revoke",
@@ -58,10 +60,13 @@ TEST(OidcDiscoveryTest, IssuerMismatchIsRejected) {
 }
 
 TEST(OidcDiscoveryTest, MissingRequiredEndpointIsRejected) {
-    EXPECT_FALSE(parseDiscoveryDocument(R"({"issuer":"https://id.example.com","token_endpoint":"https://id.example.com/t"})", config())
+    EXPECT_FALSE(parseDiscoveryDocument(
+                     R"({"issuer":"https://id.example.com","token_endpoint":"https://id.example.com/t"})", config())
                      .has_value());
-    EXPECT_FALSE(parseDiscoveryDocument(R"({"issuer":"https://id.example.com","authorization_endpoint":"https://id.example.com/a"})", config())
-                     .has_value());
+    EXPECT_FALSE(
+        parseDiscoveryDocument(
+            R"({"issuer":"https://id.example.com","authorization_endpoint":"https://id.example.com/a"})", config())
+            .has_value());
 }
 
 TEST(OidcDiscoveryTest, OptionalEndpointsMayBeAbsent) {

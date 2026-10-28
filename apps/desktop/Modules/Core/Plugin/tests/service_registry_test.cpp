@@ -10,6 +10,7 @@ namespace {
 struct Clock {
     int ticks{7};
 };
+
 struct Mailer {
     int sent{0};
 };

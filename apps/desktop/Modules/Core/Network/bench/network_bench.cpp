@@ -30,6 +30,7 @@ class NetworkBench : public QObject {
     Q_OBJECT
 
 private slots:
+
     void protobufSerializeLoginResponse() {
         const authv1::LoginResponse response = sampleResponse();
         QBENCHMARK {
@@ -41,7 +42,9 @@ private slots:
         const std::string bytes = sampleResponse().SerializeAsString();
         QBENCHMARK {
             authv1::LoginResponse parsed;
-            consume(parsed.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) ? parsed.tokens().access_token().size() : 0);
+            consume(parsed.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()))
+                        ? parsed.tokens().access_token().size()
+                        : 0);
         }
     }
 

@@ -36,8 +36,8 @@ void LocalTokenStoreAdapter::preload(core::Completion<void> done) {
             return;
         }
     }
-    store_->load([weak = weak_from_this(), done = std::move(done)](
-                     core::Outcome<std::optional<persistence::StoredTokens>> stored) {
+    store_->load([weak = weak_from_this(),
+                  done = std::move(done)](core::Outcome<std::optional<persistence::StoredTokens>> stored) {
         const auto self = weak.lock();
         if (!self) {
             return;
@@ -71,8 +71,8 @@ void LocalTokenStoreAdapter::save(const Session& session, core::Completion<void>
         .refreshToken = session.refreshToken,
         .accessTokenExpiresAt = session.accessTokenExpiresAt,
     };
-    store_->save(stored, [weak = weak_from_this(), next = std::move(next), done = std::move(done)](
-                             core::VoidOutcome saved) mutable {
+    store_->save(stored, [weak = weak_from_this(), next = std::move(next),
+                          done = std::move(done)](core::VoidOutcome saved) mutable {
         const auto self = weak.lock();
         if (!self) {
             return;

@@ -27,7 +27,11 @@ public:
     static ConnectivityMonitor* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<ConnectivityMonitor>::create(engine, script);
     }
-    enum class State { Unknown, Online, Offline };
+    enum class State {
+        Unknown,
+        Online,
+        Offline
+    };
     Q_ENUM(State)
 
     /// Takes ownership of `source`; a null source yields a permanently `Unknown` monitor.

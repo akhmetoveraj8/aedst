@@ -136,8 +136,8 @@ void NotificationRealtime::onEvent(quint64 connection, NotificationEvent event) 
 
 std::chrono::milliseconds NotificationRealtime::jittered(std::chrono::milliseconds base) const {
     const double unit = std::clamp(jitter_(), 0.0, 1.0);
-    return std::chrono::milliseconds{static_cast<std::chrono::milliseconds::rep>(
-        static_cast<double>(base.count()) * (0.5 + 0.5 * unit))};
+    return std::chrono::milliseconds{
+        static_cast<std::chrono::milliseconds::rep>(static_cast<double>(base.count()) * (0.5 + 0.5 * unit))};
 }
 
 std::chrono::milliseconds NotificationRealtime::backoffDelay() const {

@@ -10,10 +10,8 @@ namespace {
 using std::chrono::milliseconds;
 
 TEST(RetryPolicyTest, BackoffDoublesUpToTheCap) {
-    const RetryPolicy policy{.maxAttempts = 6,
-                             .initialBackoff = milliseconds{100},
-                             .maxBackoff = milliseconds{500},
-                             .multiplier = 2.0};
+    const RetryPolicy policy{
+        .maxAttempts = 6, .initialBackoff = milliseconds{100}, .maxBackoff = milliseconds{500}, .multiplier = 2.0};
 
     // jitter = 1.0 -> the full cap for that attempt.
     EXPECT_EQ(policy.delayBefore(2, 1.0), milliseconds{100});

@@ -1,12 +1,11 @@
 // Request/response helpers, completion plumbing and CallHandle/CallScope for ConnectClient.
 // Split out of connect_client.cpp without behaviour change.
 
-#include "connect_client_internal.hpp"
-
 #include "aedst/core/correlation.hpp"
 #include "aedst/logging/log_categories.hpp"
 #include "aedst/network/client_identification.hpp"
 #include "aedst/network/connect_error.hpp"
+#include "connect_client_internal.hpp"
 
 #include <QString>
 #include <QTimer>
@@ -65,7 +64,8 @@ std::string callCorrelationId() {
 }
 
 std::unexpected<ApiError> invalidConfig(std::string message) {
-    return std::unexpected(ApiError{.kind = ApiErrorKind::InvalidArgument, .httpStatus = 0, .message = std::move(message)});
+    return std::unexpected(
+        ApiError{.kind = ApiErrorKind::InvalidArgument, .httpStatus = 0, .message = std::move(message)});
 }
 
 void hardenRequest(QNetworkRequest& request, const QSslConfiguration& ssl, const std::string& correlationId,
@@ -152,24 +152,23 @@ RawResult parseUnaryReply(QNetworkReply& reply) {
     }
     // A 200 that is not Protobuf is a captive portal / misrouted proxy, not our server.
     if (!hasContentType(reply, "application/proto")) {
-        return std::unexpected(ApiError{.kind = ApiErrorKind::Decoding,
-                                        .httpStatus = status,
-                                        .message = "Unexpected response content-type: " +
-                                                   reply.header(QNetworkRequest::ContentTypeHeader)
-                                                       .toString()
-                                                       .toStdString()});
+        return std::unexpected(
+            ApiError{.kind = ApiErrorKind::Decoding,
+                     .httpStatus = status,
+                     .message = "Unexpected response content-type: " +
+                                reply.header(QNetworkRequest::ContentTypeHeader).toString().toStdString()});
     }
     if (reply.error() != QNetworkReply::NoError) {
         // Headers arrived but the body was cut off.
-        return std::unexpected(
-            ApiError{.kind = ApiErrorKind::Transport, .httpStatus = status, .message = reply.errorString().toStdString()});
+        return std::unexpected(ApiError{
+            .kind = ApiErrorKind::Transport, .httpStatus = status, .message = reply.errorString().toStdString()});
     }
     return payload;
 }
 
 /// A Public method's request body carries the credential itself (login password, refresh token): overwrite it once the
-/// call is over. Best effort - the bytes were implicitly shared with Qt's request, which is finished by now, so the wipe
-/// is done in place on the shared buffer; the caller's own message object is the caller's to clear.
+/// call is over. Best effort - the bytes were implicitly shared with Qt's request, which is finished by now, so the
+/// wipe is done in place on the shared buffer; the caller's own message object is the caller's to clear.
 void wipeCredentialBody(AuthRequirement auth, QByteArray& body) {
     if (auth != AuthRequirement::Public || body.isEmpty()) {
         return;
@@ -214,8 +213,9 @@ void consumeStreamBytes(const std::shared_ptr<detail::CallState>& state, detail:
     while (!state->finished) {
         auto frame = stream.reader.next();
         if (!frame) {
-            completeStream(state, stream,
-                           std::unexpected(ApiError{.kind = ApiErrorKind::Decoding, .httpStatus = 200, .message = frame.error()}));
+            completeStream(
+                state, stream,
+                std::unexpected(ApiError{.kind = ApiErrorKind::Decoding, .httpStatus = 200, .message = frame.error()}));
             reply.abort();
             return;
         }

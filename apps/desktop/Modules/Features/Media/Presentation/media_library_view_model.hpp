@@ -50,6 +50,7 @@ public:
     static MediaLibraryViewModel* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<MediaLibraryViewModel>::create(engine, script);
     }
+
     struct Dependencies {
         std::shared_ptr<aedst::media::MediaRemoteDataSource> remote;
         std::shared_ptr<core::ErrorSink> errors;
@@ -61,12 +62,18 @@ public:
     explicit MediaLibraryViewModel(Dependencies dependencies, QObject* parent = nullptr);
 
     [[nodiscard]] aedst::media::MediaListModel* items() noexcept { return &items_; }
+
     [[nodiscard]] aedst::media::MediaUploadController* uploader() noexcept { return &uploader_; }
+
     /// "all" | "image" | "video" | "document".
     [[nodiscard]] QString kindFilter() const { return kindFilter_; }
+
     void setKindFilter(const QString& kind);
+
     [[nodiscard]] bool isLoading() const noexcept { return isLoading_; }
+
     [[nodiscard]] bool hasMore() const { return !nextPageToken_.empty(); }
+
     [[nodiscard]] QString errorMessage() const { return errorMessage_; }
 
     Q_INVOKABLE void reload();

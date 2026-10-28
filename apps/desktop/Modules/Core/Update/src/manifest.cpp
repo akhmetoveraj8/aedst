@@ -139,8 +139,8 @@ core::Outcome<ArtifactInfo> parseArtifact(const QJsonValue& value) {
 
 core::Outcome<UpdateManifest> parseManifest(std::string_view json) {
     QJsonParseError parseError;
-    const QJsonDocument document = QJsonDocument::fromJson(
-        QByteArray::fromRawData(json.data(), static_cast<qsizetype>(json.size())), &parseError);
+    const QJsonDocument document =
+        QJsonDocument::fromJson(QByteArray::fromRawData(json.data(), static_cast<qsizetype>(json.size())), &parseError);
     if (parseError.error != QJsonParseError::NoError || !document.isObject()) {
         return fail(Error::invalidInput("manifest: not a JSON object"));
     }

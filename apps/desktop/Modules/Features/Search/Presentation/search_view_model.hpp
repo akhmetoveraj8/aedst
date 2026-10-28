@@ -57,6 +57,7 @@ public:
     static SearchViewModel* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<SearchViewModel>::create(engine, script);
     }
+
     static constexpr int kDebounceMs = 300;
     static constexpr int kSuggestionLimit = 8;
 
@@ -65,18 +66,30 @@ public:
                     QObject* parent = nullptr);
 
     [[nodiscard]] QString query() const { return query_; }
+
     void setQuery(const QString& query);
+
     /// "all" | "task" | "media".
     [[nodiscard]] QString kindFilter() const { return kindFilter_; }
+
     void setKindFilter(const QString& kind);
+
     [[nodiscard]] QAbstractItemModel* results() noexcept { return &results_; }
+
     [[nodiscard]] SearchResultsModel& resultsModel() noexcept { return results_; }
+
     [[nodiscard]] QStringList suggestions() const { return suggestions_; }
+
     [[nodiscard]] bool isLoading() const noexcept { return isLoading_; }
+
     [[nodiscard]] bool hasSearched() const noexcept { return hasSearched_; }
+
     [[nodiscard]] bool hasMore() const { return !nextPageToken_.empty(); }
+
     [[nodiscard]] int totalEstimate() const noexcept { return totalEstimate_; }
+
     [[nodiscard]] QString errorMessage() const { return errorMessage_; }
+
     [[nodiscard]] bool isDebouncing() const { return debounce_.isActive(); }
 
     Q_INVOKABLE void submit();

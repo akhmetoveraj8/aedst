@@ -9,14 +9,14 @@ Part of the [Library-First standard](../library-first.md). Principles, version p
 
 > **Verification status:** `apps/desktop` has not been configured or built (no toolchain). Everything was statically reviewed; the first real build is the acceptance test. The connectrpc conformance suite is a **deferred follow-up** (not done).
 
-Modern C++23, **Qt 6** (official binaries, currently 6.12.0; the version is `apps/desktop/qt-version.txt`, the single source of truth), CMake + CMakePresets, CTest, clang-tidy, clang-format. UI lives in `apps/desktop/Modules/Core/DesignSystem/`. Performance rules: `apps/desktop/docs/performance.md`.
+Modern C++23, **Qt 6** (official binaries, currently 6.12.0; the version is `apps/desktop/qt-version.txt`, the single source of truth), CMake + CMakePresets, CTest, clang-tidy, clang-format (23.1.3, the PyPI wheel pinned in `desktop-ci.yml`). UI lives in `apps/desktop/Modules/Core/DesignSystem/`. Performance rules: `apps/desktop/docs/performance.md`.
 
 Use the Qt API instead of home-grown equivalents: signals/slots instead of your own event system, `QTimer`, Qt filesystem/`std::filesystem`, Qt JSON, Qt Network, Qt concurrency, `std::unique_ptr`/`QPointer`. RAII, const-correctness, move semantics, no owning raw pointers.
 
 | Responsibility | Tool |
 |---|---|
 | Package management | **vcpkg manifest mode** (`vcpkg.json`, `builtin-baseline`) for everything except Qt. Conan is **not used**: [ADR-0002](../../../apps/desktop/docs/adr/0002-dependency-management.md) |
-| API contract | **protoc-generated C++ messages** (at build time, generated code is not committed, the same protoc as libprotobuf) + a thin Connect-protocol client `ConnectClient` on Qt Network: [ADR-0001](../../../apps/desktop/docs/adr/0001-api-contract-client.md) |
+| API contract | **protoc-generated C++ messages** (at build time, generated code is not committed, the same protoc as libprotobuf; **protobuf 7.x**, vcpkg port 7.36.2 = upstream v36.2, needs abseil >= 20250512.1) + a thin Connect-protocol client `ConnectClient` on Qt Network: [ADR-0001](../../../apps/desktop/docs/adr/0001-api-contract-client.md) |
 | Validation | vendored protovalidate proto in `third_party/`, pinned by `buf.lock` (`scripts/check-protovalidate-pin.sh`, `scripts/check-proto-freshness.sh`) |
 | Local DB | SQLite (vcpkg `sqlite3`) behind an RAII wrapper |
 | Sign-in (OIDC) | **QtNetworkAuth** (**note: the license is GPLv3/commercial only, not LGPL; an open owner decision, ADR-0032**) (`QOAuth2AuthorizationCodeFlow` + PKCE S256 + `QOAuthHttpServerReplyHandler` on `127.0.0.1`, sign-in in the system browser) and **QtKeychain 0.17.0** (BSD-3-Clause; Windows Credential Manager, Linux Secret Service/KWallet) for the refresh token; built from source via `FetchContent` (statically, `EXCLUDE_FROM_ALL`), not through vcpkg (otherwise vcpkg would pull in its own Qt). No file fallback. Custom only: RFC 7009 token revocation (QtNetworkAuth has no API for it) and ID-token claim checks: [ADR-0025](../../../apps/desktop/docs/adr/0025-oidc-authentication.md) |

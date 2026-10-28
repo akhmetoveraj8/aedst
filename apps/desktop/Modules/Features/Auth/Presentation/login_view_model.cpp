@@ -17,7 +17,10 @@ namespace aedst::feature::auth {
 LoginViewModel::LoginViewModel(std::shared_ptr<LoginUseCase> login, std::shared_ptr<LogoutUseCase> logout,
                                std::shared_ptr<analytics::AnalyticsTracker> analytics, navigation::Router* router,
                                QObject* parent)
-    : QObject(parent), login_(std::move(login)), logout_(std::move(logout)), analytics_(std::move(analytics)),
+    : QObject(parent),
+      login_(std::move(login)),
+      logout_(std::move(logout)),
+      analytics_(std::move(analytics)),
       router_(router) {}
 
 QString LoginViewModel::email() const {
@@ -117,36 +120,36 @@ void LoginViewModel::login() {
     // Completions run later on the event loop; the guard makes a destroyed
     // ViewModel (window closed mid-request) a no-op instead of a dangling `this`.
     QPointer<LoginViewModel> guard(this);
-    login_->execute(Credentials{.email = email_.trimmed().toStdString(), .password = password_},
-                     [guard](core::Outcome<Session> result) {
-                         if (!guard) {
-                             return;
-                         }
-                         guard->setLoading(false);
+    login_->execute(
+        Credentials{.email = email_.trimmed().toStdString(), .password = password_},
+        [guard](core::Outcome<Session> result) {
+            if (!guard) {
+                return;
+            }
+            guard->setLoading(false);
 
-                         if (!result) {
-                             const QString message = messageFor(result.error());
-                             guard->setErrorMessage(message);
-                             if (guard->analytics_) {
-                                 guard->analytics_->track(
-                                     analytics::events::kLoginFailed,
-                                     {{"method", "password"},
-                                      {"reason", std::string(core::toString(result.error().code))}});
-                             }
-                             emit guard->loginFailed(message);
-                             return;
-                         }
+            if (!result) {
+                const QString message = messageFor(result.error());
+                guard->setErrorMessage(message);
+                if (guard->analytics_) {
+                    guard->analytics_->track(
+                        analytics::events::kLoginFailed,
+                        {{"method", "password"}, {"reason", std::string(core::toString(result.error().code))}});
+                }
+                emit guard->loginFailed(message);
+                return;
+            }
 
-                         guard->clearPassword();
-                         if (guard->analytics_) {
-                             guard->analytics_->identify(result->userId);
-                             guard->analytics_->track(analytics::events::kLoginSucceeded, {{"method", "password"}});
-                         }
-                         // Auth never names another feature's screen: App/
-                         // (AppDependencies::onSignedIn) routes to the signed-in
-                         // home (Tasks) and starts per-user background work.
-                         emit guard->loginSucceeded(QString::fromStdString(result->userId));
-                     });
+            guard->clearPassword();
+            if (guard->analytics_) {
+                guard->analytics_->identify(result->userId);
+                guard->analytics_->track(analytics::events::kLoginSucceeded, {{"method", "password"}});
+            }
+            // Auth never names another feature's screen: App/
+            // (AppDependencies::onSignedIn) routes to the signed-in
+            // home (Tasks) and starts per-user background work.
+            emit guard->loginSucceeded(QString::fromStdString(result->userId));
+        });
 }
 
 bool LoginViewModel::browserSignInAvailable() const noexcept {
@@ -202,9 +205,9 @@ void LoginViewModel::signInWithBrowser() {
                 const QString message = messageFor(result.error());
                 guard->setErrorMessage(message);
                 if (guard->analytics_) {
-                    guard->analytics_->track(analytics::events::kLoginFailed,
-                                             {{"method", "browser"},
-                                              {"reason", std::string(core::toString(result.error().code))}});
+                    guard->analytics_->track(
+                        analytics::events::kLoginFailed,
+                        {{"method", "browser"}, {"reason", std::string(core::toString(result.error().code))}});
                 }
                 emit guard->loginFailed(message);
             }

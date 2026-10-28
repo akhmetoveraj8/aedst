@@ -101,8 +101,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/protocolbuffers/protobuf.git
-        tag: v33.4
-        commit: edaa823d8b36a8656d7b2b9241b7d0bfe50af878
+        tag: v36.2
+        commit: 2c74169b34066ceb8ddb6b882fcb3fb32d737a55
 
   # Crash/error reporting (Aedst::Telemetry). Same version as the vcpkg baseline's
   # sentry-native port. libcurl and zlib come from the runtime; crashpad and its
@@ -119,8 +119,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/getsentry/sentry-native.git
-        tag: "0.17.1"
-        commit: 620f6afda74c32a7c1468200a2578f62a8006277
+        tag: "0.17.4"
+        commit: 740313523edd50e3a0cfe2f8f931e893ed7423a5
 
   # Refresh-token storage (Aedst::Oidc). Native builds fetch it with FetchContent; the sandbox has no network during the
   # build, so it is built here and found with find_package (-DAEDST_SYSTEM_QTKEYCHAIN=ON below).

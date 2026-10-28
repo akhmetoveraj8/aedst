@@ -1,5 +1,4 @@
 #include "aedst/update/manifest_verifier.hpp"
-
 #include "test_support.hpp"
 
 #include <gtest/gtest.h>
@@ -118,10 +117,10 @@ TEST_F(ManifestVerifierTest, RejectsMalformedEnvelopes) {
         R"({"payload":"e30=","signatures":[]})",
         R"({"payload":"e30=","signatures":"x"})",
         R"({"payload":5,"signatures":[]})",
-        makeEnvelope(payload, {{"k1", "AAAA"}}),                            // wrong length
-        makeEnvelope(payload, {{"k1", goodSignature.substr(0, 40)}}),       // truncated
+        makeEnvelope(payload, {{"k1", "AAAA"}}),                      // wrong length
+        makeEnvelope(payload, {{"k1", goodSignature.substr(0, 40)}}), // truncated
         makeEnvelope(payload, {{"k1", "not base64 !!"}}),
-        makeEnvelope(payload, {}),                                          // no signatures
+        makeEnvelope(payload, {}), // no signatures
     };
     for (const std::string& envelope : bad) {
         EXPECT_FALSE(verifier.verify(envelope).has_value()) << envelope;

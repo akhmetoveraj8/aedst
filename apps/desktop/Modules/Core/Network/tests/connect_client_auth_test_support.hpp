@@ -13,6 +13,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QTimer>
+
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -30,7 +31,6 @@ namespace authv1 = ::aedst::auth::v1;
 using ::aedst::testing::FakeHttpServer;
 using ::aedst::testing::FakeResponse;
 using ::aedst::testing::waitUntil;
-
 
 inline QByteArray userResponse() {
     authv1::GetCurrentUserResponse response;
@@ -87,9 +87,8 @@ private:
             done(std::move(result));
             return;
         }
-        QTimer::singleShot(refreshDelay, [done = std::move(done), result = std::move(result)]() mutable {
-            done(std::move(result));
-        });
+        QTimer::singleShot(refreshDelay,
+                           [done = std::move(done), result = std::move(result)]() mutable { done(std::move(result)); });
     }
 };
 

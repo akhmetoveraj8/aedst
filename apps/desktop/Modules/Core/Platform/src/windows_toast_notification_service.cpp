@@ -11,19 +11,19 @@
 #include <QStandardPaths>
 #include <QString>
 
-// C++/WinRT must come after the Qt headers above only for readability; none of them includes <windows.h>
-// without NOMINMAX / WIN32_LEAN_AND_MEAN, which the Platform target defines.
-#include <shlobj.h>
-#include <shobjidl.h>
-#include <propkey.h>
-#include <propvarutil.h>
-#include <winrt/Windows.Data.Xml.Dom.h>
-#include <winrt/Windows.Foundation.h>
-#include <winrt/Windows.UI.Notifications.h>
-
 #include <deque>
 #include <string>
 #include <utility>
+
+// C++/WinRT must come after the Qt headers above only for readability; none of them includes <windows.h>
+// without NOMINMAX / WIN32_LEAN_AND_MEAN, which the Platform target defines.
+#include <propkey.h>
+#include <propvarutil.h>
+#include <shlobj.h>
+#include <shobjidl.h>
+#include <winrt/Windows.Data.Xml.Dom.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.UI.Notifications.h>
 
 namespace aedst::platform {
 namespace {
@@ -65,9 +65,9 @@ bool shortcutCarriesAumid(const QString& linkPath) {
 bool ensureStartMenuShortcut(const QString& displayName) {
     const QStringList programDirectories = QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation);
     for (const QString& directory : programDirectories) {
-        for (const QString& candidate : {QDir(directory).filePath(displayName + QStringLiteral(".lnk")),
-                                         QDir(directory).filePath(displayName + QStringLiteral("/") + displayName +
-                                                                  QStringLiteral(".lnk"))}) {
+        for (const QString& candidate :
+             {QDir(directory).filePath(displayName + QStringLiteral(".lnk")),
+              QDir(directory).filePath(displayName + QStringLiteral("/") + displayName + QStringLiteral(".lnk"))}) {
             if (QFileInfo::exists(candidate) && shortcutCarriesAumid(candidate)) {
                 return true; // the installer's shortcut is in order
             }
@@ -183,7 +183,8 @@ void WindowsToastNotificationService::showRequest(const NotificationRequest& req
                 // Raised on a thread-pool thread: hand over to the GUI thread.
                 if (self) {
                     QMetaObject::invokeMethod(
-                        self.data(), [self, link]() {
+                        self.data(),
+                        [self, link]() {
                             if (self && isActivatableLink(link)) {
                                 self->notifyActivated(link);
                             }

@@ -49,8 +49,13 @@ QVariant NotificationListModel::data(const QModelIndex& index, int role) const {
 
 QHash<int, QByteArray> NotificationListModel::roleNames() const {
     return {
-        {NotificationIdRole, "notificationId"}, {KindRole, "kind"}, {TitleRole, "title"}, {BodyRole, "body"},
-        {LinkRole, "link"}, {CreatedAtRole, "createdAt"}, {ReadRole, "read"},
+        {NotificationIdRole, "notificationId"},
+        {KindRole, "kind"},
+        {TitleRole, "title"},
+        {BodyRole, "body"},
+        {LinkRole, "link"},
+        {CreatedAtRole, "createdAt"},
+        {ReadRole, "read"},
     };
 }
 
@@ -76,9 +81,8 @@ void NotificationListModel::appendNotifications(std::vector<Notification> notifi
 }
 
 void NotificationListModel::prependNotification(Notification notification) {
-    const bool known = std::ranges::any_of(items_, [&notification](const Notification& item) {
-        return item.id == notification.id;
-    });
+    const bool known =
+        std::ranges::any_of(items_, [&notification](const Notification& item) { return item.id == notification.id; });
     if (known) {
         return;
     }

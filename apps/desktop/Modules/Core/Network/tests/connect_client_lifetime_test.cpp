@@ -19,9 +19,8 @@ TEST_F(ClientAuthTest, DestroyingTheContextCancelsTheCallSilently) {
     auto owner = std::make_unique<QObject>();
     int completions = 0;
 
-    auto handle = client_->unary(
-        contract::kAuthGetCurrentUser, authv1::GetCurrentUserRequest{}, owner.get(),
-        [&completions](ApiResult<authv1::GetCurrentUserResponse>) { ++completions; });
+    auto handle = client_->unary(contract::kAuthGetCurrentUser, authv1::GetCurrentUserRequest{}, owner.get(),
+                                 [&completions](ApiResult<authv1::GetCurrentUserResponse>) { ++completions; });
     ASSERT_TRUE(waitUntil([&] { return !server_.requests().empty(); }));
     EXPECT_TRUE(handle.isActive());
 
@@ -91,13 +90,12 @@ TEST_F(ClientAuthTest, DestroyingTheClientCompletesInFlightCallsWithCancelled) {
 // --- A response larger than the limit is aborted instead of buffered ----------------------------------------------
 
 TEST_F(ClientAuthTest, AnOversizedResponseIsAbortedAndFailsAsDecoding) {
-    client_ = std::make_unique<ConnectClient>(
-        ClientConfig{.baseUrl = server_.baseUrl(),
-                     .defaultTimeout = 2s,
-                     .retry = RetryPolicy::none(),
-                     .allowInsecureLoopback = true,
-                     .maxResponseBytes = 1024},
-        interceptor_);
+    client_ = std::make_unique<ConnectClient>(ClientConfig{.baseUrl = server_.baseUrl(),
+                                                           .defaultTimeout = 2s,
+                                                           .retry = RetryPolicy::none(),
+                                                           .allowInsecureLoopback = true,
+                                                           .maxResponseBytes = 1024},
+                                              interceptor_);
     server_.enqueue(FakeResponse::proto(QByteArray(64 * 1024, 'x')));
     std::optional<ApiResult<authv1::GetCurrentUserResponse>> out;
 
@@ -109,13 +107,12 @@ TEST_F(ClientAuthTest, AnOversizedResponseIsAbortedAndFailsAsDecoding) {
 }
 
 TEST_F(ClientAuthTest, AResponseWithinTheLimitIsUnaffected) {
-    client_ = std::make_unique<ConnectClient>(
-        ClientConfig{.baseUrl = server_.baseUrl(),
-                     .defaultTimeout = 2s,
-                     .retry = RetryPolicy::none(),
-                     .allowInsecureLoopback = true,
-                     .maxResponseBytes = 1024},
-        interceptor_);
+    client_ = std::make_unique<ConnectClient>(ClientConfig{.baseUrl = server_.baseUrl(),
+                                                           .defaultTimeout = 2s,
+                                                           .retry = RetryPolicy::none(),
+                                                           .allowInsecureLoopback = true,
+                                                           .maxResponseBytes = 1024},
+                                              interceptor_);
     server_.enqueue(FakeResponse::proto(userResponse()));
     std::optional<ApiResult<authv1::GetCurrentUserResponse>> out;
 

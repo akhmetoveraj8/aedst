@@ -57,6 +57,7 @@ public:
     }
 
     [[nodiscard]] bool isListening() const { return server_.isListening(); }
+
     [[nodiscard]] QUrl baseUrl() const { return server_.baseUrl(); }
 
     [[nodiscard]] OidcConfig config() const {
@@ -72,14 +73,14 @@ public:
 
     // --- Knobs -----------------------------------------------------------------------------
     int expiresIn{3600};
-    QString refreshError;          // when set, refresh_token grants fail with this OAuth error
-    bool dropRefresh{false};       // refresh_token grants close the connection
-    bool omitRefreshToken{false};  // authorization_code grant returns no refresh token
-    QString idTokenIssuer;         // overrides the iss claim of issued ID tokens
+    QString refreshError;         // when set, refresh_token grants fail with this OAuth error
+    bool dropRefresh{false};      // refresh_token grants close the connection
+    bool omitRefreshToken{false}; // authorization_code grant returns no refresh token
+    QString idTokenIssuer;        // overrides the iss claim of issued ID tokens
     QString expectedRefreshToken{"refresh-1"};
     bool advertisePkce{true};
-    bool echoNonce{true};          // false: issued ID tokens carry no nonce claim
-    QString nonceOverride;         // when set, issued ID tokens carry this nonce instead of the request's
+    bool echoNonce{true};  // false: issued ID tokens carry no nonce claim
+    QString nonceOverride; // when set, issued ID tokens carry this nonce instead of the request's
 
     // --- Observations ----------------------------------------------------------------------
     int authorizeRequests{0};
@@ -88,7 +89,7 @@ public:
     std::vector<QByteArray> revocationBodies;
     QString lastScope;
     QString lastChallengeMethod;
-    QString lastNonce;             // the nonce of the last authorization request
+    QString lastNonce; // the nonce of the last authorization request
     bool pkceVerified{false};
 
 private:

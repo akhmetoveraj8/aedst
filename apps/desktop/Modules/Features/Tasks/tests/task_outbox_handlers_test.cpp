@@ -20,14 +20,20 @@ using outbox::OutboxItem;
 class RecordingRepository final : public TaskRepository {
 public:
     void list(const TaskQuery&, core::Completion<TaskPage> done) override { done(TaskPage{}); }
+
     void get(const std::string&, core::Completion<Task> done) override { done(Task{}); }
+
     void create(const NewTask& task, core::Completion<Task> done) override {
         created.push_back(task);
         answer(std::move(done));
     }
+
     void complete(const std::string&, core::Completion<Task> done) override { answer(std::move(done)); }
+
     void reopen(const std::string&, core::Completion<Task> done) override { answer(std::move(done)); }
+
     void remove(const std::string&, core::Completion<void> done) override { done(core::ok()); }
+
     void setDone(const std::string& id, bool done, const std::string& key, core::Completion<Task> completion) override {
         updates.push_back({id, done, key});
         answer(std::move(completion));
@@ -105,7 +111,8 @@ TEST(TaskOutboxHandlerTest, CreateSendsTheItemIdAsTheIdempotencyKey) {
     auto repository = std::make_shared<RecordingRepository>();
     TaskCreateOutboxHandler handler(repository);
 
-    const auto result = deliver(handler, deliveryOf("op-1", "task.create", taskCreatePayload(NewTask{.title = "Buy milk"})));
+    const auto result =
+        deliver(handler, deliveryOf("op-1", "task.create", taskCreatePayload(NewTask{.title = "Buy milk"})));
 
     EXPECT_EQ(result.status, DeliveryStatus::Delivered);
     ASSERT_EQ(repository->created.size(), 1U);

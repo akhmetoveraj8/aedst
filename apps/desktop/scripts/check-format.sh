@@ -4,8 +4,12 @@
 #   ./scripts/check-format.sh          # check (what CI runs)
 #   ./scripts/check-format.sh --fix    # rewrite files in place
 #
-# Picks the binary from $CLANG_FORMAT, else clang-format-<CLANG_FORMAT_VERSION>
-# (CI pins 18), else plain clang-format.
+# Picks the binary from $CLANG_FORMAT, else clang-format-<major of CLANG_FORMAT_VERSION>,
+# else plain clang-format. CI pins CLANG_FORMAT_VERSION (23.1.3, the PyPI `clang-format`
+# wheel, see .github/workflows/desktop-ci.yml) and passes the wheel's binary in $CLANG_FORMAT.
+# Locally: `pip install clang-format==23.1.3`. When CLANG_FORMAT_VERSION is set the binary's
+# version must match it (full version, or just the major number), so a different formatter
+# cannot silently reformat or approve the tree.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -15,13 +19,21 @@ mode=check
 
 bin="${CLANG_FORMAT:-}"
 if [ -z "$bin" ]; then
-  for candidate in "clang-format-${CLANG_FORMAT_VERSION:-18}" clang-format; do
+  for candidate in "clang-format-${CLANG_FORMAT_VERSION:-23}" clang-format; do
     if command -v "$candidate" >/dev/null 2>&1; then bin="$candidate"; break; fi
   done
 fi
 if [ -z "$bin" ]; then
-  echo "error: clang-format not found (install clang-format-${CLANG_FORMAT_VERSION:-18} or set CLANG_FORMAT)." >&2
+  echo "error: clang-format not found (pip install clang-format==${CLANG_FORMAT_VERSION:-23.1.3}, or set CLANG_FORMAT)." >&2
   exit 127
+fi
+
+if [ -n "${CLANG_FORMAT_VERSION:-}" ]; then
+  actual=$("$bin" --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+  case "$actual" in
+    "$CLANG_FORMAT_VERSION" | "$CLANG_FORMAT_VERSION".*) ;;
+    *) echo "error: $bin is clang-format $actual, CLANG_FORMAT_VERSION pins $CLANG_FORMAT_VERSION." >&2; exit 1 ;;
+  esac
 fi
 
 # Sources under Modules/ and App/ (headers, TUs), never build output.

@@ -87,6 +87,7 @@ public:
     static PostHogAnalyticsTracker* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<PostHogAnalyticsTracker>::create(engine, script);
     }
+
     explicit PostHogAnalyticsTracker(PostHogConfig config, QObject* parent = nullptr);
     PostHogAnalyticsTracker(const PostHogAnalyticsTracker&) = delete;
     PostHogAnalyticsTracker& operator=(const PostHogAnalyticsTracker&) = delete;
@@ -96,8 +97,10 @@ public:
 
     /// Configured (key + valid https host) - independent of consent.
     [[nodiscard]] bool isConfigured() const noexcept { return configured_; }
+
     /// Configured and the user consented.
     [[nodiscard]] bool isEnabled() const noexcept { return configured_ && consent_; }
+
     /// Revoking drops every queued event and the cached flags.
     void setConsent(bool granted);
 
@@ -114,6 +117,7 @@ public:
     Q_INVOKABLE void reloadFeatureFlags();
 
     [[nodiscard]] int queuedEventCount() const noexcept { return static_cast<int>(queue_.size()); }
+
     /// Whether the batch timer is running (it runs only while events are waiting). Diagnostics and tests.
     [[nodiscard]] bool flushTimerActive() const noexcept { return flushTimer_.isActive(); }
 

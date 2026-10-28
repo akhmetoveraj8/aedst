@@ -27,11 +27,17 @@ public:
     explicit RouteNames(QObject* parent = nullptr) : QObject(parent) {}
 
     [[nodiscard]] static QString login() { return name(routes::kLogin); }
+
     [[nodiscard]] static QString tasks() { return name(routes::kTasks); }
+
     [[nodiscard]] static QString search() { return name(routes::kSearch); }
+
     [[nodiscard]] static QString notifications() { return name(routes::kNotifications); }
+
     [[nodiscard]] static QString media() { return name(routes::kMedia); }
+
     [[nodiscard]] static QString admin() { return name(routes::kAdmin); }
+
     [[nodiscard]] static QString upgradeRequired() { return name(routes::kUpgradeRequired); }
 
 private:

@@ -80,8 +80,7 @@ void OutboxDrainer::deliverNext(const std::shared_ptr<Run>& run) {
     }
 }
 
-void OutboxDrainer::onDelivered(const std::shared_ptr<Run>& run, const OutboxItem& item,
-                                const DeliveryResult& result) {
+void OutboxDrainer::onDelivered(const std::shared_ptr<Run>& run, const OutboxItem& item, const DeliveryResult& result) {
     switch (result.status) {
     case DeliveryStatus::Delivered:
         queue_->remove(item.id, [self = shared_from_this(), run](core::VoidOutcome removed) {
@@ -93,13 +92,14 @@ void OutboxDrainer::onDelivered(const std::shared_ptr<Run>& run, const OutboxIte
         return;
     case DeliveryStatus::Retryable:
         if (item.attempts + 1 < config_.maxAttempts) {
-            queue_->recordAttempt(item.id, result.errorKind, [self = shared_from_this(), run](core::VoidOutcome recorded) {
-                if (!recorded) {
-                    run->done(core::fail(recorded.error()));
-                    return;
-                }
-                self->finish(run, RunResult::Retry);
-            });
+            queue_->recordAttempt(item.id, result.errorKind,
+                                  [self = shared_from_this(), run](core::VoidOutcome recorded) {
+                                      if (!recorded) {
+                                          run->done(core::fail(recorded.error()));
+                                          return;
+                                      }
+                                      self->finish(run, RunResult::Retry);
+                                  });
             return;
         }
         core::AedstLogger::warn("Outbox: giving up on '{}' after {} attempts ({})", item.type, item.attempts + 1,

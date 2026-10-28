@@ -24,7 +24,8 @@ struct AsyncTokenStore::WorkerState {
 
 AsyncTokenStore::AsyncTokenStore(std::shared_ptr<DatabaseWorker> worker, KeyProviderFactory keyProvider,
                                  Dispatcher dispatcher)
-    : worker_(std::move(worker)), dispatcher_(std::move(dispatcher)),
+    : worker_(std::move(worker)),
+      dispatcher_(std::move(dispatcher)),
       state_(std::make_shared<WorkerState>(WorkerState{.keyProvider = std::move(keyProvider), .storage = nullptr})) {}
 
 AsyncTokenStore::~AsyncTokenStore() = default;

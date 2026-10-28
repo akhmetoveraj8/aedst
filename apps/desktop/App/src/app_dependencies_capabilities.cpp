@@ -1,13 +1,12 @@
-#include "app_dependencies.hpp"
-
-#include "client_build.hpp"
 #include "aedst/capabilities/capabilities_service.hpp"
 #include "aedst/logging/log_categories.hpp"
+#include "app_dependencies.hpp"
+#include "client_build.hpp"
 #include "plugin_host.hpp"
 
 #include <QObject>
-#include <QStringList>
 #include <QString>
+#include <QStringList>
 
 #include <string>
 #include <utility>
@@ -36,7 +35,8 @@ void AppDependencies::createCapabilities(std::string version, std::shared_ptr<pe
         .build = desktopClientBuild(std::move(version)),
     });
     plugins_->setCapabilitySource(*capabilities_);
-    session_->setVisibleFeatures(toQStringList(capabilities_->visibleFeatures())); // the defaults, until the server answers
+    session_->setVisibleFeatures(
+        toQStringList(capabilities_->visibleFeatures())); // the defaults, until the server answers
 
     // A new answer: show or hide the shell's sections, and let plugins that were waiting for it activate (there is no
     // deactivation, ADR-0033: a built-in feature is hidden in the shell, a run-time plugin disappears after a restart).

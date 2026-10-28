@@ -39,7 +39,8 @@ TEST(PlatformInfoTest, FallsBackToDisplayVariablesWhenSessionTypeIsMissing) {
 TEST(PlatformInfoTest, SanitisesDesktopEnvironment) {
     EXPECT_EQ(describePlatform(linuxProbe({{"XDG_CURRENT_DESKTOP", "KDE"}})).desktopEnvironment, "KDE");
     EXPECT_TRUE(describePlatform(linuxProbe({{"XDG_CURRENT_DESKTOP", "KDE; rm -rf /"}})).desktopEnvironment.empty());
-    EXPECT_TRUE(describePlatform(linuxProbe({{"XDG_CURRENT_DESKTOP", std::string(65, 'a')}})).desktopEnvironment.empty());
+    EXPECT_TRUE(
+        describePlatform(linuxProbe({{"XDG_CURRENT_DESKTOP", std::string(65, 'a')}})).desktopEnvironment.empty());
 }
 
 TEST(PlatformInfoTest, DetectsFlatpakAndSnapSandboxes) {

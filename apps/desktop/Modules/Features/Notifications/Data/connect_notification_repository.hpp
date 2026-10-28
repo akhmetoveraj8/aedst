@@ -3,7 +3,6 @@
 #include "Domain/notification_repository.hpp"
 
 #include <aedst/notifications/v1/notifications.pb.h>
-
 #include <memory>
 
 namespace aedst::network {

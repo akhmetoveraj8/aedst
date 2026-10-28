@@ -5,6 +5,7 @@
 
 #include <QCoreApplication>
 #include <QMetaObject>
+
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -36,15 +37,14 @@ protected:
             .handlers = handlers,
             .clock = std::make_shared<aedst::testing::FakeClock>(),
             .drainer = {},
-            .backoff = network::RetryPolicy{.maxAttempts = 0,
-                                            .initialBackoff = 2ms,
-                                            .maxBackoff = 4ms,
-                                            .multiplier = 2.0}});
+            .backoff =
+                network::RetryPolicy{.maxAttempts = 0, .initialBackoff = 2ms, .maxBackoff = 4ms, .multiplier = 2.0}});
     }
 
     void enqueue(const std::string& id) {
         bool stored = false;
-        service_->enqueue("task.create", "{}", id, [&stored](core::VoidOutcome result) { stored = result.has_value(); });
+        service_->enqueue("task.create", "{}", id,
+                          [&stored](core::VoidOutcome result) { stored = result.has_value(); });
         ASSERT_TRUE(waitUntil([&] { return stored; }));
     }
 
@@ -59,7 +59,8 @@ TEST_F(OutboxServiceTest, AnEnqueuedOperationIsDeliveredWithItsIdAsTheIdempotenc
 
     enqueue("op-1");
 
-    ASSERT_TRUE(waitUntil([&] { return script_->sent.size() == 1U && service_->pendingCount() == 0 && deliveredSignals == 1; }));
+    ASSERT_TRUE(waitUntil(
+        [&] { return script_->sent.size() == 1U && service_->pendingCount() == 0 && deliveredSignals == 1; }));
     EXPECT_EQ(script_->sent[0].first, "op-1");
     EXPECT_EQ(script_->sent[0].second, "op-1");
 }

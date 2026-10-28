@@ -53,15 +53,19 @@ namespace routes {
 [[nodiscard]] inline Route tasks() {
     return Route{.name = std::string(kTasks), .params = {}};
 }
+
 [[nodiscard]] inline Route taskDetail(std::string_view taskId) {
     return Route{.name = std::string(kTaskDetail), .params = {{std::string(params::kTaskId), std::string(taskId)}}};
 }
+
 [[nodiscard]] inline Route media() {
     return Route{.name = std::string(kMedia), .params = {}};
 }
+
 [[nodiscard]] inline Route mediaViewer(std::string_view mediaId) {
     return Route{.name = std::string(kMediaViewer), .params = {{std::string(params::kMediaId), std::string(mediaId)}}};
 }
+
 [[nodiscard]] inline Route notifications() {
     return Route{.name = std::string(kNotifications), .params = {}};
 }

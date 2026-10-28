@@ -58,9 +58,9 @@ QVariant TaskListModel::data(const QModelIndex& index, int role) const {
 
 QHash<int, QByteArray> TaskListModel::roleNames() const {
     return {
-        {TaskIdRole, "taskId"},     {TitleRole, "title"},     {DescriptionRole, "description"},
-        {StatusRole, "status"},     {DoneRole, "done"},       {PriorityRole, "priority"},
-        {DueDateRole, "dueDate"},   {OverdueRole, "overdue"},  {PendingSyncRole, "pendingSync"},
+        {TaskIdRole, "taskId"},   {TitleRole, "title"},     {DescriptionRole, "description"},
+        {StatusRole, "status"},   {DoneRole, "done"},       {PriorityRole, "priority"},
+        {DueDateRole, "dueDate"}, {OverdueRole, "overdue"}, {PendingSyncRole, "pendingSync"},
     };
 }
 

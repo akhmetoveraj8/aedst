@@ -54,8 +54,8 @@ std::optional<NewTask> parseTaskCreatePayload(const std::string& payload) {
     const int priority = object->value("priority").toInt(static_cast<int>(TaskPriority::Medium));
     task.priority = priority >= 1 && priority <= 4 ? static_cast<TaskPriority>(priority) : TaskPriority::Medium;
     if (object->value("dueDateMs").isDouble()) {
-        task.dueDate = std::chrono::system_clock::time_point{
-            std::chrono::duration_cast<std::chrono::system_clock::duration>(
+        task.dueDate =
+            std::chrono::system_clock::time_point{std::chrono::duration_cast<std::chrono::system_clock::duration>(
                 std::chrono::milliseconds{static_cast<std::int64_t>(object->value("dueDateMs").toDouble())})};
     }
     return task;
@@ -93,11 +93,10 @@ void TaskUpdateOutboxHandler::deliver(const outbox::OutboxDelivery& delivery, ou
         done(outbox::DeliveryResult::permanent("Payload"));
         return;
     }
-    repository_->setDone(update->id, update->done, delivery.idempotencyKey,
-                         [done = std::move(done)](core::Outcome<Task> result) {
-                             done(result ? outbox::DeliveryResult::delivered()
-                                         : outbox::DeliveryResult::fromError(result.error()));
-                         });
+    repository_->setDone(
+        update->id, update->done, delivery.idempotencyKey, [done = std::move(done)](core::Outcome<Task> result) {
+            done(result ? outbox::DeliveryResult::delivered() : outbox::DeliveryResult::fromError(result.error()));
+        });
 }
 
 } // namespace aedst::feature::tasks

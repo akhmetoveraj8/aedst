@@ -22,7 +22,8 @@ class FakeLoginViewModel final : public QObject {
     Q_PROPERTY(bool isLoading READ isLoading WRITE setIsLoading NOTIFY isLoadingChanged)
     Q_PROPERTY(QString errorMessage READ errorMessage WRITE setErrorMessage NOTIFY errorMessageChanged)
     Q_PROPERTY(bool canSubmit READ canSubmit NOTIFY canSubmitChanged)
-    Q_PROPERTY(bool browserSignInAvailable READ browserSignInAvailable WRITE setBrowserSignInAvailable NOTIFY browserSignInAvailableChanged)
+    Q_PROPERTY(bool browserSignInAvailable READ browserSignInAvailable WRITE setBrowserSignInAvailable NOTIFY
+                   browserSignInAvailableChanged)
     Q_PROPERTY(bool waitingForBrowser READ waitingForBrowser WRITE setWaitingForBrowser NOTIFY waitingForBrowserChanged)
     Q_PROPERTY(bool restoringSession READ restoringSession WRITE setRestoringSession NOTIFY restoringSessionChanged)
     Q_PROPERTY(int browserCalls READ browserCalls NOTIFY loginCallsChanged)
@@ -33,6 +34,7 @@ class FakeLoginViewModel final : public QObject {
 
 public:
     [[nodiscard]] QString email() const { return email_; }
+
     void setEmail(const QString& value) {
         if (value == email_) {
             return;
@@ -41,7 +43,9 @@ public:
         emit emailChanged();
         emit canSubmitChanged();
     }
+
     [[nodiscard]] static QString password() { return {}; }
+
     void setPassword(const QString& value) {
         const bool had = !password_.isEmpty();
         password_ = value;
@@ -50,8 +54,11 @@ public:
         }
         emit canSubmitChanged();
     }
+
     [[nodiscard]] bool hasPassword() const { return !password_.isEmpty(); }
+
     [[nodiscard]] bool isLoading() const { return isLoading_; }
+
     void setIsLoading(bool value) {
         if (value == isLoading_) {
             return;
@@ -60,7 +67,9 @@ public:
         emit isLoadingChanged();
         emit canSubmitChanged();
     }
+
     [[nodiscard]] QString errorMessage() const { return errorMessage_; }
+
     void setErrorMessage(const QString& value) {
         if (value == errorMessage_) {
             return;
@@ -68,8 +77,11 @@ public:
         errorMessage_ = value;
         emit errorMessageChanged();
     }
+
     [[nodiscard]] bool canSubmit() const { return !isLoading_ && !email_.trimmed().isEmpty() && !password_.isEmpty(); }
+
     [[nodiscard]] bool browserSignInAvailable() const { return browserSignInAvailable_; }
+
     void setBrowserSignInAvailable(bool value) {
         if (value == browserSignInAvailable_) {
             return;
@@ -77,7 +89,9 @@ public:
         browserSignInAvailable_ = value;
         emit browserSignInAvailableChanged();
     }
+
     [[nodiscard]] bool waitingForBrowser() const { return waitingForBrowser_; }
+
     void setWaitingForBrowser(bool value) {
         if (value == waitingForBrowser_) {
             return;
@@ -85,7 +99,9 @@ public:
         waitingForBrowser_ = value;
         emit waitingForBrowserChanged();
     }
+
     [[nodiscard]] bool restoringSession() const { return restoringSession_; }
+
     void setRestoringSession(bool value) {
         if (value == restoringSession_) {
             return;
@@ -93,9 +109,13 @@ public:
         restoringSession_ = value;
         emit restoringSessionChanged();
     }
+
     [[nodiscard]] int browserCalls() const { return browserCalls_; }
+
     [[nodiscard]] int cancelCalls() const { return cancelCalls_; }
+
     [[nodiscard]] int loginCalls() const { return loginCalls_; }
+
     [[nodiscard]] QString lastPassword() const { return lastPassword_; }
 
     Q_INVOKABLE void login() {
@@ -106,20 +126,27 @@ public:
         lastPassword_ = password_;
         emit loginCallsChanged();
     }
+
     Q_INVOKABLE void logout() { emit loggedOut(); }
+
     Q_INVOKABLE void signInWithBrowser() {
         ++browserCalls_;
         setWaitingForBrowser(true);
         emit loginCallsChanged();
     }
+
     Q_INVOKABLE void cancelBrowserSignIn() {
         ++cancelCalls_;
         setWaitingForBrowser(false);
         emit loginCallsChanged();
     }
+
     Q_INVOKABLE void clearPassword() { setPassword({}); }
+
     Q_INVOKABLE void emitLoginSucceeded() { emit loginSucceeded(QStringLiteral("user-1")); }
+
     Q_INVOKABLE void emitLoginFailed() { emit loginFailed(errorMessage_); }
+
     Q_INVOKABLE void reset() {
         setEmail({});
         setPassword({});
@@ -170,6 +197,7 @@ class FakeConnectivity final : public QObject {
 
 public:
     [[nodiscard]] bool isOffline() const { return isOffline_; }
+
     void setIsOffline(bool value) {
         if (value == isOffline_) {
             return;
@@ -177,12 +205,14 @@ public:
         isOffline_ = value;
         emit isOfflineChanged();
     }
+
     [[nodiscard]] int refreshCalls() const { return refreshCalls_; }
 
     Q_INVOKABLE void refresh() {
         ++refreshCalls_;
         emit refreshCallsChanged();
     }
+
     Q_INVOKABLE void reset() {
         setIsOffline(false);
         refreshCalls_ = 0;
@@ -202,6 +232,7 @@ class Setup final : public QObject {
     Q_OBJECT
 
 public slots:
+
     void qmlEngineAvailable(QQmlEngine* /*engine*/) {
         // ThemeController is a declarative QML_SINGLETON of the AedstDesignSystem module (real class, no fake).
         aedst::qmlsupport::SingletonSlot<aedst::designsystem::ThemeController>::provide(&theme_);

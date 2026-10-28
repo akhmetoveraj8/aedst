@@ -3,6 +3,7 @@
 #include "aedst/testing/stub_token_provider.hpp"
 
 #include <QNetworkRequest>
+
 #include <gtest/gtest.h>
 
 #include <memory>
@@ -73,9 +74,12 @@ TEST(ApiErrorTest, OnlyTransientFailuresAreRetryable) {
     EXPECT_TRUE((ApiError{.kind = ApiErrorKind::Transport}).isRetryable());
     EXPECT_TRUE((ApiError{.kind = ApiErrorKind::Timeout}).isRetryable());
     EXPECT_TRUE((ApiError{.kind = ApiErrorKind::Unavailable, .httpStatus = 503}).isRetryable());
-    EXPECT_FALSE((ApiError{.kind = ApiErrorKind::Unavailable, .httpStatus = 429, .connectCode = "resource_exhausted"}).isRetryable());
-    EXPECT_TRUE((ApiError{.kind = ApiErrorKind::Unavailable, .httpStatus = 503, .connectCode = "unavailable"}).isRetryable());
-    EXPECT_TRUE((ApiError{.kind = ApiErrorKind::Timeout, .httpStatus = 408, .connectCode = "deadline_exceeded"}).isRetryable());
+    EXPECT_FALSE((ApiError{.kind = ApiErrorKind::Unavailable, .httpStatus = 429, .connectCode = "resource_exhausted"})
+                     .isRetryable());
+    EXPECT_TRUE(
+        (ApiError{.kind = ApiErrorKind::Unavailable, .httpStatus = 503, .connectCode = "unavailable"}).isRetryable());
+    EXPECT_TRUE(
+        (ApiError{.kind = ApiErrorKind::Timeout, .httpStatus = 408, .connectCode = "deadline_exceeded"}).isRetryable());
     EXPECT_FALSE((ApiError{.kind = ApiErrorKind::Unauthenticated, .httpStatus = 401}).isRetryable());
     EXPECT_FALSE((ApiError{.kind = ApiErrorKind::InvalidArgument, .httpStatus = 400}).isRetryable());
     EXPECT_FALSE((ApiError{.kind = ApiErrorKind::Internal, .httpStatus = 500}).isRetryable());
@@ -87,9 +91,7 @@ TEST(ApiErrorTest, OnlyTransientFailuresAreRetryable) {
 TEST(ApiErrorTest, ConvertsToCoreErrorCodes) {
     EXPECT_EQ((ApiError{.kind = ApiErrorKind::Transport, .message = "offline"}).toCoreError(),
               core::Error::offline("offline"));
-    EXPECT_EQ((ApiError{.kind = ApiErrorKind::PermissionDenied, .httpStatus = 403, .message = "no"})
-                  .toCoreError()
-                  .code,
+    EXPECT_EQ((ApiError{.kind = ApiErrorKind::PermissionDenied, .httpStatus = 403, .message = "no"}).toCoreError().code,
               core::ErrorCode::Forbidden);
     EXPECT_EQ((ApiError{.kind = ApiErrorKind::Decoding, .httpStatus = 200, .message = "bad"}).toCoreError().code,
               core::ErrorCode::Unknown);

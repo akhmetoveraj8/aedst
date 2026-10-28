@@ -33,12 +33,15 @@ struct DeliveryResult {
     std::string errorKind;
 
     [[nodiscard]] static DeliveryResult delivered() { return {DeliveryStatus::Delivered, {}}; }
+
     [[nodiscard]] static DeliveryResult retryable(std::string kind) {
         return {DeliveryStatus::Retryable, std::move(kind)};
     }
+
     [[nodiscard]] static DeliveryResult permanent(std::string kind) {
         return {DeliveryStatus::Permanent, std::move(kind)};
     }
+
     [[nodiscard]] static DeliveryResult blocked(std::string kind) { return {DeliveryStatus::Blocked, std::move(kind)}; }
 
     /// The one mapping handlers use for a failed call, the outbox column of error-kinds.json: a retryable kind

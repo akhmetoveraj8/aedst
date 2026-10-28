@@ -67,7 +67,7 @@ struct OidcConfig {
 /// `AEDST_OIDC_END_SESSION` (0/1): environment first, then QSettings keys `oidc/issuer`,
 /// `oidc/clientId`, `oidc/projectId`, `oidc/loopbackPort`, `oidc/extraScopes`, `oidc/rolesScope`,
 /// `oidc/endSession`. `AEDST_ALLOW_INSECURE_LOCALHOST=1` also permits a loopback http issuer.
-// aedst-allow: non-secret OIDC client configuration (issuer, client id), not a credential store; tokens use QtKeychain (ADR-0025)
+// aedst-allow: non-secret OIDC client configuration (issuer, client id); tokens use QtKeychain (ADR-0025)
 [[nodiscard]] OidcConfig loadOidcConfig(const QSettings& settings, const QProcessEnvironment& environment);
 
 /// Issuer with trailing slashes removed, for comparisons ("https://a/" == "https://a").

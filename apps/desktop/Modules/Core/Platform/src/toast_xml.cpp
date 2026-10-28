@@ -64,8 +64,8 @@ std::wstring buildToastXml(const NotificationRequest& request) {
     }
     xml += QStringLiteral("</binding></visual>");
     if (actionable) {
-        const QString label = request.actionLabel.empty() ? QStringLiteral("Open")
-                                                          : escaped(request.actionLabel, kMaxLabelChars);
+        const QString label =
+            request.actionLabel.empty() ? QStringLiteral("Open") : escaped(request.actionLabel, kMaxLabelChars);
         xml += QStringLiteral("<actions><action activationType=\"foreground\" content=\"") + label +
                QStringLiteral("\" arguments=\"") + QString::fromStdString(request.link).toHtmlEscaped() +
                QStringLiteral("\"/></actions>");

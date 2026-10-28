@@ -33,12 +33,15 @@ public:
                  std::to_string(counter.fetch_add(1)));
         std::filesystem::create_directories(path_);
     }
+
     TempDir(const TempDir&) = delete;
     TempDir& operator=(const TempDir&) = delete;
+
     ~TempDir() {
         std::error_code ignored;
         std::filesystem::remove_all(path_, ignored);
     }
+
     [[nodiscard]] const std::filesystem::path& path() const { return path_; }
 
 private:
@@ -55,6 +58,7 @@ public:
         }
         return body;
     }
+
     void serve(std::string envelope) {
         const std::scoped_lock lock(mutex);
         body = std::move(envelope);
@@ -72,11 +76,13 @@ public:
         const std::scoped_lock lock(mutex);
         return state;
     }
+
     [[nodiscard]] core::VoidOutcome save(const update::UpdateState& next) override {
         const std::scoped_lock lock(mutex);
         state = next;
         return core::ok();
     }
+
     mutable std::mutex mutex;
     update::UpdateState state;
 };
@@ -89,7 +95,7 @@ public:
     [[nodiscard]] bool canSelfUpdate() const override { return selfUpdatable; }
 
     [[nodiscard]] core::Outcome<std::optional<InstallerCandidate>> checkFeed(const std::string& channel,
-                                                                              bool allowDowngrade) override {
+                                                                             bool allowDowngrade) override {
         feedChecks.fetch_add(1);
         lastChannel = channel;
         lastAllowDowngrade = allowDowngrade;

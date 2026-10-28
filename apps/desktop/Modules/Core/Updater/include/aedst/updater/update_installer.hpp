@@ -15,7 +15,7 @@ namespace aedst::updater {
 /// authority on which exact package (version, SHA-256, size) may be installed.
 struct InstallerCandidate {
     std::string version;
-    std::string sha256;       // hex, any case
+    std::string sha256; // hex, any case
     std::uint64_t size{0};
     std::string fileName;
 };
@@ -38,11 +38,11 @@ public:
 
     /// The candidate in the release feed of `channel`. nullopt = the feed has nothing different from what is installed.
     /// `allowDowngrade` is passed when the signed manifest is an explicit rollback.
-    [[nodiscard]] virtual core::Outcome<std::optional<InstallerCandidate>>
-    checkFeed(const std::string& channel, bool allowDowngrade) = 0;
+    [[nodiscard]] virtual core::Outcome<std::optional<InstallerCandidate>> checkFeed(const std::string& channel,
+                                                                                     bool allowDowngrade) = 0;
 
-    /// Downloads the candidate (progress 0..100). Returns where the package file is when the installer exposes it, so the
-    /// pipeline can hash it independently; an empty path means "verified by the installer only".
+    /// Downloads the candidate (progress 0..100). Returns where the package file is when the installer exposes it, so
+    /// the pipeline can hash it independently; an empty path means "verified by the installer only".
     [[nodiscard]] virtual core::Outcome<std::filesystem::path> download(const InstallerCandidate& candidate,
                                                                         const std::function<void(int)>& progress) = 0;
 

@@ -2,8 +2,8 @@
 
 #include "Domain/new_notification_detector.hpp"
 #include "Domain/notification_stream.hpp"
-#include "Presentation/notification_realtime.hpp"
 #include "Presentation/notification_list_model.hpp"
+#include "Presentation/notification_realtime.hpp"
 #include "aedst/qmlsupport/singleton_slot.hpp"
 
 #include <QObject>
@@ -73,34 +73,49 @@ public:
     static NotificationsViewModel* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<NotificationsViewModel>::create(engine, script);
     }
+
     static constexpr int kPollIntervalMs = 30'000;
     static constexpr int kBackgroundPollIntervalMs = 120'000;
     static constexpr int kMaxBackoffMs = 300'000;
 
-    NotificationsViewModel(std::shared_ptr<NotificationRepository> repository,
-                           std::shared_ptr<core::ErrorSink> errors,
+    NotificationsViewModel(std::shared_ptr<NotificationRepository> repository, std::shared_ptr<core::ErrorSink> errors,
                            std::shared_ptr<analytics::AnalyticsTracker> analytics,
                            platform::NotificationService* desktopNotifier, navigation::Router* router,
                            QObject* parent = nullptr);
 
     [[nodiscard]] int unreadCount() const noexcept { return unreadCount_; }
+
     [[nodiscard]] QAbstractItemModel* inbox() noexcept { return &inbox_; }
+
     [[nodiscard]] NotificationListModel& inboxModel() noexcept { return inbox_; }
+
     [[nodiscard]] bool unreadOnly() const noexcept { return unreadOnly_; }
+
     void setUnreadOnly(bool unreadOnly);
+
     [[nodiscard]] bool isLoading() const noexcept { return isLoading_; }
+
     [[nodiscard]] bool hasMore() const { return !nextPageToken_.empty(); }
+
     [[nodiscard]] QString errorMessage() const { return errorMessage_; }
+
     [[nodiscard]] bool preferencesLoaded() const noexcept { return preferencesLoaded_; }
+
     [[nodiscard]] bool desktopNotifications() const noexcept { return preferences_.pushEnabled; }
+
     [[nodiscard]] bool taskCompleted() const noexcept { return preferences_.taskCompleted; }
+
     [[nodiscard]] bool taskDueSoon() const noexcept { return preferences_.taskDueSoon; }
+
     [[nodiscard]] bool mediaReady() const noexcept { return preferences_.mediaReady; }
+
     [[nodiscard]] bool isSavingPreferences() const noexcept { return isSavingPreferences_; }
+
     [[nodiscard]] QString deliveryMode() const;
 
     /// Installs the live channel. Call once before start(); without it the client only polls.
     void setStream(std::shared_ptr<NotificationStream> stream, NotificationRealtime::Timing timing = {});
+
     [[nodiscard]] NotificationRealtime* realtime() noexcept { return realtime_.get(); }
 
     /// Signed in: reset the detector to "now", load preferences, poll immediately.
@@ -112,7 +127,9 @@ public:
     /// Reachability from ConnectivityMonitor: offline stops the poll timer (no request can succeed); coming back
     /// online polls immediately. The stream (when present) reconnects on its own.
     void setOnline(bool online);
+
     [[nodiscard]] bool isOnline() const noexcept { return online_; }
+
     /// The machine woke up from sleep: replace the (dead) stream and poll once. No-op while signed out or offline.
     void onSystemResumed();
     Q_INVOKABLE void pollNow();
@@ -125,8 +142,7 @@ public:
     Q_INVOKABLE void open(int row);
     Q_INVOKABLE void openPreferences();
     Q_INVOKABLE void loadPreferences();
-    Q_INVOKABLE void savePreferences(bool desktopNotifications, bool taskCompleted, bool taskDueSoon,
-                                     bool mediaReady);
+    Q_INVOKABLE void savePreferences(bool desktopNotifications, bool taskCompleted, bool taskDueSoon, bool mediaReady);
 
 signals:
     void unreadCountChanged();

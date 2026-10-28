@@ -1,5 +1,4 @@
 #include "aedst/update/manifest.hpp"
-
 #include "test_support.hpp"
 
 #include <gtest/gtest.h>
@@ -23,7 +22,8 @@ std::string replaceFirst(std::string text, const std::string& from, const std::s
 }
 
 TEST(ManifestTest, ParsesAValidManifest) {
-    const auto manifest = parseManifest(manifestJson("2.1.0-rc.1", "beta", 1'700'000'123, "1.5.0", std::string(64, 'b'), 4096));
+    const auto manifest =
+        parseManifest(manifestJson("2.1.0-rc.1", "beta", 1'700'000'123, "1.5.0", std::string(64, 'b'), 4096));
     ASSERT_TRUE(manifest.has_value());
     EXPECT_EQ(manifest->version, "2.1.0-rc.1");
     EXPECT_EQ(manifest->channel, "beta");
@@ -90,7 +90,7 @@ TEST(ManifestTest, RejectsInvalidManifests) {
         {"\"size\":1234,\"signature\"", "\"size\":-5,\"signature\""},
         {"\"size\":1234,\"signature\"", "\"size\":99999999999,\"signature\""},
         {"\"size\":1234,\"signature\"", "\"size\":\"1234\",\"signature\""},
-        {"\"platform\":\"linux\"", "\"platform\":\"windows\""},   // duplicate windows/x86_64
+        {"\"platform\":\"linux\"", "\"platform\":\"windows\""}, // duplicate windows/x86_64
         {"\"artifacts\":[", "\"artifacts\":{},\"x\":["},
     };
     for (const auto& [from, to] : mutations) {

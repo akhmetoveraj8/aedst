@@ -93,7 +93,8 @@ TEST_F(LoaderDirectory, ReleaseModeRefusesAWritableDirectory) {
 
 TEST_F(LoaderDirectory, UnlistedLibraryIsNotLoadedWithoutAnAllowlist) {
     write(QStringLiteral("evil.dll"), QByteArray("MZ"));
-    write(QStringLiteral("evil.so"), QByteArray("\x7f" "ELF"));
+    write(QStringLiteral("evil.so"), QByteArray("\x7f"
+                                                "ELF"));
     PluginLoader loader(config()); // dev switch off
     std::vector<LoadReport> report;
 

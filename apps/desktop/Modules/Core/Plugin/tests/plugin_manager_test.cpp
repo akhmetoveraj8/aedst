@@ -23,7 +23,9 @@ public:
         : descriptor_(std::move(descriptor)), routes_(std::move(routes)) {}
 
     [[nodiscard]] const PluginDescriptor& descriptor() const noexcept override { return descriptor_; }
+
     [[nodiscard]] std::vector<RouteContribution> routes() const override { return routes_; }
+
     [[nodiscard]] core::VoidOutcome registerServices(ServiceRegistry& registry) override {
         ++registerCalls;
         if (onRegister) {
@@ -53,7 +55,8 @@ RouteContribution route(std::string name) {
 }
 
 /// Adds `plugin` and keeps a raw pointer for inspection (the manager owns it).
-FakePlugin* addTo(PluginManager& manager, std::unique_ptr<FakePlugin> plugin, PluginOrigin origin = PluginOrigin::BuiltIn) {
+FakePlugin* addTo(PluginManager& manager, std::unique_ptr<FakePlugin> plugin,
+                  PluginOrigin origin = PluginOrigin::BuiltIn) {
     FakePlugin* raw = plugin.get();
     EXPECT_TRUE(manager.add(std::move(plugin), origin));
     return raw;
@@ -107,7 +110,8 @@ TEST(PluginManager, ActivatesAValidBuiltInAndExposesItsRoutes) {
 TEST(PluginManager, ActivateIsIdempotent) {
     PluginManager manager;
     ServiceRegistry registry;
-    auto* plugin = addTo(manager, std::make_unique<FakePlugin>(descriptor("aedst.tasks"), std::vector{route("tasks/list")}));
+    auto* plugin =
+        addTo(manager, std::make_unique<FakePlugin>(descriptor("aedst.tasks"), std::vector{route("tasks/list")}));
 
     manager.activate(kUnknown, registry);
     manager.activate(kUnknown, registry);
@@ -147,14 +151,16 @@ TEST(PluginManager, RejectsABadDescriptor) {
 TEST(PluginManager, RejectsNonQrcViewsAndEmptyRouteNames) {
     PluginManager manager;
     ServiceRegistry registry;
-    addTo(manager, std::make_unique<FakePlugin>(
-                       descriptor("vendor.remote"),
-                       std::vector{RouteContribution{.routeName = "remote/home", .viewUrl = "https://evil.example/x.qml"}}));
+    addTo(manager,
+          std::make_unique<FakePlugin>(
+              descriptor("vendor.remote"),
+              std::vector{RouteContribution{.routeName = "remote/home", .viewUrl = "https://evil.example/x.qml"}}));
     addTo(manager, std::make_unique<FakePlugin>(
                        descriptor("vendor.file"),
                        std::vector{RouteContribution{.routeName = "file/home", .viewUrl = "file:///tmp/x.qml"}}));
-    addTo(manager, std::make_unique<FakePlugin>(descriptor("vendor.noname"),
-                                                std::vector{RouteContribution{.routeName = "", .viewUrl = "qrc:/x.qml"}}));
+    addTo(manager,
+          std::make_unique<FakePlugin>(descriptor("vendor.noname"),
+                                       std::vector{RouteContribution{.routeName = "", .viewUrl = "qrc:/x.qml"}}));
 
     manager.activate(kUnknown, registry);
 
@@ -170,14 +176,15 @@ TEST(PluginManager, RejectsMalformedLinkPrefixesAndKeepsValidOnes) {
     int index = 0;
     for (const std::string bad : {"", "Tasks", "a/b", "a-b", "a.b", "tasks?x"}) {
         const std::string n = std::to_string(index++);
-        addTo(manager, std::make_unique<FakePlugin>(
-                           descriptor("vendor.bad" + n),
-                           std::vector{RouteContribution{
-                               .routeName = "bad/" + n, .viewUrl = "qrc:/x.qml", .linkPrefixes = {bad}}}));
+        addTo(manager, std::make_unique<FakePlugin>(descriptor("vendor.bad" + n),
+                                                    std::vector{RouteContribution{.routeName = "bad/" + n,
+                                                                                  .viewUrl = "qrc:/x.qml",
+                                                                                  .linkPrefixes = {bad}}}));
     }
-    addTo(manager, std::make_unique<FakePlugin>(
-                       descriptor("vendor.good"),
-                       std::vector{RouteContribution{.routeName = "good/home", .viewUrl = "qrc:/x.qml", .linkPrefixes = {"good"}}}));
+    addTo(manager, std::make_unique<FakePlugin>(descriptor("vendor.good"),
+                                                std::vector{RouteContribution{.routeName = "good/home",
+                                                                              .viewUrl = "qrc:/x.qml",
+                                                                              .linkPrefixes = {"good"}}}));
 
     manager.activate(kUnknown, registry);
 
@@ -190,8 +197,9 @@ TEST(PluginManager, ARuntimePluginCannotShadowABuiltInRoute) {
     PluginManager manager;
     ServiceRegistry registry;
     addTo(manager, std::make_unique<FakePlugin>(descriptor("aedst.auth"), std::vector{route("auth/login")}));
-    auto* impostor = addTo(manager, std::make_unique<FakePlugin>(descriptor("vendor.phish"), std::vector{route("auth/login")}),
-                           PluginOrigin::Runtime);
+    auto* impostor =
+        addTo(manager, std::make_unique<FakePlugin>(descriptor("vendor.phish"), std::vector{route("auth/login")}),
+              PluginOrigin::Runtime);
 
     manager.activate(StaticCapabilitySource(serverWith({})), registry);
 
@@ -219,7 +227,8 @@ TEST(PluginManager, KnownCapabilitiesGateOnRequirementsAndFlags) {
     PluginManager manager;
     ServiceRegistry registry;
     addTo(manager, std::make_unique<FakePlugin>(descriptor("vendor.a", {"cap.one", "cap.two"})), PluginOrigin::Runtime);
-    addTo(manager, std::make_unique<FakePlugin>(descriptor("vendor.b", {"cap.one"}, "beta.reports")), PluginOrigin::Runtime);
+    addTo(manager, std::make_unique<FakePlugin>(descriptor("vendor.b", {"cap.one"}, "beta.reports")),
+          PluginOrigin::Runtime);
     addTo(manager, std::make_unique<FakePlugin>(descriptor("vendor.c", {"cap.one"})), PluginOrigin::Runtime);
 
     manager.activate(StaticCapabilitySource(serverWith({"cap.one"})), registry);
@@ -234,8 +243,9 @@ TEST(PluginManager, KnownCapabilitiesGateOnRequirementsAndFlags) {
 TEST(PluginManager, PendingPluginActivatesWhenCapabilitiesArrive) {
     PluginManager manager;
     ServiceRegistry registry;
-    auto* plugin = addTo(manager, std::make_unique<FakePlugin>(descriptor("vendor.b", {"cap.one"}, "beta.reports"),
-                                                                std::vector{route("reports/home")}),
+    auto* plugin = addTo(manager,
+                         std::make_unique<FakePlugin>(descriptor("vendor.b", {"cap.one"}, "beta.reports"),
+                                                      std::vector{route("reports/home")}),
                          PluginOrigin::Runtime);
 
     manager.activate(StaticCapabilitySource(serverWith({"cap.one"})), registry);

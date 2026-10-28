@@ -175,12 +175,11 @@ TEST_F(ClientAuthTest, CancellingWhileTheRefreshIsRunningNeitherReplaysNorLeaks)
     server_.enqueue(FakeResponse::connectError(401, "unauthenticated", "expired"));
     std::optional<ApiResult<authv1::GetCurrentUserResponse>> out;
     int completions = 0;
-    auto handle = client_->unary(
-        contract::kAuthGetCurrentUser, authv1::GetCurrentUserRequest{},
-        [&](ApiResult<authv1::GetCurrentUserResponse> result) {
-            out = std::move(result);
-            ++completions;
-        });
+    auto handle = client_->unary(contract::kAuthGetCurrentUser, authv1::GetCurrentUserRequest{},
+                                 [&](ApiResult<authv1::GetCurrentUserResponse> result) {
+                                     out = std::move(result);
+                                     ++completions;
+                                 });
     ASSERT_TRUE(waitUntil([&] { return session_->rejectionCalls == 1; }));
 
     handle.cancel();

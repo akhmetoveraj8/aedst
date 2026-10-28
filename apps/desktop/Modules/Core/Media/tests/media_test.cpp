@@ -7,6 +7,7 @@
 #include <QImage>
 #include <QImageReader>
 #include <QTemporaryDir>
+
 #include <gtest/gtest.h>
 
 namespace aedst::media {

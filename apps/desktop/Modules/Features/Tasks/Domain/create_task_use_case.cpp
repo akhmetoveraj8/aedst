@@ -30,8 +30,7 @@ namespace {
 
 } // namespace
 
-CreateTaskUseCase::CreateTaskUseCase(std::shared_ptr<TaskRepository> repository)
-    : repository_(std::move(repository)) {}
+CreateTaskUseCase::CreateTaskUseCase(std::shared_ptr<TaskRepository> repository) : repository_(std::move(repository)) {}
 
 void CreateTaskUseCase::execute(NewTask input, core::Completion<Task> done) {
     if (auto error = normalizeAndValidate(input)) {

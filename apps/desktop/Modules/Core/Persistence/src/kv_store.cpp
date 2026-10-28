@@ -8,8 +8,7 @@ namespace aedst::persistence::kv {
 
 core::VoidOutcome put(SqliteConnection& connection, std::string_view key, std::span<const std::uint8_t> value,
                       std::int64_t nowMs) {
-    auto statement =
-        connection.prepare("INSERT OR REPLACE INTO kv (key, value, updated_at) VALUES (?1, ?2, ?3)");
+    auto statement = connection.prepare("INSERT OR REPLACE INTO kv (key, value, updated_at) VALUES (?1, ?2, ?3)");
     if (!statement) {
         return core::fail(statement.error());
     }

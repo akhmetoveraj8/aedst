@@ -124,8 +124,9 @@ void TrayNotificationService::updateToolTip() {
     if (!tray_) {
         return;
     }
-    const QString name = QGuiApplication::applicationDisplayName().isEmpty() ? QGuiApplication::applicationName()
-                                                                             : QGuiApplication::applicationDisplayName();
+    const QString name = QGuiApplication::applicationDisplayName().isEmpty()
+                             ? QGuiApplication::applicationName()
+                             : QGuiApplication::applicationDisplayName();
     tray_->setToolTip(badgeCount_ > 0 ? tr("%1 - %n unread", nullptr, badgeCount_).arg(name) : name);
 }
 

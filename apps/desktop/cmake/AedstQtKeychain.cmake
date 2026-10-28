@@ -22,9 +22,6 @@ function(aedst_fetch_qtkeychain)
         return()
     endif()
     include(FetchContent)
-    if(POLICY CMP0169)
-        cmake_policy(SET CMP0169 OLD) # single-argument FetchContent_Populate: needed for EXCLUDE_FROM_ALL on 3.25
-    endif()
 
     FetchContent_Declare(qtkeychain
         GIT_REPOSITORY https://github.com/frankosterfeld/qtkeychain.git
@@ -33,18 +30,20 @@ function(aedst_fetch_qtkeychain)
         # not combine reliably with a commit hash.
         GIT_TAG 875f77d9f61bd97fd84cca47ce3bc71186dfbd09)
 
-    FetchContent_GetProperties(qtkeychain)
-    if(NOT qtkeychain_POPULATED)
-        FetchContent_Populate(qtkeychain)
-
-        # Directory-scope settings: they only affect the subproject added below.
-        set(BUILD_WITH_QT5 OFF)
-        set(BUILD_TEST_APPLICATION OFF)
-        set(BUILD_QTQUICK_DEMO OFF)
-        set(BUILD_TRANSLATIONS OFF)
-        set(BUILD_SHARED_LIBS OFF)
-        add_subdirectory("${qtkeychain_SOURCE_DIR}" "${qtkeychain_BINARY_DIR}" EXCLUDE_FROM_ALL)
-    endif()
+    # Directory-scope settings: they only affect the subproject added below. They must be set before
+    # FetchContent_MakeAvailable() adds it.
+    set(BUILD_WITH_QT5 OFF)
+    set(BUILD_TEST_APPLICATION OFF)
+    set(BUILD_QTQUICK_DEMO OFF)
+    set(BUILD_TRANSLATIONS OFF)
+    set(BUILD_SHARED_LIBS OFF)
+    FetchContent_MakeAvailable(qtkeychain)
+    # EXCLUDE_FROM_ALL for the subproject (no all-target membership, no install() rules). The EXCLUDE_FROM_ALL keyword of
+    # FetchContent_Declare() needs CMake 3.28 and this project supports 3.25; the directory property has the same effect
+    # when set after the directory was added (checked with CMake 4.4.4: the subproject's targets are not built by `all`
+    # and its install rules are skipped). This replaces the single-argument FetchContent_Populate() + CMP0169 OLD
+    # pattern, which CMake 3.30 deprecated.
+    set_property(DIRECTORY "${qtkeychain_SOURCE_DIR}" PROPERTY EXCLUDE_FROM_ALL TRUE)
 
     if(TARGET qt6keychain)
         set(target qt6keychain)

@@ -8,8 +8,8 @@
 //   {"benchmark":"media_grid_scroll","frames":300,"p50_ms":6.1,"p95_ms":9.8,"p99_ms":14.2,"max_ms":21.0,
 //    "dropped_over_20ms":2,"rss_mib":143.2}
 //
-// and the exit code is non-zero when a budget given with --budget-p95-ms / --budget-p99-ms / --budget-rss-mib is exceeded.
-// scripts/perf/run-perf.mjs runs this and compares with perf/budgets.json.
+// and the exit code is non-zero when a budget given with --budget-p95-ms / --budget-p99-ms / --budget-rss-mib is
+// exceeded. scripts/perf/run-perf.mjs runs this and compares with perf/budgets.json.
 //
 // Needs a real window system for meaningful frame times (the offscreen platform with the software backend only
 // verifies that it runs). Build with -DAEDST_BUILD_BENCHMARKS=ON, Release.
@@ -54,7 +54,14 @@ class SyntheticTiles final : public QAbstractListModel {
     Q_OBJECT
 
 public:
-    enum Role { MediaId = Qt::UserRole + 1, Kind, Status, ThumbnailSource, FileName, FailureReason };
+    enum Role {
+        MediaId = Qt::UserRole + 1,
+        Kind,
+        Status,
+        ThumbnailSource,
+        FileName,
+        FailureReason
+    };
 
     [[nodiscard]] int rowCount(const QModelIndex& parent = {}) const override { return parent.isValid() ? 0 : kRows; }
 
@@ -81,12 +88,14 @@ public:
     }
 
     [[nodiscard]] QHash<int, QByteArray> roleNames() const override {
-        return {{MediaId, "mediaId"}, {Kind, "kind"}, {Status, "status"},
-                {ThumbnailSource, "thumbnailSource"}, {FileName, "fileName"}, {FailureReason, "failureReason"}};
+        return {{MediaId, "mediaId"},   {Kind, "kind"},
+                {Status, "status"},     {ThumbnailSource, "thumbnailSource"},
+                {FileName, "fileName"}, {FailureReason, "failureReason"}};
     }
 };
 
-/// Solid-colour tiles decoded on the QML image thread, like the real provider's output (a QImage at the requested size).
+/// Solid-colour tiles decoded on the QML image thread, like the real provider's output (a QImage at the requested
+/// size).
 class PerfImageProvider final : public QQuickImageProvider {
 public:
     PerfImageProvider() : QQuickImageProvider(QQuickImageProvider::Image) {}
@@ -140,7 +149,8 @@ int main(int argc, char* argv[]) {
     QCommandLineParser parser;
     const QCommandLineOption p95("budget-p95-ms", "Fail when the 95th percentile frame time exceeds this.", "ms", "0");
     const QCommandLineOption p99("budget-p99-ms", "Fail when the 99th percentile frame time exceeds this.", "ms", "0");
-    const QCommandLineOption rss("budget-rss-mib", "Fail when the resident memory after the run exceeds this.", "mib", "0");
+    const QCommandLineOption rss("budget-rss-mib", "Fail when the resident memory after the run exceeds this.", "mib",
+                                 "0");
     parser.addOptions({p95, p99, rss});
     parser.process(app);
 
@@ -161,7 +171,8 @@ int main(int argc, char* argv[]) {
             property alias grid: mediaGrid
             MediaGrid { id: mediaGrid; anchors.fill: parent; model: tiles }
         }
-    )", QUrl(QStringLiteral("qrc:/perf/ScrollScene.qml")));
+    )",
+                      QUrl(QStringLiteral("qrc:/perf/ScrollScene.qml")));
     auto* scene = qobject_cast<QQuickItem*>(component.create());
     if (scene == nullptr) {
         std::fprintf(stderr, "cannot create the scene: %s\n", qPrintable(component.errorString()));
@@ -213,7 +224,8 @@ int main(int argc, char* argv[]) {
     const double p95v = percentile(frameMs, 0.95);
     const double p99v = percentile(frameMs, 0.99);
     const double maxv = *std::max_element(frameMs.begin(), frameMs.end());
-    const auto dropped = static_cast<int>(std::count_if(frameMs.begin(), frameMs.end(), [](double v) { return v > 20.0; }));
+    const auto dropped =
+        static_cast<int>(std::count_if(frameMs.begin(), frameMs.end(), [](double v) { return v > 20.0; }));
     const double memory = residentMiB();
     std::printf("{\"benchmark\":\"media_grid_scroll\",\"frames\":%d,\"p50_ms\":%.2f,\"p95_ms\":%.2f,\"p99_ms\":%.2f,"
                 "\"max_ms\":%.2f,\"dropped_over_20ms\":%d,\"rss_mib\":%.1f}\n",

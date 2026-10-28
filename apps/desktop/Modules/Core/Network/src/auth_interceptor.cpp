@@ -16,9 +16,8 @@ namespace {
 }
 
 [[nodiscard]] ApiError refreshUnavailable(const core::Error& error) {
-    return ApiError{.kind = ApiErrorKind::Transport,
-                    .httpStatus = 0,
-                    .message = "Could not refresh the session: " + error.message};
+    return ApiError{
+        .kind = ApiErrorKind::Transport, .httpStatus = 0, .message = "Could not refresh the session: " + error.message};
 }
 
 } // namespace
@@ -63,7 +62,7 @@ void AuthInterceptor::refreshAfterRejection(const std::string& rejectedToken, Ve
             return;
         }
         retry(token.error().code == core::ErrorCode::Unauthenticated ? sessionEnded(token.error())
-                                                                      : refreshUnavailable(token.error()));
+                                                                     : refreshUnavailable(token.error()));
     });
 }
 

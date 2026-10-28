@@ -88,7 +88,8 @@ void bridgeHandler(QtMsgType type, const QMessageLogContext& context, const QStr
                 core::AedstLogger::get()->log(toSpdlog(level), "[qt:{}] {}", category, text);
             }
             if (gOptions.breadcrumbs && (level >= core::LogLevel::Warn || (ours && level == core::LogLevel::Info))) {
-                const auto sink = gOptions.breadcrumbSink != nullptr ? gOptions.breadcrumbSink : &SentryReporter::addBreadcrumb;
+                const auto sink =
+                    gOptions.breadcrumbSink != nullptr ? gOptions.breadcrumbSink : &SentryReporter::addBreadcrumb;
                 sink(category, core::scrubPii(text),
                      level >= core::LogLevel::Error  ? BreadcrumbLevel::Error
                      : level >= core::LogLevel::Warn ? BreadcrumbLevel::Warning

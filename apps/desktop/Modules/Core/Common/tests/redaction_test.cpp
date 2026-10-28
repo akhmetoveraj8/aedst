@@ -1,8 +1,8 @@
 #include "aedst/core/logger.hpp"
 #include "aedst/core/redaction.hpp"
 
-#include <spdlog/sinks/ostream_sink.h>
 #include <gtest/gtest.h>
+#include <spdlog/sinks/ostream_sink.h>
 
 #include <memory>
 #include <sstream>
@@ -52,8 +52,7 @@ INSTANTIATE_TEST_SUITE_P(
         RedactionCase{"NothingToHide", "user=alice status=200 tokenless", "user=alice status=200 tokenless"},
         RedactionCase{"EmptyValueKept", "password=&next=1", "password=&next=1"},
         RedactionCase{"BareAtSign", "a@b and @home and x@", "a@b and @home and x@"},
-        RedactionCase{"BearerWithoutCredential", "Bearer", "Bearer"},
-        RedactionCase{"Empty", "", ""}),
+        RedactionCase{"BearerWithoutCredential", "Bearer", "Bearer"}, RedactionCase{"Empty", "", ""}),
     [](const ::testing::TestParamInfo<RedactionCase>& info) { return std::string(info.param.name); });
 
 TEST(RedactionLoggerTest, EveryMessageIsRedactedBeforeItReachesASink) {

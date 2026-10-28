@@ -45,8 +45,7 @@ namespace {
 } // namespace
 
 MediaUploadController::MediaUploadController(Dependencies dependencies, QObject* parent)
-    : QObject(parent), deps_(std::move(dependencies)),
-      uploader_(*deps_.network, deps_.allowInsecureLoopback, this) {
+    : QObject(parent), deps_(std::move(dependencies)), uploader_(*deps_.network, deps_.allowInsecureLoopback, this) {
     connect(&uploader_, &PresignedUploader::progress, this, [this](qint64 sent, qint64 total) {
         if (total > 0) {
             setProgress(static_cast<double>(sent) / static_cast<double>(total));
@@ -212,7 +211,7 @@ void MediaUploadController::onPrepared(std::expected<CompressedImage, QString> r
     emit fileChanged();
     if (prepared_.compressed) {
         qCInfo(lcMedia, "Upload: image compressed to %lld bytes (%dx%d)", static_cast<long long>(prepared_.sizeBytes),
-                prepared_.size.width(), prepared_.size.height());
+               prepared_.size.width(), prepared_.size.height());
     }
     createUpload();
 }
@@ -262,8 +261,7 @@ void MediaUploadController::put() {
     setState(State::Uploading);
     setProgress(0.0);
     QString error;
-    if (!uploader_.start(slot_.uploadUrl, slot_.method, slot_.headers, prepared_.path, prepared_.contentType,
-                         &error)) {
+    if (!uploader_.start(slot_.uploadUrl, slot_.method, slot_.headers, prepared_.path, prepared_.contentType, &error)) {
         fail(error, true);
     }
 }
@@ -292,28 +290,27 @@ void MediaUploadController::complete() {
     request.set_id(slot_.mediaId.toStdString());
     const quint64 generation = generation_;
     QPointer<MediaUploadController> guard(this);
-    deps_.remote->completeUpload(request,
-                                 [guard, generation](network::ApiResult<mediav1::CompleteUploadResponse> result) {
-                                     if (!guard || guard->generation_ != generation) {
-                                         return;
-                                     }
-                                     if (!result) {
-                                         if (guard->deps_.errors) {
-                                             guard->deps_.errors->report(result.error().toCoreError(),
-                                                                         "media.upload.complete");
-                                         }
-                                         // The object is in storage; only completion failed. Retrying
-                                         // from CreateUpload re-sends the bytes, which is always safe.
-                                         guard->fail(QString::fromStdString(result.error().message), true);
-                                         return;
-                                     }
-                                     const QString mediaId = guard->slot_.mediaId;
-                                     guard->discardTempFile();
-                                     guard->slot_ = {};
-                                     guard->setState(State::Done);
-                                     emit guard->uploaded(mediaId);
-                                     guard->startNext();
-                                 });
+    deps_.remote->completeUpload(
+        request, [guard, generation](network::ApiResult<mediav1::CompleteUploadResponse> result) {
+            if (!guard || guard->generation_ != generation) {
+                return;
+            }
+            if (!result) {
+                if (guard->deps_.errors) {
+                    guard->deps_.errors->report(result.error().toCoreError(), "media.upload.complete");
+                }
+                // The object is in storage; only completion failed. Retrying
+                // from CreateUpload re-sends the bytes, which is always safe.
+                guard->fail(QString::fromStdString(result.error().message), true);
+                return;
+            }
+            const QString mediaId = guard->slot_.mediaId;
+            guard->discardTempFile();
+            guard->slot_ = {};
+            guard->setState(State::Done);
+            emit guard->uploaded(mediaId);
+            guard->startNext();
+        });
 }
 
 void MediaUploadController::fail(const QString& message, bool restartFromCreate) {

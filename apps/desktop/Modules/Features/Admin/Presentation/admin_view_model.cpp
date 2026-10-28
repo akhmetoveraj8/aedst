@@ -27,7 +27,9 @@ namespace {
 
 AdminViewModel::AdminViewModel(std::shared_ptr<AdminRepository> repository, std::shared_ptr<core::ErrorSink> errors,
                                std::shared_ptr<analytics::AnalyticsTracker> analytics, QObject* parent)
-    : QObject(parent), repository_(std::move(repository)), errors_(std::move(errors)),
+    : QObject(parent),
+      repository_(std::move(repository)),
+      errors_(std::move(errors)),
       analytics_(std::move(analytics)),
       users_({"userId", "email", "displayName", "createdAt", "taskCount"}),
       auditLog_({"entryId", "actorId", "action", "targetKind", "targetId", "reason", "createdAt"}) {
@@ -128,7 +130,8 @@ void AdminViewModel::loadAuditLog() {
         QList<QVariantList> rows;
         for (const auto& entry : result->entries()) {
             rows.append(QVariantList{QString::fromStdString(entry.id()), QString::fromStdString(entry.actor_id()),
-                                     QString::fromStdString(entry.action()), QString::fromStdString(entry.target_kind()),
+                                     QString::fromStdString(entry.action()),
+                                     QString::fromStdString(entry.target_kind()),
                                      QString::fromStdString(entry.target_id()), QString::fromStdString(entry.reason()),
                                      toLocal(entry.created_at())});
         }

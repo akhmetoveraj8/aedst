@@ -1,8 +1,7 @@
 #include "aedst/crash/crash_uploader.hpp"
 
-#include "file_util.hpp"
-
 #include "aedst/core/logger.hpp"
+#include "file_util.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -78,7 +77,8 @@ void ConsentGatedCrashUploader::saveRecentUploads(const std::vector<std::int64_t
         text += std::to_string(value);
         text.push_back('\n');
     }
-    if (auto saved = detail::writeFileAtomically(config_.crashesDirectory / std::string{kUploadLogName}, text); !saved) {
+    if (auto saved = detail::writeFileAtomically(config_.crashesDirectory / std::string{kUploadLogName}, text);
+        !saved) {
         core::AedstLogger::warn("crash upload: cannot persist the rate-limit log");
     }
 }

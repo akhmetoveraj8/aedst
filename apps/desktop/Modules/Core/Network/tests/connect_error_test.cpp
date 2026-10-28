@@ -66,10 +66,12 @@ TEST(ConnectErrorTest, ReadsTheErrorInfoReasonFromTheDebugObject) {
 
 TEST(ConnectErrorTest, ReadsTheKnownReasonFromTheProtoBytesWhenThereIsNoDebugObject) {
     // google.rpc.ErrorInfo{reason: "CLIENT_UPGRADE_REQUIRED", domain: "aedst"}, unpadded base64.
-    const QByteArray proto = QByteArray("\x0a\x17", 2) + "CLIENT_UPGRADE_REQUIRED" + QByteArray("\x12\x05", 2) + "aedst";
+    const QByteArray proto =
+        QByteArray("\x0a\x17", 2) + "CLIENT_UPGRADE_REQUIRED" + QByteArray("\x12\x05", 2) + "aedst";
     const QByteArray value = proto.toBase64(QByteArray::Base64Encoding | QByteArray::OmitTrailingEquals);
-    const QByteArray body = R"({"code":"failed_precondition","message":"update","details":[{"type":"google.rpc.ErrorInfo","value":")" +
-                            value + R"("}]})";
+    const QByteArray body =
+        R"({"code":"failed_precondition","message":"update","details":[{"type":"google.rpc.ErrorInfo","value":")" +
+        value + R"("}]})";
 
     EXPECT_TRUE(errorFromUnaryResponse(400, body, "").isUpgradeRequired());
 }

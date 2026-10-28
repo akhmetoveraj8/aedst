@@ -14,7 +14,8 @@ TrustPolicy signedPolicy() {
     policy.releaseBuild = true;
     policy.allowlistPresent = true;
     policy.allowlistSignatureValid = true;
-    policy.entries.push_back(AllowlistEntry{.fileName = "reports.dll", .sha256 = kHash, .size = 1234, .pluginId = "vendor.reports"});
+    policy.entries.push_back(
+        AllowlistEntry{.fileName = "reports.dll", .sha256 = kHash, .size = 1234, .pluginId = "vendor.reports"});
     return policy;
 }
 

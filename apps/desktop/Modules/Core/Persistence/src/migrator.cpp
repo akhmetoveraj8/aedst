@@ -122,13 +122,12 @@ core::Outcome<int> Migrator::migrate(SqliteConnection& connection) const {
             continue;
         }
 
-        const std::string label = "migration " + std::to_string(migration.version) + " (" +
-                                  std::string(migration.name) + ")";
+        const std::string label =
+            "migration " + std::to_string(migration.version) + " (" + std::string(migration.name) + ")";
         if (auto applied = connection.execute(migration.sql); !applied) {
             return core::fail(core::Error::storage(label + " failed: " + applied.error().message));
         }
-        if (auto stamped = connection.execute("PRAGMA user_version = " + std::to_string(migration.version));
-            !stamped) {
+        if (auto stamped = connection.execute("PRAGMA user_version = " + std::to_string(migration.version)); !stamped) {
             return core::fail(core::Error::storage(label + " failed to record version: " + stamped.error().message));
         }
         if (auto committed = transaction->commit(); !committed) {

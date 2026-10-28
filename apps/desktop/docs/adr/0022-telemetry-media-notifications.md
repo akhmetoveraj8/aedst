@@ -113,12 +113,27 @@ The Admin entry is shown only when the access token's roles claim
 server's `RoleInterceptor` stays the authority; a `permission_denied` answer shows
 an "Access denied" state without signing out.
 
-### 9. Versions (verified 2026-10-07)
+### 9. Versions (verified 2026-10-28)
 
-- vcpkg `builtin-baseline` `2cfff9c458d9dcf642e9fa09ba624f9931bb5358`
-  (`git ls-remote https://github.com/microsoft/vcpkg HEAD`). Port versions at that
-  baseline: protobuf 6.33.4, abseil 20260107.1, spdlog 1.17.0, fmt 12.2.0,
-  sqlite3 3.53.4, openssl 3.6.5, gtest 1.18.0, sentry-native 0.17.1. (boost-asio was removed in ADR-0024.)
+- vcpkg `builtin-baseline` `15b12b99a227d51e21c86dffd40385439eac87a0` (vcpkg master, 2026-10-28; it replaces
+  `9eec002df1cd109f8f104cd966a763daf9751489`, the release tag 2026.10.16, whose protobuf port was 6.33.4). Port versions at that
+  baseline (read from `versions/baseline.json` and `ports/*/vcpkg.json`): protobuf 7.36.2 (upstream v36.2) with utf8-range
+  7.36.2, abseil 20260107.1, spdlog 1.17.0, fmt 12.2.0, sqlite3 3.54.1, openssl 3.6.5, gtest 1.18.0, sentry-native 0.17.4.
+  (boost-asio was removed in ADR-0024.) Why a newer baseline and not `overrides`: vcpkg resolves versions from the version
+  database at the baseline commit, so an override newer than the baseline is not resolvable (UNVERIFIED, not tried).
+- Protobuf 7 (upstream v34-v36) audit, by reading the release notes and grepping the sources: removed C++ APIs
+  (`FieldDescriptor::label()`, `is_optional()`, `has_optional_keyword()`, `UseDeprecatedLegacyJsonFieldConflicts()`,
+  `MessageDifferencer::AddIgnoreCriteria(raw*)`, `AddUnusedImportTrackFile`) and private generator headers are not used by
+  this tree. `[[nodiscard]]` was added to many APIs: every `ParseFrom*` / `SerializeTo*` / `SerializeAsString` call site uses
+  its result. `protoc` writes only to the absolute `${CMAKE_CURRENT_BINARY_DIR}/generated` (v35 rejects relative output
+  paths). The vendored `buf/validate/validate.proto` is proto2 and compiles with the same `protoc`; it needs no
+  protovalidate runtime. Minimums: C++17 (we build C++23), abseil >= 20250512.1. No source change was needed.
+- First-build checks and likely failure points for this bump (nothing was compiled): (1) `vcpkg install` resolves
+  `protobuf 7.36.2` and `utf8-range 7.36.2` at the new baseline; (2) `find_package(Protobuf CONFIG)` still defines
+  `protobuf::protoc` and `protobuf::libprotobuf` (the vcpkg wrapper is unchanged in the port); (3) `-Werror` on first-party
+  code against the new headers, in particular `[[nodiscard]]` and deprecation warnings (`Reflection::GetEnum()` is
+  deprecated from v36.0; unused here); (4) `AedstContractProto` generation of `buf/validate/validate.proto` under protoc 36;
+  (5) Flatpak: protobuf v36.2 builds `third_party/utf8_range` in-tree and needs abseil >= 20250512.1 (the module is 20260107.1).
 - Qt **6.12.0** (latest in download.qt.io/official_releases/qt/, released
   2026-09-30). Its documented minimums (the macOS 14.4 floor is moot: Desktop no longer targets macOS, ADR-0023):
   Windows 10 1809 (6.12 is the last release supporting Windows 10).
@@ -126,7 +141,10 @@ an "Access denied" state without signing out.
   6.12 branch yet (latest 6.11) - the Flatpak manifest targets 6.12 and needs that
   runtime (or a temporary 6.11.x pin).
 - Flatpak modules re-pinned to the same upstream tags (fmt 12.2.0, spdlog v1.17.0,
-  abseil 20260107.1, protobuf v33.4, sentry-native 0.17.1).
+  abseil 20260107.1, protobuf v36.2 (commit `2c74169b`, peeled tag), sentry-native 0.17.4 (commit `74031352`)).
+- Tooling: clang-format 23.1.3 (PyPI wheel; the whole tree was reformatted with it, `.clang-format` needed only the Win32
+  include categories so that `<windows.h>` stays ahead of the other Windows SDK headers), .NET SDK 10.0.x for `vpk`
+  1.2.161, CMake 4.4.5 in CI (QtKeychain now uses `FetchContent_MakeAvailable`, no `CMP0169` OLD).
 
 ## Verification
 

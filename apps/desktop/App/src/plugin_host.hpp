@@ -41,6 +41,7 @@ public:
     void registerRoutes(navigation::NavGraph& graph) const;
 
     [[nodiscard]] const plugin::PluginManager& plugins() const noexcept { return manager_; }
+
     [[nodiscard]] plugin::ServiceRegistry& services() noexcept { return services_; }
 
 private:
@@ -49,7 +50,7 @@ private:
     // Declared first, destroyed last: a run-time plugin's code must outlive the plugin objects.
     std::unique_ptr<RuntimeLoader> loader_;
     plugin::ServiceRegistry services_;
-    plugin::StaticCapabilitySource noCapabilities_;      // used until the host supplies a source
+    plugin::StaticCapabilitySource noCapabilities_; // used until the host supplies a source
     const plugin::ICapabilitySource* capabilities_{&noCapabilities_};
     plugin::PluginManager manager_;
 };

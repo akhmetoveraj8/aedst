@@ -3,7 +3,6 @@
 #include "Domain/search_repository.hpp"
 
 #include <aedst/search/v1/search.pb.h>
-
 #include <memory>
 
 namespace aedst::network {

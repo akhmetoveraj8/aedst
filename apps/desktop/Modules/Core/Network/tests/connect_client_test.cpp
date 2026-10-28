@@ -1,17 +1,18 @@
-#include "connect_client_test_support.hpp"
-#include "aedst/core/correlation.hpp"
 #include "aedst/contract/methods.hpp"
+#include "aedst/core/correlation.hpp"
 #include "aedst/network/auth_interceptor.hpp"
 #include "aedst/network/connect_client.hpp"
 #include "aedst/network/connect_envelope.hpp"
 #include "aedst/testing/fake_http_server.hpp"
 #include "aedst/testing/stub_token_provider.hpp"
 #include "aedst/testing/test_main.hpp"
+#include "connect_client_test_support.hpp"
 
 #include <QByteArray>
 #include <QSslSocket>
 #include <QString>
 #include <QUrl>
+
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -48,7 +49,12 @@ TEST_F(ConnectClientTest, UnarySendsTheConnectWireFormatAndDecodesTheResponse) {
     EXPECT_EQ(request.headers.value("connect-protocol-version"), QByteArray("1"));
     EXPECT_EQ(request.headers.value("connect-timeout-ms"), QByteArray("2000"));
     // Golden bytes: email=1, password=2, device_id=3, all length-delimited strings.
-    EXPECT_EQ(request.body, QByteArray::fromHex("0a06" "6140622e636f" "1201" "78" "1a01" "64"));
+    EXPECT_EQ(request.body, QByteArray::fromHex("0a06"
+                                                "6140622e636f"
+                                                "1201"
+                                                "78"
+                                                "1a01"
+                                                "64"));
 }
 
 TEST_F(ConnectClientTest, BearerTokenIsSentOnlyToAuthenticatedMethods) {
@@ -221,6 +227,7 @@ protected:
                             .retry = fastRetry(),
                             .allowInsecureLoopback = GetParam().allowInsecureLoopback};
     }
+
     std::shared_ptr<testing::StubTokenProvider> tokens_ = std::make_shared<testing::StubTokenProvider>("tok");
     std::shared_ptr<AuthInterceptor> interceptor_ = std::make_shared<AuthInterceptor>(tokens_);
 };
@@ -240,12 +247,10 @@ TEST_P(InsecureEndpointClientTest, EveryUnaryCallFailsAsynchronouslyWithTheConfi
 
     for (int i = 0; i < 2; ++i) {
         result.reset();
-        client.unary(
-            contract::kAuthLogin, loginRequest(),
-            [&](ApiResult<authv1::LoginResponse> value) {
-                result = std::move(value);
-                ++completions;
-            });
+        client.unary(contract::kAuthLogin, loginRequest(), [&](ApiResult<authv1::LoginResponse> value) {
+            result = std::move(value);
+            ++completions;
+        });
         EXPECT_FALSE(result.has_value()) << "completion must be asynchronous";
         ASSERT_TRUE(waitUntil([&] { return result.has_value(); }));
         ASSERT_FALSE(result->has_value());

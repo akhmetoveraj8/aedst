@@ -4,7 +4,6 @@
 #include "aedst/network/api_error.hpp"
 
 #include <aedst/admin/v1/admin.pb.h>
-
 #include <memory>
 
 namespace aedst::network {

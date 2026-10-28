@@ -59,6 +59,7 @@ public:
     static TaskDetailViewModel* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<TaskDetailViewModel>::create(engine, script);
     }
+
     struct Dependencies {
         std::shared_ptr<TaskRepository> tasks;
         std::shared_ptr<media::MediaRemoteDataSource> media;
@@ -70,7 +71,9 @@ public:
     explicit TaskDetailViewModel(Dependencies dependencies, QObject* parent = nullptr);
 
     [[nodiscard]] QString taskId() const;
+
     [[nodiscard]] bool hasTask() const noexcept { return task_.has_value(); }
+
     [[nodiscard]] QString title() const;
     [[nodiscard]] QString description() const;
     [[nodiscard]] QString status() const;
@@ -78,10 +81,15 @@ public:
     [[nodiscard]] int priority() const;
     [[nodiscard]] QDateTime dueDate() const;
     [[nodiscard]] bool overdue() const;
+
     [[nodiscard]] bool isLoading() const noexcept { return isLoading_; }
+
     [[nodiscard]] bool isMutating() const noexcept { return isMutating_; }
+
     [[nodiscard]] QString errorMessage() const { return errorMessage_; }
+
     [[nodiscard]] media::MediaListModel* attachments() noexcept { return &attachments_; }
+
     [[nodiscard]] media::MediaUploadController* uploader() noexcept { return &uploader_; }
 
     /// Called by TaskDetailView with its `taskId` route parameter.

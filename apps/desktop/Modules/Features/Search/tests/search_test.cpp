@@ -25,6 +25,7 @@ public:
         queries.push_back(query.text);
         pending.push_back(std::move(done));
     }
+
     void suggest(const std::string& /*prefix*/, int /*limit*/,
                  aedst::core::Completion<std::vector<std::string>> done) override {
         done(std::vector<std::string>{"alpha"});
@@ -46,6 +47,7 @@ class SearchTest : public QObject {
     Q_OBJECT
 
 private slots:
+
     void parsesHighlightMarkers() {
         const auto segments = parseSnippet("buy " + kOn + "milk" + kOff + " and " + kOn + "eggs" + kOff);
         QCOMPARE(segments.size(), std::size_t{4});
@@ -98,9 +100,9 @@ private slots:
         repository->pending[1](pageWithTitle("eggs result"));
         repository->pending[0](pageWithTitle("milk result"));
         QCOMPARE(viewModel.resultsModel().count(), 1);
-        QCOMPARE(viewModel.resultsModel().data(viewModel.resultsModel().index(0), SearchResultsModel::TitleRole)
-                     .toString(),
-                 QStringLiteral("eggs result"));
+        QCOMPARE(
+            viewModel.resultsModel().data(viewModel.resultsModel().index(0), SearchResultsModel::TitleRole).toString(),
+            QStringLiteral("eggs result"));
         QCOMPARE(viewModel.suggestions(), QStringList{QStringLiteral("alpha")});
     }
 };

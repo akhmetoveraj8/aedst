@@ -44,14 +44,23 @@ public:
     VideoFrameGrabber& operator=(VideoFrameGrabber&&) = delete;
 
     [[nodiscard]] QUrl source() const { return source_; }
+
     void setSource(const QUrl& source);
+
     [[nodiscard]] qint64 positionMs() const noexcept { return positionMs_; }
+
     void setPositionMs(qint64 positionMs);
+
     [[nodiscard]] int maxPixels() const noexcept { return maxPixels_; }
+
     void setMaxPixels(int maxPixels);
+
     [[nodiscard]] QUrl thumbnailUrl() const { return thumbnailUrl_; }
+
     [[nodiscard]] bool ready() const noexcept { return !thumbnailUrl_.isEmpty(); }
+
     [[nodiscard]] bool failed() const noexcept { return failed_; }
+
     /// The last grabbed frame (C++ callers, e.g. tests).
     [[nodiscard]] const QImage& image() const noexcept { return image_; }
 

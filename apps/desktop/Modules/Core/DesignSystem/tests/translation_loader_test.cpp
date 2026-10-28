@@ -15,6 +15,7 @@ class TranslationLoaderTest : public QObject {
     Q_OBJECT
 
 private slots:
+
     void resolvesFirstSupportedUiLanguage() {
         const std::vector<std::string> available{"en", "ru", "ar", "tg", "uz"};
         QCOMPARE(QString::fromStdString(resolveLanguage({"ru-RU", "en-US"}, available)), QStringLiteral("ru"));

@@ -1,5 +1,4 @@
 #include "aedst/crash/crash_uploader.hpp"
-
 #include "aedst/testing/fake_clock.hpp"
 #include "temp_dir_fixture.hpp"
 
@@ -16,6 +15,7 @@ namespace {
 class FakeConsentStore final : public ConsentStore {
 public:
     [[nodiscard]] ConsentState state() const override { return state_; }
+
     [[nodiscard]] core::VoidOutcome setState(ConsentState newState) override {
         state_ = newState;
         return core::ok();
@@ -36,6 +36,7 @@ public:
     }
 
     void setFail(bool fail) { fail_ = fail; }
+
     [[nodiscard]] const std::vector<UploadPayload>& sent() const { return sent_; }
 
 private:

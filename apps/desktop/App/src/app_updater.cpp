@@ -84,8 +84,8 @@ AppUpdater::AppUpdater(const std::filesystem::path& dataDirectory, const Updater
     config.arch = archName();
 
     store_ = std::make_unique<update::FileUpdateStateStore>(dataDirectory / "update" / "state");
-    service_ = std::make_unique<updater::UpdateService>(std::move(config), fetcher_,
-                                                        update::ManifestVerifier(std::move(keys)), *store_, *installer_);
+    service_ = std::make_unique<updater::UpdateService>(
+        std::move(config), fetcher_, update::ManifestVerifier(std::move(keys)), *store_, *installer_);
     service_->setCrashLoop(crashLoop_);
     qCInfo(lcUpdater, "Updates on: channel %s, installer %s", qUtf8Printable(settings.channel),
            installer_->canSelfUpdate() ? "self-updating" : "report only");

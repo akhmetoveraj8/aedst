@@ -193,7 +193,7 @@ void PostHogAnalyticsTracker::flush() {
         // 4xx other than 429 means the payload/key is wrong: retrying cannot help.
         if (status >= 400 && status < 500 && status != 429) {
             qCWarning(lcTelemetry, "PostHog rejected a batch (HTTP %d); dropping %lld events", status,
-                     static_cast<long long>(batch.size()));
+                      static_cast<long long>(batch.size()));
             return;
         }
         qCDebug(lcTelemetry, "PostHog batch failed (%s); re-queued", qPrintable(reply->errorString()));
@@ -229,8 +229,7 @@ void PostHogAnalyticsTracker::reloadFeatureFlags() {
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
     request.setTransferTimeout(10'000);
-    const QJsonObject body{{QStringLiteral("api_key"), config_.apiKey},
-                           {QStringLiteral("distinct_id"), distinctId()}};
+    const QJsonObject body{{QStringLiteral("api_key"), config_.apiKey}, {QStringLiteral("distinct_id"), distinctId()}};
     QNetworkReply* reply = network_.post(request, QJsonDocument(body).toJson(QJsonDocument::Compact));
     QPointer<PostHogAnalyticsTracker> guard(this);
     connect(reply, &QNetworkReply::finished, this, [guard, reply]() {

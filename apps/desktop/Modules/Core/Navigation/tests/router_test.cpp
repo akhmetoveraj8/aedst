@@ -4,6 +4,7 @@
 
 #include <QUrl>
 #include <QVariantMap>
+
 #include <gtest/gtest.h>
 
 #include <memory>
@@ -27,11 +28,10 @@ constexpr std::string_view kProfileRoute = "test/profile";
 class RouterTest : public ::testing::Test {
 protected:
     RouterTest() : router_(makeGraph()) {
-        QObject::connect(&router_, &Router::pushRequested,
-                         [this](const QUrl& view, const QVariantMap& properties) {
-                             pushed_.push_back(view);
-                             lastProperties_ = properties;
-                         });
+        QObject::connect(&router_, &Router::pushRequested, [this](const QUrl& view, const QVariantMap& properties) {
+            pushed_.push_back(view);
+            lastProperties_ = properties;
+        });
         QObject::connect(&router_, &Router::replaceAllRequested,
                          [this](const QUrl& view, const QVariantMap&) { replaced_.push_back(view); });
         QObject::connect(&router_, &Router::popRequested, [this]() { ++pops_; });

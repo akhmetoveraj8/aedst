@@ -3,6 +3,7 @@
 #include <QProcessEnvironment>
 #include <QSettings>
 #include <QTemporaryDir>
+
 #include <gtest/gtest.h>
 
 namespace aedst::oidc {
@@ -78,7 +79,8 @@ TEST(OidcConfigTest, LoopbackHttpNeedsTheExplicitSwitchAndALoopbackHost) {
 }
 
 TEST(OidcConfigTest, NormalizedIssuerIgnoresTrailingSlash) {
-    EXPECT_EQ(normalizedIssuer(QUrl(QStringLiteral("https://a.example/"))), normalizedIssuer(QUrl(QStringLiteral("https://a.example"))));
+    EXPECT_EQ(normalizedIssuer(QUrl(QStringLiteral("https://a.example/"))),
+              normalizedIssuer(QUrl(QStringLiteral("https://a.example"))));
 }
 
 TEST(OidcConfigTest, EnvironmentOverridesSettings) {

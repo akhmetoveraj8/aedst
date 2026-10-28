@@ -17,7 +17,8 @@ struct HealthReport {
     bool crashLoop{false};
     /// First start since this version was installed (a fresh update).
     bool firstStartOfThisVersion{false};
-    /// The last version that reached "healthy" (empty on a first install). Operators use it to choose the rollback target.
+    /// The last version that reached "healthy" (empty on a first install). Operators use it to choose the rollback
+    /// target.
     std::string lastKnownGood;
 };
 

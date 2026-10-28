@@ -1,9 +1,9 @@
 // QtQuickTest runner for the app shell (App/qml/Main.qml, AppToolbar.qml, PrivacyDialog.qml, UpdateBanner.qml).
 //
-// Main.qml is loaded from its SOURCE path (the executable target aedst-desktop cannot be linked into a test), against fakes
-// of every singleton it imports. The fakes expose the same property/signal names as the production classes; they are
-// registered under the module URIs Main.qml imports (the static QML plugins of the real modules are not linked here).
-// The real RouteNames (Routes singleton) and ThemeController are used as they are.
+// Main.qml is loaded from its SOURCE path (the executable target aedst-desktop cannot be linked into a test), against
+// fakes of every singleton it imports. The fakes expose the same property/signal names as the production classes; they
+// are registered under the module URIs Main.qml imports (the static QML plugins of the real modules are not linked
+// here). The real RouteNames (Routes singleton) and ThemeController are used as they are.
 #include "aedst/designsystem/theme_controller.hpp"
 #include "aedst/navigation/route_names.hpp"
 #include "aedst/qmlsupport/singleton_slot.hpp"
@@ -26,11 +26,15 @@ class FakeRouter final : public QObject {
 
 public:
     [[nodiscard]] QString currentRoute() const { return current_; }
+
     [[nodiscard]] int depth() const { return depth_; }
+
     void setScreen(const QUrl& screen) { screen_ = screen; }
 
     Q_INVOKABLE bool replaceAll(const QString& route, const QVariantMap& = {}) { return go(route, true); }
+
     Q_INVOKABLE bool navigate(const QString& route, const QVariantMap& = {}) { return go(route, false); }
+
     Q_INVOKABLE bool goBack() {
         if (depth_ <= 1) {
             return false;
@@ -41,6 +45,7 @@ public:
         emit currentRouteChanged();
         return true;
     }
+
     /// Test helper: how many times goBack() succeeded.
     Q_INVOKABLE int backCount() const { return backs_; }
 
@@ -77,12 +82,16 @@ class FakeSession final : public QObject {
 
 public:
     [[nodiscard]] static bool signedIn() { return true; }
+
     [[nodiscard]] bool isAdmin() const { return isAdmin_; }
+
     void setIsAdmin(bool value) {
         isAdmin_ = value;
         emit changed();
     }
+
     [[nodiscard]] QStringList visibleFeatures() const { return features_; }
+
     void setVisibleFeatures(const QStringList& value) {
         features_ = value;
         emit changed();
@@ -103,10 +112,12 @@ class FakeConnectivity final : public QObject {
 
 public:
     [[nodiscard]] bool isOffline() const { return offline_; }
+
     void setIsOffline(bool value) {
         offline_ = value;
         emit isOfflineChanged();
     }
+
     Q_INVOKABLE void refresh() {}
 
 signals:
@@ -122,7 +133,9 @@ class FakeLoginViewModel final : public QObject {
 
 public:
     [[nodiscard]] static bool isLoading() { return false; }
+
     Q_INVOKABLE void logout() { ++logouts_; }
+
     Q_INVOKABLE int logoutCount() const { return logouts_; }
 
 private:
@@ -147,8 +160,11 @@ class FakeTelemetry final : public QObject {
 
 public:
     [[nodiscard]] static bool yes() { return true; }
+
     [[nodiscard]] static bool no() { return false; }
+
     void ignore(bool) {}
+
     Q_INVOKABLE void decideAll(bool) {}
 
 signals:
@@ -179,12 +195,14 @@ class Setup final : public QObject {
     Q_OBJECT
 
 public slots:
+
     void qmlEngineAvailable(QQmlEngine* engine) {
         aedst::qmlsupport::SingletonSlot<aedst::designsystem::ThemeController>::provide(&theme_);
         router_.setScreen(QUrl::fromLocalFile(QStringLiteral(AEDST_APP_TEST_QML_DIR "/FakeScreen.qml")));
         qmlRegisterSingletonInstance("Aedst.Navigation", 1, 0, "AppRouter", &router_);
         qmlRegisterSingletonType<aedst::navigation::RouteNames>(
-            "Aedst.Navigation", 1, 0, "Routes", [](QQmlEngine*, QJSEngine*) { return new aedst::navigation::RouteNames; });
+            "Aedst.Navigation", 1, 0, "Routes",
+            [](QQmlEngine*, QJSEngine*) { return new aedst::navigation::RouteNames; });
         qmlRegisterSingletonInstance("Aedst.Connectivity", 1, 0, "Connectivity", &connectivity_);
         qmlRegisterSingletonInstance("Aedst.Feature.Auth", 1, 0, "LoginViewModel", &login_);
         qmlRegisterSingletonInstance("Aedst.Feature.Notifications", 1, 0, "NotificationsViewModel", &notificationsVm_);
@@ -194,7 +212,8 @@ public slots:
         qmlRegisterSingletonInstance("Aedst.Platform", 1, 0, "Session", &session_);
         qmlRegisterSingletonInstance("Aedst.Telemetry", 1, 0, "Telemetry", &telemetry_);
         qmlRegisterSingletonInstance("Aedst.Telemetry", 1, 0, "Errors", &errors_);
-        engine->rootContext()->setContextProperty(QStringLiteral("appQmlDir"), QUrl::fromLocalFile(QStringLiteral(AEDST_APP_QML_DIR)));
+        engine->rootContext()->setContextProperty(QStringLiteral("appQmlDir"),
+                                                  QUrl::fromLocalFile(QStringLiteral(AEDST_APP_QML_DIR)));
         engine->rootContext()->setContextProperty(QStringLiteral("fakeRouter"), &router_);
         engine->rootContext()->setContextProperty(QStringLiteral("fakeSession"), &session_);
         engine->rootContext()->setContextProperty(QStringLiteral("fakeConnectivity"), &connectivity_);

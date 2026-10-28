@@ -33,7 +33,8 @@ void OutboxService::enqueue(std::string type, std::string payload, std::string i
                     .payload = std::move(payload),
                     .attempts = 0,
                     .status = OutboxStatus::Pending,
-                    .createdAtMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count(),
+                    .createdAtMs =
+                        std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count(),
                     .lastError = {}};
     QPointer<OutboxService> guard(this);
     deps_.queue->enqueue(std::move(item), [guard, done = std::move(done)](core::VoidOutcome stored) {

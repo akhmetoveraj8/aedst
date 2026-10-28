@@ -84,7 +84,7 @@ sentry_value_t beforeSend(sentry_value_t event, void* /*hint*/, void* /*userData
                    "value");
     const sentry_value_t crumbs = sentry_value_get_by_key(event, "breadcrumbs");
     scrubListItems(sentry_value_get_type(crumbs) == SENTRY_VALUE_TYPE_OBJECT ? sentry_value_get_by_key(crumbs, "values")
-                                                                              : crumbs,
+                                                                             : crumbs,
                    "message");
     return event;
 }

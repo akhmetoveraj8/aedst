@@ -16,7 +16,7 @@ namespace aedst::feature::auth {
 class ConnectAuthRepository final : public AuthRepository, public std::enable_shared_from_this<ConnectAuthRepository> {
 public:
     ConnectAuthRepository(std::shared_ptr<AuthRemoteDataSource> remote, std::shared_ptr<LocalTokenStoreAdapter> local,
-                       std::shared_ptr<const core::Clock> clock, std::string deviceId);
+                          std::shared_ptr<const core::Clock> clock, std::string deviceId);
 
     void login(const Credentials& credentials, core::Completion<Session> done) override;
     void refreshToken(core::Completion<Session> done) override;

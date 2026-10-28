@@ -1,7 +1,6 @@
 #include "aedst/core/guarded.hpp"
-#include "oidc_session_internal.hpp"
-
 #include "aedst/logging/log_categories.hpp"
+#include "oidc_session_internal.hpp"
 
 #include <QDateTime>
 #include <QDesktopServices>
@@ -141,14 +140,13 @@ void OidcSession::persistRotatedRefreshToken() {
     if (!user_ || refreshToken_.empty()) {
         return;
     }
-    deps_.store->save(StoredIdentity{.refreshToken = refreshToken_, .subject = user_->subject},
-                      [](core::VoidOutcome saved) {
-                          if (!saved) {
-                              // The in-memory session keeps working; the next start will need a fresh sign-in.
-                              qCWarning(lcAuth, "Could not persist the rotated refresh token: %s",
-                                        saved.error().message.c_str());
-                          }
-                      });
+    deps_.store->save(
+        StoredIdentity{.refreshToken = refreshToken_, .subject = user_->subject}, [](core::VoidOutcome saved) {
+            if (!saved) {
+                // The in-memory session keeps working; the next start will need a fresh sign-in.
+                qCWarning(lcAuth, "Could not persist the rotated refresh token: %s", saved.error().message.c_str());
+            }
+        });
 }
 
 // --- Discovery ------------------------------------------------------------------------------
@@ -185,9 +183,10 @@ OidcSession::Tokens OidcSession::readTokens(const QOAuth2AuthorizationCodeFlow& 
     tokens.refresh = core::SecretString(flow.refreshToken().toStdString());
     tokens.idToken = core::SecretString(flow.idToken().toStdString());
     const QDateTime expiration = flow.expirationAt();
-    tokens.expiresAt = expiration.isValid()
-                           ? std::chrono::system_clock::from_time_t(static_cast<std::time_t>(expiration.toSecsSinceEpoch()))
-                           : now() + kFallbackLifetime;
+    tokens.expiresAt =
+        expiration.isValid()
+            ? std::chrono::system_clock::from_time_t(static_cast<std::time_t>(expiration.toSecsSinceEpoch()))
+            : now() + kFallbackLifetime;
     return tokens;
 }
 
@@ -219,7 +218,9 @@ void OidcSession::restore(core::Completion<std::optional<OidcUser>> done) {
                 return;
             }
             if (!refreshed) {
-                core::invokeGuarded("OIDC completion", [&] { done(core::fail(refreshed.error())); }); // offline keeps the identity; rejected already cleared it
+                core::invokeGuarded("OIDC completion", [&] {
+                    done(core::fail(refreshed.error()));
+                }); // offline keeps the identity; rejected already cleared it
                 return;
             }
             core::invokeGuarded("OIDC completion", [&] { done(self->user_); });
@@ -230,7 +231,8 @@ void OidcSession::restore(core::Completion<std::optional<OidcUser>> done) {
 
 void OidcSession::ensureFreshAccessToken(core::Completion<std::string> done) {
     if (!isSignedIn()) {
-        core::invokeGuarded("OIDC completion", [&] { done(core::fail(core::Error::unauthenticated("Not signed in"))); });
+        core::invokeGuarded("OIDC completion",
+                            [&] { done(core::fail(core::Error::unauthenticated("Not signed in"))); });
         return;
     }
     if (hasValidAccessToken()) {
@@ -243,7 +245,8 @@ void OidcSession::ensureFreshAccessToken(core::Completion<std::string> done) {
 
 void OidcSession::refreshAfterRejection(const std::string& rejectedToken, core::Completion<std::string> done) {
     if (!isSignedIn()) {
-        core::invokeGuarded("OIDC completion", [&] { done(core::fail(core::Error::unauthenticated("Not signed in"))); });
+        core::invokeGuarded("OIDC completion",
+                            [&] { done(core::fail(core::Error::unauthenticated("Not signed in"))); });
         return;
     }
     // Several in-flight calls fail with the same stale token: only the first one refreshes.
@@ -313,11 +316,10 @@ void OidcSession::runRefresh(const OidcEndpoints& endpoints) {
     QObject::connect(flow, &QAbstractOAuth::requestFailed, flow, [settle](QAbstractOAuth::Error error) {
         // No OAuth error body: treat as transport trouble and keep the session.
         settle(core::fail(core::Error::unavailable("Token refresh request failed (Qt OAuth error " +
-                                               std::to_string(static_cast<int>(error)) + ")")));
+                                                   std::to_string(static_cast<int>(error)) + ")")));
     });
-    QObject::connect(guard, &QTimer::timeout, flow, [settle]() {
-        settle(core::fail(core::Error::unavailable("Token refresh timed out")));
-    });
+    QObject::connect(guard, &QTimer::timeout, flow,
+                     [settle]() { settle(core::fail(core::Error::unavailable("Token refresh timed out"))); });
     guard->start(static_cast<int>(toMs(config_.requestTimeout * 2).count()));
     flow->refreshTokens();
 }

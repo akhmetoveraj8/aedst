@@ -30,6 +30,7 @@ public:
     static Router* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<Router>::create(engine, script);
     }
+
     explicit Router(std::shared_ptr<const NavGraph> graph, QObject* parent = nullptr);
 
     /// Returns false (and logs) when no destination is registered for the route.
@@ -39,6 +40,7 @@ public:
     /// Shows `route` and then refuses every further push/resetTo/goBack for the rest of the process: the user cannot
     /// leave it (forced upgrade). Returns false, and locks nothing, when the route has no destination.
     bool lockTo(const Route& route);
+
     [[nodiscard]] bool isLocked() const noexcept { return locked_; }
 
     Q_INVOKABLE bool navigate(const QString& routeName, const QVariantMap& params = {});

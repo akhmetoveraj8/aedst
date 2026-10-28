@@ -4,9 +4,9 @@
 #include "Data/connect_auth_remote_data_source.hpp"
 #include "Data/connect_notification_repository.hpp"
 #include "Data/connect_notification_stream.hpp"
-#include "Data/oidc_auth_repository.hpp"
 #include "Data/connect_search_repository.hpp"
 #include "Data/connect_task_repository.hpp"
+#include "Data/oidc_auth_repository.hpp"
 #include "Domain/browser_sign_in_use_case.hpp"
 #include "Domain/create_task_use_case.hpp"
 #include "Domain/login_use_case.hpp"
@@ -58,8 +58,8 @@ namespace admin = feature::admin;
 
 AppDependencies::~AppDependencies() = default;
 
-core::Outcome<std::unique_ptr<AppDependencies>> AppDependencies::create(const AppConfig& config,
-                                                                         platform::NotificationService& desktopNotifier) {
+core::Outcome<std::unique_ptr<AppDependencies>>
+AppDependencies::create(const AppConfig& config, platform::NotificationService& desktopNotifier) {
     // Private constructor, so no make_unique.
     std::unique_ptr<AppDependencies> deps(new AppDependencies());
     deps->rolesClaim_ = config.rolesClaim;
@@ -163,8 +163,8 @@ core::Outcome<std::unique_ptr<AppDependencies>> AppDependencies::create(const Ap
     deps->plugins_->registerRoutes(*deps->navGraph_);
     deps->router_ = std::make_unique<navigation::Router>(deps->navGraph_);
     deps->deepLinks_ = std::make_unique<navigation::DeepLinkGate>(*deps->router_);
-    QObject::connect(deps->connectClient_.get(), &network::ConnectClient::clientUpgradeRequired,
-                     deps->outbox_.get(), [raw = deps.get()]() { raw->onUpgradeRequired(); });
+    QObject::connect(deps->connectClient_.get(), &network::ConnectClient::clientUpgradeRequired, deps->outbox_.get(),
+                     [raw = deps.get()]() { raw->onUpgradeRequired(); });
 
     deps->mediaRemote_ = std::make_shared<media::ConnectMediaRemoteDataSource>(deps->connectClient_);
     const media::MediaUploadController::Dependencies upload{
@@ -235,10 +235,9 @@ core::Outcome<std::unique_ptr<AppDependencies>> AppDependencies::create(const Ap
     deps->updateSessionInfo();
 
     qCInfo(lcApp, "Dependencies ready (api=%s, data=%s)", config.apiBaseUrl.toString().toStdString().c_str(),
-            config.dataDirectory.string().c_str());
+           config.dataDirectory.string().c_str());
     return deps;
 }
-
 
 bool AppDependencies::openDeepLink(const QString& link) {
     return deepLinks_->submit(link);
@@ -317,6 +316,5 @@ navigation::Route AppDependencies::initialRoute() const {
     // routes back to login if the server rejects it.
     return authRepository_->currentSession() ? tasks::taskListRoute() : auth::loginRoute();
 }
-
 
 } // namespace aedst::app

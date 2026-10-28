@@ -65,6 +65,7 @@ private:
 class FixedKeyProvider final : public persistence::MasterKeyProvider {
 public:
     [[nodiscard]] std::string_view name() const noexcept override { return "fixed"; }
+
     [[nodiscard]] core::Outcome<persistence::SecretBytes> loadOrCreate() override {
         return persistence::SecretBytes{std::vector<std::uint8_t>(persistence::kMasterKeySize, 0x37)};
     }
@@ -77,12 +78,15 @@ public:
                 ("aedst-auth-adapter-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
         std::filesystem::create_directories(path_);
     }
+
     ~TempDir() {
         std::error_code ignored;
         std::filesystem::remove_all(path_, ignored);
     }
+
     TempDir(const TempDir&) = delete;
     TempDir& operator=(const TempDir&) = delete;
+
     [[nodiscard]] const std::filesystem::path& path() const { return path_; }
 
 private:
@@ -182,7 +186,8 @@ TEST_F(LocalTokenStoreAdapterTest, ClearWipesTheTokensFromMemoryImmediatelyAndFr
 
     std::optional<core::VoidOutcome> cleared;
     adapter->clear([&cleared](core::VoidOutcome r) { cleared = std::move(r); });
-    EXPECT_FALSE(adapter->accessToken().has_value()) << "sign-out must not leave a token usable while the disk catches up";
+    EXPECT_FALSE(adapter->accessToken().has_value())
+        << "sign-out must not leave a token usable while the disk catches up";
     EXPECT_FALSE(cleared.has_value());
 
     ASSERT_TRUE(pump.runUntil([&] { return cleared.has_value(); }));

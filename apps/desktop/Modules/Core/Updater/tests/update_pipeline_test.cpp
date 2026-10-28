@@ -30,7 +30,8 @@ protected:
 
     /// Serves a signed manifest for `version` whose artifact is the fake package.
     void serve(const std::string& version, std::int64_t publishedAt = 1'700'000'000, bool rollback = false) {
-        std::string json = manifestJson(version, "stable", publishedAt, "1.0.0", sha256Hex(kPackage), sizeof(kPackage) - 1);
+        std::string json =
+            manifestJson(version, "stable", publishedAt, "1.0.0", sha256Hex(kPackage), sizeof(kPackage) - 1);
         if (rollback) {
             json.replace(json.find('{') + 1, 0, "\"rollback\":true,");
         }

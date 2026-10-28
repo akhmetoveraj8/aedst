@@ -15,8 +15,11 @@ namespace aedst::feature::search {
 SearchViewModel::SearchViewModel(std::shared_ptr<SearchRepository> repository, std::shared_ptr<core::ErrorSink> errors,
                                  std::shared_ptr<analytics::AnalyticsTracker> analytics, navigation::Router* router,
                                  QObject* parent)
-    : QObject(parent), repository_(std::move(repository)), errors_(std::move(errors)),
-      analytics_(std::move(analytics)), router_(router) {
+    : QObject(parent),
+      repository_(std::move(repository)),
+      errors_(std::move(errors)),
+      analytics_(std::move(analytics)),
+      router_(router) {
     debounce_.setSingleShot(true);
     debounce_.setInterval(kDebounceMs);
     connect(&debounce_, &QTimer::timeout, this, &SearchViewModel::submit);

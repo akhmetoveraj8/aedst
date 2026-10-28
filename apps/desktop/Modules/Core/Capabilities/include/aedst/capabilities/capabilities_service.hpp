@@ -54,6 +54,7 @@ public:
     [[nodiscard]] std::vector<std::string> visibleFeatures() const;
 
     [[nodiscard]] const VersionAdvice& versionAdvice() const noexcept { return advice_; }
+
     /// Is the answer a fetched or cached one (as opposed to the defaults)?
     [[nodiscard]] bool hasAnswer() const noexcept { return answer_.has_value(); }
 
@@ -74,8 +75,8 @@ private:
     ClientBuild build_;
 
     std::optional<ServerCapabilities> answer_;
-    plugin::CapabilitySet visible_;  // always known(): includes the defaults
-    plugin::CapabilitySet current_;  // unknown until answer_ has a value
+    plugin::CapabilitySet visible_; // always known(): includes the defaults
+    plugin::CapabilitySet current_; // unknown until answer_ has a value
     VersionAdvice advice_;
     bool fetching_{false};
     bool fetchedOnce_{false};

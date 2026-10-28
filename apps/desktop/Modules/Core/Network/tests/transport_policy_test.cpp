@@ -4,6 +4,7 @@
 #include <QString>
 #include <QUrl>
 #include <QtGlobal>
+
 #include <gtest/gtest.h>
 
 #include <string>
@@ -102,13 +103,15 @@ TEST(IsLoopbackHostTest, RecognisesOnlyLoopbackNames) {
 /// Restores AEDST_ALLOW_INSECURE_LOCALHOST when the test ends.
 class ScopedEnv final {
 public:
-    explicit ScopedEnv(const QByteArray& value) : hadValue_(qEnvironmentVariableIsSet(kName)), previous_(qgetenv(kName)) {
+    explicit ScopedEnv(const QByteArray& value)
+        : hadValue_(qEnvironmentVariableIsSet(kName)), previous_(qgetenv(kName)) {
         if (value.isNull()) {
             qunsetenv(kName);
         } else {
             qputenv(kName, value);
         }
     }
+
     ~ScopedEnv() {
         if (hadValue_) {
             qputenv(kName, previous_);
@@ -116,6 +119,7 @@ public:
             qunsetenv(kName);
         }
     }
+
     ScopedEnv(const ScopedEnv&) = delete;
     ScopedEnv& operator=(const ScopedEnv&) = delete;
 

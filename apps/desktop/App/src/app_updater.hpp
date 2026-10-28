@@ -38,6 +38,7 @@ public:
     void markHealthy();
 
     [[nodiscard]] updater::UpdateService* service() noexcept { return service_.get(); }
+
     [[nodiscard]] bool crashLoop() const noexcept { return crashLoop_; }
 
 private:

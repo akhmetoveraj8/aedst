@@ -42,8 +42,7 @@ public:
     Q_ENUM(Outcome)
 
     /// `network` is shared with the rest of the app and must outlive this object.
-    explicit PresignedUploader(QNetworkAccessManager& network, bool allowInsecureLoopback,
-                               QObject* parent = nullptr);
+    explicit PresignedUploader(QNetworkAccessManager& network, bool allowInsecureLoopback, QObject* parent = nullptr);
     ~PresignedUploader() override;
     PresignedUploader(const PresignedUploader&) = delete;
     PresignedUploader& operator=(const PresignedUploader&) = delete;
@@ -55,6 +54,7 @@ public:
     bool start(const QUrl& url, const QByteArray& method, const QHash<QByteArray, QByteArray>& headers,
                const QString& filePath, const QByteArray& contentType, QString* error = nullptr);
     void cancel();
+
     [[nodiscard]] bool isRunning() const noexcept { return !reply_.isNull(); }
 
 signals:

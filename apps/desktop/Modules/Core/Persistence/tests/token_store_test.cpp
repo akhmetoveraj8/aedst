@@ -199,8 +199,8 @@ TEST(PerformanceBudget, TokenStoreRoundTrips) {
             ASSERT_TRUE(loaded.has_value());
             ASSERT_TRUE(loaded->has_value());
         }
-        best = std::min(best, std::chrono::duration_cast<std::chrono::nanoseconds>(
-                                  std::chrono::steady_clock::now() - start));
+        best = std::min(best,
+                        std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - start));
     }
 
     EXPECT_LT(best, kBudget) << kRoundTrips << " round trips took "

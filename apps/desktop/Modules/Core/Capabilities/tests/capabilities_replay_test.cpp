@@ -5,14 +5,16 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
+
 #include <gtest/gtest.h>
 
 #include <memory>
 #include <string>
 
 // Replays docs/contract/behavior/capabilities.json (the file Web, Android and Apple replay too) through the REAL
-// CapabilitiesService and rules. Only the network and the cache are doubles: the server answer is built as the generated
-// GetCapabilitiesResponse, the lastKnown value is stored as its serialized form, exactly as production stores it.
+// CapabilitiesService and rules. Only the network and the cache are doubles: the server answer is built as the
+// generated GetCapabilitiesResponse, the lastKnown value is stored as its serialized form, exactly as production stores
+// it.
 
 namespace aedst::capabilities {
 namespace {

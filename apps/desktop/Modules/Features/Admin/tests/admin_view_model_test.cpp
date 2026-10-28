@@ -35,6 +35,7 @@ public:
         response.set_tasks_done(60);
         done(std::move(response));
     }
+
     void listUsers(const adminv1::ListUsersRequest& request,
                    network::ApiCompletion<adminv1::ListUsersResponse> done) override {
         userQueries.push_back(request.query());
@@ -50,6 +51,7 @@ public:
         user->set_task_count(3);
         done(std::move(response));
     }
+
     void listAuditLog(const adminv1::ListAuditLogRequest& /*request*/,
                       network::ApiCompletion<adminv1::ListAuditLogResponse> done) override {
         ++auditCalls;
@@ -63,6 +65,7 @@ public:
         entry->set_action("broadcast");
         done(std::move(response));
     }
+
     void broadcast(const adminv1::BroadcastNotificationRequest& request,
                    network::ApiCompletion<adminv1::BroadcastNotificationResponse> done) override {
         broadcasts.push_back(request);
@@ -107,6 +110,7 @@ class AdminViewModelTest : public QObject {
     Q_OBJECT
 
 private slots:
+
     void init() {
         repository_ = std::make_shared<FakeAdminRepository>();
         errors_ = std::make_shared<RecordingErrors>();

@@ -1,6 +1,5 @@
-#include "oidc_session_internal.hpp"
-
 #include "aedst/logging/log_categories.hpp"
+#include "oidc_session_internal.hpp"
 
 #include <QHostAddress>
 #include <QOAuthHttpServerReplyHandler>
@@ -50,7 +49,8 @@ void OidcSession::startAuthorization(const OidcEndpoints& endpoints) {
     flow->setTokenUrl(endpoints.token);
     flow->setRequestedScopeTokens(config_.scopeTokens());
     flow->setPkceMethod(QOAuth2AuthorizationCodeFlow::PkceMethod::S256);
-    // Bind the ID token to this attempt: a fresh random nonce goes out with the request and must come back in the token.
+    // Bind the ID token to this attempt: a fresh random nonce goes out with the request and must come back in the
+    // token.
     signIn_->nonce = QUuid::createUuid().toString(QUuid::WithoutBraces) + QUuid::createUuid().toString(QUuid::Id128);
     flow->setNonceMode(QAbstractOAuth2::NonceMode::Enabled);
     flow->setNonce(signIn_->nonce);
@@ -93,7 +93,7 @@ void OidcSession::startAuthorization(const OidcEndpoints& endpoints) {
     QObject::connect(flow, &QAbstractOAuth::requestFailed, flow, [self](QAbstractOAuth::Error error) {
         if (self) {
             self->finishSignIn(core::fail(core::Error::unavailable("Sign-in request failed (Qt OAuth error " +
-                                                               std::to_string(static_cast<int>(error)) + ")")));
+                                                                   std::to_string(static_cast<int>(error)) + ")")));
         }
     });
     QObject::connect(flow, &QAbstractOAuth::granted, flow, [self, flow]() {

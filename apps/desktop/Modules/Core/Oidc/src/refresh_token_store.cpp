@@ -1,5 +1,6 @@
-#include "aedst/core/guarded.hpp"
 #include "aedst/oidc/refresh_token_store.hpp"
+
+#include "aedst/core/guarded.hpp"
 
 #include <QByteArray>
 #include <QCryptographicHash>
@@ -75,11 +76,12 @@ core::Error unavailableError() {
 
 void InMemoryRefreshTokenStore::load(core::Completion<std::optional<StoredIdentity>> done) {
     if (unavailable_) {
-        deliverLater<std::optional<StoredIdentity>>(std::move(done),
-                                                    core::Outcome<std::optional<StoredIdentity>>(core::fail(unavailableError())));
+        deliverLater<std::optional<StoredIdentity>>(
+            std::move(done), core::Outcome<std::optional<StoredIdentity>>(core::fail(unavailableError())));
         return;
     }
-    deliverLater<std::optional<StoredIdentity>>(std::move(done), core::Outcome<std::optional<StoredIdentity>>(identity_));
+    deliverLater<std::optional<StoredIdentity>>(std::move(done),
+                                                core::Outcome<std::optional<StoredIdentity>>(identity_));
 }
 
 void InMemoryRefreshTokenStore::save(const StoredIdentity& identity, core::Completion<void> done) {

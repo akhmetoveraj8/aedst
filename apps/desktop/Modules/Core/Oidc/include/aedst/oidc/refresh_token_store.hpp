@@ -56,6 +56,7 @@ public:
 
     /// Makes every following operation fail with ErrorCode::Storage (simulates a missing keychain).
     void setUnavailable(bool unavailable) { unavailable_ = unavailable; }
+
     [[nodiscard]] bool hasIdentity() const { return identity_.has_value(); }
 
 private:

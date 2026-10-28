@@ -166,8 +166,9 @@ until you do).
 ## Static analysis
 
 ```bash
-# formatting (CI runs this with --dry-run --Werror)
-find Modules App -name '*.hpp' -o -name '*.cpp' | xargs clang-format -i
+# formatting: clang-format 23.1.3 (the PyPI wheel, `pip install clang-format==23.1.3`); CI runs the check
+CLANG_FORMAT_VERSION=23.1.3 ./scripts/check-format.sh        # --dry-run --Werror
+CLANG_FORMAT_VERSION=23.1.3 ./scripts/check-format.sh --fix  # rewrite in place
 
 # clang-tidy (blocking in CI; baseline in scripts/clang-tidy-baseline.txt)
 ./scripts/run-clang-tidy.sh build/clang-debug

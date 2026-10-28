@@ -1,7 +1,7 @@
 #include "aedst/core/logger.hpp"
 
-#include <spdlog/sinks/ostream_sink.h>
 #include <gtest/gtest.h>
+#include <spdlog/sinks/ostream_sink.h>
 
 #include <memory>
 #include <sstream>

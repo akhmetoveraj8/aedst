@@ -35,6 +35,7 @@ public:
     static ErrorCenter* create(QQmlEngine* engine, QJSEngine* script) {
         return aedst::qmlsupport::SingletonSlot<ErrorCenter>::create(engine, script);
     }
+
     static constexpr qint64 kDedupWindowMs = 3000;
 
     explicit ErrorCenter(QObject* parent = nullptr);

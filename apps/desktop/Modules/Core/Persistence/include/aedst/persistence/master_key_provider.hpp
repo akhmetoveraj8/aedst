@@ -23,10 +23,14 @@ inline constexpr std::size_t kMasterKeySize = 32;
 class SecretBytes final {
 public:
     SecretBytes() = default;
+
     explicit SecretBytes(std::vector<std::uint8_t> bytes) noexcept : bytes_(std::move(bytes)) {}
+
     SecretBytes(const SecretBytes&) = delete;
     SecretBytes& operator=(const SecretBytes&) = delete;
+
     SecretBytes(SecretBytes&& other) noexcept : bytes_(std::move(other.bytes_)) { other.bytes_.clear(); }
+
     SecretBytes& operator=(SecretBytes&& other) noexcept {
         if (this != &other) {
             wipe();
@@ -35,10 +39,13 @@ public:
         }
         return *this;
     }
+
     ~SecretBytes() { wipe(); }
 
     [[nodiscard]] std::span<const std::uint8_t> view() const noexcept { return bytes_; }
+
     [[nodiscard]] std::size_t size() const noexcept { return bytes_.size(); }
+
     [[nodiscard]] bool empty() const noexcept { return bytes_.empty(); }
 
 private:
@@ -142,7 +149,7 @@ private:
 /// A legacy `<dataDirectory>/secure.key` is migrated into a keyring when one is
 /// usable. The keyring is probed once here, so the returned provider is known to
 /// have worked at construction time.
-[[nodiscard]] std::unique_ptr<MasterKeyProvider> createPlatformMasterKeyProvider(
-    const std::filesystem::path& dataDirectory);
+[[nodiscard]] std::unique_ptr<MasterKeyProvider>
+createPlatformMasterKeyProvider(const std::filesystem::path& dataDirectory);
 
 } // namespace aedst::persistence

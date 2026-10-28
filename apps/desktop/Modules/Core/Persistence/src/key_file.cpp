@@ -22,12 +22,11 @@
 #endif
 #include <windows.h>
 #else
+#include <cerrno>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include <cerrno>
 #endif
 
 namespace aedst::persistence::detail {
@@ -67,8 +66,8 @@ core::Outcome<std::optional<std::vector<std::uint8_t>>> readFileBytes(const std:
 core::Outcome<std::optional<SecretBytes>> readKeyFile(const std::filesystem::path& file) {
     auto bytes = readFileBytes(file, kMasterKeySize);
     if (!bytes) {
-        return core::fail(core::Error::storage("secure storage key file is unreadable or corrupt: " +
-                                               bytes.error().message));
+        return core::fail(
+            core::Error::storage("secure storage key file is unreadable or corrupt: " + bytes.error().message));
     }
     if (!*bytes) {
         return std::optional<SecretBytes>{};

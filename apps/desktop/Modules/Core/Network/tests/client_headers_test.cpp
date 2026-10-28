@@ -1,5 +1,5 @@
-#include "connect_client_test_support.hpp"
 #include "aedst/network/client_identification.hpp"
+#include "connect_client_test_support.hpp"
 
 #include <gtest/gtest.h>
 
@@ -18,13 +18,12 @@ using namespace testsupport;
 class ClientHeadersTest : public ConnectClientTest {
 protected:
     void useClientIdentifier(std::string identifier) {
-        client_ = std::make_unique<ConnectClient>(
-            ClientConfig{.baseUrl = server_.baseUrl(),
-                         .defaultTimeout = 2s,
-                         .retry = fastRetry(),
-                         .allowInsecureLoopback = true,
-                         .clientIdentifier = std::move(identifier)},
-            interceptor_);
+        client_ = std::make_unique<ConnectClient>(ClientConfig{.baseUrl = server_.baseUrl(),
+                                                               .defaultTimeout = 2s,
+                                                               .retry = fastRetry(),
+                                                               .allowInsecureLoopback = true,
+                                                               .clientIdentifier = std::move(identifier)},
+                                                  interceptor_);
     }
 };
 

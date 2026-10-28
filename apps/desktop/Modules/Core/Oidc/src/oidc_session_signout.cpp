@@ -1,6 +1,5 @@
-#include "oidc_session_internal.hpp"
-
 #include "aedst/logging/log_categories.hpp"
+#include "oidc_session_internal.hpp"
 
 #include <QByteArray>
 #include <QNetworkAccessManager>

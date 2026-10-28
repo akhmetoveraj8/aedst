@@ -72,8 +72,7 @@ std::filesystem::path crashpadHandlerPath() {
 #else
     const QString name = QStringLiteral("crashpad_handler");
 #endif
-    return std::filesystem::path(
-        QDir(QCoreApplication::applicationDirPath()).filePath(name).toStdU16String());
+    return std::filesystem::path(QDir(QCoreApplication::applicationDirPath()).filePath(name).toStdU16String());
 }
 
 /// TLS backend (ADR-0024): Schannel on Windows (OS trust store and TLS stack, no OpenSSL
@@ -110,7 +109,8 @@ QString dataDirectoryOverride() {
 std::filesystem::path dataDirectory() {
     const QString override = dataDirectoryOverride();
     if (override.isEmpty()) {
-        return std::filesystem::path(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdU16String());
+        return std::filesystem::path(
+            QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdU16String());
     }
     // Isolate QSettings too (deviceId, analytics id, OIDC config): Windows' native format is the registry.
     QSettings::setDefaultFormat(QSettings::IniFormat);
@@ -127,13 +127,27 @@ QString cacheRoot() {
 aedst::core::LogLevel logLevel(aedst::core::LogLevel fallback) {
     using aedst::core::LogLevel;
     const QString value = qEnvironmentVariable("AEDST_LOG_LEVEL").trimmed().toLower();
-    if (value == QLatin1String("trace")) return LogLevel::Trace;
-    if (value == QLatin1String("debug")) return LogLevel::Debug;
-    if (value == QLatin1String("info")) return LogLevel::Info;
-    if (value == QLatin1String("warn") || value == QLatin1String("warning")) return LogLevel::Warn;
-    if (value == QLatin1String("error")) return LogLevel::Error;
-    if (value == QLatin1String("critical")) return LogLevel::Critical;
-    if (value == QLatin1String("off")) return LogLevel::Off;
+    if (value == QLatin1String("trace")) {
+        return LogLevel::Trace;
+    }
+    if (value == QLatin1String("debug")) {
+        return LogLevel::Debug;
+    }
+    if (value == QLatin1String("info")) {
+        return LogLevel::Info;
+    }
+    if (value == QLatin1String("warn") || value == QLatin1String("warning")) {
+        return LogLevel::Warn;
+    }
+    if (value == QLatin1String("error")) {
+        return LogLevel::Error;
+    }
+    if (value == QLatin1String("critical")) {
+        return LogLevel::Critical;
+    }
+    if (value == QLatin1String("off")) {
+        return LogLevel::Off;
+    }
     return fallback;
 }
 

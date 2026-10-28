@@ -57,6 +57,7 @@ public:
         std::function<void(NotificationEvent)> onEvent;
         std::function<void(StreamEnd)> onEnd;
     };
+
     using Cancel = std::function<void()>;
 
     NotificationStream() = default;

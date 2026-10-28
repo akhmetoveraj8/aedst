@@ -59,8 +59,9 @@ TEST(IdTokenClaimsTest, ANonceMustBeEchoedWhenOneWasSent) {
 
     EXPECT_TRUE(validateIdToken(jwt, config(), now(), std::chrono::seconds{60}, "n-1").has_value());
     EXPECT_FALSE(validateIdToken(jwt, config(), now(), std::chrono::seconds{60}, "n-2").has_value());
-    EXPECT_FALSE(validateIdToken(makeJwt(validIdTokenClaims(config())), config(), now(), std::chrono::seconds{60}, "n-1")
-                     .has_value());
+    EXPECT_FALSE(
+        validateIdToken(makeJwt(validIdTokenClaims(config())), config(), now(), std::chrono::seconds{60}, "n-1")
+            .has_value());
     EXPECT_TRUE(validateIdToken(jwt, config(), now()).has_value()) << "no nonce expected (refresh): not checked";
 }
 

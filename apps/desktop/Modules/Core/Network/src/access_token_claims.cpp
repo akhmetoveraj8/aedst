@@ -62,9 +62,9 @@ std::optional<AccessTokenClaims> parseAccessTokenClaims(std::string_view token, 
     if (segments.size() != 3 || segments.at(1).isEmpty()) {
         return std::nullopt;
     }
-    const auto decoded = QByteArray::fromBase64Encoding(
-        segments.at(1), QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals |
-                            QByteArray::AbortOnBase64DecodingErrors);
+    const auto decoded =
+        QByteArray::fromBase64Encoding(segments.at(1), QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals |
+                                                           QByteArray::AbortOnBase64DecodingErrors);
     if (!decoded) {
         return std::nullopt;
     }
@@ -76,8 +76,8 @@ std::optional<AccessTokenClaims> parseAccessTokenClaims(std::string_view token, 
     const QJsonObject payload = document.object();
     AccessTokenClaims claims;
     claims.subject = payload.value(QStringLiteral("sub")).toString().toStdString();
-    claims.roles = rolesFrom(lookupClaim(
-        payload, QString::fromUtf8(rolesClaim.data(), static_cast<qsizetype>(rolesClaim.size()))));
+    claims.roles = rolesFrom(
+        lookupClaim(payload, QString::fromUtf8(rolesClaim.data(), static_cast<qsizetype>(rolesClaim.size()))));
     return claims;
 }
 

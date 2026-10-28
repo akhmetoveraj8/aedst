@@ -1,7 +1,7 @@
 # AedstDesignSystem
 
 Desktop (Qt Quick / QML) design system for AEDST, built to reach parity with
-the web app's shadcn/ui component library (`apps/web/src/shared/ui/`). Built
+the web app's shadcn/ui component library (`apps/web/shared/ui/`). Built
 on top of the pre-existing architecture in this module — do not introduce a
 second, parallel component set:
 
@@ -15,7 +15,7 @@ second, parallel component set:
   `aedst::qmlsupport::SingletonSlot<ThemeController>::provide()` (`App/src/qml_singletons.cpp`).
 - **`Theme.qml`** (`pragma Singleton`) — the façade every component binds
   to. It re-exposes the `AedstTokens` values (picking light or dark from `ThemeController.dark`) under names that mirror the
-  CSS custom properties in `apps/web/src/app/styles/globals.css` (shadcn's
+  CSS custom properties in `apps/web/app/src/app/styles/globals.css` (shadcn's
   "neutral" palette): `background`/`foreground`, `card`, `popover`,
   `primary`, `secondary`, `muted`, `accent`, `destructive`,
   `border`/`input`/`ring`, a 5-color `chart` palette, a radius scale

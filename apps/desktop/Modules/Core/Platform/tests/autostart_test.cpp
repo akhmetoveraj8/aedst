@@ -23,7 +23,7 @@ protected:
     void SetUp() override {
         std::error_code ec;
         root_ = fs::temp_directory_path(ec) / ("aedst_autostart_" + std::to_string(counter_++) + "_" +
-                                                ::testing::UnitTest::GetInstance()->current_test_info()->name());
+                                               ::testing::UnitTest::GetInstance()->current_test_info()->name());
         fs::remove_all(root_, ec);
         fs::create_directories(root_, ec);
     }

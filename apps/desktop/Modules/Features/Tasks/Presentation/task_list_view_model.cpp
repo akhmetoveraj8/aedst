@@ -25,8 +25,12 @@ TaskListViewModel::TaskListViewModel(std::shared_ptr<TaskRepository> repository,
                                      std::shared_ptr<core::ErrorSink> errors,
                                      std::shared_ptr<analytics::AnalyticsTracker> analytics, navigation::Router* router,
                                      QObject* parent)
-    : QObject(parent), repository_(std::move(repository)), createTask_(std::move(createTask)),
-      errors_(std::move(errors)), analytics_(std::move(analytics)), router_(router) {
+    : QObject(parent),
+      repository_(std::move(repository)),
+      createTask_(std::move(createTask)),
+      errors_(std::move(errors)),
+      analytics_(std::move(analytics)),
+      router_(router) {
     filterDebounce_.setSingleShot(true);
     filterDebounce_.setInterval(kFilterDebounceMs);
     connect(&filterDebounce_, &QTimer::timeout, this, &TaskListViewModel::reload);

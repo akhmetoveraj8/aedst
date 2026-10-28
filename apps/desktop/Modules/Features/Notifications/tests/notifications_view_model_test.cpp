@@ -6,6 +6,7 @@
 #include "aedst/testing/fake_http_server.hpp"
 
 #include <QSignalSpy>
+
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -28,14 +29,20 @@ public:
         ++listCalls;
         done(NotificationPage{.notifications = listed, .nextPageToken = {}});
     }
+
     void unreadCount(core::Completion<int> done) override {
         ++unreadCalls;
         done(unread);
     }
+
     void markRead(const std::vector<std::string>&, core::Completion<void> done) override { done(core::ok()); }
+
     void markAllRead(core::Completion<int> done) override { done(0); }
+
     void preferences(core::Completion<NotificationPreferences> done) override { done(NotificationPreferences{}); }
-    void updatePreferences(const NotificationPreferences& next, core::Completion<NotificationPreferences> done) override {
+
+    void updatePreferences(const NotificationPreferences& next,
+                           core::Completion<NotificationPreferences> done) override {
         done(next);
     }
 
@@ -53,9 +60,11 @@ public:
         callbacks = std::move(next);
         return [this]() { ++cancels; };
     }
+
     void emit(std::string id, decltype(NotificationEvent::payload) payload) {
         callbacks.onEvent(NotificationEvent{.id = std::move(id), .payload = std::move(payload)});
     }
+
     void end(StreamEndKind kind) { callbacks.onEnd(StreamEnd{.kind = kind, .message = "test"}); }
 
     Callbacks callbacks;
@@ -67,10 +76,13 @@ public:
 class RecordingNotifier final : public platform::NotificationService {
 public:
     [[nodiscard]] bool isAvailable() const override { return true; }
+
     void show(std::string_view title, std::string_view body, platform::NotificationSeverity severity) override {
         showRequest({.title = std::string(title), .body = std::string(body), .severity = severity});
     }
+
     void showRequest(const platform::NotificationRequest& request) override { shown.push_back(request); }
+
     void click(const std::string& link) { notifyActivated(link); }
 
     std::vector<platform::NotificationRequest> shown;
@@ -81,6 +93,7 @@ public:
     void report(const core::Error& error, std::string_view context, core::ErrorVisibility) override {
         reports.emplace_back(std::string(context), error.code);
     }
+
     std::vector<std::pair<std::string, core::ErrorCode>> reports;
 };
 
@@ -111,9 +124,8 @@ protected:
         stream = std::make_shared<FakeStream>();
         notifier = std::make_unique<RecordingNotifier>();
         errors = std::make_shared<RecordingErrors>();
-        viewModel = std::make_unique<NotificationsViewModel>(repository, errors,
-                                                             std::make_shared<analytics::NoOpAnalyticsTracker>(),
-                                                             notifier.get(), nullptr);
+        viewModel = std::make_unique<NotificationsViewModel>(
+            repository, errors, std::make_shared<analytics::NoOpAnalyticsTracker>(), notifier.get(), nullptr);
     }
 
     void useStream() { viewModel->setStream(stream, fastTiming()); }

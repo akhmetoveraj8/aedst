@@ -134,7 +134,8 @@ std::unique_ptr<MasterKeyProvider> createPlatformMasterKeyProvider(const std::fi
     }
 #endif
 
-    core::AedstLogger::warn("Secure storage master key provider: file (no usable OS keyring; key stored beside the data)");
+    core::AedstLogger::warn(
+        "Secure storage master key provider: file (no usable OS keyring; key stored beside the data)");
     return std::make_unique<FileMasterKeyProvider>(legacyKeyFile);
 }
 
