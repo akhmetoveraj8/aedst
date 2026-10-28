@@ -128,7 +128,7 @@ Full rationale and revisit conditions: [decisions](/decisions); stack table:
   latest-stable only, with the Compose BOM applied through `platform()`.
 - **DI: Hilt on AGP 9** with built-in Kotlin (no explicit `kotlin-android`
   plugin). Metro only if KMP appears; Koin was rejected (no compile-time checks).
-- **Networking: connect-kotlin 0.9.0 over OkHttp 5.5.0** (compileSdk 37); no
+- **Networking: connect-kotlin 0.10.0 over OkHttp 5.5.1** (compileSdk 37); no
   Retrofit. Plan B if connect-kotlin stalls: Wire / gRPC-Kotlin (the server also
   serves gRPC and gRPC-Web).
 - **Secrets: Android Keystore + Tink AEAD** (`AndroidKeysetManager`) with an

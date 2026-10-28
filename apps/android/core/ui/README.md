@@ -1,6 +1,6 @@
 # core:ui — Aedst Design System (Jetpack Compose)
 
-Compose equivalent of the web app's shadcn/ui component library (`apps/web/src/shared/ui/`), built to the same semantic-token parity. See [CONVENTIONS.md](../../../../CONVENTIONS.md) for the naming rules every file here follows.
+Compose equivalent of the web app's shadcn/ui component library (`apps/web/shared/ui/`), built to the same semantic-token parity. See [CONVENTIONS.md](../../../../CONVENTIONS.md) for the naming rules every file here follows.
 
 ## Tokens (`theme/`)
 

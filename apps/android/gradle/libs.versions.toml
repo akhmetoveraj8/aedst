@@ -1,11 +1,11 @@
 [versions]
 # Version policy: latest STABLE release of everything (never alpha/beta/rc),
 # each verified against Maven Central / Google Maven metadata. Re-verify on
-# every bump; see docs/content/library-first.md. Last full re-verification: 2026-10-08
-# (new on that pass: JUnit 6.1.3, Roborazzi 1.76.0, AppAuth 0.11.1, Navigation 3 1.2.0; detekt is the one pre-release exception, see "static analysis" below).
+# every bump; see docs/content/library-first.md. Last full re-verification: 2026-10-28
+# (new on that pass: JUnit 6.1.3, Roborazzi 1.77.0, AppAuth 0.11.1, Navigation 3 1.2.0; detekt is the one pre-release exception, see "static analysis" below).
 
 # --- language / build ---
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 # AGP 9 with built-in Kotlin: no `org.jetbrains.kotlin.android` plugin anywhere
 # (convention plugins, benchmark). 9.4.1 is the latest stable.
 agp = "9.4.1"
@@ -32,16 +32,16 @@ navigation3 = "1.2.0"
 
 # --- networking ---
 # ConnectRPC/Protobuf generated client (see ../buf.gen.yaml). connect-kotlin
-# 0.9.0 is the latest release (verified on Maven Central + GitHub); it links
-# okhttp 5.4.0 and is compatible with OkHttp 5.5.0 (same 5.x API). Plan B if
+# 0.10.0 is the latest release (verified on Maven Central); it links
+# okhttp-jvm 5.5.0 and is compatible with OkHttp 5.5.1 (same 5.x API). Plan B if
 # the library stalls: see apps/android/README.md.
-connect-kotlin = "0.9.0"
-okhttp = "5.5.0"
+connect-kotlin = "0.10.0"
+okhttp = "5.5.1"
 kotlinx-serialization = "1.11.0"
 
 # --- persistence ---
 room = "2.8.5"
-datastore = "1.2.1"
+datastore = "1.3.0"
 protobuf-plugin = "0.10.0"
 # One protobuf runtime version app-wide: core/datastore's local schema and
 # core/network's ConnectRPC gencode both link protobuf-javalite/protobuf-kotlin-lite
@@ -64,7 +64,7 @@ appauth = "0.11.1"
 # --- security ---
 # androidx.security:security-crypto is deprecated; secrets are stored with
 # Android Keystore + Google Tink AEAD (core/security).
-tink-android = "1.23.0"
+tink-android = "1.24.0"
 play-integrity = "1.6.0"
 
 # --- media ---
@@ -74,7 +74,7 @@ media3 = "1.11.1"
 # --- push ---
 # Firebase is used ONLY for Cloud Messaging (FCM). Crash reporting is Sentry and product analytics is PostHog
 # (the same tools as apps/web), so Crashlytics/Performance/Analytics were removed: one tool per responsibility.
-firebase-bom = "34.19.0"
+firebase-bom = "35.1.0"
 google-services-plugin = "4.5.0"
 
 # --- debug tooling ---
@@ -84,10 +84,10 @@ leakcanary = "2.14"
 
 # --- monitoring ---
 # Sentry: crash/error reporting + OkHttp tracing (every io.sentry artifact aligned through the BOM).
-sentry = "8.59.0"
-sentry-gradle-plugin = "6.23.0"
+sentry = "8.62.0"
+sentry-gradle-plugin = "6.24.0"
 # PostHog: product analytics + feature flags; consent-gated and disabled when the project key is empty.
-posthog = "3.72.0"
+posthog = "3.73.1"
 
 # --- static analysis ---
 # EXCEPTION to the stable-only policy (explicit owner decision, 2026-10-08): detekt 2.0.0-alpha.6 (group dev.detekt,
@@ -95,8 +95,8 @@ posthog = "3.72.0"
 # may carry a pre-release. Revisit trigger: dev.detekt 2.0.0 stable -> drop this exception (docs/content/decisions.md).
 detekt = "2.0.0-alpha.6"
 ktlint-plugin = "14.2.0"
-# Compose lint rules for detekt (mrmans0n/compose-rules). 0.6.7 is built against dev.detekt:detekt-core 2.0.0-alpha.6 (its POM), verified on Maven Central 2026-10-08.
-compose-rules = "0.6.7"
+# Compose lint rules for detekt (mrmans0n/compose-rules). 0.6.8 is built against dev.detekt:detekt-core 2.0.0-alpha.6 (its POM), verified on Maven Central 2026-10-28.
+compose-rules = "0.6.8"
 # Kover (Kotlin coverage); plugin id org.jetbrains.kotlinx.kover, verified on the Gradle plugin portal 2026-10-08.
 kover = "0.9.11"
 
@@ -108,7 +108,7 @@ kover = "0.9.11"
 # them next to the Jupiter tests. Instrumented tests (androidTest) and the benchmark module are JUnit 4 by Android's
 # design. `junit:junit` is therefore not a direct dependency of any module. See library-first.md.
 junit-jupiter = "6.1.3"
-roborazzi = "1.76.0" # screenshot (golden image) tests on the JVM through Robolectric native graphics
+roborazzi = "1.77.0" # screenshot (golden image) tests on the JVM through Robolectric native graphics
 androidx-test-junit = "1.3.0"
 mockk = "1.14.11"
 turbine = "1.2.1"

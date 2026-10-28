@@ -99,8 +99,8 @@ Benchmark notes:
   (`AeadSerializer`). Data written by the old implementation is migrated once
   (`LegacyEncryptedPreferencesMigration`: read old, write new, then delete old);
   delete that class once all supported installs have upgraded.
-- **connect-kotlin 0.9.0** (latest, 2026-06-12) on **OkHttp 5.5.0**
-  (`connect-kotlin-okhttp` 0.9.0 links OkHttp 5.4.x; same 5.x API). OkHttp 5.5
+- **connect-kotlin 0.10.0** (latest, verified on Maven Central 2026-10-28) on **OkHttp 5.5.1**
+  (`connect-kotlin-okhttp` 0.10.0 links OkHttp 5.5.0; same 5.x API). OkHttp 5.5
   requires compileSdk 37. The repo is active (commits within days, a release
   every 1-3 months, 9 open issues) but is a small pre-1.0 project. **Plan B** if
   it stalls or breaks: apps/server (connect-go) also serves the gRPC and gRPC-Web

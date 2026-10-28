@@ -9,30 +9,30 @@ Kotlin / Jetpack Compose (`apps/android`). Versions are pinned in the repository
 
 | Area | Tool | Version |
 |---|---|---|
-| Language | Kotlin | **2.4.20** |
-| Build | AGP / Gradle / KSP | **9.4.1** / **9.8.0** / 2.3.12 |
+| Language | Kotlin | **2.4.21** |
+| Build | AGP / Gradle / KSP | **9.4.1** / **9.8.2** / 2.3.12 |
 | JDK | Temurin | **21** |
 | UI | Jetpack Compose (BOM) | **2026.09.00** |
 | DI | Hilt | **2.60.1** (androidx.hilt 1.4.0) |
 | Async | Coroutines + Flow | **1.11.0** |
 | Navigation | Navigation 3 (runtime/ui) / lifecycle-viewmodel-navigation3 | 1.2.0 / 2.11.0 |
 | Sign-in | AppAuth-Android (Code + PKCE, Custom Tab) | 0.11.1 |
-| API client | connect-kotlin over OkHttp | **0.9.0** / **5.5.0** |
+| API client | connect-kotlin over OkHttp | **0.10.0** / **5.5.1** |
 | Protobuf | protobuf-javalite / Gradle plugin | 4.36.2 / 0.10.0 |
 | Serialization | kotlinx.serialization | 1.11.0 |
 | Database | Room | 2.8.5 |
-| Preferences | DataStore + Protobuf | 1.2.1 |
-| Secrets | Android Keystore + Tink | 1.23.0 |
+| Preferences | DataStore + Protobuf | 1.3.0 |
+| Secrets | Android Keystore + Tink | 1.24.0 |
 | Background work | WorkManager | 2.12.0 |
 | Images | Coil 3 | **3.6.3** |
 | Video / player / compression | AndroidX Media3 (ExoPlayer, Compose UI, Transformer) | **1.11.1** |
-| Push | Firebase Cloud Messaging (Firebase BoM) | BoM **34.19.0** |
-| Errors / performance / tracing | Sentry Android + Gradle plugin | **8.59.0** / 6.23.0 |
-| Analytics + feature flags | PostHog Android | **3.72.0** |
+| Push | Firebase Cloud Messaging (Firebase BoM) | BoM **35.1.0** |
+| Errors / performance / tracing | Sentry Android + Gradle plugin | **8.62.0** / 6.24.0 |
+| Analytics + feature flags | PostHog Android | **3.73.1** |
 | Anti-abuse | Play Integrity | 1.6.0 |
 | Leak detection | LeakCanary (debug builds of `app` and `app-tv` only) | **2.14** |
 | Static analysis | detekt (`dev.detekt`, pre-release exception) / ktlint-gradle / Android Lint | 2.0.0-alpha.6 / 14.2.0 |
-| Tests | JUnit 6 Jupiter (vintage engine only in Robolectric/Compose-rule modules) / Roborazzi / MockK / Turbine | 6.1.3 / 1.76.0 / 1.14.11 / 1.2.1 |
+| Tests | JUnit 6 Jupiter (vintage engine only in Robolectric/Compose-rule modules) / Roborazzi / MockK / Turbine | 6.1.3 / 1.77.0 / 1.14.11 / 1.2.1 |
 | Adaptive layouts | androidx.compose.material3.adaptive | 1.3.0 |
 | Performance | Macrobenchmark + Baseline Profiles | 1.5.0 |
 | Dependency updates | Renovate (repo-wide) | n/a |
