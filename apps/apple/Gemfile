@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
-# fastlane 2.240.1 = latest stable, verified 2026-10-08 (rubygems.org API + git tag 2.240.1);
-# requires Ruby >= 3.1 (we use 3.4.11, see mise.toml). No fastlane plugins: no Pluginfile.
+# fastlane 2.241.2 = latest stable, verified 2026-10-28 (rubygems.org API);
+# requires Ruby >= 3.1 (we use 3.4.12, see mise.toml). No fastlane plugins: no Pluginfile.
 # Release/signing lanes: fastlane/Fastfile.
 # Commit Gemfile.lock (not generated yet; bundler-cache in CI uses it). Generate/refresh it on a Mac or Linux box with `make gem-lock`
 # (adds the arm64-darwin / x86_64-darwin / ruby platforms so the macos-26 arm64 runner resolves).

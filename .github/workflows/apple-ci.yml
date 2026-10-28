@@ -69,7 +69,7 @@ jobs:
 
       # SwiftLint version comes from apps/apple/mise.toml; the aqua backend verifies the release checksum.
       # UNVERIFIED: the aqua registry entry on a macos-26 runner (never run).
-      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
           install_args: aqua:realm/SwiftLint
           working_directory: apps/apple
@@ -246,7 +246,7 @@ jobs:
           path: apps/apple/Core/AedstNetwork/Sources/AedstNetwork/Generated
 
       # Tuist is pinned in apps/apple/mise.toml (overrides the repo-root "latest").
-      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
           install_args: tuist
           working_directory: apps/apple
@@ -343,7 +343,7 @@ jobs:
           name: connect-swift-stubs
           path: apps/apple/Core/AedstNetwork/Sources/AedstNetwork/Generated
 
-      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
           install_args: tuist
           working_directory: apps/apple

@@ -175,10 +175,10 @@ Dependency minimums (not re-verified against the tagged `Package.swift` files af
 | Dependency | Version used | Notes |
 |---|---|---|
 | connect-swift | 1.2.3 (latest release) | generated async methods back-deploy far below the floor |
-| swift-protobuf | >= 1.31.0 (latest 1.38.1, tools 6.2) | connect-swift 1.2.3 requires >= 1.31.0 |
+| swift-protobuf | >= 1.31.0 (latest 1.39.0, tools 6.2) | connect-swift 1.2.3 requires >= 1.31.0 |
 | GRDB.swift | >= 7.0.0 (latest 7.11.1, tools 6.1) | |
 | Nuke / NukeUI | 13.2.0 | used only through `Core/AedstMedia`; ships no `PrivacyInfo.xcprivacy` |
-| swift-snapshot-testing | >= 1.19.6 | test dependency of `Core/AedstDesignSystem` only |
+| swift-snapshot-testing | >= 1.19.7 | test dependency of `Core/AedstDesignSystem` only |
 
 Platform replacements for removed libraries: `@Observable` / `@Bindable` /
 `@ObservationIgnored` replace swift-perception, and `NavigationStack` +
@@ -298,7 +298,7 @@ in `PrivacyInfo.xcprivacy`). See [ADR-0016](../../docs/content/decisions/0016-de
   argument `-aedst-ui-testing` selects `AppLaunchMode.uiTesting`: in-memory secure store,
   telemetry off, OIDC bundle config ignored. **Known gap**: no UI audit of the task list after
   a stubbed sign-in (it needs a repository seam).
-- **Snapshots**: swift-snapshot-testing >= 1.19.6, a test dependency of
+- **Snapshots**: swift-snapshot-testing >= 1.19.7, a test dependency of
   `Core/AedstDesignSystem` only. iOS Simulator: **36 reference images** (6 component groups x 6 variants: iPhone
   light, dark, accessibility XXXL, RTL and iPad light, dark); macOS: **18** (6 x 3: light, dark, RTL). **None is
   recorded yet**: run `make snapshots-record` (or the manual `apple-record-snapshots` workflow), which records both

@@ -6,8 +6,8 @@ import PackageDescription
 //
 // Versions: latest stable, verified 2026-10-07 via the GitHub releases API
 // (`/repos/<owner>/<repo>/releases/latest`):
-//   sentry-cocoa 9.30.0  (its own OS floor is below the app's iOS 18 / macOS 15)
-//   posthog-ios  3.90.2  (its own OS floor is below the app's iOS 18 / macOS 15)
+//   sentry-cocoa 9.31.0  (its own OS floor is below the app's iOS 18 / macOS 15)
+//   posthog-ios  3.92.6  (its own OS floor is below the app's iOS 18 / macOS 15)
 let package = Package(
     name: "AedstTelemetry",
     platforms: [
@@ -20,8 +20,8 @@ let package = Package(
     dependencies: [
         .package(path: "../AedstCore"),
         .package(path: "../AedstAnalytics"),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.30.0"),
-        .package(url: "https://github.com/PostHog/posthog-ios", from: "3.90.2"),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.31.0"),
+        .package(url: "https://github.com/PostHog/posthog-ios", from: "3.92.6"),
     ],
     targets: [
         .target(

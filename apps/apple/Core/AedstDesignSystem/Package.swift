@@ -20,8 +20,8 @@ let package = Package(
     dependencies: [
         // Only for `AedstError` in `AedstErrorPresenter` (Foundation-only package, no UI).
         .package(path: "../AedstCore"),
-        // Test-only (Point-Free). Latest stable verified 2026-10-08: 1.19.6.
-        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.19.6"),
+        // Test-only (Point-Free). Latest stable verified 2026-10-28: 1.19.7.
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.19.7"),
     ],
     targets: [
         .target(

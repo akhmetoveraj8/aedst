@@ -12,8 +12,8 @@ Minimum OS: **iOS / iPadOS 18.0**, **macOS 15.0** (single source: `Project.swift
 | Area | Tool | Version |
 |---|---|---|
 | Language / UI | Swift 6 + SwiftUI | Xcode **26.6** |
-| Project generation | Tuist | **4.211.0** |
-| API client | connect-swift + swift-protobuf | **1.2.3** / **1.38.1** |
+| Project generation | Tuist | **4.214.0** |
+| API client | connect-swift + swift-protobuf | **1.2.3** / **1.39.0** |
 | Persistence | GRDB | **7.11.1** |
 | Observation | Observation (`@Observable`, `@Bindable`) | platform |
 | Navigation | `NavigationStack` + `NavigationPath` | platform |
@@ -21,9 +21,9 @@ Minimum OS: **iOS / iPadOS 18.0**, **macOS 15.0** (single source: `Project.swift
 | Sign-in | `ASWebAuthenticationSession` + PKCE, CryptoKit | platform |
 | Device attestation | App Attest (DeviceCheck), client facade only | platform |
 | Unit / UI tests | Swift Testing / XCUITest (`performAccessibilityAudit`) | Xcode **26.6** |
-| Snapshot tests | swift-snapshot-testing (`Core/AedstDesignSystem` tests only) | **>= 1.19.6** |
-| Errors / crashes / tracing | Sentry Cocoa | **9.30.0** |
-| Analytics + feature flags | PostHog iOS | **3.90.2** |
+| Snapshot tests | swift-snapshot-testing (`Core/AedstDesignSystem` tests only) | **>= 1.19.7** |
+| Errors / crashes / tracing | Sentry Cocoa | **9.31.0** |
+| Analytics + feature flags | PostHog iOS | **3.92.6** |
 | Push | APNs (`UserNotifications`) | platform |
 | Media | AVKit, PhotosUI (PHPicker), ImageIO, AVFoundation, QuickLookThumbnailing, background `URLSession` | platform |
 | Secrets / biometrics / network | Keychain (`Security`), `LocalAuthentication`, `Network` | platform |

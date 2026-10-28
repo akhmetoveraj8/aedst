@@ -94,15 +94,15 @@ jobs:
           xcode-version: ${{ env.XCODE_VERSION }}
 
       # Tuist is pinned in apps/apple/mise.toml.
-      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
           install_args: tuist
           working_directory: apps/apple
 
       # Ruby version == apps/apple/mise.toml; gems from Gemfile.lock (commit it after the first `bundle install`).
-      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
         with:
-          ruby-version: "3.4.11"
+          ruby-version: "3.4.12"
           working-directory: apps/apple
           bundler-cache: true
 

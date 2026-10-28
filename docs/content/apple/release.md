@@ -61,7 +61,7 @@ How the iOS and macOS apps get from `main` to TestFlight, the Mac App Store, or 
    S3 match storage: `MATCH_STORAGE_MODE=s3` plus `MATCH_S3_BUCKET`, `MATCH_S3_REGION`, `MATCH_S3_ACCESS_KEY`, `MATCH_S3_SECRET_ACCESS_KEY` instead of the git variables. Optional: `SENTRY_AUTH_TOKEN` (secret), `SENTRY_ORG`, `SENTRY_PROJECT_APPLE` (variables). `--repo OWNER/REPO` targets another repository; without `--environment` the repository-level secrets are used. UNVERIFIED: the script was syntax-checked and dry-run against a stub `gh` only; the first real run is its acceptance test (`gh variable set` reading stdin and `gh secret list --json` need a recent `gh`).
 
 5. **App Store Connect records** for both apps (name, bundle id, privacy policy URL, age rating, screenshots, export compliance answers, App Privacy "nutrition label" matching the privacy manifests).
-6. Locally: `cp Config/Signing.local.xcconfig.example Config/Signing.local.xcconfig` and put your team id in it; `bundle install` for fastlane (Ruby 3.4.11 in `apps/apple/mise.toml`, verified as the latest 3.4 patch on 2026-10-08), then `make gem-lock` once on a Mac/Linux host and commit `Gemfile.lock`.
+6. Locally: `cp Config/Signing.local.xcconfig.example Config/Signing.local.xcconfig` and put your team id in it; `bundle install` for fastlane (Ruby 3.4.12 in `apps/apple/mise.toml`, verified as the latest 3.4 patch on 2026-10-28), then `make gem-lock` once on a Mac/Linux host and commit `Gemfile.lock`.
 
 ## Owner setup checklist (in order)
 
