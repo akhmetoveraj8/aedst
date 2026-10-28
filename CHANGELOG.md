@@ -4,6 +4,12 @@ All notable changes to this repository are documented here. The format follows [
 
 ## [Unreleased]
 
+### Changed (web split, 2026-10-28)
+
+- `apps/web` is now a pnpm workspace of `shared` (source-only kit, alias `@/shared/*`), `app` (product, :3000), `admin` (staff panel, :3001) and `landing` (marketing site, :3002). Old `apps/web/src/shared/**` is `apps/web/shared/**`; old `apps/web/src/**` and the project config (`e2e`, `lint`, `scripts`, `public`, `deployments`, `.storybook`) are under `apps/web/app/`. Versions live once in the `catalog:` of `apps/web/pnpm-workspace.yaml`; one install, one lockfile, one `biome.json`.
+- Tooling follows the split: `task app:*`, `task admin:*`, `task landing:*` next to `web:*` (all three); `admin-ci.yml` and `landing-ci.yml`; `web-ci.yml`, `web-release.yml`, `web-visual.yml`, `web-record-baselines.yml` and the app Dockerfile use the new paths; lefthook has per-project typecheck/knip; the Claude hooks record and lint the touched project; `scripts/check-features.mjs` accepts several web feature roots (app and admin); naming, i18n, color, file-size, docs and boundary checks know the new paths.
+- Docs: new `apps/web/AGENTS.md` router, `apps/web/README.md`, `docs/content/web/projects.md`, a decision entry in `decisions/web.md`, Web-app/admin/landing rows in `docs/agent/INDEX.md`.
+
 ### Added
 
 - Repo-wide policy checks, wired into `task check`, lefthook (staged files) and the new `policies-ci.yml` workflow:

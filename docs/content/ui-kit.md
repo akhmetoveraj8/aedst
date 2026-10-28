@@ -1,12 +1,12 @@
 ---
 title: "UI Kit — cross-platform component parity"
-description: "AEDST ships one design system with four platform kits: Web (shadcn/ui, apps/web/src/shared/ui/), Android (Jetpack Compose, apps/android/core/ui/), Apple..."
+description: "AEDST ships one design system with four platform kits: Web (shadcn/ui, apps/web/shared/ui/), Android (Jetpack Compose, apps/android/core/ui/), Apple..."
 ---
 
 # UI Kit — cross-platform component parity
 
 AEDST ships one design system with four platform kits: **Web** (shadcn/ui,
-`apps/web/src/shared/ui/`), **Android** (Jetpack Compose,
+`apps/web/shared/ui/`), **Android** (Jetpack Compose,
 `apps/android/core/ui/`), **Apple** (SwiftUI,
 `apps/apple/Core/AedstDesignSystem/`), and **Desktop** (Qt Quick/QML,
 `apps/desktop/Modules/Core/DesignSystem/`). A fifth, TV-only surface exists on
@@ -34,7 +34,7 @@ with `GENERATED — do not edit; edit packages/design-tokens/tokens`.
 
 | Platform | Generated files | Hand-written layer that consumes them |
 |---|---|---|
-| Web | `apps/web/src/shared/ui/tokens.css` (`:root` light + scales, `.dark`) | `src/app/styles/globals.css` (`@theme inline` maps to Tailwind) |
+| Web | `apps/web/shared/ui/tokens.css` (`:root` light + scales, `.dark`) | `apps/web/app/src/app/styles/globals.css` (`@theme inline` maps to Tailwind) |
 | Android | `core/ui/.../theme/Aedst{Light,Dark}Palette.kt`, `AedstSpacing.kt`, `AedstRadius.kt`, `AedstElevation.kt`, `AedstTypeScale.kt`, `AedstMotion.kt` | `Theme.kt`, `ExtendedColors.kt`, `Type.kt` |
 | Apple | `AedstDesignSystem/Aedst{Light,Dark}Palette.swift`, `AedstSpacing.swift`, `AedstRadius.swift`, `AedstElevation.swift`, `AedstTypeScale.swift`, `AedstMotion.swift` | `AedstColor.swift` (adaptive light/dark pairing) |
 | Desktop | `qml/AedstDesignSystem/AedstTokens.qml` (singleton) | `Theme.qml` (selects light/dark) |
@@ -122,7 +122,7 @@ Notes:
   components requested (Carousel, MenuBar, HoverCard, CommandPalette, Chart)
   and removes basics such as Dialog, Select and Tabs. The files are restorable
   from git HEAD; confirm or restore (also tracked in [Platform status](/status)).
-- Web has a Storybook 10 story for every `src/shared/ui` component (62), with
+- Web has a Storybook 10 story for every `apps/web/shared/ui` component (62), with
   an a11y gate; see [decisions](/decisions/web).
 - Native-only helpers (no web file): Android `AedstOfflineBanner`,
   `LoadingIndicator`, `ErrorMessages`; Apple `AedstErrorPresenter` (`AedstNavigationContainer` was pruned),

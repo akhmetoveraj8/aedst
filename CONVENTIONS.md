@@ -18,7 +18,7 @@ Single source of truth for naming and file-size limits across the 5 AEDST platfo
 
 | Platform | Rules | Linter / script |
 |---|---|---|
-| Web (`apps/web`) | [docs/agent/conventions/web.md](docs/agent/conventions/web.md) | Biome, `scripts/check-naming.sh` |
+| Web (`apps/web`: `shared`, `app`, `admin`, `landing`) | [docs/agent/conventions/web.md](docs/agent/conventions/web.md) | Biome, `scripts/check-naming.sh` |
 | Server (`apps/server`) | [docs/agent/conventions/server.md](docs/agent/conventions/server.md) | golangci-lint, `architecturetest`, `scripts/check-naming.sh` |
 | Android (`apps/android`) | [docs/agent/conventions/android.md](docs/agent/conventions/android.md) | ktlint + detekt, `scripts/check-naming.sh` |
 | Apple (`apps/apple`) | [docs/agent/conventions/apple.md](docs/agent/conventions/apple.md) | SwiftLint + swift-format, `scripts/check-naming.sh` |
@@ -65,7 +65,7 @@ Measured in physical lines of **hand-written** source. Generated, vendored, lock
 | Color literals | `task check:colors` | No hex/rgb/hsl/oklch literals in hand-written UI code; use design tokens |
 | i18n parity | `task check:i18n` | Same keys and placeholders in en/ru/tg/uz/ar on each platform |
 | Module boundaries | `task check:boundaries` | No feature-to-feature imports, on all five platforms |
-| Web import graph | `pnpm --dir apps/web check:deps` | dependency-cruiser: app -> modules -> shared, public entry only, no cycles/orphans/devDependency leaks (negative fixtures in `apps/web/lint/fixtures/deps-*`) |
+| Web import graph | `pnpm --dir apps/web/app check:deps` | dependency-cruiser: app -> modules -> shared, public entry only, no cycles/orphans/devDependency leaks (app project; negative fixtures in `apps/web/app/lint/fixtures/deps-*`) |
 | Audit backlog | `task audit:status` | Every item of `docs/audit/2026-10-08-backlog.md` has a valid status, none `skipped` (`scripts/check-backlog.mjs`) |
 | Library-First gates | `task check:gates` (+ platform lint) | Mandatory library per concern; each gate has a negative self-test. Per-platform list: `docs/agent/conventions/tooling.md` |
 

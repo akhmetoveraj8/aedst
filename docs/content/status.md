@@ -103,3 +103,34 @@ Open owner questions:
 ## Parity matrix (2026-10-08)
 
 `features.yaml` is the machine-checked source for feature x platform and behaviour x platform status ([parity](/parity)). `task check:features -- --require-complete` passes: 0 behaviour gaps across offline-outbox, idempotency-key, client-identification, forced-upgrade-ux, session-refresh and capability-negotiation. Known deviations: web keeps the refresh cookie on the first `invalid_grant` (15 s multi-replica rotation window); the web `tasks` module is at 479.9 / 480 KB with no headroom; the TV app does not filter features.
+
+## CI evidence
+
+Everything above that says "Verified" was run on the authoring machine. A GitHub Actions run is a different, stronger kind of evidence (clean runner, pinned toolchains), and this table records it separately so the two are never confused.
+
+| Workflow | Observed run on GitHub | Evidence |
+|---|---|---|
+| `server-ci.yml` (including the `image` job: build, Trivy, Syft SBOM, ghcr push, keyless cosign) | none yet | UNVERIFIED |
+| `web-ci.yml`, `admin-ci.yml`, `landing-ci.yml` | none yet | UNVERIFIED |
+| `android-ci.yml` | none yet | UNVERIFIED |
+| `apple-ci.yml`, `desktop-ci.yml` | none yet | UNVERIFIED; first run is expected to fail and surface the real problems |
+| `policies-ci.yml`, `docs-ci.yml`, `tokens-ci.yml` | none yet | UNVERIFIED |
+
+Produce the evidence after the first push and the GitHub settings in `docs/agent/github-setup.md`:
+
+```bash
+gh workflow run server-ci.yml
+gh run list --limit 20
+gh run view <run-id> --log-failed
+```
+
+Replace "none yet" with the run URL, the date and the commit SHA, one row at a time. Do not write "Verified" for a workflow until its run is green on a clean runner; a workflow that was only parsed is not evidence.
+
+## Graduation of Apple and Desktop
+
+Apple and Desktop are shipped as code that has been statically reviewed only. Until a platform passes the exit criteria above:
+
+- a new product uses the **Core** profile (`task template:new -- --profile core`), which removes both;
+- changes to them are reviewed with the `apple-reviewer` / `desktop-reviewer` subagents and reported as "statically reviewed, never compiled";
+- their `features.yaml` status stays `implemented`, never `verified`;
+- the first real build is done on its own branch, and every finding is recorded in [decisions.md](/decisions) before the table above is changed.

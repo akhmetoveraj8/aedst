@@ -57,7 +57,7 @@ The policy "a library is approved before its first use" **remains**, but it is n
 
 | Platform | Mechanism | Where the allowlist lives |
 |---|---|---|
-| Web | **knip** (`apps/web/knip.jsonc`) fails on unused dependencies/exports | `ignoreDependencies` in `knip.jsonc` = approved but not yet wired-in libraries |
+| Web | **knip** (`apps/web/app/knip.jsonc`) fails on unused dependencies/exports | `ignoreDependencies` in `apps/web/app/knip.jsonc` = approved but not yet wired-in libraries |
 | Server | `go mod tidy` (diff in CI) + **golangci-lint `depguard`** | allowed/forbidden import list in `apps/server/.golangci.yml`; `architecturetest` |
 | Android | Version Catalog allowlist check (`check-catalog-allowlist` in `apps/android/scripts/check-policies.sh`) + detekt `ForbiddenImport` | `libs.versions.toml` is a subset of the Android Library-First page |
 | Apple | `apps/apple/scripts/check-dependencies.sh` + SwiftLint `custom_rules` (`sdk_only_in_core`) | `apps/apple/scripts/approved-packages.txt` lists every allowed `.package(url:)` and its single owning Core package (`Tuist/Package.swift` only points at the local `App/Shared` package and is not an allowlist) |
@@ -166,10 +166,10 @@ Documentation is not enough; the rules are checked automatically wherever possib
 
 | Platform | Tool |
 |---|---|
-| Web | Biome (the only linter/formatter), TypeScript, knip (`apps/web/knip.jsonc`), `scripts/check-feature-boundaries.sh` |
+| Web | Biome (the only linter/formatter), TypeScript, knip (`apps/web/app/knip.jsonc`), `apps/web/app/scripts/check-feature-boundaries.sh` |
 | Server | golangci-lint (`depguard`), `go vet`, `go mod tidy` diff, `architecturetest`, `sqlc vet`, squawk (`task lint:migrations`) |
 | Android | Detekt 2.x (JDK 21), ktlint |
-| Apple | swift-format (`make format-check`) + SwiftLint 0.65.1 (semantic rules), `scripts/check-feature-boundaries.sh` (first run at the first Xcode build) |
+| Apple | swift-format (`make format-check`) + SwiftLint 0.65.1 (semantic rules), `apps/web/app/scripts/check-feature-boundaries.sh` (first run at the first Xcode build) |
 | Desktop | clang-format, clang-tidy, `check-proto-freshness.sh`, `check-protovalidate-pin.sh`, `contract/methods.hpp` drift test |
 | All | dependency scanners, CI, `scripts/check-naming.sh` |
 

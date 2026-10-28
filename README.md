@@ -5,7 +5,7 @@ An empty, AI-friendly project template: a Go backend and four clients in one mon
 | App | Stack | Verified |
 |---|---|---|
 | [`apps/server`](apps/server/README.md) | Go, net/http ServeMux, ConnectRPC, Postgres (pgx/sqlc/Goose), River, Valkey, OpenTelemetry | built, vetted, unit-tested |
-| [`apps/web`](apps/web/README.md) | Next.js 16, React 19, TanStack Query, shadcn/ui, next-intl | typechecked, linted, unit-tested |
+| [`apps/web`](apps/web/README.md) (`app`, `admin`, `landing`, `shared`) | Next.js 16, React 19, TanStack Query, shadcn/ui, next-intl | typechecked, linted, unit-tested |
 | [`apps/android`](apps/android/README.md) | Kotlin, Jetpack Compose, Hilt, connect-kotlin | verified on JVM (unit, assembleDebug, lint, ktlint, detekt); device runs unverified |
 | [`apps/apple`](apps/apple/README.md) | SwiftUI, GRDB, connect-swift, Tuist (iOS 18+, macOS 15+) | **not built** |
 | [`apps/desktop`](apps/desktop/README.md) | C++23, Qt 6, vcpkg, protoc-generated Connect client | **not built** |
