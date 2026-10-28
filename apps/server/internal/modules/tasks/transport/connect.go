@@ -6,11 +6,9 @@ package transport
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"time"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	tasksv1 "github.com/aedst/server/gen/go/aedst/tasks/v1"
@@ -32,7 +30,7 @@ func NewHandler(service api.Service) *Handler {
 	return &Handler{service: service}
 }
 
-func (h *Handler) CreateTask(ctx context.Context, req *connect.Request[tasksv1.CreateTaskRequest]) (*connect.Response[tasksv1.CreateTaskResponse], error) {
+func (h *Handler) CreateTask(ctx context.Context, req *tasksv1.CreateTaskRequest) (*tasksv1.CreateTaskResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
@@ -40,43 +38,43 @@ func (h *Handler) CreateTask(ctx context.Context, req *connect.Request[tasksv1.C
 
 	key, _ := idempotency.KeyFromContext(ctx)
 	task, svcErr := h.service.CreateTask(ctx, userID,
-		req.Msg.GetTitle(), req.Msg.GetDescription(),
-		fromProtoPriority(req.Msg.GetPriority()), fromProtoTimestamp(req.Msg.GetDueDate()), key)
+		req.GetTitle(), req.GetDescription(),
+		fromProtoPriority(req.GetPriority()), fromProtoTimestamp(req.GetDueDate()), key)
 	if svcErr != nil {
 		return nil, httpserver.ToConnectError(svcErr)
 	}
-	return connect.NewResponse(&tasksv1.CreateTaskResponse{Task: toProtoTask(task)}), nil
+	return &tasksv1.CreateTaskResponse{Task: toProtoTask(task)}, nil
 }
 
-func (h *Handler) GetTask(ctx context.Context, req *connect.Request[tasksv1.GetTaskRequest]) (*connect.Response[tasksv1.GetTaskResponse], error) {
+func (h *Handler) GetTask(ctx context.Context, req *tasksv1.GetTaskRequest) (*tasksv1.GetTaskResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	id, err := ids.Parse(req.Msg.GetId())
+	id, err := ids.Parse(req.GetId())
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+		return nil, connect.NewError(connect.CodeInvalidArgument, err.Error()).WithCause(err)
 	}
 
 	task, svcErr := h.service.GetTask(ctx, userID, id)
 	if svcErr != nil {
 		return nil, httpserver.ToConnectError(svcErr)
 	}
-	return connect.NewResponse(&tasksv1.GetTaskResponse{Task: toProtoTask(task)}), nil
+	return &tasksv1.GetTaskResponse{Task: toProtoTask(task)}, nil
 }
 
-func (h *Handler) ListTasks(ctx context.Context, req *connect.Request[tasksv1.ListTasksRequest]) (*connect.Response[tasksv1.ListTasksResponse], error) {
+func (h *Handler) ListTasks(ctx context.Context, req *tasksv1.ListTasksRequest) (*tasksv1.ListTasksResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	statuses := make([]api.Status, 0, len(req.Msg.GetStatuses()))
-	for _, s := range req.Msg.GetStatuses() {
+	statuses := make([]api.Status, 0, len(req.GetStatuses()))
+	for _, s := range req.GetStatuses() {
 		statuses = append(statuses, fromProtoStatus(s))
 	}
-	priorities := make([]api.Priority, 0, len(req.Msg.GetPriorities()))
-	for _, p := range req.Msg.GetPriorities() {
+	priorities := make([]api.Priority, 0, len(req.GetPriorities()))
+	for _, p := range req.GetPriorities() {
 		priorities = append(priorities, fromProtoPriority(p))
 	}
 
@@ -84,18 +82,18 @@ func (h *Handler) ListTasks(ctx context.Context, req *connect.Request[tasksv1.Li
 		UserID:        userID,
 		Statuses:      statuses,
 		Priorities:    priorities,
-		Search:        req.Msg.GetSearch(),
-		SortBy:        fromProtoSortField(req.Msg.GetSortBy()),
-		SortDirection: fromProtoSortDirection(req.Msg.GetSortDirection()),
-		Limit:         int(req.Msg.GetPageSize()),
+		Search:        req.GetSearch(),
+		SortBy:        fromProtoSortField(req.GetSortBy()),
+		SortDirection: fromProtoSortDirection(req.GetSortDirection()),
+		Limit:         int(req.GetPageSize()),
 	}
 	// Normalize first: the cursor is bound to the effective ordering.
 	if err := params.Normalize(); err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	after, decodeErr := pagination.Decode(req.Msg.GetPageToken(), params.SortToken())
+	after, decodeErr := pagination.Decode(req.GetPageToken(), params.SortToken())
 	if decodeErr != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("invalid page_token"))
+		return nil, connect.NewError(connect.CodeInvalidArgument, "invalid page_token")
 	}
 	params.After = after
 
@@ -114,25 +112,25 @@ func (h *Handler) ListTasks(ctx context.Context, req *connect.Request[tasksv1.Li
 	if result.Next != nil {
 		resp.NextPageToken = result.Next.Encode()
 	}
-	return connect.NewResponse(resp), nil
+	return resp, nil
 }
 
-func (h *Handler) UpdateTask(ctx context.Context, req *connect.Request[tasksv1.UpdateTaskRequest]) (*connect.Response[tasksv1.UpdateTaskResponse], error) {
+func (h *Handler) UpdateTask(ctx context.Context, req *tasksv1.UpdateTaskRequest) (*tasksv1.UpdateTaskResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	id, err := ids.Parse(req.Msg.GetId())
+	id, err := ids.Parse(req.GetId())
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+		return nil, connect.NewError(connect.CodeInvalidArgument, err.Error()).WithCause(err)
 	}
-	patch, err := buildPatch(req.Msg)
+	patch, err := buildPatch(req)
 	if err != nil {
 		return nil, err
 	}
 	var expectedVersion *int
-	if req.Msg.ExpectedVersion != nil {
-		v := int(req.Msg.GetExpectedVersion())
+	if req.ExpectedVersion != nil {
+		v := int(req.GetExpectedVersion())
 		expectedVersion = &v
 	}
 
@@ -140,7 +138,7 @@ func (h *Handler) UpdateTask(ctx context.Context, req *connect.Request[tasksv1.U
 	if svcErr != nil {
 		return nil, httpserver.ToConnectError(svcErr)
 	}
-	return connect.NewResponse(&tasksv1.UpdateTaskResponse{Task: toProtoTask(task)}), nil
+	return &tasksv1.UpdateTaskResponse{Task: toProtoTask(task)}, nil
 }
 
 // buildPatch turns the request into a partial update. With no update_mask the
@@ -169,63 +167,63 @@ func buildPatch(req *tasksv1.UpdateTaskRequest) (api.Patch, error) {
 			patch.SetDueDate = true
 			patch.DueDate = fromProtoTimestamp(req.GetDueDate())
 		default:
-			return api.Patch{}, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("update_mask: unsupported path %q", path))
+			return api.Patch{}, connect.Errorf(connect.CodeInvalidArgument, "update_mask: unsupported path %q", path)
 		}
 	}
 	return patch, nil
 }
 
-func (h *Handler) DeleteTask(ctx context.Context, req *connect.Request[tasksv1.DeleteTaskRequest]) (*connect.Response[tasksv1.DeleteTaskResponse], error) {
+func (h *Handler) DeleteTask(ctx context.Context, req *tasksv1.DeleteTaskRequest) (*tasksv1.DeleteTaskResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	id, err := ids.Parse(req.Msg.GetId())
+	id, err := ids.Parse(req.GetId())
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+		return nil, connect.NewError(connect.CodeInvalidArgument, err.Error()).WithCause(err)
 	}
 
 	if svcErr := h.service.DeleteTask(ctx, userID, id, idempotencyKeyOf(ctx)); svcErr != nil {
 		return nil, httpserver.ToConnectError(svcErr)
 	}
-	return connect.NewResponse(&tasksv1.DeleteTaskResponse{}), nil
+	return &tasksv1.DeleteTaskResponse{}, nil
 }
 
-func (h *Handler) CompleteTask(ctx context.Context, req *connect.Request[tasksv1.CompleteTaskRequest]) (*connect.Response[tasksv1.CompleteTaskResponse], error) {
+func (h *Handler) CompleteTask(ctx context.Context, req *tasksv1.CompleteTaskRequest) (*tasksv1.CompleteTaskResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	id, err := ids.Parse(req.Msg.GetId())
+	id, err := ids.Parse(req.GetId())
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+		return nil, connect.NewError(connect.CodeInvalidArgument, err.Error()).WithCause(err)
 	}
 
 	task, svcErr := h.service.CompleteTask(ctx, userID, id)
 	if svcErr != nil {
 		return nil, httpserver.ToConnectError(svcErr)
 	}
-	return connect.NewResponse(&tasksv1.CompleteTaskResponse{Task: toProtoTask(task)}), nil
+	return &tasksv1.CompleteTaskResponse{Task: toProtoTask(task)}, nil
 }
 
-func (h *Handler) ReopenTask(ctx context.Context, req *connect.Request[tasksv1.ReopenTaskRequest]) (*connect.Response[tasksv1.ReopenTaskResponse], error) {
+func (h *Handler) ReopenTask(ctx context.Context, req *tasksv1.ReopenTaskRequest) (*tasksv1.ReopenTaskResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	id, err := ids.Parse(req.Msg.GetId())
+	id, err := ids.Parse(req.GetId())
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+		return nil, connect.NewError(connect.CodeInvalidArgument, err.Error()).WithCause(err)
 	}
 
 	task, svcErr := h.service.ReopenTask(ctx, userID, id)
 	if svcErr != nil {
 		return nil, httpserver.ToConnectError(svcErr)
 	}
-	return connect.NewResponse(&tasksv1.ReopenTaskResponse{Task: toProtoTask(task)}), nil
+	return &tasksv1.ReopenTaskResponse{Task: toProtoTask(task)}, nil
 }
 
-func (h *Handler) GetTaskStats(ctx context.Context, _ *connect.Request[tasksv1.GetTaskStatsRequest]) (*connect.Response[tasksv1.GetTaskStatsResponse], error) {
+func (h *Handler) GetTaskStats(ctx context.Context, _ *tasksv1.GetTaskStatsRequest) (*tasksv1.GetTaskStatsResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
@@ -235,13 +233,13 @@ func (h *Handler) GetTaskStats(ctx context.Context, _ *connect.Request[tasksv1.G
 	if svcErr != nil {
 		return nil, httpserver.ToConnectError(svcErr)
 	}
-	return connect.NewResponse(&tasksv1.GetTaskStatsResponse{
+	return &tasksv1.GetTaskStatsResponse{
 		Total:      int32(stats.Total),
 		Todo:       int32(stats.Todo),
 		InProgress: int32(stats.InProgress),
 		Done:       int32(stats.Done),
 		Overdue:    int32(stats.Overdue),
-	}), nil
+	}, nil
 }
 
 func requireIdentity(ctx context.Context) (ids.ID, error) {

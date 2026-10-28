@@ -12,8 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"connectrpc.com/connect/v2"
 
 	platformauth "github.com/aedst/server/internal/platform/auth"
 	"github.com/aedst/server/internal/platform/httpserver"
@@ -81,10 +80,7 @@ func callWithToken(t *testing.T, h http.Handler, token string) connect.Code {
 func authHandler(limiter *failLimiter, perMinute int) http.Handler {
 	interceptor := httpserver.AuthInterceptor(fakeVerifier{ok: "good"}, nil, slog.New(slog.NewTextHandler(io.Discard, nil)),
 		httpserver.WithFailureThrottle(limiter, perMinute))
-	return connect.NewUnaryHandler("/pkg.Svc/Method",
-		func(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[emptypb.Empty], error) {
-			return connect.NewResponse(&emptypb.Empty{}), nil
-		}, connect.WithInterceptors(interceptor))
+	return newHandler("/pkg.Svc/Method", func(context.Context) error { return nil }, interceptor)
 }
 
 func TestAuthFailureThrottle(t *testing.T) {
@@ -143,10 +139,7 @@ func TestAuthInterceptor_ProviderOutageIsUnavailableAndFreeOfCharge(t *testing.T
 	limiter := &failLimiter{spent: map[string]int{}}
 	interceptor := httpserver.AuthInterceptor(unavailableVerifier{}, nil, slog.New(slog.NewTextHandler(io.Discard, nil)),
 		httpserver.WithFailureThrottle(limiter, 1))
-	h := connect.NewUnaryHandler("/pkg.Svc/Method",
-		func(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[emptypb.Empty], error) {
-			return connect.NewResponse(&emptypb.Empty{}), nil
-		}, connect.WithInterceptors(interceptor))
+	h := newHandler("/pkg.Svc/Method", func(context.Context) error { return nil }, interceptor)
 	for range 3 {
 		req := httptest.NewRequest(http.MethodPost, "/pkg.Svc/Method", strings.NewReader("{}"))
 		req.Header.Set("Content-Type", "application/json")

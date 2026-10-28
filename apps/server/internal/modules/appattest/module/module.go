@@ -65,7 +65,7 @@ func (m *appattestModule) setup(_ context.Context, env *modulekit.Env) error {
 }
 
 func (m *appattestModule) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
-	modulekit.Mount(mt, appattestv1connect.NewAppAttestServiceHandler, appattestv1connect.AppAttestServiceHandler(transport.NewHandler(m.svc)), requestBytes)
+	modulekit.Mount(mt, appattestv1connect.RegisterAppAttestServiceHandler, appattestv1connect.AppAttestServiceHandler(transport.NewHandler(m.svc)), requestBytes)
 	return nil
 }
 

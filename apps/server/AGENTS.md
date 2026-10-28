@@ -189,18 +189,20 @@ in `AEDST_ROLE_POLICY` (`/aedst.tasks.v1.TasksService/DeleteTask=admin|support`,
 enforced by `httpserver.RoleInterceptor`), not in handler code. The policy is
 validated at startup against the procedures in the protobuf descriptors: an
 unknown or public procedure fails the deploy. A new service is mounted ONLY with
-`modulekit.Mount(mounter, xv1connect.NewXServiceHandler, impl, maxBytes)` (`internal/platform/modulekit/mount.go`), called from the module's `Mount` hook (`internal/modules/<name>/module`): that
+`modulekit.Mount(mounter, xv1connect.RegisterXServiceHandler, impl, maxBytes)` (`internal/platform/modulekit/mount.go`), called from the module's `Mount` hook (`internal/modules/<name>/module`): that
 is what guarantees the protovalidate interceptor, the shared chain, the per-service
 message cap and the Connect-Protocol-Version requirement — architecturetest's
 `TestEveryConnectHandlerIsMountedThroughTheMounter` fails on a direct
-`New*ServiceHandler` call or an RPC passed to `router.Handle`. Add its file
+`Register*ServiceHandler` call (or a `connect.NewServer` in a module) or an RPC passed to `router.Handle`. Add its file
 descriptor in the module's `Files` too (startup fails otherwise); after that an
 admin-only RPC needs no wiring change, only an entry in the deployment's
 environment. `"/pkg.Service/*=role"` covers a whole service (an exact entry wins);
 the built-in default `/aedst.admin.v1.AdminService/*=admin` keeps operator RPCs
-closed when `AEDST_ROLE_POLICY` is empty. The interceptor chain is unary-only:
-do not add a streaming RPC before the chain implements `WrapStreamingHandler`
-(a test enforces this). Every authenticated
+closed when `AEDST_ROLE_POLICY` is empty. The server runs connect-go **v2**
+(`connectrpc.com/connect/v2`): handlers take and return plain messages, request
+headers and the peer come from `connect.CallInfoForServerContext`, errors carry no
+metadata (set `Retry-After` on the response header), and interceptors are
+`connect.ServerInterceptor`s that wrap every RPC shape, streaming included. Every authenticated
 RPC is already covered by the per-user rate limit
 (`AEDST_API_RATE_LIMIT_PER_MINUTE`) and every request by load shedding
 (`AEDST_MAX_IN_FLIGHT`); a limiter outage fails open and must stay that way.

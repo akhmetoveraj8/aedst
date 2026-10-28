@@ -91,6 +91,6 @@ func (m *adminModule) setup(_ context.Context, env *modulekit.Env) error {
 }
 
 func (m *adminModule) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
-	modulekit.Mount(mt, adminv1connect.NewAdminServiceHandler, adminv1connect.AdminServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
+	modulekit.Mount(mt, adminv1connect.RegisterAdminServiceHandler, adminv1connect.AdminServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
 	return nil
 }

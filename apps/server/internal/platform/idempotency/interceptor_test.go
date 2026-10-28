@@ -5,8 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"connectrpc.com/connect/v2"
 
 	"github.com/aedst/server/internal/platform/idempotency"
 )
@@ -39,11 +38,14 @@ func TestCheck_ScopesKeysAndSerializes(t *testing.T) {
 
 func TestHeaderInterceptor_ValidatesKey(t *testing.T) {
 	seen := ""
-	next := connect.UnaryFunc(func(ctx context.Context, _ connect.AnyRequest) (connect.AnyResponse, error) {
-		seen, _ = idempotency.KeyFromContext(ctx)
-		return connect.NewResponse(&emptypb.Empty{}), nil
+	server := connect.NewServer(idempotency.HeaderInterceptor())
+	server.Register(connect.Method{
+		Spec: connect.Spec{Procedure: "/test.v1.Svc/Do", StreamType: connect.StreamTypeUnary},
+		Handler: func(ctx context.Context, _ connect.Spec, _ connect.ServerStream) error {
+			seen, _ = idempotency.KeyFromContext(ctx)
+			return nil
+		},
 	})
-	handler := idempotency.HeaderInterceptor().WrapUnary(next)
 
 	tests := []struct {
 		name    string
@@ -61,11 +63,11 @@ func TestHeaderInterceptor_ValidatesKey(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			seen = ""
-			req := connect.NewRequest(&emptypb.Empty{})
+			info := &connect.CallInfo{}
 			if tt.key != "" {
-				req.Header().Set(idempotency.HeaderName, tt.key)
+				info.RequestHeader().Set(idempotency.HeaderName, tt.key)
 			}
-			_, err := handler(context.Background(), req)
+			err := server.Call(context.Background(), "/test.v1.Svc/Do", info, nil)
 			if tt.wantErr {
 				if connect.CodeOf(err) != connect.CodeInvalidArgument {
 					t.Fatalf("err = %v, want InvalidArgument", err)

@@ -68,6 +68,6 @@ func (m *notificationsModule) setup(_ context.Context, env *modulekit.Env) error
 }
 
 func (m *notificationsModule) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
-	modulekit.Mount(mt, notificationsv1connect.NewNotificationsServiceHandler, notificationsv1connect.NotificationsServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
+	modulekit.Mount(mt, notificationsv1connect.RegisterNotificationsServiceHandler, notificationsv1connect.NotificationsServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
 	return nil
 }

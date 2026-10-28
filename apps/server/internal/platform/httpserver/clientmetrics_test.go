@@ -5,11 +5,9 @@ import (
 	"log/slog"
 	"testing"
 
-	"connectrpc.com/connect"
 	"go.opentelemetry.io/otel"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
-	"google.golang.org/genproto/googleapis/rpc/errdetails"
 
 	"github.com/aedst/server/internal/platform/httpserver"
 )
@@ -25,7 +23,6 @@ func TestClientVersionInterceptor_CountsRequestsByVersionAndStatus(t *testing.T)
 		map[string]string{"android": "1.2.0"},
 		map[string]string{"android": "1.5.0", "web": "3.0.0"},
 		slog.New(slog.DiscardHandler))
-	next := connect.UnaryFunc(func(context.Context, connect.AnyRequest) (connect.AnyResponse, error) { return nil, nil })
 
 	for _, header := range []string{
 		"android/1.6.0",     // current
@@ -37,11 +34,7 @@ func TestClientVersionInterceptor_CountsRequestsByVersionAndStatus(t *testing.T)
 		"toaster/1.0.0",     // unknown platform: label collapses to none
 		"android/99999.0.0", // absurd major: label collapses to other
 	} {
-		req := connect.NewRequest(&errdetails.ErrorInfo{})
-		if header != "" {
-			req.Header().Set(httpserver.ClientHeader, header)
-		}
-		_, _ = gate(next)(context.Background(), req)
+		_, _ = callWithHeader(gate, httpserver.ClientHeader, header)
 	}
 
 	var rm metricdata.ResourceMetrics

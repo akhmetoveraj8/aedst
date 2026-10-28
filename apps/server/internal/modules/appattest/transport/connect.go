@@ -4,7 +4,6 @@ package transport
 import (
 	"context"
 
-	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	appattestv1 "github.com/aedst/server/gen/go/aedst/appattest/v1"
@@ -29,7 +28,7 @@ func caller(ctx context.Context) (ids.ID, error) {
 	return identity.UserID, nil
 }
 
-func (h *Handler) CreateChallenge(ctx context.Context, _ *connect.Request[appattestv1.CreateChallengeRequest]) (*connect.Response[appattestv1.CreateChallengeResponse], error) {
+func (h *Handler) CreateChallenge(ctx context.Context, _ *appattestv1.CreateChallengeRequest) (*appattestv1.CreateChallengeResponse, error) {
 	user, err := caller(ctx)
 	if err != nil {
 		return nil, err
@@ -38,18 +37,18 @@ func (h *Handler) CreateChallenge(ctx context.Context, _ *connect.Request[appatt
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&appattestv1.CreateChallengeResponse{
+	return &appattestv1.CreateChallengeResponse{
 		Challenge: ch.Value,
 		ExpiresAt: timestamppb.New(ch.ExpiresAt),
-	}), nil
+	}, nil
 }
 
-func (h *Handler) Enroll(ctx context.Context, req *connect.Request[appattestv1.EnrollRequest]) (*connect.Response[appattestv1.EnrollResponse], error) {
+func (h *Handler) Enroll(ctx context.Context, req *appattestv1.EnrollRequest) (*appattestv1.EnrollResponse, error) {
 	user, err := caller(ctx)
 	if err != nil {
 		return nil, err
 	}
-	msg := req.Msg
+	msg := req
 	res, err := h.service.Enroll(ctx, api.EnrollInput{
 		UserID:            user,
 		KeyID:             msg.GetKeyId(),
@@ -64,15 +63,15 @@ func (h *Handler) Enroll(ctx context.Context, req *connect.Request[appattestv1.E
 	if res.Verified {
 		out.Environment = environmentToProto(res.Environment)
 	}
-	return connect.NewResponse(out), nil
+	return out, nil
 }
 
-func (h *Handler) VerifyAssertion(ctx context.Context, req *connect.Request[appattestv1.VerifyAssertionRequest]) (*connect.Response[appattestv1.VerifyAssertionResponse], error) {
+func (h *Handler) VerifyAssertion(ctx context.Context, req *appattestv1.VerifyAssertionRequest) (*appattestv1.VerifyAssertionResponse, error) {
 	user, err := caller(ctx)
 	if err != nil {
 		return nil, err
 	}
-	msg := req.Msg
+	msg := req
 	res, err := h.service.VerifyAssertion(ctx, api.AssertionInput{
 		UserID:    user,
 		KeyID:     msg.GetKeyId(),
@@ -87,7 +86,7 @@ func (h *Handler) VerifyAssertion(ctx context.Context, req *connect.Request[appa
 	if res.Verified {
 		out.Action = msg.GetAction()
 	}
-	return connect.NewResponse(out), nil
+	return out, nil
 }
 
 func environmentToProto(e api.Environment) appattestv1.Environment {

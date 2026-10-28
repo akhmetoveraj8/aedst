@@ -4,7 +4,7 @@ config:
   env: development
   trustedProxyHops: 0
   shutdownDrainSeconds: 0
-  corsAllowedOrigins: ["http://localhost:3000"]
+  corsAllowedOrigins: ["http://localhost:3000", "http://localhost:3001"]
   log:
     level: debug
 database:

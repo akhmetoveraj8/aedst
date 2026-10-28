@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"testing"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 
 	"github.com/aedst/server/internal/platform/httpserver"
 	sharederrors "github.com/aedst/server/internal/shared/errors"
@@ -35,12 +35,15 @@ func TestToConnectError_Classifications(t *testing.T) {
 }
 
 func TestToConnectError_UnavailableTellsTheClientWhenToRetry(t *testing.T) {
-	err := httpserver.ToConnectError(sharederrors.Wrap("op", &net.OpError{Op: "dial", Err: syscall.ECONNREFUSED}))
-	var ce *connect.Error
-	if !errors.As(err, &ce) {
+	failure := httpserver.ToConnectError(sharederrors.Wrap("op", &net.OpError{Op: "dial", Err: syscall.ECONNREFUSED}))
+	call := serve(t, func(context.Context) error { return failure }, httpserver.ErrorHeadersInterceptor())
+	var info *connect.CallInfo
+	err := call(func(i *connect.CallInfo) { info = i })
+	ce, ok := errors.AsType[*connect.Error](err)
+	if !ok {
 		t.Fatalf("not a connect error: %v", err)
 	}
-	if got := ce.Meta().Get("Retry-After"); got == "" {
+	if got := info.ResponseHeader().Get("Retry-After"); got == "" {
 		t.Fatal("UNAVAILABLE must carry Retry-After")
 	}
 	if ce.Message() != "service temporarily unavailable" {

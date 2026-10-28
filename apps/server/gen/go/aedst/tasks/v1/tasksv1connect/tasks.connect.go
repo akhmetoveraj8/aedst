@@ -5,318 +5,361 @@
 package tasksv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/aedst/server/gen/go/aedst/tasks/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// TasksServiceName is the fully-qualified name of the TasksService service.
 	TasksServiceName = "aedst.tasks.v1.TasksService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// TasksServiceCreateTaskProcedure is the fully-qualified name of the TasksService's CreateTask RPC.
+	// TasksServiceCreateTaskProcedure is the procedure name of the TasksService's CreateTask RPC.
 	TasksServiceCreateTaskProcedure = "/aedst.tasks.v1.TasksService/CreateTask"
-	// TasksServiceGetTaskProcedure is the fully-qualified name of the TasksService's GetTask RPC.
+	// TasksServiceGetTaskProcedure is the procedure name of the TasksService's GetTask RPC.
 	TasksServiceGetTaskProcedure = "/aedst.tasks.v1.TasksService/GetTask"
-	// TasksServiceListTasksProcedure is the fully-qualified name of the TasksService's ListTasks RPC.
+	// TasksServiceListTasksProcedure is the procedure name of the TasksService's ListTasks RPC.
 	TasksServiceListTasksProcedure = "/aedst.tasks.v1.TasksService/ListTasks"
-	// TasksServiceUpdateTaskProcedure is the fully-qualified name of the TasksService's UpdateTask RPC.
+	// TasksServiceUpdateTaskProcedure is the procedure name of the TasksService's UpdateTask RPC.
 	TasksServiceUpdateTaskProcedure = "/aedst.tasks.v1.TasksService/UpdateTask"
-	// TasksServiceDeleteTaskProcedure is the fully-qualified name of the TasksService's DeleteTask RPC.
+	// TasksServiceDeleteTaskProcedure is the procedure name of the TasksService's DeleteTask RPC.
 	TasksServiceDeleteTaskProcedure = "/aedst.tasks.v1.TasksService/DeleteTask"
-	// TasksServiceCompleteTaskProcedure is the fully-qualified name of the TasksService's CompleteTask
-	// RPC.
+	// TasksServiceCompleteTaskProcedure is the procedure name of the TasksService's CompleteTask RPC.
 	TasksServiceCompleteTaskProcedure = "/aedst.tasks.v1.TasksService/CompleteTask"
-	// TasksServiceReopenTaskProcedure is the fully-qualified name of the TasksService's ReopenTask RPC.
+	// TasksServiceReopenTaskProcedure is the procedure name of the TasksService's ReopenTask RPC.
 	TasksServiceReopenTaskProcedure = "/aedst.tasks.v1.TasksService/ReopenTask"
-	// TasksServiceGetTaskStatsProcedure is the fully-qualified name of the TasksService's GetTaskStats
-	// RPC.
+	// TasksServiceGetTaskStatsProcedure is the procedure name of the TasksService's GetTaskStats RPC.
 	TasksServiceGetTaskStatsProcedure = "/aedst.tasks.v1.TasksService/GetTaskStats"
+)
+
+var (
+	tasksServiceCreateTaskSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_tasks_v1_tasks_proto.Services().ByName("TasksService").Methods().ByName("CreateTask"),
+			Procedure:  TasksServiceCreateTaskProcedure,
+		}
+	})
+	tasksServiceGetTaskSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_tasks_v1_tasks_proto.Services().ByName("TasksService").Methods().ByName("GetTask"),
+			Procedure:  TasksServiceGetTaskProcedure,
+		}
+	})
+	tasksServiceListTasksSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_tasks_v1_tasks_proto.Services().ByName("TasksService").Methods().ByName("ListTasks"),
+			Procedure:  TasksServiceListTasksProcedure,
+		}
+	})
+	tasksServiceUpdateTaskSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_tasks_v1_tasks_proto.Services().ByName("TasksService").Methods().ByName("UpdateTask"),
+			Procedure:  TasksServiceUpdateTaskProcedure,
+		}
+	})
+	tasksServiceDeleteTaskSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_tasks_v1_tasks_proto.Services().ByName("TasksService").Methods().ByName("DeleteTask"),
+			Procedure:  TasksServiceDeleteTaskProcedure,
+		}
+	})
+	tasksServiceCompleteTaskSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_tasks_v1_tasks_proto.Services().ByName("TasksService").Methods().ByName("CompleteTask"),
+			Procedure:  TasksServiceCompleteTaskProcedure,
+		}
+	})
+	tasksServiceReopenTaskSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_tasks_v1_tasks_proto.Services().ByName("TasksService").Methods().ByName("ReopenTask"),
+			Procedure:  TasksServiceReopenTaskProcedure,
+		}
+	})
+	tasksServiceGetTaskStatsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_tasks_v1_tasks_proto.Services().ByName("TasksService").Methods().ByName("GetTaskStats"),
+			Procedure:  TasksServiceGetTaskStatsProcedure,
+		}
+	})
 )
 
 // TasksServiceClient is a client for the aedst.tasks.v1.TasksService service.
 type TasksServiceClient interface {
-	CreateTask(context.Context, *connect.Request[v1.CreateTaskRequest]) (*connect.Response[v1.CreateTaskResponse], error)
-	GetTask(context.Context, *connect.Request[v1.GetTaskRequest]) (*connect.Response[v1.GetTaskResponse], error)
-	ListTasks(context.Context, *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error)
+	CreateTask(context.Context, *v1.CreateTaskRequest) (*v1.CreateTaskResponse, error)
+	GetTask(context.Context, *v1.GetTaskRequest) (*v1.GetTaskResponse, error)
+	ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error)
 	// Mutates title/description/priority/due_date only — never status. Status
 	// is a state machine (see TaskStatus), not a plain field: it only moves
 	// through CompleteTask/ReopenTask, which is also where completed_at is
 	// stamped/cleared. This keeps "can DONE go back to IN_PROGRESS without an
 	// explicit reopen" a single well-known no, not something every caller of
 	// UpdateTask has to remember not to do by omitting status from the mask.
-	UpdateTask(context.Context, *connect.Request[v1.UpdateTaskRequest]) (*connect.Response[v1.UpdateTaskResponse], error)
-	DeleteTask(context.Context, *connect.Request[v1.DeleteTaskRequest]) (*connect.Response[v1.DeleteTaskResponse], error)
-	CompleteTask(context.Context, *connect.Request[v1.CompleteTaskRequest]) (*connect.Response[v1.CompleteTaskResponse], error)
-	ReopenTask(context.Context, *connect.Request[v1.ReopenTaskRequest]) (*connect.Response[v1.ReopenTaskResponse], error)
+	UpdateTask(context.Context, *v1.UpdateTaskRequest) (*v1.UpdateTaskResponse, error)
+	DeleteTask(context.Context, *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error)
+	CompleteTask(context.Context, *v1.CompleteTaskRequest) (*v1.CompleteTaskResponse, error)
+	ReopenTask(context.Context, *v1.ReopenTaskRequest) (*v1.ReopenTaskResponse, error)
 	// GetTaskStats backs the dashboard (total/todo/in_progress/done/overdue) —
 	// one aggregate query instead of the client computing it from a full list.
-	GetTaskStats(context.Context, *connect.Request[v1.GetTaskStatsRequest]) (*connect.Response[v1.GetTaskStatsResponse], error)
+	GetTaskStats(context.Context, *v1.GetTaskStatsRequest) (*v1.GetTaskStatsResponse, error)
 }
 
-// NewTasksServiceClient constructs a client for the aedst.tasks.v1.TasksService service. By
-// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
-// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewTasksServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) TasksServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	tasksServiceMethods := v1.File_aedst_tasks_v1_tasks_proto.Services().ByName("TasksService").Methods()
-	return &tasksServiceClient{
-		createTask: connect.NewClient[v1.CreateTaskRequest, v1.CreateTaskResponse](
-			httpClient,
-			baseURL+TasksServiceCreateTaskProcedure,
-			connect.WithSchema(tasksServiceMethods.ByName("CreateTask")),
-			connect.WithClientOptions(opts...),
-		),
-		getTask: connect.NewClient[v1.GetTaskRequest, v1.GetTaskResponse](
-			httpClient,
-			baseURL+TasksServiceGetTaskProcedure,
-			connect.WithSchema(tasksServiceMethods.ByName("GetTask")),
-			connect.WithClientOptions(opts...),
-		),
-		listTasks: connect.NewClient[v1.ListTasksRequest, v1.ListTasksResponse](
-			httpClient,
-			baseURL+TasksServiceListTasksProcedure,
-			connect.WithSchema(tasksServiceMethods.ByName("ListTasks")),
-			connect.WithClientOptions(opts...),
-		),
-		updateTask: connect.NewClient[v1.UpdateTaskRequest, v1.UpdateTaskResponse](
-			httpClient,
-			baseURL+TasksServiceUpdateTaskProcedure,
-			connect.WithSchema(tasksServiceMethods.ByName("UpdateTask")),
-			connect.WithClientOptions(opts...),
-		),
-		deleteTask: connect.NewClient[v1.DeleteTaskRequest, v1.DeleteTaskResponse](
-			httpClient,
-			baseURL+TasksServiceDeleteTaskProcedure,
-			connect.WithSchema(tasksServiceMethods.ByName("DeleteTask")),
-			connect.WithClientOptions(opts...),
-		),
-		completeTask: connect.NewClient[v1.CompleteTaskRequest, v1.CompleteTaskResponse](
-			httpClient,
-			baseURL+TasksServiceCompleteTaskProcedure,
-			connect.WithSchema(tasksServiceMethods.ByName("CompleteTask")),
-			connect.WithClientOptions(opts...),
-		),
-		reopenTask: connect.NewClient[v1.ReopenTaskRequest, v1.ReopenTaskResponse](
-			httpClient,
-			baseURL+TasksServiceReopenTaskProcedure,
-			connect.WithSchema(tasksServiceMethods.ByName("ReopenTask")),
-			connect.WithClientOptions(opts...),
-		),
-		getTaskStats: connect.NewClient[v1.GetTaskStatsRequest, v1.GetTaskStatsResponse](
-			httpClient,
-			baseURL+TasksServiceGetTaskStatsProcedure,
-			connect.WithSchema(tasksServiceMethods.ByName("GetTaskStats")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// tasksServiceClient implements TasksServiceClient.
-type tasksServiceClient struct {
-	createTask   *connect.Client[v1.CreateTaskRequest, v1.CreateTaskResponse]
-	getTask      *connect.Client[v1.GetTaskRequest, v1.GetTaskResponse]
-	listTasks    *connect.Client[v1.ListTasksRequest, v1.ListTasksResponse]
-	updateTask   *connect.Client[v1.UpdateTaskRequest, v1.UpdateTaskResponse]
-	deleteTask   *connect.Client[v1.DeleteTaskRequest, v1.DeleteTaskResponse]
-	completeTask *connect.Client[v1.CompleteTaskRequest, v1.CompleteTaskResponse]
-	reopenTask   *connect.Client[v1.ReopenTaskRequest, v1.ReopenTaskResponse]
-	getTaskStats *connect.Client[v1.GetTaskStatsRequest, v1.GetTaskStatsResponse]
-}
-
-// CreateTask calls aedst.tasks.v1.TasksService.CreateTask.
-func (c *tasksServiceClient) CreateTask(ctx context.Context, req *connect.Request[v1.CreateTaskRequest]) (*connect.Response[v1.CreateTaskResponse], error) {
-	return c.createTask.CallUnary(ctx, req)
-}
-
-// GetTask calls aedst.tasks.v1.TasksService.GetTask.
-func (c *tasksServiceClient) GetTask(ctx context.Context, req *connect.Request[v1.GetTaskRequest]) (*connect.Response[v1.GetTaskResponse], error) {
-	return c.getTask.CallUnary(ctx, req)
-}
-
-// ListTasks calls aedst.tasks.v1.TasksService.ListTasks.
-func (c *tasksServiceClient) ListTasks(ctx context.Context, req *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error) {
-	return c.listTasks.CallUnary(ctx, req)
-}
-
-// UpdateTask calls aedst.tasks.v1.TasksService.UpdateTask.
-func (c *tasksServiceClient) UpdateTask(ctx context.Context, req *connect.Request[v1.UpdateTaskRequest]) (*connect.Response[v1.UpdateTaskResponse], error) {
-	return c.updateTask.CallUnary(ctx, req)
-}
-
-// DeleteTask calls aedst.tasks.v1.TasksService.DeleteTask.
-func (c *tasksServiceClient) DeleteTask(ctx context.Context, req *connect.Request[v1.DeleteTaskRequest]) (*connect.Response[v1.DeleteTaskResponse], error) {
-	return c.deleteTask.CallUnary(ctx, req)
-}
-
-// CompleteTask calls aedst.tasks.v1.TasksService.CompleteTask.
-func (c *tasksServiceClient) CompleteTask(ctx context.Context, req *connect.Request[v1.CompleteTaskRequest]) (*connect.Response[v1.CompleteTaskResponse], error) {
-	return c.completeTask.CallUnary(ctx, req)
-}
-
-// ReopenTask calls aedst.tasks.v1.TasksService.ReopenTask.
-func (c *tasksServiceClient) ReopenTask(ctx context.Context, req *connect.Request[v1.ReopenTaskRequest]) (*connect.Response[v1.ReopenTaskResponse], error) {
-	return c.reopenTask.CallUnary(ctx, req)
-}
-
-// GetTaskStats calls aedst.tasks.v1.TasksService.GetTaskStats.
-func (c *tasksServiceClient) GetTaskStats(ctx context.Context, req *connect.Request[v1.GetTaskStatsRequest]) (*connect.Response[v1.GetTaskStatsResponse], error) {
-	return c.getTaskStats.CallUnary(ctx, req)
+// NewTasksServiceClient constructs a client for the aedst.tasks.v1.TasksService service. Multiple
+// service clients may share a single connect.Client.
+func NewTasksServiceClient(client *connect.Client) TasksServiceClient {
+	return &tasksServiceClient{client: client}
 }
 
 // TasksServiceHandler is an implementation of the aedst.tasks.v1.TasksService service.
 type TasksServiceHandler interface {
-	CreateTask(context.Context, *connect.Request[v1.CreateTaskRequest]) (*connect.Response[v1.CreateTaskResponse], error)
-	GetTask(context.Context, *connect.Request[v1.GetTaskRequest]) (*connect.Response[v1.GetTaskResponse], error)
-	ListTasks(context.Context, *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error)
+	CreateTask(context.Context, *v1.CreateTaskRequest) (*v1.CreateTaskResponse, error)
+	GetTask(context.Context, *v1.GetTaskRequest) (*v1.GetTaskResponse, error)
+	ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error)
 	// Mutates title/description/priority/due_date only — never status. Status
 	// is a state machine (see TaskStatus), not a plain field: it only moves
 	// through CompleteTask/ReopenTask, which is also where completed_at is
 	// stamped/cleared. This keeps "can DONE go back to IN_PROGRESS without an
 	// explicit reopen" a single well-known no, not something every caller of
 	// UpdateTask has to remember not to do by omitting status from the mask.
-	UpdateTask(context.Context, *connect.Request[v1.UpdateTaskRequest]) (*connect.Response[v1.UpdateTaskResponse], error)
-	DeleteTask(context.Context, *connect.Request[v1.DeleteTaskRequest]) (*connect.Response[v1.DeleteTaskResponse], error)
-	CompleteTask(context.Context, *connect.Request[v1.CompleteTaskRequest]) (*connect.Response[v1.CompleteTaskResponse], error)
-	ReopenTask(context.Context, *connect.Request[v1.ReopenTaskRequest]) (*connect.Response[v1.ReopenTaskResponse], error)
+	UpdateTask(context.Context, *v1.UpdateTaskRequest) (*v1.UpdateTaskResponse, error)
+	DeleteTask(context.Context, *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error)
+	CompleteTask(context.Context, *v1.CompleteTaskRequest) (*v1.CompleteTaskResponse, error)
+	ReopenTask(context.Context, *v1.ReopenTaskRequest) (*v1.ReopenTaskResponse, error)
 	// GetTaskStats backs the dashboard (total/todo/in_progress/done/overdue) —
 	// one aggregate query instead of the client computing it from a full list.
-	GetTaskStats(context.Context, *connect.Request[v1.GetTaskStatsRequest]) (*connect.Response[v1.GetTaskStatsResponse], error)
+	GetTaskStats(context.Context, *v1.GetTaskStatsRequest) (*v1.GetTaskStatsResponse, error)
 }
 
-// NewTasksServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewTasksServiceHandler(svc TasksServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	tasksServiceMethods := v1.File_aedst_tasks_v1_tasks_proto.Services().ByName("TasksService").Methods()
-	tasksServiceCreateTaskHandler := connect.NewUnaryHandler(
-		TasksServiceCreateTaskProcedure,
-		svc.CreateTask,
-		connect.WithSchema(tasksServiceMethods.ByName("CreateTask")),
-		connect.WithHandlerOptions(opts...),
+// RegisterTasksServiceHandler registers svc as the aedst.tasks.v1.TasksService implementation on
+// server.
+func RegisterTasksServiceHandler(server *connect.Server, svc TasksServiceHandler) {
+	adapter := tasksServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: tasksServiceCreateTaskSpec(), Handler: adapter.createTask},
+		connect.Method{Spec: tasksServiceGetTaskSpec(), Handler: adapter.getTask},
+		connect.Method{Spec: tasksServiceListTasksSpec(), Handler: adapter.listTasks},
+		connect.Method{Spec: tasksServiceUpdateTaskSpec(), Handler: adapter.updateTask},
+		connect.Method{Spec: tasksServiceDeleteTaskSpec(), Handler: adapter.deleteTask},
+		connect.Method{Spec: tasksServiceCompleteTaskSpec(), Handler: adapter.completeTask},
+		connect.Method{Spec: tasksServiceReopenTaskSpec(), Handler: adapter.reopenTask},
+		connect.Method{Spec: tasksServiceGetTaskStatsSpec(), Handler: adapter.getTaskStats},
 	)
-	tasksServiceGetTaskHandler := connect.NewUnaryHandler(
-		TasksServiceGetTaskProcedure,
-		svc.GetTask,
-		connect.WithSchema(tasksServiceMethods.ByName("GetTask")),
-		connect.WithHandlerOptions(opts...),
-	)
-	tasksServiceListTasksHandler := connect.NewUnaryHandler(
-		TasksServiceListTasksProcedure,
-		svc.ListTasks,
-		connect.WithSchema(tasksServiceMethods.ByName("ListTasks")),
-		connect.WithHandlerOptions(opts...),
-	)
-	tasksServiceUpdateTaskHandler := connect.NewUnaryHandler(
-		TasksServiceUpdateTaskProcedure,
-		svc.UpdateTask,
-		connect.WithSchema(tasksServiceMethods.ByName("UpdateTask")),
-		connect.WithHandlerOptions(opts...),
-	)
-	tasksServiceDeleteTaskHandler := connect.NewUnaryHandler(
-		TasksServiceDeleteTaskProcedure,
-		svc.DeleteTask,
-		connect.WithSchema(tasksServiceMethods.ByName("DeleteTask")),
-		connect.WithHandlerOptions(opts...),
-	)
-	tasksServiceCompleteTaskHandler := connect.NewUnaryHandler(
-		TasksServiceCompleteTaskProcedure,
-		svc.CompleteTask,
-		connect.WithSchema(tasksServiceMethods.ByName("CompleteTask")),
-		connect.WithHandlerOptions(opts...),
-	)
-	tasksServiceReopenTaskHandler := connect.NewUnaryHandler(
-		TasksServiceReopenTaskProcedure,
-		svc.ReopenTask,
-		connect.WithSchema(tasksServiceMethods.ByName("ReopenTask")),
-		connect.WithHandlerOptions(opts...),
-	)
-	tasksServiceGetTaskStatsHandler := connect.NewUnaryHandler(
-		TasksServiceGetTaskStatsProcedure,
-		svc.GetTaskStats,
-		connect.WithSchema(tasksServiceMethods.ByName("GetTaskStats")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/aedst.tasks.v1.TasksService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case TasksServiceCreateTaskProcedure:
-			tasksServiceCreateTaskHandler.ServeHTTP(w, r)
-		case TasksServiceGetTaskProcedure:
-			tasksServiceGetTaskHandler.ServeHTTP(w, r)
-		case TasksServiceListTasksProcedure:
-			tasksServiceListTasksHandler.ServeHTTP(w, r)
-		case TasksServiceUpdateTaskProcedure:
-			tasksServiceUpdateTaskHandler.ServeHTTP(w, r)
-		case TasksServiceDeleteTaskProcedure:
-			tasksServiceDeleteTaskHandler.ServeHTTP(w, r)
-		case TasksServiceCompleteTaskProcedure:
-			tasksServiceCompleteTaskHandler.ServeHTTP(w, r)
-		case TasksServiceReopenTaskProcedure:
-			tasksServiceReopenTaskHandler.ServeHTTP(w, r)
-		case TasksServiceGetTaskStatsProcedure:
-			tasksServiceGetTaskStatsHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedTasksServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedTasksServiceHandler struct{}
 
-func (UnimplementedTasksServiceHandler) CreateTask(context.Context, *connect.Request[v1.CreateTaskRequest]) (*connect.Response[v1.CreateTaskResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.tasks.v1.TasksService.CreateTask is not implemented"))
+func (UnimplementedTasksServiceHandler) CreateTask(context.Context, *v1.CreateTaskRequest) (*v1.CreateTaskResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.tasks.v1.TasksService.CreateTask is not implemented")
 }
 
-func (UnimplementedTasksServiceHandler) GetTask(context.Context, *connect.Request[v1.GetTaskRequest]) (*connect.Response[v1.GetTaskResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.tasks.v1.TasksService.GetTask is not implemented"))
+func (UnimplementedTasksServiceHandler) GetTask(context.Context, *v1.GetTaskRequest) (*v1.GetTaskResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.tasks.v1.TasksService.GetTask is not implemented")
 }
 
-func (UnimplementedTasksServiceHandler) ListTasks(context.Context, *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.tasks.v1.TasksService.ListTasks is not implemented"))
+func (UnimplementedTasksServiceHandler) ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.tasks.v1.TasksService.ListTasks is not implemented")
 }
 
-func (UnimplementedTasksServiceHandler) UpdateTask(context.Context, *connect.Request[v1.UpdateTaskRequest]) (*connect.Response[v1.UpdateTaskResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.tasks.v1.TasksService.UpdateTask is not implemented"))
+func (UnimplementedTasksServiceHandler) UpdateTask(context.Context, *v1.UpdateTaskRequest) (*v1.UpdateTaskResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.tasks.v1.TasksService.UpdateTask is not implemented")
 }
 
-func (UnimplementedTasksServiceHandler) DeleteTask(context.Context, *connect.Request[v1.DeleteTaskRequest]) (*connect.Response[v1.DeleteTaskResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.tasks.v1.TasksService.DeleteTask is not implemented"))
+func (UnimplementedTasksServiceHandler) DeleteTask(context.Context, *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.tasks.v1.TasksService.DeleteTask is not implemented")
 }
 
-func (UnimplementedTasksServiceHandler) CompleteTask(context.Context, *connect.Request[v1.CompleteTaskRequest]) (*connect.Response[v1.CompleteTaskResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.tasks.v1.TasksService.CompleteTask is not implemented"))
+func (UnimplementedTasksServiceHandler) CompleteTask(context.Context, *v1.CompleteTaskRequest) (*v1.CompleteTaskResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.tasks.v1.TasksService.CompleteTask is not implemented")
 }
 
-func (UnimplementedTasksServiceHandler) ReopenTask(context.Context, *connect.Request[v1.ReopenTaskRequest]) (*connect.Response[v1.ReopenTaskResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.tasks.v1.TasksService.ReopenTask is not implemented"))
+func (UnimplementedTasksServiceHandler) ReopenTask(context.Context, *v1.ReopenTaskRequest) (*v1.ReopenTaskResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.tasks.v1.TasksService.ReopenTask is not implemented")
 }
 
-func (UnimplementedTasksServiceHandler) GetTaskStats(context.Context, *connect.Request[v1.GetTaskStatsRequest]) (*connect.Response[v1.GetTaskStatsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.tasks.v1.TasksService.GetTaskStats is not implemented"))
+func (UnimplementedTasksServiceHandler) GetTaskStats(context.Context, *v1.GetTaskStatsRequest) (*v1.GetTaskStatsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.tasks.v1.TasksService.GetTaskStats is not implemented")
+}
+
+type tasksServiceClient struct {
+	client *connect.Client
+}
+
+func (c *tasksServiceClient) CreateTask(ctx context.Context, req *v1.CreateTaskRequest) (*v1.CreateTaskResponse, error) {
+	var res v1.CreateTaskResponse
+	if err := c.client.CallUnary(ctx, tasksServiceCreateTaskSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *tasksServiceClient) GetTask(ctx context.Context, req *v1.GetTaskRequest) (*v1.GetTaskResponse, error) {
+	var res v1.GetTaskResponse
+	if err := c.client.CallUnary(ctx, tasksServiceGetTaskSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *tasksServiceClient) ListTasks(ctx context.Context, req *v1.ListTasksRequest) (*v1.ListTasksResponse, error) {
+	var res v1.ListTasksResponse
+	if err := c.client.CallUnary(ctx, tasksServiceListTasksSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *tasksServiceClient) UpdateTask(ctx context.Context, req *v1.UpdateTaskRequest) (*v1.UpdateTaskResponse, error) {
+	var res v1.UpdateTaskResponse
+	if err := c.client.CallUnary(ctx, tasksServiceUpdateTaskSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *tasksServiceClient) DeleteTask(ctx context.Context, req *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error) {
+	var res v1.DeleteTaskResponse
+	if err := c.client.CallUnary(ctx, tasksServiceDeleteTaskSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *tasksServiceClient) CompleteTask(ctx context.Context, req *v1.CompleteTaskRequest) (*v1.CompleteTaskResponse, error) {
+	var res v1.CompleteTaskResponse
+	if err := c.client.CallUnary(ctx, tasksServiceCompleteTaskSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *tasksServiceClient) ReopenTask(ctx context.Context, req *v1.ReopenTaskRequest) (*v1.ReopenTaskResponse, error) {
+	var res v1.ReopenTaskResponse
+	if err := c.client.CallUnary(ctx, tasksServiceReopenTaskSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *tasksServiceClient) GetTaskStats(ctx context.Context, req *v1.GetTaskStatsRequest) (*v1.GetTaskStatsResponse, error) {
+	var res v1.GetTaskStatsResponse
+	if err := c.client.CallUnary(ctx, tasksServiceGetTaskStatsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type tasksServiceHandler struct{ svc TasksServiceHandler }
+
+func (h tasksServiceHandler) createTask(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.CreateTaskRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateTask(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h tasksServiceHandler) getTask(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetTaskRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetTask(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h tasksServiceHandler) listTasks(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListTasksRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListTasks(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h tasksServiceHandler) updateTask(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.UpdateTaskRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateTask(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h tasksServiceHandler) deleteTask(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.DeleteTaskRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.DeleteTask(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h tasksServiceHandler) completeTask(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.CompleteTaskRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CompleteTask(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h tasksServiceHandler) reopenTask(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ReopenTaskRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ReopenTask(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h tasksServiceHandler) getTaskStats(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetTaskStatsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetTaskStats(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

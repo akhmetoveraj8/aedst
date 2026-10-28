@@ -7,9 +7,11 @@ managed:
     - file_option: go_package_prefix
       value: github.com/aedst/server/gen/go
 plugins:
-  - local: protoc-gen-go
+  # Plugins run from the module's `tool` directives (go.mod), so the generator
+  # versions are pinned with the runtime and need no separate install.
+  - local: [go, tool, protoc-gen-go]
     out: gen/go
     opt: paths=source_relative
-  - local: protoc-gen-connect-go
+  - local: [go, tool, protoc-gen-connect-go]
     out: gen/go
     opt: paths=source_relative

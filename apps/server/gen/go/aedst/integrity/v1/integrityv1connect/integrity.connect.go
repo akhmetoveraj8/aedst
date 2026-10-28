@@ -5,105 +5,94 @@
 package integrityv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/aedst/server/gen/go/aedst/integrity/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// IntegrityServiceName is the fully-qualified name of the IntegrityService service.
 	IntegrityServiceName = "aedst.integrity.v1.IntegrityService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// IntegrityServiceVerifyIntegrityTokenProcedure is the fully-qualified name of the
-	// IntegrityService's VerifyIntegrityToken RPC.
+	// IntegrityServiceVerifyIntegrityTokenProcedure is the procedure name of the IntegrityService's
+	// VerifyIntegrityToken RPC.
 	IntegrityServiceVerifyIntegrityTokenProcedure = "/aedst.integrity.v1.IntegrityService/VerifyIntegrityToken"
+)
+
+var (
+	integrityServiceVerifyIntegrityTokenSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_integrity_v1_integrity_proto.Services().ByName("IntegrityService").Methods().ByName("VerifyIntegrityToken"),
+			Procedure:  IntegrityServiceVerifyIntegrityTokenProcedure,
+		}
+	})
 )
 
 // IntegrityServiceClient is a client for the aedst.integrity.v1.IntegrityService service.
 type IntegrityServiceClient interface {
-	VerifyIntegrityToken(context.Context, *connect.Request[v1.VerifyIntegrityTokenRequest]) (*connect.Response[v1.VerifyIntegrityTokenResponse], error)
+	VerifyIntegrityToken(context.Context, *v1.VerifyIntegrityTokenRequest) (*v1.VerifyIntegrityTokenResponse, error)
 }
 
 // NewIntegrityServiceClient constructs a client for the aedst.integrity.v1.IntegrityService
-// service. By default, it uses the Connect protocol with the binary Protobuf Codec, asks for
-// gzipped responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply
-// the connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewIntegrityServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) IntegrityServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	integrityServiceMethods := v1.File_aedst_integrity_v1_integrity_proto.Services().ByName("IntegrityService").Methods()
-	return &integrityServiceClient{
-		verifyIntegrityToken: connect.NewClient[v1.VerifyIntegrityTokenRequest, v1.VerifyIntegrityTokenResponse](
-			httpClient,
-			baseURL+IntegrityServiceVerifyIntegrityTokenProcedure,
-			connect.WithSchema(integrityServiceMethods.ByName("VerifyIntegrityToken")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// integrityServiceClient implements IntegrityServiceClient.
-type integrityServiceClient struct {
-	verifyIntegrityToken *connect.Client[v1.VerifyIntegrityTokenRequest, v1.VerifyIntegrityTokenResponse]
-}
-
-// VerifyIntegrityToken calls aedst.integrity.v1.IntegrityService.VerifyIntegrityToken.
-func (c *integrityServiceClient) VerifyIntegrityToken(ctx context.Context, req *connect.Request[v1.VerifyIntegrityTokenRequest]) (*connect.Response[v1.VerifyIntegrityTokenResponse], error) {
-	return c.verifyIntegrityToken.CallUnary(ctx, req)
+// service. Multiple service clients may share a single connect.Client.
+func NewIntegrityServiceClient(client *connect.Client) IntegrityServiceClient {
+	return &integrityServiceClient{client: client}
 }
 
 // IntegrityServiceHandler is an implementation of the aedst.integrity.v1.IntegrityService service.
 type IntegrityServiceHandler interface {
-	VerifyIntegrityToken(context.Context, *connect.Request[v1.VerifyIntegrityTokenRequest]) (*connect.Response[v1.VerifyIntegrityTokenResponse], error)
+	VerifyIntegrityToken(context.Context, *v1.VerifyIntegrityTokenRequest) (*v1.VerifyIntegrityTokenResponse, error)
 }
 
-// NewIntegrityServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewIntegrityServiceHandler(svc IntegrityServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	integrityServiceMethods := v1.File_aedst_integrity_v1_integrity_proto.Services().ByName("IntegrityService").Methods()
-	integrityServiceVerifyIntegrityTokenHandler := connect.NewUnaryHandler(
-		IntegrityServiceVerifyIntegrityTokenProcedure,
-		svc.VerifyIntegrityToken,
-		connect.WithSchema(integrityServiceMethods.ByName("VerifyIntegrityToken")),
-		connect.WithHandlerOptions(opts...),
+// RegisterIntegrityServiceHandler registers svc as the aedst.integrity.v1.IntegrityService
+// implementation on server.
+func RegisterIntegrityServiceHandler(server *connect.Server, svc IntegrityServiceHandler) {
+	adapter := integrityServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: integrityServiceVerifyIntegrityTokenSpec(), Handler: adapter.verifyIntegrityToken},
 	)
-	return "/aedst.integrity.v1.IntegrityService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case IntegrityServiceVerifyIntegrityTokenProcedure:
-			integrityServiceVerifyIntegrityTokenHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedIntegrityServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedIntegrityServiceHandler struct{}
 
-func (UnimplementedIntegrityServiceHandler) VerifyIntegrityToken(context.Context, *connect.Request[v1.VerifyIntegrityTokenRequest]) (*connect.Response[v1.VerifyIntegrityTokenResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.integrity.v1.IntegrityService.VerifyIntegrityToken is not implemented"))
+func (UnimplementedIntegrityServiceHandler) VerifyIntegrityToken(context.Context, *v1.VerifyIntegrityTokenRequest) (*v1.VerifyIntegrityTokenResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.integrity.v1.IntegrityService.VerifyIntegrityToken is not implemented")
+}
+
+type integrityServiceClient struct {
+	client *connect.Client
+}
+
+func (c *integrityServiceClient) VerifyIntegrityToken(ctx context.Context, req *v1.VerifyIntegrityTokenRequest) (*v1.VerifyIntegrityTokenResponse, error) {
+	var res v1.VerifyIntegrityTokenResponse
+	if err := c.client.CallUnary(ctx, integrityServiceVerifyIntegrityTokenSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type integrityServiceHandler struct{ svc IntegrityServiceHandler }
+
+func (h integrityServiceHandler) verifyIntegrityToken(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.VerifyIntegrityTokenRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.VerifyIntegrityToken(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

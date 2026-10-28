@@ -43,6 +43,6 @@ func (m *capabilitiesModule) setup(_ context.Context, env *modulekit.Env) error 
 }
 
 func (m *capabilitiesModule) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
-	modulekit.Mount(mt, capabilitiesv1connect.NewCapabilitiesServiceHandler, capabilitiesv1connect.CapabilitiesServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
+	modulekit.Mount(mt, capabilitiesv1connect.RegisterCapabilitiesServiceHandler, capabilitiesv1connect.CapabilitiesServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
 	return nil
 }

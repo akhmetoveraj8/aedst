@@ -50,7 +50,7 @@ expect 'default-http:'                              'forbidigo: http.DefaultClie
 expect 'should be used instead \(sloglint\)'        'sloglint: context'
 expect 'string literal or a constant \(sloglint\)'  'sloglint: static message'
 expect 'snake_case \(sloglint\)'                    'sloglint: key naming'
-expect 'missing cases in switch'                    'exhaustive: sharederrors.Kind'
+expect 'missing cases in'                    'exhaustive: sharederrors.Kind'
 expect '\(spancheck\)'                              'spancheck'
 expect '\(nilerr\)'                                 'nilerr'
 expect '\(nolintlint\)'                             'nolintlint'

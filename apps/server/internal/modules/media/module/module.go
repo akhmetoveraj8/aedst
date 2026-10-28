@@ -91,6 +91,6 @@ func (m *mediaModule) setup(ctx context.Context, env *modulekit.Env) error {
 }
 
 func (m *mediaModule) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
-	modulekit.Mount(mt, mediav1connect.NewMediaServiceHandler, mediav1connect.MediaServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
+	modulekit.Mount(mt, mediav1connect.RegisterMediaServiceHandler, mediav1connect.MediaServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
 	return nil
 }

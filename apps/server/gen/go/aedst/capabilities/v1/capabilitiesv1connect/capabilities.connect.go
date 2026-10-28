@@ -5,106 +5,96 @@
 package capabilitiesv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/aedst/server/gen/go/aedst/capabilities/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// CapabilitiesServiceName is the fully-qualified name of the CapabilitiesService service.
 	CapabilitiesServiceName = "aedst.capabilities.v1.CapabilitiesService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// CapabilitiesServiceGetCapabilitiesProcedure is the fully-qualified name of the
-	// CapabilitiesService's GetCapabilities RPC.
+	// CapabilitiesServiceGetCapabilitiesProcedure is the procedure name of the CapabilitiesService's
+	// GetCapabilities RPC.
 	CapabilitiesServiceGetCapabilitiesProcedure = "/aedst.capabilities.v1.CapabilitiesService/GetCapabilities"
+)
+
+var (
+	capabilitiesServiceGetCapabilitiesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_capabilities_v1_capabilities_proto.Services().ByName("CapabilitiesService").Methods().ByName("GetCapabilities"),
+			Procedure:  CapabilitiesServiceGetCapabilitiesProcedure,
+		}
+	})
 )
 
 // CapabilitiesServiceClient is a client for the aedst.capabilities.v1.CapabilitiesService service.
 type CapabilitiesServiceClient interface {
-	GetCapabilities(context.Context, *connect.Request[v1.GetCapabilitiesRequest]) (*connect.Response[v1.GetCapabilitiesResponse], error)
+	GetCapabilities(context.Context, *v1.GetCapabilitiesRequest) (*v1.GetCapabilitiesResponse, error)
 }
 
 // NewCapabilitiesServiceClient constructs a client for the
-// aedst.capabilities.v1.CapabilitiesService service. By default, it uses the Connect protocol with
-// the binary Protobuf Codec, asks for gzipped responses, and sends uncompressed requests. To use
-// the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewCapabilitiesServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) CapabilitiesServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	capabilitiesServiceMethods := v1.File_aedst_capabilities_v1_capabilities_proto.Services().ByName("CapabilitiesService").Methods()
-	return &capabilitiesServiceClient{
-		getCapabilities: connect.NewClient[v1.GetCapabilitiesRequest, v1.GetCapabilitiesResponse](
-			httpClient,
-			baseURL+CapabilitiesServiceGetCapabilitiesProcedure,
-			connect.WithSchema(capabilitiesServiceMethods.ByName("GetCapabilities")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// capabilitiesServiceClient implements CapabilitiesServiceClient.
-type capabilitiesServiceClient struct {
-	getCapabilities *connect.Client[v1.GetCapabilitiesRequest, v1.GetCapabilitiesResponse]
-}
-
-// GetCapabilities calls aedst.capabilities.v1.CapabilitiesService.GetCapabilities.
-func (c *capabilitiesServiceClient) GetCapabilities(ctx context.Context, req *connect.Request[v1.GetCapabilitiesRequest]) (*connect.Response[v1.GetCapabilitiesResponse], error) {
-	return c.getCapabilities.CallUnary(ctx, req)
+// aedst.capabilities.v1.CapabilitiesService service. Multiple service clients may share a single
+// connect.Client.
+func NewCapabilitiesServiceClient(client *connect.Client) CapabilitiesServiceClient {
+	return &capabilitiesServiceClient{client: client}
 }
 
 // CapabilitiesServiceHandler is an implementation of the aedst.capabilities.v1.CapabilitiesService
 // service.
 type CapabilitiesServiceHandler interface {
-	GetCapabilities(context.Context, *connect.Request[v1.GetCapabilitiesRequest]) (*connect.Response[v1.GetCapabilitiesResponse], error)
+	GetCapabilities(context.Context, *v1.GetCapabilitiesRequest) (*v1.GetCapabilitiesResponse, error)
 }
 
-// NewCapabilitiesServiceHandler builds an HTTP handler from the service implementation. It returns
-// the path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewCapabilitiesServiceHandler(svc CapabilitiesServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	capabilitiesServiceMethods := v1.File_aedst_capabilities_v1_capabilities_proto.Services().ByName("CapabilitiesService").Methods()
-	capabilitiesServiceGetCapabilitiesHandler := connect.NewUnaryHandler(
-		CapabilitiesServiceGetCapabilitiesProcedure,
-		svc.GetCapabilities,
-		connect.WithSchema(capabilitiesServiceMethods.ByName("GetCapabilities")),
-		connect.WithHandlerOptions(opts...),
+// RegisterCapabilitiesServiceHandler registers svc as the aedst.capabilities.v1.CapabilitiesService
+// implementation on server.
+func RegisterCapabilitiesServiceHandler(server *connect.Server, svc CapabilitiesServiceHandler) {
+	adapter := capabilitiesServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: capabilitiesServiceGetCapabilitiesSpec(), Handler: adapter.getCapabilities},
 	)
-	return "/aedst.capabilities.v1.CapabilitiesService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case CapabilitiesServiceGetCapabilitiesProcedure:
-			capabilitiesServiceGetCapabilitiesHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedCapabilitiesServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedCapabilitiesServiceHandler struct{}
 
-func (UnimplementedCapabilitiesServiceHandler) GetCapabilities(context.Context, *connect.Request[v1.GetCapabilitiesRequest]) (*connect.Response[v1.GetCapabilitiesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.capabilities.v1.CapabilitiesService.GetCapabilities is not implemented"))
+func (UnimplementedCapabilitiesServiceHandler) GetCapabilities(context.Context, *v1.GetCapabilitiesRequest) (*v1.GetCapabilitiesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.capabilities.v1.CapabilitiesService.GetCapabilities is not implemented")
+}
+
+type capabilitiesServiceClient struct {
+	client *connect.Client
+}
+
+func (c *capabilitiesServiceClient) GetCapabilities(ctx context.Context, req *v1.GetCapabilitiesRequest) (*v1.GetCapabilitiesResponse, error) {
+	var res v1.GetCapabilitiesResponse
+	if err := c.client.CallUnary(ctx, capabilitiesServiceGetCapabilitiesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type capabilitiesServiceHandler struct{ svc CapabilitiesServiceHandler }
+
+func (h capabilitiesServiceHandler) getCapabilities(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetCapabilitiesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetCapabilities(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

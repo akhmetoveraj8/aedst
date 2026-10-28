@@ -51,6 +51,6 @@ func (m *searchModule) setup(_ context.Context, env *modulekit.Env) error {
 }
 
 func (m *searchModule) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
-	modulekit.Mount(mt, searchv1connect.NewSearchServiceHandler, searchv1connect.SearchServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
+	modulekit.Mount(mt, searchv1connect.RegisterSearchServiceHandler, searchv1connect.SearchServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
 	return nil
 }

@@ -80,16 +80,16 @@ linters:
         - .Errorf(
         - errors.New(
         - errors.Join(
-        - connect.NewError(
-        - sharederrors.New(
-        - sharederrors.NotFound(
-        - sharederrors.AlreadyExists(
-        - sharederrors.Conflict(
-        - sharederrors.Validation(
-        - sharederrors.Unauthorized(
-        - sharederrors.Forbidden(
-        - sharederrors.Wrap(
-        - sharederrors.FailedPrecondition(
+        - connect/v2.NewError(
+        - shared/errors.New(
+        - shared/errors.NotFound(
+        - shared/errors.AlreadyExists(
+        - shared/errors.Conflict(
+        - shared/errors.Validation(
+        - shared/errors.Unauthorized(
+        - shared/errors.Forbidden(
+        - shared/errors.Wrap(
+        - shared/errors.FailedPrecondition(
         - ids.New(
         - river.JobCancel(
 

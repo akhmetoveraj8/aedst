@@ -3,12 +3,10 @@ package httpserver_test
 import (
 	"context"
 	"errors"
-	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"connectrpc.com/connect/v2"
 
 	platformauth "github.com/aedst/server/internal/platform/auth"
 	"github.com/aedst/server/internal/platform/httpserver"
@@ -34,22 +32,18 @@ func callWith(t *testing.T, verifier platformauth.Verifier, public map[string]bo
 		identity platformauth.Identity
 		ok       bool
 	)
-	handler := connect.NewUnaryHandler(testProcedure,
-		func(ctx context.Context, _ *connect.Request[emptypb.Empty]) (*connect.Response[emptypb.Empty], error) {
+	srv := httptest.NewServer(newHandler(testProcedure,
+		func(ctx context.Context) error {
 			identity, ok = platformauth.FromContext(ctx)
-			return connect.NewResponse(&emptypb.Empty{}), nil
-		}, connect.WithInterceptors(httpserver.AuthInterceptor(verifier, public, discardLogger())))
-	mux := http.NewServeMux()
-	mux.Handle(testProcedure, handler)
-	srv := httptest.NewServer(mux)
+			return nil
+		}, httpserver.AuthInterceptor(verifier, public, discardLogger())))
 	t.Cleanup(srv.Close)
 
-	client := connect.NewClient[emptypb.Empty, emptypb.Empty](srv.Client(), srv.URL+testProcedure)
-	req := connect.NewRequest(&emptypb.Empty{})
+	var opts []callOption
 	if authorization != "" {
-		req.Header().Set("Authorization", authorization)
+		opts = append(opts, requestHeader("Authorization", authorization))
 	}
-	_, err := client.CallUnary(context.Background(), req)
+	err := callUnary(srv, testProcedure, opts...)
 	return identity, ok, err
 }
 

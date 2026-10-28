@@ -9,7 +9,8 @@ import (
 	"slices"
 	"testing"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/connect/v2/connecthttp"
 
 	capabilitiesv1 "github.com/aedst/server/gen/go/aedst/capabilities/v1"
 	capabilitiesv1connect "github.com/aedst/server/gen/go/aedst/capabilities/v1/capabilitiesv1connect"
@@ -107,7 +108,7 @@ func TestCapabilitiesEndToEnd(t *testing.T) {
 	a := testApp(t, cfg)
 	gate := httpserver.ClientVersionInterceptor(context.Background(), cfg.Client.MinVersions, cfg.Client.RecommendedVersions, slog.New(slog.DiscardHandler))
 	router := http.NewServeMux()
-	rpc := modulekit.NewMounter(router, []connect.Interceptor{gate}, nil, 1<<20, true)
+	rpc := modulekit.NewMounter(router, []connect.ServerInterceptor{gate}, nil, 1<<20, true)
 	for _, m := range a.mods {
 		if m.Name != "capabilities" {
 			continue
@@ -121,18 +122,18 @@ func TestCapabilitiesEndToEnd(t *testing.T) {
 	}
 	srv := httptest.NewServer(router)
 	defer srv.Close()
-	client := capabilitiesv1connect.NewCapabilitiesServiceClient(srv.Client(), srv.URL)
+	client := capabilitiesv1connect.NewCapabilitiesServiceClient(connect.NewClient(connecthttp.NewTransport(srv.Client(), srv.URL)))
 
 	get := func(header string) (*capabilitiesv1.GetCapabilitiesResponse, error) {
-		req := connect.NewRequest(&capabilitiesv1.GetCapabilitiesRequest{})
+		ctx, info := connect.NewClientContext(context.Background())
 		if header != "" {
-			req.Header().Set(httpserver.ClientHeader, header)
+			info.RequestHeader().Set(httpserver.ClientHeader, header)
 		}
-		res, err := client.GetCapabilities(context.Background(), req)
+		res, err := client.GetCapabilities(ctx, &capabilitiesv1.GetCapabilitiesRequest{})
 		if err != nil {
 			return nil, err
 		}
-		return res.Msg, nil
+		return res, nil
 	}
 
 	res, err := get("android/1.3.0")

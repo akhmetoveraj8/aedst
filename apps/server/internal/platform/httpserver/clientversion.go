@@ -2,12 +2,12 @@ package httpserver
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"slices"
 	"strings"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/connect/v2/connectproto"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
@@ -58,16 +58,16 @@ const clientRequestsCounter = "aedst_client_requests_total"
 // config.ClientPlatforms or "none", major is a number below 1000 or "other",
 // status is one of four constants. Exact versions are logged on rejection,
 // never used as a label.
-func ClientVersionInterceptor(ctx context.Context, minVersions, recommended map[string]string, logger *slog.Logger) connect.UnaryInterceptorFunc {
+func ClientVersionInterceptor(ctx context.Context, minVersions, recommended map[string]string, logger *slog.Logger) connect.ServerInterceptor {
 	mins, recs := vPrefixed(minVersions), vPrefixed(recommended)
 	counter, err := otel.Meter("github.com/aedst/server/internal/platform/httpserver").Int64Counter(clientRequestsCounter,
 		metric.WithDescription("RPCs by client platform, major version and support status (from X-Aedst-Client)."))
 	if err != nil {
 		logger.WarnContext(ctx, "client request metric unavailable", slog.Any("error", err))
 	}
-	return func(next connect.UnaryFunc) connect.UnaryFunc {
-		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-			platform, version, ok := ParseClientHeader(req.Header().Get(ClientHeader))
+	return func(next connect.ServerFunc) connect.ServerFunc {
+		return func(ctx context.Context, spec connect.Spec, stream connect.ServerStream) error {
+			platform, version, ok := ParseClientHeader(requestHeader(ctx).Get(ClientHeader))
 			status := clientStatusUnidentified
 			if ok {
 				status = clientStatus(platform, version, mins, recs)
@@ -80,12 +80,12 @@ func ClientVersionInterceptor(ctx context.Context, minVersions, recommended map[
 				))
 			}
 			if status != clientStatusRejected {
-				return next(ctx, req)
+				return next(ctx, spec, stream)
 			}
 			minimum := mins[platform]
 			logger.InfoContext(ctx, "client version rejected",
 				slog.String("platform", platform), slog.String("version", version), slog.String("minimum", minimum))
-			return nil, clientUpgradeRequired(platform, version, minimum)
+			return clientUpgradeRequired(platform, version, minimum)
 		}
 	}
 }
@@ -143,9 +143,9 @@ func ParseClientHeader(header string) (platform, version string, ok bool) {
 }
 
 func clientUpgradeRequired(platform, version, minimum string) *connect.Error {
-	err := connect.NewError(connect.CodeFailedPrecondition,
-		fmt.Errorf("this version of the %s app is no longer supported; update to %s or newer", platform, strings.TrimPrefix(minimum, "v")))
-	if detail, derr := connect.NewErrorDetail(&errdetails.ErrorInfo{
+	err := connect.Errorf(connect.CodeFailedPrecondition,
+		"this version of the %s app is no longer supported; update to %s or newer", platform, strings.TrimPrefix(minimum, "v"))
+	if detail, derr := connectproto.NewErrorDetail(&errdetails.ErrorInfo{
 		Reason: ClientUpgradeRequiredReason,
 		Domain: "aedst",
 		Metadata: map[string]string{
@@ -154,7 +154,7 @@ func clientUpgradeRequired(platform, version, minimum string) *connect.Error {
 			"minimum_version": strings.TrimPrefix(minimum, "v"),
 		},
 	}); derr == nil {
-		err.AddDetail(detail)
+		err = err.WithDetail(detail)
 	}
 	return err
 }

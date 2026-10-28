@@ -375,7 +375,7 @@ imgproxy:
   enabled: false
   image:
     repository: darthsim/imgproxy
-    tag: v4.0.17 # verified on Docker Hub 2026-09-30; pin a digest in prod
+    tag: v4.0.20 # verified on Docker Hub 2026-10-28; pin a digest in prod
     pullPolicy: IfNotPresent
   replicaCount: 2
   # Public (CDN) origin clients fetch; becomes AEDST_IMGPROXY_URL.

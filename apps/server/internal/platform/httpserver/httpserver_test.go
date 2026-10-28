@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/connect/v2/connecthttp"
 
 	"github.com/aedst/server/internal/platform/httpserver"
 )
@@ -110,22 +110,17 @@ func (s *stubLimiter) Allow(_ context.Context, key string, _ int, _ time.Duratio
 func TestRateLimitInterceptor_EndToEnd(t *testing.T) {
 	const limited, open = "/test.v1.Svc/Limited", "/test.v1.Svc/Open"
 	limiter := &stubLimiter{allowed: false}
-	interceptor := connect.WithInterceptors(httpserver.RateLimitInterceptor(limiter, map[string]bool{limited: true}, 5, discardLogger()))
+	interceptor := httpserver.RateLimitInterceptor(limiter, map[string]bool{limited: true}, 5, discardLogger())
 
-	echo := func(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[emptypb.Empty], error) {
-		return connect.NewResponse(&emptypb.Empty{}), nil
-	}
+	ok := func(context.Context) error { return nil }
+	server := connect.NewServer(interceptor)
+	server.Register(unaryMethod(limited, ok), unaryMethod(open, ok))
 	mux := http.NewServeMux()
-	mux.Handle(limited, connect.NewUnaryHandler(limited, echo, interceptor))
-	mux.Handle(open, connect.NewUnaryHandler(open, echo, interceptor))
+	connecthttp.Mount(mux, server)
 	srv := httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
 
-	call := func(procedure string) error {
-		client := connect.NewClient[emptypb.Empty, emptypb.Empty](srv.Client(), srv.URL+procedure)
-		_, err := client.CallUnary(context.Background(), connect.NewRequest(&emptypb.Empty{}))
-		return err
-	}
+	call := func(procedure string) error { return callUnary(srv, procedure) }
 
 	if err := call(limited); connect.CodeOf(err) != connect.CodeResourceExhausted {
 		t.Fatalf("limited procedure over budget: err = %v, want ResourceExhausted", err)

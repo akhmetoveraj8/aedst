@@ -6,7 +6,6 @@ package transport
 import (
 	"context"
 
-	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	authv1 "github.com/aedst/server/gen/go/aedst/auth/v1"
@@ -24,44 +23,44 @@ func NewHandler(service api.Service) *Handler {
 	return &Handler{service: service}
 }
 
-func (h *Handler) Register(ctx context.Context, req *connect.Request[authv1.RegisterRequest]) (*connect.Response[authv1.RegisterResponse], error) {
-	user, pair, err := h.service.Register(ctx, req.Msg.GetEmail(), req.Msg.GetPassword(), req.Msg.GetDeviceId())
+func (h *Handler) Register(ctx context.Context, req *authv1.RegisterRequest) (*authv1.RegisterResponse, error) {
+	user, pair, err := h.service.Register(ctx, req.GetEmail(), req.GetPassword(), req.GetDeviceId())
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&authv1.RegisterResponse{
+	return &authv1.RegisterResponse{
 		User:   toProtoUser(user),
 		Tokens: toProtoTokenPair(pair),
-	}), nil
+	}, nil
 }
 
-func (h *Handler) Login(ctx context.Context, req *connect.Request[authv1.LoginRequest]) (*connect.Response[authv1.LoginResponse], error) {
-	userID, pair, err := h.service.Login(ctx, req.Msg.GetEmail(), req.Msg.GetPassword(), req.Msg.GetDeviceId())
+func (h *Handler) Login(ctx context.Context, req *authv1.LoginRequest) (*authv1.LoginResponse, error) {
+	userID, pair, err := h.service.Login(ctx, req.GetEmail(), req.GetPassword(), req.GetDeviceId())
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&authv1.LoginResponse{
+	return &authv1.LoginResponse{
 		UserId: userID.String(),
 		Tokens: toProtoTokenPair(pair),
-	}), nil
+	}, nil
 }
 
-func (h *Handler) RefreshToken(ctx context.Context, req *connect.Request[authv1.RefreshTokenRequest]) (*connect.Response[authv1.RefreshTokenResponse], error) {
-	pair, err := h.service.RefreshToken(ctx, req.Msg.GetRefreshToken())
+func (h *Handler) RefreshToken(ctx context.Context, req *authv1.RefreshTokenRequest) (*authv1.RefreshTokenResponse, error) {
+	pair, err := h.service.RefreshToken(ctx, req.GetRefreshToken())
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&authv1.RefreshTokenResponse{Tokens: toProtoTokenPair(pair)}), nil
+	return &authv1.RefreshTokenResponse{Tokens: toProtoTokenPair(pair)}, nil
 }
 
-func (h *Handler) Logout(ctx context.Context, req *connect.Request[authv1.LogoutRequest]) (*connect.Response[authv1.LogoutResponse], error) {
-	if err := h.service.Logout(ctx, req.Msg.GetRefreshToken()); err != nil {
+func (h *Handler) Logout(ctx context.Context, req *authv1.LogoutRequest) (*authv1.LogoutResponse, error) {
+	if err := h.service.Logout(ctx, req.GetRefreshToken()); err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&authv1.LogoutResponse{}), nil
+	return &authv1.LogoutResponse{}, nil
 }
 
-func (h *Handler) GetCurrentUser(ctx context.Context, _ *connect.Request[authv1.GetCurrentUserRequest]) (*connect.Response[authv1.GetCurrentUserResponse], error) {
+func (h *Handler) GetCurrentUser(ctx context.Context, _ *authv1.GetCurrentUserRequest) (*authv1.GetCurrentUserResponse, error) {
 	identity, ok := platformauth.FromContext(ctx)
 	if !ok {
 		// Unreachable in practice: GetCurrentUser is never in
@@ -75,7 +74,7 @@ func (h *Handler) GetCurrentUser(ctx context.Context, _ *connect.Request[authv1.
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&authv1.GetCurrentUserResponse{User: toProtoUser(user)}), nil
+	return &authv1.GetCurrentUserResponse{User: toProtoUser(user)}, nil
 }
 
 func toProtoUser(user api.User) *authv1.User {

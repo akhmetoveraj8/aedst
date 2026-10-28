@@ -5,10 +5,10 @@ provider-agnostic; this directory only supports local development.
 
 - Stack: `docker compose -f deployments/docker/docker-compose.yml --profile idp up -d --wait`
   (Traefik + ZITADEL API + Login UI v2 + a dedicated Postgres, pinned to
-  ZITADEL `v4.19.4`, the latest release seen on 2026-10-08; override with
+  ZITADEL `v4.20.0`, the latest release seen on 2026-10-28; override with
   `AEDST_ZITADEL_VERSION`).
 - `bootstrap.sh`: creates the project (its id is the token audience), roles
-  `admin`/`user`, the `aedst-web`, `aedst-android` and `aedst-android-tv` and `aedst-apple` PKCE apps (Android: see `android-app.md`; Apple: below), a service user and a `dev` user,
+  `admin`/`user`, the `aedst-web`, `aedst-admin` (apps/web/admin, own client), `aedst-android` and `aedst-android-tv` and `aedst-apple` PKCE apps (Android: see `android-app.md`; Apple: below), a service user and a `dev` user,
   then prints the `AEDST_OIDC_*` values. Needs `curl` and `jq`.
 - `.local/` (git-ignored) receives the admin machine-user PAT written by ZITADEL.
 

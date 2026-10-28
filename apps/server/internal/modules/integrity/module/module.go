@@ -58,7 +58,7 @@ func (m *integrityModule) setup(ctx context.Context, env *modulekit.Env) error {
 }
 
 func (m *integrityModule) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
-	modulekit.Mount(mt, integrityv1connect.NewIntegrityServiceHandler, integrityv1connect.IntegrityServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
+	modulekit.Mount(mt, integrityv1connect.RegisterIntegrityServiceHandler, integrityv1connect.IntegrityServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
 	return nil
 }
 

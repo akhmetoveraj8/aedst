@@ -66,7 +66,7 @@ Related decisions: [ADR-0008 realtime and media](/decisions/0008-realtime-and-me
 
 | Item | Status |
 | --- | --- |
-| Dockerfile (`deployments/docker/Dockerfile`: Debian bookworm, cgo + `-tags vips`, libvips runtime, nonroot; no longer distroless) | Written, **not built** where authored (CI `docker-build` is the test) |
+| Dockerfile (`deployments/docker/Dockerfile`: Debian 13 trixie, cgo + `-tags vips`, libvips runtime, nonroot; no longer distroless) | Written, **not built** where authored (CI `docker-build` is the test) |
 | imgproxy (compose profile `media`; Helm `imgproxy.enabled`, Deployment + Service + NetworkPolicy; [ADR-0015](/decisions/0015-govips-and-imgproxy-media-pipeline)) | Written, **not run / not rendered** where authored |
 | Migration image (`deployments/docker/Dockerfile.migrate`, goose) | Implemented |
 | Helm chart `apps/server/deployments/helm/aedst-server` | Implemented (not yet linted in CI) |

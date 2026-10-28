@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 
 	integrityv1 "github.com/aedst/server/gen/go/aedst/integrity/v1"
 	"github.com/aedst/server/internal/modules/integrity/api"
@@ -39,13 +39,13 @@ func TestVerifyIntegrityToken_MapsVerdictAndPassesTheCaller(t *testing.T) {
 		IssuedAt: issued, DeviceVerdicts: []string{domain.DeviceDevice, "SOMETHING_NEW"},
 		AppVerdict: domain.AppPlayRecognized, AccountVerdict: domain.AccountLicensed,
 	}}}
-	resp, err := transport.NewHandler(svc).VerifyIntegrityToken(authed(user), connect.NewRequest(&integrityv1.VerifyIntegrityTokenRequest{
+	resp, err := transport.NewHandler(svc).VerifyIntegrityToken(authed(user), &integrityv1.VerifyIntegrityTokenRequest{
 		IntegrityToken: "tok", Action: "login", Payload: []byte("n"), RequestHash: "h", PackageName: "com.aedst.android",
-	}))
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	m := resp.Msg
+	m := resp
 	if !m.GetVerified() || m.GetReason() != integrityv1.FailureReason_FAILURE_REASON_UNSPECIFIED || m.GetAction() != "login" ||
 		m.GetAppVerdict() != integrityv1.AppVerdict_APP_VERDICT_PLAY_RECOGNIZED ||
 		m.GetAccountVerdict() != integrityv1.AccountVerdict_ACCOUNT_VERDICT_LICENSED ||
@@ -62,15 +62,15 @@ func TestVerifyIntegrityToken_MapsVerdictAndPassesTheCaller(t *testing.T) {
 
 func TestVerifyIntegrityToken_RejectionIsASuccessfulResponseWithAReason(t *testing.T) {
 	svc := &fakeService{res: api.Result{Reason: domain.ReasonTokenReplayed, Decoded: true}}
-	resp, err := transport.NewHandler(svc).VerifyIntegrityToken(authed(ids.New()), connect.NewRequest(&integrityv1.VerifyIntegrityTokenRequest{}))
-	if err != nil || resp.Msg.GetVerified() || resp.Msg.GetReason() != integrityv1.FailureReason_FAILURE_REASON_TOKEN_REPLAYED || resp.Msg.GetAction() != "" {
+	resp, err := transport.NewHandler(svc).VerifyIntegrityToken(authed(ids.New()), &integrityv1.VerifyIntegrityTokenRequest{})
+	if err != nil || resp.GetVerified() || resp.GetReason() != integrityv1.FailureReason_FAILURE_REASON_TOKEN_REPLAYED || resp.GetAction() != "" {
 		t.Fatalf("= %+v, %v", resp, err)
 	}
 }
 
 func TestVerifyIntegrityToken_ErrorsAndAuth(t *testing.T) {
 	h := func(err error) *transport.Handler { return transport.NewHandler(&fakeService{err: err}) }
-	req := connect.NewRequest(&integrityv1.VerifyIntegrityTokenRequest{})
+	req := &integrityv1.VerifyIntegrityTokenRequest{}
 
 	if _, err := h(nil).VerifyIntegrityToken(context.Background(), req); connect.CodeOf(err) != connect.CodeUnauthenticated {
 		t.Errorf("no identity = %v, want Unauthenticated", err)

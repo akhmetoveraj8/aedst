@@ -13,7 +13,7 @@ Accepted.
 | Proto contract rules, `buf breaking` gate | Implemented: `task breaking` / CI job (`buf breaking --against main`, mode `FILE`) |
 | Server: `X-Aedst-Client` parsing, minimum-version gate (`AEDST_MIN_CLIENT_VERSIONS`), `CLIENT_UPGRADE_REQUIRED` error detail | Implemented and unit-tested (`internal/platform/httpserver/clientversion.go`, `clientversion_test.go`); exercised end to end by the integration test `TestServer_CapabilitiesAreNegotiatedBeforeSignIn` |
 | Server: recommended versions (`AEDST_RECOMMENDED_CLIENT_VERSIONS`), request metric by client, capability negotiation (`aedst.capabilities.v1.CapabilitiesService/GetCapabilities`) | Implemented and tested, see "Capability negotiation" and "Metrics" below |
-| Clients send the header and show a forced-upgrade screen | Android: implemented and JVM-tested; Apple and Desktop: implemented in source, never compiled. Web: the `/api/rpc` BFF sets the header (`apps/web/src/shared/api/connect/client-id.ts`; web code was not verified by the server workstream). Desktop sends `desktop/<semver>` and shows the upgrade view. All four clients call `GetCapabilities` |
+| Clients send the header and show a forced-upgrade screen | Android: implemented and JVM-tested; Apple and Desktop: implemented in source, never compiled. Web: the `/api/rpc` BFF sets the header (`apps/web/shared/api/connect/client-id.ts`; web code was not verified by the server workstream). Desktop sends `desktop/<semver>` and shows the upgrade view. All four clients call `GetCapabilities` |
 | Per-app build scaling | Recommendations only, see the last section |
 
 ## Context

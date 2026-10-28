@@ -4,7 +4,6 @@ package transport
 import (
 	"context"
 
-	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	integrityv1 "github.com/aedst/server/gen/go/aedst/integrity/v1"
@@ -20,12 +19,12 @@ type Handler struct {
 
 func NewHandler(service api.Service) *Handler { return &Handler{service: service} }
 
-func (h *Handler) VerifyIntegrityToken(ctx context.Context, req *connect.Request[integrityv1.VerifyIntegrityTokenRequest]) (*connect.Response[integrityv1.VerifyIntegrityTokenResponse], error) {
+func (h *Handler) VerifyIntegrityToken(ctx context.Context, req *integrityv1.VerifyIntegrityTokenRequest) (*integrityv1.VerifyIntegrityTokenResponse, error) {
 	identity, ok := platformauth.FromContext(ctx)
 	if !ok {
 		return nil, httpserver.ToConnectError(sharederrors.Unauthorized("integrity", "missing identity"))
 	}
-	msg := req.Msg
+	msg := req
 	res, err := h.service.Verify(ctx, api.VerifyInput{
 		UserID:      identity.UserID,
 		Token:       msg.GetIntegrityToken(),
@@ -54,7 +53,7 @@ func (h *Handler) VerifyIntegrityToken(ctx context.Context, req *connect.Request
 	if res.Verified {
 		out.Action = msg.GetAction()
 	}
-	return connect.NewResponse(out), nil
+	return out, nil
 }
 
 func reasonToProto(r api.Reason) integrityv1.FailureReason {

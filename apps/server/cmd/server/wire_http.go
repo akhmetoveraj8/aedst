@@ -7,9 +7,10 @@ import (
 	"net/http/pprof"
 	"time"
 
-	"connectrpc.com/connect"
-	"connectrpc.com/grpchealth"
-	"connectrpc.com/grpcreflect"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/connect/v2/connecthttp"
+	"connectrpc.com/grpchealth/v2"
+	"connectrpc.com/grpcreflect/v2"
 	"connectrpc.com/otelconnect"
 
 	"github.com/aedst/server/internal/platform/httpserver"
@@ -33,14 +34,15 @@ type httpRuntime struct {
 // authorize by role, throttle the authenticated caller per user, then validate
 // the request against its protovalidate constraints (added by the mounter,
 // always), then idempotency.
-func (a *app) interceptors(ctx context.Context, rolePolicy map[string][]string, public map[string]bool) (before, after []connect.Interceptor, err error) {
+func (a *app) interceptors(ctx context.Context, rolePolicy map[string][]string, public map[string]bool) (before, after []connect.ServerInterceptor, err error) {
 	cfg := a.cfg
-	otelInterceptor, err := otelconnect.NewInterceptor()
+	otelInterceptor, err := otelconnect.NewServerInterceptor()
 	if err != nil {
 		return nil, nil, err
 	}
-	before = []connect.Interceptor{
+	before = []connect.ServerInterceptor{
 		otelInterceptor,
+		httpserver.ErrorHeadersInterceptor(),
 		httpserver.ErrorLogInterceptor(a.logger),
 		httpserver.ClientVersionInterceptor(ctx, cfg.Client.MinVersions, cfg.Client.RecommendedVersions, a.logger),
 	}
@@ -54,7 +56,7 @@ func (a *app) interceptors(ctx context.Context, rolePolicy map[string][]string, 
 	if cfg.HTTP.APIRateLimitPerMinute > 0 {
 		before = append(before, httpserver.UserRateLimitInterceptor(a.env.RateLimiter, cfg.HTTP.APIRateLimitPerMinute, a.logger))
 	}
-	return before, []connect.Interceptor{idempotency.HeaderInterceptor()}, nil
+	return before, []connect.ServerInterceptor{idempotency.HeaderInterceptor()}, nil
 }
 
 // buildHTTP wires the router, the interceptor chain, every module's RPC
@@ -120,11 +122,18 @@ func (a *app) buildHTTP(ctx context.Context, tel *observability.Telemetry) (*htt
 	// enabled, server reflection. Neither sits behind auth: probes must work
 	// without a token, and reflection is opt-in for that reason.
 	services := rpc.Services()
-	router.Handle(grpchealth.NewHandler(httpserver.NewHealthChecker(readiness, services...)))
+	probes := connect.NewServer()
+	grpchealth.Register(probes, httpserver.NewHealthChecker(readiness, services...))
 	if cfg.HTTP.GRPCReflectionEnabled {
-		reflector := grpcreflect.NewStaticReflector(services...)
-		router.Handle(grpcreflect.NewHandlerV1(reflector))
-		router.Handle(grpcreflect.NewHandlerV1Alpha(reflector))
+		// Describe the application services; the default would only list the
+		// probe server's own (health, reflection).
+		grpcreflect.Register(probes, grpcreflect.WithNamer(grpcreflect.NamerFunc(func() []string { return services })))
+	}
+	connecthttp.Mount(router.ServeMux, probes)
+	for spec := range probes.Specs() {
+		if spec.StreamType != connect.StreamTypeUnary { // Watch / ServerReflectionInfo outlive the unary timeouts
+			streaming[spec.Procedure] = true
+		}
 	}
 
 	rt := &httpRuntime{readiness: readiness}

@@ -5,219 +5,238 @@
 package mediav1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/aedst/server/gen/go/aedst/media/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// MediaServiceName is the fully-qualified name of the MediaService service.
 	MediaServiceName = "aedst.media.v1.MediaService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// MediaServiceCreateUploadProcedure is the fully-qualified name of the MediaService's CreateUpload
-	// RPC.
+	// MediaServiceCreateUploadProcedure is the procedure name of the MediaService's CreateUpload RPC.
 	MediaServiceCreateUploadProcedure = "/aedst.media.v1.MediaService/CreateUpload"
-	// MediaServiceCompleteUploadProcedure is the fully-qualified name of the MediaService's
-	// CompleteUpload RPC.
-	MediaServiceCompleteUploadProcedure = "/aedst.media.v1.MediaService/CompleteUpload"
-	// MediaServiceGetMediaProcedure is the fully-qualified name of the MediaService's GetMedia RPC.
-	MediaServiceGetMediaProcedure = "/aedst.media.v1.MediaService/GetMedia"
-	// MediaServiceListMediaProcedure is the fully-qualified name of the MediaService's ListMedia RPC.
-	MediaServiceListMediaProcedure = "/aedst.media.v1.MediaService/ListMedia"
-	// MediaServiceDeleteMediaProcedure is the fully-qualified name of the MediaService's DeleteMedia
+	// MediaServiceCompleteUploadProcedure is the procedure name of the MediaService's CompleteUpload
 	// RPC.
+	MediaServiceCompleteUploadProcedure = "/aedst.media.v1.MediaService/CompleteUpload"
+	// MediaServiceGetMediaProcedure is the procedure name of the MediaService's GetMedia RPC.
+	MediaServiceGetMediaProcedure = "/aedst.media.v1.MediaService/GetMedia"
+	// MediaServiceListMediaProcedure is the procedure name of the MediaService's ListMedia RPC.
+	MediaServiceListMediaProcedure = "/aedst.media.v1.MediaService/ListMedia"
+	// MediaServiceDeleteMediaProcedure is the procedure name of the MediaService's DeleteMedia RPC.
 	MediaServiceDeleteMediaProcedure = "/aedst.media.v1.MediaService/DeleteMedia"
+)
+
+var (
+	mediaServiceCreateUploadSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_media_v1_media_proto.Services().ByName("MediaService").Methods().ByName("CreateUpload"),
+			Procedure:  MediaServiceCreateUploadProcedure,
+		}
+	})
+	mediaServiceCompleteUploadSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_media_v1_media_proto.Services().ByName("MediaService").Methods().ByName("CompleteUpload"),
+			Procedure:  MediaServiceCompleteUploadProcedure,
+		}
+	})
+	mediaServiceGetMediaSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_media_v1_media_proto.Services().ByName("MediaService").Methods().ByName("GetMedia"),
+			Procedure:  MediaServiceGetMediaProcedure,
+		}
+	})
+	mediaServiceListMediaSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_media_v1_media_proto.Services().ByName("MediaService").Methods().ByName("ListMedia"),
+			Procedure:  MediaServiceListMediaProcedure,
+		}
+	})
+	mediaServiceDeleteMediaSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_media_v1_media_proto.Services().ByName("MediaService").Methods().ByName("DeleteMedia"),
+			Procedure:  MediaServiceDeleteMediaProcedure,
+		}
+	})
 )
 
 // MediaServiceClient is a client for the aedst.media.v1.MediaService service.
 type MediaServiceClient interface {
-	CreateUpload(context.Context, *connect.Request[v1.CreateUploadRequest]) (*connect.Response[v1.CreateUploadResponse], error)
-	CompleteUpload(context.Context, *connect.Request[v1.CompleteUploadRequest]) (*connect.Response[v1.CompleteUploadResponse], error)
-	GetMedia(context.Context, *connect.Request[v1.GetMediaRequest]) (*connect.Response[v1.GetMediaResponse], error)
-	ListMedia(context.Context, *connect.Request[v1.ListMediaRequest]) (*connect.Response[v1.ListMediaResponse], error)
-	DeleteMedia(context.Context, *connect.Request[v1.DeleteMediaRequest]) (*connect.Response[v1.DeleteMediaResponse], error)
+	CreateUpload(context.Context, *v1.CreateUploadRequest) (*v1.CreateUploadResponse, error)
+	CompleteUpload(context.Context, *v1.CompleteUploadRequest) (*v1.CompleteUploadResponse, error)
+	GetMedia(context.Context, *v1.GetMediaRequest) (*v1.GetMediaResponse, error)
+	ListMedia(context.Context, *v1.ListMediaRequest) (*v1.ListMediaResponse, error)
+	DeleteMedia(context.Context, *v1.DeleteMediaRequest) (*v1.DeleteMediaResponse, error)
 }
 
-// NewMediaServiceClient constructs a client for the aedst.media.v1.MediaService service. By
-// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
-// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewMediaServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) MediaServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	mediaServiceMethods := v1.File_aedst_media_v1_media_proto.Services().ByName("MediaService").Methods()
-	return &mediaServiceClient{
-		createUpload: connect.NewClient[v1.CreateUploadRequest, v1.CreateUploadResponse](
-			httpClient,
-			baseURL+MediaServiceCreateUploadProcedure,
-			connect.WithSchema(mediaServiceMethods.ByName("CreateUpload")),
-			connect.WithClientOptions(opts...),
-		),
-		completeUpload: connect.NewClient[v1.CompleteUploadRequest, v1.CompleteUploadResponse](
-			httpClient,
-			baseURL+MediaServiceCompleteUploadProcedure,
-			connect.WithSchema(mediaServiceMethods.ByName("CompleteUpload")),
-			connect.WithClientOptions(opts...),
-		),
-		getMedia: connect.NewClient[v1.GetMediaRequest, v1.GetMediaResponse](
-			httpClient,
-			baseURL+MediaServiceGetMediaProcedure,
-			connect.WithSchema(mediaServiceMethods.ByName("GetMedia")),
-			connect.WithClientOptions(opts...),
-		),
-		listMedia: connect.NewClient[v1.ListMediaRequest, v1.ListMediaResponse](
-			httpClient,
-			baseURL+MediaServiceListMediaProcedure,
-			connect.WithSchema(mediaServiceMethods.ByName("ListMedia")),
-			connect.WithClientOptions(opts...),
-		),
-		deleteMedia: connect.NewClient[v1.DeleteMediaRequest, v1.DeleteMediaResponse](
-			httpClient,
-			baseURL+MediaServiceDeleteMediaProcedure,
-			connect.WithSchema(mediaServiceMethods.ByName("DeleteMedia")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// mediaServiceClient implements MediaServiceClient.
-type mediaServiceClient struct {
-	createUpload   *connect.Client[v1.CreateUploadRequest, v1.CreateUploadResponse]
-	completeUpload *connect.Client[v1.CompleteUploadRequest, v1.CompleteUploadResponse]
-	getMedia       *connect.Client[v1.GetMediaRequest, v1.GetMediaResponse]
-	listMedia      *connect.Client[v1.ListMediaRequest, v1.ListMediaResponse]
-	deleteMedia    *connect.Client[v1.DeleteMediaRequest, v1.DeleteMediaResponse]
-}
-
-// CreateUpload calls aedst.media.v1.MediaService.CreateUpload.
-func (c *mediaServiceClient) CreateUpload(ctx context.Context, req *connect.Request[v1.CreateUploadRequest]) (*connect.Response[v1.CreateUploadResponse], error) {
-	return c.createUpload.CallUnary(ctx, req)
-}
-
-// CompleteUpload calls aedst.media.v1.MediaService.CompleteUpload.
-func (c *mediaServiceClient) CompleteUpload(ctx context.Context, req *connect.Request[v1.CompleteUploadRequest]) (*connect.Response[v1.CompleteUploadResponse], error) {
-	return c.completeUpload.CallUnary(ctx, req)
-}
-
-// GetMedia calls aedst.media.v1.MediaService.GetMedia.
-func (c *mediaServiceClient) GetMedia(ctx context.Context, req *connect.Request[v1.GetMediaRequest]) (*connect.Response[v1.GetMediaResponse], error) {
-	return c.getMedia.CallUnary(ctx, req)
-}
-
-// ListMedia calls aedst.media.v1.MediaService.ListMedia.
-func (c *mediaServiceClient) ListMedia(ctx context.Context, req *connect.Request[v1.ListMediaRequest]) (*connect.Response[v1.ListMediaResponse], error) {
-	return c.listMedia.CallUnary(ctx, req)
-}
-
-// DeleteMedia calls aedst.media.v1.MediaService.DeleteMedia.
-func (c *mediaServiceClient) DeleteMedia(ctx context.Context, req *connect.Request[v1.DeleteMediaRequest]) (*connect.Response[v1.DeleteMediaResponse], error) {
-	return c.deleteMedia.CallUnary(ctx, req)
+// NewMediaServiceClient constructs a client for the aedst.media.v1.MediaService service. Multiple
+// service clients may share a single connect.Client.
+func NewMediaServiceClient(client *connect.Client) MediaServiceClient {
+	return &mediaServiceClient{client: client}
 }
 
 // MediaServiceHandler is an implementation of the aedst.media.v1.MediaService service.
 type MediaServiceHandler interface {
-	CreateUpload(context.Context, *connect.Request[v1.CreateUploadRequest]) (*connect.Response[v1.CreateUploadResponse], error)
-	CompleteUpload(context.Context, *connect.Request[v1.CompleteUploadRequest]) (*connect.Response[v1.CompleteUploadResponse], error)
-	GetMedia(context.Context, *connect.Request[v1.GetMediaRequest]) (*connect.Response[v1.GetMediaResponse], error)
-	ListMedia(context.Context, *connect.Request[v1.ListMediaRequest]) (*connect.Response[v1.ListMediaResponse], error)
-	DeleteMedia(context.Context, *connect.Request[v1.DeleteMediaRequest]) (*connect.Response[v1.DeleteMediaResponse], error)
+	CreateUpload(context.Context, *v1.CreateUploadRequest) (*v1.CreateUploadResponse, error)
+	CompleteUpload(context.Context, *v1.CompleteUploadRequest) (*v1.CompleteUploadResponse, error)
+	GetMedia(context.Context, *v1.GetMediaRequest) (*v1.GetMediaResponse, error)
+	ListMedia(context.Context, *v1.ListMediaRequest) (*v1.ListMediaResponse, error)
+	DeleteMedia(context.Context, *v1.DeleteMediaRequest) (*v1.DeleteMediaResponse, error)
 }
 
-// NewMediaServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewMediaServiceHandler(svc MediaServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	mediaServiceMethods := v1.File_aedst_media_v1_media_proto.Services().ByName("MediaService").Methods()
-	mediaServiceCreateUploadHandler := connect.NewUnaryHandler(
-		MediaServiceCreateUploadProcedure,
-		svc.CreateUpload,
-		connect.WithSchema(mediaServiceMethods.ByName("CreateUpload")),
-		connect.WithHandlerOptions(opts...),
+// RegisterMediaServiceHandler registers svc as the aedst.media.v1.MediaService implementation on
+// server.
+func RegisterMediaServiceHandler(server *connect.Server, svc MediaServiceHandler) {
+	adapter := mediaServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: mediaServiceCreateUploadSpec(), Handler: adapter.createUpload},
+		connect.Method{Spec: mediaServiceCompleteUploadSpec(), Handler: adapter.completeUpload},
+		connect.Method{Spec: mediaServiceGetMediaSpec(), Handler: adapter.getMedia},
+		connect.Method{Spec: mediaServiceListMediaSpec(), Handler: adapter.listMedia},
+		connect.Method{Spec: mediaServiceDeleteMediaSpec(), Handler: adapter.deleteMedia},
 	)
-	mediaServiceCompleteUploadHandler := connect.NewUnaryHandler(
-		MediaServiceCompleteUploadProcedure,
-		svc.CompleteUpload,
-		connect.WithSchema(mediaServiceMethods.ByName("CompleteUpload")),
-		connect.WithHandlerOptions(opts...),
-	)
-	mediaServiceGetMediaHandler := connect.NewUnaryHandler(
-		MediaServiceGetMediaProcedure,
-		svc.GetMedia,
-		connect.WithSchema(mediaServiceMethods.ByName("GetMedia")),
-		connect.WithHandlerOptions(opts...),
-	)
-	mediaServiceListMediaHandler := connect.NewUnaryHandler(
-		MediaServiceListMediaProcedure,
-		svc.ListMedia,
-		connect.WithSchema(mediaServiceMethods.ByName("ListMedia")),
-		connect.WithHandlerOptions(opts...),
-	)
-	mediaServiceDeleteMediaHandler := connect.NewUnaryHandler(
-		MediaServiceDeleteMediaProcedure,
-		svc.DeleteMedia,
-		connect.WithSchema(mediaServiceMethods.ByName("DeleteMedia")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/aedst.media.v1.MediaService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case MediaServiceCreateUploadProcedure:
-			mediaServiceCreateUploadHandler.ServeHTTP(w, r)
-		case MediaServiceCompleteUploadProcedure:
-			mediaServiceCompleteUploadHandler.ServeHTTP(w, r)
-		case MediaServiceGetMediaProcedure:
-			mediaServiceGetMediaHandler.ServeHTTP(w, r)
-		case MediaServiceListMediaProcedure:
-			mediaServiceListMediaHandler.ServeHTTP(w, r)
-		case MediaServiceDeleteMediaProcedure:
-			mediaServiceDeleteMediaHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedMediaServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedMediaServiceHandler struct{}
 
-func (UnimplementedMediaServiceHandler) CreateUpload(context.Context, *connect.Request[v1.CreateUploadRequest]) (*connect.Response[v1.CreateUploadResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.media.v1.MediaService.CreateUpload is not implemented"))
+func (UnimplementedMediaServiceHandler) CreateUpload(context.Context, *v1.CreateUploadRequest) (*v1.CreateUploadResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.media.v1.MediaService.CreateUpload is not implemented")
 }
 
-func (UnimplementedMediaServiceHandler) CompleteUpload(context.Context, *connect.Request[v1.CompleteUploadRequest]) (*connect.Response[v1.CompleteUploadResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.media.v1.MediaService.CompleteUpload is not implemented"))
+func (UnimplementedMediaServiceHandler) CompleteUpload(context.Context, *v1.CompleteUploadRequest) (*v1.CompleteUploadResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.media.v1.MediaService.CompleteUpload is not implemented")
 }
 
-func (UnimplementedMediaServiceHandler) GetMedia(context.Context, *connect.Request[v1.GetMediaRequest]) (*connect.Response[v1.GetMediaResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.media.v1.MediaService.GetMedia is not implemented"))
+func (UnimplementedMediaServiceHandler) GetMedia(context.Context, *v1.GetMediaRequest) (*v1.GetMediaResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.media.v1.MediaService.GetMedia is not implemented")
 }
 
-func (UnimplementedMediaServiceHandler) ListMedia(context.Context, *connect.Request[v1.ListMediaRequest]) (*connect.Response[v1.ListMediaResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.media.v1.MediaService.ListMedia is not implemented"))
+func (UnimplementedMediaServiceHandler) ListMedia(context.Context, *v1.ListMediaRequest) (*v1.ListMediaResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.media.v1.MediaService.ListMedia is not implemented")
 }
 
-func (UnimplementedMediaServiceHandler) DeleteMedia(context.Context, *connect.Request[v1.DeleteMediaRequest]) (*connect.Response[v1.DeleteMediaResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.media.v1.MediaService.DeleteMedia is not implemented"))
+func (UnimplementedMediaServiceHandler) DeleteMedia(context.Context, *v1.DeleteMediaRequest) (*v1.DeleteMediaResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.media.v1.MediaService.DeleteMedia is not implemented")
+}
+
+type mediaServiceClient struct {
+	client *connect.Client
+}
+
+func (c *mediaServiceClient) CreateUpload(ctx context.Context, req *v1.CreateUploadRequest) (*v1.CreateUploadResponse, error) {
+	var res v1.CreateUploadResponse
+	if err := c.client.CallUnary(ctx, mediaServiceCreateUploadSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *mediaServiceClient) CompleteUpload(ctx context.Context, req *v1.CompleteUploadRequest) (*v1.CompleteUploadResponse, error) {
+	var res v1.CompleteUploadResponse
+	if err := c.client.CallUnary(ctx, mediaServiceCompleteUploadSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *mediaServiceClient) GetMedia(ctx context.Context, req *v1.GetMediaRequest) (*v1.GetMediaResponse, error) {
+	var res v1.GetMediaResponse
+	if err := c.client.CallUnary(ctx, mediaServiceGetMediaSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *mediaServiceClient) ListMedia(ctx context.Context, req *v1.ListMediaRequest) (*v1.ListMediaResponse, error) {
+	var res v1.ListMediaResponse
+	if err := c.client.CallUnary(ctx, mediaServiceListMediaSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *mediaServiceClient) DeleteMedia(ctx context.Context, req *v1.DeleteMediaRequest) (*v1.DeleteMediaResponse, error) {
+	var res v1.DeleteMediaResponse
+	if err := c.client.CallUnary(ctx, mediaServiceDeleteMediaSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type mediaServiceHandler struct{ svc MediaServiceHandler }
+
+func (h mediaServiceHandler) createUpload(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.CreateUploadRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateUpload(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h mediaServiceHandler) completeUpload(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.CompleteUploadRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CompleteUpload(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h mediaServiceHandler) getMedia(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetMediaRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetMedia(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h mediaServiceHandler) listMedia(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListMediaRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListMedia(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h mediaServiceHandler) deleteMedia(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.DeleteMediaRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.DeleteMedia(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

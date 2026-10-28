@@ -5,253 +5,280 @@
 package adminv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/aedst/server/gen/go/aedst/admin/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// AdminServiceName is the fully-qualified name of the AdminService service.
 	AdminServiceName = "aedst.admin.v1.AdminService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// AdminServiceGetOverviewProcedure is the fully-qualified name of the AdminService's GetOverview
-	// RPC.
+	// AdminServiceGetOverviewProcedure is the procedure name of the AdminService's GetOverview RPC.
 	AdminServiceGetOverviewProcedure = "/aedst.admin.v1.AdminService/GetOverview"
-	// AdminServiceListUsersProcedure is the fully-qualified name of the AdminService's ListUsers RPC.
+	// AdminServiceListUsersProcedure is the procedure name of the AdminService's ListUsers RPC.
 	AdminServiceListUsersProcedure = "/aedst.admin.v1.AdminService/ListUsers"
-	// AdminServiceListTasksProcedure is the fully-qualified name of the AdminService's ListTasks RPC.
+	// AdminServiceListTasksProcedure is the procedure name of the AdminService's ListTasks RPC.
 	AdminServiceListTasksProcedure = "/aedst.admin.v1.AdminService/ListTasks"
-	// AdminServiceDeleteTaskProcedure is the fully-qualified name of the AdminService's DeleteTask RPC.
+	// AdminServiceDeleteTaskProcedure is the procedure name of the AdminService's DeleteTask RPC.
 	AdminServiceDeleteTaskProcedure = "/aedst.admin.v1.AdminService/DeleteTask"
-	// AdminServiceBroadcastNotificationProcedure is the fully-qualified name of the AdminService's
+	// AdminServiceBroadcastNotificationProcedure is the procedure name of the AdminService's
 	// BroadcastNotification RPC.
 	AdminServiceBroadcastNotificationProcedure = "/aedst.admin.v1.AdminService/BroadcastNotification"
-	// AdminServiceListAuditLogProcedure is the fully-qualified name of the AdminService's ListAuditLog
-	// RPC.
+	// AdminServiceListAuditLogProcedure is the procedure name of the AdminService's ListAuditLog RPC.
 	AdminServiceListAuditLogProcedure = "/aedst.admin.v1.AdminService/ListAuditLog"
+)
+
+var (
+	adminServiceGetOverviewSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_admin_v1_admin_proto.Services().ByName("AdminService").Methods().ByName("GetOverview"),
+			Procedure:  AdminServiceGetOverviewProcedure,
+		}
+	})
+	adminServiceListUsersSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_admin_v1_admin_proto.Services().ByName("AdminService").Methods().ByName("ListUsers"),
+			Procedure:  AdminServiceListUsersProcedure,
+		}
+	})
+	adminServiceListTasksSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_admin_v1_admin_proto.Services().ByName("AdminService").Methods().ByName("ListTasks"),
+			Procedure:  AdminServiceListTasksProcedure,
+		}
+	})
+	adminServiceDeleteTaskSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_admin_v1_admin_proto.Services().ByName("AdminService").Methods().ByName("DeleteTask"),
+			Procedure:  AdminServiceDeleteTaskProcedure,
+		}
+	})
+	adminServiceBroadcastNotificationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_admin_v1_admin_proto.Services().ByName("AdminService").Methods().ByName("BroadcastNotification"),
+			Procedure:  AdminServiceBroadcastNotificationProcedure,
+		}
+	})
+	adminServiceListAuditLogSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_admin_v1_admin_proto.Services().ByName("AdminService").Methods().ByName("ListAuditLog"),
+			Procedure:  AdminServiceListAuditLogProcedure,
+		}
+	})
 )
 
 // AdminServiceClient is a client for the aedst.admin.v1.AdminService service.
 type AdminServiceClient interface {
-	GetOverview(context.Context, *connect.Request[v1.GetOverviewRequest]) (*connect.Response[v1.GetOverviewResponse], error)
-	ListUsers(context.Context, *connect.Request[v1.ListUsersRequest]) (*connect.Response[v1.ListUsersResponse], error)
+	GetOverview(context.Context, *v1.GetOverviewRequest) (*v1.GetOverviewResponse, error)
+	ListUsers(context.Context, *v1.ListUsersRequest) (*v1.ListUsersResponse, error)
 	// Any user's tasks — the reference for cross-tenant admin reads.
-	ListTasks(context.Context, *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error)
-	DeleteTask(context.Context, *connect.Request[v1.DeleteTaskRequest]) (*connect.Response[v1.DeleteTaskResponse], error)
+	ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error)
+	DeleteTask(context.Context, *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error)
 	// Sends a SYSTEM notification to one user (or everyone when user_id is
 	// empty) through the notifications module.
-	BroadcastNotification(context.Context, *connect.Request[v1.BroadcastNotificationRequest]) (*connect.Response[v1.BroadcastNotificationResponse], error)
-	ListAuditLog(context.Context, *connect.Request[v1.ListAuditLogRequest]) (*connect.Response[v1.ListAuditLogResponse], error)
+	BroadcastNotification(context.Context, *v1.BroadcastNotificationRequest) (*v1.BroadcastNotificationResponse, error)
+	ListAuditLog(context.Context, *v1.ListAuditLogRequest) (*v1.ListAuditLogResponse, error)
 }
 
-// NewAdminServiceClient constructs a client for the aedst.admin.v1.AdminService service. By
-// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
-// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewAdminServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AdminServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	adminServiceMethods := v1.File_aedst_admin_v1_admin_proto.Services().ByName("AdminService").Methods()
-	return &adminServiceClient{
-		getOverview: connect.NewClient[v1.GetOverviewRequest, v1.GetOverviewResponse](
-			httpClient,
-			baseURL+AdminServiceGetOverviewProcedure,
-			connect.WithSchema(adminServiceMethods.ByName("GetOverview")),
-			connect.WithClientOptions(opts...),
-		),
-		listUsers: connect.NewClient[v1.ListUsersRequest, v1.ListUsersResponse](
-			httpClient,
-			baseURL+AdminServiceListUsersProcedure,
-			connect.WithSchema(adminServiceMethods.ByName("ListUsers")),
-			connect.WithClientOptions(opts...),
-		),
-		listTasks: connect.NewClient[v1.ListTasksRequest, v1.ListTasksResponse](
-			httpClient,
-			baseURL+AdminServiceListTasksProcedure,
-			connect.WithSchema(adminServiceMethods.ByName("ListTasks")),
-			connect.WithClientOptions(opts...),
-		),
-		deleteTask: connect.NewClient[v1.DeleteTaskRequest, v1.DeleteTaskResponse](
-			httpClient,
-			baseURL+AdminServiceDeleteTaskProcedure,
-			connect.WithSchema(adminServiceMethods.ByName("DeleteTask")),
-			connect.WithClientOptions(opts...),
-		),
-		broadcastNotification: connect.NewClient[v1.BroadcastNotificationRequest, v1.BroadcastNotificationResponse](
-			httpClient,
-			baseURL+AdminServiceBroadcastNotificationProcedure,
-			connect.WithSchema(adminServiceMethods.ByName("BroadcastNotification")),
-			connect.WithClientOptions(opts...),
-		),
-		listAuditLog: connect.NewClient[v1.ListAuditLogRequest, v1.ListAuditLogResponse](
-			httpClient,
-			baseURL+AdminServiceListAuditLogProcedure,
-			connect.WithSchema(adminServiceMethods.ByName("ListAuditLog")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// adminServiceClient implements AdminServiceClient.
-type adminServiceClient struct {
-	getOverview           *connect.Client[v1.GetOverviewRequest, v1.GetOverviewResponse]
-	listUsers             *connect.Client[v1.ListUsersRequest, v1.ListUsersResponse]
-	listTasks             *connect.Client[v1.ListTasksRequest, v1.ListTasksResponse]
-	deleteTask            *connect.Client[v1.DeleteTaskRequest, v1.DeleteTaskResponse]
-	broadcastNotification *connect.Client[v1.BroadcastNotificationRequest, v1.BroadcastNotificationResponse]
-	listAuditLog          *connect.Client[v1.ListAuditLogRequest, v1.ListAuditLogResponse]
-}
-
-// GetOverview calls aedst.admin.v1.AdminService.GetOverview.
-func (c *adminServiceClient) GetOverview(ctx context.Context, req *connect.Request[v1.GetOverviewRequest]) (*connect.Response[v1.GetOverviewResponse], error) {
-	return c.getOverview.CallUnary(ctx, req)
-}
-
-// ListUsers calls aedst.admin.v1.AdminService.ListUsers.
-func (c *adminServiceClient) ListUsers(ctx context.Context, req *connect.Request[v1.ListUsersRequest]) (*connect.Response[v1.ListUsersResponse], error) {
-	return c.listUsers.CallUnary(ctx, req)
-}
-
-// ListTasks calls aedst.admin.v1.AdminService.ListTasks.
-func (c *adminServiceClient) ListTasks(ctx context.Context, req *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error) {
-	return c.listTasks.CallUnary(ctx, req)
-}
-
-// DeleteTask calls aedst.admin.v1.AdminService.DeleteTask.
-func (c *adminServiceClient) DeleteTask(ctx context.Context, req *connect.Request[v1.DeleteTaskRequest]) (*connect.Response[v1.DeleteTaskResponse], error) {
-	return c.deleteTask.CallUnary(ctx, req)
-}
-
-// BroadcastNotification calls aedst.admin.v1.AdminService.BroadcastNotification.
-func (c *adminServiceClient) BroadcastNotification(ctx context.Context, req *connect.Request[v1.BroadcastNotificationRequest]) (*connect.Response[v1.BroadcastNotificationResponse], error) {
-	return c.broadcastNotification.CallUnary(ctx, req)
-}
-
-// ListAuditLog calls aedst.admin.v1.AdminService.ListAuditLog.
-func (c *adminServiceClient) ListAuditLog(ctx context.Context, req *connect.Request[v1.ListAuditLogRequest]) (*connect.Response[v1.ListAuditLogResponse], error) {
-	return c.listAuditLog.CallUnary(ctx, req)
+// NewAdminServiceClient constructs a client for the aedst.admin.v1.AdminService service. Multiple
+// service clients may share a single connect.Client.
+func NewAdminServiceClient(client *connect.Client) AdminServiceClient {
+	return &adminServiceClient{client: client}
 }
 
 // AdminServiceHandler is an implementation of the aedst.admin.v1.AdminService service.
 type AdminServiceHandler interface {
-	GetOverview(context.Context, *connect.Request[v1.GetOverviewRequest]) (*connect.Response[v1.GetOverviewResponse], error)
-	ListUsers(context.Context, *connect.Request[v1.ListUsersRequest]) (*connect.Response[v1.ListUsersResponse], error)
+	GetOverview(context.Context, *v1.GetOverviewRequest) (*v1.GetOverviewResponse, error)
+	ListUsers(context.Context, *v1.ListUsersRequest) (*v1.ListUsersResponse, error)
 	// Any user's tasks — the reference for cross-tenant admin reads.
-	ListTasks(context.Context, *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error)
-	DeleteTask(context.Context, *connect.Request[v1.DeleteTaskRequest]) (*connect.Response[v1.DeleteTaskResponse], error)
+	ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error)
+	DeleteTask(context.Context, *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error)
 	// Sends a SYSTEM notification to one user (or everyone when user_id is
 	// empty) through the notifications module.
-	BroadcastNotification(context.Context, *connect.Request[v1.BroadcastNotificationRequest]) (*connect.Response[v1.BroadcastNotificationResponse], error)
-	ListAuditLog(context.Context, *connect.Request[v1.ListAuditLogRequest]) (*connect.Response[v1.ListAuditLogResponse], error)
+	BroadcastNotification(context.Context, *v1.BroadcastNotificationRequest) (*v1.BroadcastNotificationResponse, error)
+	ListAuditLog(context.Context, *v1.ListAuditLogRequest) (*v1.ListAuditLogResponse, error)
 }
 
-// NewAdminServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	adminServiceMethods := v1.File_aedst_admin_v1_admin_proto.Services().ByName("AdminService").Methods()
-	adminServiceGetOverviewHandler := connect.NewUnaryHandler(
-		AdminServiceGetOverviewProcedure,
-		svc.GetOverview,
-		connect.WithSchema(adminServiceMethods.ByName("GetOverview")),
-		connect.WithHandlerOptions(opts...),
+// RegisterAdminServiceHandler registers svc as the aedst.admin.v1.AdminService implementation on
+// server.
+func RegisterAdminServiceHandler(server *connect.Server, svc AdminServiceHandler) {
+	adapter := adminServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: adminServiceGetOverviewSpec(), Handler: adapter.getOverview},
+		connect.Method{Spec: adminServiceListUsersSpec(), Handler: adapter.listUsers},
+		connect.Method{Spec: adminServiceListTasksSpec(), Handler: adapter.listTasks},
+		connect.Method{Spec: adminServiceDeleteTaskSpec(), Handler: adapter.deleteTask},
+		connect.Method{Spec: adminServiceBroadcastNotificationSpec(), Handler: adapter.broadcastNotification},
+		connect.Method{Spec: adminServiceListAuditLogSpec(), Handler: adapter.listAuditLog},
 	)
-	adminServiceListUsersHandler := connect.NewUnaryHandler(
-		AdminServiceListUsersProcedure,
-		svc.ListUsers,
-		connect.WithSchema(adminServiceMethods.ByName("ListUsers")),
-		connect.WithHandlerOptions(opts...),
-	)
-	adminServiceListTasksHandler := connect.NewUnaryHandler(
-		AdminServiceListTasksProcedure,
-		svc.ListTasks,
-		connect.WithSchema(adminServiceMethods.ByName("ListTasks")),
-		connect.WithHandlerOptions(opts...),
-	)
-	adminServiceDeleteTaskHandler := connect.NewUnaryHandler(
-		AdminServiceDeleteTaskProcedure,
-		svc.DeleteTask,
-		connect.WithSchema(adminServiceMethods.ByName("DeleteTask")),
-		connect.WithHandlerOptions(opts...),
-	)
-	adminServiceBroadcastNotificationHandler := connect.NewUnaryHandler(
-		AdminServiceBroadcastNotificationProcedure,
-		svc.BroadcastNotification,
-		connect.WithSchema(adminServiceMethods.ByName("BroadcastNotification")),
-		connect.WithHandlerOptions(opts...),
-	)
-	adminServiceListAuditLogHandler := connect.NewUnaryHandler(
-		AdminServiceListAuditLogProcedure,
-		svc.ListAuditLog,
-		connect.WithSchema(adminServiceMethods.ByName("ListAuditLog")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/aedst.admin.v1.AdminService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case AdminServiceGetOverviewProcedure:
-			adminServiceGetOverviewHandler.ServeHTTP(w, r)
-		case AdminServiceListUsersProcedure:
-			adminServiceListUsersHandler.ServeHTTP(w, r)
-		case AdminServiceListTasksProcedure:
-			adminServiceListTasksHandler.ServeHTTP(w, r)
-		case AdminServiceDeleteTaskProcedure:
-			adminServiceDeleteTaskHandler.ServeHTTP(w, r)
-		case AdminServiceBroadcastNotificationProcedure:
-			adminServiceBroadcastNotificationHandler.ServeHTTP(w, r)
-		case AdminServiceListAuditLogProcedure:
-			adminServiceListAuditLogHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedAdminServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAdminServiceHandler struct{}
 
-func (UnimplementedAdminServiceHandler) GetOverview(context.Context, *connect.Request[v1.GetOverviewRequest]) (*connect.Response[v1.GetOverviewResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.admin.v1.AdminService.GetOverview is not implemented"))
+func (UnimplementedAdminServiceHandler) GetOverview(context.Context, *v1.GetOverviewRequest) (*v1.GetOverviewResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.admin.v1.AdminService.GetOverview is not implemented")
 }
 
-func (UnimplementedAdminServiceHandler) ListUsers(context.Context, *connect.Request[v1.ListUsersRequest]) (*connect.Response[v1.ListUsersResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.admin.v1.AdminService.ListUsers is not implemented"))
+func (UnimplementedAdminServiceHandler) ListUsers(context.Context, *v1.ListUsersRequest) (*v1.ListUsersResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.admin.v1.AdminService.ListUsers is not implemented")
 }
 
-func (UnimplementedAdminServiceHandler) ListTasks(context.Context, *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.admin.v1.AdminService.ListTasks is not implemented"))
+func (UnimplementedAdminServiceHandler) ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.admin.v1.AdminService.ListTasks is not implemented")
 }
 
-func (UnimplementedAdminServiceHandler) DeleteTask(context.Context, *connect.Request[v1.DeleteTaskRequest]) (*connect.Response[v1.DeleteTaskResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.admin.v1.AdminService.DeleteTask is not implemented"))
+func (UnimplementedAdminServiceHandler) DeleteTask(context.Context, *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.admin.v1.AdminService.DeleteTask is not implemented")
 }
 
-func (UnimplementedAdminServiceHandler) BroadcastNotification(context.Context, *connect.Request[v1.BroadcastNotificationRequest]) (*connect.Response[v1.BroadcastNotificationResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.admin.v1.AdminService.BroadcastNotification is not implemented"))
+func (UnimplementedAdminServiceHandler) BroadcastNotification(context.Context, *v1.BroadcastNotificationRequest) (*v1.BroadcastNotificationResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.admin.v1.AdminService.BroadcastNotification is not implemented")
 }
 
-func (UnimplementedAdminServiceHandler) ListAuditLog(context.Context, *connect.Request[v1.ListAuditLogRequest]) (*connect.Response[v1.ListAuditLogResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.admin.v1.AdminService.ListAuditLog is not implemented"))
+func (UnimplementedAdminServiceHandler) ListAuditLog(context.Context, *v1.ListAuditLogRequest) (*v1.ListAuditLogResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.admin.v1.AdminService.ListAuditLog is not implemented")
+}
+
+type adminServiceClient struct {
+	client *connect.Client
+}
+
+func (c *adminServiceClient) GetOverview(ctx context.Context, req *v1.GetOverviewRequest) (*v1.GetOverviewResponse, error) {
+	var res v1.GetOverviewResponse
+	if err := c.client.CallUnary(ctx, adminServiceGetOverviewSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *adminServiceClient) ListUsers(ctx context.Context, req *v1.ListUsersRequest) (*v1.ListUsersResponse, error) {
+	var res v1.ListUsersResponse
+	if err := c.client.CallUnary(ctx, adminServiceListUsersSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *adminServiceClient) ListTasks(ctx context.Context, req *v1.ListTasksRequest) (*v1.ListTasksResponse, error) {
+	var res v1.ListTasksResponse
+	if err := c.client.CallUnary(ctx, adminServiceListTasksSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *adminServiceClient) DeleteTask(ctx context.Context, req *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error) {
+	var res v1.DeleteTaskResponse
+	if err := c.client.CallUnary(ctx, adminServiceDeleteTaskSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *adminServiceClient) BroadcastNotification(ctx context.Context, req *v1.BroadcastNotificationRequest) (*v1.BroadcastNotificationResponse, error) {
+	var res v1.BroadcastNotificationResponse
+	if err := c.client.CallUnary(ctx, adminServiceBroadcastNotificationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *adminServiceClient) ListAuditLog(ctx context.Context, req *v1.ListAuditLogRequest) (*v1.ListAuditLogResponse, error) {
+	var res v1.ListAuditLogResponse
+	if err := c.client.CallUnary(ctx, adminServiceListAuditLogSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type adminServiceHandler struct{ svc AdminServiceHandler }
+
+func (h adminServiceHandler) getOverview(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetOverviewRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetOverview(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h adminServiceHandler) listUsers(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListUsersRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListUsers(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h adminServiceHandler) listTasks(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListTasksRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListTasks(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h adminServiceHandler) deleteTask(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.DeleteTaskRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.DeleteTask(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h adminServiceHandler) broadcastNotification(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.BroadcastNotificationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.BroadcastNotification(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h adminServiceHandler) listAuditLog(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListAuditLogRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListAuditLog(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

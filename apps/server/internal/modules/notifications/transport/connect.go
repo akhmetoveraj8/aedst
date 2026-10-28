@@ -4,9 +4,8 @@ package transport
 
 import (
 	"context"
-	"errors"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	notificationsv1 "github.com/aedst/server/gen/go/aedst/notifications/v1"
@@ -23,12 +22,12 @@ type Handler struct {
 
 func NewHandler(service api.Service) *Handler { return &Handler{service: service} }
 
-func (h *Handler) ListNotifications(ctx context.Context, req *connect.Request[notificationsv1.ListNotificationsRequest]) (*connect.Response[notificationsv1.ListNotificationsResponse], error) {
+func (h *Handler) ListNotifications(ctx context.Context, req *notificationsv1.ListNotificationsRequest) (*notificationsv1.ListNotificationsResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	res, err := h.service.ListNotifications(ctx, userID, req.Msg.GetUnreadOnly(), req.Msg.GetPageSize(), req.Msg.GetPageToken())
+	res, err := h.service.ListNotifications(ctx, userID, req.GetUnreadOnly(), req.GetPageSize(), req.GetPageToken())
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
@@ -39,10 +38,10 @@ func (h *Handler) ListNotifications(ctx context.Context, req *connect.Request[no
 	if res.Next != nil {
 		out.NextPageToken = res.Next.Encode()
 	}
-	return connect.NewResponse(out), nil
+	return out, nil
 }
 
-func (h *Handler) GetUnreadCount(ctx context.Context, _ *connect.Request[notificationsv1.GetUnreadCountRequest]) (*connect.Response[notificationsv1.GetUnreadCountResponse], error) {
+func (h *Handler) GetUnreadCount(ctx context.Context, _ *notificationsv1.GetUnreadCountRequest) (*notificationsv1.GetUnreadCountResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
@@ -51,29 +50,29 @@ func (h *Handler) GetUnreadCount(ctx context.Context, _ *connect.Request[notific
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&notificationsv1.GetUnreadCountResponse{Unread: int32(n)}), nil
+	return &notificationsv1.GetUnreadCountResponse{Unread: int32(n)}, nil
 }
 
-func (h *Handler) MarkRead(ctx context.Context, req *connect.Request[notificationsv1.MarkReadRequest]) (*connect.Response[notificationsv1.MarkReadResponse], error) {
+func (h *Handler) MarkRead(ctx context.Context, req *notificationsv1.MarkReadRequest) (*notificationsv1.MarkReadResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	parsed := make([]ids.ID, 0, len(req.Msg.GetIds()))
-	for _, raw := range req.Msg.GetIds() {
+	parsed := make([]ids.ID, 0, len(req.GetIds()))
+	for _, raw := range req.GetIds() {
 		id, err := ids.Parse(raw)
 		if err != nil {
-			return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("ids must be UUIDs"))
+			return nil, connect.NewError(connect.CodeInvalidArgument, "ids must be UUIDs")
 		}
 		parsed = append(parsed, id)
 	}
 	if err := h.service.MarkRead(ctx, userID, parsed...); err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&notificationsv1.MarkReadResponse{}), nil
+	return &notificationsv1.MarkReadResponse{}, nil
 }
 
-func (h *Handler) MarkAllRead(ctx context.Context, _ *connect.Request[notificationsv1.MarkAllReadRequest]) (*connect.Response[notificationsv1.MarkAllReadResponse], error) {
+func (h *Handler) MarkAllRead(ctx context.Context, _ *notificationsv1.MarkAllReadRequest) (*notificationsv1.MarkAllReadResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
@@ -82,28 +81,28 @@ func (h *Handler) MarkAllRead(ctx context.Context, _ *connect.Request[notificati
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&notificationsv1.MarkAllReadResponse{Marked: int32(n)}), nil
+	return &notificationsv1.MarkAllReadResponse{Marked: int32(n)}, nil
 }
 
-func (h *Handler) RegisterPushDevice(ctx context.Context, req *connect.Request[notificationsv1.RegisterPushDeviceRequest]) (*connect.Response[notificationsv1.RegisterPushDeviceResponse], error) {
+func (h *Handler) RegisterPushDevice(ctx context.Context, req *notificationsv1.RegisterPushDeviceRequest) (*notificationsv1.RegisterPushDeviceResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	m := req.Msg
+	m := req
 	var platform api.Platform
 	switch m.GetPlatform() {
 	case notificationsv1.PushPlatform_PUSH_PLATFORM_WEB_PUSH:
 		platform = api.PlatformWebPush
 		if m.GetWebPush() == nil {
-			return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("web_push subscription is required for PUSH_PLATFORM_WEB_PUSH"))
+			return nil, connect.NewError(connect.CodeInvalidArgument, "web_push subscription is required for PUSH_PLATFORM_WEB_PUSH")
 		}
 	case notificationsv1.PushPlatform_PUSH_PLATFORM_FCM:
 		platform = api.PlatformFCM
 	case notificationsv1.PushPlatform_PUSH_PLATFORM_APNS:
 		platform = api.PlatformAPNs
 	default:
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("platform is required"))
+		return nil, connect.NewError(connect.CodeInvalidArgument, "platform is required")
 	}
 	wp := m.GetWebPush()
 	id, err := h.service.RegisterPushDevice(ctx, userID, platform, m.GetToken(), wp.GetEndpoint(), wp.GetP256Dh(), wp.GetAuth(),
@@ -111,32 +110,32 @@ func (h *Handler) RegisterPushDevice(ctx context.Context, req *connect.Request[n
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&notificationsv1.RegisterPushDeviceResponse{DeviceId: id.String()}), nil
+	return &notificationsv1.RegisterPushDeviceResponse{DeviceId: id.String()}, nil
 }
 
-func (h *Handler) UnregisterPushDevice(ctx context.Context, req *connect.Request[notificationsv1.UnregisterPushDeviceRequest]) (*connect.Response[notificationsv1.UnregisterPushDeviceResponse], error) {
+func (h *Handler) UnregisterPushDevice(ctx context.Context, req *notificationsv1.UnregisterPushDeviceRequest) (*notificationsv1.UnregisterPushDeviceResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	id, err := ids.Parse(req.Msg.GetDeviceId())
+	id, err := ids.Parse(req.GetDeviceId())
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+		return nil, connect.NewError(connect.CodeInvalidArgument, err.Error()).WithCause(err)
 	}
 	if err := h.service.UnregisterPushDevice(ctx, userID, id); err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&notificationsv1.UnregisterPushDeviceResponse{}), nil
+	return &notificationsv1.UnregisterPushDeviceResponse{}, nil
 }
 
-func (h *Handler) GetWebPushConfig(ctx context.Context, _ *connect.Request[notificationsv1.GetWebPushConfigRequest]) (*connect.Response[notificationsv1.GetWebPushConfigResponse], error) {
+func (h *Handler) GetWebPushConfig(ctx context.Context, _ *notificationsv1.GetWebPushConfigRequest) (*notificationsv1.GetWebPushConfigResponse, error) {
 	if _, err := requireIdentity(ctx); err != nil {
 		return nil, err
 	}
-	return connect.NewResponse(&notificationsv1.GetWebPushConfigResponse{VapidPublicKey: h.service.WebPushPublicKey()}), nil
+	return &notificationsv1.GetWebPushConfigResponse{VapidPublicKey: h.service.WebPushPublicKey()}, nil
 }
 
-func (h *Handler) GetPreferences(ctx context.Context, _ *connect.Request[notificationsv1.GetPreferencesRequest]) (*connect.Response[notificationsv1.GetPreferencesResponse], error) {
+func (h *Handler) GetPreferences(ctx context.Context, _ *notificationsv1.GetPreferencesRequest) (*notificationsv1.GetPreferencesResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
@@ -145,15 +144,15 @@ func (h *Handler) GetPreferences(ctx context.Context, _ *connect.Request[notific
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&notificationsv1.GetPreferencesResponse{Preferences: prefsToProto(p)}), nil
+	return &notificationsv1.GetPreferencesResponse{Preferences: prefsToProto(p)}, nil
 }
 
-func (h *Handler) UpdatePreferences(ctx context.Context, req *connect.Request[notificationsv1.UpdatePreferencesRequest]) (*connect.Response[notificationsv1.UpdatePreferencesResponse], error) {
+func (h *Handler) UpdatePreferences(ctx context.Context, req *notificationsv1.UpdatePreferencesRequest) (*notificationsv1.UpdatePreferencesResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	in := req.Msg.GetPreferences()
+	in := req.GetPreferences()
 	p, err := h.service.UpdatePreferences(ctx, userID, api.Preferences{
 		PushEnabled:   in.GetPushEnabled(),
 		TaskCompleted: in.GetTaskCompleted(),
@@ -163,7 +162,7 @@ func (h *Handler) UpdatePreferences(ctx context.Context, req *connect.Request[no
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&notificationsv1.UpdatePreferencesResponse{Preferences: prefsToProto(p)}), nil
+	return &notificationsv1.UpdatePreferencesResponse{Preferences: prefsToProto(p)}, nil
 }
 
 func requireIdentity(ctx context.Context) (ids.ID, error) {

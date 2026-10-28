@@ -6,6 +6,7 @@
 #   - project "aedst-api" (role assertion on; its project id IS the audience)
 #   - roles "admin" and "user" (the names AEDST_ROLE_POLICY refers to)
 #   - an OIDC PKCE app "aedst-web" (no secret; web + native redirect URIs)
+#   - an OIDC PKCE app "aedst-admin" (no secret; own client of apps/web/admin, redirect ${ADMIN_ORIGIN}/api/auth/callback)
 #   - native OIDC PKCE apps "aedst-android" (com.aedst.android:/oauth2redirect) and "aedst-android-tv"
 #     (com.aedst.android.tv:/oauth2redirect, plus the device code grant); see android-app.md
 #   - native OIDC PKCE app "aedst-apple" (com.aedst.apple:/oauth2redirect, overridable via APPLE_REDIRECT_URIS);
@@ -94,6 +95,26 @@ CLIENT_ID="$(ensure_app aedst-web '{
   "idTokenRoleAssertion":true,
   "idTokenUserinfoAssertion":true
 }')"
+
+# Admin panel (apps/web/admin): its OWN OIDC client, separate from aedst-web, so its session cookies and
+# redirect URIs are isolated from the product app (docs/content/web/projects.md). Same IdP, so ZITADEL SSO
+# makes the sign-in seamless. Override ADMIN_ORIGIN for a deployed admin host.
+ADMIN_ORIGIN="${ADMIN_ORIGIN:-http://localhost:3001}"
+ADMIN_CLIENT_ID="$(ensure_app aedst-admin "$(jq -nc --arg o "$ADMIN_ORIGIN" '{
+  name: "aedst-admin",
+  redirectUris: [($o + "/api/auth/callback")],
+  postLogoutRedirectUris: [$o],
+  responseTypes: ["OIDC_RESPONSE_TYPE_CODE"],
+  grantTypes: ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE", "OIDC_GRANT_TYPE_REFRESH_TOKEN"],
+  appType: "OIDC_APP_TYPE_NATIVE",
+  authMethodType: "OIDC_AUTH_METHOD_TYPE_NONE",
+  version: "OIDC_VERSION_1_0",
+  devMode: ($o | startswith("http://")),
+  accessTokenType: "OIDC_TOKEN_TYPE_JWT",
+  accessTokenRoleAssertion: true,
+  idTokenRoleAssertion: true,
+  idTokenUserinfoAssertion: true
+}')")"
 
 # Android phone app: private-use scheme = application id (RFC 8252 7.1). Custom schemes need no devMode.
 ANDROID_CLIENT_ID="$(ensure_app aedst-android '{
@@ -220,6 +241,7 @@ Done. Put this in apps/server/.env:
 
 Clients (Authorization Code + PKCE, no secret):
   web      client id $CLIENT_ID
+  admin    client id $ADMIN_CLIENT_ID   (apps/web/admin: OIDC_CLIENT_ID, redirect $ADMIN_ORIGIN/api/auth/callback)
   android  client id $ANDROID_CLIENT_ID
   android-tv client id $ANDROID_TV_CLIENT_ID
 Android build (apps/android/README.md, "Sign-in (OIDC)"; the emulator reaches this stack as http://10.0.2.2:8085):

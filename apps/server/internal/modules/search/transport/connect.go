@@ -4,7 +4,6 @@ package transport
 import (
 	"context"
 
-	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	searchv1 "github.com/aedst/server/gen/go/aedst/search/v1"
@@ -21,18 +20,18 @@ type Handler struct {
 
 func NewHandler(service api.Service) *Handler { return &Handler{service: service} }
 
-func (h *Handler) Search(ctx context.Context, req *connect.Request[searchv1.SearchRequest]) (*connect.Response[searchv1.SearchResponse], error) {
+func (h *Handler) Search(ctx context.Context, req *searchv1.SearchRequest) (*searchv1.SearchResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	kinds := make([]api.Kind, 0, len(req.Msg.GetKinds()))
-	for _, k := range req.Msg.GetKinds() {
+	kinds := make([]api.Kind, 0, len(req.GetKinds()))
+	for _, k := range req.GetKinds() {
 		if kind, ok := kindFromProto(k); ok {
 			kinds = append(kinds, kind)
 		}
 	}
-	res, err := h.service.Search(ctx, userID, req.Msg.GetQuery(), kinds, int(req.Msg.GetPageSize()), req.Msg.GetPageToken())
+	res, err := h.service.Search(ctx, userID, req.GetQuery(), kinds, int(req.GetPageSize()), req.GetPageToken())
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
@@ -51,19 +50,19 @@ func (h *Handler) Search(ctx context.Context, req *connect.Request[searchv1.Sear
 	if res.Next != nil {
 		out.NextPageToken = res.Next.Encode()
 	}
-	return connect.NewResponse(out), nil
+	return out, nil
 }
 
-func (h *Handler) Suggest(ctx context.Context, req *connect.Request[searchv1.SuggestRequest]) (*connect.Response[searchv1.SuggestResponse], error) {
+func (h *Handler) Suggest(ctx context.Context, req *searchv1.SuggestRequest) (*searchv1.SuggestResponse, error) {
 	userID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	s, err := h.service.Suggest(ctx, userID, req.Msg.GetPrefix(), int(req.Msg.GetLimit()))
+	s, err := h.service.Suggest(ctx, userID, req.GetPrefix(), int(req.GetLimit()))
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&searchv1.SuggestResponse{Suggestions: s}), nil
+	return &searchv1.SuggestResponse{Suggestions: s}, nil
 }
 
 func requireIdentity(ctx context.Context) (ids.ID, error) {

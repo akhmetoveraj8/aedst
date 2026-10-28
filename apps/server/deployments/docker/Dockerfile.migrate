@@ -5,11 +5,11 @@
 #
 # Alpine (not distroless) because the Job loops over module directories in sh.
 # The goose version must track github.com/pressly/goose/v3 in go.mod.
-FROM golang:1.27.1-alpine AS build
-RUN CGO_ENABLED=0 GOBIN=/out go install github.com/pressly/goose/v3/cmd/goose@v3.28.0
+FROM golang:1.27.3-alpine AS build
+RUN CGO_ENABLED=0 GOBIN=/out go install github.com/pressly/goose/v3/cmd/goose@v3.29.0
 # River's own schema (river_job, ...) is migrated by its CLI, once per release, here and not at
 # server startup. The version must equal github.com/riverqueue/river in go.mod (architecturetest).
-RUN CGO_ENABLED=0 GOBIN=/out go install github.com/riverqueue/river/cmd/river@v0.49.0
+RUN CGO_ENABLED=0 GOBIN=/out go install github.com/riverqueue/river/cmd/river@v0.50.0
 
 # check-invalid-indexes fails the Job when a CONCURRENTLY build left an INVALID index.
 WORKDIR /src
@@ -18,7 +18,7 @@ RUN go mod download
 COPY scripts/check-invalid-indexes ./scripts/check-invalid-indexes
 RUN CGO_ENABLED=0 go build -trimpath -o /out/check-invalid-indexes ./scripts/check-invalid-indexes
 
-FROM alpine:3.22 AS runtime
+FROM alpine:3.24 AS runtime
 COPY --from=build /out/goose /out/river /out/check-invalid-indexes /usr/local/bin/
 COPY migrations /migrations
 USER 65532:65532

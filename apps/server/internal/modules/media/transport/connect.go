@@ -3,9 +3,8 @@ package transport
 
 import (
 	"context"
-	"errors"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	mediav1 "github.com/aedst/server/gen/go/aedst/media/v1"
@@ -22,30 +21,30 @@ type Handler struct {
 
 func NewHandler(service api.Service) *Handler { return &Handler{service: service} }
 
-func (h *Handler) CreateUpload(ctx context.Context, req *connect.Request[mediav1.CreateUploadRequest]) (*connect.Response[mediav1.CreateUploadResponse], error) {
+func (h *Handler) CreateUpload(ctx context.Context, req *mediav1.CreateUploadRequest) (*mediav1.CreateUploadResponse, error) {
 	owner, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	taskID, err := optionalID(req.Msg.GetTaskId())
+	taskID, err := optionalID(req.GetTaskId())
 	if err != nil {
 		return nil, err
 	}
-	up, err := h.service.CreateUpload(ctx, owner, req.Msg.GetFilename(), req.Msg.GetContentType(), req.Msg.GetSizeBytes(), req.Msg.GetSha256(), taskID)
+	up, err := h.service.CreateUpload(ctx, owner, req.GetFilename(), req.GetContentType(), req.GetSizeBytes(), req.GetSha256(), taskID)
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&mediav1.CreateUploadResponse{
+	return &mediav1.CreateUploadResponse{
 		Media:     toProto(up.Media, api.Links{}),
 		UploadUrl: up.Request.URL,
 		Method:    up.Request.Method,
 		Headers:   up.Request.Headers,
 		ExpiresAt: timestamppb.New(up.Request.ExpiresAt),
-	}), nil
+	}, nil
 }
 
-func (h *Handler) CompleteUpload(ctx context.Context, req *connect.Request[mediav1.CompleteUploadRequest]) (*connect.Response[mediav1.CompleteUploadResponse], error) {
-	owner, id, err := ownerAndID(ctx, req.Msg.GetId())
+func (h *Handler) CompleteUpload(ctx context.Context, req *mediav1.CompleteUploadRequest) (*mediav1.CompleteUploadResponse, error) {
+	owner, id, err := ownerAndID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -57,11 +56,11 @@ func (h *Handler) CompleteUpload(ctx context.Context, req *connect.Request[media
 	if err != nil {
 		return nil, err
 	}
-	return connect.NewResponse(&mediav1.CompleteUploadResponse{Media: pm}), nil
+	return &mediav1.CompleteUploadResponse{Media: pm}, nil
 }
 
-func (h *Handler) GetMedia(ctx context.Context, req *connect.Request[mediav1.GetMediaRequest]) (*connect.Response[mediav1.GetMediaResponse], error) {
-	owner, id, err := ownerAndID(ctx, req.Msg.GetId())
+func (h *Handler) GetMedia(ctx context.Context, req *mediav1.GetMediaRequest) (*mediav1.GetMediaResponse, error) {
+	owner, id, err := ownerAndID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -73,25 +72,25 @@ func (h *Handler) GetMedia(ctx context.Context, req *connect.Request[mediav1.Get
 	if err != nil {
 		return nil, err
 	}
-	return connect.NewResponse(&mediav1.GetMediaResponse{Media: pm}), nil
+	return &mediav1.GetMediaResponse{Media: pm}, nil
 }
 
-func (h *Handler) ListMedia(ctx context.Context, req *connect.Request[mediav1.ListMediaRequest]) (*connect.Response[mediav1.ListMediaResponse], error) {
+func (h *Handler) ListMedia(ctx context.Context, req *mediav1.ListMediaRequest) (*mediav1.ListMediaResponse, error) {
 	owner, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	taskID, err := optionalID(req.Msg.GetTaskId())
+	taskID, err := optionalID(req.GetTaskId())
 	if err != nil {
 		return nil, err
 	}
 	var kinds []api.Kind
-	for _, k := range req.Msg.GetKinds() {
+	for _, k := range req.GetKinds() {
 		if kind, ok := kindFromProto(k); ok {
 			kinds = append(kinds, kind)
 		}
 	}
-	res, err := h.service.ListMedia(ctx, owner, taskID, kinds, req.Msg.GetPageSize(), req.Msg.GetPageToken())
+	res, err := h.service.ListMedia(ctx, owner, taskID, kinds, req.GetPageSize(), req.GetPageToken())
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
@@ -106,18 +105,18 @@ func (h *Handler) ListMedia(ctx context.Context, req *connect.Request[mediav1.Li
 	if res.Next != nil {
 		out.NextPageToken = res.Next.Encode()
 	}
-	return connect.NewResponse(out), nil
+	return out, nil
 }
 
-func (h *Handler) DeleteMedia(ctx context.Context, req *connect.Request[mediav1.DeleteMediaRequest]) (*connect.Response[mediav1.DeleteMediaResponse], error) {
-	owner, id, err := ownerAndID(ctx, req.Msg.GetId())
+func (h *Handler) DeleteMedia(ctx context.Context, req *mediav1.DeleteMediaRequest) (*mediav1.DeleteMediaResponse, error) {
+	owner, id, err := ownerAndID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
 	if err := h.service.DeleteMedia(ctx, owner, id); err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&mediav1.DeleteMediaResponse{}), nil
+	return &mediav1.DeleteMediaResponse{}, nil
 }
 
 func (h *Handler) withLinks(ctx context.Context, m api.Media) (*mediav1.Media, error) {
@@ -182,7 +181,7 @@ func ownerAndID(ctx context.Context, raw string) (ids.ID, ids.ID, error) {
 	}
 	id, err := ids.Parse(raw)
 	if err != nil {
-		return ids.Nil, ids.Nil, connect.NewError(connect.CodeInvalidArgument, errors.New("id must be a UUID"))
+		return ids.Nil, ids.Nil, connect.NewError(connect.CodeInvalidArgument, "id must be a UUID")
 	}
 	return owner, id, nil
 }
@@ -193,7 +192,7 @@ func optionalID(raw string) (*ids.ID, error) {
 	}
 	id, err := ids.Parse(raw)
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("task_id must be a UUID"))
+		return nil, connect.NewError(connect.CodeInvalidArgument, "task_id must be a UUID")
 	}
 	return &id, nil
 }

@@ -5,348 +5,401 @@
 package notificationsv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/aedst/server/gen/go/aedst/notifications/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// NotificationsServiceName is the fully-qualified name of the NotificationsService service.
 	NotificationsServiceName = "aedst.notifications.v1.NotificationsService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// NotificationsServiceListNotificationsProcedure is the fully-qualified name of the
+	// NotificationsServiceListNotificationsProcedure is the procedure name of the
 	// NotificationsService's ListNotifications RPC.
 	NotificationsServiceListNotificationsProcedure = "/aedst.notifications.v1.NotificationsService/ListNotifications"
-	// NotificationsServiceGetUnreadCountProcedure is the fully-qualified name of the
-	// NotificationsService's GetUnreadCount RPC.
+	// NotificationsServiceGetUnreadCountProcedure is the procedure name of the NotificationsService's
+	// GetUnreadCount RPC.
 	NotificationsServiceGetUnreadCountProcedure = "/aedst.notifications.v1.NotificationsService/GetUnreadCount"
-	// NotificationsServiceMarkReadProcedure is the fully-qualified name of the NotificationsService's
+	// NotificationsServiceMarkReadProcedure is the procedure name of the NotificationsService's
 	// MarkRead RPC.
 	NotificationsServiceMarkReadProcedure = "/aedst.notifications.v1.NotificationsService/MarkRead"
-	// NotificationsServiceMarkAllReadProcedure is the fully-qualified name of the
-	// NotificationsService's MarkAllRead RPC.
+	// NotificationsServiceMarkAllReadProcedure is the procedure name of the NotificationsService's
+	// MarkAllRead RPC.
 	NotificationsServiceMarkAllReadProcedure = "/aedst.notifications.v1.NotificationsService/MarkAllRead"
-	// NotificationsServiceRegisterPushDeviceProcedure is the fully-qualified name of the
+	// NotificationsServiceRegisterPushDeviceProcedure is the procedure name of the
 	// NotificationsService's RegisterPushDevice RPC.
 	NotificationsServiceRegisterPushDeviceProcedure = "/aedst.notifications.v1.NotificationsService/RegisterPushDevice"
-	// NotificationsServiceUnregisterPushDeviceProcedure is the fully-qualified name of the
+	// NotificationsServiceUnregisterPushDeviceProcedure is the procedure name of the
 	// NotificationsService's UnregisterPushDevice RPC.
 	NotificationsServiceUnregisterPushDeviceProcedure = "/aedst.notifications.v1.NotificationsService/UnregisterPushDevice"
-	// NotificationsServiceGetWebPushConfigProcedure is the fully-qualified name of the
-	// NotificationsService's GetWebPushConfig RPC.
+	// NotificationsServiceGetWebPushConfigProcedure is the procedure name of the NotificationsService's
+	// GetWebPushConfig RPC.
 	NotificationsServiceGetWebPushConfigProcedure = "/aedst.notifications.v1.NotificationsService/GetWebPushConfig"
-	// NotificationsServiceGetPreferencesProcedure is the fully-qualified name of the
-	// NotificationsService's GetPreferences RPC.
+	// NotificationsServiceGetPreferencesProcedure is the procedure name of the NotificationsService's
+	// GetPreferences RPC.
 	NotificationsServiceGetPreferencesProcedure = "/aedst.notifications.v1.NotificationsService/GetPreferences"
-	// NotificationsServiceUpdatePreferencesProcedure is the fully-qualified name of the
+	// NotificationsServiceUpdatePreferencesProcedure is the procedure name of the
 	// NotificationsService's UpdatePreferences RPC.
 	NotificationsServiceUpdatePreferencesProcedure = "/aedst.notifications.v1.NotificationsService/UpdatePreferences"
+)
+
+var (
+	notificationsServiceListNotificationsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods().ByName("ListNotifications"),
+			Procedure:  NotificationsServiceListNotificationsProcedure,
+		}
+	})
+	notificationsServiceGetUnreadCountSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods().ByName("GetUnreadCount"),
+			Procedure:  NotificationsServiceGetUnreadCountProcedure,
+		}
+	})
+	notificationsServiceMarkReadSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods().ByName("MarkRead"),
+			Procedure:  NotificationsServiceMarkReadProcedure,
+		}
+	})
+	notificationsServiceMarkAllReadSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods().ByName("MarkAllRead"),
+			Procedure:  NotificationsServiceMarkAllReadProcedure,
+		}
+	})
+	notificationsServiceRegisterPushDeviceSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods().ByName("RegisterPushDevice"),
+			Procedure:  NotificationsServiceRegisterPushDeviceProcedure,
+		}
+	})
+	notificationsServiceUnregisterPushDeviceSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods().ByName("UnregisterPushDevice"),
+			Procedure:  NotificationsServiceUnregisterPushDeviceProcedure,
+		}
+	})
+	notificationsServiceGetWebPushConfigSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods().ByName("GetWebPushConfig"),
+			Procedure:  NotificationsServiceGetWebPushConfigProcedure,
+		}
+	})
+	notificationsServiceGetPreferencesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods().ByName("GetPreferences"),
+			Procedure:  NotificationsServiceGetPreferencesProcedure,
+		}
+	})
+	notificationsServiceUpdatePreferencesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods().ByName("UpdatePreferences"),
+			Procedure:  NotificationsServiceUpdatePreferencesProcedure,
+		}
+	})
 )
 
 // NotificationsServiceClient is a client for the aedst.notifications.v1.NotificationsService
 // service.
 type NotificationsServiceClient interface {
-	ListNotifications(context.Context, *connect.Request[v1.ListNotificationsRequest]) (*connect.Response[v1.ListNotificationsResponse], error)
-	GetUnreadCount(context.Context, *connect.Request[v1.GetUnreadCountRequest]) (*connect.Response[v1.GetUnreadCountResponse], error)
-	MarkRead(context.Context, *connect.Request[v1.MarkReadRequest]) (*connect.Response[v1.MarkReadResponse], error)
-	MarkAllRead(context.Context, *connect.Request[v1.MarkAllReadRequest]) (*connect.Response[v1.MarkAllReadResponse], error)
+	ListNotifications(context.Context, *v1.ListNotificationsRequest) (*v1.ListNotificationsResponse, error)
+	GetUnreadCount(context.Context, *v1.GetUnreadCountRequest) (*v1.GetUnreadCountResponse, error)
+	MarkRead(context.Context, *v1.MarkReadRequest) (*v1.MarkReadResponse, error)
+	MarkAllRead(context.Context, *v1.MarkAllReadRequest) (*v1.MarkAllReadResponse, error)
 	// Push channels. A device registers once per install (or per browser push
 	// subscription) and re-registers when the platform rotates its token.
-	RegisterPushDevice(context.Context, *connect.Request[v1.RegisterPushDeviceRequest]) (*connect.Response[v1.RegisterPushDeviceResponse], error)
-	UnregisterPushDevice(context.Context, *connect.Request[v1.UnregisterPushDeviceRequest]) (*connect.Response[v1.UnregisterPushDeviceResponse], error)
+	RegisterPushDevice(context.Context, *v1.RegisterPushDeviceRequest) (*v1.RegisterPushDeviceResponse, error)
+	UnregisterPushDevice(context.Context, *v1.UnregisterPushDeviceRequest) (*v1.UnregisterPushDeviceResponse, error)
 	// Public VAPID key the browser needs for PushManager.subscribe. Empty when
 	// Web Push is not configured on this deployment.
-	GetWebPushConfig(context.Context, *connect.Request[v1.GetWebPushConfigRequest]) (*connect.Response[v1.GetWebPushConfigResponse], error)
-	GetPreferences(context.Context, *connect.Request[v1.GetPreferencesRequest]) (*connect.Response[v1.GetPreferencesResponse], error)
-	UpdatePreferences(context.Context, *connect.Request[v1.UpdatePreferencesRequest]) (*connect.Response[v1.UpdatePreferencesResponse], error)
+	GetWebPushConfig(context.Context, *v1.GetWebPushConfigRequest) (*v1.GetWebPushConfigResponse, error)
+	GetPreferences(context.Context, *v1.GetPreferencesRequest) (*v1.GetPreferencesResponse, error)
+	UpdatePreferences(context.Context, *v1.UpdatePreferencesRequest) (*v1.UpdatePreferencesResponse, error)
 }
 
 // NewNotificationsServiceClient constructs a client for the
-// aedst.notifications.v1.NotificationsService service. By default, it uses the Connect protocol
-// with the binary Protobuf Codec, asks for gzipped responses, and sends uncompressed requests. To
-// use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or connect.WithGRPCWeb()
-// options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewNotificationsServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) NotificationsServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	notificationsServiceMethods := v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods()
-	return &notificationsServiceClient{
-		listNotifications: connect.NewClient[v1.ListNotificationsRequest, v1.ListNotificationsResponse](
-			httpClient,
-			baseURL+NotificationsServiceListNotificationsProcedure,
-			connect.WithSchema(notificationsServiceMethods.ByName("ListNotifications")),
-			connect.WithClientOptions(opts...),
-		),
-		getUnreadCount: connect.NewClient[v1.GetUnreadCountRequest, v1.GetUnreadCountResponse](
-			httpClient,
-			baseURL+NotificationsServiceGetUnreadCountProcedure,
-			connect.WithSchema(notificationsServiceMethods.ByName("GetUnreadCount")),
-			connect.WithClientOptions(opts...),
-		),
-		markRead: connect.NewClient[v1.MarkReadRequest, v1.MarkReadResponse](
-			httpClient,
-			baseURL+NotificationsServiceMarkReadProcedure,
-			connect.WithSchema(notificationsServiceMethods.ByName("MarkRead")),
-			connect.WithClientOptions(opts...),
-		),
-		markAllRead: connect.NewClient[v1.MarkAllReadRequest, v1.MarkAllReadResponse](
-			httpClient,
-			baseURL+NotificationsServiceMarkAllReadProcedure,
-			connect.WithSchema(notificationsServiceMethods.ByName("MarkAllRead")),
-			connect.WithClientOptions(opts...),
-		),
-		registerPushDevice: connect.NewClient[v1.RegisterPushDeviceRequest, v1.RegisterPushDeviceResponse](
-			httpClient,
-			baseURL+NotificationsServiceRegisterPushDeviceProcedure,
-			connect.WithSchema(notificationsServiceMethods.ByName("RegisterPushDevice")),
-			connect.WithClientOptions(opts...),
-		),
-		unregisterPushDevice: connect.NewClient[v1.UnregisterPushDeviceRequest, v1.UnregisterPushDeviceResponse](
-			httpClient,
-			baseURL+NotificationsServiceUnregisterPushDeviceProcedure,
-			connect.WithSchema(notificationsServiceMethods.ByName("UnregisterPushDevice")),
-			connect.WithClientOptions(opts...),
-		),
-		getWebPushConfig: connect.NewClient[v1.GetWebPushConfigRequest, v1.GetWebPushConfigResponse](
-			httpClient,
-			baseURL+NotificationsServiceGetWebPushConfigProcedure,
-			connect.WithSchema(notificationsServiceMethods.ByName("GetWebPushConfig")),
-			connect.WithClientOptions(opts...),
-		),
-		getPreferences: connect.NewClient[v1.GetPreferencesRequest, v1.GetPreferencesResponse](
-			httpClient,
-			baseURL+NotificationsServiceGetPreferencesProcedure,
-			connect.WithSchema(notificationsServiceMethods.ByName("GetPreferences")),
-			connect.WithClientOptions(opts...),
-		),
-		updatePreferences: connect.NewClient[v1.UpdatePreferencesRequest, v1.UpdatePreferencesResponse](
-			httpClient,
-			baseURL+NotificationsServiceUpdatePreferencesProcedure,
-			connect.WithSchema(notificationsServiceMethods.ByName("UpdatePreferences")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// notificationsServiceClient implements NotificationsServiceClient.
-type notificationsServiceClient struct {
-	listNotifications    *connect.Client[v1.ListNotificationsRequest, v1.ListNotificationsResponse]
-	getUnreadCount       *connect.Client[v1.GetUnreadCountRequest, v1.GetUnreadCountResponse]
-	markRead             *connect.Client[v1.MarkReadRequest, v1.MarkReadResponse]
-	markAllRead          *connect.Client[v1.MarkAllReadRequest, v1.MarkAllReadResponse]
-	registerPushDevice   *connect.Client[v1.RegisterPushDeviceRequest, v1.RegisterPushDeviceResponse]
-	unregisterPushDevice *connect.Client[v1.UnregisterPushDeviceRequest, v1.UnregisterPushDeviceResponse]
-	getWebPushConfig     *connect.Client[v1.GetWebPushConfigRequest, v1.GetWebPushConfigResponse]
-	getPreferences       *connect.Client[v1.GetPreferencesRequest, v1.GetPreferencesResponse]
-	updatePreferences    *connect.Client[v1.UpdatePreferencesRequest, v1.UpdatePreferencesResponse]
-}
-
-// ListNotifications calls aedst.notifications.v1.NotificationsService.ListNotifications.
-func (c *notificationsServiceClient) ListNotifications(ctx context.Context, req *connect.Request[v1.ListNotificationsRequest]) (*connect.Response[v1.ListNotificationsResponse], error) {
-	return c.listNotifications.CallUnary(ctx, req)
-}
-
-// GetUnreadCount calls aedst.notifications.v1.NotificationsService.GetUnreadCount.
-func (c *notificationsServiceClient) GetUnreadCount(ctx context.Context, req *connect.Request[v1.GetUnreadCountRequest]) (*connect.Response[v1.GetUnreadCountResponse], error) {
-	return c.getUnreadCount.CallUnary(ctx, req)
-}
-
-// MarkRead calls aedst.notifications.v1.NotificationsService.MarkRead.
-func (c *notificationsServiceClient) MarkRead(ctx context.Context, req *connect.Request[v1.MarkReadRequest]) (*connect.Response[v1.MarkReadResponse], error) {
-	return c.markRead.CallUnary(ctx, req)
-}
-
-// MarkAllRead calls aedst.notifications.v1.NotificationsService.MarkAllRead.
-func (c *notificationsServiceClient) MarkAllRead(ctx context.Context, req *connect.Request[v1.MarkAllReadRequest]) (*connect.Response[v1.MarkAllReadResponse], error) {
-	return c.markAllRead.CallUnary(ctx, req)
-}
-
-// RegisterPushDevice calls aedst.notifications.v1.NotificationsService.RegisterPushDevice.
-func (c *notificationsServiceClient) RegisterPushDevice(ctx context.Context, req *connect.Request[v1.RegisterPushDeviceRequest]) (*connect.Response[v1.RegisterPushDeviceResponse], error) {
-	return c.registerPushDevice.CallUnary(ctx, req)
-}
-
-// UnregisterPushDevice calls aedst.notifications.v1.NotificationsService.UnregisterPushDevice.
-func (c *notificationsServiceClient) UnregisterPushDevice(ctx context.Context, req *connect.Request[v1.UnregisterPushDeviceRequest]) (*connect.Response[v1.UnregisterPushDeviceResponse], error) {
-	return c.unregisterPushDevice.CallUnary(ctx, req)
-}
-
-// GetWebPushConfig calls aedst.notifications.v1.NotificationsService.GetWebPushConfig.
-func (c *notificationsServiceClient) GetWebPushConfig(ctx context.Context, req *connect.Request[v1.GetWebPushConfigRequest]) (*connect.Response[v1.GetWebPushConfigResponse], error) {
-	return c.getWebPushConfig.CallUnary(ctx, req)
-}
-
-// GetPreferences calls aedst.notifications.v1.NotificationsService.GetPreferences.
-func (c *notificationsServiceClient) GetPreferences(ctx context.Context, req *connect.Request[v1.GetPreferencesRequest]) (*connect.Response[v1.GetPreferencesResponse], error) {
-	return c.getPreferences.CallUnary(ctx, req)
-}
-
-// UpdatePreferences calls aedst.notifications.v1.NotificationsService.UpdatePreferences.
-func (c *notificationsServiceClient) UpdatePreferences(ctx context.Context, req *connect.Request[v1.UpdatePreferencesRequest]) (*connect.Response[v1.UpdatePreferencesResponse], error) {
-	return c.updatePreferences.CallUnary(ctx, req)
+// aedst.notifications.v1.NotificationsService service. Multiple service clients may share a single
+// connect.Client.
+func NewNotificationsServiceClient(client *connect.Client) NotificationsServiceClient {
+	return &notificationsServiceClient{client: client}
 }
 
 // NotificationsServiceHandler is an implementation of the
 // aedst.notifications.v1.NotificationsService service.
 type NotificationsServiceHandler interface {
-	ListNotifications(context.Context, *connect.Request[v1.ListNotificationsRequest]) (*connect.Response[v1.ListNotificationsResponse], error)
-	GetUnreadCount(context.Context, *connect.Request[v1.GetUnreadCountRequest]) (*connect.Response[v1.GetUnreadCountResponse], error)
-	MarkRead(context.Context, *connect.Request[v1.MarkReadRequest]) (*connect.Response[v1.MarkReadResponse], error)
-	MarkAllRead(context.Context, *connect.Request[v1.MarkAllReadRequest]) (*connect.Response[v1.MarkAllReadResponse], error)
+	ListNotifications(context.Context, *v1.ListNotificationsRequest) (*v1.ListNotificationsResponse, error)
+	GetUnreadCount(context.Context, *v1.GetUnreadCountRequest) (*v1.GetUnreadCountResponse, error)
+	MarkRead(context.Context, *v1.MarkReadRequest) (*v1.MarkReadResponse, error)
+	MarkAllRead(context.Context, *v1.MarkAllReadRequest) (*v1.MarkAllReadResponse, error)
 	// Push channels. A device registers once per install (or per browser push
 	// subscription) and re-registers when the platform rotates its token.
-	RegisterPushDevice(context.Context, *connect.Request[v1.RegisterPushDeviceRequest]) (*connect.Response[v1.RegisterPushDeviceResponse], error)
-	UnregisterPushDevice(context.Context, *connect.Request[v1.UnregisterPushDeviceRequest]) (*connect.Response[v1.UnregisterPushDeviceResponse], error)
+	RegisterPushDevice(context.Context, *v1.RegisterPushDeviceRequest) (*v1.RegisterPushDeviceResponse, error)
+	UnregisterPushDevice(context.Context, *v1.UnregisterPushDeviceRequest) (*v1.UnregisterPushDeviceResponse, error)
 	// Public VAPID key the browser needs for PushManager.subscribe. Empty when
 	// Web Push is not configured on this deployment.
-	GetWebPushConfig(context.Context, *connect.Request[v1.GetWebPushConfigRequest]) (*connect.Response[v1.GetWebPushConfigResponse], error)
-	GetPreferences(context.Context, *connect.Request[v1.GetPreferencesRequest]) (*connect.Response[v1.GetPreferencesResponse], error)
-	UpdatePreferences(context.Context, *connect.Request[v1.UpdatePreferencesRequest]) (*connect.Response[v1.UpdatePreferencesResponse], error)
+	GetWebPushConfig(context.Context, *v1.GetWebPushConfigRequest) (*v1.GetWebPushConfigResponse, error)
+	GetPreferences(context.Context, *v1.GetPreferencesRequest) (*v1.GetPreferencesResponse, error)
+	UpdatePreferences(context.Context, *v1.UpdatePreferencesRequest) (*v1.UpdatePreferencesResponse, error)
 }
 
-// NewNotificationsServiceHandler builds an HTTP handler from the service implementation. It returns
-// the path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewNotificationsServiceHandler(svc NotificationsServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	notificationsServiceMethods := v1.File_aedst_notifications_v1_notifications_proto.Services().ByName("NotificationsService").Methods()
-	notificationsServiceListNotificationsHandler := connect.NewUnaryHandler(
-		NotificationsServiceListNotificationsProcedure,
-		svc.ListNotifications,
-		connect.WithSchema(notificationsServiceMethods.ByName("ListNotifications")),
-		connect.WithHandlerOptions(opts...),
+// RegisterNotificationsServiceHandler registers svc as the
+// aedst.notifications.v1.NotificationsService implementation on server.
+func RegisterNotificationsServiceHandler(server *connect.Server, svc NotificationsServiceHandler) {
+	adapter := notificationsServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: notificationsServiceListNotificationsSpec(), Handler: adapter.listNotifications},
+		connect.Method{Spec: notificationsServiceGetUnreadCountSpec(), Handler: adapter.getUnreadCount},
+		connect.Method{Spec: notificationsServiceMarkReadSpec(), Handler: adapter.markRead},
+		connect.Method{Spec: notificationsServiceMarkAllReadSpec(), Handler: adapter.markAllRead},
+		connect.Method{Spec: notificationsServiceRegisterPushDeviceSpec(), Handler: adapter.registerPushDevice},
+		connect.Method{Spec: notificationsServiceUnregisterPushDeviceSpec(), Handler: adapter.unregisterPushDevice},
+		connect.Method{Spec: notificationsServiceGetWebPushConfigSpec(), Handler: adapter.getWebPushConfig},
+		connect.Method{Spec: notificationsServiceGetPreferencesSpec(), Handler: adapter.getPreferences},
+		connect.Method{Spec: notificationsServiceUpdatePreferencesSpec(), Handler: adapter.updatePreferences},
 	)
-	notificationsServiceGetUnreadCountHandler := connect.NewUnaryHandler(
-		NotificationsServiceGetUnreadCountProcedure,
-		svc.GetUnreadCount,
-		connect.WithSchema(notificationsServiceMethods.ByName("GetUnreadCount")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notificationsServiceMarkReadHandler := connect.NewUnaryHandler(
-		NotificationsServiceMarkReadProcedure,
-		svc.MarkRead,
-		connect.WithSchema(notificationsServiceMethods.ByName("MarkRead")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notificationsServiceMarkAllReadHandler := connect.NewUnaryHandler(
-		NotificationsServiceMarkAllReadProcedure,
-		svc.MarkAllRead,
-		connect.WithSchema(notificationsServiceMethods.ByName("MarkAllRead")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notificationsServiceRegisterPushDeviceHandler := connect.NewUnaryHandler(
-		NotificationsServiceRegisterPushDeviceProcedure,
-		svc.RegisterPushDevice,
-		connect.WithSchema(notificationsServiceMethods.ByName("RegisterPushDevice")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notificationsServiceUnregisterPushDeviceHandler := connect.NewUnaryHandler(
-		NotificationsServiceUnregisterPushDeviceProcedure,
-		svc.UnregisterPushDevice,
-		connect.WithSchema(notificationsServiceMethods.ByName("UnregisterPushDevice")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notificationsServiceGetWebPushConfigHandler := connect.NewUnaryHandler(
-		NotificationsServiceGetWebPushConfigProcedure,
-		svc.GetWebPushConfig,
-		connect.WithSchema(notificationsServiceMethods.ByName("GetWebPushConfig")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notificationsServiceGetPreferencesHandler := connect.NewUnaryHandler(
-		NotificationsServiceGetPreferencesProcedure,
-		svc.GetPreferences,
-		connect.WithSchema(notificationsServiceMethods.ByName("GetPreferences")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notificationsServiceUpdatePreferencesHandler := connect.NewUnaryHandler(
-		NotificationsServiceUpdatePreferencesProcedure,
-		svc.UpdatePreferences,
-		connect.WithSchema(notificationsServiceMethods.ByName("UpdatePreferences")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/aedst.notifications.v1.NotificationsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case NotificationsServiceListNotificationsProcedure:
-			notificationsServiceListNotificationsHandler.ServeHTTP(w, r)
-		case NotificationsServiceGetUnreadCountProcedure:
-			notificationsServiceGetUnreadCountHandler.ServeHTTP(w, r)
-		case NotificationsServiceMarkReadProcedure:
-			notificationsServiceMarkReadHandler.ServeHTTP(w, r)
-		case NotificationsServiceMarkAllReadProcedure:
-			notificationsServiceMarkAllReadHandler.ServeHTTP(w, r)
-		case NotificationsServiceRegisterPushDeviceProcedure:
-			notificationsServiceRegisterPushDeviceHandler.ServeHTTP(w, r)
-		case NotificationsServiceUnregisterPushDeviceProcedure:
-			notificationsServiceUnregisterPushDeviceHandler.ServeHTTP(w, r)
-		case NotificationsServiceGetWebPushConfigProcedure:
-			notificationsServiceGetWebPushConfigHandler.ServeHTTP(w, r)
-		case NotificationsServiceGetPreferencesProcedure:
-			notificationsServiceGetPreferencesHandler.ServeHTTP(w, r)
-		case NotificationsServiceUpdatePreferencesProcedure:
-			notificationsServiceUpdatePreferencesHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedNotificationsServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedNotificationsServiceHandler struct{}
 
-func (UnimplementedNotificationsServiceHandler) ListNotifications(context.Context, *connect.Request[v1.ListNotificationsRequest]) (*connect.Response[v1.ListNotificationsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.notifications.v1.NotificationsService.ListNotifications is not implemented"))
+func (UnimplementedNotificationsServiceHandler) ListNotifications(context.Context, *v1.ListNotificationsRequest) (*v1.ListNotificationsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.notifications.v1.NotificationsService.ListNotifications is not implemented")
 }
 
-func (UnimplementedNotificationsServiceHandler) GetUnreadCount(context.Context, *connect.Request[v1.GetUnreadCountRequest]) (*connect.Response[v1.GetUnreadCountResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.notifications.v1.NotificationsService.GetUnreadCount is not implemented"))
+func (UnimplementedNotificationsServiceHandler) GetUnreadCount(context.Context, *v1.GetUnreadCountRequest) (*v1.GetUnreadCountResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.notifications.v1.NotificationsService.GetUnreadCount is not implemented")
 }
 
-func (UnimplementedNotificationsServiceHandler) MarkRead(context.Context, *connect.Request[v1.MarkReadRequest]) (*connect.Response[v1.MarkReadResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.notifications.v1.NotificationsService.MarkRead is not implemented"))
+func (UnimplementedNotificationsServiceHandler) MarkRead(context.Context, *v1.MarkReadRequest) (*v1.MarkReadResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.notifications.v1.NotificationsService.MarkRead is not implemented")
 }
 
-func (UnimplementedNotificationsServiceHandler) MarkAllRead(context.Context, *connect.Request[v1.MarkAllReadRequest]) (*connect.Response[v1.MarkAllReadResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.notifications.v1.NotificationsService.MarkAllRead is not implemented"))
+func (UnimplementedNotificationsServiceHandler) MarkAllRead(context.Context, *v1.MarkAllReadRequest) (*v1.MarkAllReadResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.notifications.v1.NotificationsService.MarkAllRead is not implemented")
 }
 
-func (UnimplementedNotificationsServiceHandler) RegisterPushDevice(context.Context, *connect.Request[v1.RegisterPushDeviceRequest]) (*connect.Response[v1.RegisterPushDeviceResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.notifications.v1.NotificationsService.RegisterPushDevice is not implemented"))
+func (UnimplementedNotificationsServiceHandler) RegisterPushDevice(context.Context, *v1.RegisterPushDeviceRequest) (*v1.RegisterPushDeviceResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.notifications.v1.NotificationsService.RegisterPushDevice is not implemented")
 }
 
-func (UnimplementedNotificationsServiceHandler) UnregisterPushDevice(context.Context, *connect.Request[v1.UnregisterPushDeviceRequest]) (*connect.Response[v1.UnregisterPushDeviceResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.notifications.v1.NotificationsService.UnregisterPushDevice is not implemented"))
+func (UnimplementedNotificationsServiceHandler) UnregisterPushDevice(context.Context, *v1.UnregisterPushDeviceRequest) (*v1.UnregisterPushDeviceResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.notifications.v1.NotificationsService.UnregisterPushDevice is not implemented")
 }
 
-func (UnimplementedNotificationsServiceHandler) GetWebPushConfig(context.Context, *connect.Request[v1.GetWebPushConfigRequest]) (*connect.Response[v1.GetWebPushConfigResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.notifications.v1.NotificationsService.GetWebPushConfig is not implemented"))
+func (UnimplementedNotificationsServiceHandler) GetWebPushConfig(context.Context, *v1.GetWebPushConfigRequest) (*v1.GetWebPushConfigResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.notifications.v1.NotificationsService.GetWebPushConfig is not implemented")
 }
 
-func (UnimplementedNotificationsServiceHandler) GetPreferences(context.Context, *connect.Request[v1.GetPreferencesRequest]) (*connect.Response[v1.GetPreferencesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.notifications.v1.NotificationsService.GetPreferences is not implemented"))
+func (UnimplementedNotificationsServiceHandler) GetPreferences(context.Context, *v1.GetPreferencesRequest) (*v1.GetPreferencesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.notifications.v1.NotificationsService.GetPreferences is not implemented")
 }
 
-func (UnimplementedNotificationsServiceHandler) UpdatePreferences(context.Context, *connect.Request[v1.UpdatePreferencesRequest]) (*connect.Response[v1.UpdatePreferencesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.notifications.v1.NotificationsService.UpdatePreferences is not implemented"))
+func (UnimplementedNotificationsServiceHandler) UpdatePreferences(context.Context, *v1.UpdatePreferencesRequest) (*v1.UpdatePreferencesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.notifications.v1.NotificationsService.UpdatePreferences is not implemented")
+}
+
+type notificationsServiceClient struct {
+	client *connect.Client
+}
+
+func (c *notificationsServiceClient) ListNotifications(ctx context.Context, req *v1.ListNotificationsRequest) (*v1.ListNotificationsResponse, error) {
+	var res v1.ListNotificationsResponse
+	if err := c.client.CallUnary(ctx, notificationsServiceListNotificationsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *notificationsServiceClient) GetUnreadCount(ctx context.Context, req *v1.GetUnreadCountRequest) (*v1.GetUnreadCountResponse, error) {
+	var res v1.GetUnreadCountResponse
+	if err := c.client.CallUnary(ctx, notificationsServiceGetUnreadCountSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *notificationsServiceClient) MarkRead(ctx context.Context, req *v1.MarkReadRequest) (*v1.MarkReadResponse, error) {
+	var res v1.MarkReadResponse
+	if err := c.client.CallUnary(ctx, notificationsServiceMarkReadSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *notificationsServiceClient) MarkAllRead(ctx context.Context, req *v1.MarkAllReadRequest) (*v1.MarkAllReadResponse, error) {
+	var res v1.MarkAllReadResponse
+	if err := c.client.CallUnary(ctx, notificationsServiceMarkAllReadSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *notificationsServiceClient) RegisterPushDevice(ctx context.Context, req *v1.RegisterPushDeviceRequest) (*v1.RegisterPushDeviceResponse, error) {
+	var res v1.RegisterPushDeviceResponse
+	if err := c.client.CallUnary(ctx, notificationsServiceRegisterPushDeviceSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *notificationsServiceClient) UnregisterPushDevice(ctx context.Context, req *v1.UnregisterPushDeviceRequest) (*v1.UnregisterPushDeviceResponse, error) {
+	var res v1.UnregisterPushDeviceResponse
+	if err := c.client.CallUnary(ctx, notificationsServiceUnregisterPushDeviceSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *notificationsServiceClient) GetWebPushConfig(ctx context.Context, req *v1.GetWebPushConfigRequest) (*v1.GetWebPushConfigResponse, error) {
+	var res v1.GetWebPushConfigResponse
+	if err := c.client.CallUnary(ctx, notificationsServiceGetWebPushConfigSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *notificationsServiceClient) GetPreferences(ctx context.Context, req *v1.GetPreferencesRequest) (*v1.GetPreferencesResponse, error) {
+	var res v1.GetPreferencesResponse
+	if err := c.client.CallUnary(ctx, notificationsServiceGetPreferencesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *notificationsServiceClient) UpdatePreferences(ctx context.Context, req *v1.UpdatePreferencesRequest) (*v1.UpdatePreferencesResponse, error) {
+	var res v1.UpdatePreferencesResponse
+	if err := c.client.CallUnary(ctx, notificationsServiceUpdatePreferencesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type notificationsServiceHandler struct{ svc NotificationsServiceHandler }
+
+func (h notificationsServiceHandler) listNotifications(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListNotificationsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListNotifications(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h notificationsServiceHandler) getUnreadCount(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetUnreadCountRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetUnreadCount(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h notificationsServiceHandler) markRead(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.MarkReadRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.MarkRead(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h notificationsServiceHandler) markAllRead(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.MarkAllReadRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.MarkAllRead(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h notificationsServiceHandler) registerPushDevice(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RegisterPushDeviceRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RegisterPushDevice(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h notificationsServiceHandler) unregisterPushDevice(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.UnregisterPushDeviceRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UnregisterPushDevice(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h notificationsServiceHandler) getWebPushConfig(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetWebPushConfigRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetWebPushConfig(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h notificationsServiceHandler) getPreferences(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetPreferencesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetPreferences(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h notificationsServiceHandler) updatePreferences(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.UpdatePreferencesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdatePreferences(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

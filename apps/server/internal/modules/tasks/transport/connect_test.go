@@ -8,7 +8,7 @@ import (
 
 	"github.com/aedst/server/internal/platform/idempotency"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -84,7 +84,7 @@ func TestUpdateTask_MaskSelectsWhatIsApplied(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &fakeService{}
-			if _, err := transport.NewHandler(svc).UpdateTask(authed(user), connect.NewRequest(tt.req)); err != nil {
+			if _, err := transport.NewHandler(svc).UpdateTask(authed(user), tt.req); err != nil {
 				t.Fatalf("UpdateTask: %v", err)
 			}
 			if svc.user != user {
@@ -100,21 +100,21 @@ func TestUpdateTask_RejectsUnknownMaskPathAndPassesExpectedVersion(t *testing.T)
 	svc := &fakeService{}
 	handler := transport.NewHandler(svc)
 
-	_, err := handler.UpdateTask(authed(user), connect.NewRequest(&tasksv1.UpdateTaskRequest{
+	_, err := handler.UpdateTask(authed(user), &tasksv1.UpdateTaskRequest{
 		Id: taskID.String(), UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"titel"}},
-	}))
+	})
 	if connect.CodeOf(err) != connect.CodeInvalidArgument {
 		t.Fatalf("typo in update_mask: err = %v, want InvalidArgument (not a silent no-op)", err)
 	}
 
 	version := int32(7)
-	if _, err := handler.UpdateTask(authed(user), connect.NewRequest(&tasksv1.UpdateTaskRequest{Id: taskID.String(), Title: "x", ExpectedVersion: &version})); err != nil {
+	if _, err := handler.UpdateTask(authed(user), &tasksv1.UpdateTaskRequest{Id: taskID.String(), Title: "x", ExpectedVersion: &version}); err != nil {
 		t.Fatalf("UpdateTask: %v", err)
 	}
 	if svc.expectedVersion == nil || *svc.expectedVersion != 7 {
 		t.Fatalf("expected version = %v, want 7", svc.expectedVersion)
 	}
-	if _, err := handler.UpdateTask(authed(user), connect.NewRequest(&tasksv1.UpdateTaskRequest{Id: taskID.String(), Title: "x"})); err != nil || svc.expectedVersion != nil {
+	if _, err := handler.UpdateTask(authed(user), &tasksv1.UpdateTaskRequest{Id: taskID.String(), Title: "x"}); err != nil || svc.expectedVersion != nil {
 		t.Fatalf("without expected_version the update must be unconditional, got %v (err %v)", svc.expectedVersion, err)
 	}
 }
@@ -125,26 +125,26 @@ func TestHandlers_MapDomainErrorsAndRequireIdentity(t *testing.T) {
 	handler := transport.NewHandler(svc)
 
 	svc.err = sharederrors.Conflict("tasks.Update", "task was modified by someone else")
-	_, err := handler.UpdateTask(authed(user), connect.NewRequest(&tasksv1.UpdateTaskRequest{Id: taskID.String(), Title: "x"}))
+	_, err := handler.UpdateTask(authed(user), &tasksv1.UpdateTaskRequest{Id: taskID.String(), Title: "x"})
 	if connect.CodeOf(err) != connect.CodeAborted {
 		t.Errorf("version conflict = %v, want Aborted (the client should re-read and retry)", err)
 	}
 
 	svc.err = sharederrors.NotFound("tasks.Complete", "task not found")
-	if _, err := handler.CompleteTask(authed(user), connect.NewRequest(&tasksv1.CompleteTaskRequest{Id: taskID.String()})); connect.CodeOf(err) != connect.CodeNotFound {
+	if _, err := handler.CompleteTask(authed(user), &tasksv1.CompleteTaskRequest{Id: taskID.String()}); connect.CodeOf(err) != connect.CodeNotFound {
 		t.Errorf("missing task = %v, want NotFound", err)
 	}
 
 	svc.err = sharederrors.Wrap("tasks.Complete", errors.New("secret detail"))
-	if _, err := handler.CompleteTask(authed(user), connect.NewRequest(&tasksv1.CompleteTaskRequest{Id: taskID.String()})); connect.CodeOf(err) != connect.CodeInternal || err.Error() != "internal: internal error" {
+	if _, err := handler.CompleteTask(authed(user), &tasksv1.CompleteTaskRequest{Id: taskID.String()}); connect.CodeOf(err) != connect.CodeInternal || err.Error() != "internal: internal error" {
 		t.Errorf("infrastructure failure = %v, want an opaque Internal", err)
 	}
 
 	svc.err = nil
-	if _, err := handler.CompleteTask(context.Background(), connect.NewRequest(&tasksv1.CompleteTaskRequest{Id: taskID.String()})); connect.CodeOf(err) != connect.CodeUnauthenticated {
+	if _, err := handler.CompleteTask(context.Background(), &tasksv1.CompleteTaskRequest{Id: taskID.String()}); connect.CodeOf(err) != connect.CodeUnauthenticated {
 		t.Errorf("no identity on the context = %v, want Unauthenticated", err)
 	}
-	if _, err := handler.CompleteTask(authed(user), connect.NewRequest(&tasksv1.CompleteTaskRequest{Id: "not-a-uuid"})); connect.CodeOf(err) != connect.CodeInvalidArgument {
+	if _, err := handler.CompleteTask(authed(user), &tasksv1.CompleteTaskRequest{Id: "not-a-uuid"}); connect.CodeOf(err) != connect.CodeInvalidArgument {
 		t.Errorf("malformed id = %v, want InvalidArgument", err)
 	}
 }
@@ -152,17 +152,17 @@ func TestHandlers_MapDomainErrorsAndRequireIdentity(t *testing.T) {
 func TestCreateTask_PassesTheIdempotencyKeyAndOwner(t *testing.T) {
 	user := ids.New()
 	svc := &fakeService{}
-	resp, err := transport.NewHandler(svc).CreateTask(authed(user), connect.NewRequest(&tasksv1.CreateTaskRequest{Title: "x", Priority: tasksv1.TaskPriority_TASK_PRIORITY_LOW}))
+	resp, err := transport.NewHandler(svc).CreateTask(authed(user), &tasksv1.CreateTaskRequest{Title: "x", Priority: tasksv1.TaskPriority_TASK_PRIORITY_LOW})
 	if err != nil {
 		t.Fatalf("CreateTask: %v", err)
 	}
-	if svc.user != user || resp.Msg.GetTask().GetCreatedBy() != user.String() || resp.Msg.GetTask().GetVersion() != 1 {
-		t.Errorf("owner/version wrong: service user %s, response %+v", svc.user, resp.Msg.GetTask())
+	if svc.user != user || resp.GetTask().GetCreatedBy() != user.String() || resp.GetTask().GetVersion() != 1 {
+		t.Errorf("owner/version wrong: service user %s, response %+v", svc.user, resp.GetTask())
 	}
 }
 
 func TestListTasks_RejectsForeignPageToken(t *testing.T) {
-	_, err := transport.NewHandler(&fakeService{}).ListTasks(authed(ids.New()), connect.NewRequest(&tasksv1.ListTasksRequest{PageToken: "garbage"}))
+	_, err := transport.NewHandler(&fakeService{}).ListTasks(authed(ids.New()), &tasksv1.ListTasksRequest{PageToken: "garbage"})
 	if connect.CodeOf(err) != connect.CodeInvalidArgument {
 		t.Fatalf("garbage page_token = %v, want InvalidArgument", err)
 	}
@@ -203,31 +203,31 @@ func TestReadAndStateRPCs(t *testing.T) {
 	handler := transport.NewHandler(svc)
 	ctx := authed(user)
 
-	got, err := handler.GetTask(ctx, connect.NewRequest(&tasksv1.GetTaskRequest{Id: taskID.String()}))
-	if err != nil || got.Msg.GetTask().GetStatus() != tasksv1.TaskStatus_TASK_STATUS_IN_PROGRESS || got.Msg.GetTask().GetPriority() != tasksv1.TaskPriority_TASK_PRIORITY_URGENT {
+	got, err := handler.GetTask(ctx, &tasksv1.GetTaskRequest{Id: taskID.String()})
+	if err != nil || got.GetTask().GetStatus() != tasksv1.TaskStatus_TASK_STATUS_IN_PROGRESS || got.GetTask().GetPriority() != tasksv1.TaskPriority_TASK_PRIORITY_URGENT {
 		t.Fatalf("GetTask = %+v, %v", got, err)
 	}
-	if _, err := handler.DeleteTask(ctx, connect.NewRequest(&tasksv1.DeleteTaskRequest{Id: taskID.String()})); err != nil {
+	if _, err := handler.DeleteTask(ctx, &tasksv1.DeleteTaskRequest{Id: taskID.String()}); err != nil {
 		t.Fatalf("DeleteTask: %v", err)
 	}
-	reopened, err := handler.ReopenTask(ctx, connect.NewRequest(&tasksv1.ReopenTaskRequest{Id: taskID.String()}))
-	if err != nil || reopened.Msg.GetTask().GetStatus() != tasksv1.TaskStatus_TASK_STATUS_TODO {
+	reopened, err := handler.ReopenTask(ctx, &tasksv1.ReopenTaskRequest{Id: taskID.String()})
+	if err != nil || reopened.GetTask().GetStatus() != tasksv1.TaskStatus_TASK_STATUS_TODO {
 		t.Fatalf("ReopenTask = %+v, %v", reopened, err)
 	}
-	stats, err := handler.GetTaskStats(ctx, connect.NewRequest(&tasksv1.GetTaskStatsRequest{}))
-	if err != nil || stats.Msg.GetTotal() != 5 || stats.Msg.GetOverdue() != 1 || stats.Msg.GetInProgress() != 1 {
+	stats, err := handler.GetTaskStats(ctx, &tasksv1.GetTaskStatsRequest{})
+	if err != nil || stats.GetTotal() != 5 || stats.GetOverdue() != 1 || stats.GetInProgress() != 1 {
 		t.Fatalf("GetTaskStats = %+v, %v", stats, err)
 	}
 
-	list, err := handler.ListTasks(ctx, connect.NewRequest(&tasksv1.ListTasksRequest{
+	list, err := handler.ListTasks(ctx, &tasksv1.ListTasksRequest{
 		Statuses:      []tasksv1.TaskStatus{tasksv1.TaskStatus_TASK_STATUS_TODO, tasksv1.TaskStatus_TASK_STATUS_DONE},
 		Priorities:    []tasksv1.TaskPriority{tasksv1.TaskPriority_TASK_PRIORITY_LOW},
 		Search:        "milk",
 		SortBy:        tasksv1.TaskSortField_TASK_SORT_FIELD_DUE_DATE,
 		SortDirection: tasksv1.SortDirection_SORT_DIRECTION_ASC,
 		PageSize:      10,
-	}))
-	if err != nil || len(list.Msg.GetTasks()) != 2 || list.Msg.GetTotalCount() != 2 {
+	})
+	if err != nil || len(list.GetTasks()) != 2 || list.GetTotalCount() != 2 {
 		t.Fatalf("ListTasks = %+v, %v", list, err)
 	}
 	p := svc.listed
@@ -239,23 +239,23 @@ func TestReadAndStateRPCs(t *testing.T) {
 	svc.err = sharederrors.NotFound("tasks.Get", "task not found")
 	for name, call := range map[string]func() error{
 		"GetTask": func() error {
-			_, err := handler.GetTask(ctx, connect.NewRequest(&tasksv1.GetTaskRequest{Id: taskID.String()}))
+			_, err := handler.GetTask(ctx, &tasksv1.GetTaskRequest{Id: taskID.String()})
 			return err
 		},
 		"DeleteTask": func() error {
-			_, err := handler.DeleteTask(ctx, connect.NewRequest(&tasksv1.DeleteTaskRequest{Id: taskID.String()}))
+			_, err := handler.DeleteTask(ctx, &tasksv1.DeleteTaskRequest{Id: taskID.String()})
 			return err
 		},
 		"ReopenTask": func() error {
-			_, err := handler.ReopenTask(ctx, connect.NewRequest(&tasksv1.ReopenTaskRequest{Id: taskID.String()}))
+			_, err := handler.ReopenTask(ctx, &tasksv1.ReopenTaskRequest{Id: taskID.String()})
 			return err
 		},
 		"Stats": func() error {
-			_, err := handler.GetTaskStats(ctx, connect.NewRequest(&tasksv1.GetTaskStatsRequest{}))
+			_, err := handler.GetTaskStats(ctx, &tasksv1.GetTaskStatsRequest{})
 			return err
 		},
 		"List": func() error {
-			_, err := handler.ListTasks(ctx, connect.NewRequest(&tasksv1.ListTasksRequest{}))
+			_, err := handler.ListTasks(ctx, &tasksv1.ListTasksRequest{})
 			return err
 		},
 	} {
@@ -265,15 +265,15 @@ func TestReadAndStateRPCs(t *testing.T) {
 	}
 	for name, call := range map[string]func() error{
 		"GetTask": func() error {
-			_, err := handler.GetTask(ctx, connect.NewRequest(&tasksv1.GetTaskRequest{Id: "x"}))
+			_, err := handler.GetTask(ctx, &tasksv1.GetTaskRequest{Id: "x"})
 			return err
 		},
 		"DeleteTask": func() error {
-			_, err := handler.DeleteTask(ctx, connect.NewRequest(&tasksv1.DeleteTaskRequest{Id: "x"}))
+			_, err := handler.DeleteTask(ctx, &tasksv1.DeleteTaskRequest{Id: "x"})
 			return err
 		},
 		"ReopenTask": func() error {
-			_, err := handler.ReopenTask(ctx, connect.NewRequest(&tasksv1.ReopenTaskRequest{Id: "x"}))
+			_, err := handler.ReopenTask(ctx, &tasksv1.ReopenTaskRequest{Id: "x"})
 			return err
 		},
 	} {
@@ -296,13 +296,13 @@ func TestWrites_PassTheIdempotencyKeyDown(t *testing.T) {
 	ctx := idempotency.WithKey(authed(user), "outbox-item-7")
 	handler := transport.NewHandler(svc)
 
-	if _, err := handler.UpdateTask(ctx, connect.NewRequest(&tasksv1.UpdateTaskRequest{Id: taskID.String(), Title: "x"})); err != nil || svc.updateKey != "outbox-item-7" {
+	if _, err := handler.UpdateTask(ctx, &tasksv1.UpdateTaskRequest{Id: taskID.String(), Title: "x"}); err != nil || svc.updateKey != "outbox-item-7" {
 		t.Errorf("UpdateTask key = %q (%v), want outbox-item-7", svc.updateKey, err)
 	}
-	if _, err := handler.DeleteTask(ctx, connect.NewRequest(&tasksv1.DeleteTaskRequest{Id: taskID.String()})); err != nil || svc.deleteKey != "outbox-item-7" {
+	if _, err := handler.DeleteTask(ctx, &tasksv1.DeleteTaskRequest{Id: taskID.String()}); err != nil || svc.deleteKey != "outbox-item-7" {
 		t.Errorf("DeleteTask key = %q (%v), want outbox-item-7", svc.deleteKey, err)
 	}
-	if _, err := handler.UpdateTask(authed(user), connect.NewRequest(&tasksv1.UpdateTaskRequest{Id: taskID.String(), Title: "x"})); err != nil || svc.updateKey != "" {
+	if _, err := handler.UpdateTask(authed(user), &tasksv1.UpdateTaskRequest{Id: taskID.String(), Title: "x"}); err != nil || svc.updateKey != "" {
 		t.Errorf("UpdateTask without a header passed key %q", svc.updateKey)
 	}
 }

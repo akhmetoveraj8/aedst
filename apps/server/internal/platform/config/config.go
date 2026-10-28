@@ -87,11 +87,11 @@ type HTTPConfig struct {
 	RequestTimeout       int `env:"AEDST_REQUEST_TIMEOUT_SECONDS" envDefault:"30"`
 	// MaxRequestBytes caps a single RPC request message.
 	MaxRequestBytes int `env:"AEDST_MAX_REQUEST_BYTES" envDefault:"1048576"`
-	// AllowedOrigins lists the browser origins (e.g. apps/web in local dev)
+	// AllowedOrigins lists the browser origins (apps/web/app on :3000 and apps/web/admin on :3001 in local dev; production origins are set per environment)
 	// permitted to call the ConnectRPC API cross-origin. Connect's protocol is
 	// plain HTTP/JSON so browsers can call it directly (see
 	// docs/content/decisions/0002-connectrpc.md), but that still requires CORS.
-	AllowedOrigins []string `env:"AEDST_CORS_ALLOWED_ORIGINS" envSeparator:"," envDefault:"http://localhost:3000"`
+	AllowedOrigins []string `env:"AEDST_CORS_ALLOWED_ORIGINS" envSeparator:"," envDefault:"http://localhost:3000,http://localhost:3001"`
 	// TrustedProxyHops is the exact number of reverse proxies between the
 	// public internet and this server (Cloudflare -> ALB = 2). 0 means the
 	// socket peer is the client. Wrong values let clients spoof the IP used for

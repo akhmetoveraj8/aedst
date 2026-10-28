@@ -11,9 +11,9 @@ description: "aedst-server (module internal/modules/media) with its own River qu
   original decision to build it as a separate `cmd/media` deployable was **not**
   followed and is superseded by the amendment below.
 - **Realtime: Proposed, deferred.** Nothing is implemented: there is no
-  `cmd/realtime`, no gateway, no streaming RPC (the interceptor chain is unary-only
-  and a test, `TestNoStreamingProceduresWhileInterceptorsAreUnaryOnly`, fails if a
-  streaming method is added). The design below is the intended shape for the day a
+  `cmd/realtime`, no gateway, no streaming RPC (none is declared in the protos). Since the
+  connect v2 migration every interceptor wraps all RPC shapes, and
+  `TestChainWrapsStreamingRPCs` proves it. The design below is the intended shape for the day a
   product needs realtime; it is not a commitment to build it now.
 
 History: this ADR first said both would be separate deployables "from line one".
@@ -84,7 +84,7 @@ Image renditions are served by imgproxy ([ADR-0015](/decisions/0015-govips-and-i
 Preconditions before any of this is built (none is met today):
 1. A product feature that needs push-style delivery beyond Web Push/FCM/APNs
    notifications (which exist, module `notifications`).
-2. Streaming-aware interceptors (`WrapStreamingHandler` for auth, roles, rate
+2. ~~Streaming-aware interceptors~~ (done by the connect v2 migration: `connect.ServerInterceptor` wraps every RPC shape, see decision in decisions/server). Left: stream-level policy (auth, roles, rate
    limits) and removal of the no-streaming guard test in the same change.
 3. A decision whether realtime is a module of `aedst-server` first (ADR-0001's
    default) or a separate deployable from the start. The original "separate from

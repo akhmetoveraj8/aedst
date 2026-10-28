@@ -87,6 +87,6 @@ func (m *authModule) mount(env *modulekit.Env, mt *modulekit.Mounter) error {
 	if !env.Config.Auth.FirstPartyEnabled {
 		return nil
 	}
-	modulekit.Mount(mt, authv1connect.NewAuthServiceHandler, authv1connect.AuthServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
+	modulekit.Mount(mt, authv1connect.RegisterAuthServiceHandler, authv1connect.AuthServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
 	return nil
 }

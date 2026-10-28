@@ -276,3 +276,17 @@ func TestLoad_OIDCRolesOrg(t *testing.T) {
 		t.Errorf("RolesOrg = %q", cfg.OIDC.RolesOrg)
 	}
 }
+
+func TestLoad_CORSDefaultsCoverAppAndAdminDev(t *testing.T) {
+	t.Setenv("AEDST_DATABASE_URL", "postgres://x")
+	t.Setenv("AEDST_OIDC_ISSUER", "http://localhost:8085")
+	t.Setenv("AEDST_OIDC_AUDIENCE", "1")
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatalf("Load() = %v", err)
+	}
+	want := []string{"http://localhost:3000", "http://localhost:3001"}
+	if len(cfg.HTTP.AllowedOrigins) != 2 || cfg.HTTP.AllowedOrigins[0] != want[0] || cfg.HTTP.AllowedOrigins[1] != want[1] {
+		t.Errorf("AllowedOrigins = %v, want %v", cfg.HTTP.AllowedOrigins, want)
+	}
+}

@@ -13,9 +13,8 @@ import (
 	"sync"
 	"testing"
 
-	"connectrpc.com/connect"
-	"connectrpc.com/grpchealth"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/grpchealth/v2"
 
 	platformauth "github.com/aedst/server/internal/platform/auth"
 	"github.com/aedst/server/internal/platform/httpserver"
@@ -25,35 +24,14 @@ import (
 
 const testProcedure = "/test.v1.Svc/Do"
 
-// serve mounts one unary procedure behind interceptors and returns a caller.
-func serve(t *testing.T, fn func(context.Context) error, interceptors ...connect.Interceptor) func() error {
-	t.Helper()
-	handler := connect.NewUnaryHandler(testProcedure,
-		func(ctx context.Context, _ *connect.Request[emptypb.Empty]) (*connect.Response[emptypb.Empty], error) {
-			if err := fn(ctx); err != nil {
-				return nil, err
-			}
-			return connect.NewResponse(&emptypb.Empty{}), nil
-		}, connect.WithInterceptors(interceptors...))
-	mux := http.NewServeMux()
-	mux.Handle(testProcedure, handler)
-	srv := httptest.NewServer(mux)
-	t.Cleanup(srv.Close)
-	client := connect.NewClient[emptypb.Empty, emptypb.Empty](srv.Client(), srv.URL+testProcedure)
-	return func() error {
-		_, err := client.CallUnary(context.Background(), connect.NewRequest(&emptypb.Empty{}))
-		return err
-	}
-}
-
 // withIdentity is a stand-in for AuthInterceptor: it puts an identity on the
 // context of every call.
-func withIdentity(identity platformauth.Identity) connect.Interceptor {
-	return connect.UnaryInterceptorFunc(func(next connect.UnaryFunc) connect.UnaryFunc {
-		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-			return next(platformauth.WithIdentity(ctx, identity), req)
+func withIdentity(identity platformauth.Identity) connect.ServerInterceptor {
+	return func(next connect.ServerFunc) connect.ServerFunc {
+		return func(ctx context.Context, spec connect.Spec, stream connect.ServerStream) error {
+			return next(platformauth.WithIdentity(ctx, identity), spec, stream)
 		}
-	})
+	}
 }
 
 func TestToConnectError_NeverLeaksInternalsAndKeepsTheCause(t *testing.T) {
@@ -151,7 +129,7 @@ func TestRoleInterceptor(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			interceptors := []connect.Interceptor{}
+			interceptors := []connect.ServerInterceptor{}
 			if tt.identity != nil {
 				interceptors = append(interceptors, withIdentity(*tt.identity))
 			}
@@ -175,12 +153,12 @@ func TestUserRateLimitInterceptor(t *testing.T) {
 
 	limiter := &stubLimiter{allowed: false}
 	call := serve(t, ok, withIdentity(platformauth.Identity{UserID: user}), httpserver.UserRateLimitInterceptor(limiter, 60, discardLogger()))
-	err := call()
+	var info *connect.CallInfo
+	err := call(func(i *connect.CallInfo) { info = i })
 	if connect.CodeOf(err) != connect.CodeResourceExhausted {
 		t.Fatalf("over budget: err = %v, want ResourceExhausted", err)
 	}
-	var connErr *connect.Error
-	if errors.As(err, &connErr) && connErr.Meta().Get("Retry-After") == "" {
+	if info.ResponseHeader().Get("Retry-After") == "" {
 		t.Error("a throttled response should tell the client when to retry")
 	}
 	if len(limiter.keys) != 1 || limiter.keys[0] != "rl:user:"+user.String() {

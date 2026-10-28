@@ -4,7 +4,7 @@ package transport
 import (
 	"context"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 
 	capabilitiesv1 "github.com/aedst/server/gen/go/aedst/capabilities/v1"
 	"github.com/aedst/server/internal/modules/capabilities/api"
@@ -18,8 +18,9 @@ type Handler struct {
 func NewHandler(service api.Service) *Handler { return &Handler{service: service} }
 
 // GetCapabilities is public: a client learns it must update before it can sign in.
-func (h *Handler) GetCapabilities(ctx context.Context, req *connect.Request[capabilitiesv1.GetCapabilitiesRequest]) (*connect.Response[capabilitiesv1.GetCapabilitiesResponse], error) {
-	platform, version, _ := httpserver.ParseClientHeader(req.Header().Get(httpserver.ClientHeader))
+func (h *Handler) GetCapabilities(ctx context.Context, req *capabilitiesv1.GetCapabilitiesRequest) (*capabilitiesv1.GetCapabilitiesResponse, error) {
+	info, _ := connect.CallInfoForServerContext(ctx)
+	platform, version, _ := httpserver.ParseClientHeader(info.RequestHeader().Get(httpserver.ClientHeader))
 	caps, err := h.service.Get(ctx, platform, version)
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
@@ -36,7 +37,7 @@ func (h *Handler) GetCapabilities(ctx context.Context, req *connect.Request[capa
 	for name, f := range caps.Features {
 		out.Features[name] = &capabilitiesv1.Feature{Enabled: f.Enabled, Params: f.Params, RequiredClientVersion: f.RequiredClientVersion}
 	}
-	return connect.NewResponse(out), nil
+	return out, nil
 }
 
 func statusToProto(s api.UpdateStatus) capabilitiesv1.UpdateStatus {

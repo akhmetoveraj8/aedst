@@ -2,12 +2,9 @@ package httpserver
 
 import (
 	"context"
-	"errors"
 	"time"
 
-	"connectrpc.com/connect"
-
-	"github.com/aedst/server/internal/platform/clientip"
+	"connectrpc.com/connect/v2"
 )
 
 // FailureLimiter is the limiter behind the failed-authentication throttle:
@@ -48,21 +45,17 @@ type failureThrottle struct{ authConfig }
 
 func (t failureThrottle) enabled() bool { return t.limiter != nil && t.perMinute > 0 }
 
-func (t failureThrottle) key(ctx context.Context, req connect.AnyRequest) string {
-	client := clientip.FromContext(ctx) // set by the router; spoof-resistant
-	if client == "" {
-		client = clientHost(req.Peer().Addr)
-	}
-	return "rl:authfail:" + client
+func (t failureThrottle) key(ctx context.Context) string {
+	return "rl:authfail:" + clientAddr(ctx)
 }
 
 // refuse returns the error to send when the address has used up its failure
 // budget, or nil.
-func (t failureThrottle) refuse(ctx context.Context, req connect.AnyRequest) error {
+func (t failureThrottle) refuse(ctx context.Context) error {
 	if !t.enabled() {
 		return nil
 	}
-	exhausted, err := t.limiter.Exhausted(ctx, t.key(ctx, req), t.perMinute, authFailWindow)
+	exhausted, err := t.limiter.Exhausted(ctx, t.key(ctx), t.perMinute, authFailWindow)
 	if err != nil {
 		t.warn(ctx, err)
 		return nil
@@ -70,17 +63,15 @@ func (t failureThrottle) refuse(ctx context.Context, req connect.AnyRequest) err
 	if !exhausted {
 		return nil
 	}
-	e := connect.NewError(connect.CodeResourceExhausted, errors.New("too many failed authentication attempts, try again later"))
-	e.Meta().Set("Retry-After", "60")
-	return e
+	return retryAfter(ctx, connect.NewError(connect.CodeResourceExhausted, "too many failed authentication attempts, try again later"), "60")
 }
 
 // record spends one unit of the address's failure budget.
-func (t failureThrottle) record(ctx context.Context, req connect.AnyRequest) {
+func (t failureThrottle) record(ctx context.Context) {
 	if !t.enabled() {
 		return
 	}
-	if _, err := t.limiter.Allow(ctx, t.key(ctx, req), t.perMinute, authFailWindow); err != nil {
+	if _, err := t.limiter.Allow(ctx, t.key(ctx), t.perMinute, authFailWindow); err != nil {
 		t.warn(ctx, err)
 	}
 }

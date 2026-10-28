@@ -6,7 +6,8 @@ import (
 	"log/slog"
 	"testing"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/connect/v2/connectproto"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 
 	"github.com/aedst/server/internal/platform/httpserver"
@@ -16,16 +17,7 @@ import (
 // empty) and reports whether the wrapped handler ran, plus the error.
 func callGate(t *testing.T, mins map[string]string, header string) (reached bool, err error) {
 	t.Helper()
-	next := connect.UnaryFunc(func(context.Context, connect.AnyRequest) (connect.AnyResponse, error) {
-		reached = true
-		return nil, nil
-	})
-	req := connect.NewRequest(&errdetails.ErrorInfo{})
-	if header != "" {
-		req.Header().Set(httpserver.ClientHeader, header)
-	}
-	_, err = httpserver.ClientVersionInterceptor(context.Background(), mins, nil, slog.New(slog.DiscardHandler))(next)(context.Background(), req)
-	return reached, err
+	return callWithHeader(httpserver.ClientVersionInterceptor(context.Background(), mins, nil, slog.New(slog.DiscardHandler)), httpserver.ClientHeader, header)
 }
 
 func TestClientVersionInterceptor(t *testing.T) {
@@ -62,13 +54,13 @@ func TestClientVersionInterceptor(t *testing.T) {
 			if reached {
 				t.Fatalf("header %q reached the handler, want it rejected", header)
 			}
-			var cerr *connect.Error
-			if !errors.As(err, &cerr) || cerr.Code() != connect.CodeFailedPrecondition {
+			cerr, isConnectErr := errors.AsType[*connect.Error](err)
+			if !isConnectErr || cerr.Code() != connect.CodeFailedPrecondition {
 				t.Fatalf("error = %v, want a failed_precondition connect error", err)
 			}
 			var reason string
 			for _, d := range cerr.Details() {
-				if v, derr := d.Value(); derr == nil {
+				if v, derr := connectproto.UnmarshalErrorDetail(d); derr == nil {
 					if info, ok := v.(*errdetails.ErrorInfo); ok {
 						reason = info.GetReason()
 					}

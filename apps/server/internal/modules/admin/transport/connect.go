@@ -5,9 +5,8 @@ package transport
 
 import (
 	"context"
-	"errors"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	adminv1 "github.com/aedst/server/gen/go/aedst/admin/v1"
@@ -24,20 +23,20 @@ type Handler struct {
 
 func NewHandler(service api.Service) *Handler { return &Handler{service: service} }
 
-func (h *Handler) GetOverview(ctx context.Context, _ *connect.Request[adminv1.GetOverviewRequest]) (*connect.Response[adminv1.GetOverviewResponse], error) {
+func (h *Handler) GetOverview(ctx context.Context, _ *adminv1.GetOverviewRequest) (*adminv1.GetOverviewResponse, error) {
 	o, err := h.service.GetOverview(ctx)
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&adminv1.GetOverviewResponse{
+	return &adminv1.GetOverviewResponse{
 		UsersTotal: o.UsersTotal, TasksTotal: o.TasksTotal, TasksDone: o.TasksDone, TasksOverdue: o.TasksOverdue,
 		MediaTotal: o.MediaTotal, MediaBytes: o.MediaBytes, PushDevices: o.PushDevices,
 		OutboxLagSeconds: o.JobLagSeconds, JobsPending: o.JobsPending,
-	}), nil
+	}, nil
 }
 
-func (h *Handler) ListUsers(ctx context.Context, req *connect.Request[adminv1.ListUsersRequest]) (*connect.Response[adminv1.ListUsersResponse], error) {
-	rows, next, err := h.service.ListUsers(ctx, req.Msg.GetQuery(), req.Msg.GetPageSize(), req.Msg.GetPageToken())
+func (h *Handler) ListUsers(ctx context.Context, req *adminv1.ListUsersRequest) (*adminv1.ListUsersResponse, error) {
+	rows, next, err := h.service.ListUsers(ctx, req.GetQuery(), req.GetPageSize(), req.GetPageToken())
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
@@ -48,15 +47,15 @@ func (h *Handler) ListUsers(ctx context.Context, req *connect.Request[adminv1.Li
 	if next != nil {
 		out.NextPageToken = next.Encode()
 	}
-	return connect.NewResponse(out), nil
+	return out, nil
 }
 
-func (h *Handler) ListTasks(ctx context.Context, req *connect.Request[adminv1.ListTasksRequest]) (*connect.Response[adminv1.ListTasksResponse], error) {
-	owner, err := optionalID(req.Msg.GetOwnerId())
+func (h *Handler) ListTasks(ctx context.Context, req *adminv1.ListTasksRequest) (*adminv1.ListTasksResponse, error) {
+	owner, err := optionalID(req.GetOwnerId())
 	if err != nil {
 		return nil, err
 	}
-	res, err := h.service.ListTasks(ctx, owner, req.Msg.GetQuery(), req.Msg.GetPageSize(), req.Msg.GetPageToken())
+	res, err := h.service.ListTasks(ctx, owner, req.GetQuery(), req.GetPageSize(), req.GetPageToken())
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
@@ -71,7 +70,7 @@ func (h *Handler) ListTasks(ctx context.Context, req *connect.Request[adminv1.Li
 	if res.Next != nil {
 		out.NextPageToken = res.Next.Encode()
 	}
-	return connect.NewResponse(out), nil
+	return out, nil
 }
 
 // statusNumber maps to aedst.tasks.v1.TaskStatus numbers (admin.proto keeps
@@ -89,39 +88,39 @@ func statusNumber(s string) int32 {
 	}
 }
 
-func (h *Handler) DeleteTask(ctx context.Context, req *connect.Request[adminv1.DeleteTaskRequest]) (*connect.Response[adminv1.DeleteTaskResponse], error) {
+func (h *Handler) DeleteTask(ctx context.Context, req *adminv1.DeleteTaskRequest) (*adminv1.DeleteTaskResponse, error) {
 	actor, err := actorOf(ctx)
 	if err != nil {
 		return nil, err
 	}
-	id, err := ids.Parse(req.Msg.GetId())
+	id, err := ids.Parse(req.GetId())
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("id must be a UUID"))
+		return nil, connect.NewError(connect.CodeInvalidArgument, "id must be a UUID")
 	}
-	if err := h.service.DeleteTask(ctx, actor, id, req.Msg.GetReason()); err != nil {
+	if err := h.service.DeleteTask(ctx, actor, id, req.GetReason()); err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&adminv1.DeleteTaskResponse{}), nil
+	return &adminv1.DeleteTaskResponse{}, nil
 }
 
-func (h *Handler) BroadcastNotification(ctx context.Context, req *connect.Request[adminv1.BroadcastNotificationRequest]) (*connect.Response[adminv1.BroadcastNotificationResponse], error) {
+func (h *Handler) BroadcastNotification(ctx context.Context, req *adminv1.BroadcastNotificationRequest) (*adminv1.BroadcastNotificationResponse, error) {
 	actor, err := actorOf(ctx)
 	if err != nil {
 		return nil, err
 	}
-	userID, err := optionalID(req.Msg.GetUserId())
+	userID, err := optionalID(req.GetUserId())
 	if err != nil {
 		return nil, err
 	}
-	n, err := h.service.BroadcastNotification(ctx, actor, userID, req.Msg.GetTitle(), req.Msg.GetBody(), req.Msg.GetLink())
+	n, err := h.service.BroadcastNotification(ctx, actor, userID, req.GetTitle(), req.GetBody(), req.GetLink())
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
-	return connect.NewResponse(&adminv1.BroadcastNotificationResponse{Recipients: n}), nil
+	return &adminv1.BroadcastNotificationResponse{Recipients: n}, nil
 }
 
-func (h *Handler) ListAuditLog(ctx context.Context, req *connect.Request[adminv1.ListAuditLogRequest]) (*connect.Response[adminv1.ListAuditLogResponse], error) {
-	entries, next, err := h.service.ListAuditLog(ctx, req.Msg.GetPageSize(), req.Msg.GetPageToken())
+func (h *Handler) ListAuditLog(ctx context.Context, req *adminv1.ListAuditLogRequest) (*adminv1.ListAuditLogResponse, error) {
+	entries, next, err := h.service.ListAuditLog(ctx, req.GetPageSize(), req.GetPageToken())
 	if err != nil {
 		return nil, httpserver.ToConnectError(err)
 	}
@@ -135,7 +134,7 @@ func (h *Handler) ListAuditLog(ctx context.Context, req *connect.Request[adminv1
 	if next != nil {
 		out.NextPageToken = next.Encode()
 	}
-	return connect.NewResponse(out), nil
+	return out, nil
 }
 
 func actorOf(ctx context.Context) (api.Actor, error) {
@@ -152,7 +151,7 @@ func optionalID(raw string) (*ids.ID, error) {
 	}
 	id, err := ids.Parse(raw)
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("id must be a UUID"))
+		return nil, connect.NewError(connect.CodeInvalidArgument, "id must be a UUID")
 	}
 	return &id, nil
 }

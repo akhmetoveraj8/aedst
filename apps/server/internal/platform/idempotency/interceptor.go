@@ -2,9 +2,8 @@ package idempotency
 
 import (
 	"context"
-	"errors"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 )
 
 // HeaderName is the HTTP/Connect header a client sends its idempotency key
@@ -16,21 +15,25 @@ const HeaderName = "Idempotency-Key"
 // is a storage and lock-name abuse vector.
 const MaxKeyLength = 128
 
-var errInvalidKey = errors.New("Idempotency-Key must be 1-128 printable ASCII characters")
+const errInvalidKey = "Idempotency-Key must be 1-128 printable ASCII characters"
 
 // HeaderInterceptor copies the Idempotency-Key request header onto the
 // context via WithKey. It never rejects a request for lacking one — most RPCs
 // don't need idempotency, so whether a key is required is left to each
 // handler — but a malformed key (too long, control or non-ASCII characters)
 // is rejected up front rather than stored.
-func HeaderInterceptor() connect.UnaryInterceptorFunc {
-	return func(next connect.UnaryFunc) connect.UnaryFunc {
-		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-			key := req.Header().Get(HeaderName)
-			if key != "" && !validKey(key) {
-				return nil, connect.NewError(connect.CodeInvalidArgument, errInvalidKey)
+func HeaderInterceptor() connect.ServerInterceptor {
+	return func(next connect.ServerFunc) connect.ServerFunc {
+		return func(ctx context.Context, spec connect.Spec, stream connect.ServerStream) error {
+			info, _ := connect.CallInfoForServerContext(ctx)
+			key := ""
+			if info != nil {
+				key = info.RequestHeader().Get(HeaderName)
 			}
-			return next(WithKey(ctx, key), req)
+			if key != "" && !validKey(key) {
+				return connect.NewError(connect.CodeInvalidArgument, errInvalidKey)
+			}
+			return next(WithKey(ctx, key), spec, stream)
 		}
 	}
 }

@@ -125,12 +125,14 @@ func TestEveryModuleRegistersAndIsLinked(t *testing.T) {
 	}
 }
 
-var generatedHandlerCtor = regexp.MustCompile(`^New\w+ServiceHandler$`)
+var generatedHandlerCtor = regexp.MustCompile(`^Register\w+ServiceHandler$`)
 
-// Every generated Connect handler constructor must be passed to modulekit.Mount
-// (never called directly, which would bypass the shared chain and its
-// protovalidate interceptor), and Handle may only receive the non-RPC handlers
-// (gRPC health, reflection). Checked in cmd/server and in every module package.
+// Every generated Connect handler registration (Register<Service>Handler) must
+// be passed to modulekit.Mount (never called directly, which would bypass the
+// shared chain and its protovalidate interceptor). Module packages may not
+// build a connect.Server or call connecthttp.Mount themselves, and Handle may
+// only receive the non-RPC handlers. Checked in cmd/server and in every module
+// package.
 func TestEveryConnectHandlerIsMountedThroughTheMounter(t *testing.T) {
 	dirs := []string{"../cmd/server"}
 	for _, name := range moduleNames(t) {
@@ -154,6 +156,10 @@ func TestEveryConnectHandlerIsMountedThroughTheMounter(t *testing.T) {
 				}
 				if pkg, ok := sel.X.(*ast.Ident); ok && pkg.Name == "modulekit" && sel.Sel.Name == "Mount" {
 					mounted++
+				}
+				if pkg, ok := sel.X.(*ast.Ident); ok && dir != "../cmd/server" &&
+					(pkg.Name == "connect" && sel.Sel.Name == "NewServer" || pkg.Name == "connecthttp" && sel.Sel.Name == "Mount") {
+					t.Errorf("%s: %s.%s in a module — its own connect.Server would bypass the shared chain; use modulekit.Mount", fset.Position(call.Pos()), pkg.Name, sel.Sel.Name)
 				}
 				if sel.Sel.Name == "Handle" {
 					for _, arg := range call.Args {

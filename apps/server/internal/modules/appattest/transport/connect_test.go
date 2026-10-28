@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 
 	appattestv1 "github.com/aedst/server/gen/go/aedst/appattest/v1"
 	"github.com/aedst/server/internal/modules/appattest/api"
@@ -51,26 +51,26 @@ func TestCreateChallenge_ReturnsTheChallengeForTheCaller(t *testing.T) {
 	user := ids.New()
 	exp := time.Date(2026, 10, 8, 12, 5, 0, 0, time.UTC)
 	svc := &fakeService{challenge: api.Challenge{Value: []byte("0123456789abcdef0123456789abcdef"), ExpiresAt: exp}}
-	resp, err := transport.NewHandler(svc).CreateChallenge(authed(user), connect.NewRequest(&appattestv1.CreateChallengeRequest{}))
+	resp, err := transport.NewHandler(svc).CreateChallenge(authed(user), &appattestv1.CreateChallengeRequest{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(resp.Msg.GetChallenge()) != "0123456789abcdef0123456789abcdef" || !resp.Msg.GetExpiresAt().AsTime().Equal(exp) || svc.user != user {
-		t.Errorf("response = %+v, user %v", resp.Msg, svc.user)
+	if string(resp.GetChallenge()) != "0123456789abcdef0123456789abcdef" || !resp.GetExpiresAt().AsTime().Equal(exp) || svc.user != user {
+		t.Errorf("response = %+v, user %v", resp, svc.user)
 	}
 }
 
 func TestEnroll_MapsResultAndPassesTheCaller(t *testing.T) {
 	user := ids.New()
 	svc := &fakeService{enroll: api.EnrollResult{Verified: true, Environment: domain.EnvironmentDevelopment}}
-	resp, err := transport.NewHandler(svc).Enroll(authed(user), connect.NewRequest(&appattestv1.EnrollRequest{
+	resp, err := transport.NewHandler(svc).Enroll(authed(user), &appattestv1.EnrollRequest{
 		KeyId: "k", AttestationObject: []byte("o"), Challenge: []byte("c"), BundleId: "com.example.app",
-	}))
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !resp.Msg.GetVerified() || resp.Msg.GetEnvironment() != appattestv1.Environment_ENVIRONMENT_DEVELOPMENT || resp.Msg.GetReason() != appattestv1.FailureReason_FAILURE_REASON_UNSPECIFIED {
-		t.Errorf("response = %+v", resp.Msg)
+	if !resp.GetVerified() || resp.GetEnvironment() != appattestv1.Environment_ENVIRONMENT_DEVELOPMENT || resp.GetReason() != appattestv1.FailureReason_FAILURE_REASON_UNSPECIFIED {
+		t.Errorf("response = %+v", resp)
 	}
 	if in := svc.enrollIn; in.UserID != user || in.KeyID != "k" || string(in.AttestationObject) != "o" || string(in.Challenge) != "c" || in.BundleID != "com.example.app" {
 		t.Errorf("input = %+v", in)
@@ -97,12 +97,12 @@ func TestRejectionsAreSuccessfulResponsesWithAReason(t *testing.T) {
 	} {
 		svc := &fakeService{enroll: api.EnrollResult{Reason: reason}, assertion: api.AssertionResult{Reason: reason}}
 		h := transport.NewHandler(svc)
-		e, err := h.Enroll(authed(ids.New()), connect.NewRequest(&appattestv1.EnrollRequest{}))
-		if err != nil || e.Msg.GetVerified() || e.Msg.GetReason() != want || e.Msg.GetEnvironment() != appattestv1.Environment_ENVIRONMENT_UNSPECIFIED {
+		e, err := h.Enroll(authed(ids.New()), &appattestv1.EnrollRequest{})
+		if err != nil || e.GetVerified() || e.GetReason() != want || e.GetEnvironment() != appattestv1.Environment_ENVIRONMENT_UNSPECIFIED {
 			t.Errorf("Enroll %q = %+v, %v", reason, e, err)
 		}
-		a, err := h.VerifyAssertion(authed(ids.New()), connect.NewRequest(&appattestv1.VerifyAssertionRequest{Action: "login"}))
-		if err != nil || a.Msg.GetVerified() || a.Msg.GetReason() != want || a.Msg.GetAction() != "" {
+		a, err := h.VerifyAssertion(authed(ids.New()), &appattestv1.VerifyAssertionRequest{Action: "login"})
+		if err != nil || a.GetVerified() || a.GetReason() != want || a.GetAction() != "" {
 			t.Errorf("VerifyAssertion %q = %+v, %v", reason, a, err)
 		}
 	}
@@ -111,10 +111,10 @@ func TestRejectionsAreSuccessfulResponsesWithAReason(t *testing.T) {
 func TestVerifyAssertion_EchoesTheActionWhenVerified(t *testing.T) {
 	user := ids.New()
 	svc := &fakeService{assertion: api.AssertionResult{Verified: true}}
-	resp, err := transport.NewHandler(svc).VerifyAssertion(authed(user), connect.NewRequest(&appattestv1.VerifyAssertionRequest{
+	resp, err := transport.NewHandler(svc).VerifyAssertion(authed(user), &appattestv1.VerifyAssertionRequest{
 		KeyId: "k", Assertion: []byte("a"), Action: "login", Payload: []byte("p"),
-	}))
-	if err != nil || !resp.Msg.GetVerified() || resp.Msg.GetAction() != "login" {
+	})
+	if err != nil || !resp.GetVerified() || resp.GetAction() != "login" {
 		t.Fatalf("= %+v, %v", resp, err)
 	}
 	if in := svc.assertIn; in.UserID != user || in.KeyID != "k" || string(in.Assertion) != "a" || in.Action != "login" || string(in.Payload) != "p" {
@@ -124,13 +124,13 @@ func TestVerifyAssertion_EchoesTheActionWhenVerified(t *testing.T) {
 
 func TestErrorsAndAuth(t *testing.T) {
 	h := func(err error) *transport.Handler { return transport.NewHandler(&fakeService{err: err}) }
-	if _, err := h(nil).CreateChallenge(context.Background(), connect.NewRequest(&appattestv1.CreateChallengeRequest{})); connect.CodeOf(err) != connect.CodeUnauthenticated {
+	if _, err := h(nil).CreateChallenge(context.Background(), &appattestv1.CreateChallengeRequest{}); connect.CodeOf(err) != connect.CodeUnauthenticated {
 		t.Errorf("CreateChallenge without identity = %v", err)
 	}
-	if _, err := h(nil).Enroll(context.Background(), connect.NewRequest(&appattestv1.EnrollRequest{})); connect.CodeOf(err) != connect.CodeUnauthenticated {
+	if _, err := h(nil).Enroll(context.Background(), &appattestv1.EnrollRequest{}); connect.CodeOf(err) != connect.CodeUnauthenticated {
 		t.Errorf("Enroll without identity = %v", err)
 	}
-	if _, err := h(nil).VerifyAssertion(context.Background(), connect.NewRequest(&appattestv1.VerifyAssertionRequest{})); connect.CodeOf(err) != connect.CodeUnauthenticated {
+	if _, err := h(nil).VerifyAssertion(context.Background(), &appattestv1.VerifyAssertionRequest{}); connect.CodeOf(err) != connect.CodeUnauthenticated {
 		t.Errorf("VerifyAssertion without identity = %v", err)
 	}
 	cases := map[connect.Code]error{
@@ -140,13 +140,13 @@ func TestErrorsAndAuth(t *testing.T) {
 		connect.CodeInternal:           errors.New("db down"),
 	}
 	for want, in := range cases {
-		if _, err := h(in).CreateChallenge(authed(ids.New()), connect.NewRequest(&appattestv1.CreateChallengeRequest{})); connect.CodeOf(err) != want {
+		if _, err := h(in).CreateChallenge(authed(ids.New()), &appattestv1.CreateChallengeRequest{}); connect.CodeOf(err) != want {
 			t.Errorf("CreateChallenge %v = %v, want %v", in, connect.CodeOf(err), want)
 		}
-		if _, err := h(in).Enroll(authed(ids.New()), connect.NewRequest(&appattestv1.EnrollRequest{})); connect.CodeOf(err) != want {
+		if _, err := h(in).Enroll(authed(ids.New()), &appattestv1.EnrollRequest{}); connect.CodeOf(err) != want {
 			t.Errorf("Enroll %v = %v, want %v", in, connect.CodeOf(err), want)
 		}
-		if _, err := h(in).VerifyAssertion(authed(ids.New()), connect.NewRequest(&appattestv1.VerifyAssertionRequest{})); connect.CodeOf(err) != want {
+		if _, err := h(in).VerifyAssertion(authed(ids.New()), &appattestv1.VerifyAssertionRequest{}); connect.CodeOf(err) != want {
 			t.Errorf("VerifyAssertion %v = %v, want %v", in, connect.CodeOf(err), want)
 		}
 	}

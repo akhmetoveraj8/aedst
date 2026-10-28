@@ -5,170 +5,175 @@
 package appattestv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/aedst/server/gen/go/aedst/appattest/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// AppAttestServiceName is the fully-qualified name of the AppAttestService service.
 	AppAttestServiceName = "aedst.appattest.v1.AppAttestService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// AppAttestServiceCreateChallengeProcedure is the fully-qualified name of the AppAttestService's
+	// AppAttestServiceCreateChallengeProcedure is the procedure name of the AppAttestService's
 	// CreateChallenge RPC.
 	AppAttestServiceCreateChallengeProcedure = "/aedst.appattest.v1.AppAttestService/CreateChallenge"
-	// AppAttestServiceEnrollProcedure is the fully-qualified name of the AppAttestService's Enroll RPC.
+	// AppAttestServiceEnrollProcedure is the procedure name of the AppAttestService's Enroll RPC.
 	AppAttestServiceEnrollProcedure = "/aedst.appattest.v1.AppAttestService/Enroll"
-	// AppAttestServiceVerifyAssertionProcedure is the fully-qualified name of the AppAttestService's
+	// AppAttestServiceVerifyAssertionProcedure is the procedure name of the AppAttestService's
 	// VerifyAssertion RPC.
 	AppAttestServiceVerifyAssertionProcedure = "/aedst.appattest.v1.AppAttestService/VerifyAssertion"
+)
+
+var (
+	appAttestServiceCreateChallengeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_appattest_v1_appattest_proto.Services().ByName("AppAttestService").Methods().ByName("CreateChallenge"),
+			Procedure:  AppAttestServiceCreateChallengeProcedure,
+		}
+	})
+	appAttestServiceEnrollSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_appattest_v1_appattest_proto.Services().ByName("AppAttestService").Methods().ByName("Enroll"),
+			Procedure:  AppAttestServiceEnrollProcedure,
+		}
+	})
+	appAttestServiceVerifyAssertionSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_appattest_v1_appattest_proto.Services().ByName("AppAttestService").Methods().ByName("VerifyAssertion"),
+			Procedure:  AppAttestServiceVerifyAssertionProcedure,
+		}
+	})
 )
 
 // AppAttestServiceClient is a client for the aedst.appattest.v1.AppAttestService service.
 type AppAttestServiceClient interface {
 	// Returns a fresh 32-byte random challenge bound to the calling user.
 	// Single use, valid for 5 minutes, rate limited per user.
-	CreateChallenge(context.Context, *connect.Request[v1.CreateChallengeRequest]) (*connect.Response[v1.CreateChallengeResponse], error)
+	CreateChallenge(context.Context, *v1.CreateChallengeRequest) (*v1.CreateChallengeResponse, error)
 	// Validates an attestation object and registers the attested key.
-	Enroll(context.Context, *connect.Request[v1.EnrollRequest]) (*connect.Response[v1.EnrollResponse], error)
+	Enroll(context.Context, *v1.EnrollRequest) (*v1.EnrollResponse, error)
 	// Verifies an assertion made with an enrolled key.
-	VerifyAssertion(context.Context, *connect.Request[v1.VerifyAssertionRequest]) (*connect.Response[v1.VerifyAssertionResponse], error)
+	VerifyAssertion(context.Context, *v1.VerifyAssertionRequest) (*v1.VerifyAssertionResponse, error)
 }
 
 // NewAppAttestServiceClient constructs a client for the aedst.appattest.v1.AppAttestService
-// service. By default, it uses the Connect protocol with the binary Protobuf Codec, asks for
-// gzipped responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply
-// the connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewAppAttestServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AppAttestServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	appAttestServiceMethods := v1.File_aedst_appattest_v1_appattest_proto.Services().ByName("AppAttestService").Methods()
-	return &appAttestServiceClient{
-		createChallenge: connect.NewClient[v1.CreateChallengeRequest, v1.CreateChallengeResponse](
-			httpClient,
-			baseURL+AppAttestServiceCreateChallengeProcedure,
-			connect.WithSchema(appAttestServiceMethods.ByName("CreateChallenge")),
-			connect.WithClientOptions(opts...),
-		),
-		enroll: connect.NewClient[v1.EnrollRequest, v1.EnrollResponse](
-			httpClient,
-			baseURL+AppAttestServiceEnrollProcedure,
-			connect.WithSchema(appAttestServiceMethods.ByName("Enroll")),
-			connect.WithClientOptions(opts...),
-		),
-		verifyAssertion: connect.NewClient[v1.VerifyAssertionRequest, v1.VerifyAssertionResponse](
-			httpClient,
-			baseURL+AppAttestServiceVerifyAssertionProcedure,
-			connect.WithSchema(appAttestServiceMethods.ByName("VerifyAssertion")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// appAttestServiceClient implements AppAttestServiceClient.
-type appAttestServiceClient struct {
-	createChallenge *connect.Client[v1.CreateChallengeRequest, v1.CreateChallengeResponse]
-	enroll          *connect.Client[v1.EnrollRequest, v1.EnrollResponse]
-	verifyAssertion *connect.Client[v1.VerifyAssertionRequest, v1.VerifyAssertionResponse]
-}
-
-// CreateChallenge calls aedst.appattest.v1.AppAttestService.CreateChallenge.
-func (c *appAttestServiceClient) CreateChallenge(ctx context.Context, req *connect.Request[v1.CreateChallengeRequest]) (*connect.Response[v1.CreateChallengeResponse], error) {
-	return c.createChallenge.CallUnary(ctx, req)
-}
-
-// Enroll calls aedst.appattest.v1.AppAttestService.Enroll.
-func (c *appAttestServiceClient) Enroll(ctx context.Context, req *connect.Request[v1.EnrollRequest]) (*connect.Response[v1.EnrollResponse], error) {
-	return c.enroll.CallUnary(ctx, req)
-}
-
-// VerifyAssertion calls aedst.appattest.v1.AppAttestService.VerifyAssertion.
-func (c *appAttestServiceClient) VerifyAssertion(ctx context.Context, req *connect.Request[v1.VerifyAssertionRequest]) (*connect.Response[v1.VerifyAssertionResponse], error) {
-	return c.verifyAssertion.CallUnary(ctx, req)
+// service. Multiple service clients may share a single connect.Client.
+func NewAppAttestServiceClient(client *connect.Client) AppAttestServiceClient {
+	return &appAttestServiceClient{client: client}
 }
 
 // AppAttestServiceHandler is an implementation of the aedst.appattest.v1.AppAttestService service.
 type AppAttestServiceHandler interface {
 	// Returns a fresh 32-byte random challenge bound to the calling user.
 	// Single use, valid for 5 minutes, rate limited per user.
-	CreateChallenge(context.Context, *connect.Request[v1.CreateChallengeRequest]) (*connect.Response[v1.CreateChallengeResponse], error)
+	CreateChallenge(context.Context, *v1.CreateChallengeRequest) (*v1.CreateChallengeResponse, error)
 	// Validates an attestation object and registers the attested key.
-	Enroll(context.Context, *connect.Request[v1.EnrollRequest]) (*connect.Response[v1.EnrollResponse], error)
+	Enroll(context.Context, *v1.EnrollRequest) (*v1.EnrollResponse, error)
 	// Verifies an assertion made with an enrolled key.
-	VerifyAssertion(context.Context, *connect.Request[v1.VerifyAssertionRequest]) (*connect.Response[v1.VerifyAssertionResponse], error)
+	VerifyAssertion(context.Context, *v1.VerifyAssertionRequest) (*v1.VerifyAssertionResponse, error)
 }
 
-// NewAppAttestServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewAppAttestServiceHandler(svc AppAttestServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	appAttestServiceMethods := v1.File_aedst_appattest_v1_appattest_proto.Services().ByName("AppAttestService").Methods()
-	appAttestServiceCreateChallengeHandler := connect.NewUnaryHandler(
-		AppAttestServiceCreateChallengeProcedure,
-		svc.CreateChallenge,
-		connect.WithSchema(appAttestServiceMethods.ByName("CreateChallenge")),
-		connect.WithHandlerOptions(opts...),
+// RegisterAppAttestServiceHandler registers svc as the aedst.appattest.v1.AppAttestService
+// implementation on server.
+func RegisterAppAttestServiceHandler(server *connect.Server, svc AppAttestServiceHandler) {
+	adapter := appAttestServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: appAttestServiceCreateChallengeSpec(), Handler: adapter.createChallenge},
+		connect.Method{Spec: appAttestServiceEnrollSpec(), Handler: adapter.enroll},
+		connect.Method{Spec: appAttestServiceVerifyAssertionSpec(), Handler: adapter.verifyAssertion},
 	)
-	appAttestServiceEnrollHandler := connect.NewUnaryHandler(
-		AppAttestServiceEnrollProcedure,
-		svc.Enroll,
-		connect.WithSchema(appAttestServiceMethods.ByName("Enroll")),
-		connect.WithHandlerOptions(opts...),
-	)
-	appAttestServiceVerifyAssertionHandler := connect.NewUnaryHandler(
-		AppAttestServiceVerifyAssertionProcedure,
-		svc.VerifyAssertion,
-		connect.WithSchema(appAttestServiceMethods.ByName("VerifyAssertion")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/aedst.appattest.v1.AppAttestService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case AppAttestServiceCreateChallengeProcedure:
-			appAttestServiceCreateChallengeHandler.ServeHTTP(w, r)
-		case AppAttestServiceEnrollProcedure:
-			appAttestServiceEnrollHandler.ServeHTTP(w, r)
-		case AppAttestServiceVerifyAssertionProcedure:
-			appAttestServiceVerifyAssertionHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedAppAttestServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAppAttestServiceHandler struct{}
 
-func (UnimplementedAppAttestServiceHandler) CreateChallenge(context.Context, *connect.Request[v1.CreateChallengeRequest]) (*connect.Response[v1.CreateChallengeResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.appattest.v1.AppAttestService.CreateChallenge is not implemented"))
+func (UnimplementedAppAttestServiceHandler) CreateChallenge(context.Context, *v1.CreateChallengeRequest) (*v1.CreateChallengeResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.appattest.v1.AppAttestService.CreateChallenge is not implemented")
 }
 
-func (UnimplementedAppAttestServiceHandler) Enroll(context.Context, *connect.Request[v1.EnrollRequest]) (*connect.Response[v1.EnrollResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.appattest.v1.AppAttestService.Enroll is not implemented"))
+func (UnimplementedAppAttestServiceHandler) Enroll(context.Context, *v1.EnrollRequest) (*v1.EnrollResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.appattest.v1.AppAttestService.Enroll is not implemented")
 }
 
-func (UnimplementedAppAttestServiceHandler) VerifyAssertion(context.Context, *connect.Request[v1.VerifyAssertionRequest]) (*connect.Response[v1.VerifyAssertionResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.appattest.v1.AppAttestService.VerifyAssertion is not implemented"))
+func (UnimplementedAppAttestServiceHandler) VerifyAssertion(context.Context, *v1.VerifyAssertionRequest) (*v1.VerifyAssertionResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.appattest.v1.AppAttestService.VerifyAssertion is not implemented")
+}
+
+type appAttestServiceClient struct {
+	client *connect.Client
+}
+
+func (c *appAttestServiceClient) CreateChallenge(ctx context.Context, req *v1.CreateChallengeRequest) (*v1.CreateChallengeResponse, error) {
+	var res v1.CreateChallengeResponse
+	if err := c.client.CallUnary(ctx, appAttestServiceCreateChallengeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *appAttestServiceClient) Enroll(ctx context.Context, req *v1.EnrollRequest) (*v1.EnrollResponse, error) {
+	var res v1.EnrollResponse
+	if err := c.client.CallUnary(ctx, appAttestServiceEnrollSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *appAttestServiceClient) VerifyAssertion(ctx context.Context, req *v1.VerifyAssertionRequest) (*v1.VerifyAssertionResponse, error) {
+	var res v1.VerifyAssertionResponse
+	if err := c.client.CallUnary(ctx, appAttestServiceVerifyAssertionSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type appAttestServiceHandler struct{ svc AppAttestServiceHandler }
+
+func (h appAttestServiceHandler) createChallenge(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.CreateChallengeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateChallenge(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h appAttestServiceHandler) enroll(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.EnrollRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.Enroll(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h appAttestServiceHandler) verifyAssertion(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.VerifyAssertionRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.VerifyAssertion(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

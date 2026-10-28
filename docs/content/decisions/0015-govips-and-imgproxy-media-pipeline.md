@@ -40,7 +40,7 @@ size/format variants are produced on demand by imgproxy, which uses libvips itse
 There is no govips inside imgproxy and no pre-generated generic renditions.
 
 **Ingest (`internal/modules/media/infrastructure/processing`)**
-- `govips` v2.19.0 over system libvips (cgo), behind an `ImageProcessor` interface
+- `govips` v2.20.0 over system libvips (cgo), behind an `ImageProcessor` interface
   (`Sanitize`). Real implementation: `images_vips.go` (`//go:build vips`). Default
   builds get `images_novips.go`, which returns `ErrImagingUnavailable` ("built
   without libvips (-tags vips)"), deliberately distinct from `ErrUnprocessable`: a
@@ -60,7 +60,7 @@ There is no govips inside imgproxy and no pre-generated generic renditions.
   variant; the old poster thumbnail is gone.
 
 **Delivery (`internal/platform/imgproxy` + imgproxy service)**
-- imgproxy (`darthsim/imgproxy`, tag `v4.0.17` verified on Docker Hub on 2026-09-30)
+- imgproxy (`darthsim/imgproxy`, tag `v4.0.20` verified on Docker Hub on 2026-10-28)
   reads the original from the bucket (`s3://bucket/key`) and renders presets
   `thumb_64`, `avatar_256`, `card_400`, `feed_800x600`, `story_1080x1350` as
   WebP/AVIF/JPEG negotiated from the `Accept` header (no extension in the URL).
@@ -83,8 +83,8 @@ There is no govips inside imgproxy and no pre-generated generic renditions.
   `Media.url` (the original).
 
 ## Consequences
-- The server image becomes dynamically linked: `golang:1.27-bookworm` builder with
-  `libvips-dev`, runtime `debian:bookworm-slim` with `libvips42`, non-root uid 65532.
+- The server image becomes dynamically linked: `golang:1.27-trixie` builder (moved from bookworm; Debian 13, glibc 2.41) with
+  `libvips-dev`, runtime `debian:trixie-slim` with `libvips42t64` (the trixie name of libvips42 after the t64 transition; libvips 8.16.1), non-root uid 65532.
   Distroless-static no longer works with cgo.
 - CI gains `unit-vips` (installs `libvips-dev`, `go vet -tags vips`, `task test:vips`,
   `task build:vips`). Default lint/test jobs do not compile the tagged files.

@@ -52,6 +52,6 @@ func (m *tasksModule) setup(_ context.Context, env *modulekit.Env) error {
 }
 
 func (m *tasksModule) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
-	modulekit.Mount(mt, tasksv1connect.NewTasksServiceHandler, tasksv1connect.TasksServiceHandler(transport.NewHandler(m.svc)), requestBytes)
+	modulekit.Mount(mt, tasksv1connect.RegisterTasksServiceHandler, tasksv1connect.TasksServiceHandler(transport.NewHandler(m.svc)), requestBytes)
 	return nil
 }

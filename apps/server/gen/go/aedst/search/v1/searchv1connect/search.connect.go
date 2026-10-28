@@ -5,134 +5,131 @@
 package searchv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/aedst/server/gen/go/aedst/search/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// SearchServiceName is the fully-qualified name of the SearchService service.
 	SearchServiceName = "aedst.search.v1.SearchService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// SearchServiceSearchProcedure is the fully-qualified name of the SearchService's Search RPC.
+	// SearchServiceSearchProcedure is the procedure name of the SearchService's Search RPC.
 	SearchServiceSearchProcedure = "/aedst.search.v1.SearchService/Search"
-	// SearchServiceSuggestProcedure is the fully-qualified name of the SearchService's Suggest RPC.
+	// SearchServiceSuggestProcedure is the procedure name of the SearchService's Suggest RPC.
 	SearchServiceSuggestProcedure = "/aedst.search.v1.SearchService/Suggest"
+)
+
+var (
+	searchServiceSearchSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_search_v1_search_proto.Services().ByName("SearchService").Methods().ByName("Search"),
+			Procedure:  SearchServiceSearchProcedure,
+		}
+	})
+	searchServiceSuggestSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_aedst_search_v1_search_proto.Services().ByName("SearchService").Methods().ByName("Suggest"),
+			Procedure:  SearchServiceSuggestProcedure,
+		}
+	})
 )
 
 // SearchServiceClient is a client for the aedst.search.v1.SearchService service.
 type SearchServiceClient interface {
-	Search(context.Context, *connect.Request[v1.SearchRequest]) (*connect.Response[v1.SearchResponse], error)
+	Search(context.Context, *v1.SearchRequest) (*v1.SearchResponse, error)
 	// Prefix suggestions for a search box (title-only, cheap).
-	Suggest(context.Context, *connect.Request[v1.SuggestRequest]) (*connect.Response[v1.SuggestResponse], error)
+	Suggest(context.Context, *v1.SuggestRequest) (*v1.SuggestResponse, error)
 }
 
-// NewSearchServiceClient constructs a client for the aedst.search.v1.SearchService service. By
-// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
-// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewSearchServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) SearchServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	searchServiceMethods := v1.File_aedst_search_v1_search_proto.Services().ByName("SearchService").Methods()
-	return &searchServiceClient{
-		search: connect.NewClient[v1.SearchRequest, v1.SearchResponse](
-			httpClient,
-			baseURL+SearchServiceSearchProcedure,
-			connect.WithSchema(searchServiceMethods.ByName("Search")),
-			connect.WithClientOptions(opts...),
-		),
-		suggest: connect.NewClient[v1.SuggestRequest, v1.SuggestResponse](
-			httpClient,
-			baseURL+SearchServiceSuggestProcedure,
-			connect.WithSchema(searchServiceMethods.ByName("Suggest")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// searchServiceClient implements SearchServiceClient.
-type searchServiceClient struct {
-	search  *connect.Client[v1.SearchRequest, v1.SearchResponse]
-	suggest *connect.Client[v1.SuggestRequest, v1.SuggestResponse]
-}
-
-// Search calls aedst.search.v1.SearchService.Search.
-func (c *searchServiceClient) Search(ctx context.Context, req *connect.Request[v1.SearchRequest]) (*connect.Response[v1.SearchResponse], error) {
-	return c.search.CallUnary(ctx, req)
-}
-
-// Suggest calls aedst.search.v1.SearchService.Suggest.
-func (c *searchServiceClient) Suggest(ctx context.Context, req *connect.Request[v1.SuggestRequest]) (*connect.Response[v1.SuggestResponse], error) {
-	return c.suggest.CallUnary(ctx, req)
+// NewSearchServiceClient constructs a client for the aedst.search.v1.SearchService service.
+// Multiple service clients may share a single connect.Client.
+func NewSearchServiceClient(client *connect.Client) SearchServiceClient {
+	return &searchServiceClient{client: client}
 }
 
 // SearchServiceHandler is an implementation of the aedst.search.v1.SearchService service.
 type SearchServiceHandler interface {
-	Search(context.Context, *connect.Request[v1.SearchRequest]) (*connect.Response[v1.SearchResponse], error)
+	Search(context.Context, *v1.SearchRequest) (*v1.SearchResponse, error)
 	// Prefix suggestions for a search box (title-only, cheap).
-	Suggest(context.Context, *connect.Request[v1.SuggestRequest]) (*connect.Response[v1.SuggestResponse], error)
+	Suggest(context.Context, *v1.SuggestRequest) (*v1.SuggestResponse, error)
 }
 
-// NewSearchServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewSearchServiceHandler(svc SearchServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	searchServiceMethods := v1.File_aedst_search_v1_search_proto.Services().ByName("SearchService").Methods()
-	searchServiceSearchHandler := connect.NewUnaryHandler(
-		SearchServiceSearchProcedure,
-		svc.Search,
-		connect.WithSchema(searchServiceMethods.ByName("Search")),
-		connect.WithHandlerOptions(opts...),
+// RegisterSearchServiceHandler registers svc as the aedst.search.v1.SearchService implementation on
+// server.
+func RegisterSearchServiceHandler(server *connect.Server, svc SearchServiceHandler) {
+	adapter := searchServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: searchServiceSearchSpec(), Handler: adapter.search},
+		connect.Method{Spec: searchServiceSuggestSpec(), Handler: adapter.suggest},
 	)
-	searchServiceSuggestHandler := connect.NewUnaryHandler(
-		SearchServiceSuggestProcedure,
-		svc.Suggest,
-		connect.WithSchema(searchServiceMethods.ByName("Suggest")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/aedst.search.v1.SearchService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case SearchServiceSearchProcedure:
-			searchServiceSearchHandler.ServeHTTP(w, r)
-		case SearchServiceSuggestProcedure:
-			searchServiceSuggestHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedSearchServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedSearchServiceHandler struct{}
 
-func (UnimplementedSearchServiceHandler) Search(context.Context, *connect.Request[v1.SearchRequest]) (*connect.Response[v1.SearchResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.search.v1.SearchService.Search is not implemented"))
+func (UnimplementedSearchServiceHandler) Search(context.Context, *v1.SearchRequest) (*v1.SearchResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.search.v1.SearchService.Search is not implemented")
 }
 
-func (UnimplementedSearchServiceHandler) Suggest(context.Context, *connect.Request[v1.SuggestRequest]) (*connect.Response[v1.SuggestResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aedst.search.v1.SearchService.Suggest is not implemented"))
+func (UnimplementedSearchServiceHandler) Suggest(context.Context, *v1.SuggestRequest) (*v1.SuggestResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "aedst.search.v1.SearchService.Suggest is not implemented")
+}
+
+type searchServiceClient struct {
+	client *connect.Client
+}
+
+func (c *searchServiceClient) Search(ctx context.Context, req *v1.SearchRequest) (*v1.SearchResponse, error) {
+	var res v1.SearchResponse
+	if err := c.client.CallUnary(ctx, searchServiceSearchSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *searchServiceClient) Suggest(ctx context.Context, req *v1.SuggestRequest) (*v1.SuggestResponse, error) {
+	var res v1.SuggestResponse
+	if err := c.client.CallUnary(ctx, searchServiceSuggestSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type searchServiceHandler struct{ svc SearchServiceHandler }
+
+func (h searchServiceHandler) search(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SearchRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.Search(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h searchServiceHandler) suggest(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SuggestRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.Suggest(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

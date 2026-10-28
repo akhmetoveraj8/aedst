@@ -2,10 +2,9 @@ package httpserver
 
 import (
 	"context"
-	"errors"
 
-	"connectrpc.com/connect"
-	"connectrpc.com/grpchealth"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/grpchealth/v2"
 )
 
 // healthChecker answers the standard gRPC health protocol (grpc.health.v1) from
@@ -30,7 +29,7 @@ func NewHealthChecker(readiness *Readiness, services ...string) grpchealth.Check
 
 func (h *healthChecker) Check(ctx context.Context, req *grpchealth.CheckRequest) (*grpchealth.CheckResponse, error) {
 	if req.Service != "" && !h.services[req.Service] {
-		return nil, connect.NewError(connect.CodeNotFound, errors.New("unknown service"))
+		return nil, connect.NewError(connect.CodeNotFound, "unknown service")
 	}
 	if h.readiness.Draining() {
 		return &grpchealth.CheckResponse{Status: grpchealth.StatusNotServing}, nil

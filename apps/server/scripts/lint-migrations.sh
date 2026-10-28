@@ -12,7 +12,7 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-SQUAWK_VERSION="${SQUAWK_VERSION:-2.66.0}"
+SQUAWK_VERSION="${SQUAWK_VERSION:-2.70.0}"
 MODULES="${MODULES:-platform auth tasks notifications search media admin integrity appattest}"
 
 if command -v squawk >/dev/null 2>&1; then

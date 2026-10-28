@@ -5,9 +5,9 @@
 # Format: <module path>  # concern
 
 buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go  # validation: protovalidate descriptors
-connectrpc.com/connect  # RPC
-connectrpc.com/grpchealth  # health
-connectrpc.com/grpcreflect  # gRPC reflection (off by default)
+connectrpc.com/connect/v2  # RPC (v2: connecthttp, connectproto)
+connectrpc.com/grpchealth/v2  # health
+connectrpc.com/grpcreflect/v2  # gRPC reflection (off by default)
 connectrpc.com/otelconnect  # observability: RPC tracing
 connectrpc.com/validate  # validation: protovalidate interceptor
 firebase.google.com/go/v4  # push: FCM (internal/platform/push only)
