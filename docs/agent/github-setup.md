@@ -24,3 +24,14 @@ gh repo edit --template
 ```
 
 Required reviewers on the environment must be set in the web UI or through `gh api` with a `reviewers` array of user ids.
+
+## Working tree hygiene
+
+A tree with hundreds of uncommitted changes has no rollback and cannot be reviewed. Before starting new work on top of one:
+
+1. Group the changes by concern (for example: a directory move or rename, regenerated files with their source, one platform's feature, docs). A move or rename is its own commit so history follows the files (`git add -A <old> <new>`).
+2. Commit each group with a message that says what and why; run `task check` before each commit that touches rules, scripts or docs.
+3. Never mix generated output with unrelated hand edits, and never `git add -A` the whole tree in one commit.
+4. Agents do not commit, stash, reset, rebase or switch branches unless asked (`CLAUDE.md`); the human runs the steps above, or tells the agent to do one group at a time.
+
+The SessionStart hook (`.claude/hooks/session-start.sh`) prints a warning above 200 changed files; `AEDST_SESSION_START=off` silences it.

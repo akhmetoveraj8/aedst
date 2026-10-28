@@ -40,4 +40,4 @@ stays red until you declare the module by hand.
 - No integration test, event publisher, River job or idempotency key on the server; copy them from `tasks` when needed.
 
 After stamping: replace the placeholder entry with the real aggregate, write the spec in `apps/server/specs/<name>/`, and run
-`task check`, `task server:check`, `pnpm --dir apps/web typecheck lint test`, and the Android gates in `apps/android/AGENTS.md`.
+`task check`, `task server:check`, `task web:lint web:test` (or the single project: `task app:lint app:test`), and the Android gates in `apps/android/AGENTS.md`.

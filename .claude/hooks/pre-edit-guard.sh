@@ -20,11 +20,11 @@ regen=""
 case "$rel" in
   apps/server/gen/* | apps/server/internal/*/sqlc/* | apps/server/internal/*/db/*.sql.go | *.pb.go | *_connect.go)
     regen="task server:gen" ;;
-  apps/web/src/shared/api/*/generated/* | apps/web/src/gen/* | *_pb.ts | *_pb.js)
+  apps/web/shared/api/*/generated/* | *_pb.ts | *_pb.js)
     regen="task web:generate (pnpm connect:generate)" ;;
-  apps/web/next-env.d.ts)
+  apps/web/*/next-env.d.ts)
     regen="next dev / next build rewrites it" ;;
-  apps/web/src/shared/ui/tokens.css | packages/design-tokens/dist/* | */AedstTokens.qml | */AedstLightPalette.* | */AedstDarkPalette.*)
+  apps/web/shared/ui/tokens.css | packages/design-tokens/dist/* | */AedstTokens.qml | */AedstLightPalette.* | */AedstDarkPalette.*)
     regen="pnpm --dir packages/design-tokens build" ;;
   apps/android/core/network/src/main/kotlin-gen/*)
     regen="task android:generate (make generate)" ;;
@@ -34,9 +34,20 @@ case "$rel" in
     regen="the desktop CMake build (generated at build time)" ;;
   *.pb.* | *.connect.*)
     regen="the buf/protoc generation step of the owning app" ;;
+  # Lock files are written by the package manager; a hand edit breaks integrity hashes.
+  */pnpm-lock.yaml | pnpm-lock.yaml | */go.sum | go.sum | */buf.lock | */Package.resolved | */gradle.lockfile | */.terraform.lock.hcl)
+    regen="the package manager (pnpm install, go mod tidy, buf dep update, swift package resolve, gradle --write-locks, tofu init)" ;;
+esac
+
+# Real secret files (anything named .env or .env.<x>, except the committed *.example templates).
+case "$(basename "$rel")" in
+  .env.example | .env.*.example) ;;
+  .env | .env.*)
+    node "$IO" deny "Refusing to edit '$rel': real .env files hold secrets and are never written by the agent. Edit the committed .env.example template and tell the user which values to set."
+    exit 0 ;;
 esac
 
 [ -n "$regen" ] || exit 0
 
-node "$IO" deny "Refusing to edit generated file '$rel'. Change its source and regenerate: $regen. See AGENTS.md (\"Generated files are never hand-edited\")."
+node "$IO" deny "Refusing to edit generated or tool-written file '$rel'. Change its source and regenerate: $regen. See AGENTS.md (\"Generated files are never hand-edited\")."
 exit 0

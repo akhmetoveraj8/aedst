@@ -7,6 +7,7 @@
 //       session_id  session id or "unknown"
 //   node hook-io.mjs deny   <reason>  print a PreToolUse deny decision as JSON
 //   node hook-io.mjs block            read the reason from stdin, print a Stop block decision as JSON
+//   node hook-io.mjs context          read text from stdin, print it as SessionStart additionalContext JSON
 //
 // Invalid or empty input prints an empty value and exits 0 (a hook must never crash on `{}`).
 import path from "node:path";
@@ -73,7 +74,12 @@ if (command === "field") {
 } else if (command === "block") {
   const reason = readStdin().trim() || "blocked";
   process.stdout.write(`${JSON.stringify({ decision: "block", reason })}\n`);
+} else if (command === "context") {
+  const additionalContext = readStdin().trim();
+  if (additionalContext) {
+    process.stdout.write(`${JSON.stringify({ hookSpecificOutput: { hookEventName: "SessionStart", additionalContext } })}\n`);
+  }
 } else {
-  process.stderr.write("usage: hook-io.mjs field <file_path|stop_active|session_id> | deny <reason> | block\n");
+  process.stderr.write("usage: hook-io.mjs field <file_path|stop_active|session_id> | deny <reason> | block | context\n");
   process.exit(64);
 }

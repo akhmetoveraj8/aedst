@@ -33,7 +33,7 @@
 
 - [ ] Forms use React Hook Form with the protovalidate resolver and `shared/ui` Field; server calls go through the generated Connect client and TanStack Query (no raw `fetch` in modules)
 - [ ] Dates use `shared/date`; URL state uses nuqs; UI state uses zustand; analytics go through `shared/lib/analytics`
-- [ ] UI elements come only from `apps/web/src/shared/ui/`; no color literals
+- [ ] UI elements come only from `apps/web/shared/ui/`; no color literals
 - [ ] No ESLint/Prettier/RxJS; a new third-party origin comes with a CSP update
 - [ ] Web tests, typecheck, Biome and knip pass; bundle budget respected
 

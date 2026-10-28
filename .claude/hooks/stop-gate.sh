@@ -12,6 +12,7 @@
 #
 # Environment:
 #   AEDST_STOP_GATE=off          skip the gate (e.g. while several agents share one working tree)
+#   AEDST_STOP_GATE_TIMEOUT=<s>  per-check time limit in seconds (default 600; needs `timeout`)
 #   AEDST_STOP_GATE_CMD=<cmd>    replaces the whole check list with one command (used by scripts/check-hooks.sh)
 set -uo pipefail
 
@@ -40,7 +41,10 @@ else
   while read -r app; do
     case "$app" in
       server) cmds+=("task server:check") ;;
-      web) cmds+=("task web:lint") ;;
+      web-app) cmds+=("task app:lint") ;;
+      web-admin) cmds+=("task admin:lint") ;;
+      web-landing) cmds+=("task landing:lint") ;;
+      web-shared) cmds+=("task web:lint") ;; # shared is used by every project
       android) command -v java >/dev/null 2>&1 && cmds+=("task android:lint") ;;
       apple) [ "$(uname -s)" = "Darwin" ] && cmds+=("task apple:lint") ;;
       desktop) cmds+=("task desktop:lint") ;;
@@ -48,9 +52,15 @@ else
   done < <(sort -u "$state")
 fi
 
+# Each check gets a hard time limit (AEDST_STOP_GATE_TIMEOUT seconds, default 600) when `timeout` exists,
+# so a hung toolchain cannot hold the session for the whole hook budget. Exit 124 is reported as a failure.
+limit="${AEDST_STOP_GATE_TIMEOUT:-600}"
+runner=()
+command -v timeout >/dev/null 2>&1 && runner=(timeout "$limit")
+
 failed=""
 for c in "${cmds[@]}"; do
-  out="$(bash -c "$c" 2>&1)" && continue
+  out="$(${runner[@]+"${runner[@]}"} bash -c "$c" 2>&1)" && continue
   failed="$(printf '`%s` failed. Fix it before stopping.\n\n%s' "$c" "$(printf '%s\n' "$out" | tail -n 60)")"
   break
 done

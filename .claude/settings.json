@@ -4,27 +4,102 @@
     "deny": [
       "Bash(git push --force*)",
       "Bash(git push -f*)",
+      "Bash(git push*--delete*)",
+      "Bash(git commit*--no-verify*)",
+      "Bash(git push*--no-verify*)",
       "Bash(rm -rf*)",
+      "Bash(rm -fr*)",
+      "Bash(rm -r -f*)",
+      "Bash(rm -f -r*)",
+      "Bash(rm --recursive*)",
       "Bash(git reset --hard*)",
       "Bash(git clean -f*)",
+      "Bash(git clean -d*)",
+      "Bash(git checkout -- *)",
+      "Bash(git restore .*)",
+      "Bash(Remove-Item*-Recurse*)",
+      "Bash(del /s*)",
+      "Bash(rmdir /s*)",
       "Read(**/.env)",
       "Read(**/.env.local)",
       "Read(**/.env.*.local)",
       "Read(**/.env.production*)",
       "Read(**/.env.staging*)",
       "Read(**/.env.development*)",
-      "Read(**/.env.test*)"
+      "Read(**/.env.test*)",
+      "Read(**/*.pem)",
+      "Read(**/*.p12)",
+      "Read(**/*.pfx)",
+      "Read(**/*.keystore)",
+      "Read(**/*.jks)",
+      "Read(**/id_rsa*)",
+      "Read(**/id_ed25519*)",
+      "Read(**/secrets/**)",
+      "Bash(cat *.env)",
+      "Bash(cat *.env.*)",
+      "Bash(cat *.env )",
+      "Bash(type *.env*)",
+      "Bash(more *.env*)",
+      "Bash(less *.env*)",
+      "Bash(head *.env*)",
+      "Bash(tail *.env*)",
+      "Bash(grep*.env)",
+      "Bash(grep*.env.*)",
+      "Bash(rg*.env)",
+      "Bash(sed*.env)",
+      "Bash(awk*.env)",
+      "Bash(Get-Content*.env*)",
+      "Bash(gc *.env*)",
+      "Bash(source *.env*)",
+      "Bash(. *.env*)",
+      "Bash(cp *.env *)",
+      "Bash(curl*@*.env*)",
+      "Bash(printenv*)",
+      "Bash(env)",
+      "Edit(**/.env)",
+      "Edit(**/.env.local)",
+      "Edit(**/.env.*.local)",
+      "Edit(**/.env.production*)",
+      "Edit(**/.env.staging*)"
     ],
     "ask": [
       "Bash(git commit*)",
       "Bash(git checkout*)",
+      "Bash(git switch*)",
       "Bash(git stash*)",
       "Bash(git rebase*)",
-      "Bash(git reset*)"
+      "Bash(git reset*)",
+      "Bash(git merge*)",
+      "Bash(git cherry-pick*)",
+      "Bash(git push*)",
+      "Bash(git branch -D*)",
+      "Bash(git tag -d*)"
     ],
-    "allow": ["Read(**/.env.example)"]
+    "allow": [
+      "Read(**/.env.example)",
+      "Read(**/.env.*.example)",
+      "Bash(task doctor)",
+      "Bash(task --list)",
+      "Bash(task check*)",
+      "Bash(task verify:*)",
+      "Bash(bash scripts/check-hooks.sh)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)"
+    ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh\"",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit|NotebookEdit",
@@ -54,7 +129,7 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-gate.sh\"",
-            "timeout": 900
+            "timeout": 700
           }
         ]
       }

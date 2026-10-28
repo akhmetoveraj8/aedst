@@ -4,7 +4,9 @@
 # and remember which apps this session touched so the Stop gate checks only those.
 #
 #   apps/server   -> apps/server/.claude/hooks/post-edit.sh (gofumpt; task gen on .sql/.proto)
-#   apps/web      -> biome check --write (unfixable findings go to stderr, exit 2, so the model sees them)
+#   apps/web      -> biome check --write from the workspace root (one biome.json for shared, app, admin, landing);
+#                    unfixable findings go to stderr, exit 2, so the model sees them. Touched project is recorded
+#                    as web-app / web-admin / web-landing / web-shared so the Stop gate lints the right project(s).
 #   apps/android  -> ktlint -F
 #   apps/apple    -> swift-format format -i
 #   apps/desktop  -> clang-format -i
@@ -24,7 +26,11 @@ rel="$(printf '%s' "$INPUT" | node "$IO" field file_path 2>/dev/null || true)"
 app=""
 case "$rel" in
   apps/server/*) app=server ;;
-  apps/web/*) app=web ;;
+  apps/web/app/*) app=web-app ;;
+  apps/web/admin/*) app=web-admin ;;
+  apps/web/landing/*) app=web-landing ;;
+  apps/web/shared/*) app=web-shared ;;
+  apps/web/*) app=web-shared ;;
   apps/android/*) app=android ;;
   apps/apple/*) app=apple ;;
   apps/desktop/*) app=desktop ;;
@@ -44,7 +50,7 @@ case "$app" in
     # The server keeps its own hook so it works when Claude Code is launched inside apps/server.
     printf '%s' "$INPUT" | CLAUDE_PROJECT_DIR="$ROOT/apps/server" bash "$ROOT/apps/server/.claude/hooks/post-edit.sh" || true
     ;;
-  web)
+  web-*)
     case "$rel" in
       *.ts | *.tsx | *.js | *.jsx | *.mjs | *.cjs | *.json | *.jsonc | *.css)
         [ -d "$ROOT/apps/web/node_modules" ] || exit 0

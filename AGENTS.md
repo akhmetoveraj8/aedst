@@ -7,13 +7,13 @@ Always applicable:
 1. **[CONVENTIONS.md](CONVENTIONS.md)**: naming for the 5 platforms (Web, Server, Android, Apple, Desktop) and the file-size policy. **Must** rules are enforced by linters and `scripts/check-naming.sh`.
 2. **[docs/content/library-first.md](docs/content/library-first.md)**: Library-First standard; platform stack pages are linked from it.
 3. **[docs/content/decisions.md](docs/content/decisions.md)**: decisions with rationale and "revisit when". If a proposal contradicts one, do not implement or re-propose it.
-4. The `AGENTS.md` of the app you touch (`apps/server`, `apps/web`) and platform ADRs (`apps/server/docs/adr/`, `apps/desktop/docs/adr/`).
+4. The `AGENTS.md` of the app you touch (`apps/server`, or `apps/web` and then the one web project `app` / `admin` / `landing` you work in, see [docs/content/web/projects.md](docs/content/web/projects.md)) and platform ADRs (`apps/server/docs/adr/`, `apps/desktop/docs/adr/`).
 
 ## The one rule that matters most
 
 **Do not write code that an existing library or platform already does.** Before creating a utility, hook, component, service, repository, parser, formatter, validator or other abstraction, check in this order: standard library, platform API, libraries already in this repo's `package.json` / `go.mod` / `build.gradle.kts` / `Package.swift` / `vcpkg.json`, existing code in this repo. Write custom code only for a documented technical reason (missing functionality, unsupported platform, incompatible API, unacceptable performance, security/compliance, project-specific domain logic), never "it is simpler to write myself" or "it is only 50 lines".
 
-Approved stack per platform: Web (React Hook Form, Zod, date-fns, dnd-kit, shadcn/ui via `apps/web/src/shared/ui/`, TanStack, nuqs, Biome only), Server (net/http ServeMux, ConnectRPC + Protobuf + Buf, pgx + sqlc + Goose, River, Valkey, jwx, OpenTelemetry), Android (Compose, Hilt, connect-kotlin, Keystore + Tink), Apple (SwiftUI + Observation, GRDB, connect-swift, Nuke, Tuist), Desktop (Qt 6 APIs, vcpkg, protoc-generated messages + `ConnectClient`). The per-platform tables and the explicit-rejections list are in the Library-First pages.
+Approved stack per platform: Web (React Hook Form, Zod, date-fns, dnd-kit, shadcn/ui via `apps/web/shared/ui/`, TanStack, nuqs, Biome only), Server (net/http ServeMux, ConnectRPC + Protobuf + Buf, pgx + sqlc + Goose, River, Valkey, jwx, OpenTelemetry), Android (Compose, Hilt, connect-kotlin, Keystore + Tink), Apple (SwiftUI + Observation, GRDB, connect-swift, Nuke, Tuist), Desktop (Qt 6 APIs, vcpkg, protoc-generated messages + `ConnectClient`). The per-platform tables and the explicit-rejections list are in the Library-First pages.
 
 ## Process rules
 

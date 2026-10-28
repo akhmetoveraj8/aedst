@@ -129,7 +129,7 @@ Run together by `task check:gates`; each has a negative self-test. Per-platform 
 
 | Platform | Gates |
 |---|---|
-| Web | Biome `--error-on-warnings` (`noExplicitAny`, `noImportCycles`, `noProcessEnv`, `noRestrictedImports`, `noRestrictedElements`, naming), GritQL plugins `apps/web/lint/*.grit`, `check:forms`, `check:colors`, `check:feature-boundaries`, `check:selftest` |
+| Web | Biome `--error-on-warnings` (`noExplicitAny`, `noImportCycles`, `noProcessEnv`, `noRestrictedImports`, `noRestrictedElements`, naming), GritQL plugins `apps/web/app/lint/*.grit`, `check:forms`, `check:colors`, `check:feature-boundaries`, `check:selftest` |
 | Server | `architecturetest` (approved modules, layers, `*Tx` callers, Protovalidate conventions, event golden fixtures, raw SQL literals, migration module lists), golangci-lint (depguard, forbidigo, sloglint, exhaustive, spancheck, gosec, nilerr, nolintlint), `task server:lint:selftest` |
 | Android | detekt `ForbiddenImport` (+ `/MainThreadAndLogging`, `/OkHttpOutsideNetwork`, `/Material3Raw`), `ForbiddenMethodCall`, coroutines rules, compose-rules, type-resolved `detektDebug`, `lintDebug` with warningsAsErrors, `check-policies.sh`, `check-catalog-allowlist.sh`, `check-ui-tokens.sh`, `check-rpc-contract.sh`, `check-feature-boundaries.sh`, `koverVerifyDebug`, `scripts/test-gates.sh [--full]` |
 | Apple | SwiftLint `custom_rules` + static mirror, `check-dependencies.sh`, `check-apple-sensitive-apis.sh`, `i18n-apple-checks.mjs` |

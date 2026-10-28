@@ -94,13 +94,18 @@ for p in \
   "$ROOT/apps/server/gen/aedst/tasks/v1/tasks.pb.go" \
   "apps/server/internal/modules/tasks/infrastructure/postgres/sqlc/query.sql.go" \
   "apps/server/gen/aedst/tasks/v1/tasksv1connect/tasks.connect.go" \
-  "apps/web/src/shared/api/connect/generated/aedst/tasks/v1/tasks_pb.ts" \
+  "apps/web/shared/api/connect/generated/aedst/tasks/v1/tasks_pb.ts" \
   "packages/design-tokens/dist/tokens.css" \
-  "apps/web/src/shared/ui/tokens.css" \
+  "apps/web/shared/ui/tokens.css" \
   "apps/android/core/network/src/main/kotlin-gen/com/aedst/tasks/v1/Tasks.kt" \
   "apps/apple/Core/AedstNetwork/Sources/AedstNetwork/Generated/tasks.pb.swift" \
   "apps/desktop/Modules/Core/DesignSystem/qml/AedstTokens.qml" \
-  "apps/apple/Core/AedstDesignSystem/Sources/AedstDesignSystem/AedstLightPalette.swift"; do
+  "apps/apple/Core/AedstDesignSystem/Sources/AedstDesignSystem/AedstLightPalette.swift" \
+  "apps/web/pnpm-lock.yaml" \
+  "apps/server/go.sum" \
+  "apps/server/buf.lock" \
+  "apps/server/.env" \
+  "apps/web/app/.env.production.local"; do
   expect_deny "$p"
 done
 # Windows-style absolute path, as Claude Code sends it on Windows.
@@ -115,13 +120,29 @@ if [[ "$win_root" == *\\* ]]; then
     | CLAUDE_PROJECT_DIR="$win_root" bash "$guard" >"$out" 2>/dev/null
   if json_ok "$out" 'j.hookSpecificOutput.permissionDecision==="deny"'; then ok "guard denies a backslash path"; else bad "guard did not deny a backslash path"; fi
 fi
-for p in "apps/server/internal/modules/tasks/domain/task.go" "apps/web/src/modules/tasks/ui/TaskForm.tsx" "apps/web/src/shared/api/connect/client.ts" "docs/content/status.md" "apps/web/src/types/messages.d.ts"; do
+for p in "apps/server/internal/modules/tasks/domain/task.go" "apps/web/app/src/modules/tasks/ui/TaskForm.tsx" "apps/web/shared/api/connect/client.ts" "docs/content/status.md" "apps/web/app/src/types/messages.d.ts" "apps/server/.env.example" "apps/web/app/.env.local.example" ".claude/skills/write-spec/SKILL.md"; do
   expect_allow "$p"
 done
 
+# --- 3b. settings.json denies the shell routes to secrets (Read(...) rules do not cover Bash) ----
+if json_ok .claude/settings.json '["Bash(cat *.env.*)","Bash(grep*.env)","Bash(Get-Content*.env*)","Bash(printenv*)","Read(**/.env)","Edit(**/.env)","Bash(git commit*--no-verify*)"].every(r=>j.permissions.deny.includes(r))'; then
+  ok "settings.json denies .env reads and edits through Bash, Read and Edit"
+else bad "settings.json is missing a .env or --no-verify deny rule"; fi
+if json_ok .claude/settings.json 'Array.isArray(j.hooks.SessionStart)&&j.hooks.SessionStart.length>0'; then ok "settings.json wires SessionStart"; else bad "settings.json has no SessionStart hook"; fi
+
+# --- 3c. SessionStart hook ------------------------------------------------------------------------
+out="$tmp/session-start.json"
+printf '{}' | bash .claude/hooks/session-start.sh >"$out" 2>/dev/null
+if json_ok "$out" 'j.hookSpecificOutput.hookEventName==="SessionStart"&&j.hookSpecificOutput.additionalContext.includes("Apple and Desktop were never compiled")'; then
+  ok "session-start injects the verification status"
+else bad "session-start did not print additionalContext"; fi
+out="$tmp/session-start-off.txt"
+printf '{}' | AEDST_SESSION_START=off bash .claude/hooks/session-start.sh >"$out" 2>/dev/null
+[ -s "$out" ] && bad "session-start ignored AEDST_SESSION_START=off" || ok "session-start honours AEDST_SESSION_START=off"
+
 # --- 4. Stop hooks -------------------------------------------------------------------------------
 sid="smoke-$$"
-touch_state() { echo "web" >"$tmp/aedst-claude-touched-$sid"; }
+touch_state() { echo "web-app" >"$tmp/aedst-claude-touched-$sid"; }
 stop_json() { printf '{"session_id":"%s","stop_hook_active":%s}' "$sid" "$1"; }
 
 touch_state
