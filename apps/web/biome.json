@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.3/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -18,8 +18,14 @@
       "!.lighthouseci",
       "!.lighthouseci-signed-in",
       "!test-results",
-      "!lint/fixtures",
-      "!src/shared/api/connect/generated"
+      "!app/lint/fixtures",
+      "!**/.next",
+      "!**/deployments",
+      "!pnpm-lock.yaml",
+      "!**/dist",
+      "!**/coverage",
+      "!**/node_modules",
+      "!shared/api/connect/generated"
     ]
   },
   "formatter": {
@@ -41,23 +47,25 @@
   },
   "plugins": [
     {
-      "path": "./lint/no-fetch-in-modules.grit",
+      "path": "./app/lint/no-fetch-in-modules.grit",
       "includes": ["**/src/modules/**", "!**/*.test.*"]
     },
     {
-      "path": "./lint/no-date-from-string.grit",
+      "path": "./app/lint/no-date-from-string.grit",
       "includes": [
         "**/src/**",
-        "!**/src/shared/date/**",
+        "**/shared/**",
+        "!**/shared/date/**",
         "!**/*.test.*",
         "!**/src/test/**"
       ]
     },
     {
-      "path": "./lint/no-intl-constructors.grit",
+      "path": "./app/lint/no-intl-constructors.grit",
       "includes": [
         "**/src/**",
-        "!**/src/shared/intl/**",
+        "**/shared/**",
+        "!**/shared/intl/**",
         "!**/*.test.*",
         "!**/src/test/**"
       ]
@@ -109,7 +117,7 @@
   },
   "overrides": [
     {
-      "includes": ["src/shared/date/**"],
+      "includes": ["shared/date/**"],
       "linter": {
         "rules": {
           "style": {
@@ -130,7 +138,7 @@
       }
     },
     {
-      "includes": ["src/shared/lib/stores/**", "src/modules/*/lib/*-store.ts"],
+      "includes": ["shared/lib/stores/**", "*/src/modules/*/lib/*-store.ts"],
       "linter": {
         "rules": {
           "style": {
@@ -152,7 +160,7 @@
       }
     },
     {
-      "includes": ["src/shared/lib/analytics/**"],
+      "includes": ["shared/lib/analytics/**"],
       "linter": {
         "rules": {
           "style": {
@@ -174,12 +182,12 @@
     },
     {
       "includes": [
-        "src/app/config/**",
-        "src/instrumentation*.ts",
-        "src/shared/lib/errors/**",
+        "*/src/app/config/**",
+        "*/src/instrumentation*.ts",
+        "shared/lib/errors/**",
         "**/*.test.ts",
         "**/*.test.tsx",
-        "src/test/**"
+        "*/src/test/**"
       ],
       "linter": {
         "rules": {
@@ -202,7 +210,7 @@
       }
     },
     {
-      "includes": ["src/**"],
+      "includes": ["*/src/**", "shared/**"],
       "linter": {
         "rules": {
           "style": {
@@ -249,7 +257,7 @@
       }
     },
     {
-      "includes": ["src/shared/ui/**"],
+      "includes": ["shared/ui/**"],
       "linter": {
         "rules": {
           "style": {
@@ -279,7 +287,7 @@
       }
     },
     {
-      "includes": ["src/modules/**", "src/app/**"],
+      "includes": ["*/src/modules/**", "*/src/app/**"],
       "linter": {
         "rules": {
           "correctness": {
@@ -302,16 +310,18 @@
     },
     {
       "includes": [
-        "src/shared/env/**",
-        "next.config.ts",
-        "playwright.config.ts",
-        "vitest*.ts",
-        "vitest*.mts",
-        "src/instrumentation*.ts",
-        "src/app/config/sentry/**",
-        "src/test/**",
-        "e2e/**",
-        "scripts/**"
+        "shared/env/**",
+        "*/next.config.ts",
+        "*/playwright.config.ts",
+        "*/vitest*.ts",
+        "*/vitest*.mts",
+        "landing/src/env.ts",
+        "admin/src/app/config/env.ts",
+        "*/src/instrumentation*.ts",
+        "*/src/app/config/sentry/**",
+        "*/src/test/**",
+        "*/e2e/**",
+        "*/scripts/**"
       ],
       "linter": {
         "rules": {
@@ -322,11 +332,25 @@
       }
     },
     {
-      "includes": ["scripts/**", "src/instrumentation*.ts", "e2e/mock-api/**"],
+      "includes": [
+        "*/scripts/**",
+        "*/src/instrumentation*.ts",
+        "*/e2e/mock-api/**"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
             "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["shared/ui/calendar.tsx", "**/*.test.tsx"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noComponentHookFactories": "off"
           }
         }
       }

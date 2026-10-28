@@ -1,0 +1,50 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "pnpm start --port 3100",
+      "startServerReadyPattern": "Ready",
+      "startServerReadyTimeout": 60000,
+      "url": [
+        "http://127.0.0.1:3100/en",
+        "http://127.0.0.1:3100/ru",
+        "http://127.0.0.1:3100/ar",
+        "http://127.0.0.1:3100/en/privacy"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "chromeFlags": "--no-sandbox --headless=new",
+        "throttlingMethod": "devtools"
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.95 }],
+        "categories:accessibility": ["error", { "minScore": 1 }],
+        "categories:best-practices": ["error", { "minScore": 0.95 }],
+        "categories:seo": ["error", { "minScore": 0.95 }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2000 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.05 }],
+        "total-blocking-time": ["error", { "maxNumericValue": 150 }],
+        "resource-summary:script:size": [
+          "error",
+          { "maxNumericValue": 200000 }
+        ],
+        "resource-summary:document:size": [
+          "error",
+          { "maxNumericValue": 60000 }
+        ],
+        "resource-summary:third-party:count": [
+          "error",
+          { "maxNumericValue": 0 }
+        ],
+        "uses-http2": "off",
+        "is-crawlable": "error",
+        "csp-xss": "warn"
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}

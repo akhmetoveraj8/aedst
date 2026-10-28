@@ -1,0 +1,13 @@
+{
+  "$comment": "Landing is a performance showcase: gzip KB over every emitted client chunk. Static pages with only three client islands (theme provider, locale picker, FAQ accordion), so the budget is a fraction of the app's (app: 905 KB total). Values are STARTING LIMITS set before the first build (UNVERIFIED): run `next build`, measure with the shared check-bundle-size script, then ratchet down to ~3% above the measured baseline. Never raise them to make CI pass.",
+  "totalJsGzipKB": 220,
+  "largestJsChunkGzipKB": 90,
+  "totalCssGzipKB": 20,
+  "modules": {},
+  "shell": {
+    "/[locale]": 160,
+    "/[locale]/privacy": 150,
+    "/[locale]/terms": 150,
+    "/_not-found": 120
+  }
+}

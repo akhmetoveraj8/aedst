@@ -1,0 +1,82 @@
+{
+  "appName": "AEDST",
+  "appDescription": "A fast, accessible task manager built on the AEDST stack.",
+  "actions": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "back": "Back",
+    "goHome": "Go home",
+    "tryAgain": "Try again",
+    "close": "Close"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "title": "Something went wrong",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The page you’re looking for doesn’t exist or has been moved.",
+    "sessionExpired": "Your session expired. Please sign in again.",
+    "forbiddenTitle": "You don’t have access",
+    "forbiddenDescription": "This area requires a role your account doesn’t have.",
+    "kinds": {
+      "unauthenticated": "Your session expired. Please sign in again.",
+      "forbidden": "You don’t have permission to do that.",
+      "notFound": "That item no longer exists.",
+      "invalidInput": "Some of the information isn’t valid. Check it and try again.",
+      "conflict": "This changed in the meantime. Refresh and try again.",
+      "rateLimited": "Too many requests. Wait a moment and try again.",
+      "unavailable": "The service is temporarily unavailable. Try again shortly.",
+      "timeout": "The request took too long. Try again.",
+      "offline": "You’re offline. Check your connection.",
+      "cancelled": "The request was cancelled.",
+      "upgradeRequired": "Update the app to continue.",
+      "storage": "Couldn’t read or save data on this device.",
+      "unknown": "Something went wrong. Please try again."
+    }
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "loading": "Loading",
+    "notifications": "Notifications"
+  },
+  "locale": {
+    "label": "Language"
+  },
+  "consent": {
+    "title": "Analytics consent",
+    "description": "Allow privacy-friendly analytics and performance measurement to help us improve the app?",
+    "accept": "Allow",
+    "decline": "No thanks",
+    "manage": "Privacy settings",
+    "withdraw": "Withdraw",
+    "privacyPolicy": "Privacy policy",
+    "currentlyAllowed": "Currently: allowed.",
+    "currentlyDeclined": "Currently: declined."
+  },
+  "nav": {
+    "label": "Main",
+    "tasks": "Tasks",
+    "search": "Search",
+    "notifications": "Notifications"
+  },
+  "offline": {
+    "banner": "You’re offline. Some features are unavailable until you reconnect.",
+    "title": "You’re offline",
+    "description": "This page isn’t available offline. Reconnect and try again.",
+    "retry": "Retry",
+    "queued": "Your changes are saved on this device and will be sent when you reconnect."
+  },
+  "sync": {
+    "pending": "Waiting to sync: {count}",
+    "failed": "Not synced: {count}"
+  },
+  "pwa": {
+    "installTitle": "Install AEDST",
+    "installDescription": "Add the app to your device for quick access and notifications.",
+    "install": "Install",
+    "dismiss": "Not now",
+    "iosInstructions": "To install, tap Share and then “Add to Home Screen”.",
+    "updateAvailable": "A new version is available.",
+    "reload": "Reload"
+  }
+}

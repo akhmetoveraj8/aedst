@@ -1,11 +1,11 @@
 ---
 title: "Web Deployment"
-description: "How apps/web ships: a distroless container (Docker + Helm), Sentry source maps from the release build only, health checks, rollback, and the documented Vercel/OpenNext alternative."
+description: "How the apps/web projects ship (this page details the app project; admin and landing have their own Dockerfile): a distroless container (Docker + Helm), Sentry source maps from the release build only, health checks, rollback, and the documented Vercel/OpenNext alternative."
 ---
 
 # Web Deployment
 
-`apps/web` ships as a **container image** built from the Next.js `output: "standalone"` bundle. The
+The three web projects (`app`, `admin`, `landing`) are separate deployables, one container image each, on separate domains (see [Web projects](/web/projects)). This page details the **app** project; `admin` and `landing` follow the same shape with their own `deployments/docker/Dockerfile` (ports 3001 and 3002, no release workflow or Helm chart yet). Each image is built from the Next.js `output: "standalone"` bundle. The
 Vercel/OpenNext route is documented at the end and is **not implemented**.
 
 Status: the Dockerfile, the Helm chart and `web-release.yml` were authored without Docker, Helm or a CI run
@@ -15,24 +15,21 @@ available. **UNVERIFIED**: the first `web-release` run and the first `helm templ
 
 | What | Where |
 |---|---|
-| Image | `apps/web/deployments/docker/Dockerfile` (+ `Dockerfile.dockerignore`) |
-| Helm chart | `apps/web/deployments/helm/aedst-web` (`values.yaml`, `values-prod.yaml`) |
+| Image | `apps/web/app/deployments/docker/Dockerfile` (+ `Dockerfile.dockerignore`) |
+| Helm chart | `apps/web/app/deployments/helm/aedst-web` (`values.yaml`, `values-prod.yaml`) |
 | Release pipeline | `.github/workflows/web-release.yml` (tag `web-vX.Y.Z` or manual) |
 | Test build | `web-ci.yml` `build` job: never deployed, never uploads source maps |
 | Health check | `GET /api/healthz` -> `200 {"status":"ok"}` |
 
 ## Container image
 
-- **Build context is the repository root**, not `apps/web`: the ConnectRPC stubs are generated during the build
+- **Build context is the repository root**, not `apps/web/app`: the ConnectRPC stubs are generated during the build
   from `apps/server/api/proto` (they are not committed).
-  `docker build -f apps/web/deployments/docker/Dockerfile --build-arg NEXT_PUBLIC_SITE_URL=https://app.example.com .`
-- Stage 1 `node:24.20.0-trixie-slim` installs pnpm 12.6.0, runs `pnpm install --frozen-lockfile`,
-  `pnpm connect:generate` and `pnpm build`, then fails if `.next/static` contains a `.map` file.
+  `docker build -f apps/web/app/deployments/docker/Dockerfile --build-arg NEXT_PUBLIC_SITE_URL=https://app.example.com .`
+- Stage 1 `node:26.12.1-trixie-slim` installs pnpm 12.15.0, runs `pnpm install --frozen-lockfile`,
+  `pnpm --filter @aedst/web-app connect:generate` and `pnpm --filter @aedst/web-app build`, then fails if `app/.next/static` contains a `.map` file. Only `app` and `shared` are installed (the lockfile and catalog are workspace-wide).
 - Stage 2 `gcr.io/distroless/nodejs24-debian13:nonroot` (no shell, uid 65532) runs `node server.js` from
-  `.next/standalone`. `apps/web` is its own pnpm project with its own lockfile, so Next's tracing root is the app
-  directory and `server.js` sits at the root of the standalone output (no `outputFileTracingRoot` needed). If a
-  future parent lockfile changes the detected root, the file moves to `apps/web/server.js` and the final `COPY`
-  paths must follow.
+  `app/.next/standalone`. The lockfile lives in `apps/web` (the workspace root), so Next's tracing root is `apps/web` and the server is `app/server.js` inside the standalone output; the final `COPY` paths and `CMD` follow that. UNVERIFIED until the first image build.
 - **Pinning policy** is the same as `apps/server/deployments/docker/Dockerfile`: base images are pinned by exact
   version tag, never `latest`, and not by digest. Both tags were checked against their registries on 2026-10-08. If
   the owner wants digest pinning, change it for the server and web Dockerfiles together (Renovate keeps digests
@@ -48,7 +45,7 @@ available. **UNVERIFIED**: the first `web-release` run and the first `helm templ
 ## Environment
 
 `NEXT_PUBLIC_*` values are **inlined into the client bundle at build time**: they are Docker build args and need one
-image per public origin. Everything else is read at runtime. Schemas: `src/shared/env/{client,edge,server}.ts`.
+image per public origin. Everything else is read at runtime. Schemas: `apps/web/shared/env/{client,edge,server}.ts`.
 
 | Variable | When | Required | Purpose |
 |---|---|---|---|
@@ -75,12 +72,12 @@ In Kubernetes the chart renders the runtime variables into a ConfigMap and reads
 
 `GET /api/healthz` (also `HEAD`) is a liveness and readiness probe that **never calls `apps/server` or the identity
 provider**: a backend outage must not restart healthy web pods. It lives under `/api/*`, so `proxy.ts` only stamps the
-static API CSP (no session, no locale, no I/O) and `next.config.ts` marks it `no-store`. Dependency health belongs to
+static API CSP (no session, no locale, no I/O) and `apps/web/app/next.config.ts` marks it `no-store`. Dependency health belongs to
 the server's `/readyz`.
 
 ## Cache headers
 
-`next.config.ts` sets `public, s-maxage=3600, stale-while-revalidate=86400` on `/robots.txt`, `/sitemap.xml`,
+`apps/web/app/next.config.ts` sets `public, s-maxage=3600, stale-while-revalidate=86400` on `/robots.txt`, `/sitemap.xml`,
 `/llms.txt`, `/llms-full.txt`, `/manifest.webmanifest` and `/:locale/opengraph-image`, so a CDN absorbs crawler
 traffic. HTML stays dynamic (per-request CSP nonce, see the nonce-CSP decision); `/api/*` is `no-store` and
 `/serwist/*` is never cached.
@@ -104,8 +101,8 @@ Images are tagged `sha-<commit>` and, for tag releases, `vX.Y.Z`; both are cosig
 Trivy (HIGH/CRITICAL fail). The Helm chart refuses to render without `image.tag`.
 
 ```
-helm upgrade --install aedst-web apps/web/deployments/helm/aedst-web \
-  -f apps/web/deployments/helm/aedst-web/values-prod.yaml --set image.tag=sha-<commit>
+helm upgrade --install aedst-web apps/web/app/deployments/helm/aedst-web \
+  -f apps/web/app/deployments/helm/aedst-web/values-prod.yaml --set image.tag=sha-<commit>
 ```
 
 - Rolling update with `maxUnavailable: 0`; readiness is `/api/healthz`.
@@ -121,7 +118,7 @@ helm upgrade --install aedst-web apps/web/deployments/helm/aedst-web \
 The code is host-agnostic where it matters: no filesystem state, sessions in cookies, the PostHog and Sentry proxies
 are Next rewrites, `VERCEL_GIT_COMMIT_SHA` is already accepted as the Sentry release. To run on Vercel:
 
-1. Import the repository, set the project root to `apps/web`, and give the build access to `apps/server/api/proto`
+1. Import the repository, set the project root to `apps/web/app`, and give the build access to `apps/server/api/proto`
    (disable "Include source files outside of the Root Directory" only if the stubs are generated in a prior step;
    keep it on otherwise). Build command: `pnpm connect:generate && pnpm build`.
 2. Set every row of the environment table above in the project settings (build and runtime scopes as listed);

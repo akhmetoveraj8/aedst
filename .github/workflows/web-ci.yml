@@ -6,10 +6,26 @@ on:
     # The TypeScript client is generated from apps/server's protos, so a
     # contract change must re-run this pipeline (codegen, contract test).
     paths:
-      ["apps/web/**", "apps/server/api/proto/**", ".github/workflows/web-ci.yml"]
+      [
+        "apps/web/app/**",
+        "apps/web/shared/**",
+        "apps/web/package.json",
+        "apps/web/biome.json",
+        "apps/web/pnpm-*.yaml",
+        "apps/server/api/proto/**",
+        ".github/workflows/web-ci.yml",
+      ]
   pull_request:
     paths:
-      ["apps/web/**", "apps/server/api/proto/**", ".github/workflows/web-ci.yml"]
+      [
+        "apps/web/app/**",
+        "apps/web/shared/**",
+        "apps/web/package.json",
+        "apps/web/biome.json",
+        "apps/web/pnpm-*.yaml",
+        "apps/server/api/proto/**",
+        ".github/workflows/web-ci.yml",
+      ]
   # Nightly full browser matrix (see the e2e-plan job); also runnable by hand.
   schedule:
     - cron: "17 3 * * *"
@@ -24,11 +40,11 @@ concurrency:
 
 defaults:
   run:
-    working-directory: apps/web
+    working-directory: apps/web/app
 
 env:
-  NODE_VERSION: "24"
-  PNPM_VERSION: "12.6.0"
+  NODE_VERSION: "26"
+  PNPM_VERSION: "12.15.0"
   # The e2e/Lighthouse servers listen here; NEXT_PUBLIC_* is inlined at build
   # time, so the build must already know the origin it will be served from.
   SITE_URL: http://127.0.0.1:3100
@@ -38,29 +54,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
 
-      - name: Install dependencies
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       # `pnpm lint` is `biome check --error-on-warnings`: the mandatory-library
       # rules (noProcessEnv, restricted imports/elements, GritQL plugins in
-      # apps/web/lint, naming, import cycles) are all Biome diagnostics.
+      # apps/web/app/lint, naming, import cycles) are all Biome diagnostics.
       - name: Biome (lint + format check; Biome only, no ESLint/Prettier)
         run: pnpm lint
 
       # dependency-cruiser: import direction app -> modules -> shared, no cycles,
-      # public entry only, no orphans (apps/web/.dependency-cruiser.cjs).
+      # public entry only, no orphans (apps/web/app/.dependency-cruiser.cjs).
       - name: Import graph (dependency-cruiser)
         run: pnpm check:deps
 
@@ -73,10 +90,10 @@ jobs:
 
       - name: Upload import graph
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: web-dep-graph
-          path: apps/web/dep-graph.svg
+          path: apps/web/app/dep-graph.svg
           retention-days: 7
 
       - name: Feature module boundaries
@@ -89,7 +106,7 @@ jobs:
         run: pnpm check:colors
 
       # Negative self-test: every gate above must FAIL on its broken fixture
-      # (apps/web/lint/fixtures), so a gate that silently stopped working is caught.
+      # (apps/web/app/lint/fixtures), so a gate that silently stopped working is caught.
       - name: Gate self-test
         run: pnpm check:selftest
 
@@ -105,19 +122,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
 
-      - name: Install dependencies
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - name: Generate ConnectRPC client stubs
@@ -140,19 +158,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
 
-      - name: Install dependencies
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - name: Generate ConnectRPC client stubs
@@ -176,10 +195,10 @@ jobs:
 
       - name: Upload coverage
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: web-coverage
-          path: apps/web/coverage/
+          path: apps/web/app/coverage/
           retention-days: 7
 
   # Nightly mutation testing of the pure-logic core (stryker.config.mjs). Not per PR.
@@ -188,19 +207,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
 
-      - name: Install dependencies
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - name: Generate ConnectRPC client stubs
@@ -212,32 +232,33 @@ jobs:
 
       - name: Upload mutation report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: web-mutation-report
-          path: apps/web/reports/mutation/
+          path: apps/web/app/reports/mutation/
           retention-days: 14
 
-  # Storybook stories of src/shared/ui in real Chromium: smoke render + axe via
+  # Storybook stories of shared/ui (hosted by the app project) in real Chromium: smoke render + axe via
   # the a11y addon (`a11y.test: "error"` in .storybook/preview.tsx), so an
   # accessibility violation fails the job.
   stories:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
 
-      - name: Install dependencies
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - name: Generate ConnectRPC client stubs
@@ -255,13 +276,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -281,7 +302,7 @@ jobs:
       run:
         working-directory: .
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
           fail-on-severity: high
@@ -291,19 +312,20 @@ jobs:
     timeout-minutes: 20
     needs: [lint, typecheck, unit]
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
 
-      - name: Install dependencies
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - name: Generate ConnectRPC client stubs
@@ -314,8 +336,8 @@ jobs:
       - name: Cache Next.js build cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: apps/web/.next/cache
-          key: nextjs-${{ runner.os }}-${{ hashFiles('apps/web/pnpm-lock.yaml') }}-${{ hashFiles('apps/web/src/**', 'apps/web/next.config.*') }}
+          path: apps/web/app/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('apps/web/pnpm-lock.yaml') }}-${{ hashFiles('apps/web/app/src/**', 'apps/web/shared/**', 'apps/web/app/next.config.*') }}
           restore-keys: |
             nextjs-${{ runner.os }}-${{ hashFiles('apps/web/pnpm-lock.yaml') }}-
 
@@ -340,12 +362,12 @@ jobs:
           fi
 
       - name: Upload build for the e2e and Lighthouse jobs
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: web-build
           path: |
-            apps/web/.next
-            !apps/web/.next/cache
+            apps/web/app/.next
+            !apps/web/app/.next/cache
           include-hidden-files: true
           retention-days: 1
 
@@ -376,28 +398,29 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.e2e-plan.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
 
-      - name: Install dependencies
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - name: Generate ConnectRPC client stubs
         run: pnpm connect:generate
 
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: web-build
-          path: apps/web/.next
+          path: apps/web/app/.next
 
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
@@ -415,10 +438,10 @@ jobs:
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-report-${{ matrix.project }}
-          path: apps/web/playwright-report/
+          path: apps/web/app/playwright-report/
           retention-days: 7
 
   lighthouse:
@@ -426,28 +449,29 @@ jobs:
     timeout-minutes: 15
     needs: [build]
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
 
-      - name: Install dependencies
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - name: Generate ConnectRPC client stubs
         run: pnpm connect:generate
 
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: web-build
-          path: apps/web/.next
+          path: apps/web/app/.next
 
       # Budgets for Core Web Vitals, category scores (a11y = 100) and script
       # weight live in lighthouserc.json. The pages audited are public, so no
@@ -459,10 +483,10 @@ jobs:
 
       - name: Upload Lighthouse reports
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: lighthouse-reports
-          path: apps/web/.lighthouseci/
+          path: apps/web/app/.lighthouseci/
           retention-days: 7
 
       # Signed-in pages (/en/tasks, /en/tasks/new): the script starts the e2e
@@ -476,8 +500,8 @@ jobs:
 
       - name: Upload signed-in Lighthouse reports
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: lighthouse-signed-in-reports
-          path: apps/web/.lighthouseci-signed-in/
+          path: apps/web/app/.lighthouseci-signed-in/
           retention-days: 7

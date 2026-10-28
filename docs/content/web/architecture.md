@@ -5,7 +5,7 @@ description: "apps/web is the parity source of truth the three native clients (a
 
 # Web Architecture
 
-`apps/web` is the parity source of truth the three native clients
+`apps/web` is a workspace of three Next.js projects (`app`, `admin`, `landing`) and a source-only `shared` kit; see [Web projects](/web/projects) for who owns what. The product app (`apps/web/app`) is the parity source of truth the three native clients
 (`apps/android`, `apps/apple`, `apps/desktop`) are built to match — see
 [architecture-android.md](/android/architecture), [architecture-apple.md](/apple/architecture),
 and [architecture-desktop.md](/desktop/architecture), each of which documents
@@ -25,34 +25,39 @@ onto.
 - **TanStack Query** for client-side caching around Connect calls.
 - **next-intl** for i18n across five locales (`ar`, `en`, `ru`, `tj`, `uz`) —
   see [i18n.md](/i18n) for the per-module pattern every platform now follows.
-- **shadcn/ui** (`src/shared/ui/`) — the UI-kit source of truth every native
+- **shadcn/ui** (`apps/web/shared/ui/`) — the UI-kit source of truth every native
   platform's design system is built to match; see [ui-kit.md](/ui-kit).
 - React Hook Form + Zod, date-fns, dnd-kit, and the rest of the approved
   stack in [library-first.md](/library-first).
 - Sentry, Vitest + Testing Library, Playwright.
-- **Biome is the only linter/formatter** (no ESLint/Prettier); feature isolation is enforced by `apps/web/scripts/check-feature-boundaries.sh`; **knip** (`apps/web/knip.jsonc`) fails CI on unused dependencies/exports, its allowlist being the approved-not-yet-used libraries (adding to it requires a [library-first](/library-first) update).
+- **Biome is the only linter/formatter** (no ESLint/Prettier); feature isolation is enforced by `apps/web/app/scripts/check-feature-boundaries.sh`; **knip** (`apps/web/app/knip.jsonc`) fails CI on unused dependencies/exports, its allowlist being the approved-not-yet-used libraries (adding to it requires a [library-first](/library-first) update).
 - **No RxJS**: use TanStack Query, `AbortController`, async iterators, or Connect server streaming.
-- Environment variables are parsed with Zod in `src/shared/env/{client,server}.ts`.
-- The nonce-based CSP is built per request in `src/proxy.ts` only (not in `next.config.ts`); any new third-party origin must be added to it. Storybook 10 (devDependencies) documents every `src/shared/ui` component and fails on a11y violations.
+- Environment variables are parsed with Zod in `apps/web/shared/env/{client,server}.ts`.
+- The nonce-based CSP is built per request in `apps/web/app/src/proxy.ts` only (not in `apps/web/app/next.config.ts`); any new third-party origin must be added to it. Storybook 10 (devDependencies) documents every `apps/web/shared/ui` component and fails on a11y violations.
 
 ## Project structure
 
+The workspace (`apps/web`): `shared/` (kit), `app/`, `admin/`, `landing/`. The tree below is the **app** project (`apps/web/app/src`) plus the shared kit it imports through `@/shared/*` (`apps/web/shared`); `admin` and `landing` follow the same `src/app` + `src/modules` shape.
+
 ```
-src/
+apps/web/app/src/
   app/                # Next.js App Router: routes, providers, i18n/sentry/seo config
     (pages)/[locale]/ # locale-prefixed route segments
     config/i18n/       # next-intl plumbing + common/ (app-shell) translations
     config/modules/    # the single module registry (registry.ts) built from the manifests
   modules/<id>/       # feature modules — manifest.ts + public.ts + UI + co-located i18n (auth, tasks, search, ...)
-  shared/
-    modules/          # the ModuleManifest contract (types only)
-    api/connect/      # Connect-ES transport/client setup + generated stubs
-    ui/               # shared UI components (shadcn-based) — see ui-kit.md
+```
+
+```
+apps/web/shared/    # alias @/shared/*, sibling of app/ admin/ landing/
+  modules/          # the ModuleManifest contract (types only)
+  api/connect/      # Connect-ES transport/client setup + generated stubs
+  ui/               # shared UI components (shadcn-based) — see ui-kit.md
 ```
 
 ## Module map
 
-| Server module (`apps/server/internal/modules/`) | Web module (`apps/web/src/modules/`) | Status |
+| Server module (`apps/server/internal/modules/`) | Web module (`apps/web/app/src/modules/`) | Status |
 |---|---|---|
 | `auth` | `auth` | complete worked example, including per-module i18n |
 | `tasks` | `tasks` | reference module — the shape every native client's future `feature/tasks`/`Features/Tasks`/`Modules/Features/Tasks` follows |
@@ -61,24 +66,24 @@ src/
 ## The boundary rule, translated
 
 Server rule (ADR-0006): only a module's `api/` package may be imported
-across module boundaries. Web's translation: a module under `src/modules/*`
+across module boundaries. Web's translation: a module under `apps/web/app/src/modules/*`
 never imports another module — cross-module navigation goes through Next.js
 routes (`app/(pages)/[locale]/...`), the same route-based indirection
 Android/Apple/Desktop use their own navigation abstractions for
 (`AedstNavGraph`, `AedstRoute`/`Router`, `Aedst::Navigation`).
 
 Each module has an explicit public surface, enforced by
-`scripts/check-feature-boundaries.sh`:
+`apps/web/app/scripts/check-feature-boundaries.sh`:
 
-- `modules/<id>/public.ts`: the components/loaders pages and the shell may use. Code outside the module (`src/app`, `e2e`) imports a module only through `@/modules/<id>/public`, `@/modules/<id>/manifest` or a single-export `@/modules/<id>/entries/<name>` (see below); `src/shared` imports no module at all.
-- `modules/<id>/manifest.ts`: UI-free data (`ModuleManifest` in `src/shared/modules/manifest.ts`): `id`, `routes` (access, required role), `nav` entries, `i18nNamespaces`, `featureFlags`, `capabilities`, `permissions`. It may import only `@/shared/**`.
-- `src/app/config/modules/registry.ts` is the one place that lists the modules. The route guard (`proxy.ts` via `route-guard.ts`), the primary navigation (`AppNav`) and the i18n loader (`i18n/modules.ts`) derive from it, so adding a module means a folder, a manifest and one registry line.
+- `modules/<id>/public.ts`: the components/loaders pages and the shell may use. Code outside the module (`apps/web/app/src/app`, `e2e`) imports a module only through `@/modules/<id>/public`, `@/modules/<id>/manifest` or a single-export `@/modules/<id>/entries/<name>` (see below); `apps/web/shared` imports no module at all.
+- `modules/<id>/manifest.ts`: UI-free data (`ModuleManifest` in `apps/web/shared/modules/manifest.ts`): `id`, `routes` (access, required role), `nav` entries, `i18nNamespaces`, `featureFlags`, `capabilities`, `permissions`. It may import only `@/shared/**`.
+- `apps/web/app/src/app/config/modules/registry.ts` is the one place that lists the modules. The route guard (`proxy.ts` via `route-guard.ts`), the primary navigation (`AppNav`) and the i18n loader (`i18n/modules.ts`) derive from it, so adding a module means a folder, a manifest and one registry line.
 - Every `useFeatureFlag("x")` in a module must be listed in that module's manifest.
-- Modules talk to each other only through the registry/manifests, `src/shared` (typed API clients in `shared/api`, shared query keys, URL state) or the server. A typed event contract goes in `src/shared` when the first real need appears (not built speculatively).
+- Modules talk to each other only through the registry/manifests, `apps/web/shared` (typed API clients in `shared/api`, shared query keys, URL state) or the server. A typed event contract goes in `apps/web/shared` when the first real need appears (not built speculatively).
 
 The architecture is prepared for, but does not adopt, microfrontends: see [Path to microfrontends](/web/microfrontends).
 
-Each module owns its own `i18n/` catalog (`src/modules/<name>/i18n/*.json`)
+Each module owns its own `i18n/` catalog (`apps/web/app/src/modules/<name>/i18n/*.json`)
 rather than a single global translation file — this per-module rule is
 mandatory across all five platforms now, see [i18n.md](/i18n).
 
@@ -95,21 +100,21 @@ further but make Turbopack copy shared libraries (nuqs, base-ui) into every page
 Outside code reaches a module only through `manifest.ts`, `public.ts` and `entries/*`, plus
 `outbox.ts` (the client-safe entry for offline-outbox handlers: `public.ts`
 also exports server-only prefetching sections that must not reach the browser
-bundle). The outbox itself lives in `src/shared/lib/outbox`; see the decision
+bundle). The outbox itself lives in `apps/web/shared/lib/outbox`; see the decision
 row in [decisions/web](/decisions/web).
 
 ## Routing and locales
 
 Every page lives under a `[locale]` dynamic segment
 (`app/(pages)/[locale]/...`); `next-intl`'s routing config
-(`src/app/config/i18n/routing.ts`) drives locale detection/redirect and
+(`apps/web/app/src/app/config/i18n/routing.ts`) drives locale detection/redirect and
 `sitemap.ts` emits one entry per locale with `hreflang` alternates.
 
 The locale root (`/[locale]`) is the sign-in landing page (app name, `AuthGate`, JSON-LD). An anonymous visitor stays there; a signed-in visitor never sees it, because `proxy.ts` redirects to the validated `?next=` or the tasks dashboard.
 
 ## Bundle and code splitting
 
-One Next.js app, split per route: App Router/Turbopack emits a chunk graph per route, so a module's code ships only on its own routes. The signed-in shell (`(app)/layout.tsx`) is shared; heavy shell widgets load on demand (the command palette's cmdk dialog is a `next/dynamic` import that loads on first open). `pnpm check:bundle` reads `.next/diagnostics/route-bundle-stats.json` and enforces a first-load gzip budget per module (`modules.<id>.routePrefix`) and for shell routes in `bundle-budget.json`; a route with no owning budget fails the check. Build caching: Turbopack's on-disk cache (`.next/cache`) is what CI restores between runs; keep `.next/cache` in the CI cache key by lockfile hash.
+One Next.js app, split per route: App Router/Turbopack emits a chunk graph per route, so a module's code ships only on its own routes. The signed-in shell (`(app)/layout.tsx`) is shared; heavy shell widgets load on demand (the command palette's cmdk dialog is a `next/dynamic` import that loads on first open). `pnpm check:bundle` reads `.next/diagnostics/route-bundle-stats.json` and enforces a first-load gzip budget per module (`modules.<id>.routePrefix`) and for shell routes in `apps/web/app/bundle-budget.json`; a route with no owning budget fails the check. Build caching: Turbopack's on-disk cache (`.next/cache`) is what CI restores between runs; keep `.next/cache` in the CI cache key by lockfile hash.
 
 ## Auth, data and security model
 
@@ -144,7 +149,7 @@ browser ──same-origin──▶ Next.js server ──API_BASE_URL──▶ ap
 | Stryker mutation testing (`pnpm test:mutation`) | `web-ci` `mutation` job, nightly + manual only | mutation score of `shared/lib/{errors,auth,forms,outbox}` stays above `thresholds.break` in `stryker.config.mjs` (set to first score minus 5, then ratchet); report artifact `web-mutation-report` |
 | `tsc` | typecheck job | types (after `next typegen`) |
 | Vitest (`unit` Node + `browser` real Chromium), coverage thresholds | unit job | behaviour; coverage cannot fall |
-| Bundle budget | build job (`pnpm check:bundle`) | gzip JS/CSS ceilings plus per-module first-load JS (`bundle-budget.json` `modules`/`shell`; every route must be owned by a budget) |
+| Bundle budget | build job (`pnpm check:bundle`) | gzip JS/CSS ceilings plus per-module first-load JS (`apps/web/app/bundle-budget.json` `modules`/`shell`; every route must be owned by a budget) |
 | Playwright + axe: `chromium` + `mobile-safari` on PRs; all 5 projects on `main`, nightly and manual runs | e2e matrix (`e2e-plan`) | flows behind auth, a11y (WCAG 2.2 AA), responsive, security headers, SEO |
 | Lighthouse CI | lighthouse job | category scores, Core Web Vitals, script weight, no third parties on the public pages; `pnpm lighthouse:signed-in` audits `/en/tasks` and `/en/tasks/new` behind the mock IdP (a11y and best practices gate; performance warns) |
 | Storybook stories (shared UI plus six composite module screens on the typed mock transport) with axe | stories job (`pnpm test:stories`) | smoke render and WCAG violations fail |
@@ -175,4 +180,4 @@ preset, else the nearest preset the server returned, else the video poster, else
 the original image. Presets crop differently, so they are never mixed in one
 `srcset`. The full-size `ImageViewer` and video playback use the sanitized
 original (`Media.url`) because presets are fixed boxes. Verified: `vitest` for
-`src/modules/media` and `biome check` pass.
+`apps/web/app/src/modules/media` and `biome check` pass.

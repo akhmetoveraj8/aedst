@@ -1,54 +1,60 @@
-# apps/web - AI agent instructions
+# apps/web - AI agent instructions (workspace overview and router)
 
-Read the root [AGENTS.md](../../AGENTS.md) and [CONVENTIONS.md](../../CONVENTIONS.md) first; this file only adds
-what is specific to the Next.js app. Reference module for everything below: `src/modules/tasks`.
-Approved libraries: [library-first/web](../../docs/content/library-first/web.md). Decisions:
-[decisions/web](../../docs/content/decisions/web.md). Naming: [conventions/web.md](../../docs/agent/conventions/web.md).
+`apps/web` is NOT one app. It is a pnpm workspace of four directories. Read the root [AGENTS.md](../../AGENTS.md) and
+[CONVENTIONS.md](../../CONVENTIONS.md), pick ONE project below, then read that project's own `AGENTS.md` before writing code.
+Architecture, auth flow, CSP and deployment per project: [docs/content/web/projects.md](../../docs/content/web/projects.md).
 
-## Pairs: when you do X, use Y
+## What goes where
 
-| When you add | Use | Copy / read | Test |
-|---|---|---|---|
-| A form | React Hook Form + `protovalidateResolver` (rules come from the proto, not a second schema) + `shared/ui` `Form`/`Field`/`FieldLabel`/`FieldError`/`Input`/`Button`; a select is a `Controller`, not `watch`+`setValue` | `modules/tasks/ui/TaskForm.tsx`, `shared/lib/forms/protovalidate-resolver.ts` | `TaskForm.test.tsx` (render via `src/test/render.tsx`) |
-| A server call | connect-query/TanStack Query over the generated client in `shared/api/connect`; never raw `fetch` in a module (Biome plugin `lint/no-fetch-in-modules.grit`) | `modules/tasks/ui/TaskList.tsx` (`useQuery`), `tasks/lib/use-task-writes.ts` (mutations) | `src/test/contract` plus a component test with the mock transport |
-| A write that must survive offline | the outbox: `outbox.ts` + `lib/outbox-handlers.ts`, `useQueuedWrite` | `modules/tasks/outbox.ts`, `shared/lib/outbox/` | `outbox-handlers.test.ts` |
-| A date, number, byte size or relative time | `shared/date` (date-fns, `parseDateInputValue`), `shared/intl/format.ts`; never `new Date(text)` or `new Intl.*` | `shared/date/format-date.ts`, `shared/intl/format.ts` | `format-date.test.ts` |
-| URL state (filters, sort, tabs) | nuqs parsers shared by server and client | `tasks/lib/task-search-params.ts` | a unit test of the parsers |
-| UI state (panels, preferences) | zustand in `shared/lib/stores`; server data stays in TanStack Query, never in zustand | `shared/lib/stores/ui-preferences-store.ts` | `*.browser.test.ts` |
-| Any UI element | `src/shared/ui` only (shadcn/ui); raw `<button> <input> <select> <textarea> <label> <form>` fail `noRestrictedElements` in modules and app. Missing primitive: add it there with a `.stories.tsx`, do not hand-roll one in a module | `shared/ui/button.tsx` | `pnpm test:stories` (a11y violations fail) |
-| A color, radius, shadow | design tokens (`task tokens:check`); no color literals | `shared/ui/tokens.css` is generated | `task check:colors` |
-| A user-facing string | `src/modules/<m>/i18n/{en,ru,tj,uz,ar}.json` (web calls Tajik `tj`), `useTranslations("<ns>.<key>")`; all five locales or `task check:i18n` fails | `modules/tasks/i18n/` | `task check:i18n` |
-| An analytics event | add it to `AnalyticsEvents` and call the typed `track()`; PostHog loads only after consent | `shared/lib/analytics/analytics.ts` | `analytics.browser.test.ts` |
-| An error path | `toAppError`, `reportError`, `ErrorBoundary` from `shared/lib/errors` (one Sentry path) | `shared/lib/errors/` | `app-error.test.ts` |
-| A whole module | `manifest.ts`, `public.ts`, optional `outbox.ts`, `i18n/`, `ui/`, `lib/`; list it in `src/app/config/modules/registry.ts` and the catalogue type in `src/app/config/i18n/messages.d.ts`. Modules never import each other; they meet in `shared/` | `modules/tasks` | `task check:boundaries` |
-| An environment variable | a Zod field in `shared/env/{client,server,edge}.ts` (`edge.ts` for code that `proxy.ts` imports); `process.env` anywhere else fails `noProcessEnv` | `shared/env/edge.ts` | `pnpm lint` |
-| A third-party origin | update the CSP in `src/app/config/security/csp.ts` in the same change, and name the origin in the PR | `src/app/config/security/csp.ts` | `csp.test.ts` |
+| Directory  | Package              | What it is                                                                                                                                                          | Port / domain                    | Read next                              |
+| ---------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------- |
+| `app/`     | `@aedst/web-app`     | The product: everything a signed-in end user does (tasks, media, notifications, search, sign-in)                                                                    | 3000 / `app.<domain>` (proposed) | [app/AGENTS.md](app/AGENTS.md)         |
+| `admin/`   | `@aedst/web-admin`   | Staff panel: operations only staff may do (users, audit log, broadcasts)                                                                                            | 3001 / `admin.<domain>`          | [admin/AGENTS.md](admin/AGENTS.md)     |
+| `landing/` | `@aedst/web-landing` | Anonymous marketing and SEO/GEO pages, static, no auth                                                                                                              | 3002 / `<domain>`                | [landing/AGENTS.md](landing/AGENTS.md) |
+| `shared/`  | `@aedst/web-shared`  | Source-only kit used by 2+ projects: `ui` (shadcn), `api/connect`, `lib` (auth, errors, forms, analytics), `env`, `i18n`, `intl`, `date`, `modules` (manifest type) | none                             | [shared/README.md](shared/README.md)   |
 
-## Rules that bite
+Decision rule, in this order:
 
-- Tokens never reach page JavaScript: sessions are httpOnly cookies handled in `shared/lib/auth` and `src/proxy.ts`.
-  Do not store tokens anywhere in the browser.
-- Generated files are read-only: `src/shared/api/connect/generated/**` (`task web:generate`),
-  `shared/ui/tokens.css` and `packages/design-tokens/dist/**` (`pnpm --dir packages/design-tokens build`),
-  `next-env.d.ts`. A PreToolUse hook refuses edits to them.
-- Biome is the only linter/formatter (no ESLint, Prettier). RxJS is rejected. `react-use` is not installed (hooks are hand-written exceptions listed in library-first/general.md).
-- New dependency: if it is only planned, add it to `ignoreDependencies` in `knip.jsonc` (the allowlist) and the Library-First page in the same change.
-- Files stay at or under 300 lines (over 500 fails `task check:file-size`); one component per file, PascalCase
-  components, kebab-case elsewhere and in `shared/ui` (see conventions/web.md).
+1. A signed-in end-user feature -> `app`. 2. A staff-only operation -> `admin`. 3. An anonymous marketing/SEO page -> `landing`.
+2. Used by two or more projects AND not product-specific (a primitive, a client, a formatter) -> `shared`. Nothing else goes in `shared`:
+   a product screen, a module, a route or a one-project helper stays in its project, even if you expect to reuse it later.
+3. Unsure between two projects: stop and ask the owner. Do not duplicate code across projects to avoid the question.
 
-## Gates (run before saying done)
+## Dependency direction (enforced by `task check:boundaries`, dependency-cruiser and Biome)
 
-1. `task web:lint` (Biome + `tsc --noEmit`), `task web:knip`, `task web:test`.
-2. `task check` (naming, file size, colors, i18n, boundaries, features) from the repo root.
-3. A rule or script change: `pnpm check:selftest` (every gate must fail on its fixture in `lint/fixtures`). UI change: `pnpm test:stories` in `apps/web`. Bundle impact: `task web:build` then `task web:check:bundle`.
-4. Claim only what ran. Playwright (`task web:test:e2e`) and Lighthouse need browsers and a production build.
+- `app`, `admin`, `landing` -> `shared` only, via the alias `@/shared/*` (maps to `apps/web/shared/*`, a sibling of each `src/`).
+- Auth: `app` and `admin` are SEPARATE OIDC clients (`aedst-web`, `aedst-admin`) with their own `__Host-` cookies and `AUTH_COOKIE_NAME`; never share a session or cookie ([projects.md](../../docs/content/web/projects.md)).
+- Projects NEVER import each other (`../app/src`, `../admin/src` are forbidden). They meet only in `shared/` and over the network (ConnectRPC to `apps/server`).
+- `shared` NEVER imports a project (`@/app/*`, `@/modules/*`); in tests only `@/test/*` of the host project `app`.
+- Inside a project: `app -> modules -> shared`; modules never import each other.
+- Storybook of `shared/ui` and the vitest of `shared/**` tests are hosted by `app`; a `shared/` change must pass all three projects.
 
-<!-- BEGIN:nextjs-agent-rules -->
+## Starting a task
 
-## This is NOT the Next.js you know
+- Product feature: `app/src/modules/tasks` is the reference module. Admin screen: `admin/src/modules/admin`. Marketing section: `landing/src/modules/marketing`.
+- New primitive: `shared/ui` with a `.stories.tsx`. New shared lib: copy a sibling in `shared/lib`.
+- New RPC client / proto change: `task app:generate` regenerates `shared/api/connect/generated` (gitignored, never hand-edit).
+- New module on all platforms: `task new:module -- NAME=<id>` ([new-module.md](../../docs/agent/new-module.md)).
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+## Versions: one place
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+Every web dependency version lives ONCE in the `catalog:` of [pnpm-workspace.yaml](pnpm-workspace.yaml). A `package.json` says `"catalog:"`, never a literal version.
+Bump = edit the catalog only. ONE install for everything: `pnpm --dir apps/web install --frozen-lockfile` (or `task setup`). A new dependency also needs the
+project's knip allowlist and [library-first/web.md](../../docs/content/library-first/web.md) in the same change. One Biome config: `biome.json` here.
 
-<!-- END:nextjs-agent-rules -->
+## Commands (from the repo root; `web:*` runs all three projects)
+
+| Project | Dev                | Gates                                                                                 |
+| ------- | ------------------ | ------------------------------------------------------------------------------------- |
+| app     | `task app:dev`     | `task app:lint app:knip app:test` (+ `app:build`, `app:check:bundle`, `app:test:e2e`) |
+| admin   | `task admin:dev`   | `task admin:lint admin:knip admin:test` (+ `admin:build`)                             |
+| landing | `task landing:dev` | `task landing:lint landing:knip landing:test` (+ `landing:build`)                     |
+| all     | `task web:dev`     | `task web:lint web:knip web:test web:build`, then `task check`                        |
+
+## Vibe coding checklist
+
+1. Name the project first (table above) and open its `AGENTS.md`. Never start by editing `shared/`.
+2. Copy the reference file the project's table names; do not invent a new pattern.
+3. Use `shared/ui` for UI, generated clients for the server, tokens for color, `shared/env` or the project's `env.ts` for variables.
+4. Keep files at or under 300 lines; English only; all five locales (`en ru tj uz ar`) for every string.
+5. Run the project's gates, then `task check`; if you touched `shared/`, run `task web:lint web:test`. Claim only what ran.

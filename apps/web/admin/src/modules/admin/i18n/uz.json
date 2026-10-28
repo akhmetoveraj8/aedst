@@ -1,0 +1,93 @@
+{
+  "title": "Boshqaruv",
+  "signOut": "Chiqish",
+  "nav": {
+    "label": "Boshqaruv bo‘limlari",
+    "overview": "Umumiy ko‘rinish",
+    "users": "Foydalanuvchilar",
+    "tasks": "Barcha vazifalar",
+    "broadcast": "Xabar tarqatish",
+    "audit": "Audit jurnali"
+  },
+  "table": {
+    "loading": "Yuklanmoqda…",
+    "pagination": "Sahifalar",
+    "previous": "Oldingi",
+    "next": "Keyingi"
+  },
+  "overview": {
+    "title": "Umumiy ko‘rinish",
+    "loadError": "Ma’lumotlarni yuklab bo‘lmadi.",
+    "retry": "Qayta urinish",
+    "metrics": {
+      "usersTotal": "Foydalanuvchilar",
+      "tasksTotal": "Vazifalar",
+      "tasksDone": "Bajarilgan vazifalar",
+      "tasksOverdue": "Muddati o‘tgan vazifalar",
+      "mediaTotal": "Fayllar",
+      "mediaBytes": "Band qilingan joy",
+      "pushDevices": "Push qurilmalari",
+      "outboxLagSeconds": "Outbox kechikishi (s)",
+      "jobsPending": "Navbatdagi ishlar"
+    }
+  },
+  "users": {
+    "title": "Foydalanuvchilar",
+    "search": "Email yoki ism bo‘yicha qidirish",
+    "email": "Email",
+    "name": "Ism",
+    "createdAt": "Ro‘yxatdan o‘tgan",
+    "tasks": "Vazifalar",
+    "empty": "Foydalanuvchi topilmadi.",
+    "loadError": "Foydalanuvchilarni yuklab bo‘lmadi."
+  },
+  "tasks": {
+    "title": "Barcha vazifalar",
+    "search": "Nom bo‘yicha qidirish",
+    "taskTitle": "Nomi",
+    "owner": "Egasi",
+    "status": "Holati",
+    "createdAt": "Yaratilgan",
+    "actions": "Amallar",
+    "statuses": {
+      "todo": "Bajarilishi kerak",
+      "inProgress": "Jarayonda",
+      "done": "Bajarildi"
+    },
+    "delete": "O‘chirish",
+    "deleteTitle": "Vazifa o‘chirilsinmi?",
+    "deleteDescription": "«{title}» egasi uchun o‘chiriladi. Sabab audit jurnaliga yoziladi.",
+    "reason": "Sabab",
+    "reasonInvalid": "3 dan 500 belgigacha sabab yozing.",
+    "cancel": "Bekor qilish",
+    "confirmDelete": "Vazifani o‘chirish",
+    "empty": "Vazifa topilmadi.",
+    "loadError": "Vazifalarni yuklab bo‘lmadi."
+  },
+  "broadcast": {
+    "title": "Bildirishnoma tarqatish",
+    "userId": "Foydalanuvchi ID",
+    "userIdHint": "Hammaga yuborish uchun bo‘sh qoldiring.",
+    "userIdInvalid": "To‘g‘ri ID kiriting yoki bo‘sh qoldiring.",
+    "titleLabel": "Sarlavha",
+    "titleRequired": "Sarlavha kiriting.",
+    "titleTooLong": "120 belgidan oshmasin.",
+    "body": "Xabar",
+    "bodyInvalid": "1000 belgidan oshmasin.",
+    "link": "Havola",
+    "linkHint": "Ixtiyoriy ilova ichidagi yo‘l, masalan /tasks",
+    "linkInvalid": "/ bilan boshlanadigan yo‘l kiriting.",
+    "send": "Yuborish",
+    "sent": "{count, plural, one {# foydalanuvchiga yuborildi} other {# foydalanuvchiga yuborildi}}"
+  },
+  "audit": {
+    "title": "Audit jurnali",
+    "when": "Qachon",
+    "actor": "Kim",
+    "action": "Amal",
+    "target": "Obyekt",
+    "reason": "Sabab",
+    "empty": "Hozircha yozuv yo‘q.",
+    "loadError": "Audit jurnalini yuklab bo‘lmadi."
+  }
+}

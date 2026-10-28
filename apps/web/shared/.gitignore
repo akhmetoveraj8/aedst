@@ -1,0 +1,3 @@
+# generated ConnectRPC client stubs (run `task app:generate`): sourced from
+# apps/server/api/proto, regenerated rather than hand-edited.
+/api/connect/generated

@@ -1,7 +1,7 @@
 name: web-release
 
 # Tag web-vX.Y.Z (or a manual run) builds the production container image of
-# apps/web with the PRODUCTION environment and, only here, uploads Sentry
+# apps/web/app (the product app; admin and landing have their own images) with the PRODUCTION environment and, only here, uploads Sentry
 # source maps of exactly the build that is deployed. web-ci.yml builds for
 # tests only and never uploads maps (a build nobody deploys would create a
 # Sentry release whose maps belong to no running code).
@@ -41,10 +41,10 @@ jobs:
       packages: write
       id-token: write
     env:
-      IMAGE: ghcr.io/aedst/aedst-web # keep in sync with apps/web/deployments/helm/aedst-web/values.yaml
+      IMAGE: ghcr.io/aedst/aedst-web # keep in sync with apps/web/app/deployments/helm/aedst-web/values.yaml
       PUBLISH: ${{ github.event_name == 'push' || inputs.publish }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Require the production origin
         env:
@@ -66,7 +66,7 @@ jobs:
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
-          file: apps/web/deployments/docker/Dockerfile
+          file: apps/web/app/deployments/docker/Dockerfile
           load: true
           tags: aedst-web:release
           build-args: |
@@ -104,7 +104,7 @@ jobs:
           artifact-name: aedst-web.sbom.cdx.json
 
       - if: env.PUBLISH == 'true'
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -126,7 +126,7 @@ jobs:
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
-          file: apps/web/deployments/docker/Dockerfile
+          file: apps/web/app/deployments/docker/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |

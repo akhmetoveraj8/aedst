@@ -1,0 +1,50 @@
+{
+  "privacy": {
+    "title": "Privacy policy",
+    "updated": "Last updated: 28 October 2026",
+    "notice": "Template text. This document must be reviewed and replaced by the operator's legal counsel before launch.",
+    "intro": "This policy explains what information the AEDST marketing site collects and how it is used.",
+    "sections": {
+      "s1": {
+        "title": "What we collect",
+        "body": "This site does not require an account and does not set tracking cookies. Our servers keep standard technical logs such as IP address, time and requested page."
+      },
+      "s2": {
+        "title": "Analytics",
+        "body": "Optional analytics are not active on this site. If they are added, they will run only after you give consent."
+      },
+      "s3": {
+        "title": "Your account in the app",
+        "body": "When you sign in to the AEDST app, the app's own privacy policy applies to the data you store there."
+      },
+      "s4": {
+        "title": "Contact",
+        "body": "The operator's contact details for privacy requests will be published here before launch."
+      }
+    }
+  },
+  "terms": {
+    "title": "Terms of service",
+    "updated": "Last updated: 28 October 2026",
+    "notice": "Template text. These terms must be reviewed and replaced by the operator's legal counsel before launch.",
+    "intro": "These terms govern your use of the AEDST marketing site.",
+    "sections": {
+      "s1": {
+        "title": "Use of the site",
+        "body": "You may browse this site for lawful purposes. Do not attempt to disrupt it or access it in unauthorised ways."
+      },
+      "s2": {
+        "title": "Content",
+        "body": "The content of this site is provided for information only. Plans and prices shown are placeholders and may change."
+      },
+      "s3": {
+        "title": "The AEDST app",
+        "body": "Use of the signed-in app is governed by the terms presented when you create an account."
+      },
+      "s4": {
+        "title": "Changes",
+        "body": "We may update these terms. The date at the top of the page shows the latest revision."
+      }
+    }
+  }
+}

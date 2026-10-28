@@ -5,13 +5,13 @@ description: The complete Web stack with exact versions.
 
 # Web stack
 
-Next.js app (`apps/web`). Versions are pinned in the repository (checked against the registries on **2026-10-07**). Approved-library rules and rejections: [Library-First](/library-first#web). How to bump versions: [Stack overview](/stack#keeping-it-current).
+Next.js workspace (`apps/web`: app, admin, landing, shared). Versions are pinned once in the `catalog:` of `apps/web/pnpm-workspace.yaml` (checked against the registries on **2026-10-07**). Approved-library rules and rejections: [Library-First](/library-first#web). How to bump versions: [Stack overview](/stack#keeping-it-current).
 
 ## Framework
 
 | Area | Tool | Version |
 |---|---|---|
-| Framework | Next.js (App Router, Turbopack) | **16.4.0** |
+| Framework | Next.js (App Router, Turbopack) | **16.4.3** |
 | UI library | React | **19.3** |
 | Language | TypeScript | **7.0.2** |
 | Styling | Tailwind CSS | **4.3** |
@@ -60,8 +60,8 @@ Next.js app (`apps/web`). Versions are pinned in the repository (checked against
 | Unit (Node) | Vitest | **5.0.3** |
 | Component (real Chromium) | Vitest Browser Mode (`@vitest/browser-playwright`) + Testing Library | **5.0.3** / 16.3 |
 | Sign-in (OIDC, BFF) | oauth4webapi (Authorization Code + PKCE, refresh grant); Auth.js is rejected, see [decisions](/decisions) | **3.8.8** |
-| API mocking | `createRouterTransport` (`@connectrpc/connect`) for components; a `fetch` stub (`src/test/mocks/server.ts`) for server-side code; injected `fetch` for the IdP | 2.2.0 |
+| API mocking | `createRouterTransport` (`@connectrpc/connect`) for components; a `fetch` stub (`apps/web/app/src/test/mocks/server.ts`) for server-side code; injected `fetch` for the IdP | 2.2.0 |
 | E2E | Playwright (`chromium`, `firefox`, `webkit`, `mobile-chrome`, `mobile-safari`) + axe-core | 1.63 / **4.14.0** |
 | Contract test | mock API vs. proto descriptors (`pnpm test:contract`) | in-repo |
 | Budgets | bundle-size script + Lighthouse CI | in-repo |
-| Package manager | pnpm (Node 24) | **12.6.0** |
+| Package manager | pnpm (Node 26) | **12.15.0** |

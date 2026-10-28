@@ -1,0 +1,57 @@
+# apps/web/app - AI agent instructions
+
+Read the root [AGENTS.md](../../../AGENTS.md), [CONVENTIONS.md](../../../CONVENTIONS.md) and the workspace
+[apps/web/AGENTS.md](../AGENTS.md) (which project owns what) first; this file only adds what is specific to the
+product app (signed-in end users, port 3000). The admin panel is its own project in `../admin`; nothing here
+imports it. Below, `shared/` is `apps/web/shared` (a sibling of this directory, alias `@/shared/*`).
+Reference module for everything below: `src/modules/tasks`.
+Approved libraries: [library-first/web](../../../docs/content/library-first/web.md). Decisions:
+[decisions/web](../../../docs/content/decisions/web.md). Naming: [conventions/web.md](../../../docs/agent/conventions/web.md).
+
+## Pairs: when you do X, use Y
+
+| When you add                               | Use                                                                                                                                                                                                                                              | Copy / read                                                                              | Test                                                              |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| A form                                     | React Hook Form + `protovalidateResolver` (rules come from the proto, not a second schema) + `shared/ui` `Form`/`Field`/`FieldLabel`/`FieldError`/`Input`/`Button`; a select is a `Controller`, not `watch`+`setValue`                           | `modules/tasks/ui/TaskForm.tsx`, `shared/lib/forms/protovalidate-resolver.ts`            | `TaskForm.test.tsx` (render via `src/test/render.tsx`)            |
+| A server call                              | connect-query/TanStack Query over the generated client in `shared/api/connect`; never raw `fetch` in a module (Biome plugin `lint/no-fetch-in-modules.grit`)                                                                                     | `modules/tasks/ui/TaskList.tsx` (`useQuery`), `tasks/lib/use-task-writes.ts` (mutations) | `src/test/contract` plus a component test with the mock transport |
+| A write that must survive offline          | the outbox: `outbox.ts` + `lib/outbox-handlers.ts`, `useQueuedWrite`                                                                                                                                                                             | `modules/tasks/outbox.ts`, `shared/lib/outbox/`                                          | `outbox-handlers.test.ts`                                         |
+| A date, number, byte size or relative time | `shared/date` (date-fns, `parseDateInputValue`), `shared/intl/format.ts`; never `new Date(text)` or `new Intl.*`                                                                                                                                 | `shared/date/format-date.ts`, `shared/intl/format.ts`                                    | `format-date.test.ts`                                             |
+| URL state (filters, sort, tabs)            | nuqs parsers shared by server and client                                                                                                                                                                                                         | `tasks/lib/task-search-params.ts`                                                        | a unit test of the parsers                                        |
+| UI state (panels, preferences)             | zustand in `shared/lib/stores`; server data stays in TanStack Query, never in zustand                                                                                                                                                            | `shared/lib/stores/ui-preferences-store.ts`                                              | `*.browser.test.ts`                                               |
+| Any UI element                             | `shared/ui` only (shadcn/ui); raw `<button> <input> <select> <textarea> <label> <form>` fail `noRestrictedElements` in modules and app. Missing primitive: add it there with a `.stories.tsx`, do not hand-roll one in a module                  | `shared/ui/button.tsx`                                                                   | `pnpm test:stories` (a11y violations fail)                        |
+| A color, radius, shadow                    | design tokens (`task tokens:check`); no color literals                                                                                                                                                                                           | `shared/ui/tokens.css` is generated                                                      | `task check:colors`                                               |
+| A user-facing string                       | `src/modules/<m>/i18n/{en,ru,tj,uz,ar}.json` (web calls Tajik `tj`), `useTranslations("<ns>.<key>")`; all five locales or `task check:i18n` fails                                                                                                | `modules/tasks/i18n/`                                                                    | `task check:i18n`                                                 |
+| An analytics event                         | add it to `AnalyticsEvents` and call the typed `track()`; PostHog loads only after consent                                                                                                                                                       | `shared/lib/analytics/analytics.ts`                                                      | `analytics.browser.test.ts`                                       |
+| An error path                              | `toAppError`, `reportError`, `ErrorBoundary` from `shared/lib/errors` (one Sentry path)                                                                                                                                                          | `shared/lib/errors/`                                                                     | `app-error.test.ts`                                               |
+| A whole module                             | `manifest.ts`, `public.ts`, optional `outbox.ts`, `i18n/`, `ui/`, `lib/`; list it in `src/app/config/modules/registry.ts` and the catalogue type in `src/app/config/i18n/messages.d.ts`. Modules never import each other; they meet in `shared/` | `modules/tasks`                                                                          | `task check:boundaries`                                           |
+| An environment variable                    | a Zod field in `shared/env/{client,server,edge}.ts` (`edge.ts` for code that `proxy.ts` imports); `process.env` anywhere else fails `noProcessEnv`                                                                                               | `shared/env/edge.ts`                                                                     | `pnpm lint`                                                       |
+| A third-party origin                       | update the CSP in `src/app/config/security/csp.ts` in the same change, and name the origin in the PR                                                                                                                                             | `src/app/config/security/csp.ts`                                                         | `csp.test.ts`                                                     |
+
+## Rules that bite
+
+- Tokens never reach page JavaScript: sessions are httpOnly cookies handled in `shared/lib/auth` and `src/proxy.ts`.
+  Do not store tokens anywhere in the browser.
+- Generated files are read-only: `shared/api/connect/generated/**` (`task app:generate`),
+  `shared/ui/tokens.css` and `packages/design-tokens/dist/**` (`pnpm --dir packages/design-tokens build`),
+  `next-env.d.ts`. A PreToolUse hook refuses edits to them.
+- Biome is the only linter/formatter (no ESLint, Prettier). RxJS is rejected. `react-use` is not installed (hooks are hand-written exceptions listed in library-first/general.md).
+- New dependency: if it is only planned, add it to `ignoreDependencies` in `knip.jsonc` (the allowlist; versions stay in `../pnpm-workspace.yaml`, never in `package.json`) and the Library-First page in the same change.
+- Files stay at or under 300 lines (over 500 fails `task check:file-size`); one component per file, PascalCase
+  components, kebab-case elsewhere and in `shared/ui` (see conventions/web.md).
+
+## Gates (run before saying done)
+
+1. `task app:lint` (Biome + `tsc --noEmit`), `task app:knip`, `task app:test`. A change under `shared/` also needs `task web:lint web:test` (admin and landing use it).
+2. `task check` (naming, file size, colors, i18n, boundaries, features) from the repo root.
+3. A rule or script change: `pnpm check:selftest` (every gate must fail on its fixture in `lint/fixtures`). UI change: `pnpm test:stories` in `apps/web/app`. Bundle impact: `task app:build` then `task app:check:bundle`.
+4. Claim only what ran. Playwright (`task app:test:e2e`) and Lighthouse need browsers and a production build.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

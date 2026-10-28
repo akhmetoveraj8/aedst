@@ -1,4 +1,0 @@
-//// run: naming
-//// expect: React file must be PascalCase
-//// file: apps/web/src/modules/tasks/ui/badName.tsx
-export const BadName = () => null;

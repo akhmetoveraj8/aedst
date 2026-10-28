@@ -5,7 +5,7 @@ description: "apps/web is one Next.js app and stays one. It is built so that a f
 
 # Path to microfrontends
 
-`apps/web` is one Next.js app and stays one. It is built so that a feature
+The web side is already split along audience lines into three separate projects (`app`, `admin`, `landing`; see [Web projects](/web/projects)). Inside the product app (`apps/web/app`) the feature modules stay one Next.js app, built so that a feature
 module could later become its own deployable without a rewrite. This page
 records what is already prepared, what would change, the order of steps, and
 when to take them. Nothing here is adopted today: no Module Federation, no
@@ -16,16 +16,16 @@ multi-zones. See the decision in [decisions/web](/decisions/web).
 | Seam | Where | Why it matters for a split |
 |---|---|---|
 | Public surface | `modules/<id>/public.ts` | The only code another place may import. A zone would own everything behind it. |
-| Manifest | `modules/<id>/manifest.ts`, type in `src/shared/modules/manifest.ts` | Routes, nav entries, i18n namespaces, feature flags, capabilities and permissions are data, not scattered imports. A shell could read them from a remote instead of a local file. |
-| Registry | `src/app/config/modules/registry.ts` | The one list of modules; route guard, nav and i18n loader derive from it. Removing a module from the registry removes it from the shell. |
-| No module-to-module imports | `scripts/check-feature-boundaries.sh` (`pnpm check:feature-boundaries`, in `task check`) | Modules already cannot share internals, so there is nothing to untangle. Also checked: manifests import only `@/shared/**`; flags used are declared; every module is registered. |
-| Shared contracts | `src/shared/api` (generated Connect clients), `src/shared/ui`, `src/shared/lib/auth` | The only things two zones would need to share, and they are already packages in all but name. |
+| Manifest | `modules/<id>/manifest.ts`, type in `apps/web/shared/modules/manifest.ts` | Routes, nav entries, i18n namespaces, feature flags, capabilities and permissions are data, not scattered imports. A shell could read them from a remote instead of a local file. |
+| Registry | `apps/web/app/src/app/config/modules/registry.ts` | The one list of modules; route guard, nav and i18n loader derive from it. Removing a module from the registry removes it from the shell. |
+| No module-to-module imports | `apps/web/app/scripts/check-feature-boundaries.sh` (`pnpm check:feature-boundaries`, in `task check`) | Modules already cannot share internals, so there is nothing to untangle. Also checked: manifests import only `@/shared/**`; flags used are declared; every module is registered. |
+| Shared contracts | `apps/web/shared/api` (generated Connect clients), `apps/web/shared/ui`, `apps/web/shared/lib/auth` | The only things two zones would need to share, and they are already packages in all but name. |
 | Server-side session (BFF) | httpOnly cookies, `/api/rpc` proxy, `proxy.ts` | Cookies are scoped to the host, so zones on one domain share the session with no token handling in page JavaScript. |
-| Route-level splitting + per-module budgets | Next chunk graph per route; `bundle-budget.json` `modules` | Shows which module is heavy before a split is argued for. |
+| Route-level splitting + per-module budgets | Next chunk graph per route; `apps/web/app/bundle-budget.json` `modules` | Shows which module is heavy before a split is argued for. |
 
 Cross-module communication is allowed only through: the manifest/registry,
-`src/shared` (including typed API clients, shared query keys and URL state),
-a typed event contract placed in `src/shared` when a real need appears, or the
+`apps/web/shared` (including typed API clients, shared query keys and URL state),
+a typed event contract placed in `apps/web/shared` when a real need appears, or the
 server. There is no direct import and no shared mutable singleton between modules.
 
 ## Staged path
@@ -47,7 +47,7 @@ server. There is no direct import and no shared mutable singleton between module
 **Multi-zones (step 2).**
 - *Shared packages.* Extract the shared pieces a second app needs (`shared/ui`,
   `shared/api`, auth/session helpers, the manifest type, the i18n loader) into
-  workspace packages. Today they are `src/shared`; the boundary check already
+  workspace packages. Today they are `apps/web/shared`; the boundary check already
   proves modules depend only on that layer.
 - *Locale in the path.* Every route is `/[locale]/...`, so `basePath` cannot
   isolate a zone. Route by rewrite patterns (`/:locale/tasks/:path*`) and give
@@ -91,7 +91,7 @@ server. There is no direct import and no shared mutable singleton between module
 Take step 2 for a module only when at least one holds, with numbers:
 - A team that does not share a release cadence owns the module, and coordinated
   releases measurably block it.
-- The module's `modules.<id>` first-load budget in `bundle-budget.json` keeps
+- The module's `modules.<id>` first-load budget in `apps/web/app/bundle-budget.json` keeps
   needing increases and route-level splitting and dynamic imports are exhausted.
 - `next build` time or CI time for the single app exceeds the agreed ceiling
   even with Turbopack's cache warm.
@@ -107,19 +107,19 @@ and the seams above keep the option open.
 ## Adding a module today
 
 1. Create `modules/<id>/{manifest.ts,public.ts,i18n/*.json,ui,lib}`.
-2. List the manifest in `src/app/config/modules/registry.ts`.
-3. Add `src/app/(pages)/[locale]/(app)/<route>/page.tsx`, importing only
+2. List the manifest in `apps/web/app/src/app/config/modules/registry.ts`.
+3. Add `apps/web/app/src/app/(pages)/[locale]/(app)/<route>/page.tsx`, importing only
    `@/modules/<id>/public`.
-4. Add the type-level mirror in `src/app/config/i18n/messages.d.ts` and the
-   catalogue in `src/test/render.tsx`.
-5. Add a `modules.<id>` budget in `apps/web/bundle-budget.json`
+4. Add the type-level mirror in `apps/web/app/src/app/config/i18n/messages.d.ts` and the
+   catalogue in `apps/web/app/src/test/render.tsx`.
+5. Add a `modules.<id>` budget in `apps/web/app/bundle-budget.json`
    (`pnpm check:bundle` fails on a route without one).
 6. `pnpm check:feature-boundaries` and `registry.test.ts` must pass.
 
 ## Capability negotiation
 
 A module is also a server feature named by its manifest `id` (`flagged: true`
-= off until the server enables it). `src/shared/lib/capabilities` calls the
+= off until the server enables it). `apps/web/shared/lib/capabilities` calls the
 public `GetCapabilities` RPC (through `/api/rpc` in the browser; directly with
 a 60 s per-process cache in `proxy.ts`, so no request waits on the network),
 keeps the last answer in localStorage, and applies

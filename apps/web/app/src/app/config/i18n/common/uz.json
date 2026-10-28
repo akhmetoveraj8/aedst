@@ -1,0 +1,82 @@
+{
+  "appName": "AEDST",
+  "appDescription": "AEDST texnologiyalari asosidagi tez va qulay vazifalar menejeri.",
+  "actions": {
+    "submit": "Yuborish",
+    "cancel": "Bekor qilish",
+    "save": "Saqlash",
+    "back": "Orqaga",
+    "goHome": "Bosh sahifaga",
+    "tryAgain": "Qaytadan urinib ko'ring",
+    "close": "Yopish"
+  },
+  "errors": {
+    "generic": "Xatolik yuz berdi. Qaytadan urinib ko'ring.",
+    "title": "Xatolik yuz berdi",
+    "notFoundTitle": "Sahifa topilmadi",
+    "notFoundDescription": "Siz izlagan sahifa mavjud emas yoki koʻchirilgan.",
+    "sessionExpired": "Seans tugadi. Iltimos, qayta kiring.",
+    "forbiddenTitle": "Ruxsat yo‘q",
+    "forbiddenDescription": "Bu bo‘lim uchun hisobingizda mavjud bo‘lmagan rol talab qilinadi.",
+    "kinds": {
+      "unauthenticated": "Seans tugadi. Iltimos, qayta kiring.",
+      "forbidden": "Bu amal uchun ruxsatingiz yo‘q.",
+      "notFound": "Bu element endi mavjud emas.",
+      "invalidInput": "Ba’zi ma’lumotlar noto‘g‘ri. Tekshirib, qaytadan urinib ko‘ring.",
+      "conflict": "Ma’lumotlar o‘zgargan. Sahifani yangilab, qaytadan urinib ko‘ring.",
+      "rateLimited": "So‘rovlar juda ko‘p. Biroz kutib, qaytadan urinib ko‘ring.",
+      "unavailable": "Xizmat vaqtincha ishlamayapti. Birozdan so‘ng urinib ko‘ring.",
+      "timeout": "So‘rov juda uzoq davom etdi. Qaytadan urinib ko‘ring.",
+      "offline": "Internetga ulanmagansiz. Aloqani tekshiring.",
+      "cancelled": "So‘rov bekor qilindi.",
+      "upgradeRequired": "Davom etish uchun ilovani yangilang.",
+      "storage": "Bu qurilmada ma’lumotni o‘qib yoki saqlab bo‘lmadi.",
+      "unknown": "Xatolik yuz berdi. Qaytadan urinib ko‘ring."
+    }
+  },
+  "a11y": {
+    "skipToContent": "Asosiy tarkibga o'tish",
+    "loading": "Yuklanmoqda",
+    "notifications": "Bildirishnomalar"
+  },
+  "locale": {
+    "label": "Til"
+  },
+  "consent": {
+    "title": "Tahlil roziligi",
+    "description": "Ilovani yaxshilashimiz uchun maxfiylikka mos tahlil va samaradorlikni o'lchashga ruxsat berasizmi?",
+    "accept": "Ruxsat berish",
+    "decline": "Yo'q, rahmat",
+    "manage": "Maxfiylik sozlamalari",
+    "withdraw": "Bekor qilish",
+    "privacyPolicy": "Maxfiylik siyosati",
+    "currentlyAllowed": "Hozir: ruxsat berilgan.",
+    "currentlyDeclined": "Hozir: rad etilgan."
+  },
+  "nav": {
+    "label": "Asosiy navigatsiya",
+    "tasks": "Vazifalar",
+    "search": "Qidiruv",
+    "notifications": "Bildirishnomalar"
+  },
+  "offline": {
+    "banner": "Siz oflaynsiz. Ulanish tiklanguncha ba’zi imkoniyatlar mavjud emas.",
+    "title": "Ulanish yo‘q",
+    "description": "Bu sahifa oflayn rejimda mavjud emas. Ulanib, qaytadan urinib ko‘ring.",
+    "retry": "Qayta urinish",
+    "queued": "O‘zgarishlar qurilmada saqlanadi va internetga ulanganda yuboriladi."
+  },
+  "sync": {
+    "pending": "Sinxronlash kutilmoqda: {count}",
+    "failed": "Sinxronlanmadi: {count}"
+  },
+  "pwa": {
+    "installTitle": "AEDST’ni o‘rnatish",
+    "installDescription": "Tez kirish va bildirishnomalar uchun ilovani qurilmangizga qo‘shing.",
+    "install": "O‘rnatish",
+    "dismiss": "Hozir emas",
+    "iosInstructions": "O‘rnatish uchun «Ulashish»ni, so‘ng «Bosh ekranga qo‘shish»ni bosing.",
+    "updateAvailable": "Yangi versiya mavjud.",
+    "reload": "Yangilash"
+  }
+}

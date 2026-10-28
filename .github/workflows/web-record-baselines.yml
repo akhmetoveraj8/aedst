@@ -1,14 +1,14 @@
 name: web-record-baselines
 
 # Manual only (`workflow_dispatch`): records the Storybook visual-regression
-# baselines (apps/web/visual-baselines) on the SAME runner image and Chromium
+# baselines (apps/web/app/visual-baselines) on the SAME runner image and Chromium
 # that web-visual.yml compares them on. Screenshots differ per OS and browser,
 # so baselines recorded on a developer machine would never match CI.
 #
 #   gh workflow run web-record-baselines.yml     # from the branch to record on
 #
 # The images are uploaded as an artifact: download it, unpack it into
-# apps/web/visual-baselines/ and commit. Nothing records during a normal run;
+# apps/web/app/visual-baselines/ and commit. Nothing records during a normal run;
 # web-visual.yml only ever compares.
 # UNVERIFIED: never run.
 on:
@@ -23,30 +23,31 @@ concurrency:
 
 defaults:
   run:
-    working-directory: apps/web
+    working-directory: apps/web/app
 
 env:
-  NODE_VERSION: "24"
-  PNPM_VERSION: "12.6.0"
+  NODE_VERSION: "26"
+  PNPM_VERSION: "12.15.0"
 
 jobs:
   record:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
 
       - name: Install dependencies
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - name: Generate ConnectRPC client stubs
@@ -61,9 +62,9 @@ jobs:
       - name: Verify the fresh recording
         run: pnpm test:visual
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: web-visual-baselines
-          path: apps/web/visual-baselines/
+          path: apps/web/app/visual-baselines/
           if-no-files-found: error
           retention-days: 14

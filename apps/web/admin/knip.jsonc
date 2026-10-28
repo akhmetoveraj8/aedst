@@ -1,0 +1,35 @@
+{
+  // The pnpm catalog lives one level up (apps/web/pnpm-workspace.yaml), where knip does not look.
+  "rules": { "catalogReferences": "off" },
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Entry points knip cannot discover on its own. instrumentation*, proxy.ts,
+  // next.config.ts and the vitest config are auto-detected by plugins.
+  "entry": [
+    // Loaded by path from next.config.ts (next-intl plugin), not imported.
+    "src/app/config/i18n/request.ts",
+    // next-intl `AppConfig` type augmentation, picked up by tsc, never imported.
+    "src/app/config/i18n/messages-types.ts",
+    // Aliased in place of `server-only` by vitest.config.mts, not imported.
+    "src/test/mocks/empty-module.ts",
+    // A module's full public surface; layouts import the single-export entries/ files.
+    "src/modules/*/public.ts"
+  ],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": [
+    // The source-only kit is checked by the project that hosts it (apps/web/app).
+    "../shared/**"
+  ],
+  "ignoreIssues": {
+    // Mock helpers kept complete for the next test that needs them.
+    "src/test/mocks/connect.ts": ["exports"],
+    "src/test/mocks/server.ts": ["exports"],
+    "src/test/render.tsx": ["exports"]
+  },
+  // Approved-stack libraries referenced only from CSS or CLI config, which knip does not follow.
+  "ignoreDependencies": [
+    "tw-animate-css",
+    "tailwindcss",
+    // Peer of the shared kit's chart/ui code, resolved from ../shared.
+    "@hugeicons/core-free-icons"
+  ]
+}

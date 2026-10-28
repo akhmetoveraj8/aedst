@@ -1,0 +1,48 @@
+{
+  "name": "@aedst/web-landing",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3002",
+    "build": "next build",
+    "start": "next start -p 3002",
+    "lint": "biome check --error-on-warnings",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "knip": "knip"
+  },
+  "dependencies": {
+    "@fontsource/noto-sans": "catalog:",
+    "@fontsource/ibm-plex-sans-arabic": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "next-intl": "catalog:",
+    "cn": "catalog:",
+    "@hugeicons/react": "catalog:",
+    "@hugeicons/core-free-icons": "catalog:",
+    "@sentry/nextjs": "catalog:",
+    "zod": "catalog:",
+    "next-themes": "catalog:",
+    "tw-animate-css": "catalog:",
+    "shadcn": "catalog:"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@tailwindcss/postcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "vitest": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/dom": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "knip": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
+    "@playwright/test": "catalog:"
+  }
+}

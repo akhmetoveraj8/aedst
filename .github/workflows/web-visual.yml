@@ -1,7 +1,7 @@
 name: web-visual
 
 # Nightly visual regression: every Storybook story is screenshot-compared (light
-# and dark) against the committed baselines in apps/web/visual-baselines.
+# and dark) against the committed baselines in apps/web/app/visual-baselines.
 # Record or refresh the baselines with web-record-baselines.yml (they must come
 # from this same runner image). Without baselines the job skips and says so.
 on:
@@ -18,18 +18,18 @@ concurrency:
 
 defaults:
   run:
-    working-directory: apps/web
+    working-directory: apps/web/app
 
 env:
-  NODE_VERSION: "24"
-  PNPM_VERSION: "12.6.0"
+  NODE_VERSION: "26"
+  PNPM_VERSION: "12.15.0"
 
 jobs:
   visual:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Baselines present?
         id: baselines
@@ -38,16 +38,16 @@ jobs:
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::no apps/web/visual-baselines yet; run web-record-baselines.yml and commit its artifact"
+            echo "::notice::no apps/web/app/visual-baselines yet; run web-record-baselines.yml and commit its artifact"
           fi
 
       - if: steps.baselines.outputs.present == 'true'
-        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - if: steps.baselines.outputs.present == 'true'
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -55,6 +55,7 @@ jobs:
 
       - if: steps.baselines.outputs.present == 'true'
         name: Install dependencies
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - if: steps.baselines.outputs.present == 'true'
@@ -71,11 +72,11 @@ jobs:
 
       - name: Upload diffs
         if: ${{ failure() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: web-visual-diffs
           path: |
-            apps/web/**/__diffs__/
-            apps/web/visual-baselines/
+            apps/web/app/**/__diffs__/
+            apps/web/app/visual-baselines/
           if-no-files-found: ignore
           retention-days: 7

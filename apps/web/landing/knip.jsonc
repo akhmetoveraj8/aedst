@@ -1,0 +1,41 @@
+{
+  // The pnpm catalog lives one level up (apps/web/pnpm-workspace.yaml), where knip does not look.
+  "rules": { "catalogReferences": "off" },
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // next.config.ts, proxy.ts, vitest.config.mts and the app router files are
+  // detected by knip's Next/Vitest plugins.
+  "entry": [
+    // Loaded by path from next.config.ts (next-intl plugin), not imported.
+    "src/app/config/i18n/request.ts",
+    // next-intl `AppConfig` augmentation, picked up by tsc, never imported.
+    "src/app/config/i18n/messages-types.ts"
+  ],
+  "project": ["src/**/*.{ts,tsx}"],
+  // ../shared is a source-only kit consumed through the `@/shared/*` alias:
+  // knip of the app project owns its dead-code analysis.
+  "ignoreIssues": {
+    // JSON-LD builders kept for pages that are one entry away (docs/content/web/seo-geo.md).
+    "src/app/config/structured-data.ts": ["exports"]
+  },
+  "ignoreDependencies": [
+    // Referenced only from CSS (@import / @source), which knip does not follow.
+    // OG image fonts, read with fs by path in src/app/config/og-fonts.ts.
+    "@fontsource/noto-sans",
+    "@fontsource/ibm-plex-sans-arabic",
+    "shadcn",
+    "tw-animate-css",
+    "tailwindcss",
+    // Provided by the shared kit; the landing keeps them for its own tooling.
+    "@playwright/test",
+    "@testing-library/react",
+    "@testing-library/jest-dom",
+    "@testing-library/dom",
+    "@testing-library/user-event",
+    "@vitejs/plugin-react",
+    "babel-plugin-react-compiler",
+    "@sentry/nextjs",
+    "cn",
+    "@hugeicons/react",
+    "@hugeicons/core-free-icons"
+  ]
+}
