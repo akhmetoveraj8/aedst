@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs every platform's module-boundary check and reports one result per platform.
-#   web      apps/web/scripts/check-feature-boundaries.sh
+#   web      apps/web/app/scripts/check-feature-boundaries.sh
 #   android  apps/android/scripts/check-feature-boundaries.sh
 #   apple    apps/apple/scripts/check-feature-boundaries.sh
 #   desktop  apps/desktop/scripts/check-feature-boundaries.sh
@@ -34,7 +34,9 @@ for p in "${want[@]}"; do
   case "$p" in
     web|android|apple|desktop)
       if [[ -d "apps/$p" ]]; then
-        run "$p" bash "apps/$p/scripts/check-feature-boundaries.sh"
+        script="apps/$p/scripts/check-feature-boundaries.sh"
+        [[ "$p" == web ]] && script="apps/web/app/scripts/check-feature-boundaries.sh" # web hosts its gate in the app project
+        run "$p" bash "$script"
       else
         # task template:new --profile core|mobile removes whole platforms
         printf '%sSKIP%s %s (apps/%s is not part of this repository profile)\n' "$y" "$z" "$p" "$p"

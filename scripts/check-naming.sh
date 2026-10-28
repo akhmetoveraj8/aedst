@@ -37,14 +37,14 @@ while IFS= read -r f; do
     apps/server/gen/*)
       ;;
 
-    # --- Web (apps/web) ---
-    apps/web/src/shared/ui/*)
+    # --- Web (apps/web: shared, app, admin, landing) ---
+    apps/web/shared/ui/*)
       ;; # shadcn/ui-generated primitives: documented kebab-case exception
-    apps/web/src/app/*/page.tsx|apps/web/src/app/*/layout.tsx|apps/web/src/app/*/loading.tsx|apps/web/src/app/*/error.tsx|apps/web/src/app/*/not-found.tsx|apps/web/src/app/*/route.ts|apps/web/src/app/*/global-error.tsx)
+    apps/web/*/src/app/*/page.tsx|apps/web/*/src/app/*/layout.tsx|apps/web/*/src/app/*/loading.tsx|apps/web/*/src/app/*/error.tsx|apps/web/*/src/app/*/not-found.tsx|apps/web/*/src/app/*/route.ts|apps/web/*/src/app/*/global-error.tsx)
       ;; # Next.js framework-mandated literal file names
-    apps/web/src/test/*)
+    apps/web/*/src/test/*)
       ;; # test helpers (render.tsx, mocks): not part of the app's naming surface
-    apps/web/src/*.tsx)
+    apps/web/shared/*.tsx|apps/web/app/src/*.tsx|apps/web/admin/src/*.tsx|apps/web/landing/src/*.tsx)
       # Every React file outside shared/ui: PascalCase, name = the exported component.
       # Framework names (page, layout, opengraph-image, ...) are fixed by Next.js. A
       # <name>.test.tsx / <name>.stories.tsx follows its subject; a kebab-case test is
@@ -63,7 +63,7 @@ while IFS= read -r f; do
           ;;
       esac
       ;;
-    apps/web/src/*.ts)
+    apps/web/shared/*.ts|apps/web/app/src/*.ts|apps/web/admin/src/*.ts|apps/web/landing/src/*.ts)
       stem="${base%%.*}" # foo.browser.test.ts, foo.d.ts: the stem is `foo`
       [[ "$stem" =~ $kebab ]] || err "$f: utility file must be kebab-case.ts"
       ;;

@@ -31,7 +31,7 @@ if tool go go version; then
   level "tests (go build/vet/test); integration needs Docker or AEDST_TEST_DATABASE_URL" "$g"
 else level "static only" "$r"; fi
 
-echo "web (Next.js)"
+echo "web (Next.js workspace: shared, app, admin, landing)"
 if have node && have pnpm; then
   if [[ -d apps/web/node_modules ]]; then row node_modules "${g}installed${z}"; else row node_modules "${y}not installed${z} (pnpm --dir apps/web install --frozen-lockfile)"; fi
   level "tests + build (typecheck, Biome, knip, Vitest, next build); Playwright needs browsers" "$g"

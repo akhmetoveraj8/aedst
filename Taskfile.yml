@@ -4,7 +4,7 @@ version: "3"
 # Taskfile/Makefile/package.json scripts; this file only delegates.
 # apps/server has a Taskfile and is included; the other apps expose
 # Makefile / pnpm / Gradle / CMake entry points, wrapped in namespaced tasks
-# below (web:*, android:*, apple:*, desktop:*).
+# below (web:*, app:*, admin:*, landing:*, android:*, apple:*, desktop:*).
 
 includes:
   server:
@@ -88,8 +88,8 @@ tasks:
   check:gates:
     desc: Library-First enforcement gates that need no platform toolchain (web forms/selftest, apple static custom rules, desktop static gates, server lint selftest), each with its negative self-test.
     cmds:
-      - pnpm --dir apps/web check:forms
-      - pnpm --dir apps/web check:selftest
+      - pnpm --dir apps/web/app check:forms
+      - pnpm --dir apps/web/app check:selftest
       - bash apps/apple/scripts/check-swiftlint-rules-static.sh
       - bash apps/apple/scripts/check-apple-sensitive-apis.sh
       - bash apps/apple/scripts/check-dependencies.sh
@@ -181,13 +181,14 @@ tasks:
         echo "task server:build server:test:race             # build and race-detector unit tests (race needs cgo)"
         echo "task server:test:integration                 # needs Docker, or AEDST_TEST_DATABASE_URL pointing at a Postgres"
   verify:web:
-    desc: Print the commands that verify the web app.
+    desc: Print the commands that verify the web workspace (app, admin, landing).
     silent: true
     cmds:
       - |
-        echo "pnpm --dir apps/web install --frozen-lockfile"
-        echo "task web:lint web:knip web:test:coverage web:build web:check:bundle"
-        echo "task web:test:e2e           # Playwright, needs browsers"
+        echo "pnpm --dir apps/web install --frozen-lockfile      # ONE install for the whole workspace"
+        echo "task web:lint web:knip web:test:coverage web:build web:check:bundle   # all three projects"
+        echo "task app:lint app:test | admin:lint admin:test | landing:lint landing:test   # one project"
+        echo "task app:test:e2e           # Playwright, needs browsers"
   verify:android:
     desc: Print the commands that verify Android (needs JDK 21 and the Android SDK).
     silent: true
@@ -269,47 +270,143 @@ tasks:
     cmds:
       - pnpm --dir docs build
 
-  # --- web -----------------------------------------------------------------
+  # --- web (workspace apps/web: shared + app + admin + landing) ------------
+  # web:* runs every project; app:* / admin:* / landing:* run one project.
+  # The ONE install is: pnpm --dir apps/web install --frozen-lockfile
   web:generate:
-    desc: Regenerate the web Connect clients from the protos (pnpm connect:generate).
-    dir: apps/web
-    cmds: [pnpm connect:generate]
+    desc: Regenerate the shared Connect clients from the protos.
+    cmds:
+      - task: app:generate
   web:lint:
-    desc: Web Biome lint and TypeScript typecheck.
-    dir: apps/web
-    cmds: ["pnpm lint", "pnpm typecheck"]
+    desc: Biome lint and typecheck of app, admin and landing.
+    cmds:
+      - task: app:lint
+      - task: admin:lint
+      - task: landing:lint
   web:knip:
-    desc: Web unused files/exports/dependencies and the approved-library allowlist (knip).
-    dir: apps/web
-    cmds: [pnpm knip]
+    desc: knip of app, admin and landing.
+    cmds:
+      - task: app:knip
+      - task: admin:knip
+      - task: landing:knip
   web:test:
-    desc: Web unit and integration tests (Vitest).
-    dir: apps/web
-    cmds: [pnpm test]
+    desc: Unit tests of app, admin and landing (shared tests are hosted by app).
+    cmds:
+      - task: app:test
+      - task: admin:test
+      - task: landing:test
   web:test:coverage:
-    desc: Web unit/integration tests with the coverage thresholds CI enforces.
-    dir: apps/web
-    cmds: [pnpm test:coverage]
+    desc: Coverage-gated tests (app; admin and landing have no thresholds yet).
+    cmds:
+      - task: app:test:coverage
   web:test:e2e:
-    desc: Web Playwright suite (all browsers + phones) against the mock API.
-    dir: apps/web
-    cmds: [pnpm test:e2e:prod]
+    desc: Playwright suite (app).
+    cmds:
+      - task: app:test:e2e
   web:check:bundle:
-    desc: Client bundle size budget (run after web:build).
-    dir: apps/web
-    cmds: [pnpm check:bundle]
+    desc: Client bundle size budget (app; run after web:build).
+    cmds:
+      - task: app:check:bundle
   web:lighthouse:
-    desc: Lighthouse CI budgets (run after web:build; needs Chrome).
-    dir: apps/web
-    cmds: [pnpm lighthouse]
+    desc: Lighthouse CI budgets (app; run after web:build).
+    cmds:
+      - task: app:lighthouse
   web:build:
-    desc: Production build of the web app (Next.js).
-    dir: apps/web
-    cmds: [pnpm build]
+    desc: Production build of app, admin and landing.
+    cmds:
+      - task: app:build
+      - task: admin:build
+      - task: landing:build
   web:dev:
-    desc: Start the web dev server.
+    desc: Start all three dev servers (app 3000, admin 3001, landing 3002).
     dir: apps/web
+    cmds: ["pnpm -r --parallel dev"]
+
+  # --- web: app (product, signed-in users, port 3000) ----------------------
+  app:generate:
+    desc: Regenerate the shared Connect clients from the protos (pnpm connect:generate, hosted by app).
+    dir: apps/web/app
+    cmds: [pnpm connect:generate]
+  app:test:coverage:
+    desc: App unit/integration tests with the coverage thresholds CI enforces.
+    dir: apps/web/app
+    cmds: [pnpm test:coverage]
+  app:test:e2e:
+    desc: App Playwright suite (all browsers + phones) against the mock API.
+    dir: apps/web/app
+    cmds: [pnpm test:e2e:prod]
+  app:check:bundle:
+    desc: App client bundle size budget (run after app:build).
+    dir: apps/web/app
+    cmds: [pnpm check:bundle]
+  app:lighthouse:
+    desc: App Lighthouse CI budgets (run after app:build; needs Chrome).
+    dir: apps/web/app
+    cmds: [pnpm lighthouse]
+  app:dev:
+    desc: Start the app dev server.
+    dir: apps/web/app
     cmds: [pnpm dev]
+  app:build:
+    desc: Production build of the app (Next.js).
+    dir: apps/web/app
+    cmds: [pnpm build]
+  app:lint:
+    desc: app Biome lint and TypeScript typecheck.
+    dir: apps/web/app
+    cmds: ["pnpm lint", "pnpm typecheck"]
+  app:knip:
+    desc: app unused files/exports/dependencies and the approved-library allowlist (knip).
+    dir: apps/web/app
+    cmds: [pnpm knip]
+  app:test:
+    desc: app unit tests (Vitest).
+    dir: apps/web/app
+    cmds: [pnpm test]
+
+  # --- web: admin (staff panel, port 3001) ---------------------------------
+  admin:dev:
+    desc: Start the admin dev server.
+    dir: apps/web/admin
+    cmds: [pnpm dev]
+  admin:build:
+    desc: Production build of the admin (Next.js).
+    dir: apps/web/admin
+    cmds: [pnpm build]
+  admin:lint:
+    desc: admin Biome lint and TypeScript typecheck.
+    dir: apps/web/admin
+    cmds: ["pnpm lint", "pnpm typecheck"]
+  admin:knip:
+    desc: admin unused files/exports/dependencies and the approved-library allowlist (knip).
+    dir: apps/web/admin
+    cmds: [pnpm knip]
+  admin:test:
+    desc: admin unit tests (Vitest).
+    dir: apps/web/admin
+    cmds: [pnpm test]
+
+  # --- web: landing (marketing site, port 3002) ----------------------------
+  landing:dev:
+    desc: Start the landing dev server.
+    dir: apps/web/landing
+    cmds: [pnpm dev]
+  landing:build:
+    desc: Production build of the landing (Next.js).
+    dir: apps/web/landing
+    cmds: [pnpm build]
+  landing:lint:
+    desc: landing Biome lint and TypeScript typecheck.
+    dir: apps/web/landing
+    cmds: ["pnpm lint", "pnpm typecheck"]
+  landing:knip:
+    desc: landing unused files/exports/dependencies and the approved-library allowlist (knip).
+    dir: apps/web/landing
+    cmds: [pnpm knip]
+  landing:test:
+    desc: landing unit tests (Vitest).
+    dir: apps/web/landing
+    cmds: [pnpm test]
 
   # --- android -------------------------------------------------------------
   android:generate:

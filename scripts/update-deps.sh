@@ -3,7 +3,7 @@
 # using each ecosystem's own tooling (no hand-rolled version resolution):
 #
 #   server   go get -u ./... + go mod tidy               (apps/server)
-#   web      pnpm update --latest                        (apps/web, docs, packages/*)
+#   web      pnpm update --latest                        (apps/web workspace: catalog in pnpm-workspace.yaml, docs, packages/*)
 #   android  Gradle wrapper → latest release (catalog versions: Renovate only)
 #   apple    swift package update inside Tuist/          (apps/apple; macOS only)
 #   desktop  vcpkg x-update-baseline                     (apps/desktop)
@@ -101,16 +101,22 @@ update_web() {
     fi
     # --latest crosses semver ranges (majors included) to the `latest` tag;
     # exact pins in package.json stay exact.
-    pnpm update --latest
+    # apps/web is a pnpm workspace (shared, app, admin, landing) whose versions live in the
+    # `catalog:` of pnpm-workspace.yaml, so it is updated recursively from its root. Whether
+    # pnpm rewrites catalog entries is UNVERIFIED here; if not, Renovate bumps the catalog.
+    if [[ "$dir" == "$ROOT/apps/web" ]]; then pnpm update -r --latest; else pnpm update --latest; fi
     if [[ $VERIFY -eq 1 && -f package.json ]]; then
       if node -e 'process.exit(require("./package.json").scripts?.typecheck ? 0 : 1)'; then pnpm typecheck; fi
       if node -e 'process.exit(require("./package.json").scripts?.test ? 0 : 1)'; then pnpm test; fi
     fi
   done
   if [[ $CHECK_ONLY -eq 0 && $VERIFY -eq 1 ]]; then
-    cd "$ROOT/apps/web"
-    pnpm lint
-    pnpm knip
+    local proj
+    for proj in app admin landing; do
+      cd "$ROOT/apps/web/$proj"
+      pnpm lint
+      pnpm knip
+    done
   fi
 }
 

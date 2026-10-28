@@ -9,6 +9,6 @@
     "check": "node build.mjs --check"
   },
   "devDependencies": {
-    "style-dictionary": "5.5.5"
+    "style-dictionary": "5.7.1"
   }
 }

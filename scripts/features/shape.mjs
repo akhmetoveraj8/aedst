@@ -124,14 +124,20 @@ function stringConstants(text) {
   return map;
 }
 
+/** Feature roots of a platform (web has one per project: app and admin). */
+const rootsOf = (doc, p) => [].concat(doc.feature_roots[p]);
+/** The directory that holds feature `name` on platform `p` (the first root that has it). */
+const featureDir = (root, doc, p, name) => rootsOf(doc, p).map((r) => `${r}/${name}`).find((d) => hasDir(root, d)) ?? `${rootsOf(doc, p)[0]}/${name}`;
+
 /** The feature ids a client build declares, and its flagged subset, read from the platform's own code. */
 export function clientBuildOf(root, platform) {
   const out = { features: null, flagged: null };
   if (platform === 'web') {
-    const dir = 'apps/web/src/modules';
-    const ids = readdirSync(path.join(root, dir)).filter((n) => has(root, `${dir}/${n}/manifest.ts`));
-    out.features = new Set(ids);
-    out.flagged = new Set(ids.filter((n) => /flagged:\s*true/.test(read(root, `${dir}/${n}/manifest.ts`))));
+    // The web client is several projects (app, admin): the union of their modules is the web build.
+    const dirs = ['apps/web/app/src/modules', 'apps/web/admin/src/modules'].filter((d) => hasDir(root, d));
+    const mods = dirs.flatMap((dir) => readdirSync(path.join(root, dir)).filter((n) => has(root, `${dir}/${n}/manifest.ts`)).map((n) => ({ n, file: `${dir}/${n}/manifest.ts` })));
+    out.features = new Set(mods.map((m) => m.n));
+    out.flagged = new Set(mods.filter((m) => /flagged:\s*true/.test(read(root, m.file))).map((m) => m.n));
   } else if (platform === 'android') {
     const consts = stringConstants(read(root, 'apps/android/core/common/src/main/kotlin/com/aedst/core/common/CapabilitiesState.kt'));
     const text = read(root, 'apps/android/core/capabilities/src/main/kotlin/com/aedst/core/capabilities/CapabilitiesModule.kt');
@@ -182,7 +188,7 @@ export function checkShape(root, doc, knownOutboxTypes) {
     for (const t of list(f.outbox)) declaredOutbox.add(t);
 
     for (const p of platforms) {
-      const dir = `${doc.feature_roots[p]}/${f[p]}`;
+      const dir = featureDir(root, doc, p, f[p]);
       if (!hasDir(root, dir)) continue; // reported by the directory check
       for (const [check, fn] of Object.entries(platformChecks(root, p, feature, dir))) {
         const problem = fn();
@@ -196,16 +202,16 @@ export function checkShape(root, doc, knownOutboxTypes) {
       if (ok && skipped(feature, p, 'outbox')) errors.push(`${feature} on ${p}: exception for outbox is stale; remove it`);
     }
 
-    if (f.i18n_namespace && has(root, `${doc.feature_roots.web}/${f.web}/manifest.ts`)) {
-      const manifest = read(root, `${doc.feature_roots.web}/${f.web}/manifest.ts`);
+    if (f.i18n_namespace && has(root, `${featureDir(root, doc, 'web', f.web)}/manifest.ts`)) {
+      const manifest = read(root, `${featureDir(root, doc, 'web', f.web)}/manifest.ts`);
       const ns = /i18nNamespaces:\s*\[([^\]]*)\]/.exec(manifest)?.[1] ?? '';
       if (!ns.includes(`"${f.i18n_namespace}"`)) errors.push(`feature ${feature}: web manifest i18nNamespaces ${ns.trim()} does not list "${f.i18n_namespace}"`);
       // The namespace is typed in the web message catalogue type (src/app/config/i18n/messages.d.ts).
-      const types = 'apps/web/src/app/config/i18n/messages.d.ts';
+      const types = `${featureDir(root, doc, 'web', f.web).replace(/\/modules\/[^/]+$/, '')}/app/config/i18n/messages.d.ts`;
       if (has(root, types) && !read(root, types).includes(`/modules/${f.web}/i18n/en.json`)) errors.push(`feature ${feature}: ${types} does not import the module catalogue`);
     }
-    if (has(root, `${doc.feature_roots.web}/${f.web}/manifest.ts`)) {
-      const manifest = read(root, `${doc.feature_roots.web}/${f.web}/manifest.ts`);
+    if (has(root, `${featureDir(root, doc, 'web', f.web)}/manifest.ts`)) {
+      const manifest = read(root, `${featureDir(root, doc, 'web', f.web)}/manifest.ts`);
       const block = /routes:\s*\[([\s\S]*?)\n  \],?\n|routes:\s*\[([^\]]*)\]/.exec(manifest);
       const paths = [...(block?.[1] ?? block?.[2] ?? '').matchAll(/path:\s*"([^"]+)"/g)].map((m) => m[1]);
       if (!sameSet(new Set(paths), new Set(list(f.routes)))) errors.push(`feature ${feature}: web manifest routes ${show(new Set(paths))} != declared routes ${show(new Set(list(f.routes)))}`);

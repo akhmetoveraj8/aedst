@@ -20,7 +20,7 @@ platforms:
 # not listed here fails the check (no undeclared features), and so does a listed directory that is missing.
 feature_roots:
   server:  apps/server/internal/modules
-  web:     apps/web/src/modules
+  web:     [apps/web/app/src/modules, apps/web/admin/src/modules]   # one root per web project that owns modules (admin feature lives in the admin project)
   android: apps/android/feature
   apple:   apps/apple/Features
   desktop: apps/desktop/Modules/Features
@@ -67,7 +67,7 @@ behaviors:
     fixtures: docs/contract/behavior/session-refresh.json
     platforms:
       server:  { status: na, reason: Resource server verifies tokens only; the IdP refreshes. }
-      web:     { status: verified,    evidence: apps/web/src/test/contract/session-refresh.replay.test.ts, note: "Known deviation: first invalid_grant keeps the refresh cookie (multi-replica rotation race window of 15 s); session ends on the next refusal." }
+      web:     { status: verified,    evidence: apps/web/app/src/test/contract/session-refresh.replay.test.ts, note: "Known deviation: first invalid_grant keeps the refresh cookie (multi-replica rotation race window of 15 s); session ends on the next refusal." }
       android: { status: verified,    evidence: apps/android/feature/auth/src/test/kotlin/com/aedst/feature/auth/data/remote/SessionRefreshReplayTest.kt }
       apple:   { status: implemented, evidence: apps/apple/App/Shared/Tests/AedstAppSharedTests/SessionRefreshReplayTests.swift }
       desktop: { status: implemented, evidence: apps/desktop/Modules/Core/Oidc/tests/session_refresh_replay_test.cpp }
@@ -75,7 +75,7 @@ behaviors:
     fixtures: docs/contract/behavior/offline-outbox.json
     platforms:
       server:  { status: verified,    evidence: apps/server/internal/platform/idempotency/store_test.go }
-      web:     { status: verified,    evidence: apps/web/src/test/contract/offline-outbox.replay.browser.test.ts }
+      web:     { status: verified,    evidence: apps/web/app/src/test/contract/offline-outbox.replay.browser.test.ts }
       android: { status: verified,    evidence: apps/android/core/outbox/src/test/kotlin/com/aedst/core/outbox/OfflineOutboxReplayTest.kt }
       apple:   { status: implemented, evidence: apps/apple/Core/AedstPersistence/Tests/AedstPersistenceTests/OfflineOutboxReplayTests.swift }
       desktop: { status: implemented, evidence: apps/desktop/Modules/Core/Outbox/tests/outbox_replay_test.cpp }
@@ -83,7 +83,7 @@ behaviors:
     fixtures: docs/contract/behavior/offline-outbox.json
     platforms:
       server:  { status: verified,    evidence: apps/server/internal/platform/idempotency/interceptor_test.go }
-      web:     { status: verified,    evidence: apps/web/src/test/contract/offline-outbox.replay.browser.test.ts }
+      web:     { status: verified,    evidence: apps/web/app/src/test/contract/offline-outbox.replay.browser.test.ts }
       android: { status: verified,    evidence: apps/android/core/outbox/src/test/kotlin/com/aedst/core/outbox/OutboxSyncWorkerTest.kt }
       apple:   { status: implemented, evidence: apps/apple/Features/Tasks/Sources/Tasks/Data/TaskOutboxHandlers.swift }
       desktop: { status: implemented, evidence: apps/desktop/Modules/Core/Network/tests/client_headers_test.cpp }
@@ -91,7 +91,7 @@ behaviors:
     fixtures: docs/contract/behavior/client-version-gate.json
     platforms:
       server:  { status: verified,    evidence: apps/server/internal/platform/httpserver/clientversion_test.go }
-      web:     { status: verified,    evidence: apps/web/src/test/contract/client-version-gate.replay.test.ts, note: "Header is set by the /api/rpc BFF proxy from package.json." }
+      web:     { status: verified,    evidence: apps/web/app/src/test/contract/client-version-gate.replay.test.ts, note: "Header is set by the /api/rpc BFF proxy from package.json." }
       android: { status: verified,    evidence: apps/android/core/network/src/test/kotlin/com/aedst/core/network/ClientVersionGateReplayTest.kt }
       apple:   { status: implemented, evidence: apps/apple/Core/AedstNetwork/Tests/AedstNetworkTests/ClientVersionGateReplayTests.swift }
       desktop: { status: implemented, evidence: apps/desktop/Modules/Core/Network/tests/client_version_gate_test.cpp }
@@ -107,7 +107,7 @@ behaviors:
     fixtures: docs/contract/behavior/capabilities.json
     platforms:
       server:  { status: verified, evidence: apps/server/internal/modules/capabilities/module/policy_test.go }
-      web:     { status: verified, evidence: apps/web/src/test/contract/capabilities.replay.test.ts }
+      web:     { status: verified, evidence: apps/web/app/src/test/contract/capabilities.replay.test.ts }
       android: { status: verified, evidence: apps/android/core/capabilities/src/test/kotlin/com/aedst/core/capabilities/CapabilitiesReplayTest.kt, note: "JVM-verified; not run on a device. TV filters nothing (auth only)." }
       apple:   { status: implemented, evidence: apps/apple/Core/AedstNetwork/Tests/AedstNetworkTests/CapabilitiesReplayTests.swift }
       desktop: { status: implemented, evidence: apps/desktop/Modules/Core/Capabilities/tests/capabilities_replay_test.cpp }
@@ -115,7 +115,7 @@ behaviors:
     fixtures: docs/contract/behavior/error-kinds.json
     platforms:
       server:  { status: na, reason: The server emits Connect codes (internal/platform/httpserver/connecterror.go); the code to kind table is a client concern. }
-      web:     { status: verified, evidence: apps/web/src/test/contract/error-kinds.replay.test.ts, note: "Reportable = unknown and storage only; server faults are captured server-side. Web has no local-database source for kind storage." }
+      web:     { status: verified, evidence: apps/web/app/src/test/contract/error-kinds.replay.test.ts, note: "Reportable = unknown and storage only; server faults are captured server-side. Web has no local-database source for kind storage." }
       android: { status: verified, evidence: apps/android/core/network/src/test/kotlin/com/aedst/core/network/ErrorKindsReplayTest.kt, note: "JVM-verified. Outbox parks unauthenticated as permanent (no blocked verdict yet)." }
       apple:   { status: implemented, evidence: apps/apple/Core/AedstNetwork/Tests/AedstNetworkTests/ErrorKindsReplayTests.swift, note: "Local cases decoding and unsupported report as unknown. Outbox blocks on upgradeRequired only." }
       desktop: { status: implemented, evidence: apps/desktop/Modules/Core/Network/tests/error_kinds_replay_test.cpp, note: "Also replays the per-kind outbox verdict (Modules/Core/Outbox/tests/outbox_replay_test.cpp). A connection-level failure reports as offline." }

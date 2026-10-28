@@ -2,7 +2,7 @@
 // Repo-level colour-literal ban. Colours come from packages/design-tokens (generated into each
 // platform's design system); hand-written UI code must reference tokens, never literals:
 //   web      hex, rgb()/rgba()/hsl()/hsla()/oklch()/oklab()/hwb()/lab()/lch(), and Tailwind palette
-//            classes (bg-red-500, text-neutral-600, ...) outside apps/web/src/shared/ui: use the
+//            classes (bg-red-500, text-neutral-600, ...) outside apps/web/shared/ui: use the
 //            token utilities (bg-destructive, text-muted-foreground, Badge variants success/warning/info)
 //   android  Color(0x..), Color(<number>), Color.Red/White/..., parseColor("#..."), #hex in res XML
 //   apple    Color(red:/white:/hue:), UIColor(/NSColor( with components, #colorLiteral, Color(hex:
@@ -33,7 +33,7 @@ const FN = '\\b(?:rgba?|hsla?|hwb|oklch|oklab|lab|lch)\\(';
 // Tailwind default-palette utilities: a literal colour in disguise (no theme, no dark mode).
 const PALETTE =
   '\\b(?:bg|text|border|ring|from|via|to|fill|stroke|outline|divide|decoration|accent|caret|shadow)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\\d{2,3}\\b';
-const WEB_PALETTE_EXEMPT = /^apps\/web\/src\/shared\/ui\//; // shadcn primitives, reviewed with the kit
+const WEB_PALETTE_EXEMPT = /^apps\/web\/shared\/ui\//; // shadcn primitives, reviewed with the kit
 const RULES = {
   web: { exts: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'css'], res: [HEX, FN, PALETTE] },
   android: {
@@ -84,7 +84,7 @@ for (const f of all) {
   const ext = f.split('.').pop();
   if (!rule.exts.includes(ext) || TEST.test(f) || NON_SOURCE.test(f)) continue;
   if (allow.some((a) => a.test(f))) continue;
-  if (platform === 'web' && f.startsWith('apps/web/src/shared/ui/tokens.css')) continue;
+  if (platform === 'web' && f.startsWith('apps/web/shared/ui/tokens.css')) continue;
   if (platform === 'android' && ext === 'xml' && !/\/res\//.test(f)) continue;
   const abs = path.join(root, f);
   if (!existsSync(abs)) continue;

@@ -55,9 +55,9 @@ const phQt = (s) => unique([...s.matchAll(/%(?:L?\d+|n)/g)].map((m) => m[0].repl
 function loadWeb() {
   const dirs = new Map();
   for (const f of files) {
-    const m = /^apps\/web\/src\/(.*\/)?i18n\/([a-z]{2})\.json$/.exec(f);
+    const m = /^apps\/web\/((?:app|admin|landing)\/src|shared)\/(.*\/)?i18n\/([a-z]{2})\.json$/.exec(f);
     if (!m) continue;
-    const id = `apps/web/src/${m[1] ?? ''}i18n`;
+    const id = `apps/web/${m[1]}/${m[2] ?? ''}i18n`;
     if (!dirs.has(id)) dirs.set(id, new Map());
     const flat = new Map();
     const walk = (o, p) => {
@@ -67,7 +67,7 @@ function loadWeb() {
       }
     };
     walk(JSON.parse(read(f)), '');
-    dirs.get(id).set(canon(m[2]), flat);
+    dirs.get(id).set(canon(m[3]), flat);
   }
   return [...dirs].map(([id, entries]) => ({ id, entries, ph: phWeb, module: webModule(id) }));
 }

@@ -7,10 +7,10 @@ cyrillic **/res/values/strings.xml
 # Apple per-locale permission strings and Android/Apple/desktop test data that assert Cyrillic input handling.
 cyrillic **/*.lproj/*.strings
 # Build outputs mentioned by CI upload steps; they exist only after a build.
-paths apps/web/.lighthouseci-signed-in/
+paths apps/web/app/.lighthouseci-signed-in/
 # Visual-regression baselines: created by web-record-baselines.yml (artifact) and committed afterwards.
-paths apps/web/visual-baselines
-paths apps/web/visual-baselines/
+paths apps/web/app/visual-baselines
+paths apps/web/app/visual-baselines/
 paths apps/android/app/src/release/generated/baselineProfiles/
 paths apps/desktop/perf-report.json
 paths apps/desktop/verify-pkg
@@ -18,20 +18,20 @@ paths apps/desktop/verify-pkg
 cyrillic apps/android/benchmark/src/main/kotlin/com/aedst/benchmark/BenchmarkSession.kt
 cyrillic apps/android/core/ui/src/test/**
 cyrillic apps/server/internal/platform/idempotency/interceptor_test.go
-cyrillic apps/web/src/shared/lib/auth/session-claims.test.ts
+cyrillic apps/web/shared/lib/auth/session-claims.test.ts
 # Hook smoke-test fixtures: scripts/check-hooks.sh feeds fabricated paths to the hooks.
 paths apps/server/internal/modules/tasks/infrastructure/postgres/sqlc/query.sql.go
 paths apps/server/gen/aedst/tasks/v1/tasksv1connect/tasks.connect.go
 paths apps/desktop/Modules/Core/DesignSystem/qml/AedstTokens.qml
 paths apps/server/internal/modules/tasks/domain/task.go
-paths apps/web/src/types/messages.d.ts
+paths apps/web/app/src/types/messages.d.ts
 paths apps/desktop/Modules/__no_such_file__.cpp
 # Runtime log written by the CI load job.
 paths apps/server/server.log
 # Runtime log written by the desktop MSVC clang-tidy CI step.
 paths apps/desktop/clang-tidy-msvc.log
 # Native-script language names in the locale switcher story (a language picker shows each language in its own script).
-cyrillic apps/web/src/shared/ui/locale-select.stories.tsx
+cyrillic apps/web/shared/ui/locale-select.stories.tsx
 # CI-generated artifacts (web-ci import graph and mutation report).
-paths apps/web/dep-graph.svg
-paths apps/web/reports/mutation/
+paths apps/web/app/dep-graph.svg
+paths apps/web/app/reports/mutation/

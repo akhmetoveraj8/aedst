@@ -17,7 +17,7 @@ const repo = path.resolve(here, '..', '..');
 const out = (...p) => path.relative(here, path.join(repo, ...p)).split(path.sep).join('/') + '/';
 
 const OUT = {
-  web: out('apps/web/src/shared/ui'),
+  web: out('apps/web/shared/ui'),
   android: out('apps/android/core/ui/src/main/kotlin/com/aedst/core/ui/theme'),
   apple: out('apps/apple/Core/AedstDesignSystem/Sources/AedstDesignSystem'),
   desktop: out('apps/desktop/Modules/Core/DesignSystem/qml/AedstDesignSystem'),

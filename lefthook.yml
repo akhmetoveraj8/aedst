@@ -5,12 +5,13 @@
 # clone to wire these into `.git/hooks`.
 #
 # Every command is `glob`-scoped to one app, so a commit touching only
-# apps/server never pays for apps/web's typecheck and vice versa. `glob`
+# apps/server never pays for apps/web's typecheck and vice versa (web is split
+# into app, admin and landing, each with its own typecheck and knip). `glob`
 # paths are always relative to the repo root regardless of `root:` (see
 # https://lefthook.dev/configuration/glob.html) - matched twice per app
 # (`app/**/*.ext` and `app/*.ext`) because lefthook's `**` requires at
 # least one directory in between, so it alone would miss a top-level file
-# like `apps/web/next.config.ts`. `root:` does two things once a command
+# like `apps/web/app/next.config.ts`. `root:` does two things once a command
 # actually runs: it `cd`s into that directory, AND it rewrites
 # `{staged_files}` to be relative to it instead of the repo root -
 # verified empirically (not just from the docs) before relying on it here.
@@ -27,69 +28,103 @@
 pre-commit:
   parallel: true
   commands:
-    web-typecheck:
-      root: "apps/web/"
-      glob:
-        - "apps/web/**/*.{ts,tsx}"
-        - "apps/web/*.{ts,tsx}"
-      # Whole-project — tsc has no meaningful single-file mode, and a type
-      # error anywhere can be caused by a change anywhere.
-      run: pnpm typecheck
+    # One Biome config for the whole web workspace (apps/web/biome.json), run
+    # from apps/web so shared/, app/, admin/ and landing/ are all covered.
+    # Staged files only, deliberately: `pnpm lint` (whole project) would also
+    # fail on any pre-existing violation in a file this commit never touched.
+    # `--write` autofixes what Biome can; `stage_fixed` re-stages the result.
     web-lint:
       root: "apps/web/"
       glob:
-        - "apps/web/**/*.{ts,tsx,js,jsx,mjs,json}"
-        - "apps/web/*.{ts,tsx,js,jsx,mjs,json}"
-      # Staged files only, deliberately — `pnpm lint` (whole project) would
-      # also fail on any pre-existing violation in a file this commit never
-      # touched, blocking unrelated work. `--write` autofixes what Biome
-      # can (import order, quote style, ...); `stage_fixed` re-stages
-      # exactly what it changed so the commit includes the fix.
+        - "apps/web/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
       run: pnpm biome check --write --error-on-warnings --no-errors-on-unmatched {staged_files}
       stage_fixed: true
 
-    # A staged form without React Hook Form, or a module/shared file that imports
-    # src/app (upward import), fails the commit. Both scripts are whole-tree and fast.
-    web-forms:
-      root: "apps/web/"
+    # tsc has no single-file mode, so each project is checked whole. A change in
+    # shared/ triggers the app (it hosts the shared tests and tooling).
+    web-app-typecheck:
+      root: "apps/web/app/"
       glob:
-        - "apps/web/**/*.{ts,tsx}"
-        - "apps/web/*.{ts,tsx}"
+        - "apps/web/app/**/*.{ts,tsx}"
+        - "apps/web/app/*.{ts,tsx}"
+        - "apps/web/shared/**/*.{ts,tsx}"
+        - "apps/web/shared/*.{ts,tsx}"
+      run: pnpm typecheck
+    web-app-knip:
+      root: "apps/web/app/"
+      glob:
+        - "apps/web/app/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/app/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/shared/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/shared/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+      run: pnpm knip
+    web-admin-typecheck:
+      root: "apps/web/admin/"
+      glob:
+        - "apps/web/admin/**/*.{ts,tsx}"
+        - "apps/web/admin/*.{ts,tsx}"
+      run: pnpm typecheck
+    web-admin-knip:
+      root: "apps/web/admin/"
+      glob:
+        - "apps/web/admin/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/admin/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+      run: pnpm knip
+    web-landing-typecheck:
+      root: "apps/web/landing/"
+      glob:
+        - "apps/web/landing/**/*.{ts,tsx}"
+        - "apps/web/landing/*.{ts,tsx}"
+      run: pnpm typecheck
+    web-landing-knip:
+      root: "apps/web/landing/"
+      glob:
+        - "apps/web/landing/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/landing/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+      run: pnpm knip
+
+    # Gates hosted by the app project (they scan app/src and shared/): a staged
+    # form without React Hook Form, an upward import, a cross-module import,
+    # a color literal. All are whole-tree and fast.
+    web-forms:
+      root: "apps/web/app/"
+      glob:
+        - "apps/web/app/**/*.{ts,tsx}"
+        - "apps/web/app/*.{ts,tsx}"
+        - "apps/web/shared/**/*.{ts,tsx}"
+        - "apps/web/shared/*.{ts,tsx}"
       run: node scripts/check-forms.mjs
     web-deps:
-      root: "apps/web/"
+      root: "apps/web/app/"
       glob:
-        - "apps/web/**/*.{ts,tsx}"
-        - "apps/web/*.{ts,tsx}"
+        - "apps/web/app/**/*.{ts,tsx}"
+        - "apps/web/app/*.{ts,tsx}"
+        - "apps/web/shared/**/*.{ts,tsx}"
+        - "apps/web/shared/*.{ts,tsx}"
       run: pnpm check:deps
     web-boundaries:
-      root: "apps/web/"
+      root: "apps/web/app/"
       glob:
-        - "apps/web/**/*.{ts,tsx}"
-        - "apps/web/*.{ts,tsx}"
+        - "apps/web/app/**/*.{ts,tsx}"
+        - "apps/web/app/*.{ts,tsx}"
+        - "apps/web/shared/**/*.{ts,tsx}"
+        - "apps/web/shared/*.{ts,tsx}"
       run: bash scripts/check-feature-boundaries.sh
     web-colors:
-      root: "apps/web/"
+      root: "apps/web/app/"
       glob:
         - "apps/web/**/*.{ts,tsx,css}"
       run: node scripts/check-color-literals.mjs
     # The gates themselves: only when a rule, plugin, fixture or script changes.
     web-gate-selftest:
-      root: "apps/web/"
+      root: "apps/web/app/"
       glob:
         - "apps/web/biome.json"
-        - "apps/web/lint/**"
-        - "apps/web/scripts/**"
+        - "apps/web/app/lint/**"
+        - "apps/web/app/scripts/**"
       run: node scripts/check-selftest.mjs
 
-    # Whole-project by nature (unused exports/files/deps). Slower than the
-    # others, so it only runs when web sources/config change.
-    web-knip:
-      root: "apps/web/"
-      glob:
-        - "apps/web/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
-        - "apps/web/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
-      run: pnpm knip
     # File/directory naming (CONVENTIONS.md). --staged keeps it fast.
     naming:
       run: bash scripts/check-naming.sh --staged

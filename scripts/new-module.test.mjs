@@ -38,8 +38,13 @@ function seed() {
   const paths = new Set(['features.yaml', 'scripts/check-i18n-parity.mjs', 'scripts/check-features.mjs', 'scripts/features/shape.mjs', 'docs/contract/behavior/offline-outbox.json', 'scripts/check-naming.sh', 'scripts/package.json']);
   for (const e of registryEdits(forms('probe'))) paths.add(e.file);
   paths.add('apps/server/internal/modules');
-  paths.add('apps/web/src/modules');
-  paths.add('apps/web/src/app/config/i18n/common');
+  paths.add('apps/web/app/src/modules');
+  paths.add('apps/web/app/src/app/config/i18n/common');
+  paths.add('apps/web/admin/src/modules');
+  paths.add('apps/web/admin/src/app/config/i18n/common');
+  paths.add('apps/web/landing/src/modules');
+  paths.add('apps/web/landing/src/app/config/i18n/common');
+  paths.add('apps/apple/scripts');
   paths.add('apps/android/feature');
   paths.add('apps/apple/Features');
   paths.add('apps/desktop/Modules/Features');
@@ -103,7 +108,7 @@ describe('scaffold in a temp copy', () => {
     assert.ok(staged.includes('zeta')); // tracked in the throwaway repo, so removal needs --force
     assert.throws(() => scaffold({ name: 'zeta', root: tmp, remove: true, log: quiet }), /refusing to remove/);
     scaffold({ name: 'zeta', root: tmp, remove: true, force: true, log: quiet });
-    for (const dir of ['apps/server/internal/modules/zeta', 'apps/web/src/modules/zeta', 'apps/android/feature/zeta', 'apps/apple/Features/Zeta', 'apps/desktop/Modules/Features/Zeta']) {
+    for (const dir of ['apps/server/internal/modules/zeta', 'apps/web/app/src/modules/zeta', 'apps/android/feature/zeta', 'apps/apple/Features/Zeta', 'apps/desktop/Modules/Features/Zeta']) {
       assert.equal(existsSync(path.join(tmp, dir)), false, dir);
     }
     git('add', '-A');

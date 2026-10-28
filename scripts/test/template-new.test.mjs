@@ -185,8 +185,8 @@ for (const profile of Object.keys(PROFILES)) {
       assert.match(read(dir, 'apps/server/go.mod'), /^module github\.com\/aedst\//m, 'Go import path is the permanent codename');
       assert.ok(fs.readdirSync(path.join(dir, 'apps/server/api/proto')).includes('aedst'), 'proto packages keep aedst.*');
       assert.ok(exists(dir, 'apps/server/deployments/helm/acme-cloud-server'), 'Helm chart directory renamed');
-      assert.match(read(dir, 'apps/web/src/shared/lib/auth/session-cookies.ts'), /acme_cloud_session/);
-      assert.match(read(dir, 'apps/web/src/app/config/seo.ts'), /name: "Acme Cloud"/);
+      assert.match(read(dir, 'apps/web/shared/lib/auth/session-cookies.ts'), /acme_cloud_session/);
+      assert.match(read(dir, 'apps/web/app/src/app/config/seo.ts'), /name: "Acme Cloud"/);
     });
   });
 }

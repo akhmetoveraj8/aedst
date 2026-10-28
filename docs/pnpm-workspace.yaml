@@ -1,16 +1,16 @@
-# next@16.4.0 is newer than pnpm's default minimumReleaseAge; excluded explicitly
+# next@16.4.3 is newer than pnpm's default minimumReleaseAge; excluded explicitly
 # (verified against the npm registry). Remove entries once they age past it.
 minimumReleaseAgeExclude:
-  - '@next/env@16.4.0'
-  - '@next/swc-darwin-arm64@16.4.0'
-  - '@next/swc-darwin-x64@16.4.0'
-  - '@next/swc-linux-arm64-gnu@16.4.0'
-  - '@next/swc-linux-arm64-musl@16.4.0'
-  - '@next/swc-linux-x64-gnu@16.4.0'
-  - '@next/swc-linux-x64-musl@16.4.0'
-  - '@next/swc-win32-arm64-msvc@16.4.0'
-  - '@next/swc-win32-x64-msvc@16.4.0'
-  - next@16.4.0
+  - '@next/env@16.4.3'
+  - '@next/swc-darwin-arm64@16.4.3'
+  - '@next/swc-darwin-x64@16.4.3'
+  - '@next/swc-linux-arm64-gnu@16.4.3'
+  - '@next/swc-linux-arm64-musl@16.4.3'
+  - '@next/swc-linux-x64-gnu@16.4.3'
+  - '@next/swc-linux-x64-musl@16.4.3'
+  - '@next/swc-win32-arm64-msvc@16.4.3'
+  - '@next/swc-win32-x64-msvc@16.4.3'
+  - next@16.4.3
 overrides:
   # nextra-theme-docs@4.6.1's <Layout> throws "expected nonoptional, received
   # undefined -> at children" on zod >=4.4.0 (upstream: shuding/nextra#4989,

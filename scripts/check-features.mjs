@@ -27,13 +27,15 @@ const LIMIT = { static: 1, verified: 2 };
 
 // 1. Feature directories: declared == present, per platform.
 for (const p of platforms) {
-  const dir = doc.feature_roots[p];
-  if (!dir || !exists(dir)) { fail(`feature_roots.${p}: ${dir} does not exist`); continue; }
+  // A platform may have several roots (web: the app and admin projects each own modules).
+  const dirs = [].concat(doc.feature_roots[p] ?? []);
+  const bad = dirs.filter((d) => !exists(d));
+  if (!dirs.length || bad.length) { fail(`feature_roots.${p}: ${bad.join(', ') || 'missing'} does not exist`); continue; }
   const declared = new Set(Object.values(doc.features).map((f) => f[p]).filter(Boolean));
   if (p === 'server') Object.keys(doc.server_only_modules ?? {}).forEach((m) => declared.add(m));
-  const present = readdirSync(path.join(root, dir)).filter((n) => statSync(path.join(root, dir, n)).isDirectory());
-  for (const n of present) if (!declared.has(n)) fail(`${p}: undeclared feature directory ${dir}/${n} (add it to features.yaml)`);
-  for (const n of declared) if (!present.includes(n)) fail(`${p}: features.yaml declares ${dir}/${n} but it does not exist`);
+  const present = dirs.flatMap((dir) => readdirSync(path.join(root, dir)).filter((n) => statSync(path.join(root, dir, n)).isDirectory()).map((n) => ({ dir, n })));
+  for (const { dir, n } of present) if (!declared.has(n)) fail(`${p}: undeclared feature directory ${dir}/${n} (add it to features.yaml)`);
+  for (const n of declared) if (!present.some((x) => x.n === n)) fail(`${p}: features.yaml declares ${n} but it does not exist under ${dirs.join(' or ')}`);
 }
 for (const [name, f] of Object.entries(doc.features))
   for (const p of platforms) if (!f[p]) fail(`feature ${name}: no entry for platform ${p}`);

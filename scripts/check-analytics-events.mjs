@@ -26,9 +26,9 @@ const add = (platform, name, file) => {
 };
 
 // Web: the AnalyticsEvents type is the vocabulary (track() only accepts its keys).
-const web = readFileSync(join(root, "apps/web/src/shared/lib/analytics/analytics.ts"), "utf8");
+const web = readFileSync(join(root, "apps/web/shared/lib/analytics/analytics.ts"), "utf8");
 const block = web.match(/export type AnalyticsEvents = \{([\s\S]*?)\n\};/);
-for (const m of (block?.[1] ?? "").matchAll(/^ {2}([a-z][a-z0-9_]*):/gm)) add("web", m[1], "apps/web/src/shared/lib/analytics/analytics.ts");
+for (const m of (block?.[1] ?? "").matchAll(/^ {2}([a-z][a-z0-9_]*):/gm)) add("web", m[1], "apps/web/shared/lib/analytics/analytics.ts");
 
 // Android: logEvent("name"...) and the named EVENT constant of SignInAttestation.
 for (const f of walk(join(root, "apps/android"), [".kt"])) {

@@ -37,7 +37,7 @@ export function validateName(name, root) {
     return `NAME "${name}" must be one lowercase word of 2-24 letters/digits starting with a letter (like tasks, search)`;
   }
   if (RESERVED.has(name)) return `NAME "${name}" is a reserved word`;
-  const roots = ['apps/server/internal/modules', 'apps/web/src/modules', 'apps/android/feature', 'apps/apple/Features', 'apps/desktop/Modules/Features'];
+  const roots = ['apps/server/internal/modules', 'apps/web/app/src/modules', 'apps/android/feature', 'apps/apple/Features', 'apps/desktop/Modules/Features'];
   for (const r of roots) {
     const dir = path.join(root, r);
     if (!existsSync(dir)) continue;

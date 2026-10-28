@@ -1,5 +1,5 @@
 {
-  "$comment": "Single source of product-analytics event names for web, Android, Apple and Desktop. A client emits only names listed here; platforms lists where the event exists today. Properties are product facts, never PII (no emails, titles, free text, file names). A client may send a subset of the listed properties but no other. Checked by scripts/check-analytics-events.mjs (task check:analytics). Web types: apps/web/src/shared/lib/analytics/analytics.ts.",
+  "$comment": "Single source of product-analytics event names for web, Android, Apple and Desktop. A client emits only names listed here; platforms lists where the event exists today. Properties are product facts, never PII (no emails, titles, free text, file names). A client may send a subset of the listed properties but no other. Checked by scripts/check-analytics-events.mjs (task check:analytics). Web types: apps/web/shared/lib/analytics/analytics.ts.",
   "version": 1,
   "events": {
     "task_created": { "platforms": ["web", "android", "apple", "desktop"], "properties": { "priority": "string", "has_due_date": "boolean" } },

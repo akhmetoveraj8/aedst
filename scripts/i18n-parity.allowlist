@@ -9,4 +9,4 @@
 android apps/android/app-tv/src/main/res *    # TV UI is single-locale (ru) until TV i18n is scheduled
 
 # Platform-specific features (no counterpart on the other clients), cross-platform report only.
-cross-web apps/web/src/modules/admin/i18n *    # admin console is web-only (android/apple/desktop admin screens are a reduced set)
+cross-web apps/web/admin/src/modules/admin/i18n *    # admin console is web-only (android/apple/desktop admin screens are a reduced set)

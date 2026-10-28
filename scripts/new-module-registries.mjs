@@ -148,15 +148,15 @@ export function registryEdits(c) {
     // --- parity matrix ---
     { platform: 'all', file: 'features.yaml', ...sortedBy(featureYaml, featureLine) },
     // --- web ---
-    { platform: 'web', file: 'apps/web/src/app/config/modules/registry.ts', ...sortedBy(mgrImport, `import { manifest as ${name} } from "@/modules/${name}/manifest";`) },
-    { platform: 'web', file: 'apps/web/src/app/config/modules/registry.ts', ...beforeClose(/^export const manifests: /, /^\];$/, `  ${name},`) },
-    { platform: 'web', file: 'apps/web/src/app/config/i18n/messages.d.ts', ...sortedBy(dtsImport, `import type ${name} from "@/modules/${name}/i18n/en.json";`) },
-    { platform: 'web', file: 'apps/web/src/app/config/i18n/messages.d.ts', ...beforeClose(/^type Messages = \{/, /^\};$/, `  ${name}: typeof ${name};`) },
-    { platform: 'web', file: 'apps/web/src/test/render.tsx', ...sortedBy(renderImport, `import ${name}Messages from "@/modules/${name}/i18n/en.json";`) },
-    { platform: 'web', file: 'apps/web/src/test/render.tsx', ...beforeClose(/^export const messages = \{/, /^\};$/, `  ${name}: ${name}Messages,`) },
+    { platform: 'web', file: 'apps/web/app/src/app/config/modules/registry.ts', ...sortedBy(mgrImport, `import { manifest as ${name} } from "@/modules/${name}/manifest";`) },
+    { platform: 'web', file: 'apps/web/app/src/app/config/modules/registry.ts', ...beforeClose(/^export const manifests: /, /^\];$/, `  ${name},`) },
+    { platform: 'web', file: 'apps/web/app/src/app/config/i18n/messages.d.ts', ...sortedBy(dtsImport, `import type ${name} from "@/modules/${name}/i18n/en.json";`) },
+    { platform: 'web', file: 'apps/web/app/src/app/config/i18n/messages.d.ts', ...beforeClose(/^type Messages = \{/, /^\};$/, `  ${name}: typeof ${name};`) },
+    { platform: 'web', file: 'apps/web/app/src/test/render.tsx', ...sortedBy(renderImport, `import ${name}Messages from "@/modules/${name}/i18n/en.json";`) },
+    { platform: 'web', file: 'apps/web/app/src/test/render.tsx', ...beforeClose(/^export const messages = \{/, /^\};$/, `  ${name}: ${name}Messages,`) },
     {
       platform: 'web',
-      file: 'apps/web/bundle-budget.json',
+      file: 'apps/web/app/bundle-budget.json',
       add(text) {
         if (text.includes(`"${name}": {`)) return text;
         const re = /(\n {4}\})(\n {2}\},\n {2}"shell": \{)/;
