@@ -173,7 +173,11 @@ describe("BroadcastForm", () => {
 
 describe("AdminNav", () => {
   it("links every admin section", () => {
-    renderWithProviders(<AdminNav />);
+    renderWithProviders(
+      <AdminNav
+        allowed={["overview", "users", "tasks", "broadcast", "audit"]}
+      />,
+    );
     for (const name of [
       t.nav.overview,
       t.nav.users,
@@ -182,6 +186,14 @@ describe("AdminNav", () => {
     ]) {
       expect(screen.getByRole("link", { name })).toBeInTheDocument();
     }
+  });
+
+  it("shows only the sections the role may open", () => {
+    renderWithProviders(<AdminNav allowed={["overview", "audit"]} />);
+    expect(screen.getByRole("link", { name: t.nav.audit })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: t.nav.users }),
+    ).not.toBeInTheDocument();
   });
 });
 

@@ -34,7 +34,7 @@ func init() {
 		Files:    []protoreflect.FileDescriptor{adminv1.File_aedst_admin_v1_admin_proto},
 		// An empty AEDST_ROLE_POLICY must not open AdminService to every signed-in
 		// user. An entry for the same key in AEDST_ROLE_POLICY replaces it.
-		Roles: map[string][]string{"/" + adminv1connect.AdminServiceName + "/*": {"admin"}},
+		Roles: DefaultRoles(),
 		Retention: func(env *modulekit.Env) []retention.Policy {
 			return []retention.Policy{{
 				Name:      "admin.audit_log",

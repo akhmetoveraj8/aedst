@@ -71,6 +71,7 @@ tasks:
     cmds:
       - task: check:naming
       - task: check:file-size
+      - task: check:status
       - task: check:colors
       - task: check:i18n
       - task: check:boundaries
@@ -111,6 +112,16 @@ tasks:
     desc: File-size policy (CONVENTIONS.md, File size; red over 500 lines fails). Limits in scripts/file-size.config.
     cmds:
       - bash scripts/check-file-size.sh {{.CLI_ARGS}}
+
+  check:status:
+    desc: Measured numbers in docs/content/status.md match the tree (regenerate with `node scripts/status-metrics.mjs`).
+    cmds:
+      - node scripts/status-metrics.mjs --check
+
+  check:template-profiles:
+    desc: Generate the core and mobile profiles with template-new and run the repo-wide checks inside them (proves that removing a platform works).
+    cmds:
+      - bash scripts/check-template-profiles.sh {{.CLI_ARGS}}
 
   check:colors:
     desc: No color literals in hand-written UI code (use design tokens). Allowlist in scripts/color-literals.allowlist.

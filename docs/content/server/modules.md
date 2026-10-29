@@ -135,6 +135,13 @@ is checked by `architecturetest` before merge.
   policy enforced by `RoleInterceptor`; clients show the admin area only when
   the token carries the `admin` role, but the server is the authority.
 
+  Operator roles (`admin/module/roles.go`, mirrored for the UI in
+  `apps/web/shared/lib/auth/roles.ts`): `admin` may do everything; `support` reads
+  the overview, users and tasks; `auditor` reads the overview and the audit log.
+  Every RPC has an explicit entry (a test fails when one is missing), the service
+  wildcard stays admin-only, and `AEDST_ROLE_POLICY` can override any entry.
+  Roles are granted in the identity provider, never in this codebase.
+
 ## Module internal structure
 
 ```

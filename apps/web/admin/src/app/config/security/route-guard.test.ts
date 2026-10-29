@@ -76,6 +76,18 @@ describe("decideRoute", () => {
     ).toEqual({ type: "next" });
   });
 
+  it("lets support and auditor operators through", () => {
+    for (const role of ["support", "auditor"]) {
+      expect(
+        decideRoute({
+          pathname: "/en/admin",
+          session: "active",
+          roles: [role],
+        }),
+      ).toEqual({ type: "next" });
+    }
+  });
+
   it("always serves the forbidden page itself (no redirect loop)", () => {
     expect(
       decideRoute({ pathname: "/en/forbidden", session: "active", roles: [] }),

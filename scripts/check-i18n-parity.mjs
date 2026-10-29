@@ -23,10 +23,14 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { applePluralIssues, appleFormatBanIssues } from '../apps/apple/scripts/i18n-apple-checks.mjs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// The Apple helpers live inside apps/apple, which `template-new` removes in the core and mobile-less profiles.
+const appleChecksFile = path.join(root, 'apps/apple/scripts/i18n-apple-checks.mjs');
+const { applePluralIssues, appleFormatBanIssues } = existsSync(appleChecksFile)
+  ? await import(pathToFileURL(appleChecksFile).href)
+  : { applePluralIssues: () => [], appleFormatBanIssues: () => [] };
 const LOCALES = ['en', 'ru', 'tg', 'uz', 'ar'];
 const REFERENCE = 'en';
 const args = new Set(process.argv.slice(2));

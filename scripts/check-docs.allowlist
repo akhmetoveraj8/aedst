@@ -35,3 +35,6 @@ cyrillic apps/web/shared/ui/locale-select.stories.tsx
 # CI-generated artifacts (web-ci import graph and mutation report).
 paths apps/web/app/dep-graph.svg
 paths apps/web/app/reports/mutation/
+# Docs site build output uploaded by docs-ci; absent in a clean clone.
+paths docs/.next
+paths docs/public/_pagefind

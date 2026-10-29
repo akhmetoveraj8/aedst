@@ -36,4 +36,4 @@ Server and Web build and test. Android is verified on the JVM (unit, assembleDeb
 - Several sessions may share one working tree: do not run git commit, checkout, stash, reset or rebase unless the user asks.
 - Verify every version against its registry; write `UNVERIFIED` if you cannot.
 - Prefer the Write/Edit tools over shell heredocs for file bodies on Windows (apostrophes and backslashes get mangled).
-- `LICENSE` is intentionally absent: the owner has not chosen one. Do not add one.
+- `LICENSE` is Apache-2.0, chosen by the owner. Do not replace or edit it.

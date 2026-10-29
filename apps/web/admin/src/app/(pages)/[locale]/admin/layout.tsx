@@ -2,10 +2,11 @@ import { getTranslations } from "next-intl/server";
 import { LocaleSwitcher } from "@/app/shell/LocaleSwitcher";
 import { PageMain } from "@/app/shell/PageMain";
 import { AdminNav } from "@/modules/admin/entries/admin-nav";
+import { ADMIN_SECTIONS } from "@/modules/admin/entries/admin-sections";
 import { AdminSignOutButton } from "@/modules/admin/entries/admin-sign-out";
 import { redirect } from "@/shared/i18n/navigation";
 import { requireLocale } from "@/shared/i18n/require-locale";
-import { ADMIN_ROLE } from "@/shared/lib/auth/roles";
+import { can, isOperator } from "@/shared/lib/auth/roles";
 import { getSessionRoles } from "@/shared/lib/auth/session";
 import { ModeToggle } from "@/shared/ui/mode-toggle";
 
@@ -20,9 +21,13 @@ export default async function AdminLayout({
   params,
 }: LayoutProps<"/[locale]/admin">) {
   const locale = requireLocale((await params).locale);
-  if (!(await getSessionRoles()).includes(ADMIN_ROLE)) {
+  const roles = await getSessionRoles();
+  if (!isOperator(roles)) {
     redirect({ href: "/forbidden", locale });
   }
+  const allowed = ADMIN_SECTIONS.filter((section) =>
+    can(roles, section.permission),
+  ).map((section) => section.key);
   const t = await getTranslations({ locale, namespace: "admin" });
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-4 sm:p-6">
@@ -34,7 +39,7 @@ export default async function AdminLayout({
           <AdminSignOutButton />
         </div>
       </header>
-      <AdminNav />
+      <AdminNav allowed={allowed} />
       <PageMain className="gap-4">{children}</PageMain>
     </div>
   );

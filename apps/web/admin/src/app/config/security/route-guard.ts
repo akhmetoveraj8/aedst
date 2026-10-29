@@ -1,6 +1,6 @@
 import { signInUrl } from "@/app/config/env";
 import { type Locale, locales } from "@/shared/i18n/locales";
-import { ADMIN_ROLE } from "@/shared/lib/auth/roles";
+import { isOperator } from "@/shared/lib/auth/roles";
 import { isAccessTokenExpired } from "@/shared/lib/auth/session-claims";
 
 const LOCALE_PATH = new RegExp(`^/(${locales.join("|")})(/.*)?$`);
@@ -48,8 +48,9 @@ export type RouteDecision =
  * - no session -> this project's own OIDC login (`/api/auth/login?next=`);
  *   admin is a separate OIDC client with its own session cookies and never
  *   reads the app project's session;
- * - a session without the admin role -> `/<locale>/forbidden` (UX only,
- *   apps/server's RoleInterceptor rejects every AdminService call anyway).
+ * - a session without an operator role (admin, support or auditor) ->
+ *   `/<locale>/forbidden` (UX only, apps/server's RoleInterceptor rejects every
+ *   AdminService call anyway; per-page permissions are checked in the pages).
  * A "refreshable" session keeps its stale token's roles, so this fails closed
  * while the IdP is unavailable.
  */
@@ -75,7 +76,7 @@ export function decideRoute({
   if (session === "anonymous") {
     return { type: "redirect", location: signInUrl(pathname) };
   }
-  if (!roles.includes(ADMIN_ROLE)) {
+  if (!isOperator(roles)) {
     return { type: "redirect", location: `/${locale}/forbidden` };
   }
   return { type: "next" };

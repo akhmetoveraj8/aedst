@@ -8,6 +8,8 @@
 # --- OS / editor ---
 .DS_Store
 *.pem
+# Public trust anchor embedded by go:embed; a clean clone does not build without it.
+!apps/server/internal/modules/appattest/infrastructure/apple/Apple_App_Attestation_Root_CA.pem
 .idea/
 .vscode/
 

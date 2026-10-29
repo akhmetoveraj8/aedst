@@ -113,6 +113,8 @@ export function featuresYaml(text, platform) {
     }
     if ((section === 'platforms' || section === 'feature_roots') && new RegExp(`^  ${platform}:`).test(l)) { n++; continue; }
     if (section === 'behaviors' && new RegExp(`^      ${platform}:`).test(l)) { n++; skipDeeper = 6; continue; }
+    // A declared deviation of a removed platform would be reported as stale (it matches no check).
+    if (section === 'exceptions' && new RegExp(String.raw`^\s*-\s*\{[^}]*\bplatform:\s*` + platform + String.raw`\b`).test(l)) { n++; continue; }
     const row = section === 'features' ? /^(\s+[\w-]+:\s*)\{(.*)\}\s*$/.exec(l) : null;
     if (row) {
       const pairs = splitTopLevel(row[2]);
