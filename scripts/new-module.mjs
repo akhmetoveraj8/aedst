@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // `task new:module -- NAME=<id>`: stamps a minimal, gate-passing feature module on every platform
-// (server, web, android, apple; desktop-rs crates are scaffolded by hand, the platform is frozen) from scripts/templates/<platform>/** and registers it in the
+// (server, web, android, apple; desktop crates are scaffolded by hand, the platform is frozen) from scripts/templates/<platform>/** and registers it in the
 // shared registries (scripts/new-module-registries.mjs). Docs: docs/agent/new-module.md.
 //
 // Usage: node scripts/new-module.mjs NAME=<id> [--platforms=server,web,android,apple]
@@ -37,7 +37,7 @@ export function validateName(name, root) {
     return `NAME "${name}" must be one lowercase word of 2-24 letters/digits starting with a letter (like tasks, search)`;
   }
   if (RESERVED.has(name)) return `NAME "${name}" is a reserved word`;
-  const roots = ['apps/server/internal/modules', 'apps/web/app/src/modules', 'apps/android/feature', 'apps/apple/Features', 'apps/desktop-rs/crates'];
+  const roots = ['apps/server/internal/modules', 'apps/web/app/src/modules', 'apps/android/feature', 'apps/apple/Features', 'apps/desktop/crates'];
   for (const r of roots) {
     const dir = path.join(root, r);
     if (!existsSync(dir)) continue;
@@ -71,6 +71,11 @@ export function renderTemplates(c, platforms, templatesDir = path.join(HERE, 'te
 }
 
 /** Applies every registry edit in memory: Map<file, newText>. Throws on a missing file or anchor. */
+// Registry edits work on LF text; a CRLF checkout (core.autocrlf on Windows) is converted on read and
+// restored on write, so the anchors match and the file keeps its line endings.
+const readLf = (abs) => readFileSync(abs, 'utf8').replaceAll('\r\n', '\n');
+const usesCrlf = (abs) => readFileSync(abs, 'utf8').includes('\r\n');
+
 export function planRegistry(c, platforms, root, mode) {
   const selected = new Set(platforms);
   const all = PLATFORMS.every((p) => selected.has(p));
@@ -80,7 +85,7 @@ export function planRegistry(c, platforms, root, mode) {
     const abs = path.join(root, edit.file);
     if (!texts.has(edit.file)) {
       if (!existsSync(abs)) throw new Error(`registry file missing: ${edit.file}`);
-      texts.set(edit.file, readFileSync(abs, 'utf8'));
+      texts.set(edit.file, readLf(abs));
     }
     try {
       texts.set(edit.file, edit[mode](texts.get(edit.file)));
@@ -89,7 +94,10 @@ export function planRegistry(c, platforms, root, mode) {
     }
   }
   const changed = new Map();
-  for (const [file, text] of texts) if (text !== readFileSync(path.join(root, file), 'utf8')) changed.set(file, text);
+  for (const [file, text] of texts) {
+    const abs = path.join(root, file);
+    if (text !== readLf(abs)) changed.set(file, usesCrlf(abs) ? text.replaceAll('\n', '\r\n') : text);
+  }
   return changed;
 }
 

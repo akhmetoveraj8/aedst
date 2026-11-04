@@ -142,11 +142,11 @@ func TestFFmpeg_PosterAndProbe(t *testing.T) {
 		t.Skipf("cannot synthesize a clip: %v %s", err, out)
 	}
 	f := processing.FFmpeg{FFmpegPath: ffmpeg, FFprobePath: ffprobe, Timeout: 30 * time.Second}
-	probe, err := f.Probe(context.Background(), clip)
+	probe, err := f.Probe(context.Background(), clip, "video/mp4")
 	if err != nil || probe.Width != 320 || probe.Height != 240 || probe.DurationMs < 2500 {
 		t.Fatalf("probe = %+v, %v", probe, err)
 	}
-	variants, err := f.Poster(context.Background(), clip, probe.DurationMs)
+	variants, err := f.Poster(context.Background(), clip, "video/mp4", probe.DurationMs)
 	if err != nil || len(variants) != 1 || variants[0].Name != "poster" || variants[0].Width != 320 {
 		t.Fatalf("poster = %+v, %v", variants, err)
 	}

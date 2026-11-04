@@ -177,13 +177,19 @@ type Device struct {
 	CreatedAt   time.Time
 }
 
-// NewDevice validates a registration.
+// NewDevice validates a registration under the default DevicePolicy.
 func NewDevice(userID ids.ID, platform Platform, token, endpoint, p256dh, auth, apnsTopic string, apnsSandbox bool, name, locale string, now time.Time) (Device, error) {
+	return DevicePolicy{}.NewDevice(userID, platform, token, endpoint, p256dh, auth, apnsTopic, apnsSandbox, name, locale, now)
+}
+
+// NewDevice validates a registration. A Web Push endpoint is a URL the server
+// will POST to, so it must name a known push service (see CheckWebPushEndpoint).
+func (p DevicePolicy) NewDevice(userID ids.ID, platform Platform, token, endpoint, p256dh, auth, apnsTopic string, apnsSandbox bool, name, locale string, now time.Time) (Device, error) {
 	d := Device{ID: ids.New(), UserID: userID, Platform: platform, APNsTopic: apnsTopic, APNsSandbox: apnsSandbox, DeviceName: name, Locale: locale, CreatedAt: now}
 	switch platform {
 	case PlatformWebPush:
-		if !strings.HasPrefix(endpoint, "https://") {
-			return Device{}, sharederrors.Validation("notifications.Device", "web push endpoint must be an https URL")
+		if err := CheckWebPushEndpoint(endpoint, p.WebPushHosts); err != nil {
+			return Device{}, err
 		}
 		if p256dh == "" || auth == "" {
 			return Device{}, sharederrors.Validation("notifications.Device", "web push subscription keys are required")

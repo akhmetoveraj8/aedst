@@ -4,14 +4,12 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { describe, expect, it, vi } from "vitest";
 
 import { loadTaskSearchParams } from "@/modules/tasks/lib/task-search-params";
-import {
-  DashboardStatsFallback,
-  DashboardStatsSection,
-  TaskDetailsFallback,
-  TaskDetailsSection,
-  TaskListFallback,
-  TaskListSection,
-} from "@/modules/tasks/ui/TasksSections";
+import { DashboardStatsFallback } from "@/modules/tasks/ui/DashboardStatsFallback";
+import { DashboardStatsSection } from "@/modules/tasks/ui/DashboardStatsSection";
+import { TaskDetailsFallback } from "@/modules/tasks/ui/TaskDetailsFallback";
+import { TaskDetailsSection } from "@/modules/tasks/ui/TaskDetailsSection";
+import { TaskListFallback } from "@/modules/tasks/ui/TaskListFallback";
+import { TaskListSection } from "@/modules/tasks/ui/TaskListSection";
 import { TasksService } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { makeTask } from "@/test/fixtures";
 import { backend, rpc } from "@/test/mocks/transport";

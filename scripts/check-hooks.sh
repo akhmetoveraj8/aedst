@@ -99,7 +99,7 @@ for p in \
   "apps/web/shared/ui/tokens.css" \
   "apps/android/core/network/src/main/kotlin-gen/com/aedst/tasks/v1/Tasks.kt" \
   "apps/apple/Core/AedstNetwork/Sources/AedstNetwork/Generated/tasks.pb.swift" \
-  "apps/desktop-rs/crates/aedst-ui/ui/aedst_tokens.slint" \
+  "apps/desktop/crates/aedst-ui/ui/aedst_tokens.slint" \
   "apps/apple/Core/AedstDesignSystem/Sources/AedstDesignSystem/AedstLightPalette.swift" \
   "apps/web/pnpm-lock.yaml" \
   "apps/server/go.sum" \
@@ -151,6 +151,13 @@ stop_json false | AEDST_STOP_GATE_CMD='echo boom-output; exit 1' bash .claude/ho
 if json_ok "$out" 'j.decision==="block"&&j.reason.includes("boom-output")&&!("hookSpecificOutput" in j)'; then ok "stop-gate blocks with {decision:block,reason} on failure"; else bad "stop-gate did not print block JSON on failure"; fi
 [ -f "$tmp/aedst-claude-touched-$sid" ] && ok "stop-gate keeps the touched state while red" || bad "stop-gate dropped the touched state while red"
 
+touch_state
+out="$tmp/stop-budget.json"
+if command -v timeout >/dev/null 2>&1; then
+  stop_json false | AEDST_STOP_GATE_TIMEOUT=1 AEDST_STOP_GATE_CMD='sleep 5' bash .claude/hooks/stop-gate.sh >"$out" 2>/dev/null
+  if json_ok "$out" 'j.decision==="block"&&j.reason.includes("sleep 5")'; then ok "stop-gate blocks when the time budget runs out"; else bad "stop-gate ignored AEDST_STOP_GATE_TIMEOUT"; fi
+fi
+
 out="$tmp/stop-active.txt"
 stop_json true | AEDST_STOP_GATE_CMD='exit 1' bash .claude/hooks/stop-gate.sh >"$out" 2>/dev/null
 [ -s "$out" ] && bad "stop-gate ignored stop_hook_active" || ok "stop-gate honours stop_hook_active"
@@ -173,9 +180,23 @@ out="$tmp/server-green.txt"
 stop_json false | AEDST_SERVER_STOP_CMD='true' bash apps/server/.claude/hooks/on-stop.sh >"$out" 2>/dev/null
 [ -s "$out" ] && bad "server on-stop not silent when green" || ok "server on-stop is silent when green"
 
+# PreToolUse Bash guard: bulk staging is denied, staging by path is allowed.
+bguard=.claude/hooks/pre-bash-guard.sh
+bash_json() { node -e 'process.stdout.write(JSON.stringify({tool_name:"Bash",tool_input:{command:process.argv[1]}}))' "$1"; }
+for c in "git add -A" "git add ." "cd apps/web && git add --all" "git -C apps/web add -u" "git commit -am x" "git commit --all -m x"; do
+  out="$tmp/bdeny.json"
+  bash_json "$c" | bash "$bguard" >"$out" 2>/dev/null
+  if json_ok "$out" 'j.hookSpecificOutput.permissionDecision==="deny"'; then ok "bash guard denies: $c"; else bad "bash guard did not deny: $c"; fi
+done
+for c in "git add apps/web/pnpm-workspace.yaml" "git add .claude/settings.json ./docs/a.md" "git commit -m 'Update data'" "git commit --amend -m x" "git status"; do
+  out="$tmp/ballow.txt"
+  bash_json "$c" | bash "$bguard" >"$out" 2>/dev/null
+  if [ -s "$out" ]; then bad "bash guard wrongly denied: $c"; else ok "bash guard allows: $c"; fi
+done
+
 # PostToolUse dispatcher records the touched app (a non-existent file: nothing is formatted).
 psid="smoke-post-$$"
-printf '{"session_id":"%s","tool_input":{"file_path":"apps/desktop-rs/crates/__no_such_file__.rs"}}' "$psid" | bash .claude/hooks/post-edit.sh >/dev/null 2>&1
+printf '{"session_id":"%s","tool_input":{"file_path":"apps/desktop/crates/__no_such_file__.rs"}}' "$psid" | bash .claude/hooks/post-edit.sh >/dev/null 2>&1
 if grep -qx desktop "$tmp/aedst-claude-touched-$psid" 2>/dev/null; then ok "post-edit records the touched app"; else bad "post-edit did not record the touched app"; fi
 
 if [ "$fail" -eq 0 ]; then echo "check-hooks: OK"; else echo "check-hooks: FAILED" >&2; fi

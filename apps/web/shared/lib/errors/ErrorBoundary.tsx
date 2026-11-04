@@ -1,6 +1,6 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
+import { ErrorBoundary as SentryErrorBoundary } from "@sentry/nextjs";
 import type { ReactNode } from "react";
 import { useTranslations } from "use-intl";
 
@@ -34,7 +34,7 @@ export function ErrorBoundary({
   fallback,
 }: ErrorBoundaryProps) {
   return (
-    <Sentry.ErrorBoundary
+    <SentryErrorBoundary
       beforeCapture={(scope, error) => {
         scope.setTag("error.kind", toAppError(error).kind);
         scope.setTag("error.source", "boundary");
@@ -51,7 +51,7 @@ export function ErrorBoundary({
       }
     >
       {children}
-    </Sentry.ErrorBoundary>
+    </SentryErrorBoundary>
   );
 }
 

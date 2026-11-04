@@ -31,8 +31,21 @@
       "matchFileNames": [
         "apps/server/**"
       ],
-      "groupName": "server (Go)",
       "commitMessagePrefix": "chore(server):"
+    },
+    {
+      "description": "Group server (Go) non-major updates in one PR; majors stay separate PRs (one per dependency).",
+      "matchFileNames": [
+        "apps/server/**"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "groupName": "server (Go)"
     },
     {
       "description": "Group Go minor/patch updates; majors stay separate PRs.",
@@ -53,8 +66,23 @@
         "docs/**",
         "packages/**"
       ],
-      "groupName": "web (Next.js)",
       "commitMessagePrefix": "chore(web):"
+    },
+    {
+      "description": "Group web (Next.js) non-major updates in one PR; majors stay separate PRs (one per dependency).",
+      "matchFileNames": [
+        "apps/web/**",
+        "docs/**",
+        "packages/**"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "groupName": "web (Next.js)"
     },
     {
       "description": "Group npm minor/patch updates; majors stay separate PRs.",
@@ -71,8 +99,21 @@
       "matchFileNames": [
         "apps/android/**"
       ],
-      "groupName": "android (Gradle)",
       "commitMessagePrefix": "chore(android):"
+    },
+    {
+      "description": "Group android (Gradle) non-major updates in one PR; majors stay separate PRs (one per dependency).",
+      "matchFileNames": [
+        "apps/android/**"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "groupName": "android (Gradle)"
     },
     {
       "description": "Kotlin, KSP, Compose compiler (== Kotlin version), AGP and Hilt must move together: one PR, never split.",
@@ -163,8 +204,21 @@
       "matchFileNames": [
         "apps/apple/**"
       ],
-      "groupName": "apple (SwiftPM)",
       "commitMessagePrefix": "chore(apple):"
+    },
+    {
+      "description": "Group apple (SwiftPM) non-major updates in one PR; majors stay separate PRs (one per dependency).",
+      "matchFileNames": [
+        "apps/apple/**"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "groupName": "apple (SwiftPM)"
     },
     {
       "description": "Apple: fastlane and its gems (apps/apple/Gemfile) move together. Gemfile.lock is committed.",
@@ -213,18 +267,18 @@
       "allowedVersions": ">=1.31.0 <2.0.0"
     },
     {
-      "description": "Rust + Slint desktop workspace (apps/desktop-rs Cargo.toml and Cargo.lock): minor and patch updates in one grouped PR after a 7 day soak. Slint and the Rust toolchain move by hand.",
+      "description": "Rust + Slint desktop workspace (apps/desktop Cargo.toml and Cargo.lock): minor and patch updates in one grouped PR after a 7 day soak. Slint and the Rust toolchain move by hand.",
       "matchManagers": [
         "cargo"
       ],
       "matchFileNames": [
-        "apps/desktop-rs/**"
+        "apps/desktop/**"
       ],
       "matchUpdateTypes": [
         "minor",
         "patch"
       ],
-      "groupName": "desktop-rs (cargo minor/patch)",
+      "groupName": "desktop (cargo minor/patch)",
       "minimumReleaseAge": "7 days",
       "commitMessagePrefix": "chore(desktop):"
     },
@@ -234,7 +288,7 @@
         "cargo"
       ],
       "matchFileNames": [
-        "apps/desktop-rs/**"
+        "apps/desktop/**"
       ],
       "matchUpdateTypes": [
         "major"

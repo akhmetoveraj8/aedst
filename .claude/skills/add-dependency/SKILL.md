@@ -18,7 +18,7 @@ Check the platform's explicit-rejections list and `docs/content/decisions.md`. I
 
 ## 3. Verify the version against the registry
 
-Never write a version from memory. Registry per platform: npm registry (`npm view <pkg> version`), `go list -m -versions <module>`, Maven Central or Google Maven, GitHub releases or tags, crates.io (`cargo search`, `cargo info`). Latest stable; a pre-release only with a documented reason. If the registry is unreachable write `UNVERIFIED` in the PR and leave the version unset. Versions of web packages live once in `apps/web/pnpm-workspace.yaml` (`"catalog:"` in each `package.json`). Toolchain versions live only in `mise.toml` (Rust: `apps/desktop-rs/rust-toolchain.toml`).
+Never write a version from memory. Registry per platform: npm registry (`npm view <pkg> version`), `go list -m -versions <module>`, Maven Central or Google Maven, GitHub releases or tags, crates.io (`cargo search`, `cargo info`). Latest stable; a pre-release only with a documented reason. If the registry is unreachable write `UNVERIFIED` in the PR and leave the version unset. Versions of web packages live once in `apps/web/pnpm-workspace.yaml` (`"catalog:"` in each `package.json`). Toolchain versions live only in `mise.toml` (Rust: `apps/desktop/rust-toolchain.toml`).
 
 ## 4. Edit manifest and allowlist in the SAME change
 
@@ -28,7 +28,7 @@ Never write a version from memory. Registry per platform: npm registry (`npm vie
 | Web | `pnpm-workspace.yaml` catalog + project `package.json` | `knip.jsonc` of the project (`apps/web/app`, `admin`, `landing`) | `docs/content/library-first/web.md` |
 | Android | `apps/android/gradle/libs.versions.toml` | `check-catalog-allowlist` in `apps/android/scripts/check-policies.sh` | `docs/content/library-first/android.md` |
 | Apple | `Package.swift` of the owning Core package | `apps/apple/scripts/approved-packages.txt` | `docs/content/library-first/apple.md` |
-| Desktop | `apps/desktop-rs/Cargo.toml` (workspace dependencies), `Cargo.lock`, `deny.toml` | desktop policy checks | `docs/content/library-first/desktop.md` |
+| Desktop | `apps/desktop/Cargo.toml` (workspace dependencies), `Cargo.lock`, `deny.toml` | desktop policy checks | `docs/content/library-first/desktop.md` |
 
 If the choice is a decision (not just a use of an approved pattern), add a row to the platform decisions page with "Revisit when".
 

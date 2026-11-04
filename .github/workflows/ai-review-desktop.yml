@@ -5,7 +5,7 @@ name: ai-review-desktop
 on:
   pull_request:
     paths:
-      - "apps/desktop-rs/**"
+      - "apps/desktop/**"
       - "docs/agent/review/desktop.md"
       - ".github/workflows/ai-review.yml"
       - ".github/workflows/ai-review-desktop.yml"
@@ -23,7 +23,7 @@ jobs:
   review:
     uses: ./.github/workflows/ai-review.yml
     with:
-      app_path: apps/desktop-rs
+      app_path: apps/desktop
       prompt_file: docs/agent/review/desktop.md
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

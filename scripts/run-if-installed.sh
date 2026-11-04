@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run a command only when its binary exists; otherwise print a one-line skip notice and succeed.
-# Used by lefthook.yml for the native linters (ktlint, swiftlint, clang-format, gitleaks): their
+# Used by lefthook.yml for the native linters (ktlint, swiftlint, cargo, gitleaks): their
 # toolchains are optional locally, CI is the authority. Keeping this in a script (not inline in
 # lefthook.yml) avoids multi-line `run:` quoting differences between sh on Linux/macOS and Git Bash.
 #

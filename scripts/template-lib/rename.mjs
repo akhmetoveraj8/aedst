@@ -1,6 +1,6 @@
 // External-identifier renames for scripts/template-new.mjs. Only identifiers a customer or an app
 // store sees are renamed. The internal codename (proto packages `aedst.*`, the Go import path,
-// `Aedst*` types, the QML URI, the AEDST_ env prefix) is deliberately untouched; see
+// `Aedst*` types, the AEDST_ env prefix) is deliberately untouched; see
 // docs/content/decisions/cross-cutting.md.
 import fs from 'node:fs';
 import path from 'node:path';

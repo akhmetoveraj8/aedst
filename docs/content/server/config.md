@@ -168,6 +168,7 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | `AEDST_PUSH_APNS_PRIVATE_KEY_FILE` | string | (empty) |  |
 | `AEDST_PUSH_APNS_TOPIC` | string | (empty) |  |
 | `AEDST_PUSH_TIMEOUT_SECONDS` | int | `10` |  |
+| `AEDST_PUSH_WEBPUSH_HOSTS` | list | (empty) | WebPushHosts replaces the allow-list of Web Push service hosts a browser subscription may point at (comma-separated; "*.example.com" matches subdomains). Empty = FCM, Mozilla, WNS and Apple. |
 
 ## Media
 

@@ -139,7 +139,7 @@ export function checkRepo({ root, files = listFiles(root), allowText = "" }) {
 
   // Workflows and scripts often run with a working directory under apps/<app>, so a path
   // counts as existing when it resolves from the root or from any app directory.
-  const BASES = ["", "apps/server/", "apps/web/", "apps/web/app/", "apps/web/admin/", "apps/web/landing/", "apps/android/", "apps/apple/", "apps/desktop-rs/"];
+  const BASES = ["", "apps/server/", "apps/web/", "apps/web/app/", "apps/web/admin/", "apps/web/landing/", "apps/android/", "apps/apple/", "apps/desktop/"];
   const existsFromAnyBase = (p) => BASES.some((b) => exists(b + p));
 
   // paths (scripts and workflows) and prompts (workflow prompt blocks, review prompts)

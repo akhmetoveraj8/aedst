@@ -1,10 +1,10 @@
-# Naming: Desktop (Rust + Slint in `apps/desktop-rs`)
+# Naming: Desktop (Rust + Slint in `apps/desktop`)
 
 Part of [CONVENTIONS.md](../../../CONVENTIONS.md). Levels: **Must** = enforced (linter/CI), **Should** = needs a one-line PR justification to deviate, **Could** = preference.
 
-## Rust + Slint (`apps/desktop-rs`)
+## Rust + Slint (`apps/desktop`)
 
-Rust follows the standard API guidelines; `rustfmt` and `clippy -D warnings` enforce them (`task desktop-rs:lint`).
+Rust follows the standard API guidelines; `rustfmt` and `clippy -D warnings` enforce them (`task desktop:lint`).
 
 | What | Rule | Example | Level |
 |---|---|---|---|
@@ -18,9 +18,9 @@ Rust follows the standard API guidelines; `rustfmt` and `clippy -D warnings` enf
 | Slint properties and callbacks | `kebab-case` (Slint convention) | `is-checked`, `clicked` | Should |
 | Tests | unit tests in a `#[cfg(test)] mod tests` beside the code; integration tests in `tests/<subject>.rs` | `tests/outbox_replay.rs` | Should |
 
-## Enforcement gates (apps/desktop-rs)
+## Enforcement gates (apps/desktop)
 
-`cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings` and `cargo deny check` (see `task verify:desktop-rs`), plus `scripts/check-naming.sh` for file names. The desktop-rs CI workflow is experimental and non-blocking until its first green run.
+`cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings` and `cargo deny check` (see `task verify:desktop`), plus `scripts/check-naming.sh` for file names. The desktop CI workflow is experimental and non-blocking until its first green run.
 
 ## Cross-platform vocabulary (same concept, same name on every client)
 

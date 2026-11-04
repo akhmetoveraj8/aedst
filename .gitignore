@@ -1,4 +1,4 @@
-# Root ignore rules. Each app also has its own .gitignore (apps/android, apps/apple, apps/desktop-rs,
+# Root ignore rules. Each app also has its own .gitignore (apps/android, apps/apple, apps/desktop,
 # apps/web) with the full per-app list; only cross-cutting and monorepo-level rules live here.
 
 # --- Claude Code session state ---
@@ -94,15 +94,15 @@ apps/apple/*.p8
 apps/apple/*.mobileprovision
 apps/apple/Core/AedstNetwork/Sources/AedstNetwork/Generated/*.swift
 
-# --- apps/desktop-rs (Rust + Slint) ---
-apps/desktop-rs/target/
-apps/desktop-rs/**/target/
-apps/desktop-rs/dist/
-apps/desktop-rs/**/*.pdb
-apps/desktop-rs/**/*.rs.bk
-apps/desktop-rs/**/*.msix
-apps/desktop-rs/**/*.AppImage
-apps/desktop-rs/**/*.appimage
+# --- apps/desktop (Rust + Slint) ---
+apps/desktop/target/
+apps/desktop/**/target/
+apps/desktop/dist/
+apps/desktop/**/*.pdb
+apps/desktop/**/*.rs.bk
+apps/desktop/**/*.msix
+apps/desktop/**/*.AppImage
+apps/desktop/**/*.appimage
 # cargo output anywhere in the tree (Cargo.lock stays committed for the binary workspace)
 **/target/debug/
 **/target/release/

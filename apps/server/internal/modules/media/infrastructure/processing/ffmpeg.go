@@ -9,7 +9,9 @@ import (
 	_ "image/jpeg" // registers the JPEG decoder for image.DecodeConfig
 	"os"
 	"os/exec"
+	"slices"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -34,13 +36,16 @@ type Probe struct {
 
 type ffprobeOutput struct {
 	Format struct {
-		Duration string `json:"duration"`
+		FormatName string `json:"format_name"`
+		Duration   string `json:"duration"`
 	} `json:"format"`
-	Streams []struct {
-		CodecType string `json:"codec_type"`
-		Width     int    `json:"width"`
-		Height    int    `json:"height"`
-	} `json:"streams"`
+	Streams []ffprobeStream `json:"streams"`
+}
+
+type ffprobeStream struct {
+	CodecType string `json:"codec_type"`
+	Width     int    `json:"width"`
+	Height    int    `json:"height"`
 }
 
 func (f FFmpeg) run(ctx context.Context, bin string, args ...string) ([]byte, error) {
@@ -64,15 +69,29 @@ func (f FFmpeg) run(ctx context.Context, bin string, args ...string) ([]byte, er
 	return stdout.Bytes(), nil
 }
 
-// Probe reads duration and the first video stream's dimensions.
-func (f FFmpeg) Probe(ctx context.Context, path string) (Probe, error) {
-	out, err := f.run(ctx, f.FFprobePath, "-v", "error", "-print_format", "json", "-show_format", "-show_streams", path)
+// Probe reads duration and the first video stream's dimensions of a file
+// declared as contentType. It fails with ErrUnprocessable unless ffprobe,
+// pinned to the declared container's demuxer, reports that same container
+// and at least one stream of the declared kind (video or audio).
+func (f FFmpeg) Probe(ctx context.Context, path, contentType string) (Probe, error) {
+	demuxer, err := demuxerFor(contentType)
+	if err != nil {
+		return Probe{}, err
+	}
+	out, err := f.run(ctx, f.FFprobePath, probeArgs(path, demuxer)...)
 	if err != nil {
 		return Probe{}, err
 	}
 	var parsed ffprobeOutput
 	if err := json.Unmarshal(out, &parsed); err != nil {
 		return Probe{}, fmt.Errorf("%w: ffprobe output: %w", ErrUnprocessable, err)
+	}
+	if !formatMatches(parsed.Format.FormatName, demuxer) {
+		return Probe{}, fmt.Errorf("%w: ffprobe reports container %q, declared %s", ErrUnprocessable, parsed.Format.FormatName, contentType)
+	}
+	want, _, _ := strings.Cut(contentType, "/") // "video" or "audio"
+	if !slices.ContainsFunc(parsed.Streams, func(s ffprobeStream) bool { return s.CodecType == want }) {
+		return Probe{}, fmt.Errorf("%w: no %s stream in a file declared %s", ErrUnprocessable, want, contentType)
 	}
 	var p Probe
 	if secs, err := strconv.ParseFloat(parsed.Format.Duration, 64); err == nil && secs > 0 {
@@ -87,10 +106,15 @@ func (f FFmpeg) Probe(ctx context.Context, path string) (Probe, error) {
 	return p, nil
 }
 
-// Poster extracts one frame (at 1s, or the middle of a shorter clip) and
+// Poster extracts one frame (at 1s, or the middle of a shorter clip) of a file
+// declared as contentType (call Probe first: it verifies the container) and
 // returns it as a single JPEG variant. Thumbnails and other sizes of the
 // poster are produced on demand by imgproxy, not pre-generated.
-func (f FFmpeg) Poster(ctx context.Context, path string, durationMs int64) ([]Encoded, error) {
+func (f FFmpeg) Poster(ctx context.Context, path, contentType string, durationMs int64) ([]Encoded, error) {
+	demuxer, err := demuxerFor(contentType)
+	if err != nil {
+		return nil, err
+	}
 	at := 1.0
 	if durationMs > 0 && durationMs < 2000 {
 		at = float64(durationMs) / 2000
@@ -103,9 +127,7 @@ func (f FFmpeg) Poster(ctx context.Context, path string, durationMs int64) ([]En
 	_ = out.Close()
 	defer func() { _ = os.Remove(outPath) }()
 
-	if _, err := f.run(ctx, f.FFmpegPath, "-nostdin", "-v", "error", "-y",
-		"-ss", strconv.FormatFloat(at, 'f', 3, 64), "-i", path,
-		"-frames:v", "1", "-vf", "scale='min(1280,iw)':-2", "-q:v", "3", outPath); err != nil {
+	if _, err := f.run(ctx, f.FFmpegPath, posterArgs(path, demuxer, at, outPath)...); err != nil {
 		return nil, err
 	}
 	data, err := os.ReadFile(outPath) //nolint:gosec // G304: outPath is a file this process created in its own temp dir

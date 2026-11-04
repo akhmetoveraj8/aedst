@@ -34,7 +34,7 @@ for (const p of platforms) {
   const declared = new Set(Object.values(doc.features).map((f) => f[p]).filter(Boolean));
   if (p === 'server') Object.keys(doc.server_only_modules ?? {}).forEach((m) => declared.add(m));
   const present = dirs.flatMap((dir) => readdirSync(path.join(root, dir)).filter((n) => statSync(path.join(root, dir, n)).isDirectory()).map((n) => ({ dir, n })));
-  const prefix = doc.feature_prefix?.[p]; // a root shared with non-feature directories (desktop-rs crates)
+  const prefix = doc.feature_prefix?.[p]; // a root shared with non-feature directories (desktop crates)
   for (const { dir, n } of present) if (!declared.has(n) && (!prefix || n.startsWith(prefix))) fail(`${p}: undeclared feature directory ${dir}/${n} (add it to features.yaml)`);
   for (const n of declared) if (!present.some((x) => x.n === n)) fail(`${p}: features.yaml declares ${n} but it does not exist under ${dirs.join(' or ')}`);
 }

@@ -13,7 +13,7 @@ body:
         - apps/web
         - apps/android
         - apps/apple
-        - apps/desktop-rs
+        - apps/desktop
         - Several apps (contract change)
         - docs / CI / tooling
     validations:

@@ -3,7 +3,7 @@
 #   web      apps/web/app/scripts/check-feature-boundaries.sh
 #   android  apps/android/scripts/check-feature-boundaries.sh
 #   apple    apps/apple/scripts/check-feature-boundaries.sh
-#   desktop  the desktop-rs boundaries script (skipped with a notice until it exists)
+#   desktop  the desktop boundaries script (skipped with a notice until it exists)
 #   server   go test ./architecturetest/...   (needs Go; skipped with a notice when absent)
 # Usage: scripts/check-boundaries.sh [platform ...]   (default: all five). Exit 1 if any check fails.
 set -uo pipefail
@@ -34,7 +34,7 @@ for p in "${want[@]}"; do
   case "$p" in
     web|android|apple|desktop)
       dir="apps/$p"
-      [[ "$p" == desktop ]] && dir="apps/desktop-rs" # the platform id stays `desktop`; the Rust app lives in apps/desktop-rs
+      [[ "$p" == desktop ]] && dir="apps/desktop" # the platform id stays `desktop`; the Rust app lives in apps/desktop
       if [[ -d "$dir" ]]; then
         script="$dir/scripts/check-feature-boundaries.sh"
         [[ "$p" == web ]] && script="apps/web/app/scripts/check-feature-boundaries.sh" # web hosts its gate in the app project

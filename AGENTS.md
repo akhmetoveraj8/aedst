@@ -14,7 +14,7 @@ Always applicable:
 
 **Do not write code that an existing library or platform already does.** Before creating a utility, hook, component, service, repository, parser, formatter, validator or other abstraction, check in this order: standard library, platform API, libraries already in this repo's `package.json` / `go.mod` / `build.gradle.kts` / `Package.swift` / `Cargo.toml`, existing code in this repo. Write custom code only for a documented technical reason (missing functionality, unsupported platform, incompatible API, unacceptable performance, security/compliance, project-specific domain logic), never "it is simpler to write myself" or "it is only 50 lines".
 
-Approved stack per platform: Web (React Hook Form, Zod, date-fns, dnd-kit, shadcn/ui via `apps/web/shared/ui/`, TanStack, nuqs, Biome only), Server (net/http ServeMux, ConnectRPC + Protobuf + Buf, pgx + sqlc + Goose, River, Valkey, jwx, OpenTelemetry), Android (Compose, Hilt, connect-kotlin, Keystore + Tink), Apple (SwiftUI + Observation, GRDB, connect-swift, Nuke, Tuist), Desktop (Rust + Slint in `apps/desktop-rs`: connectrpc, openidconnect, keyring-core, velopack, rusqlite; the Qt 6 / C++23 app was deleted, ADR `apps/desktop-rs/docs/adr/0001-rust-slint-replaces-qt.md`). The per-platform tables and the explicit-rejections list are in the Library-First pages.
+Approved stack per platform: Web (React Hook Form, Zod, date-fns, dnd-kit, shadcn/ui via `apps/web/shared/ui/`, TanStack, nuqs, Biome only), Server (net/http ServeMux, ConnectRPC + Protobuf + Buf, pgx + sqlc + Goose, River, Valkey, jwx, OpenTelemetry), Android (Compose, Hilt, connect-kotlin, Keystore + Tink), Apple (SwiftUI + Observation, GRDB, connect-swift, Nuke, Tuist), Desktop (Rust + Slint in `apps/desktop`: connectrpc, openidconnect, keyring-core, velopack, rusqlite; the Qt 6 / C++23 app was deleted, ADR `apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md`). The per-platform tables and the explicit-rejections list are in the Library-First pages.
 
 ## Process rules
 
@@ -36,6 +36,6 @@ Full list with rationale: [docs/agent/rules.md](docs/agent/rules.md) and the pla
 - Web: RxJS, ESLint/Prettier, a new third-party origin without a CSP update.
 - Android: `security-crypto`, Retrofit, Koin, `tv-foundation` lists, a JDK other than 21.
 - Apple: XcodeGen, SwiftData, swift-perception, a hand-written image loader, SwiftFormat/Periphery (nicklockwood).
-- Desktop (`apps/desktop-rs`): Qt/C++ (deleted), cxx-qt, Tauri/WebView, a hand-written Connect or OIDC client, hand-mirrored DTOs, committed generated code, `unwrap()` and `unsafe`.
+- Desktop (`apps/desktop`): Qt/C++ (deleted), cxx-qt, Tauri/WebView, a hand-written Connect or OIDC client, hand-mirrored DTOs, committed generated code, `unwrap()` and `unsafe`.
 - Infrastructure as code: Terraform (use OpenTofu only).
 - Kept by owner decision (do not propose replacing): Next.js for `app` and `landing` (`admin` moves to Vite + TanStack Router, planned), React Hook Form, the `cn` package, Goose, Rust + Slint on Desktop (replaced Qt 6 / C++23 on 2026-11-01), Hilt on AGP 9.

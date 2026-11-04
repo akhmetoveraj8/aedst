@@ -1,11 +1,11 @@
 ---
-description: "apps/desktop-rs: Rust and Slint, one Cargo workspace, Windows and Linux. Status: built and tested on Windows only."
+description: "apps/desktop: Rust and Slint, one Cargo workspace, Windows and Linux. Status: built and tested on Windows only."
 title: Desktop
 ---
 
 # Desktop
 
-`apps/desktop-rs`: Rust (edition 2024) and Slint, one Cargo workspace of `aedst-*` crates, packaged with Velopack. Targets are Windows and Linux (macOS is `apps/apple`). The earlier Qt 6 / C++23 app is gone; why Desktop moved, the spike findings and the phase log are in [ADR-0001](../../../apps/desktop-rs/docs/adr/0001-rust-slint-replaces-qt.md).
+`apps/desktop`: Rust (edition 2024) and Slint, one Cargo workspace of `aedst-*` crates, packaged with Velopack. Targets are Windows and Linux (macOS is `apps/apple`). The earlier Qt 6 / C++23 app is gone; why Desktop moved, the spike findings and the phase log are in [ADR-0001](../../../apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md).
 
 **Status.** `cargo build`, `clippy`, `fmt` and `cargo test` ran on Windows. It has **never been compiled on Linux**, never run against a real server or identity provider, and the Velopack install path, packaging and a screen-reader pass are not done. See [Platform status](/status).
 

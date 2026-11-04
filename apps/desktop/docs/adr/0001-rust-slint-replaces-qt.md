@@ -17,6 +17,8 @@ Status: Accepted (owner decision, 2026-11-01). The Qt tree has been deleted; thi
 
 The new app lives in `apps/desktop-rs` while the C++ tree stays untouched as the behavioural reference. At cutover (phase 9) `apps/desktop` is deleted and `apps/desktop-rs` is renamed to `apps/desktop`; every path in docs, Taskfile, CI and scripts is switched in that one change. Until then nothing may claim that the Rust app replaces the Qt app.
 
+**Done 2026-11-05 (owner decision):** the leftover Qt sources were deleted and `apps/desktop-rs` was renamed to `apps/desktop`. Tasks are `desktop:*` and `verify:desktop`, the workflow is `desktop-ci.yml`; `CHANGELOG.md` and `docs/archive/` keep the old name as history.
+
 ## Module mapping (C++ module -> Rust)
 
 | Qt module (lines) | Rust replacement | Notes |
@@ -62,18 +64,18 @@ Verdict: **conditional go.** Shaping and basic accessibility are acceptable; RTL
 
 ## Phase 1 results (tooling)
 
-- `task desktop-rs:{fmt,lint,test,build,deny}` and `task verify:desktop-rs` exist and are included in `task lint|test|build` (they print `SKIPPED` without cargo). `task` itself is not installed on the authoring machine, so the underlying commands were run directly: `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace` pass on Windows with the pinned toolchain 1.99.1.
+- `task desktop:{fmt,lint,test,build,deny}` and `task verify:desktop` exist and are included in `task lint|test|build` (they print `SKIPPED` without cargo). `task` itself is not installed on the authoring machine, so the underlying commands were run directly: `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace` pass on Windows with the pinned toolchain 1.99.1.
 - `scripts/check-naming.sh` (Rust and Slint files are `snake_case`) and `scripts/file-size.config` (`rs`, `slint` measured) are extended and pass.
 - `cargo deny check` (0.20.2) was run: licenses, bans and sources pass; the Slint `LicenseRef-Slint-Royalty-free-2.0` branch is accepted in `deny.toml` while the owner's confirmation is pending. Advisories pass with `unmaintained = "workspace"`: four transitive crates behind Slint (`ttf-parser`, `zbus_names`, `zvariant`, `zvariant_derive`, RUSTSEC-2026-0192/0370/0371/0372) are marked unmaintained, no vulnerability. Re-check on each Slint bump. Duplicate-version warnings (`syn`, `thiserror`, `rustix`, ...) come from the same tree.
-- `.github/workflows/desktop-rs-ci.yml` (lint on Ubuntu; build and test on Ubuntu and Windows; cargo-deny) was written and **never executed on GitHub**. The Linux system-library list for Slint is UNVERIFIED. No Rust cache action is used yet (an action must be pinned by SHA first).
-- Not done: feature-boundary check for crates, an i18n check for `.po`, the `check:colors` extension for `.slint`, `desktop-rs` in `task doctor`, and renovate/dependabot config for Cargo.
+- `.github/workflows/desktop-ci.yml` (lint on Ubuntu; build and test on Ubuntu and Windows; cargo-deny) was written and **never executed on GitHub**. The Linux system-library list for Slint is UNVERIFIED. No Rust cache action is used yet (an action must be pinned by SHA first).
+- Not done: feature-boundary check for crates, an i18n check for `.po`, the `check:colors` extension for `.slint`, `desktop` in `task doctor`, and renovate/dependabot config for Cargo.
 
 ## Phase 3 results (contract and tokens, 2026-11-01)
 
 - **`aedst-contract`**: `build.rs` runs `buf build --as-file-descriptor-set` in `apps/server` and passes it to `connectrpc-build`; the seven services the C++ app used (admin, auth, capabilities, media, notifications, search, tasks) generate messages and `*ServiceClient`s. Two integration tests pass (client construction, JSON round trip of an Arabic string). The Qt `methods.hpp` drift table is no longer needed: a new RPC appears when the proto changes.
 - **Findings**: `connectrpc` generates messages with `buffa`, not `prost` (workspace corrected); `buffa-types` needs `json`; `buf --path` wants filesystem paths while `connectrpc-build` wants module names (hence the descriptor-set route); an RPC called `Register` does not compile because of open upstream issue connect-rust#309 (workaround in `build.rs`, documented); the default `zstd` feature pulled three RUSTSEC vulnerabilities flagged by `cargo deny`, so it is off (the client advertises gzip only).
 - **Not verified**: a real call against a running server, the connectrpc conformance suite, per-method idempotency and retry policy (the protos do not declare it yet), streaming.
-- **Tokens**: `packages/design-tokens` has a new `aedst/slint-globals` output. `crates/aedst-ui/ui/aedst_tokens.slint` is generated; the other platforms' outputs did not change. The pre-edit guard, the colour-literal check (now scans `.slint` and `.rs` under `apps/desktop-rs`) and the file-size config know the file.
+- **Tokens**: `packages/design-tokens` has a new `aedst/slint-globals` output. `crates/aedst-ui/ui/aedst_tokens.slint` is generated; the other platforms' outputs did not change. The pre-edit guard, the colour-literal check (now scans `.slint` and `.rs` under `apps/desktop`) and the file-size config know the file.
 - **`aedst-ui`**: `AedstLayout.rtl`, `AedstLabel`, `AedstButton` (keyboard, focus ring, `accessible-*`), `AedstActionRow` (primary action at the reading end), a `Gallery` window and `cargo run -p aedst-ui --example gallery -- [--rtl] [--dark]`. LTR, RTL and dark were checked by screenshot on Windows: text aligns to the reading start and the action row mirrors once alignment is made RTL-aware (Slint `start`/`end` are physical left/right). A screen reader, Linux and a locale switch at run time were not tested. There is no automated UI test yet (needs `i-slint-backend-testing`, not approved).
 - **Leftover**: `crates/aedst-spike` is superseded by the gallery and should be deleted (the agent was not allowed to run a recursive delete).
 
@@ -107,7 +109,7 @@ ustup` became unreadable (Windows error 1392, "file or directory is corrupted") 
 
 ## Phase 7 results (Search, Notifications, Admin, Media, 2026-11-01)
 
-- **How**: four feature crates were built in parallel by four agents from one written brief (`apps/desktop-rs/docs/feature-brief.md`: layout, lint and Slint pitfalls, gates, forbidden actions) on the Tasks pattern. The lead then re-ran the workspace gates itself: `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo deny check` are clean and `cargo test --workspace` passes **257 tests, 0 failed** (from 106). The Search snapshot was re-rendered by the lead in en and ar; the other screens' snapshots were checked by their agents, not re-checked by the lead.
+- **How**: four feature crates were built in parallel by four agents from one written brief (`apps/desktop/docs/feature-brief.md`: layout, lint and Slint pitfalls, gates, forbidden actions) on the Tasks pattern. The lead then re-ran the workspace gates itself: `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo deny check` are clean and `cargo test --workspace` passes **257 tests, 0 failed** (from 106). The Search snapshot was re-rendered by the lead in en and ar; the other screens' snapshots were checked by their agents, not re-checked by the lead.
 - **Search** (`aedst-feature-search`): debounced query (250 ms, paused-time tests), suggestions, paging, hit rows with a kind badge, `open_hit` through a `LinkNavigator` port that only passes relative in-app paths. Not done: kind tabs, snippet highlighting (Slint `Text` cannot style runs), keyboard focus on rows.
 - **Notifications** (`aedst-feature-notifications`): inbox with an unread-only filter, optimistic mark-read and mark-all-read with rollback, `UnreadCounter` on a `watch` plus a poller with the legacy backoff numbers (`poll_delay`: 30 s foreground, 120 s background, doubling up to 4 times, capped at 300 s), preferences with four optimistic toggles. Not done: push registration (the desktop polls), native toasts and new-item detection, the shell wiring. `ui/notifications.slint` is 414 lines (over the 300-line guideline, under 500).
 - **Admin** (`aedst-feature-admin`): role gate via an `AdminAccess` port (also drops to "no access" on `Forbidden`), tabs for overview, users, tasks (owner filter), audit log and broadcast, two-step task deletion with a reason (3 to 500 code points), broadcast validation, `Debug` hides e-mail and audit reasons. Not done: text search in users and tasks, localized timestamps.
@@ -142,7 +144,7 @@ To continue: repair the volume (`chkdsk D: /f`, administrator) or install a fres
 
 
 0. This change: ADR, decisions/Library-First/AGENTS updates, workspace skeleton.
-1. Toolchain repair, `task` wiring (`desktop-rs:*`), CI job, `check:*` scripts for Rust (naming, file size, boundaries).
+1. Toolchain repair, `task` wiring (`desktop:*`), CI job, `check:*` scripts for Rust (naming, file size, boundaries).
 2. Spike: Slint window, Arabic RTL screen, accessibility, one `.po` locale, tokens output. Go/no-go for the risks above.
 3. Contract + network (`connectrpc`), tokens -> `.slint`, `aedst-ui` components.
 4. Auth: `openidconnect` loopback flow + `keyring`.

@@ -30,8 +30,8 @@ case "$rel" in
     regen="task android:generate (make generate)" ;;
   apps/apple/Core/*/Generated/* | apps/apple/*/Derived/*)
     regen="task apple:generate (make generate) / tuist generate" ;;
-  apps/desktop-rs/*/generated/* | apps/desktop-rs/docs/generated/*)
-    regen="the desktop-rs cargo build (build.rs output is generated at build time)" ;;
+  apps/desktop/*/generated/* | apps/desktop/docs/generated/*)
+    regen="the desktop cargo build (build.rs output is generated at build time)" ;;
   *.pb.* | *.connect.*)
     regen="the buf/protoc generation step of the owning app" ;;
   # Lock files are written by the package manager; a hand edit breaks integrity hashes.

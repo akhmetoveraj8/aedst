@@ -96,7 +96,7 @@ describe('scaffold in a temp copy', () => {
     assert.throws(() => scaffold({ name: 'zeta', root: tmp, codegen: false, log: quiet }), /already exists|refusing to overwrite/);
     const regs = registryEdits(forms('zeta'));
     for (const e of regs) {
-      const text = readFileSync(path.join(tmp, e.file), 'utf8');
+      const text = readFileSync(path.join(tmp, e.file), 'utf8').replaceAll('\r\n', '\n'); // registry edits work on LF text
       assert.equal(e.add(text), text, `${e.file} add is not idempotent`);
     }
   });

@@ -136,6 +136,9 @@ config:
     timeoutSeconds: 10
     vapidPublicKey: ""
     vapidSubject: ""
+    # Allowed Web Push service hosts, comma-separated ("*.domain" = subdomains).
+    # Empty = the built-in list (FCM, Mozilla, WNS, Apple).
+    webPushHosts: ""
     fcmProjectId: ""
     fcmCredentialsFile: ""
     apnsKeyId: ""

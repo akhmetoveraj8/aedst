@@ -51,7 +51,7 @@
 - [ ] Logic lives in models, not in Views; no PII or tokens logged without private privacy; Keychain, not `UserDefaults`
 - [ ] Apple scripts pass (`apps/apple/scripts/check-feature-boundaries.sh`, `check-file-size.sh`); not built on a Mac unless stated below
 
-## apps/desktop-rs
+## apps/desktop
 
 - [ ] Only approved crates (`docs/content/library-first/desktop.md`), workspace dependencies only; no hand-written Connect or OIDC client, hand-mirrored DTOs, committed generated code, `unwrap()` or `unsafe`
 - [ ] `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace` and `cargo deny check` pass, or are listed as not run below

@@ -16,7 +16,7 @@ so their rows describe the intended and statically reviewed shape.
 
 ## The eight steps
 
-| # | Step | Web (`apps/web/app/src/modules/<f>`) | Android (`apps/android/feature/<f>`) | Apple (`apps/apple/Features/<F>`) | Desktop (`apps/desktop-rs/crates/aedst-feature-<f>`) |
+| # | Step | Web (`apps/web/app/src/modules/<f>`) | Android (`apps/android/feature/<f>`) | Apple (`apps/apple/Features/<F>`) | Desktop (`apps/desktop/crates/aedst-feature-<f>`) |
 |---|---|---|---|---|---|
 | 1 | **Declare** in `features.yaml` | same row for all five platforms: `id`, `flagged`, `outbox` types, `i18n_namespace`, `routes` | | | |
 | 2 | **Domain** | `lib/*.ts` (types from the generated client, pure helpers) | `domain/<Entity>.kt`, `<Entity>Repository.kt`, `<Verb><Entity>UseCase.kt` | `Domain/<Entity>.swift`, `<Entity>Repository.swift`, `<Verb><Entity>UseCase.swift` | `Domain/<entity>.hpp`, `<entity>_repository.hpp`, `<verb>_<entity>_use_case.{hpp,cpp}` |

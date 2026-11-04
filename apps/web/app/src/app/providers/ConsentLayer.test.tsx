@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   disableSessionReplay,
   enableSessionReplay,
-} from "@/app/config/sentry/client";
+} from "@/app/config/sentry/loader";
 import { ConsentLayer } from "@/app/providers/ConsentLayer";
 import { PrivacySettingsButton } from "@/app/providers/PrivacySettingsButton";
 import {
@@ -17,7 +17,7 @@ import { ConsentProvider } from "@/shared/lib/consent/ConsentProvider";
 import type { ConsentState } from "@/shared/lib/consent/consent-cookie";
 import { messages } from "@/test/render";
 
-vi.mock("@/app/config/sentry/client", () => ({
+vi.mock("@/app/config/sentry/loader", () => ({
   enableSessionReplay: vi.fn(),
   disableSessionReplay: vi.fn(),
 }));

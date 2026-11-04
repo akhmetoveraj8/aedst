@@ -3,9 +3,9 @@ name: android-ci (experimental, non-blocking until first green run)
 on:
   push:
     branches: [main]
-    paths: ["apps/android/**", ".github/workflows/android-ci.yml"]
+    paths: ["apps/android/**", "apps/server/api/proto/**", ".github/workflows/android-ci.yml"]
   pull_request:
-    paths: ["apps/android/**", ".github/workflows/android-ci.yml"]
+    paths: ["apps/android/**", "apps/server/api/proto/**", ".github/workflows/android-ci.yml"]
   workflow_dispatch:
 
 permissions:

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { withIdleTimeout } from "./upstream";
+import { forwardUpstream, withIdleTimeout } from "@/shared/lib/bff/upstream";
 
 function responseOf(body: ReadableStream<Uint8Array>) {
   return new Response(body, { status: 200 });
@@ -64,5 +64,46 @@ describe("withIdleTimeout", () => {
     }
     expect(rest.join("")).toBe("bc");
     expect(controller.signal.aborted).toBe(false);
+  });
+});
+
+describe("forwardUpstream", () => {
+  const call = (
+    fetchImpl: typeof fetch,
+    request = new Request("http://localhost/api/rpc/x", { method: "POST" }),
+  ) =>
+    forwardUpstream({
+      fetch: fetchImpl,
+      url: "http://api.test/x",
+      request,
+      body: new ArrayBuffer(0),
+      accessToken: "at",
+    });
+
+  it("never lets the bearer follow a redirect", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => new Response("{}"));
+    await call(fetchMock);
+    const init = fetchMock.mock.calls[0]?.[1];
+    expect(init?.redirect).toBe("error");
+    expect(new Headers(init?.headers).get("authorization")).toBe("Bearer at");
+  });
+
+  it("aborts the upstream call when the browser goes away", async () => {
+    const client = new AbortController();
+    let upstreamSignal: AbortSignal | undefined;
+    const fetchMock = vi.fn<typeof fetch>(async (_url, init) => {
+      upstreamSignal = init?.signal ?? undefined;
+      return new Response("{}");
+    });
+    await call(
+      fetchMock,
+      new Request("http://localhost/api/rpc/x", {
+        method: "POST",
+        signal: client.signal,
+      }),
+    );
+    expect(upstreamSignal?.aborted).toBe(false);
+    client.abort();
+    expect(upstreamSignal?.aborted).toBe(true);
   });
 });

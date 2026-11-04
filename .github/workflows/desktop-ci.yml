@@ -1,24 +1,24 @@
-name: desktop-rs-ci (experimental, non-blocking until first green run)
+name: desktop-ci (experimental, non-blocking until first green run)
 
-# Rust + Slint desktop app (ADR-0001 in apps/desktop-rs/docs/adr). Nothing here has run on GitHub yet.
+# Rust + Slint desktop app (ADR-0001 in apps/desktop/docs/adr). Nothing here has run on GitHub yet.
 on:
   push:
     branches: [main]
-    paths: ["apps/desktop-rs/**", ".github/workflows/desktop-rs-ci.yml"]
+    paths: ["apps/desktop/**", "apps/server/api/proto/**", ".github/workflows/desktop-ci.yml"]
   pull_request:
-    paths: ["apps/desktop-rs/**", ".github/workflows/desktop-rs-ci.yml"]
+    paths: ["apps/desktop/**", "apps/server/api/proto/**", ".github/workflows/desktop-ci.yml"]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: desktop-rs-ci-${{ github.workflow }}-${{ github.ref }}
+  group: desktop-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 defaults:
   run:
-    working-directory: apps/desktop-rs
+    working-directory: apps/desktop
     shell: bash
 
 env:

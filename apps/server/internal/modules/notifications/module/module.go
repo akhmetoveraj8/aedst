@@ -61,7 +61,8 @@ func (m *notificationsModule) setup(_ context.Context, env *modulekit.Env) error
 	events.Subscribe(env.Events, env.JobsPool, consumerRepo)
 	river.AddWorker(env.Workers, jobs.NewFanOutWorker(consumerRepo, env.Logger))
 	river.AddWorker(env.Workers, jobs.NewDeviceWorker(consumerRepo, env.Dispatcher, env.Logger))
-	svc := application.NewService(repo, env.Clock, application.WithWebPushPublicKey(env.WebPushKey))
+	svc := application.NewService(repo, env.Clock, application.WithWebPushPublicKey(env.WebPushKey),
+		application.WithWebPushHosts(env.Config.Push.WebPushHosts))
 	m.svc = svc
 	modulekit.Provide[notificationsapi.Broadcaster](env, svc)
 	return nil

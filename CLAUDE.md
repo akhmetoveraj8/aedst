@@ -34,7 +34,8 @@ Server and Web (profile Core) build and test and are the default working mode; `
 
 ## Working rules
 
-- Several sessions may share one working tree: do not run git commit, checkout, stash, reset or rebase unless the user asks.
+- Several sessions may share one working tree: do not run git commit, checkout, stash, reset or rebase unless the user asks. When you commit, stage your own files by path (bulk `git add -A` / `git commit -a` is refused by a hook).
+- Never revert or overwrite an uncommitted change another session made, even when it breaks your install or build: stop and tell the user which file and which failure.
 - Verify every version against its registry; write `UNVERIFIED` if you cannot.
 - Prefer the Write/Edit tools over shell heredocs for file bodies on Windows (apostrophes and backslashes get mangled).
 - `LICENSE` is Apache-2.0, chosen by the owner. Do not replace or edit it.

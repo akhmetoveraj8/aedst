@@ -11,7 +11,7 @@
 /apps/web/             @akhmetov-eraj
 /apps/android/         @akhmetov-eraj
 /apps/apple/           @akhmetov-eraj
-/apps/desktop-rs/      @akhmetov-eraj
+/apps/desktop/      @akhmetov-eraj
 
 # Shared packages and tooling
 /packages/             @akhmetov-eraj

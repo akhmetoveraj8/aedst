@@ -22,7 +22,7 @@ paths apps/server/internal/modules/tasks/infrastructure/postgres/sqlc/query.sql.
 paths apps/server/gen/aedst/tasks/v1/tasksv1connect/tasks.connect.go
 paths apps/server/internal/modules/tasks/domain/task.go
 paths apps/web/app/src/types/messages.d.ts
-paths apps/desktop-rs/crates/__no_such_file__.rs
+paths apps/desktop/crates/__no_such_file__.rs
 # Runtime log written by the CI load job.
 paths apps/server/server.log
 # Native-script language names in the locale switcher story (a language picker shows each language in its own script).

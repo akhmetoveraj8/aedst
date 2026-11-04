@@ -1,7 +1,5 @@
-import {
-  DashboardStatsFallback,
-  TaskListFallback,
-} from "@/modules/tasks/public";
+import { DashboardStatsFallback } from "@/modules/tasks/entries/dashboard-stats-fallback";
+import { TaskListFallback } from "@/modules/tasks/entries/task-list-fallback";
 
 // Shown instantly while the tasks segment's server work starts — the
 // segment-level counterpart of the per-section <Suspense> fallbacks in

@@ -14,7 +14,7 @@ platforms:
   web:     { root: apps/web,     verification: verified }
   android: { root: apps/android, verification: verified }  # unit tests + assemble + lint + ktlint + detekt run on this machine; device runs (Keystore, AppAuth, Play Integrity, FCM) are not verified
   apple:   { root: apps/apple,   verification: static }
-  desktop: { root: apps/desktop-rs, verification: static }  # Rust + Slint; frozen, never compiled in CI yet
+  desktop: { root: apps/desktop, verification: static }  # Rust + Slint; frozen, never compiled in CI yet
 
 # One directory per feature per platform. A directory that exists under a platform's feature root but is
 # not listed here fails the check (no undeclared features), and so does a listed directory that is missing.
@@ -23,13 +23,13 @@ feature_roots:
   web:     [apps/web/app/src/modules, apps/web/admin/src/modules]   # one root per web project that owns modules (admin feature lives in the admin project)
   android: apps/android/feature
   apple:   apps/apple/Features
-  desktop: apps/desktop-rs/crates   # only crates named aedst-feature-* are features (see feature_prefix)
+  desktop: apps/desktop/crates   # only crates named aedst-feature-* are features (see feature_prefix)
 
 # Directory-name prefix that marks a feature directory under a root shared with other kinds of directories.
 feature_prefix:
   desktop: aedst-feature-
 
-# `~` for a platform means the feature is not started there (new modules are not added to the frozen desktop-rs).
+# `~` for a platform means the feature is not started there (new modules are not added to the frozen desktop).
 # Per feature, besides the directory per platform:
 #   flagged         hidden until the server enables it (identical on every client; checked against each client's own
 #                   capability declaration, see docs/content/decisions/cross-cutting.md)
@@ -53,7 +53,7 @@ exceptions:
   - { feature: media, platform: android, skip: [data, domain], reason: "Upload scheduling and the repository live in core/media (shared with other features); feature/media is presentation and navigation only." }
   - { feature: tasks, platform: android, skip: [outbox], reason: "GAP, not a design choice: no feature registers an OutboxHandler yet; core/outbox only has the queue, the worker and the replayed fixture. Task writes are not queued offline on Android." }
   - { feature: media, platform: apple, skip: [outbox], reason: "GAP: Apple queues media.complete (finishing an upload) in its outbox; no other client does and offline-outbox.json knownTypes does not list it. Decide whether media.complete joins the shared contract or Apple stops queueing it." }
-  - { feature: auth, platform: desktop, skip: [data, domain, presentation, navigation, i18n], reason: "Sign-in has no feature crate on desktop-rs: the OIDC session lives in the aedst-oidc crate and the sign-in screen in aedst-desktop; there is no aedst-feature-auth." }
+  - { feature: auth, platform: desktop, skip: [data, domain, presentation, navigation, i18n], reason: "Sign-in has no feature crate on desktop: the OIDC session lives in the aedst-oidc crate and the sign-in screen in aedst-desktop; there is no aedst-feature-auth." }
 
 # Server-only modules (device attestation is performed by native clients only).
 server_only_modules:
@@ -75,7 +75,7 @@ behaviors:
       web:     { status: verified,    evidence: apps/web/app/src/test/contract/session-refresh.replay.test.ts, note: "Known deviation: first invalid_grant keeps the refresh cookie (multi-replica rotation race window of 15 s); session ends on the next refusal." }
       android: { status: verified,    evidence: apps/android/feature/auth/src/test/kotlin/com/aedst/feature/auth/data/remote/SessionRefreshReplayTest.kt }
       apple:   { status: implemented, evidence: apps/apple/App/Shared/Tests/AedstAppSharedTests/SessionRefreshReplayTests.swift }
-      desktop: { status: implemented, evidence: apps/desktop-rs/crates/aedst-api/tests/session_refresh_replay.rs }
+      desktop: { status: implemented, evidence: apps/desktop/crates/aedst-api/tests/session_refresh_replay.rs }
   offline-outbox:
     fixtures: docs/contract/behavior/offline-outbox.json
     platforms:
@@ -83,7 +83,7 @@ behaviors:
       web:     { status: verified,    evidence: apps/web/app/src/test/contract/offline-outbox.replay.browser.test.ts }
       android: { status: verified,    evidence: apps/android/core/outbox/src/test/kotlin/com/aedst/core/outbox/OfflineOutboxReplayTest.kt }
       apple:   { status: implemented, evidence: apps/apple/Core/AedstPersistence/Tests/AedstPersistenceTests/OfflineOutboxReplayTests.swift }
-      desktop: { status: implemented, evidence: apps/desktop-rs/crates/aedst-outbox/tests/behavior_replay.rs }
+      desktop: { status: implemented, evidence: apps/desktop/crates/aedst-outbox/tests/behavior_replay.rs }
   idempotency-key:
     fixtures: docs/contract/behavior/offline-outbox.json
     platforms:
@@ -91,7 +91,7 @@ behaviors:
       web:     { status: verified,    evidence: apps/web/app/src/test/contract/offline-outbox.replay.browser.test.ts }
       android: { status: verified,    evidence: apps/android/core/outbox/src/test/kotlin/com/aedst/core/outbox/OutboxSyncWorkerTest.kt }
       apple:   { status: implemented, evidence: apps/apple/Features/Tasks/Sources/Tasks/Data/TaskOutboxHandlers.swift }
-      desktop: { status: implemented, evidence: apps/desktop-rs/crates/aedst-feature-tasks/tests/outbox_delivery.rs }
+      desktop: { status: implemented, evidence: apps/desktop/crates/aedst-feature-tasks/tests/outbox_delivery.rs }
   client-identification:
     fixtures: docs/contract/behavior/client-version-gate.json
     platforms:
@@ -99,7 +99,7 @@ behaviors:
       web:     { status: verified,    evidence: apps/web/app/src/test/contract/client-version-gate.replay.test.ts, note: "Header is set by the /api/rpc BFF proxy from package.json." }
       android: { status: verified,    evidence: apps/android/core/network/src/test/kotlin/com/aedst/core/network/ClientVersionGateReplayTest.kt }
       apple:   { status: implemented, evidence: apps/apple/Core/AedstNetwork/Tests/AedstNetworkTests/ClientVersionGateReplayTests.swift }
-      desktop: { status: missing, tracking: "desktop-rs has no replay test of docs/contract/behavior/client-version-gate.json yet (the header is set in aedst-api/src/config.rs; the Qt replay test was deleted with the Qt tree)" }
+      desktop: { status: missing, tracking: "desktop has no replay test of docs/contract/behavior/client-version-gate.json yet (the header is set in aedst-api/src/config.rs; the Qt replay test was deleted with the Qt tree)" }
   forced-upgrade-ux:
     fixtures: docs/contract/behavior/client-version-gate.json
     platforms:
@@ -107,7 +107,7 @@ behaviors:
       web:     { status: na, reason: Web is always current; a reload fetches the latest build. }
       android: { status: verified, evidence: apps/android/core/network/src/test/kotlin/com/aedst/core/network/ClientUpgradeTest.kt, note: "Phone app only; app-tv does not show the screen yet." }
       apple:   { status: implemented, evidence: apps/apple/App/Shared/Tests/AedstAppSharedTests/UpgradeAndOutboxWiringTests.swift }
-      desktop: { status: missing, tracking: "desktop-rs has no replay test of docs/contract/behavior/client-version-gate.json yet (the header is set in aedst-api/src/config.rs; the Qt replay test was deleted with the Qt tree)" }
+      desktop: { status: missing, tracking: "desktop has no replay test of docs/contract/behavior/client-version-gate.json yet (the header is set in aedst-api/src/config.rs; the Qt replay test was deleted with the Qt tree)" }
   capability-negotiation:
     fixtures: docs/contract/behavior/capabilities.json
     platforms:
@@ -115,7 +115,7 @@ behaviors:
       web:     { status: verified, evidence: apps/web/app/src/test/contract/capabilities.replay.test.ts }
       android: { status: verified, evidence: apps/android/core/capabilities/src/test/kotlin/com/aedst/core/capabilities/CapabilitiesReplayTest.kt, note: "JVM-verified; not run on a device. TV filters nothing (auth only)." }
       apple:   { status: implemented, evidence: apps/apple/Core/AedstNetwork/Tests/AedstNetworkTests/CapabilitiesReplayTests.swift }
-      desktop: { status: implemented, evidence: apps/desktop-rs/crates/aedst-capabilities/tests/behavior_replay.rs }
+      desktop: { status: implemented, evidence: apps/desktop/crates/aedst-capabilities/tests/behavior_replay.rs }
   error-kinds:
     fixtures: docs/contract/behavior/error-kinds.json
     platforms:
@@ -123,4 +123,4 @@ behaviors:
       web:     { status: verified, evidence: apps/web/app/src/test/contract/error-kinds.replay.test.ts, note: "Reportable = unknown and storage only; server faults are captured server-side. Web has no local-database source for kind storage." }
       android: { status: verified, evidence: apps/android/core/network/src/test/kotlin/com/aedst/core/network/ErrorKindsReplayTest.kt, note: "JVM-verified. Outbox parks unauthenticated as permanent (no blocked verdict yet)." }
       apple:   { status: implemented, evidence: apps/apple/Core/AedstNetwork/Tests/AedstNetworkTests/ErrorKindsReplayTests.swift, note: "Local cases decoding and unsupported report as unknown. Outbox blocks on upgradeRequired only." }
-      desktop: { status: implemented, evidence: apps/desktop-rs/crates/aedst-common/tests/error_kinds_replay.rs, note: "Also replays the per-kind outbox verdict (aedst-outbox/tests/behavior_replay.rs)." }
+      desktop: { status: implemented, evidence: apps/desktop/crates/aedst-common/tests/error_kinds_replay.rs, note: "Also replays the per-kind outbox verdict (aedst-outbox/tests/behavior_replay.rs)." }

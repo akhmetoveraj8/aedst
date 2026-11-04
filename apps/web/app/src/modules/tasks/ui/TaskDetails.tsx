@@ -25,6 +25,7 @@ import {
   formatDate,
   formatDateInputValue,
   formatDateTime,
+  useDateLocale,
 } from "@/shared/date/format-date";
 import { Link, useRouter } from "@/shared/i18n/navigation";
 import { track } from "@/shared/lib/analytics/analytics";
@@ -63,6 +64,7 @@ export function TaskDetails({ taskId }: { taskId: string }) {
   const tSync = useTranslations("tasks.sync");
   const tErrors = useTranslations("common.errors");
   const locale = useLocale();
+  useDateLocale(locale);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);

@@ -18,9 +18,9 @@
 #
 # Wired apps: web (Biome, tsc, knip), server (gofumpt, go vet) and, when the
 # toolchain is installed, the cheap native linters: ktlint (Android), swiftlint
-# (Apple), clang-format + the C++ subset check (Desktop). Each native command
+# (Apple), cargo fmt (Desktop). Each native command
 # first checks `command -v <tool>` and is SKIPPED (not failed) when the binary
-# is missing, because JDK/Gradle, Xcode and Qt/vcpkg are too heavy for a
+# is missing, because JDK/Gradle, Xcode and the Rust toolchain are too heavy for a
 # pre-commit hook. CI is the authority; locally run `task lint`.
 # Repo-wide guards: naming, file size, color literals, staged-file hygiene
 # (ASCII names, <= 1 MiB) and gitleaks (when installed).
@@ -133,7 +133,7 @@ pre-commit:
       run: bash scripts/check-file-size.sh --staged
     # No color literals in hand-written UI code (design tokens only); desktop is report-only.
     color-literals:
-      glob: "apps/**/*.{ts,tsx,js,mjs,css,kt,xml,swift,qml,cpp,hpp,html,tmpl}"
+      glob: "apps/**/*.{ts,tsx,js,mjs,css,kt,xml,swift,rs,slint,html,tmpl}"
       run: node scripts/check-color-literals.mjs --staged
 
     # Go: formatting on staged files, vet on the whole module (a type error can
@@ -201,8 +201,8 @@ pre-commit:
         - "apps/apple/.swiftlint.yml"
       exclude: "**/Generated/**"
       run: node scripts/swiftlint-rules-static.mjs && bash scripts/check-apple-sensitive-apis.sh && bash scripts/check-dependencies.sh
-    desktop-rs-fmt:
-      root: "apps/desktop-rs/"
+    desktop-fmt:
+      root: "apps/desktop/"
       glob:
-        - "apps/desktop-rs/**/*.rs"
+        - "apps/desktop/**/*.rs"
       run: bash ../../scripts/run-if-installed.sh cargo "CI runs cargo fmt --check" fmt --check

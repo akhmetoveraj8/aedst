@@ -12,10 +12,11 @@ import (
 func (a *app) buildPush(ctx context.Context) error {
 	cfg := a.cfg.Push
 	timeout := time.Duration(cfg.TimeoutSeconds) * time.Second
-	// One client, and so one circuit breaker, per provider.
+	// One client per provider; FCM and APNs have one circuit breaker each, Web
+	// Push one per endpoint host (its URLs come from users' subscriptions).
 	a.env.Dispatcher = &push.Dispatcher{}
 	if cfg.WebPushEnabled() {
-		wp, err := push.NewWebPush(push.WebPushConfig{PublicKey: cfg.VAPIDPublicKey, PrivateKey: cfg.VAPIDPrivateKey, Subject: cfg.VAPIDSubject}, push.NewHTTPClient(timeout, "webpush"))
+		wp, err := push.NewWebPush(push.WebPushConfig{PublicKey: cfg.VAPIDPublicKey, PrivateKey: cfg.VAPIDPrivateKey, Subject: cfg.VAPIDSubject}, push.NewWebPushHTTPClient(timeout))
 		if err != nil {
 			return err
 		}

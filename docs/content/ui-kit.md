@@ -9,7 +9,7 @@ AEDST ships one design system with four platform kits: **Web** (shadcn/ui,
 `apps/web/shared/ui/`), **Android** (Jetpack Compose,
 `apps/android/core/ui/`), **Apple** (SwiftUI,
 `apps/apple/Core/AedstDesignSystem/`), and **Desktop** (Slint,
-`apps/desktop-rs/crates/aedst-ui/`). A fifth, TV-only surface exists on
+`apps/desktop/crates/aedst-ui/`). A fifth, TV-only surface exists on
 Android: `apps/android/core/ui-tv/` (`androidx.tv:tv-material`-based), used
 solely by the `:app-tv` module — see
 [Android architecture](/android/architecture#phone-and-tv-a-second-thin-app-target)
@@ -37,7 +37,7 @@ with `GENERATED — do not edit; edit packages/design-tokens/tokens`.
 | Web | `apps/web/shared/ui/tokens.css` (`:root` light + scales, `.dark`) | `apps/web/app/src/app/styles/globals.css` (`@theme inline` maps to Tailwind) |
 | Android | `core/ui/.../theme/Aedst{Light,Dark}Palette.kt`, `AedstSpacing.kt`, `AedstRadius.kt`, `AedstElevation.kt`, `AedstTypeScale.kt`, `AedstMotion.kt` | `Theme.kt`, `ExtendedColors.kt`, `Type.kt` |
 | Apple | `AedstDesignSystem/Aedst{Light,Dark}Palette.swift`, `AedstSpacing.swift`, `AedstRadius.swift`, `AedstElevation.swift`, `AedstTypeScale.swift`, `AedstMotion.swift` | `AedstColor.swift` (adaptive light/dark pairing) |
-| Desktop (Rust + Slint) | `apps/desktop-rs/crates/aedst-ui/ui/aedst_tokens.slint` (global) | `aedst_layout.slint` (RTL), `aedst_*.slint` components |
+| Desktop (Rust + Slint) | `apps/desktop/crates/aedst-ui/ui/aedst_tokens.slint` (global) | `aedst_layout.slint` (RTL), `aedst_*.slint` components |
 
 
 Semantic status colors are tokens too: `success`, `warning`, `info`,
@@ -139,7 +139,7 @@ Notes:
 - [`apps/android/core/ui/README.md`](../../apps/android/core/ui/README.md): Compose components, adaptation rationale, verification status.
 - [`apps/android/core/ui-tv/README.md`](../../apps/android/core/ui-tv/README.md): TV-only Compose surface (`:core:ui-tv`).
 - [`apps/apple/Core/AedstDesignSystem/README.md`](../../apps/apple/Core/AedstDesignSystem/README.md): SwiftUI components, HIG adaptation rationale.
-- `apps/desktop-rs/crates/aedst-ui/ui/`: Slint components and the generated `aedst_tokens.slint`.
+- `apps/desktop/crates/aedst-ui/ui/`: Slint components and the generated `aedst_tokens.slint`.
 
 Verification: none of the four native READMEs can promise a compiled kit. The
 Android, Apple and Desktop components were written without a Gradle/Xcode/Rust

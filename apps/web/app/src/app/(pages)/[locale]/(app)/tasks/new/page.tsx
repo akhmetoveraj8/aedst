@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { CreateTaskPage } from "@/modules/tasks/public";
+import { CreateTaskPage } from "@/modules/tasks/entries/create-task-page";
 import { requireLocale } from "@/shared/i18n/require-locale";
 
 export async function generateMetadata({

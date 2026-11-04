@@ -1,7 +1,8 @@
 name: policies-ci
 
-# Repo-wide policy nets that span every app: naming, file size, color literals, i18n parity and
-# module boundaries. Each app also has its own stricter checks in its own workflow; these are the
+# Repo-wide policy nets that span every app: naming, file size, color literals, i18n parity,
+# module boundaries, the ZITADEL AGPL boundary, analytics events, the Claude Code hooks and the
+# template/module generators (with their tests). Each app also has its own stricter checks in its own workflow; these are the
 # floor. Cheap (no toolchains besides bash/node/go), so they run on every PR.
 
 on:
@@ -48,7 +49,7 @@ jobs:
 
   template-profiles:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -61,6 +62,8 @@ jobs:
         working-directory: scripts
       # Removing a platform must leave a tree that still passes the repo-wide checks (core and mobile profiles).
       - run: bash scripts/check-template-profiles.sh
+      # The generators' own tests: template-new on copies of the repo per profile, new-module in a temp copy.
+      - run: node --test scripts/test/template-new.test.mjs scripts/new-module.test.mjs
 
   color-literals:
     runs-on: ubuntu-latest
@@ -106,6 +109,7 @@ jobs:
           version: 12.15.0
       - run: pnpm install --frozen-lockfile --ignore-workspace
         working-directory: scripts
+      - run: node --test scripts/test/check-features-shape.test.mjs scripts/test/check-backlog.test.mjs
       - run: node scripts/check-features.mjs
       - run: node scripts/check-behavior-fixtures.mjs
 
@@ -119,7 +123,32 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - run: node --test scripts/check-docs.test.mjs
       - run: node scripts/check-docs.mjs
+
+  contracts:
+    # ZITADEL (AGPL-3.0) stays a separate, unmodified image (docs/content/server/licensing-agpl.md,
+    # with a negative self-test), and analytics event names match docs/contract/analytics-events.json.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: node scripts/check-zitadel-agpl.mjs
+      - run: node scripts/check-analytics-events.mjs
+
+  hooks:
+    # The Claude Code hooks and settings.json files, fed sample JSON (task check:hooks).
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: bash scripts/check-hooks.sh
 
   renovate-config:
     runs-on: ubuntu-latest

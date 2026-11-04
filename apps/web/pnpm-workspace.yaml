@@ -70,7 +70,7 @@ catalog:
   "idb": "8.0.4"
   "input-otp": "^1.5.0"
   "knip": "^6.44.1"
-  "next": "16.4.4"
+  "next": "16.4.5"
   "next-intl": "^4.14.9"
   "next-themes": "^0.4.6"
   "nuqs": "^2.10.2"
@@ -103,6 +103,11 @@ onlyBuiltDependencies:
 # A version must be at least one day old before pnpm resolves it. Add an
 # exact name@version to minimumReleaseAgeExclude only for a release younger
 # than the window that must be used now, and drop it once it ages out.
+# Security fast path: a fix for a published advisory (CVE/GHSA or the vendor's
+# security bulletin) may be excluded at once; list every package the release
+# pulls in at that exact version (e.g. next and each @next/swc-*), add a
+# comment with the advisory URL, and remove the lines once they age out.
+# Never downgrade a version to make an install pass inside the window.
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - "@connectrpc/connect-web@2.3.0"

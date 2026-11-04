@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import { captureException, withScope } from "@sentry/nextjs";
 
 import { shouldReport, toAppError } from "@/shared/lib/errors/app-error";
 
@@ -42,7 +42,7 @@ export function reportError(
   if (!isCrash && !shouldReport(appError)) {
     return undefined;
   }
-  return Sentry.withScope((scope) => {
+  return withScope((scope) => {
     scope.setTag("error.kind", appError.kind);
     scope.setTag("error.source", context.source);
     if (appError.code) {
@@ -68,6 +68,6 @@ export function reportError(
         appError.code ?? appError.kind,
       ]);
     }
-    return Sentry.captureException(error);
+    return captureException(error);
   });
 }

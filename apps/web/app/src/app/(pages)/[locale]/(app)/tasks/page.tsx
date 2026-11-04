@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
-import {
-  DashboardStatsFallback,
-  DashboardStatsSection,
-  loadTaskSearchParams,
-  TaskListFallback,
-  TaskListSection,
-} from "@/modules/tasks/public";
+import { DashboardStatsFallback } from "@/modules/tasks/entries/dashboard-stats-fallback";
+import { DashboardStatsSection } from "@/modules/tasks/entries/dashboard-stats-section";
+import { loadTaskSearchParams } from "@/modules/tasks/entries/load-task-search-params";
+import { TaskListFallback } from "@/modules/tasks/entries/task-list-fallback";
+import { TaskListSection } from "@/modules/tasks/entries/task-list-section";
 import { requireLocale } from "@/shared/i18n/require-locale";
 
 export async function generateMetadata({

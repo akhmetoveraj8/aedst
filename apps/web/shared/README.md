@@ -7,7 +7,7 @@ other. The `check:feature-boundaries` script enforces that feature modules
 only talk to each other through this layer — mirroring
 `apps/android/scripts/check-feature-boundaries.sh`,
 `apps/apple/scripts/check-feature-boundaries.sh`, and
-a desktop-rs boundaries script (not written yet).
+a desktop boundaries script (not written yet).
 
 Unlike the native platforms, this directory is **not** split into separate
 build packages/modules (there is no Gradle/SPM/CMake module boundary in a

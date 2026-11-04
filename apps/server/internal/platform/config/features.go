@@ -88,6 +88,8 @@ type PushConfig struct {
 	APNsTopic          string `env:"AEDST_PUSH_APNS_TOPIC" envDefault:""`
 
 	TimeoutSeconds int `env:"AEDST_PUSH_TIMEOUT_SECONDS" envDefault:"10"`
+	// WebPushHosts replaces the allow-list of Web Push service hosts a browser subscription may point at (comma-separated; "*.example.com" matches subdomains). Empty = FCM, Mozilla, WNS and Apple.
+	WebPushHosts []string `env:"AEDST_PUSH_WEBPUSH_HOSTS" envSeparator:"," envDefault:""`
 }
 
 func (p PushConfig) WebPushEnabled() bool { return p.VAPIDPrivateKey != "" }
@@ -212,6 +214,11 @@ func (c Config) validateFeatures(bad func(string, ...any)) {
 	}
 	if c.Push.WebPushEnabled() && c.Push.VAPIDSubject == "" {
 		bad("AEDST_PUSH_VAPID_SUBJECT (mailto: or https: contact) is required with AEDST_PUSH_VAPID_PRIVATE_KEY")
+	}
+	for _, h := range c.Push.WebPushHosts {
+		if h = strings.TrimPrefix(strings.TrimSpace(h), "*."); h == "" || strings.ContainsAny(h, "/:@*?# ") {
+			bad("AEDST_PUSH_WEBPUSH_HOSTS entries must be host names or *.domain patterns, got %q", h)
+		}
 	}
 	if c.Push.APNsEnabled() && c.Push.APNsTeamID == "" {
 		bad("AEDST_PUSH_APNS_TEAM_ID is required with AEDST_PUSH_APNS_KEY_ID")

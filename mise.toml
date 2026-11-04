@@ -30,7 +30,7 @@ version = "4.214.0"   # latest stable, verified 2026-10-28 (git ls-remote --tags
 os = ["macos"]
 
 # Not managed here (install separately):
-#   Rust (apps/desktop-rs/rust-toolchain.toml; rustup reads it, so mise does not pin it here),
+#   Rust (apps/desktop/rust-toolchain.toml; rustup reads it, so mise does not pin it here),
 #   Xcode 26.6 (macOS), Android SDK, Docker.
 
 [tasks.setup]

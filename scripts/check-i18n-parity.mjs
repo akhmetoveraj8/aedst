@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // i18n parity check across Web (JSON), Android (strings.xml), Apple (.xcstrings) and
-// Desktop (gettext .po in apps/desktop-rs). Locales: en, ru, tg (Web calls Tajik `tj`; canonical here is `tg`, ISO 639-1),
+// Desktop (gettext .po in apps/desktop). Locales: en, ru, tg (Web calls Tajik `tj`; canonical here is `tg`, ISO 639-1),
 // uz, ar. Documented in docs/content/i18n.md ("Parity check").
 //
 // Within one platform, every bundle (a Web `i18n/` dir, an Android module `res/`, an Apple
@@ -160,11 +160,11 @@ function poStrings(src) {
   return out;
 }
 
-// Desktop (apps/desktop-rs): one gettext bundle per crate, <crate>/i18n/<locale>/LC_MESSAGES/<name>.po.
+// Desktop (apps/desktop): one gettext bundle per crate, <crate>/i18n/<locale>/LC_MESSAGES/<name>.po.
 function loadDesktop() {
   const fam = new Map();
   for (const f of files) {
-    const m = /^(apps\/desktop-rs\/.*\/i18n)\/([a-z]{2})\/LC_MESSAGES\/[^/]+\.po$/.exec(f);
+    const m = /^(apps\/desktop\/.*\/i18n)\/([a-z]{2})\/LC_MESSAGES\/[^/]+\.po$/.exec(f);
     if (!m) continue;
     const entries = fam.get(m[1]) ?? new Map();
     const flat = new Map();

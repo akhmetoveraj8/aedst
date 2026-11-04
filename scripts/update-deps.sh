@@ -6,7 +6,7 @@
 #   web      pnpm update --latest                        (apps/web workspace: catalog in pnpm-workspace.yaml, docs, packages/*)
 #   android  Gradle wrapper → latest release (catalog versions: Renovate only)
 #   apple    swift package update inside Tuist/          (apps/apple; macOS only)
-#   desktop  cargo update (compatible versions only)     (apps/desktop-rs)
+#   desktop  cargo update (compatible versions only)     (apps/desktop)
 #   tools    mise upgrade --bump                         (mise.toml)
 #
 # "Stable" means: Go modules — the proxy's latest release (no pre-releases);
@@ -162,8 +162,8 @@ update_apple() {
 
 update_desktop() {
   have cargo || { skip desktop "cargo not installed"; return 0; }
-  log "desktop: cargo update (apps/desktop-rs)"
-  cd "$ROOT/apps/desktop-rs"
+  log "desktop: cargo update (apps/desktop)"
+  cd "$ROOT/apps/desktop"
   if [[ $CHECK_ONLY -eq 1 ]]; then
     cargo update --dry-run
     return 0

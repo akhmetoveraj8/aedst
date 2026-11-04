@@ -83,7 +83,7 @@ function platformChecks(root, platform, featureId, dir) {
       };
     }
     case 'desktop': {
-      // apps/desktop-rs/crates/<crate>: src/{data,domain,presentation}, ui/<id>.slint, i18n/<locale>/LC_MESSAGES/*.po, tests/*.rs
+      // apps/desktop/crates/<crate>: src/{data,domain,presentation}, ui/<id>.slint, i18n/<locale>/LC_MESSAGES/*.po, tests/*.rs
       const src = `${dir}/src`;
       return {
         ...layers(src),
@@ -148,8 +148,8 @@ export function clientBuildOf(root, platform) {
     out.features = set('built');
     out.flagged = set('flagged');
   } else if (platform === 'desktop') {
-    // desktop-rs declares the built and flagged sets in client_build(); read the same literals the code uses.
-    const f = 'apps/desktop-rs/crates/aedst-desktop/src/services.rs';
+    // desktop declares the built and flagged sets in client_build(); read the same literals the code uses.
+    const f = 'apps/desktop/crates/aedst-desktop/src/services.rs';
     const text = has(root, f) ? read(root, f) : '';
     const set = (key) => new Set([...(new RegExp(`${key}:\\s*set\\(&\\[([^\\]]*)\\]`).exec(text)?.[1] ?? '').matchAll(/"([^"]+)"/g)].map((m) => m[1]));
     out.features = set('features');
@@ -187,7 +187,7 @@ export function checkShape(root, doc, knownOutboxTypes) {
     for (const t of list(f.outbox)) declaredOutbox.add(t);
 
     for (const p of platforms) {
-      if (!f[p]) continue; // `~` = not started on this platform (frozen desktop-rs)
+      if (!f[p]) continue; // `~` = not started on this platform (frozen desktop)
       const dir = featureDir(root, doc, p, f[p]);
       if (!hasDir(root, dir)) continue; // reported by the directory check
       for (const [check, fn] of Object.entries(platformChecks(root, p, feature, dir))) {

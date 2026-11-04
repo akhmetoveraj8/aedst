@@ -1,11 +1,11 @@
 ---
 title: "Desktop Architecture"
-description: "apps/desktop-rs: crates, layers, the Slint shell, sign-in, persistence, offline writes, telemetry, updates and how it is verified."
+description: "apps/desktop: crates, layers, the Slint shell, sign-in, persistence, offline writes, telemetry, updates and how it is verified."
 ---
 
 # Desktop Architecture
 
-`apps/desktop-rs` is one Cargo workspace of small `aedst-*` crates, the Desktop counterpart of `apps/android` and `apps/apple` (see [Android architecture](/android/architecture) and [Apple architecture](/apple/architecture)). It follows the same "boundaries first" rule as the server ([server architecture](/server/architecture)). Decision record and spike results: [ADR-0001](../../../apps/desktop-rs/docs/adr/0001-rust-slint-replaces-qt.md).
+`apps/desktop` is one Cargo workspace of small `aedst-*` crates, the Desktop counterpart of `apps/android` and `apps/apple` (see [Android architecture](/android/architecture) and [Apple architecture](/apple/architecture)). It follows the same "boundaries first" rule as the server ([server architecture](/server/architecture)). Decision record and spike results: [ADR-0001](../../../apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md).
 
 > **Verification status.** Built, linted and tested on Windows (Rust 1.99.1). **Never compiled on Linux**, never run against a real server or identity provider. Not done: packaging (`vpk`, DEB/RPM/Flatpak), the Velopack install path at run time, the licence pipeline, a screen-reader pass, a connectivity monitor, native file picker and toasts. Items marked `UNVERIFIED` below were not exercised. The `connectrpc` conformance suite is a deferred follow-up.
 
@@ -65,11 +65,11 @@ Signed manifest (Ed25519, key rotation, replay, expiry, channel and rollback rul
 ## Build and verify
 
 ```bash
-cd apps/desktop-rs
+cd apps/desktop
 cargo fmt --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 cargo deny check
 ```
 
-`buf` must be on PATH (contract generation). From the repo root: `task verify:desktop-rs`, `task desktop-rs:{fmt,lint,test,build,deny}` (they print `SKIPPED` without cargo). UI tests use `i-slint-backend-testing` (headless): keyboard activation, action-row order in LTR and RTL and a gallery smoke test in `aedst-ui`, and the sign-in screen states in `aedst-desktop`. Debug builds accept `AEDST_PREVIEW=<section>` to skip sign-in for window captures. Packaging with Velopack `vpk`: [aedst-release README](../../../apps/desktop-rs/crates/aedst-release/README.md); DEB, RPM and Flatpak are not decided. Code signing needs a certificate decision (pending).
+`buf` must be on PATH (contract generation). From the repo root: `task verify:desktop`, `task desktop:{fmt,lint,test,build,deny}` (they print `SKIPPED` without cargo). UI tests use `i-slint-backend-testing` (headless): keyboard activation, action-row order in LTR and RTL and a gallery smoke test in `aedst-ui`, and the sign-in screen states in `aedst-desktop`. Debug builds accept `AEDST_PREVIEW=<section>` to skip sign-in for window captures. Packaging with Velopack `vpk`: [aedst-release README](../../../apps/desktop/crates/aedst-release/README.md); DEB, RPM and Flatpak are not decided. Code signing needs a certificate decision (pending).

@@ -3,6 +3,7 @@
 //
 //   node hook-io.mjs field <name>     read hook JSON on stdin, print one field:
 //       file_path   tool_input.file_path (or notebook_path / path), repo-relative with "/" separators
+//       command     tool_input.command (Bash hooks)
 //       stop_active "true" / "false" (Stop hooks: stop_hook_active)
 //       session_id  session id or "unknown"
 //   node hook-io.mjs deny   <reason>  print a PreToolUse deny decision as JSON
@@ -56,6 +57,8 @@ if (command === "field") {
   if (arg === "file_path") {
     const raw = tool.file_path ?? tool.notebook_path ?? tool.path ?? "";
     process.stdout.write(typeof raw === "string" && raw !== "" ? repoRelative(raw) : "");
+  } else if (arg === "command") {
+    process.stdout.write(typeof tool.command === "string" ? tool.command : "");
   } else if (arg === "stop_active") {
     process.stdout.write(input.stop_hook_active === true ? "true" : "false");
   } else if (arg === "session_id") {

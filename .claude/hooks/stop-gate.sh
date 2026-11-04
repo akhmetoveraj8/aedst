@@ -12,7 +12,8 @@
 #
 # Environment:
 #   AEDST_STOP_GATE=off          skip the gate (e.g. while several agents share one working tree)
-#   AEDST_STOP_GATE_TIMEOUT=<s>  per-check time limit in seconds (default 600; needs `timeout`)
+#   AEDST_STOP_GATE_TIMEOUT=<s>  time budget in seconds for all checks together (default 600, below the
+#                                700 s hook timeout in .claude/settings.json; needs `timeout`)
 #   AEDST_STOP_GATE_CMD=<cmd>    replaces the whole check list with one command (used by scripts/check-hooks.sh)
 set -uo pipefail
 
@@ -52,14 +53,25 @@ else
   done < <(sort -u "$state")
 fi
 
-# Each check gets a hard time limit (AEDST_STOP_GATE_TIMEOUT seconds, default 600) when `timeout` exists,
-# so a hung toolchain cannot hold the session for the whole hook budget. Exit 124 is reported as a failure.
-limit="${AEDST_STOP_GATE_TIMEOUT:-600}"
-runner=()
-command -v timeout >/dev/null 2>&1 && runner=(timeout "$limit")
+# All checks share one budget (AEDST_STOP_GATE_TIMEOUT seconds, default 600) when `timeout` exists: each
+# check gets what is left, so the gate finishes before Claude Code kills the hook at 700 s and a hung
+# toolchain is reported instead of silently cut off. Exit 124 is reported as a failure.
+budget="${AEDST_STOP_GATE_TIMEOUT:-600}"
+deadline=$(( $(date +%s) + budget ))
+has_timeout=0
+command -v timeout >/dev/null 2>&1 && has_timeout=1
 
 failed=""
 for c in "${cmds[@]}"; do
+  runner=()
+  if [ "$has_timeout" = 1 ]; then
+    left=$(( deadline - $(date +%s) ))
+    if [ "$left" -le 0 ]; then
+      failed="$(printf 'The stop gate ran out of its %ss budget before `%s`. Run it yourself before stopping.' "$budget" "$c")"
+      break
+    fi
+    runner=(timeout "$left")
+  fi
   out="$(${runner[@]+"${runner[@]}"} bash -c "$c" 2>&1)" && continue
   failed="$(printf '`%s` failed. Fix it before stopping.\n\n%s' "$c" "$(printf '%s\n' "$out" | tail -n 60)")"
   break

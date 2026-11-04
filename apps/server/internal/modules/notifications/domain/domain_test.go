@@ -71,14 +71,14 @@ func TestNewDevice(t *testing.T) {
 		}
 	})
 	t.Run("web push", func(t *testing.T) {
-		d, err := domain.NewDevice(user, domain.PlatformWebPush, "", "https://push.example/x", "p", "a", "", false, "", "", now)
-		if err != nil || d.Address != "https://push.example/x" || d.P256dh != "p" || d.AuthSecret != "a" {
+		d, err := domain.NewDevice(user, domain.PlatformWebPush, "", "https://fcm.googleapis.com/fcm/send/x", "p", "a", "", false, "", "", now)
+		if err != nil || d.Address != "https://fcm.googleapis.com/fcm/send/x" || d.P256dh != "p" || d.AuthSecret != "a" {
 			t.Fatalf("got %+v, %v", d, err)
 		}
 	})
 	for name, args := range map[string][]any{
-		"web push needs https":     {domain.PlatformWebPush, "", "http://push.example/x", "p", "a"},
-		"web push needs keys":      {domain.PlatformWebPush, "", "https://push.example/x", "", "a"},
+		"web push needs https":     {domain.PlatformWebPush, "", "http://fcm.googleapis.com/fcm/send/x", "p", "a"},
+		"web push needs keys":      {domain.PlatformWebPush, "", "https://fcm.googleapis.com/fcm/send/x", "", "a"},
 		"apns needs a token":       {domain.PlatformAPNs, "  ", "", "", ""},
 		"unknown platform refused": {domain.Platform("sms"), "tok", "", "", ""},
 	} {

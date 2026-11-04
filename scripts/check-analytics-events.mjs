@@ -45,8 +45,8 @@ for (const f of walk(join(root, "apps/apple"), [".swift"])) {
   }
 }
 
-// Desktop (apps/desktop-rs): `.track("name", ...)` calls in production sources (not tests, not doc comments).
-for (const f of walk(join(root, "apps/desktop-rs/crates"), [".rs"])) {
+// Desktop (apps/desktop): `.track("name", ...)` calls in production sources (not tests, not doc comments).
+for (const f of walk(join(root, "apps/desktop/crates"), [".rs"])) {
   if (f.replaceAll("\\", "/").includes("/target/")) continue;
   const text = readFileSync(f, "utf8")
     .split("\n")
@@ -67,7 +67,7 @@ for (const [name, def] of Object.entries(spec)) {
   for (const platform of def.platforms) {
     if (!emitted[platform]?.has(name)) {
       const msg = `JSON lists ${platform} for "${name}" but ${platform} does not emit it`;
-      // desktop-rs is frozen and does not emit every contract event yet: report, do not gate.
+      // desktop is frozen and does not emit every contract event yet: report, do not gate.
       if (platform === "desktop") warnings.push(msg);
       else errors.push(msg);
     }

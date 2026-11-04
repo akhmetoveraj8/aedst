@@ -1,4 +1,4 @@
-# apps/desktop-rs - AI agent instructions
+# apps/desktop - AI agent instructions
 
 The Desktop app (Rust + Slint; the Qt 6 / C++23 tree was deleted). Read the root [AGENTS.md](../../AGENTS.md) and
 [CONVENTIONS.md](../../CONVENTIONS.md) first. Why and the module mapping: [ADR-0001](docs/adr/0001-rust-slint-replaces-qt.md).
@@ -40,6 +40,6 @@ identity provider ([status](../../docs/content/status.md)). Do not claim Linux o
 
 ## Gates (run before saying done)
 
-1. `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace` (or `cargo nextest run`), `cargo deny check` from `apps/desktop-rs`.
+1. `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace` (or `cargo nextest run`), `cargo deny check` from `apps/desktop`.
 2. `task check` from the repo root.
 3. If step 1 did not run, say that nothing was compiled or tested.

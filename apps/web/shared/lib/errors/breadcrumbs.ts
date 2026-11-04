@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import { addBreadcrumb as sentryBreadcrumb, setUser } from "@sentry/nextjs";
 
 /**
  * The only other doors to Sentry besides `reportError` / `ErrorBoundary`
@@ -10,10 +10,10 @@ type Breadcrumb = { category: string; message: string; level?: "info" };
 
 /** Records what the user did, so a Sentry event shows the lead-up. */
 export function addBreadcrumb(breadcrumb: Breadcrumb): void {
-  Sentry.addBreadcrumb(breadcrumb);
+  sentryBreadcrumb(breadcrumb);
 }
 
 /** Attaches the signed-in user (id only, never PII) to later events. */
 export function setErrorUser(userId: string | null): void {
-  Sentry.setUser(userId ? { id: userId } : null);
+  setUser(userId ? { id: userId } : null);
 }

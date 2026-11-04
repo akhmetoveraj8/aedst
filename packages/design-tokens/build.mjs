@@ -20,7 +20,7 @@ const OUT = {
   web: out('apps/web/shared/ui'),
   android: out('apps/android/core/ui/src/main/kotlin/com/aedst/core/ui/theme'),
   apple: out('apps/apple/Core/AedstDesignSystem/Sources/AedstDesignSystem'),
-  desktopRs: out('apps/desktop-rs/crates/aedst-ui/ui'),
+  desktopRs: out('apps/desktop/crates/aedst-ui/ui'),
 };
 
 const HEADER = 'GENERATED — do not edit; edit packages/design-tokens/tokens';
@@ -217,7 +217,7 @@ const swift = (className, filter, imports = ['SwiftUI']) => ({
 });
 
 // task template:new --profile core|mobile deletes whole apps; skip the targets whose app directory is gone.
-const APP_ROOT = { android: 'apps/android', apple: 'apps/apple', desktopRs: 'apps/desktop-rs' };
+const APP_ROOT = { android: 'apps/android', apple: 'apps/apple', desktopRs: 'apps/desktop' };
 const existing = (all) =>
   Object.fromEntries(Object.entries(all).filter(([name]) => !APP_ROOT[name] || existsSync(path.join(repo, APP_ROOT[name]))));
 

@@ -5,7 +5,7 @@ description: The complete Desktop stack with exact versions.
 
 # Desktop stack
 
-Rust and Slint (`apps/desktop-rs`). All versions live once in the root `Cargo.toml` `[workspace.dependencies]`; they were checked against crates.io on **2026-11-04** and were already the latest stable. Approval rules and rejections: [Library-First](/library-first#desktop). A crate not listed there fails `cargo deny`.
+Rust and Slint (`apps/desktop`). All versions live once in the root `Cargo.toml` `[workspace.dependencies]`; they were checked against crates.io on **2026-11-04** and were already the latest stable. Approval rules and rejections: [Library-First](/library-first#desktop). A crate not listed there fails `cargo deny`.
 
 | Area | Tool | Version |
 |---|---|---|

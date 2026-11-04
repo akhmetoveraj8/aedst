@@ -18,7 +18,7 @@ the source of truth; when one changes, update this page in the same change.
 | Web | `apps/web/pnpm-workspace.yaml` | TypeScript 7.0, React 19.3, Next.js 16.4 | `strict: true` |
 | Android | `apps/android/gradle/libs.versions.toml` | Kotlin 2.4.21, JDK 21 | Kotlin 2.4, stable features only |
 | Apple | `apps/apple/Project.swift`, `mise.toml` (Xcode 26.6) | Swift 6.3 compiler | Swift 6 language mode, iOS 18 / macOS 15 floor |
-| Desktop | `apps/desktop-rs/rust-toolchain.toml`, `apps/desktop-rs/Cargo.toml` | Rust 1.99.1 toolchain | Edition 2024, **MSRV 1.92** |
+| Desktop | `apps/desktop/rust-toolchain.toml`, `apps/desktop/Cargo.toml` | Rust 1.99.1 toolchain | Edition 2024, **MSRV 1.92** |
 
 Android, Apple and Desktop are frozen ([status](/status)): the rules below apply when they are
 unfrozen, and no feature work starts there because of this page.
@@ -125,4 +125,4 @@ Use: let chains (`if let Some(x) = a && x > 0`), async closures and `AsyncFn*` b
 `OnceLock` instead of `lazy_static`/`once_cell`, `#[expect(lint, reason = "...")]` instead of
 `#[allow]`, trait upcasting, `Vec::extract_if`, `Vec::pop_if`, `get_disjoint_mut`, `Result::flatten`,
 `File::lock`, `Duration::from_mins`, `std::io::pipe`. Workspace lints already deny `unsafe_code`,
-`unwrap_used` and `clippy::all` (`apps/desktop-rs/Cargo.toml`).
+`unwrap_used` and `clippy::all` (`apps/desktop/Cargo.toml`).

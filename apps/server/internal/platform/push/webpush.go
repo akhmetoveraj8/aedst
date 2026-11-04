@@ -45,7 +45,8 @@ type WebPush struct {
 const maxWebPushPayload = 3993
 
 // NewWebPush validates the VAPID keys and returns the sender. client carries
-// the HTTP calls to the browsers' push services (tests point it at a fake).
+// the HTTP calls to the browsers' push services: NewWebPushHTTPClient in
+// production (tests point it at a fake).
 func NewWebPush(cfg WebPushConfig, client *http.Client) (*WebPush, error) {
 	private := strings.TrimRight(strings.TrimSpace(cfg.PrivateKey), "=")
 	d, err := base64.RawURLEncoding.DecodeString(private)
@@ -64,7 +65,7 @@ func NewWebPush(cfg WebPushConfig, client *http.Client) (*WebPush, error) {
 		return nil, errors.New("push: AEDST_PUSH_VAPID_SUBJECT must be a mailto: or https: URL")
 	}
 	if client == nil {
-		return nil, errors.New("push: web push needs an HTTP client (use NewHTTPClient: the default client has no timeout or breaker)")
+		return nil, errors.New("push: web push needs an HTTP client (use NewWebPushHTTPClient: the default client has no timeout, breaker or address guard)")
 	}
 	return &WebPush{privateKey: private, publicKey: derived, subject: cfg.Subject, client: client}, nil
 }
@@ -98,7 +99,7 @@ func (c *attemptClient) Do(req *http.Request) (*http.Response, error) {
 
 func (w *WebPush) Send(ctx context.Context, target Target, msg Message) error {
 	endpoint, err := url.Parse(target.Endpoint)
-	if err != nil || endpoint.Scheme != "https" || endpoint.Host == "" {
+	if err != nil || endpoint.Scheme != "https" || endpoint.Host == "" || endpoint.User != nil {
 		return fmt.Errorf("%w: web push endpoint must be an https URL", ErrInvalidToken)
 	}
 	plaintext, err := json.Marshal(webPushPayload{Title: msg.Title, Body: msg.Body, Link: msg.Link, Kind: msg.Kind, NotificationID: msg.NotificationID, Tag: msg.CollapseID, Data: msg.Data})
@@ -133,6 +134,8 @@ func (w *WebPush) Send(ctx context.Context, target Target, msg Message) error {
 		switch {
 		case errors.Is(err, webpush.ErrMaxPadExceeded):
 			return fmt.Errorf("%w: %w", ErrPermanent, err)
+		case errors.Is(err, ErrBlockedAddress):
+			return fmt.Errorf("%w: %w", ErrInvalidToken, err) // never retried: the device is deactivated
 		case !attempt.attempted:
 			return fmt.Errorf("%w: web push subscription keys: %w", ErrInvalidToken, err) // malformed keys never become valid
 		default:

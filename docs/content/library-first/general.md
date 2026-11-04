@@ -61,7 +61,7 @@ The policy "a library is approved before its first use" **remains**, but it is n
 | Server | `go mod tidy` (diff in CI) + **golangci-lint `depguard`** | allowed/forbidden import list in `apps/server/.golangci.yml`; `architecturetest` |
 | Android | Version Catalog allowlist check (`check-catalog-allowlist` in `apps/android/scripts/check-policies.sh`) + detekt `ForbiddenImport` | `libs.versions.toml` is a subset of the Android Library-First page |
 | Apple | `apps/apple/scripts/check-dependencies.sh` + SwiftLint `custom_rules` (`sdk_only_in_core`) | `apps/apple/scripts/approved-packages.txt` lists every allowed `.package(url:)` and its single owning Core package (`Tuist/Package.swift` only points at the local `App/Shared` package and is not an allowlist) |
-| Desktop | `cargo deny check` (`deny.toml` bans and licences) | `[workspace.dependencies]` in `apps/desktop-rs/Cargo.toml` and the Desktop Library-First page |
+| Desktop | `cargo deny check` (`deny.toml` bans and licences) | `[workspace.dependencies]` in `apps/desktop/Cargo.toml` and the Desktop Library-First page |
 
 Rules:
 

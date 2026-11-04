@@ -67,6 +67,7 @@
       "Bash(git checkout*)",
       "Bash(git switch*)",
       "Bash(git stash*)",
+      "Bash(git restore*)",
       "Bash(git rebase*)",
       "Bash(git reset*)",
       "Bash(git merge*)",
@@ -107,6 +108,15 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-edit-guard.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-bash-guard.sh\""
           }
         ]
       }

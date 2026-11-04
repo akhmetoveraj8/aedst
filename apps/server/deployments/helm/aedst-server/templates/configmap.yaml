@@ -125,6 +125,7 @@ data:
   AEDST_PUSH_TIMEOUT_SECONDS: {{ .timeoutSeconds | int64 | quote }}
   AEDST_PUSH_VAPID_PUBLIC_KEY: {{ .vapidPublicKey | quote }}
   AEDST_PUSH_VAPID_SUBJECT: {{ .vapidSubject | quote }}
+  AEDST_PUSH_WEBPUSH_HOSTS: {{ .webPushHosts | default "" | quote }}
   AEDST_PUSH_FCM_PROJECT_ID: {{ .fcmProjectId | quote }}
   AEDST_PUSH_FCM_CREDENTIALS_FILE: {{ .fcmCredentialsFile | quote }}
   AEDST_PUSH_APNS_KEY_ID: {{ .apnsKeyId | quote }}

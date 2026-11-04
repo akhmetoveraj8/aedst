@@ -98,11 +98,11 @@ func (s *Service) CompleteUpload(ctx context.Context, owner, id ids.ID) (domain.
 	if info.Size != m.DeclaredSize {
 		return s.reject(ctx, m, "uploaded size does not match the declared size")
 	}
-	sniffed, err := s.sniff(ctx, m.ObjectKey)
+	head, err := s.head(ctx, m.ObjectKey)
 	if err != nil {
 		return domain.Media{}, err
 	}
-	if !domain.SniffMatches(m.ContentType, sniffed) {
+	if !domain.SniffMatches(m.ContentType, http.DetectContentType(head), head) {
 		return s.reject(ctx, m, "file content does not match its declared type")
 	}
 	started, ok, err := s.repo.StartProcessing(ctx, owner, id, info.Size, s.clock.Now())
@@ -115,18 +115,19 @@ func (s *Service) CompleteUpload(ctx context.Context, owner, id ids.ID) (domain.
 	return started, nil
 }
 
-func (s *Service) sniff(ctx context.Context, key string) (string, error) {
+// head reads the object's first sniffBytes bytes.
+func (s *Service) head(ctx context.Context, key string) ([]byte, error) {
 	body, _, err := s.store.Get(ctx, key)
 	if err != nil {
-		return "", sharederrors.Wrap("media.sniff", err)
+		return nil, sharederrors.Wrap("media.sniff", err)
 	}
 	defer func() { _ = body.Close() }()
 	buf := make([]byte, sniffBytes)
 	n, err := io.ReadFull(body, buf)
 	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) && !errors.Is(err, io.EOF) {
-		return "", sharederrors.Wrap("media.sniff", err)
+		return nil, sharederrors.Wrap("media.sniff", err)
 	}
-	return http.DetectContentType(buf[:n]), nil
+	return buf[:n], nil
 }
 
 func (s *Service) reject(ctx context.Context, m domain.Media, reason string) (domain.Media, error) {

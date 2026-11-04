@@ -12,9 +12,9 @@ The default profile is **Core = Server + Web**. These two are built, tested and 
 | [`apps/web`](apps/web/README.md) (`app`, `admin`, `landing`, `shared`) | Next.js 16, React 19, TanStack Query, shadcn/ui, next-intl | **Core.** Typechecked, linted, unit- and browser-tested, built |
 | [`apps/android`](apps/android/README.md) | Kotlin, Jetpack Compose, Hilt, connect-kotlin, Room 3 | Frozen. JVM gates passed before the Room 3 migration; the migration is **not compiled**; never run on a device |
 | [`apps/apple`](apps/apple/README.md) | SwiftUI, GRDB, connect-swift, Tuist (iOS 18+, macOS 15+) | Frozen. **Never compiled** |
-| [`apps/desktop-rs`](apps/desktop-rs/AGENTS.md) | Rust, Slint, connectrpc, openidconnect, keyring-core, rusqlite, Velopack (Windows and Linux) | Frozen. Fmt, clippy, tests and cargo-deny pass on Windows; **never built on Linux**, never run against a real server or IdP |
+| [`apps/desktop`](apps/desktop/AGENTS.md) | Rust, Slint, connectrpc, openidconnect, keyring-core, rusqlite, Velopack (Windows and Linux) | Frozen. Fmt, clippy, tests and cargo-deny pass on Windows; **never built on Linux**, never run against a real server or IdP |
 
-The previous Qt 6 / C++ desktop app was deleted. See [Platform status](docs/content/status.md) before building on anything but Core, and [ADR-0001](apps/desktop-rs/docs/adr/0001-rust-slint-replaces-qt.md) for why.
+The previous Qt 6 / C++ desktop app was deleted. See [Platform status](docs/content/status.md) before building on anything but Core, and [ADR-0001](apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md) for why.
 
 ## For AI agents and contributors
 
@@ -68,7 +68,7 @@ Commands per app (for example `task server:test`, `task web:test`) are listed in
 ## Layout
 
 ```
-apps/        server, web, android, apple, desktop-rs
+apps/        server, web, android, apple, desktop
 packages/    design-tokens (Style Dictionary; generated token files are never hand-edited)
 docs/        documentation site (Next.js + Nextra), content in docs/content
 scripts/     check-naming.sh, check-file-size.sh, check-color-literals.mjs, check-i18n-parity.mjs, check-boundaries.sh, doctor.sh, update-deps.sh

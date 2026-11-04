@@ -113,6 +113,7 @@
             "timeoutSeconds": {"type": "integer", "minimum": 1},
             "vapidPublicKey": {"type": "string"},
             "vapidSubject": {"type": "string"},
+            "webPushHosts": {"type": "string"},
             "fcmProjectId": {"type": "string"},
             "fcmCredentialsFile": {"type": "string"},
             "apnsKeyId": {"type": "string"},

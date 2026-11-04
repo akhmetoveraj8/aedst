@@ -1,6 +1,8 @@
 package domain_test
 
 import (
+	"encoding/binary"
+	"net/http"
 	"strings"
 	"testing"
 	"time"
@@ -49,7 +51,6 @@ func TestSniffMatches(t *testing.T) {
 		{"image/png", "image/png", true},
 		{"image/png", "text/html; charset=utf-8", false}, // HTML disguised as an image
 		{"image/jpeg", "image/png", false},
-		{"video/quicktime", "video/mp4", true},
 		{"audio/wav", "audio/wave", true},
 		{"audio/ogg", "application/ogg", true},
 		{"application/pdf", "application/pdf", true},
@@ -58,8 +59,46 @@ func TestSniffMatches(t *testing.T) {
 		{"image/svg+xml", "image/svg+xml", false}, // not on the allow-list
 	}
 	for _, tc := range tests {
-		if got := domain.SniffMatches(tc.declared, tc.sniffed); got != tc.want {
+		if got := domain.SniffMatches(tc.declared, tc.sniffed, nil); got != tc.want {
 			t.Errorf("SniffMatches(%q, %q) = %v, want %v", tc.declared, tc.sniffed, got, tc.want)
+		}
+	}
+}
+
+// ftyp builds an ISO BMFF file-type box (size, "ftyp", major brand, minor
+// version, compatible brands) followed by filler.
+func ftyp(size uint32, major string, compatible ...string) []byte {
+	b := binary.BigEndian.AppendUint32(nil, size)
+	b = append(b, "ftyp"+major+"\x00\x00\x02\x00"...)
+	for _, c := range compatible {
+		b = append(b, c...)
+	}
+	return append(b, make([]byte, 64)...)
+}
+
+// MP4-family uploads go to ffmpeg, so they must carry an ftyp box: an
+// "octet-stream" guess (anything the sniffer does not know) is not enough.
+func TestSniffMatches_MP4FamilyNeedsAnFtypBox(t *testing.T) {
+	tests := []struct {
+		name     string
+		declared string
+		head     []byte
+		want     bool
+	}{
+		{"mp4", "video/mp4", ftyp(24, "isom", "isom", "mp42"), true},
+		{"quicktime qt brand", "video/quicktime", ftyp(20, "qt  ", "qt  "), true},
+		{"m4a", "audio/mp4", ftyp(28, "M4A ", "M4A ", "mp42", "isom"), true},
+		{"octet-stream junk", "video/mp4", []byte("\x00\x01\x02\x03 some unrecognised bytes......"), false},
+		{"playlist disguised as video", "video/quicktime", []byte("#EXTM3U\n#EXT-X-TARGETDURATION:1\nhttp://169.254.169.254/\n"), false},
+		{"ftyp too small", "video/mp4", ftyp(8, "isom"), false},
+		{"ftyp size not a multiple of 4", "video/mp4", ftyp(21, "isom", "isom"), false},
+		{"truncated", "video/mp4", []byte("\x00\x00\x00\x18ftyp"), false},
+		{"ftyp at the wrong offset", "audio/mp4", append([]byte{0}, ftyp(24, "isom", "isom", "mp42")...), false},
+	}
+	for _, tc := range tests {
+		sniffed := http.DetectContentType(tc.head)
+		if got := domain.SniffMatches(tc.declared, sniffed, tc.head); got != tc.want {
+			t.Errorf("%s: SniffMatches(%q, %q, head) = %v, want %v", tc.name, tc.declared, sniffed, got, tc.want)
 		}
 	}
 }

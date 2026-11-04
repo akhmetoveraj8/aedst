@@ -3,14 +3,24 @@ import * as Sentry from "@sentry/nextjs";
 import { sentrySharedOptions } from "@/app/config/sentry/shared";
 import { clientEnv } from "@/shared/env/client";
 
+// Re-exported for instrumentation-client.ts, which reaches the SDK only
+// through this lazily imported module (see loader.ts).
+export { captureRouterTransitionStart } from "@sentry/nextjs";
+
 /**
- * Error and performance reporting is operational, so it starts immediately.
- * Session Replay is *behavioural recording*, so it is not part of this
- * initial bundle at all: `enableSessionReplay()` loads it only after the
- * visitor grants analytics consent (see `ConsentLayer`). That is both the
- * privacy-correct default and ~50 KB gzipped off every first load.
+ * The browser SDK. Nothing outside `loader.ts` may import this module
+ * statically: it is the lazy chunk that keeps Sentry out of every route's
+ * first load. Error and performance reporting is operational, so it starts
+ * as soon as the chunk arrives (requested before hydration). Session Replay
+ * is *behavioural recording*, so it is a further chunk that
+ * `enableSessionReplay()` loads only after the visitor grants analytics
+ * consent (see `ConsentLayer`): the privacy-correct default, and ~50 KB
+ * gzipped off every page.
  */
 export function initSentryClient() {
+  if (Sentry.getClient()) {
+    return;
+  }
   Sentry.init({
     ...sentrySharedOptions,
     // Distributed tracing: the browser only talks to this app's same-origin
@@ -52,4 +62,11 @@ export async function enableSessionReplay() {
 export async function disableSessionReplay() {
   const { getReplay } = await import("@sentry/nextjs");
   await getReplay()?.stop();
+}
+
+/** An error caught before init (early-errors.ts), reported as uncaught. */
+export function captureEarlyError(error: unknown) {
+  Sentry.captureException(error, {
+    mechanism: { type: "onerror", handled: false },
+  });
 }

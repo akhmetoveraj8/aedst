@@ -98,7 +98,7 @@ cloud), not to application code.
 | Unit and integration tests | `task test`, integration tests with Postgres, behaviour scenarios |
 | Code review, no self-approval | `.github/CODEOWNERS`, branch protection ([github-setup](../../agent/github-setup.md)), the `review-platform` skill |
 | Continuous security analysis | `gosec` in golangci-lint, `govulncheck` (`task vuln`), gitleaks (`.gitleaks.toml`), `cargo-deny` on Desktop |
-| Known-vulnerable dependencies | Renovate (`config:best-practices`), SHA-pinned Actions, `task deps:check`; a security release is applied the week it ships |
+| Known-vulnerable dependencies | Renovate (`config:best-practices`), SHA-pinned Actions, `task deps:check`; a security release is applied the week it ships, through the release-age security fast path when it is younger than a day (`apps/web/pnpm-workspace.yaml` comment, [decisions/web](/decisions/web)) |
 | Rollback | Helm releases roll back; a new migration must stay compatible with the previous release (expand, then contract in a later release) so a rollback never meets a schema it cannot read |
 
 ## Rules for new code

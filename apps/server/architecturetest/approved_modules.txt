@@ -52,7 +52,7 @@ go.opentelemetry.io/otel/sdk/log  # observability
 go.opentelemetry.io/otel/sdk/metric  # observability
 go.opentelemetry.io/otel/trace  # observability
 golang.org/x/mod  # architecturetest: go.mod parsing
-golang.org/x/sync  # errgroup
+golang.org/x/sync  # errgroup, singleflight (OIDC discovery)
 golang.org/x/time  # rate
 golang.org/x/tools  # architecturetest: go/packages
 google.golang.org/api  # Play Integrity client, FCM options

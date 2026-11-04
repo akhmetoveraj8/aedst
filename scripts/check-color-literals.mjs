@@ -6,7 +6,7 @@
 //            token utilities (bg-destructive, text-muted-foreground, Badge variants success/warning/info)
 //   android  Color(0x..), Color(<number>), Color.Red/White/..., parseColor("#..."), #hex in res XML
 //   apple    Color(red:/white:/hue:), UIColor(/NSColor( with components, #colorLiteral, Color(hex:
-//   desktop-rs  hex and rgb()/hsl()/oklch() literals in .slint and .rs files
+//   desktop  hex and rgb()/hsl()/oklch() literals in .slint and .rs files
 //   server   hex / rgb() in templates and CSS (email/OG output)
 // Skipped automatically: generated files (header contains `GENERATED`), comment-only lines, test
 // files and fixtures. Everything else must be listed in scripts/color-literals.allowlist.
@@ -25,7 +25,7 @@ const argv = new Set(process.argv.slice(2));
 const gitArgs = argv.has('--staged') ? ['diff', '--cached', '--name-only', '--diff-filter=ACMR'] : ['ls-files', '-co', '--exclude-standard'];
 const all = execFileSync('git', gitArgs, { cwd: root, encoding: 'utf8', maxBuffer: 1 << 26 }).split('\n').filter(Boolean);
 
-const platformOf = (f) => /^apps\/(server|web|android|apple|desktop-rs)\//.exec(f)?.[1] ?? null;
+const platformOf = (f) => /^apps\/(server|web|android|apple|desktop)\//.exec(f)?.[1] ?? null;
 const HEX = '(?<![\\w&/#$])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\\w-])';
 const FN = '\\b(?:rgba?|hsla?|hwb|oklch|oklab|lab|lch)\\(';
 // Tailwind default-palette utilities: a literal colour in disguise (no theme, no dark mode).
@@ -52,14 +52,14 @@ const RULES = {
       '\\bColor\\(\\s*uiColor:\\s*UIColor\\(',
     ],
   },
-  'desktop-rs': { exts: ['slint', 'rs'], res: [HEX, FN] },
+  'desktop': { exts: ['slint', 'rs'], res: [HEX, FN] },
   server: { exts: ['html', 'tmpl', 'gohtml', 'css', 'txt', 'mjml'], res: [HEX, FN] },
 };
 for (const r of Object.values(RULES)) r.res = r.res.map((s) => new RegExp(s));
 const PALETTE_RE = new RegExp(PALETTE);
 
 const TEST = /(^|\/)(e2e|__tests__|__mocks__|testdata|fixtures|androidTest|sharedTest|Tests?)\/|\.(test|spec|stories)\.[a-z]+$|Test\.kt$|Tests?\.swift$|_test\.(go|cpp)$/;
-const NON_SOURCE = /(^|\/)(node_modules|build|dist|\.next|vcpkg_installed|Derived|\.build|generated|Generated|kotlin-gen|gen)\//;
+const NON_SOURCE = /(^|\/)(node_modules|build|dist|\.next|target|Derived|\.build|generated|Generated|kotlin-gen|gen)\//;
 
 const aFile = 'scripts/color-literals.allowlist';
 const re = (g) => new RegExp(`^${g.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`);

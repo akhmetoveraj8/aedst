@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import {
   disableSessionReplay,
   enableSessionReplay,
-} from "@/app/config/sentry/client";
+} from "@/app/config/sentry/loader";
 import { ConsentBanner } from "@/app/providers/ConsentBanner";
 import {
   disableAnalytics,

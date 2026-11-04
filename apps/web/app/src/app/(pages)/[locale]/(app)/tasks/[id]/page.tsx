@@ -3,10 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
 import { TaskAttachments } from "@/modules/media/public";
-import {
-  TaskDetailsFallback,
-  TaskDetailsSection,
-} from "@/modules/tasks/public";
+import { TaskDetailsFallback } from "@/modules/tasks/entries/task-details-fallback";
+import { TaskDetailsSection } from "@/modules/tasks/entries/task-details-section";
 import { requireLocale } from "@/shared/i18n/require-locale";
 import { ErrorBoundary } from "@/shared/lib/errors/ErrorBoundary";
 

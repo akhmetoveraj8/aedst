@@ -16,7 +16,7 @@ import {
 import { HighlightedText } from "@/modules/search/ui/HighlightedText";
 import { SearchService } from "@/shared/api/connect/client";
 import { DocumentKind } from "@/shared/api/connect/generated/aedst/search/v1/search_pb";
-import { formatDateTime } from "@/shared/date/format-date";
+import { formatDateTime, useDateLocale } from "@/shared/date/format-date";
 import { Link } from "@/shared/i18n/navigation";
 import { track } from "@/shared/lib/analytics/analytics";
 import { safeInAppPath } from "@/shared/lib/auth/safe-redirect";
@@ -46,6 +46,7 @@ const DEBOUNCE_MS = 300;
 export function SearchPage() {
   const t = useTranslations("search");
   const locale = useLocale();
+  useDateLocale(locale);
   const inputId = useId();
   const [{ q, kind }, setParams] = useQueryStates(searchParsers, {
     history: "replace",

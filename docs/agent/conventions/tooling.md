@@ -1,6 +1,6 @@
 # Naming: enforcement tooling (linters and CI)
 
-Part of [CONVENTIONS.md](../../../CONVENTIONS.md). The snippets below are the intended lint configuration shape; the live configuration is in each app (`apps/web/biome.json`, `apps/server/.golangci.yml`, `apps/android/detekt.yml`, `apps/apple/.swiftlint.yml`, `apps/desktop-rs/clippy.toml`). If a snippet and the live file disagree, the live file wins.
+Part of [CONVENTIONS.md](../../../CONVENTIONS.md). The snippets below are the intended lint configuration shape; the live configuration is in each app (`apps/web/biome.json`, `apps/server/.golangci.yml`, `apps/android/detekt.yml`, `apps/apple/.swiftlint.yml`, `apps/desktop/clippy.toml`). If a snippet and the live file disagree, the live file wins.
 
 | Platform | Linter | What it covers automatically | What needs a CI script |
 |---|---|---|---|
@@ -133,7 +133,7 @@ Run together by `task check:gates`; each has a negative self-test. Per-platform 
 | Server | `architecturetest` (approved modules, layers, `*Tx` callers, Protovalidate conventions, event golden fixtures, raw SQL literals, migration module lists), golangci-lint (depguard, forbidigo, sloglint, exhaustive, spancheck, gosec, nilerr, nolintlint), `task server:lint:selftest` |
 | Android | detekt `ForbiddenImport` (+ `/MainThreadAndLogging`, `/OkHttpOutsideNetwork`, `/Material3Raw`), `ForbiddenMethodCall`, coroutines rules, compose-rules, type-resolved `detektDebug`, `lintDebug` with warningsAsErrors, `check-policies.sh`, `check-catalog-allowlist.sh`, `check-ui-tokens.sh`, `check-rpc-contract.sh`, `check-feature-boundaries.sh`, `koverVerifyDebug`, `scripts/test-gates.sh [--full]` |
 | Apple | SwiftLint `custom_rules` + static mirror, `check-dependencies.sh`, `check-apple-sensitive-apis.sh`, `i18n-apple-checks.mjs` |
-| Desktop | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo deny check` (`apps/desktop-rs/deny.toml`), workspace lints (no `unwrap()`, no `unsafe`), `scripts/check-naming.sh`; frozen until its first green CI run |
+| Desktop | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo deny check` (`apps/desktop/deny.toml`), workspace lints (no `unwrap()`, no `unsafe`), `scripts/check-naming.sh`; frozen until its first green CI run |
 
 ## Wiring `scripts/check-naming.sh`
 

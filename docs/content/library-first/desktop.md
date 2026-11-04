@@ -9,9 +9,9 @@ Part of the [Library-First standard](../library-first.md). Principles, version p
 
 > **Verification status:** built, linted and tested on Windows only. Never compiled on Linux. Versions below were checked against crates.io on 2026-11-04 (all were already the latest stable); anything else is `UNVERIFIED`. The `connectrpc` conformance suite is a **deferred follow-up** (not done).
 
-## Stack: Rust + Slint (`apps/desktop-rs`)
+## Stack: Rust + Slint (`apps/desktop`)
 
-Owner decision of 2026-11-01, see [ADR-0001](../../../apps/desktop-rs/docs/adr/0001-rust-slint-replaces-qt.md). Rust edition 2024, toolchain in `rust-toolchain.toml`, one Cargo workspace. All versions live once in the root `Cargo.toml` `[workspace.dependencies]`; a crate is approved only when it is listed there and in this table (`cargo deny` enforces licences, sources and advisories).
+Owner decision of 2026-11-01, see [ADR-0001](../../../apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md). Rust edition 2024, toolchain in `rust-toolchain.toml`, one Cargo workspace. All versions live once in the root `Cargo.toml` `[workspace.dependencies]`; a crate is approved only when it is listed there and in this table (`cargo deny` enforces licences, sources and advisories).
 
 | Responsibility | Crate / tool |
 |---|---|

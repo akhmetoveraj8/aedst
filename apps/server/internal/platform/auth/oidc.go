@@ -2,10 +2,8 @@ package auth
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"slices"
 	"strings"
@@ -13,10 +11,10 @@ import (
 	"time"
 
 	"github.com/jwx-go/jwkfetch/v4"
-	"github.com/lestrrat-go/httprc/v3"
 	"github.com/lestrrat-go/jwx/v4/jwk"
 	"github.com/lestrrat-go/jwx/v4/jws"
 	"github.com/lestrrat-go/jwx/v4/jwt"
+	"golang.org/x/sync/singleflight"
 
 	"github.com/aedst/server/internal/shared/ids"
 )
@@ -48,15 +46,10 @@ type OIDCConfig struct {
 // caller should treat it as "cannot verify right now" (fail closed).
 var ErrOIDCUnavailable = errors.New("auth: oidc provider unavailable")
 
-const (
-	discoveryRetryBackoff = 5 * time.Second
-	forcedRefreshInterval = time.Minute
-)
-
 // OIDCVerifier validates access tokens from an external OpenID Connect
-// provider, making this server an OIDC resource server. Discovery is lazy
-// (so the server boots while the IdP is down and simply rejects tokens until
-// it is reachable); signing keys are cached and refreshed in the background
+// provider, making this server an OIDC resource server. Discovery is lazy or
+// warmed in the background (Warm), so the server boots while the IdP is down
+// and simply rejects tokens until it is reachable; signing keys are cached and refreshed in the background
 // by jwkfetch, with one rate-limited forced refresh when an unknown key id
 // shows up (key rotation).
 type OIDCVerifier struct {
@@ -67,8 +60,16 @@ type OIDCVerifier struct {
 	mu            sync.Mutex
 	cache         *jwkfetch.Cache
 	jwksURL       string
-	lastAttempt   time.Time
+	lastFailure   time.Time
 	lastForcedRef time.Time
+	closed        bool
+
+	// life is the verifier's own lifetime, never a request's: the JWKS cache's
+	// background refresher and every discovery attempt run on it, and Close
+	// cancels it. inits collapses concurrent first-use discovery into one call.
+	life  context.Context //nolint:containedctx // server-lifetime context owned by the verifier, cancelled by Close
+	stop  context.CancelFunc
+	inits singleflight.Group
 }
 
 func NewOIDCVerifier(cfg OIDCConfig) (*OIDCVerifier, error) {
@@ -88,32 +89,12 @@ func NewOIDCVerifier(cfg OIDCConfig) (*OIDCVerifier, error) {
 	if cfg.RolesClaim == "" {
 		cfg.RolesClaim = "roles"
 	}
-	return &OIDCVerifier{cfg: cfg, http: client, algs: cfg.Algorithms}, nil
+	life, stop := context.WithCancel(context.Background())
+	return &OIDCVerifier{cfg: cfg, http: client, algs: cfg.Algorithms, life: life, stop: stop}, nil
 }
 
 // Issuer returns the configured issuer, for diagnostics.
 func (v *OIDCVerifier) Issuer() string { return v.cfg.Issuer }
-
-// Close stops the background JWKS refresher.
-func (v *OIDCVerifier) Close(ctx context.Context) error {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	if v.cache == nil {
-		return nil
-	}
-	if err := v.cache.Shutdown(ctx); err != nil {
-		return fmt.Errorf("auth: stop jwks cache: %w", err)
-	}
-	return nil
-}
-
-// Ready reports whether discovery and the first JWKS fetch have succeeded;
-// used by /readyz-style diagnostics (not by liveness).
-func (v *OIDCVerifier) Ready() bool {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	return v.cache != nil
-}
 
 // VerifyAccessToken verifies signature, algorithm allow-list, issuer,
 // audience and time claims, then maps the token to Claims.
@@ -162,6 +143,9 @@ func (v *OIDCVerifier) parse(raw string, set jwk.Set) (jwt.Token, error) {
 	token, err := jwt.Parse([]byte(raw),
 		jwt.WithKeySet(set, jws.WithInferAlgorithmFromKey(true)),
 		jwt.WithValidate(true),
+		// jwx validates exp only when present; an access token without one would
+		// never expire, so it is rejected outright.
+		jwt.WithRequiredClaim(jwt.ExpirationKey),
 		jwt.WithIssuer(v.cfg.Issuer),
 		jwt.WithAudience(v.cfg.Audience),
 		jwt.WithAcceptableSkew(v.cfg.ClockSkew),
@@ -170,109 +154,6 @@ func (v *OIDCVerifier) parse(raw string, set jwk.Set) (jwt.Token, error) {
 		return nil, fmt.Errorf("parse: %w", err)
 	}
 	return token, nil
-}
-
-// keySet returns the cached JWKS, performing discovery on first use (and
-// after failures, at most once per discoveryRetryBackoff).
-func (v *OIDCVerifier) keySet(ctx context.Context) (jwk.Set, error) {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-
-	if v.cache == nil {
-		if time.Since(v.lastAttempt) < discoveryRetryBackoff {
-			return nil, ErrOIDCUnavailable
-		}
-		v.lastAttempt = time.Now()
-		if err := v.initLocked(ctx); err != nil {
-			return nil, fmt.Errorf("%w: %w", ErrOIDCUnavailable, err)
-		}
-	}
-	set, err := v.cache.CachedSet(v.jwksURL)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrOIDCUnavailable, err)
-	}
-	return set, nil
-}
-
-func (v *OIDCVerifier) initLocked(ctx context.Context) error {
-	jwksURL := v.cfg.JWKSURL
-	if jwksURL == "" {
-		var err error
-		if jwksURL, err = v.discoverJWKSURL(ctx); err != nil {
-			return err
-		}
-	}
-
-	cache, err := jwkfetch.NewCache(ctx, httprc.NewClient())
-	if err != nil {
-		return fmt.Errorf("new jwks cache: %w", err)
-	}
-	if err := cache.Register(ctx, jwksURL, jwkfetch.WithMinInterval(5*time.Minute), jwkfetch.WithMaxInterval(time.Hour)); err != nil {
-		_ = cache.Shutdown(ctx)
-		return fmt.Errorf("register jwks %s: %w", jwksURL, err)
-	}
-	v.cache, v.jwksURL = cache, jwksURL
-	return nil
-}
-
-func (v *OIDCVerifier) discoverJWKSURL(ctx context.Context) (string, error) {
-	url := strings.TrimRight(v.cfg.Issuer, "/") + "/.well-known/openid-configuration"
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return "", fmt.Errorf("build discovery request: %w", err)
-	}
-	resp, err := v.http.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("discovery request: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("discovery returned %s", resp.Status)
-	}
-
-	var doc struct {
-		Issuer  string `json:"issuer"`
-		JWKSURI string `json:"jwks_uri"`
-	}
-	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&doc); err != nil {
-		return "", fmt.Errorf("decode discovery document: %w", err)
-	}
-	// OIDC Discovery §4.3: the issuer in the document MUST match the URL it
-	// was fetched from, otherwise a hostile document could redirect trust.
-	if strings.TrimRight(doc.Issuer, "/") != strings.TrimRight(v.cfg.Issuer, "/") {
-		return "", fmt.Errorf("discovery issuer %q does not match configured issuer", doc.Issuer)
-	}
-	if doc.JWKSURI == "" {
-		return "", errors.New("discovery document has no jwks_uri")
-	}
-	return doc.JWKSURI, nil
-}
-
-// refreshOnUnknownKey forces at most one JWKS refresh per minute when the token
-// names a key id (kid) the cached set does not hold: the provider rotated its
-// signing key. It decides from the token header and the cached set, not from the
-// wording of a verification error, and the one-per-minute limit means a stream of
-// garbage tokens with random kids cannot turn into a stream of outbound fetches.
-func (v *OIDCVerifier) refreshOnUnknownKey(ctx context.Context, raw string, cached jwk.Set) bool {
-	msg, err := jws.Parse([]byte(raw))
-	if err != nil || len(msg.Signatures()) != 1 {
-		return false
-	}
-	kid, ok := msg.Signatures()[0].ProtectedHeaders().KeyID()
-	if !ok || kid == "" {
-		return false
-	}
-	if _, known := cached.LookupKeyID(kid); known {
-		return false // the key is cached: this failure is not about rotation
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	if v.cache == nil || time.Since(v.lastForcedRef) < forcedRefreshInterval {
-		return false
-	}
-	v.lastForcedRef = time.Now()
-	_, err = v.cache.Refresh(ctx, v.jwksURL)
-	return err == nil
 }
 
 // rolesFromToken reads roles from claim (exact name first, then a dotted

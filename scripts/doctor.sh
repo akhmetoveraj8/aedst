@@ -19,7 +19,7 @@ tool() { # tool <name> <cmd> [version-args...]
 level() { printf '  => %s%s%s\n\n' "$2" "$1" "$z"; }
 os="$(uname -s 2>/dev/null || echo unknown)"
 
-echo "Active profile: ${PROFILE:-core}  (core = server + web + design tokens; PROFILE=full adds android, apple, desktop-rs, which are frozen until their first green CI run)"
+echo "Active profile: ${PROFILE:-core}  (core = server + web + design tokens; PROFILE=full adds android, apple, desktop, which are frozen until their first green CI run)"
 echo
 echo "Repo-wide (always): bash, git, node"
 tool git git --version; tool node node --version; tool pnpm pnpm --version; tool task task --version
@@ -51,10 +51,10 @@ if [[ "$os" == "Darwin" ]] && have xcodebuild; then
   level "build (task apple:generate apple:lint apple:test)" "$g"
 else row xcodebuild "${r}not available${z} (macOS + Xcode 26.6 required)"; level "static only (never built; first tuist generate + xcodebuild is the acceptance test)" "$y"; fi
 
-echo "desktop-rs (Rust + Slint, apps/desktop-rs)"
+echo "desktop (Rust + Slint, apps/desktop)"
 if tool cargo cargo --version; then
   tool rustc rustc --version || true
-  level "tests + build if rustc works (task desktop-rs:lint desktop-rs:test desktop-rs:build); never built in CI yet" "$y"
+  level "tests + build if rustc works (task desktop:lint desktop:test desktop:build); never built in CI yet" "$y"
 else level "static only (never built; first cargo build is the acceptance test)" "$y"; fi
 
 echo "other"
@@ -62,4 +62,4 @@ tool lefthook lefthook version || true
 tool tofu tofu version || true
 tool buf buf --version || true
 echo
-echo "Exact commands per platform: task verify:<server|web|android|apple|desktop-rs>"
+echo "Exact commands per platform: task verify:<server|web|android|apple|desktop>"

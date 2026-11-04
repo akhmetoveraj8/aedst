@@ -7,7 +7,7 @@ description: "Part of the decisions index. Status and verification legends are d
 
 Part of the [decisions index](/decisions). Status and verification legends are defined there.
 
-> **2026-11-01: Desktop moved from Qt 6 / C++23 to Rust + Slint** (owner decision, [ADR-0001](../../../apps/desktop-rs/docs/adr/0001-rust-slint-replaces-qt.md)). The Qt tree was deleted by the owner; `apps/desktop-rs` is the only Desktop app. Status of every row: built and tested on Windows, never compiled on Linux, never run against a real server or identity provider, unless a row says otherwise.
+> **2026-11-01: Desktop moved from Qt 6 / C++23 to Rust + Slint** (owner decision, [ADR-0001](../../../apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md)). The Qt tree was deleted by the owner; `apps/desktop` is the only Desktop app. Status of every row: built and tested on Windows, never compiled on Linux, never run against a real server or identity provider, unless a row says otherwise.
 
 | Decision | Status | Rationale | Revisit when |
 |---|---|---|---|

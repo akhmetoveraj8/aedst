@@ -6,13 +6,14 @@ import { useLocale, useTranslations } from "next-intl";
 import { PriorityBadge } from "@/modules/tasks/ui/PriorityBadge";
 import { StatusBadge } from "@/modules/tasks/ui/StatusBadge";
 import type { Task } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
-import { formatDate } from "@/shared/date/format-date";
+import { formatDate, useDateLocale } from "@/shared/date/format-date";
 import { Link } from "@/shared/i18n/navigation";
 
 /** One row of the task list: title, due date and the priority/status badges. */
 export function TaskListRow({ task }: { task: Task }) {
   const t = useTranslations("tasks.list");
   const locale = useLocale();
+  useDateLocale(locale);
   return (
     <li>
       <Link

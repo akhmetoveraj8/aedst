@@ -3,9 +3,9 @@ name: apple-ci (experimental, non-blocking until first green run)
 on:
   push:
     branches: [main]
-    paths: ["apps/apple/**", ".github/workflows/apple-ci.yml", ".github/actions/apple-codegen/**"]
+    paths: ["apps/apple/**", "apps/server/api/proto/**", ".github/workflows/apple-ci.yml", ".github/actions/apple-codegen/**"]
   pull_request:
-    paths: ["apps/apple/**", ".github/workflows/apple-ci.yml", ".github/actions/apple-codegen/**"]
+    paths: ["apps/apple/**", "apps/server/api/proto/**", ".github/workflows/apple-ci.yml", ".github/actions/apple-codegen/**"]
   workflow_dispatch:
 
 permissions:

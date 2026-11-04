@@ -135,11 +135,11 @@ func (w *Worker) process(ctx context.Context, m domain.Media) error {
 		}
 		return w.store.MarkReady(ctx, m.ID, res.Width, res.Height, 0, nil)
 	case domain.KindVideo:
-		probe, err := w.cfg.FFmpeg.Probe(ctx, path)
+		probe, err := w.cfg.FFmpeg.Probe(ctx, path, m.ContentType)
 		if err != nil {
 			return err
 		}
-		encoded, err := w.cfg.FFmpeg.Poster(ctx, path, probe.DurationMs)
+		encoded, err := w.cfg.FFmpeg.Poster(ctx, path, m.ContentType, probe.DurationMs)
 		if err != nil {
 			return err
 		}
@@ -149,7 +149,7 @@ func (w *Worker) process(ctx context.Context, m domain.Media) error {
 		}
 		return w.store.MarkReady(ctx, m.ID, probe.Width, probe.Height, probe.DurationMs, variants)
 	default: // audio
-		probe, err := w.cfg.FFmpeg.Probe(ctx, path)
+		probe, err := w.cfg.FFmpeg.Probe(ctx, path, m.ContentType)
 		if err != nil {
 			return err
 		}

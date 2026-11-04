@@ -9,7 +9,7 @@ import { useCursorPages } from "@/modules/admin/lib/use-cursor-pages";
 import { type AdminColumn, DataTable } from "@/modules/admin/ui/DataTable";
 import { AdminService } from "@/shared/api/connect/client";
 import type { AuditEntry } from "@/shared/api/connect/generated/aedst/admin/v1/admin_pb";
-import { formatDateTime } from "@/shared/date/format-date";
+import { formatDateTime, useDateLocale } from "@/shared/date/format-date";
 
 const PAGE_SIZE = 50;
 
@@ -17,6 +17,7 @@ const PAGE_SIZE = 50;
 export function AuditLog() {
   const t = useTranslations("admin.audit");
   const locale = useLocale();
+  useDateLocale(locale);
   const pages = useCursorPages();
   const log = useQuery(
     AdminService.method.listAuditLog,

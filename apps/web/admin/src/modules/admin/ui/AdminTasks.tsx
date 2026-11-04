@@ -10,7 +10,7 @@ import { type AdminColumn, DataTable } from "@/modules/admin/ui/DataTable";
 import { AdminService } from "@/shared/api/connect/client";
 import type { AdminTask } from "@/shared/api/connect/generated/aedst/admin/v1/admin_pb";
 import { TaskStatus } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
-import { formatDate } from "@/shared/date/format-date";
+import { formatDate, useDateLocale } from "@/shared/date/format-date";
 import { useDebouncedValue } from "@/shared/lib/hooks/use-debounced-value";
 import { Button } from "@/shared/ui/button";
 import { Field, FieldLabel } from "@/shared/ui/field";
@@ -36,6 +36,7 @@ const STATUS_KEYS: Partial<Record<number, "todo" | "inProgress" | "done">> = {
 export function AdminTasks() {
   const t = useTranslations("admin.tasks");
   const locale = useLocale();
+  useDateLocale(locale);
   const searchId = useId();
   const pages = useCursorPages();
   const query = useDebouncedValue(pages.query.trim(), 300);

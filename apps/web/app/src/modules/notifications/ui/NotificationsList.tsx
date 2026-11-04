@@ -5,7 +5,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useLocale, useTranslations } from "next-intl";
 import { type KeyboardEvent, useRef } from "react";
 import type { Notification } from "@/shared/api/connect/generated/aedst/notifications/v1/notifications_pb";
-import { formatRelative } from "@/shared/date/format-date";
+import { formatRelative, useDateLocale } from "@/shared/date/format-date";
 import { useSentinel } from "@/shared/lib/hooks/use-sentinel";
 import { Button } from "@/shared/ui/button";
 
@@ -41,6 +41,7 @@ export function NotificationsList({
 }: Props) {
   const t = useTranslations("notifications.inbox");
   const locale = useLocale();
+  useDateLocale(locale);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({

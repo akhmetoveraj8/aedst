@@ -4,7 +4,7 @@ version: "3"
 # Taskfile/Makefile/package.json scripts; this file only delegates.
 # apps/server has a Taskfile and is included; the other apps expose
 # Makefile / pnpm / Gradle / CMake entry points, wrapped in namespaced tasks
-# below (web:*, app:*, admin:*, landing:*, android:*, apple:*, desktop-rs:*).
+# below (web:*, app:*, admin:*, landing:*, android:*, apple:*, desktop:*).
 #
 # PROFILE: the aggregate tasks (generate, lint, test, build, check) run the Core
 # profile (server + web + design tokens) by default. Android, Apple and Desktop are
@@ -31,7 +31,7 @@ tasks:
       - task: generate
 
   generate:
-    desc: "Regenerate buf/sqlc outputs and design tokens (Core profile: server, web, tokens; PROFILE=full adds android, apple on macOS, desktop-rs)."
+    desc: "Regenerate buf/sqlc outputs and design tokens (Core profile: server, web, tokens; PROFILE=full adds android, apple on macOS, desktop)."
     cmds:
       - task: server:gen
       - task: web:generate
@@ -47,52 +47,52 @@ tasks:
       - task: apple:generate
 
   lint:
-    desc: Lint the Core profile (server, web); PROFILE=full adds android, apple, desktop-rs (only where the toolchain exists).
+    desc: Lint the Core profile (server, web); PROFILE=full adds android, apple, desktop (only where the toolchain exists).
     cmds:
       - task: server:lint
       - task: web:lint
       - task: lint:frozen
 
   lint:frozen:
-    desc: Lint the frozen platforms (android, apple, desktop-rs). Runs only with PROFILE=full.
+    desc: Lint the frozen platforms (android, apple, desktop). Runs only with PROFILE=full.
     status:
       - '{{if eq (.PROFILE | default "core") "full"}}false{{else}}true{{end}}'
     cmds:
       - task: android:lint
       - task: apple:lint
-      - task: desktop-rs:lint
+      - task: desktop:lint
 
   test:
-    desc: Unit tests of the Core profile (server, web); PROFILE=full adds android, apple, desktop-rs.
+    desc: Unit tests of the Core profile (server, web); PROFILE=full adds android, apple, desktop.
     cmds:
       - task: server:test
       - task: web:test
       - task: test:frozen
 
   test:frozen:
-    desc: Unit tests of the frozen platforms (android, apple, desktop-rs). Runs only with PROFILE=full.
+    desc: Unit tests of the frozen platforms (android, apple, desktop). Runs only with PROFILE=full.
     status:
       - '{{if eq (.PROFILE | default "core") "full"}}false{{else}}true{{end}}'
     cmds:
       - task: android:test
       - task: apple:test
-      - task: desktop-rs:test
+      - task: desktop:test
 
   build:
-    desc: Build the Core profile (server, web); PROFILE=full adds android, apple, desktop-rs (only where the toolchain exists).
+    desc: Build the Core profile (server, web); PROFILE=full adds android, apple, desktop (only where the toolchain exists).
     cmds:
       - task: server:build
       - task: web:build
       - task: build:frozen
 
   build:frozen:
-    desc: Build the frozen platforms (android, apple, desktop-rs). Runs only with PROFILE=full.
+    desc: Build the frozen platforms (android, apple, desktop). Runs only with PROFILE=full.
     status:
       - '{{if eq (.PROFILE | default "core") "full"}}false{{else}}true{{end}}'
     cmds:
       - task: android:build
       - task: apple:build
-      - task: desktop-rs:build
+      - task: desktop:build
 
   audit:status:
     desc: Validate docs/audit/2026-10-08-backlog.md (every item has a status, none skipped) and print counters.
@@ -100,7 +100,7 @@ tasks:
       - node scripts/check-backlog.mjs
 
   check:
-    desc: Cheap static checks (naming, file size, colors, i18n, boundaries, knip, migrations, tokens, infra fmt). Core profile by default; PROFILE=full adds the android, apple and desktop-rs gates.
+    desc: Cheap static checks (naming, file size, colors, i18n, boundaries, knip, migrations, tokens, infra fmt). Core profile by default; PROFILE=full adds the android, apple and desktop gates.
     cmds:
       - task: check:naming
       - task: check:file-size
@@ -164,12 +164,12 @@ tasks:
       - node scripts/check-color-literals.mjs {{.CLI_ARGS}}
 
   check:i18n:
-    desc: i18n key and placeholder parity across web, android, apple and desktop-rs (en, ru, tg, uz, ar). Pass --cross for the cross-platform report.
+    desc: i18n key and placeholder parity across web, android, apple and desktop (en, ru, tg, uz, ar). Pass --cross for the cross-platform report.
     cmds:
       - node scripts/check-i18n-parity.mjs {{.CLI_ARGS}}
 
   check:boundaries:
-    desc: Feature module boundary checks for all platforms (web, android, apple, desktop-rs scripts + server architecturetest).
+    desc: Feature module boundary checks for all platforms (web, android, apple, desktop scripts + server architecturetest).
     cmds:
       - bash scripts/check-boundaries.sh {{.CLI_ARGS}}
 
@@ -216,6 +216,11 @@ tasks:
     cmds:
       - bash scripts/check-hooks.sh
 
+  test:scripts:
+    desc: Tests of the repo scripts (template-new per profile on repo copies, new-module, docs, features shape, backlog). Slow; CI runs them in policies-ci.
+    cmds:
+      - node --test scripts/test/template-new.test.mjs scripts/new-module.test.mjs scripts/check-docs.test.mjs scripts/test/check-features-shape.test.mjs scripts/test/check-backlog.test.mjs
+
   doctor:
     desc: "Print the active profile (PROFILE, default core) and detect installed toolchains: which verification level (static / tests / build) is possible per platform."
     cmds:
@@ -254,15 +259,15 @@ tasks:
       - |
         echo "task apple:generate apple:lint apple:test apple:build   # macOS only; Tuist install/generate and xcodebuild"
         echo "then launch the app in a simulator"
-  verify:desktop-rs:
+  verify:desktop:
     desc: Print the commands that verify the Rust + Slint Desktop app (cargo, Windows or Linux).
     silent: true
     cmds:
       - |
-        echo "rustup toolchain install <version in apps/desktop-rs/rust-toolchain.toml>"
-        echo "task desktop-rs:lint desktop-rs:test desktop-rs:build   # rustfmt, clippy -D warnings, cargo test, cargo build"
-        echo "task desktop-rs:deny                                    # needs: cargo install --locked cargo-deny@0.20.2"
-        echo "Linux needs Slint system libraries (fontconfig, xkbcommon, wayland): UNVERIFIED list, see desktop-rs-ci.yml"
+        echo "rustup toolchain install <version in apps/desktop/rust-toolchain.toml>"
+        echo "task desktop:lint desktop:test desktop:build   # rustfmt, clippy -D warnings, cargo test, cargo build"
+        echo "task desktop:deny                                    # needs: cargo install --locked cargo-deny@0.20.2"
+        echo "Linux needs Slint system libraries (fontconfig, xkbcommon, wayland): UNVERIFIED list, see desktop-ci.yml"
   deps:update:
     desc: Update every platform to the latest stable dependencies (pass platforms as CLI_ARGS, e.g. `task deps:update -- server web`).
     cmds:
@@ -548,37 +553,37 @@ tasks:
     dir: apps/apple
     cmds: [make format]
 
-  # --- desktop-rs (Rust + Slint, ADR apps/desktop-rs/docs/adr/0001; needs cargo) ---
-  desktop-rs:fmt:
+  # --- desktop (Rust + Slint, ADR apps/desktop/docs/adr/0001; needs cargo) ---
+  desktop:fmt:
     desc: Format the Rust workspace with rustfmt.
-    dir: apps/desktop-rs
+    dir: apps/desktop
     cmds:
       - cargo fmt
-  desktop-rs:lint:
+  desktop:lint:
     desc: rustfmt --check and clippy -D warnings over the Rust desktop workspace; prints SKIPPED without cargo.
-    dir: apps/desktop-rs
+    dir: apps/desktop
     cmds:
       - |
-        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (desktop-rs:lint)"; exit 0; }
+        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (desktop:lint)"; exit 0; }
         cargo fmt --check
         cargo clippy --workspace --all-targets -- -D warnings
-  desktop-rs:test:
+  desktop:test:
     desc: Unit and integration tests of the Rust desktop workspace; prints SKIPPED without cargo.
-    dir: apps/desktop-rs
+    dir: apps/desktop
     cmds:
       - |
-        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (desktop-rs:test)"; exit 0; }
+        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (desktop:test)"; exit 0; }
         cargo test --workspace
-  desktop-rs:build:
+  desktop:build:
     desc: Build the Rust desktop workspace (debug, or RELEASE=1); prints SKIPPED without cargo.
-    dir: apps/desktop-rs
+    dir: apps/desktop
     cmds:
       - |
-        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (desktop-rs:build)"; exit 0; }
+        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (desktop:build)"; exit 0; }
         cargo build --workspace {{if .RELEASE}}--release{{end}}
-  desktop-rs:deny:
+  desktop:deny:
     desc: cargo-deny (licenses, advisories, bans, sources); prints SKIPPED when cargo-deny is missing.
-    dir: apps/desktop-rs
+    dir: apps/desktop
     cmds:
       - |
         command -v cargo-deny >/dev/null 2>&1 || { echo "SKIPPED: cargo-deny not installed (cargo install --locked cargo-deny@0.20.2)"; exit 0; }

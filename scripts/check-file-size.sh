@@ -58,7 +58,7 @@ platform_of() {
     apps/web/*) echo web ;;
     apps/android/*) echo android ;;
     apps/apple/*) echo apple ;;
-    apps/desktop-rs/*) echo desktop ;;
+    apps/desktop/*) echo desktop ;;
     *) echo root ;;
   esac
 }

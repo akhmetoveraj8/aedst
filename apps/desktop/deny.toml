@@ -1,4 +1,4 @@
-# cargo-deny policy for the Rust desktop app (task desktop-rs:deny, CI job `deny`).
+# cargo-deny policy for the Rust desktop app (task desktop:deny, CI job `deny`).
 # Adding a license or an exception needs a line in docs/content/library-first/desktop.md in the same change.
 
 [graph]

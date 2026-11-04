@@ -7,7 +7,7 @@ import Testing
 // Contract: the proto files in apps/server/api/proto (source of truth for Web, Server,
 // Android, Desktop and this app) vs the connect-swift client generated from them
 // (`make generate`, gitignored). Mirrors apps/web's mock-api contract test and
-// apps/desktop-rs's aedst-contract tests (tests/generated.rs).
+// apps/desktop's aedst-contract tests (tests/generated.rs).
 //
 // Generated naming (connect-swift 1.2.3, ConnectClientGenerator.printSpecs, option
 // GenerateServiceMetadata defaults to true):

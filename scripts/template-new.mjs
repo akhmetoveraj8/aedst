@@ -86,7 +86,7 @@ function gitDirty(root) {
   try {
     return execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim() !== '';
   } catch {
-    return false;
+    return true; // fail closed: an unreadable status must not allow --in-place
   }
 }
 
@@ -205,7 +205,7 @@ function print(r, args, profile, names, dry, where) {
     `deleted ${r.deleted.length} files; edited ${r.edits.length} shared-file ops; unlinked ${r.unlinked} doc links`,
     `renamed external identifiers: ${r.renamed.edited} files edited, ${r.renamed.moved} paths moved`,
     `names: display="${names.display}" slug=${names.slug} id=${names.id} cookie=${names.snake}_session org=${names.org} domain=${names.domainBase}.{com,dev,app,example}`,
-    'kept (internal codename): proto packages aedst.*, Go import path, Aedst* types, QML URI, AEDST_ env prefix',
+    'kept (internal codename): proto packages aedst.*, Go import path, Aedst* types, AEDST_ env prefix',
   ];
   if (r.verbose) lines.push(...r.edits.map((e) => `  ${e}`));
   if (r.warnings.length) lines.push('warnings:', ...r.warnings.map((w) => `  ${w}`));

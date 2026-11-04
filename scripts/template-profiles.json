@@ -19,6 +19,7 @@
   "perPlatform": [
     { "file": "Taskfile.yml", "op": "dropBlocks", "indent": 2, "key": "^(${p}:|verify:${p}$)" },
     { "file": "Taskfile.yml", "op": "dropLines", "pattern": "^\\s*-\\s+task:\\s+${p}:" },
+    { "file": "Taskfile.yml", "op": "dropLines", "pattern": "^\\s*-\\s+bash\\s+apps/${p}/" },
     { "file": "lefthook.yml", "op": "dropBlocks", "indent": 4, "key": "^${p}-", "bodyMatch": "apps/${p}/" },
     { "file": ".github/CODEOWNERS", "op": "dropLines", "pattern": "^\\s*/?(apps/${p}|docs/content/${p})\\b" },
     { "file": ".gitignore", "op": "dropLines", "pattern": "(^|[!/ ])apps/${p}\\b|^# --- added: ${p}\\b" },
@@ -29,7 +30,7 @@
     { "globs": ["AGENTS.md", "docs/agent/rules.md"], "op": "dropLines", "pattern": "^\\s*[-*]\\s+\\**${P}\\**:" },
     { "globs": ["docs/**/_meta.ts"], "op": "dropLines", "pattern": "^\\s*\"?(\\d+-)?${p}(-[\\w-]*)?\"?\\s*:" },
     { "globs": [".github/workflows/*.yml"], "op": "dropLines", "pattern": "^\\s*-\\s*[\"']?(\\./)?apps/${p}\\b" },
-    { "globs": ["@markdown"], "op": "dropLines", "pattern": "^\\|\\s*(\\*\\*)?\\[?${P}\\]?(\\*\\*)?\\s*\\|" },
+    { "globs": ["@markdown"], "op": "dropLines", "pattern": "^\\|\\s*(\\*\\*)?\\[?${P}\\]?(\\*\\*)?(\\s*\\([^|]*\\))?\\s*\\|" },
     { "file": ".github/PULL_REQUEST_TEMPLATE.md", "op": "dropMarkdownSections", "heading": "\\b${P}\\b" },
     { "file": "scripts/check-docs.allowlist", "op": "appendLines", "lines": ["", "# template:new removed ${p}: scripts and docs still mention its paths in branches and comments.", "paths apps/${p}", "paths apps/${p}/**", "prompts apps/${p}/**", "links apps/${p}/**"] }
   ],
@@ -82,7 +83,7 @@
     "desktop": {
       "label": "Desktop",
       "delete": [
-        "apps/desktop-rs",
+        "apps/desktop",
         ".github/workflows/ai-review-desktop.yml",
         ".github/workflows/desktop-*.yml",
         ".github/ISSUE_TEMPLATE/desktop-*.yml",
@@ -93,10 +94,10 @@
         "docs/agent/review/desktop.md"
       ],
       "ops": [
-        { "file": "lefthook.yml", "op": "dropBlocks", "indent": 4, "key": "^desktop-rs-" }
+        { "file": "lefthook.yml", "op": "dropBlocks", "indent": 4, "key": "^desktop-" }
       ],
       "extUnused": ["rs", "slint"],
-      "renovate": { "managers": ["cargo"], "packageNames": [], "topLevelKeys": ["cargo"], "pathPrefixes": ["apps/desktop-rs"] }
+      "renovate": { "managers": ["cargo"], "packageNames": [], "topLevelKeys": ["cargo"], "pathPrefixes": ["apps/desktop"] }
     }
   },
   "finalize": {

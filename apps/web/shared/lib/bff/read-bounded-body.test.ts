@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { readBoundedBody } from "@/app/api/rpc/read-bounded-body";
+import { readBoundedBody } from "@/shared/lib/bff/read-bounded-body";
 
 function chunked(chunks: Uint8Array[]): Request {
   const stream = new ReadableStream<Uint8Array>({

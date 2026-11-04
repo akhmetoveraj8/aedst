@@ -9,7 +9,7 @@
 #                    as web-app / web-admin / web-landing / web-shared so the Stop gate lints the right project(s).
 #   apps/android  -> ktlint -F
 #   apps/apple    -> swift-format format -i
-#   apps/desktop-rs -> rustfmt (single file, best effort)
+#   apps/desktop -> rustfmt (single file, best effort)
 #
 # Formatting never fails an edit: every branch except biome's report is best effort and exits 0.
 set -uo pipefail
@@ -33,7 +33,7 @@ case "$rel" in
   apps/web/*) app=web-shared ;;
   apps/android/*) app=android ;;
   apps/apple/*) app=apple ;;
-  apps/desktop-rs/*) app=desktop ;;
+  apps/desktop/*) app=desktop ;;
   *) exit 0 ;;
 esac
 
@@ -79,7 +79,7 @@ case "$app" in
     ;;
   desktop)
     case "$rel" in
-      *.rs) command -v rustfmt >/dev/null 2>&1 && (cd "$ROOT/apps/desktop-rs" && rustfmt --edition 2024 "$abs" >/dev/null 2>&1) ;; esac
+      *.rs) command -v rustfmt >/dev/null 2>&1 && (cd "$ROOT/apps/desktop" && rustfmt --edition 2024 "$abs" >/dev/null 2>&1) ;; esac
     ;;
 esac
 

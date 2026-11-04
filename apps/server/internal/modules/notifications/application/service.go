@@ -23,6 +23,7 @@ type Service struct {
 	repo    Repository
 	clock   sharedtime.Clock
 	webPush string
+	devices domain.DevicePolicy
 }
 
 // Option customises Service.
@@ -30,6 +31,12 @@ type Option func(*Service)
 
 // WithWebPushPublicKey publishes the VAPID public key through GetWebPushConfig.
 func WithWebPushPublicKey(key string) Option { return func(s *Service) { s.webPush = key } }
+
+// WithWebPushHosts replaces the allow-list of Web Push service hosts a device
+// may register (AEDST_PUSH_WEBPUSH_HOSTS); empty keeps domain.DefaultWebPushHosts.
+func WithWebPushHosts(hosts []string) Option {
+	return func(s *Service) { s.devices.WebPushHosts = hosts }
+}
 
 func NewService(repo Repository, clock sharedtime.Clock, opts ...Option) *Service {
 	s := &Service{repo: repo, clock: clock}
@@ -71,7 +78,7 @@ func (s *Service) MarkAllRead(ctx context.Context, userID ids.ID) (int, error) {
 
 // RegisterPushDevice registers (or refreshes) one installation's push channel.
 func (s *Service) RegisterPushDevice(ctx context.Context, userID ids.ID, platform domain.Platform, token, endpoint, p256dh, auth, apnsTopic string, apnsSandbox bool, name, locale string) (ids.ID, error) {
-	device, err := domain.NewDevice(userID, platform, token, endpoint, p256dh, auth, apnsTopic, apnsSandbox, name, locale, s.clock.Now())
+	device, err := s.devices.NewDevice(userID, platform, token, endpoint, p256dh, auth, apnsTopic, apnsSandbox, name, locale, s.clock.Now())
 	if err != nil {
 		return ids.Nil, err
 	}

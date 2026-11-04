@@ -140,7 +140,7 @@ for (const profile of Object.keys(PROFILES)) {
       const features = parse('features.yaml');
       assert.deepEqual(Object.keys(features.platforms).sort(), ['server', 'web', ...kept].sort());
       const rn = JSON.parse(read(dir, 'renovate.json'));
-      for (const m of removed.flatMap((p) => PROFILES && ({ android: ['gradle'], apple: ['swift', 'bundler'], desktop: ['vcpkg'] })[p])) assert.ok(!(rn.enabledManagers ?? []).includes(m), `renovate still enables ${m}`);
+      for (const m of removed.flatMap((p) => PROFILES && ({ android: ['gradle'], apple: ['swift', 'bundler'], desktop: ['cargo'] })[p])) assert.ok(!(rn.enabledManagers ?? []).includes(m), `renovate still enables ${m}`);
     });
 
     test('Taskfile is accepted by go-task (when installed)', (t) => {
@@ -185,7 +185,8 @@ for (const profile of Object.keys(PROFILES)) {
       assert.match(read(dir, 'apps/server/go.mod'), /^module github\.com\/aedst\//m, 'Go import path is the permanent codename');
       assert.ok(fs.readdirSync(path.join(dir, 'apps/server/api/proto')).includes('aedst'), 'proto packages keep aedst.*');
       assert.ok(exists(dir, 'apps/server/deployments/helm/acme-cloud-server'), 'Helm chart directory renamed');
-      assert.match(read(dir, 'apps/web/shared/lib/auth/session-cookies.ts'), /acme_cloud_session/);
+      // The cookie base name is configuration (AUTH_COOKIE_NAME), so it is renamed where it is set.
+      assert.match(read(dir, 'apps/web/app/.env.example'), /^AUTH_COOKIE_NAME=acme_cloud_session$/m);
       assert.match(read(dir, 'apps/web/app/src/app/config/seo.ts'), /name: "Acme Cloud"/);
     });
   });

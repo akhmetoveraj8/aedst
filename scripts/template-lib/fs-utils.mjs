@@ -4,16 +4,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const FALLBACK_SKIP = new Set([
-  '.git', 'node_modules', '.next', 'build', '.gradle', '.build', 'vcpkg_installed', 'Pods', 'DerivedData', '.idea', 'worktrees',
+  '.git', 'node_modules', '.next', 'build', '.gradle', '.build', 'target', 'Pods', 'DerivedData', '.idea', 'worktrees',
 ]);
 
 // Local tool output that is untracked-but-not-ignored in some checkouts; never part of a template.
 const JUNK = /(^|\/)(\.vitest|test-results|playwright-report|\.claude\/worktrees)\//;
 
-/** Repo-relative POSIX paths of every source file (tracked + untracked, not ignored). */
+/** Repo-relative POSIX paths of every tracked file: untracked local leftovers never reach a product. */
 export function listSourceFiles(root) {
   try {
-    const out = execFileSync('git', ['ls-files', '-co', '--exclude-standard', '-z'], {
+    const out = execFileSync('git', ['ls-files', '-c', '-z'], {
       cwd: root, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],
     });
     const files = out.split('\0').filter(Boolean);

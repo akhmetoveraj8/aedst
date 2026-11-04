@@ -18,7 +18,7 @@ indent_style = tab
 trim_trailing_whitespace = false
 
 # Native platforms: 4 spaces, matching their formatters (apps/apple/.swift-format
-# "indentation.spaces": 4, rustfmt on apps/desktop-rs (4 spaces), apps/android/.editorconfig
+# "indentation.spaces": 4, rustfmt on apps/desktop (4 spaces), apps/android/.editorconfig
 # indent_size = 4 for ktlint). Web, server, docs and config files keep the 2-space default above.
 [*.{swift,kt,kts,rs,slint}]
 indent_size = 4

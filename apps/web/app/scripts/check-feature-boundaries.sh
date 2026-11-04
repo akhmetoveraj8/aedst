@@ -27,7 +27,7 @@
 # Mirrors the feature-boundary checks on Android/Apple/Desktop:
 #   apps/android/scripts/check-feature-boundaries.sh
 #   apps/apple/scripts/check-feature-boundaries.sh
-#   a desktop-rs boundaries script (not written yet)
+#   a desktop boundaries script (not written yet)
 set -euo pipefail
 
 cd "${AEDST_WEB_ROOT:-$(dirname "$0")/..}"

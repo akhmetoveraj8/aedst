@@ -5,7 +5,7 @@ description: Every hand-written security-relevant piece of the Desktop client, i
 
 # Desktop custom code register
 
-Library-First says: write custom code only for a documented reason. This page lists the **hand-written, security-relevant** parts of `apps/desktop-rs`, because that is where a mistake costs the most. Libraries do the rest (`connectrpc`, `openidconnect`, `keyring-core`, `velopack`, `ed25519-dalek`).
+Library-First says: write custom code only for a documented reason. This page lists the **hand-written, security-relevant** parts of `apps/desktop`, because that is where a mistake costs the most. Libraries do the rest (`connectrpc`, `openidconnect`, `keyring-core`, `velopack`, `ed25519-dalek`).
 
 **Honesty.** Tests passed on Windows (see the status in [Architecture](/desktop/architecture)). Nothing ran on Linux or against a real server or identity provider. "Covered by" names tests; the first real run and an external review are the acceptance tests.
 

@@ -188,12 +188,11 @@ func TestDomain_SniffAndFilename(t *testing.T) {
 	cases := map[[2]string]bool{
 		{"image/png", "image/png"}:                  true,
 		{"image/png", "text/html; charset=utf-8"}:   false,
-		{"video/quicktime", "video/mp4"}:            true,
 		{"text/plain", "text/plain; charset=utf-8"}: true,
 		{"application/pdf", "text/plain"}:           false,
 	}
 	for in, want := range cases {
-		if got := domain.SniffMatches(in[0], in[1]); got != want {
+		if got := domain.SniffMatches(in[0], in[1], nil); got != want {
 			t.Errorf("SniffMatches(%q, %q) = %v", in[0], in[1], got)
 		}
 	}

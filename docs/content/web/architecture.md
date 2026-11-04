@@ -1,12 +1,12 @@
 ---
 title: "Web Architecture"
-description: "apps/web is the parity source of truth the three native clients (apps/android, apps/apple, apps/desktop-rs) are built to match — see architecture-android.md,..."
+description: "apps/web is the parity source of truth the three native clients (apps/android, apps/apple, apps/desktop) are built to match — see architecture-android.md,..."
 ---
 
 # Web Architecture
 
 `apps/web` is a workspace of three Next.js projects (`app`, `admin`, `landing`) and a source-only `shared` kit; see [Web projects](/web/projects) for who owns what. The product app (`apps/web/app`) is the parity source of truth the three native clients
-(`apps/android`, `apps/apple`, `apps/desktop-rs`) are built to match — see
+(`apps/android`, `apps/apple`, `apps/desktop`) are built to match — see
 [architecture-android.md](/android/architecture), [architecture-apple.md](/apple/architecture),
 and [architecture-desktop.md](/desktop/architecture), each of which documents
 its own translation of this app's module/boundary shape. This doc covers
@@ -136,7 +136,7 @@ browser ──same-origin──▶ Next.js server ──API_BASE_URL──▶ ap
 - **Refresh.** The OIDC `refresh_token` grant. `proxy.ts` rotates an expired access token before render (Server Components cannot set cookies); `/api/rpc` does the same for client requests. Refresh is single-flight per token in each process, and an ID token on a refresh response is signature-verified like the login one (a forged one ends the session). Across replicas the first `invalid_grant` for a token is treated as a lost rotation race: the request counts as signed out but the refresh cookie is left alone, and only the same token still refused 15 s later clears them; `invalid_token`/`unauthorized_client` clear immediately; an IdP outage never does. The client then shows a toast and redirects to `/?next=<where you were>`.
 - **Route protection.** `proxy.ts` redirects anonymous visitors from `/[locale]/tasks/**` to `/[locale]?next=…` and signed-in visitors away from the login page. `next` is validated by `safeRedirectPath`.
 - **CSRF.** The logout Server Action carries Next's Origin check; `/api/rpc` requires a same-origin `Origin`, rejects cross-site `Sec-Fetch-Site` and no longer proxies `AuthService` at all. The login flow is bound to the browser by the sealed state/PKCE cookie, so a forged callback is refused.
-- **Server data.** `createRpcPrefetcher()` + `HydrationBoundary` (see `modules/tasks/ui/TasksSections.tsx`); sections stream independently through `<Suspense>`. Server and browser transports share a static query key so hydrated data is found.
+- **Server data.** `createRpcPrefetcher()` + `HydrationBoundary` (see `modules/tasks/ui/TaskListSection.tsx` and its siblings, imported by pages through `modules/tasks/entries/*` so a route loads only its own section); sections stream independently through `<Suspense>`. Server and browser transports share a static query key so hydrated data is found.
 - **URL state.** The task list's filters, sort, search and page cursors are nuqs parsers shared by server and client.
 - **Errors.** Unauthenticated responses are handled globally in `QueryProvider`; other mutation errors toast (opt out per mutation with `meta: { silent: true }` when it renders its own error); unexpected errors go to Sentry with breadcrumbs. Trace headers flow browser → `/api/rpc` → apps/server.
 - **Privacy.** Measurement (PostHog analytics + flags, Sentry Replay) is opt-in via the `aedst_consent` cookie. Session replay is Sentry-only; PostHog session recording is disabled.

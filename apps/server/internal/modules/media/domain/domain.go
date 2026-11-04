@@ -3,6 +3,7 @@
 package domain
 
 import (
+	"encoding/binary"
 	"mime"
 	"path"
 	"strings"
@@ -195,10 +196,10 @@ func SanitizeFilename(name string) (string, error) {
 }
 
 // SniffMatches reports whether the content type sniffed from the object's
-// first bytes (http.DetectContentType) is consistent with what the client
-// declared. Sniffing recognises fewer formats than the allow-list, so the
-// check is by family where the sniffer is coarse.
-func SniffMatches(declared, sniffed string) bool {
+// first bytes (head, sniffed = http.DetectContentType(head)) is consistent
+// with what the client declared. Sniffing recognises fewer formats than the
+// allow-list, so the check is by family where the sniffer is coarse.
+func SniffMatches(declared, sniffed string, head []byte) bool {
 	sniffed, _ = NormalizeContentType(sniffed)
 	switch declared {
 	case "image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf", "video/webm", "audio/wav":
@@ -207,8 +208,10 @@ func SniffMatches(declared, sniffed string) bool {
 		}
 		return sniffed == declared
 	case "video/mp4", "video/quicktime", "audio/mp4":
-		// ISO BMFF: the sniffer reports video/mp4 for every ftyp brand.
-		return sniffed == "video/mp4" || sniffed == "application/octet-stream"
+		// The sniffer reports video/mp4 only for "mp4*" brands (a QuickTime
+		// "qt  " file sniffs as octet-stream), so the ISO BMFF ftyp box is
+		// checked directly: these files go to ffmpeg, never on a coarse guess.
+		return hasFtypBox(head)
 	case "audio/mpeg":
 		return sniffed == "audio/mpeg" || sniffed == "application/octet-stream"
 	case "audio/ogg":
@@ -219,6 +222,17 @@ func SniffMatches(declared, sniffed string) bool {
 		return sniffed == "text/plain"
 	}
 	return false
+}
+
+// hasFtypBox reports whether head starts with an ISO BMFF (MP4/QuickTime)
+// file-type box: a 32-bit size of at least 16 bytes (size, type, major brand,
+// minor version), a multiple of 4, followed by the type "ftyp".
+func hasFtypBox(head []byte) bool {
+	if len(head) < 16 || string(head[4:8]) != "ftyp" {
+		return false
+	}
+	size := binary.BigEndian.Uint32(head[:4])
+	return size >= 16 && size%4 == 0
 }
 
 func isHex(s string, n int) bool {
