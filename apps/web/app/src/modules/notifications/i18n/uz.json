@@ -1,0 +1,48 @@
+{
+  "bell": {
+    "label": "Bildirishnomalar",
+    "labelWithCount": "Bildirishnomalar, {count, plural, one {# o‘qilmagan} other {# o‘qilmagan}}"
+  },
+  "inbox": {
+    "title": "Bildirishnomalar",
+    "preferences": "Sozlamalar",
+    "markAllRead": "Hammasini o‘qilgan deb belgilash",
+    "filterLabel": "Ko‘rsatish",
+    "all": "Hammasi",
+    "unread": "O‘qilmagan",
+    "listLabel": "Bildirishnomalar",
+    "unreadMarker": "O‘qilmagan",
+    "emptyTitle": "Yangi bildirishnoma yo‘q",
+    "emptyDescription": "Yangi bildirishnomalar shu yerda paydo bo‘ladi.",
+    "errorTitle": "Bildirishnomalarni yuklab bo‘lmadi",
+    "retry": "Qayta urinish",
+    "loadMore": "Yana ko‘rsatish"
+  },
+  "preferences": {
+    "title": "Bildirishnoma sozlamalari",
+    "metaTitle": "Bildirishnoma sozlamalari",
+    "kindsTitle": "Nimalar haqida xabar berish",
+    "toggles": {
+      "pushEnabled": "Push-bildirishnomalar",
+      "taskCompleted": "Vazifa bajarildi",
+      "taskDueSoon": "Vazifa muddati yaqin",
+      "mediaReady": "Yuklangan fayl qayta ishlandi"
+    },
+    "saved": "Sozlamalar saqlandi",
+    "loadError": "Sozlamalarni yuklab bo‘lmadi.",
+    "retry": "Qayta urinish"
+  },
+  "push": {
+    "title": "Ushbu qurilmadagi push-bildirishnomalar",
+    "checking": "Brauzer tekshirilmoqda…",
+    "unsupported": "Bu brauzer push-bildirishnomalarni qo‘llab-quvvatlamaydi.",
+    "requiresInstall": "iPhone va iPad’da avval ilovani bosh ekranga o‘rnating («Ulashish» → «Bosh ekranga qo‘shish»), so‘ng bu yerda yoqing.",
+    "notConfigured": "Serverda push-bildirishnomalar sozlanmagan.",
+    "blocked": "Bu sayt uchun bildirishnomalar bloklangan. Ularni brauzerning sayt sozlamalarida ruxsat bering.",
+    "off": "Ilova yopiq bo‘lsa ham ushbu qurilmada xabar oling.",
+    "on": "Ushbu qurilmada push-bildirishnomalar yoqilgan.",
+    "enable": "Yoqish",
+    "disable": "O‘chirish",
+    "failed": "Push-bildirishnomalarni o‘zgartirib bo‘lmadi. Qaytadan urinib ko‘ring."
+  }
+}

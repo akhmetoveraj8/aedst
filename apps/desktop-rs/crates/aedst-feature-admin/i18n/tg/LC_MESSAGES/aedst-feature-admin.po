@@ -1,0 +1,202 @@
+# aedst-feature-admin: Admin screen strings (tg).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-admin\n"
+"Language: tg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Overview"
+msgstr "Шарҳ"
+
+msgid "Tasks"
+msgstr "Вазифаҳо"
+
+msgid "Audit log"
+msgstr "Сабти аудит"
+
+msgid "Broadcast"
+msgstr "Паёми умумӣ"
+
+msgid "Owner id"
+msgstr "Идентификатори соҳиб"
+
+msgid "Show only the tasks of one owner (id)"
+msgstr "Танҳо вазифаҳои як соҳибро нишон диҳед (id)"
+
+msgid "Apply"
+msgstr "Татбиқ кардан"
+
+msgid "Administration"
+msgstr "Маъмурият"
+
+msgid "No access"
+msgstr "Дастрасӣ нест"
+
+msgid "This screen is for operators only."
+msgstr "Ин экран танҳо барои операторҳост."
+
+msgid "Loading..."
+msgstr "Бор шуда истодааст..."
+
+msgid "Could not load"
+msgstr "Бор карда нашуд"
+
+msgid "Try again"
+msgstr "Боз кӯшиш кунед"
+
+msgid "Nothing to show here."
+msgstr "Дар ин ҷо ҳоло ҳеҷ чиз нест."
+
+msgid "Load more"
+msgstr "Бештар бор кардан"
+
+msgid "Owner: {}"
+msgstr "Соҳиб: {}"
+
+msgid "Delete"
+msgstr "Нест кардан"
+
+msgid "Target: {}"
+msgstr "Объект: {}"
+
+msgid "By: {}"
+msgstr "Аз ҷониби: {}"
+
+msgid "Delete task \"{}\"?"
+msgstr "Вазифаи \"{}\" нест карда шавад?"
+
+msgid "The reason is recorded in the audit log (3 to 500 characters)."
+msgstr "Сабаб дар сабти аудит навишта мешавад (аз 3 то 500 аломат)."
+
+msgid "Reason for deleting"
+msgstr "Сабаби нест кардан"
+
+msgid "Reason"
+msgstr "Сабаб"
+
+msgid "Deleting..."
+msgstr "Нест карда истодааст..."
+
+msgid "Delete task"
+msgstr "Нест кардани вазифа"
+
+msgid "Cancel"
+msgstr "Бекор кардан"
+
+msgid "Recipient id"
+msgstr "Идентификатори гиранда"
+
+msgid "Recipient id (empty: everyone)"
+msgstr "Идентификатори гиранда (холӣ: ҳама)"
+
+msgid "Title"
+msgstr "Сарлавҳа"
+
+msgid "Message"
+msgstr "Паём"
+
+msgid "Link"
+msgstr "Истинод"
+
+msgid "Link (optional, for example /tasks)"
+msgstr "Истинод (ихтиёрӣ, масалан /tasks)"
+
+msgid "Sent. Recipients reached: {}"
+msgstr "Фиристода шуд. Шумораи гирандагон: {}"
+
+msgid "Sending..."
+msgstr "Фиристода истодааст..."
+
+msgid "Send notification"
+msgstr "Фиристодани огоҳинома"
+
+msgid "You are offline."
+msgstr "Шумо ба шабака пайваст нестед."
+
+msgid "The server is not available right now."
+msgstr "Сервер ҳоло дастнорас аст."
+
+msgid "The request took too long."
+msgstr "Дархост хеле тӯл кашид."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "Дархостҳо аз ҳад зиёданд. Баъд аз лаҳзае боз кӯшиш кунед."
+
+msgid "Please sign in again."
+msgstr "Лутфан, бори дигар ворид шавед."
+
+msgid "You do not have access to this."
+msgstr "Шумо ба ин дастрасӣ надоред."
+
+msgid "This item no longer exists."
+msgstr "Ин ҷузъ дигар вуҷуд надорад."
+
+msgid "The server did not accept this input."
+msgstr "Сервер ин маълумотро қабул накард."
+
+msgid "This item was changed elsewhere."
+msgstr "Ин ҷузъ дар ҷои дигар тағйир дода шуд."
+
+msgid "Please update the app to continue."
+msgstr "Барои идома додан барномаро навсозӣ кунед."
+
+msgid "Something went wrong."
+msgstr "Чизе нодуруст рафт."
+
+msgid "Enter a valid user id or leave it empty."
+msgstr "Идентификатори дурусти корбарро ворид кунед ё майдонро холӣ монед."
+
+msgid "Enter a title."
+msgstr "Сарлавҳаро ворид кунед."
+
+msgid "The title is too long (120 characters at most)."
+msgstr "Сарлавҳа хеле дароз аст (на зиёда аз 120 аломат)."
+
+msgid "The message is too long (1000 characters at most)."
+msgstr "Паём хеле дароз аст (на зиёда аз 1000 аломат)."
+
+msgid "The link must be an in-app path such as /tasks."
+msgstr "Истинод бояд роҳи дохили барнома бошад, масалан /tasks."
+
+msgid "Enter a reason (3 characters at least)."
+msgstr "Сабабро ворид кунед (ақаллан 3 аломат)."
+
+msgid "The reason is too long (500 characters at most)."
+msgstr "Сабаб хеле дароз аст (на зиёда аз 500 аломат)."
+
+msgid "To do"
+msgstr "Бояд иҷро шавад"
+
+msgid "In progress"
+msgstr "Дар ҷараён"
+
+msgid "Done"
+msgstr "Иҷро шуд"
+
+msgid "Unknown"
+msgstr "Номаълум"
+
+msgid "Tasks done"
+msgstr "Вазифаҳои иҷрошуда"
+
+msgid "Tasks overdue"
+msgstr "Вазифаҳои гузашта"
+
+msgid "Media files"
+msgstr "Файлҳои медиа"
+
+msgid "Media size"
+msgstr "Ҳаҷми медиа"
+
+msgid "Push devices"
+msgstr "Дастгоҳҳои push"
+
+msgid "Oldest waiting job (seconds)"
+msgstr "Кӯҳнатарин кори интизор (сонияҳо)"
+
+msgid "Jobs pending"
+msgstr "Корҳо дар навбат"

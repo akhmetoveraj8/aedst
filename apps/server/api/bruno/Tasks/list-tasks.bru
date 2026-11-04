@@ -1,0 +1,37 @@
+meta {
+  name: List Tasks
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/aedst.tasks.v1.TasksService/ListTasks
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "statuses": [],
+    "priorities": [],
+    "search": "",
+    "sortBy": "TASK_SORT_FIELD_CREATED_AT",
+    "sortDirection": "SORT_DIRECTION_DESC",
+    "pageSize": 20,
+    "pageToken": ""
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Empty `statuses`/`priorities` means "any" — see tasks.proto's
+  ListTasksRequest doc comment. Only returns the caller's own tasks
+  regardless of what's in the database.
+}

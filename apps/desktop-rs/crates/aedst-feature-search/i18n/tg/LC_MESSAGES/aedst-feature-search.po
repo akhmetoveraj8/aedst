@@ -1,0 +1,94 @@
+# aedst-feature-search: Search screen strings (tg).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-search\n"
+"Language: tg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You are offline. Search needs a connection."
+msgstr "Шумо офлайн ҳастед. Барои ҷустуҷӯ пайвастшавӣ лозим аст."
+
+msgid "The server is not available right now."
+msgstr "Сервер ҳоло дастнорас аст."
+
+msgid "The request took too long."
+msgstr "Дархост хеле дароз кашид."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "Дархостҳо аз ҳад зиёданд. Баъди чанде дубора кӯшиш кунед."
+
+msgid "Please sign in again."
+msgstr "Лутфан, дубора ворид шавед."
+
+msgid "You do not have access to this."
+msgstr "Шумо ба ин дастрасӣ надоред."
+
+msgid "Nothing was found at this address."
+msgstr "Дар ин суроға чизе ёфт нашуд."
+
+msgid "The server did not accept this search."
+msgstr "Сервер ин ҷустуҷӯро қабул накард."
+
+msgid "The data was changed elsewhere."
+msgstr "Маълумот дар ҷои дигар тағйир ёфт."
+
+msgid "Please update the app to continue."
+msgstr "Барои идома додан барномаро навсозӣ кунед."
+
+msgid "Could not read data on this device."
+msgstr "Хондани маълумот дар ин дастгоҳ имконпазир нашуд."
+
+msgid "Something went wrong."
+msgstr "Чизе нодуруст рафт."
+
+msgid "Task"
+msgstr "Вазифа"
+
+msgid "File"
+msgstr "Файл"
+
+msgid "Other"
+msgstr "Дигар"
+
+msgid "Search"
+msgstr "Ҷустуҷӯ"
+
+msgid "About {} results"
+msgstr "Тақрибан натиҷаҳо: {}"
+
+msgid "Search tasks and files"
+msgstr "Ҷустуҷӯи вазифаҳо ва файлҳо"
+
+msgid "Suggestions"
+msgstr "Пешниҳодҳо"
+
+msgid "Search your tasks and files"
+msgstr "Ҷустуҷӯ дар вазифаҳо ва файлҳои шумо"
+
+msgid "Results appear as you type."
+msgstr "Натиҷаҳо ҳангоми навиштан пайдо мешаванд."
+
+msgid "Searching..."
+msgstr "Ҷустуҷӯ идома дорад..."
+
+msgid "Could not search"
+msgstr "Ҷустуҷӯ имконпазир нашуд"
+
+msgid "Try again"
+msgstr "Дубора кӯшиш кунед"
+
+msgid "No results"
+msgstr "Натиҷае нест"
+
+msgid "Try a different word or check the spelling."
+msgstr "Калимаи дигарро санҷед ё имлоро тафтиш кунед."
+
+msgid "Loading..."
+msgstr "Бор шуда истодааст..."
+
+msgid "Load more"
+msgstr "Бештар бор кардан"

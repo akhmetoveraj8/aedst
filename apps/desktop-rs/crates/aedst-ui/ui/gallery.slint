@@ -1,0 +1,41 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstLabel } from "aedst_label.slint";
+import { AedstButton } from "aedst_button.slint";
+import { AedstActionRow } from "aedst_action_row.slint";
+import { AedstTextField } from "aedst_text_field.slint";
+import { AedstBadge } from "aedst_badge.slint";
+import { AedstCheckbox } from "aedst_checkbox.slint";
+
+// Every component in one window: compiled by `cargo build`, and used to look at LTR/RTL and light/dark.
+export component Gallery inherits Window {
+    in-out property <bool> rtl <=> AedstLayout.rtl;
+    in-out property <bool> dark <=> AedstTokens.dark;
+    // Counters let the UI tests (tests/ui.rs) observe which action ran.
+    out property <int> primary-count;
+    out property <int> secondary-count;
+    title: "AEDST design system";
+    background: AedstTokens.background;
+    preferred-width: 480px;
+    preferred-height: 300px;
+
+    VerticalLayout {
+        padding: AedstTokens.spacing-lg;
+        spacing: AedstTokens.spacing-md;
+        AedstLabel { text: root.rtl ? "مرحبا بالعالم، هذه مهمة جديدة 123" : "Hello world, this is a new task 123"; }
+        AedstTextField { label: "Task title"; placeholder: root.rtl ? "اكتب هنا" : "Type here"; }
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            AedstCheckbox { checked: true; label: "Done"; }
+            AedstBadge { text: root.rtl ? "قيد الانتظار" : "Pending sync"; tone: "danger"; }
+            AedstBadge { text: root.rtl ? "منجز" : "Done"; tone: "success"; }
+            AedstBadge { text: "Todo"; }
+        }
+        AedstActionRow {
+            primary-text: root.rtl ? "حفظ" : "Save";
+            secondary-text: root.rtl ? "إلغاء" : "Cancel";
+            primary-clicked => { root.primary-count += 1; }
+            secondary-clicked => { root.secondary-count += 1; }
+        }
+    }
+}

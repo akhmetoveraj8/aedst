@@ -1,0 +1,9 @@
+{
+  "breakpoint": {
+    "$type": "dimension",
+    "$description": "Window-width breakpoints for the desktop client (logical px). Compact below md, regular from md, wide from lg. Web uses CSS media queries and does not consume these.",
+    "sm": { "$value": { "value": 480, "unit": "px" } },
+    "md": { "$value": { "value": 720, "unit": "px" } },
+    "lg": { "$value": { "value": 1024, "unit": "px" } }
+  }
+}

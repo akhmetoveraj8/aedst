@@ -1,0 +1,160 @@
+{{- if .Values.imgproxy.enabled }}
+# Selector labels use a distinct app.kubernetes.io/name so the API Service,
+# Deployment and NetworkPolicy (which select on name+instance) never match these pods.
+{{- $name := printf "%s-imgproxy" (include "aedst-server.fullname" .) }}
+{{- $labels := include "aedst-server.labels" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- $labels | nindent 4 }}
+    app.kubernetes.io/component: imgproxy
+spec:
+  replicas: {{ .Values.imgproxy.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "aedst-server.name" . }}-imgproxy
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: imgproxy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "aedst-server.name" . }}-imgproxy
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: imgproxy
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: imgproxy
+          image: "{{ .Values.imgproxy.image.repository }}:{{ .Values.imgproxy.image.tag }}"
+          imagePullPolicy: {{ .Values.imgproxy.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: IMGPROXY_BIND
+              value: ":8080"
+            - name: IMGPROXY_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "imgproxy.existingSecret is required" .Values.imgproxy.existingSecret }}
+                  key: {{ .Values.imgproxy.secretKeys.key }}
+            - name: IMGPROXY_SALT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.imgproxy.existingSecret }}
+                  key: {{ .Values.imgproxy.secretKeys.salt }}
+            {{- if .Values.imgproxy.secretKeys.s3AccessKeyId }}
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.imgproxy.existingSecret }}
+                  key: {{ .Values.imgproxy.secretKeys.s3AccessKeyId }}
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.imgproxy.existingSecret }}
+                  key: {{ required "imgproxy.secretKeys.s3SecretAccessKey is required with s3AccessKeyId" .Values.imgproxy.secretKeys.s3SecretAccessKey }}
+            {{- end }}
+            - name: IMGPROXY_USE_S3
+              value: "true"
+            - name: IMGPROXY_S3_REGION
+              value: {{ .Values.imgproxy.s3.region | quote }}
+            {{- if .Values.imgproxy.s3.endpoint }}
+            - name: IMGPROXY_S3_ENDPOINT
+              value: {{ .Values.imgproxy.s3.endpoint | quote }}
+            {{- end }}
+            - name: IMGPROXY_ALLOWED_SOURCES
+              value: {{ printf "s3://%s/" (required "imgproxy.s3.bucket is required" .Values.imgproxy.s3.bucket) | quote }}
+            - name: IMGPROXY_PRESETS
+              value: {{ .Values.imgproxy.presets | quote }}
+            - name: IMGPROXY_AUTO_WEBP
+              value: "true"
+            - name: IMGPROXY_AUTO_AVIF
+              value: "true"
+            - name: IMGPROXY_MAX_SRC_RESOLUTION
+              value: {{ .Values.imgproxy.maxSrcResolutionMegapixels | quote }}
+            - name: IMGPROXY_MAX_SRC_FILE_SIZE
+              value: {{ .Values.imgproxy.maxSrcFileSizeBytes | quote }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          resources:
+            {{- toYaml .Values.imgproxy.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- $labels | nindent 4 }}
+    app.kubernetes.io/component: imgproxy
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "aedst-server.name" . }}-imgproxy
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: imgproxy
+{{- if .Values.networkPolicy.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- $labels | nindent 4 }}
+    app.kubernetes.io/component: imgproxy
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "aedst-server.name" . }}-imgproxy
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: imgproxy
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        {{- toYaml .Values.imgproxy.networkPolicy.ingressFrom | nindent 8 }}
+      ports:
+        - port: 8080
+          protocol: TCP
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }
+    {{- with .Values.imgproxy.networkPolicy.egressTo }}
+    - to:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}
+{{- end }}

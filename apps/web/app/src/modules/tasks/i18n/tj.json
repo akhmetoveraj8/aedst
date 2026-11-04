@@ -1,0 +1,96 @@
+{
+  "dashboard": {
+    "title": "Вазифаҳо",
+    "totalTasks": "Ҳамаи вазифаҳо",
+    "todo": "Бояд иҷро шавад",
+    "inProgress": "Дар ҷараён",
+    "completed": "Иҷрошуда",
+    "overdue": "Мӯҳлаташ гузашта"
+  },
+  "list": {
+    "searchPlaceholder": "Ҷустуҷӯи вазифаҳо…",
+    "newTask": "Вазифаи нав",
+    "allStatuses": "Ҳамаи ҳолатҳо",
+    "allPriorities": "Ҳамаи афзалиятҳо",
+    "sortCreatedDesc": "Аввал навтарин",
+    "sortCreatedAsc": "Аввал куҳнатарин",
+    "sortDueAsc": "Аз рӯи мӯҳлат (наздиктарин)",
+    "sortDueDesc": "Аз рӯи мӯҳлат (дуртарин)",
+    "emptyTitle": "Ҳанӯз вазифае нест",
+    "emptyDescription": "Барои оғоз аввалин вазифаро созед.",
+    "noResultsTitle": "Ҳеҷ вазифае ёфт нашуд",
+    "noResultsDescription": "Ҷустуҷӯ ё филтрро тағйир диҳед.",
+    "errorTitle": "Вазифаҳо бор нашуданд",
+    "retry": "Такрор кардан",
+    "previousPage": "Қаблӣ",
+    "nextPage": "Баъдӣ",
+    "due": "Мӯҳлат: {date}",
+    "searchLabel": "Ҷустуҷӯи вазифаҳо",
+    "statusFilterLabel": "Филтр аз рӯи ҳолат",
+    "priorityFilterLabel": "Филтр аз рӯи афзалият",
+    "sortLabel": "Тартиб додани вазифаҳо",
+    "paginationLabel": "Саҳифабандӣ",
+    "resultsLabel": "Вазифаҳо",
+    "resultCount": "{count, plural, one {# вазифа} other {# вазифа}}"
+  },
+  "status": {
+    "todo": "Бояд иҷро шавад",
+    "inProgress": "Дар ҷараён",
+    "done": "Иҷрошуда"
+  },
+  "priority": {
+    "low": "Паст",
+    "medium": "Миёна",
+    "high": "Баланд",
+    "urgent": "Таъҷилӣ"
+  },
+  "form": {
+    "createTitle": "Вазифаи нав",
+    "editTitle": "Таҳрири вазифа",
+    "titleLabel": "Сарлавҳа",
+    "titleRequired": "Сарлавҳа ҳатмист.",
+    "titleTooLong": "На бештар аз 200 аломат.",
+    "descriptionLabel": "Тавсиф",
+    "descriptionTooLong": "На бештар аз 4000 аломат.",
+    "priorityLabel": "Афзалият",
+    "priorityRequired": "Афзалиятро интихоб кунед.",
+    "dueDateLabel": "Мӯҳлати иҷро",
+    "dueDateOptional": "Ихтиёрӣ",
+    "cancel": "Бекор кардан",
+    "create": "Сохтани вазифа",
+    "save": "Захираи тағйирот",
+    "error": "Захира нашуд: {message}"
+  },
+  "details": {
+    "backToList": "Ба рӯйхати вазифаҳо",
+    "createdBy": "Сохта шуда аз ҷониби",
+    "you": "шумо",
+    "createdAt": "Сохта шуд",
+    "updatedAt": "Охирин навсозӣ",
+    "dueDate": "Мӯҳлати иҷро",
+    "noDueDate": "Бе мӯҳлат",
+    "edit": "Таҳрир",
+    "complete": "Иҷрошуда қайд кардан",
+    "reopen": "Аз нав кушодан",
+    "delete": "Нест кардан",
+    "deleteConfirmTitle": "Ин вазифа нест карда шавад?",
+    "deleteConfirmDescription": "Ин амалро баргардонидан мумкин нест.",
+    "deleteConfirmAction": "Нест кардан",
+    "deleteCancelAction": "Бекор кардан",
+    "notFoundTitle": "Вазифа ёфт нашуд",
+    "notFoundDescription": "Шояд он нест карда шуда бошад ё ба дигар корбар тааллуқ дошта бошад.",
+    "loadErrorTitle": "Вазифа бор нашуд",
+    "pageTitle": "Вазифа"
+  },
+  "a11y": {
+    "priority": "Афзалият",
+    "status": "Ҳолат"
+  },
+  "sync": {
+    "pendingBadge": "Мунтазири ҳамоҳангсозӣ",
+    "failedBadge": "Ҳамоҳанг нашуд",
+    "discard": "Бекор кардан",
+    "queuedTitle": "Мунтазири ҳамоҳангсозӣ",
+    "queuedHint": "Дар дастгоҳ нигоҳ дошта шуд. Худкор фиристода мешавад."
+  }
+}

@@ -1,0 +1,29 @@
+name: ai-review-android
+
+# Thin caller of the reusable ai-review.yml. Prompt: docs/agent/review/android.md.
+
+on:
+  pull_request:
+    paths:
+      - "apps/android/**"
+      - "docs/agent/review/android.md"
+      - ".github/workflows/ai-review.yml"
+      - ".github/workflows/ai-review-android.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+concurrency:
+  group: ai-review-android-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    uses: ./.github/workflows/ai-review.yml
+    with:
+      app_path: apps/android
+      prompt_file: docs/agent/review/android.md
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

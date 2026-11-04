@@ -1,0 +1,96 @@
+{
+  "dashboard": {
+    "title": "Tasks",
+    "totalTasks": "Total tasks",
+    "todo": "Todo",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "overdue": "Overdue"
+  },
+  "list": {
+    "searchPlaceholder": "Search tasks…",
+    "newTask": "New task",
+    "allStatuses": "All statuses",
+    "allPriorities": "All priorities",
+    "sortCreatedDesc": "Newest first",
+    "sortCreatedAsc": "Oldest first",
+    "sortDueAsc": "Due date (soonest)",
+    "sortDueDesc": "Due date (latest)",
+    "emptyTitle": "No tasks yet",
+    "emptyDescription": "Create your first task to get started.",
+    "noResultsTitle": "No matching tasks",
+    "noResultsDescription": "Try a different search or filter.",
+    "errorTitle": "Couldn't load tasks",
+    "retry": "Retry",
+    "previousPage": "Previous",
+    "nextPage": "Next",
+    "due": "Due {date}",
+    "searchLabel": "Search tasks",
+    "statusFilterLabel": "Filter by status",
+    "priorityFilterLabel": "Filter by priority",
+    "sortLabel": "Sort tasks",
+    "paginationLabel": "Pagination",
+    "resultsLabel": "Tasks",
+    "resultCount": "{count, plural, one {# task} other {# tasks}}"
+  },
+  "status": {
+    "todo": "Todo",
+    "inProgress": "In progress",
+    "done": "Done"
+  },
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "urgent": "Urgent"
+  },
+  "form": {
+    "createTitle": "New task",
+    "editTitle": "Edit task",
+    "titleLabel": "Title",
+    "titleRequired": "Title is required.",
+    "titleTooLong": "Keep it under 200 characters.",
+    "descriptionLabel": "Description",
+    "descriptionTooLong": "Keep it under 4000 characters.",
+    "priorityLabel": "Priority",
+    "priorityRequired": "Choose a priority.",
+    "dueDateLabel": "Due date",
+    "dueDateOptional": "Optional",
+    "cancel": "Cancel",
+    "create": "Create task",
+    "save": "Save changes",
+    "error": "Couldn't save: {message}"
+  },
+  "details": {
+    "backToList": "Back to tasks",
+    "createdBy": "Created by",
+    "you": "you",
+    "createdAt": "Created",
+    "updatedAt": "Last updated",
+    "dueDate": "Due date",
+    "noDueDate": "No due date",
+    "edit": "Edit",
+    "complete": "Mark complete",
+    "reopen": "Reopen",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete this task?",
+    "deleteConfirmDescription": "This can't be undone.",
+    "deleteConfirmAction": "Delete",
+    "deleteCancelAction": "Cancel",
+    "notFoundTitle": "Task not found",
+    "notFoundDescription": "It may have been deleted, or it belongs to someone else.",
+    "loadErrorTitle": "Couldn't load this task",
+    "pageTitle": "Task"
+  },
+  "a11y": {
+    "priority": "Priority",
+    "status": "Status"
+  },
+  "sync": {
+    "pendingBadge": "Pending sync",
+    "failedBadge": "Not synced",
+    "discard": "Discard",
+    "queuedTitle": "Waiting to sync",
+    "queuedHint": "Saved on this device. Sent automatically."
+  }
+}

@@ -1,0 +1,26 @@
+[package]
+name = "aedst-contract"
+version = "0.0.0"
+description = "Connect clients and messages generated from apps/server/api/proto (nothing generated is committed)"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+build = "build.rs"
+
+[lib]
+# Doc examples inside generated code are not ours to run.
+doctest = false
+
+[dependencies]
+connectrpc = { workspace = true }
+buffa = { workspace = true }
+buffa-types = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[build-dependencies]
+connectrpc-build = { workspace = true }
+
+[lints]
+workspace = true

@@ -1,0 +1,6 @@
+//// run: biome
+//// expect: No inline validation rules on form controls
+//// file: src/modules/tasks/ui/BadController.tsx
+import { Controller } from "react-hook-form";
+
+export const Bad = () => <Controller name="title" rules={{ required: true }} render={() => <span />} />;

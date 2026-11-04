@@ -1,0 +1,35 @@
+meta {
+  name: Get Task (Not Found — Wrong Id)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/aedst.tasks.v1.TasksService/GetTask
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "id": "00000000-0000-0000-0000-000000000000"
+  }
+}
+
+assert {
+  res.status: eq 404
+}
+
+docs {
+  Negative test. A task id that doesn't exist (or belongs to another user —
+  same response either way, deliberately) returns NotFound, not
+  PermissionDenied — see tasks.proto's TasksService doc comment and
+  GetTask's Go doc comment (internal/modules/tasks/application/service.go)
+  for why: nothing in this API ever takes another user's id from the
+  client, so there's no "wrong id in the request" case to distinguish —
+  only "does this id, scoped to me, exist."
+}

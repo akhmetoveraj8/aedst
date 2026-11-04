@@ -1,0 +1,5 @@
+[toolchain]
+# cargo 1.99.1 was seen on the authoring machine (rustc there is broken, so UNVERIFIED).
+# Slint 1.18.1 needs Rust >= 1.92.
+channel = "1.99.1"
+components = ["clippy", "rustfmt"]

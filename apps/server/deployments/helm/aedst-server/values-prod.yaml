@@ -1,0 +1,76 @@
+replicaCount: 3
+existingSecret: aedst-server-prod
+config:
+  env: production
+  trustedProxyHops: 2
+  shutdownDrainSeconds: 15
+  shutdownTimeoutSeconds: 20
+  corsAllowedOrigins: ["https://app.example.com"]
+  valkey:
+    tls: true
+    tlsCaFile: /etc/tls/valkey/ca.crt
+  # Identity provider: ZITADEL is the template default. issuer = your ZITADEL
+  # external domain over https; audience = the ZITADEL *project id*.
+  oidc:
+    issuer: https://auth.example.com
+    audience: "<zitadel-project-id>"
+    rolesClaim: urn:zitadel:iam:org:project:roles
+    # rolesOrg: "<zitadel-organisation-id>" # optional: only roles granted in this org count
+# database-url        -> the CloudNativePG Pooler (aedst-pg-pooler-rw, transaction mode)
+# database-direct-url -> Postgres primary directly (aedst-pg-rw: River LISTEN/NOTIFY, advisory locks, migrations)
+# Pods x (maxConns + jobsMaxConns) is NOT what the pooler sees: only the API
+# pool goes through it, so pods x maxConns must be sized against the Pooler's
+# max_client_conn and (instances x default_pool_size) against max_connections;
+# jobs pools connect directly. See docs/content/server/scaling.md.
+database:
+  pooler: pgbouncer
+  dsnSecretKey: database-url
+  directDsnSecretKey: database-direct-url
+  maxConns: 20
+  jobsMaxConns: 10
+  serverMaxConnections: 400 # CNPG prod overlay max_connections
+  reservedConns: 40 # ZITADEL role connectionLimit on the same cluster
+  poolerServerConns: 120 # 3 Pooler instances x default_pool_size 40
+autoscaling:
+  minReplicas: 3
+  maxReplicas: 20
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    memory: 1Gi
+podDisruptionBudget:
+  minAvailable: null
+  maxUnavailable: 1
+metrics:
+  serviceMonitor:
+    enabled: true
+alerts:
+  enabled: true
+dashboards:
+  enabled: true
+# River queues: API replicas work only light jobs; image/ffmpeg processing runs in
+# its own worker Deployment so it cannot starve request handling (docs/content/server/scaling.md).
+jobs:
+  queues: "default=50"
+workers:
+  - name: media
+    queues: "media=4"
+    replicas: 2
+    resources:
+      requests: {cpu: "1", memory: 1Gi}
+      limits: {memory: 2Gi}
+
+migrations:
+  activeDeadlineSeconds: 1800
+
+# Transport security (staging/production refuse to start otherwise): Valkey over TLS, and every
+# PostgreSQL DSN with sslmode=verify-full + sslrootcert=/etc/tls/pg/ca.crt (CloudNativePG's own CA
+# Secret <cluster>-ca, mounted below). Provision the Secret valkey-tls with the Valkey CA (key ca.crt).
+extraVolumes:
+  - {name: valkey-tls, secret: {secretName: valkey-tls}}
+  - {name: pg-ca, secret: {secretName: aedst-pg-ca}}
+extraVolumeMounts:
+  - {name: valkey-tls, mountPath: /etc/tls/valkey, readOnly: true}
+  - {name: pg-ca, mountPath: /etc/tls/pg, readOnly: true}

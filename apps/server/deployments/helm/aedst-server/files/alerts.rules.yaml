@@ -1,0 +1,152 @@
+# Alert rules for aedst-server, in native Prometheus rule format so they can be
+# checked and unit-tested with promtool (`task alerts:test`), and rendered into
+# a PrometheusRule by templates/prometheusrule.yaml.
+#
+# Metric names come from the server's own OpenTelemetry instrumentation
+# (verified against /metrics): otelhttp `http_server_request_duration_seconds`,
+# otelconnect `rpc_server_call_duration_seconds`, and the aedst_* gauges and
+# counters in internal/platform/{database,events,jobs,retention}. Every alert
+# links to its section of docs/content/server/runbook.md.
+#
+# Severity: `page` = a human is needed now, `ticket` = fix in working hours.
+groups:
+  - name: aedst-server.availability
+    rules:
+      - alert: AedstNoInstancesReporting
+        expr: absent(aedst_db_pool_connections{pool="api", state="max"})
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: No aedst-server instance is reporting metrics
+          description: No pod has exported metrics for 5 minutes — all replicas are down, crash-looping, or unscraped.
+          runbook_url: https://docs.aedst.dev/runbook#aedstnoinstancesreporting
+
+      - alert: AedstHighErrorRatio
+        expr: |
+          sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m]))
+            /
+          sum(rate(http_server_request_duration_seconds_count[5m])) > 0.02
+        for: 10m
+        labels: {severity: page}
+        annotations:
+          summary: More than 2% of requests fail with a 5xx
+          description: "{{ $value | humanizePercentage }} of requests failed over the last 5 minutes. Server-side causes are logged by ErrorLogInterceptor (`rpc failed`)."
+          runbook_url: https://docs.aedst.dev/runbook#aedsthigherrorratio
+
+      - alert: AedstHighLatencyP95
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (rate(http_server_request_duration_seconds_bucket{http_response_status_code!~"429|5.."}[5m]))
+          ) > 0.5
+        for: 10m
+        labels: {severity: ticket}
+        annotations:
+          summary: p95 request latency is above 500 ms
+          description: "p95 is {{ $value | humanizeDuration }} (SLO: 500 ms on the read path, docs/content/server/scaling.md)."
+          runbook_url: https://docs.aedst.dev/runbook#aedsthighlatencyp95
+
+      - alert: AedstShedding429
+        expr: sum(rate(http_server_request_duration_seconds_count{http_response_status_code="429"}[5m])) > 1
+        for: 5m
+        labels: {severity: ticket}
+        annotations:
+          summary: Requests are being throttled or shed
+          description: More than 1 request/s is answered 429 — per-user rate limits or AEDST_MAX_IN_FLIGHT load shedding are firing.
+          runbook_url: https://docs.aedst.dev/runbook#aedstshedding429
+
+  - name: aedst-server.database
+    rules:
+      - alert: AedstDBPoolSaturated
+        expr: |
+          max by (pool) (aedst_db_pool_connections{state="acquired"})
+            /
+          max by (pool) (aedst_db_pool_connections{state="max"}) > 0.8
+        for: 5m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Connection pool {{ $labels.pool }} is over 80% in use"
+          description: The pool is close to exhaustion; requests (api) or events/jobs (jobs) will start to queue.
+          runbook_url: https://docs.aedst.dev/runbook#aedstdbpoolsaturated
+
+      - alert: AedstDBPoolWaiting
+        expr: sum by (pool) (rate(aedst_db_pool_acquire_wait_seconds_total[5m])) > 0.1
+        for: 10m
+        labels: {severity: page}
+        annotations:
+          summary: "Callers wait for a connection from pool {{ $labels.pool }}"
+          description: Time spent waiting for a free connection exceeds 0.1 s per second — the pool is the bottleneck.
+          runbook_url: https://docs.aedst.dev/runbook#aedstdbpoolwaiting
+
+  # Integration events are River jobs (ADR-0014): lag and backlog come from the
+  # river_job gauges (platform/jobs), per-consumer outcomes from the
+  # aedst_events_* counters (platform/events).
+  - name: aedst-server.events
+    rules:
+      - alert: AedstJobsLagging
+        expr: max(aedst_river_oldest_available_age_seconds) > 30
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "River jobs and event deliveries wait more than 30 s to start"
+          description: The oldest job that is ready to run has waited {{ $value | humanizeDuration }} — no worker is fetching (queues exhausted, no replica works the queue, jobs pool saturated) or consumers are slow.
+          runbook_url: https://docs.aedst.dev/runbook#aedstjobslagging
+
+      - alert: AedstJobsBacklogGrowing
+        expr: |
+          max(aedst_river_jobs{state=~"available|retryable"}) > 1000
+            and
+          deriv(sum(aedst_river_jobs{state=~"available|retryable"})[15m:1m]) > 0
+        for: 15m
+        labels: {severity: ticket}
+        annotations:
+          summary: "The River backlog keeps growing"
+          description: More than 1000 jobs are available or retrying and the number is rising — producers outpace the workers.
+          runbook_url: https://docs.aedst.dev/runbook#aedstjobsbackloggrowing
+
+      - alert: AedstEventDeliveryFailing
+        expr: sum by (consumer) (rate(aedst_events_failed_total[10m])) > 0.1
+        for: 10m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Deliveries to consumer {{ $labels.consumer }} keep failing"
+          description: The consumer's handler is returning errors and River is retrying the deliveries with backoff.
+          runbook_url: https://docs.aedst.dev/runbook#aedsteventdeliveryfailing
+
+      - alert: AedstEventDiscarded
+        expr: sum by (consumer) (increase(aedst_events_discarded_total[15m])) > 0
+        labels: {severity: page}
+        annotations:
+          summary: "An event for consumer {{ $labels.consumer }} was given up on"
+          description: A delivery exhausted its attempts (or was malformed) and River discarded it; the consumer is missing that event until it is replayed.
+          runbook_url: https://docs.aedst.dev/runbook#aedsteventdiscarded
+
+  - name: aedst-server.dependencies
+    rules:
+      - alert: AedstRateLimiterFailingOpen
+        expr: sum(rate(aedst_ratelimit_fail_open_total[5m])) > 0
+        for: 10m
+        labels: {severity: ticket}
+        annotations:
+          summary: Rate limits are not being enforced
+          description: Valkey errors for 10 minutes — every rate-limit decision is skipped (allowed) and the failed-authentication throttle is off. Requests are served normally.
+          runbook_url: https://docs.aedst.dev/runbook#aedstratelimiterfailingopen
+
+      - alert: AedstValkeyDegraded
+        expr: max by (check) (aedst_readiness_degraded) == 1
+        for: 10m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Optional dependency {{ $labels.check }} has been failing for 10 minutes"
+          description: The instance serves in degraded mode (/readyz reports degraded, stays in rotation). For valkey that means no rate limiting; for database_read, reads fall back to the primary.
+          runbook_url: https://docs.aedst.dev/runbook#aedstvalkeydegraded
+
+  - name: aedst-server.runtime
+    rules:
+      - alert: AedstGoroutinesHigh
+        expr: max by (pod) (go_goroutine_count) > 10000
+        for: 15m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Pod {{ $labels.pod }} has more than 10000 goroutines"
+          description: A steadily high goroutine count usually means a leak or requests stuck on a slow dependency.
+          runbook_url: https://docs.aedst.dev/runbook#aedstgoroutineshigh

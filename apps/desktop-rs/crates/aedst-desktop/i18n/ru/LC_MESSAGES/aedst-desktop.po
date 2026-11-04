@@ -1,0 +1,100 @@
+# aedst-desktop: window shell strings (ru).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-desktop\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "Tasks"
+msgstr "Задачи"
+
+msgid "Search"
+msgstr "Поиск"
+
+msgid "Notifications"
+msgstr "Уведомления"
+
+msgid "Files"
+msgstr "Файлы"
+
+msgid "Admin"
+msgstr "Администрирование"
+
+msgid "Sign out"
+msgstr "Выйти"
+
+msgid "Inbox"
+msgstr "Входящие"
+
+msgid "Preferences"
+msgstr "Настройки"
+
+msgid "Starting..."
+msgstr "Запуск..."
+
+msgid "Sign in to continue"
+msgstr "Войдите, чтобы продолжить"
+
+msgid "Continue in browser"
+msgstr "Продолжить в браузере"
+
+msgid "Waiting for the browser..."
+msgstr "Ожидание браузера..."
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid "Sign-in failed. Please try again."
+msgstr "Не удалось войти. Попробуйте ещё раз."
+
+msgid "Could not reach the identity provider."
+msgstr "Не удалось связаться с сервисом входа."
+
+msgid "Secure storage is not available on this device."
+msgstr "Защищённое хранилище недоступно на этом устройстве."
+
+msgid "Sign-in timed out."
+msgstr "Время входа истекло."
+
+msgid "Sign-in is not configured."
+msgstr "Вход не настроен."
+
+msgid "Privacy"
+msgstr "Конфиденциальность"
+
+msgid "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device."
+msgstr "Ничего не отправляется, пока вы не разрешите это здесь. Личные данные удаляются до отправки."
+
+msgid "Send crash reports"
+msgstr "Отправлять отчёты о сбоях"
+
+msgid "Technical details about a failure, so it can be fixed."
+msgstr "Технические сведения о сбое, чтобы его можно было исправить."
+
+msgid "Share anonymous usage statistics"
+msgstr "Делиться анонимной статистикой использования"
+
+msgid "Which features are used, never what you type."
+msgstr "Какие функции используются, но не то, что вы вводите."
+
+msgid "Not available in this build."
+msgstr "Недоступно в этой сборке."
+
+msgid "A new version is available"
+msgstr "Доступна новая версия"
+
+msgid "Downloading the update: {}%"
+msgstr "Загрузка обновления: {}%"
+
+msgid "Restart to update"
+msgstr "Перезапустить для обновления"
+
+msgid "Update required"
+msgstr "Требуется обновление"
+
+msgid "This version of the app is too old for the server. Please update it to continue."
+msgstr "Эта версия приложения слишком старая для сервера. Обновите её, чтобы продолжить."

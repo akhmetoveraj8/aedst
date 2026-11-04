@@ -1,0 +1,33 @@
+# GitHub CODEOWNERS matches the LAST matching pattern, so put broad rules first and specific
+# ones after. Owner handle: akhmetov-eraj (git user of the repository owner). Replace it with
+# per-area teams (e.g. @org/server-reviewers) when more people join; an unresolvable owner is
+# silently ignored, not an error.
+
+# Default owner for anything not listed below.
+*                      @akhmetov-eraj
+
+# Apps
+/apps/server/          @akhmetov-eraj
+/apps/web/             @akhmetov-eraj
+/apps/android/         @akhmetov-eraj
+/apps/apple/           @akhmetov-eraj
+/apps/desktop-rs/      @akhmetov-eraj
+
+# Shared packages and tooling
+/packages/             @akhmetov-eraj
+/scripts/              @akhmetov-eraj
+/docs/                 @akhmetov-eraj
+
+# Rules and process: changes here alter how every agent and CI behaves.
+/.github/              @akhmetov-eraj
+/.claude/              @akhmetov-eraj
+/AGENTS.md             @akhmetov-eraj
+/CLAUDE.md             @akhmetov-eraj
+/CONVENTIONS.md        @akhmetov-eraj
+/docs/content/decisions/    @akhmetov-eraj
+/docs/content/library-first/ @akhmetov-eraj
+/renovate.json         @akhmetov-eraj
+/Taskfile.yml          @akhmetov-eraj
+/mise.toml             @akhmetov-eraj
+/lefthook.yml          @akhmetov-eraj
+/features.yaml         @akhmetov-eraj

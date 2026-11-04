@@ -1,0 +1,13 @@
+language js
+
+// @bufbuild/protovalidate is imported in exactly one place: the resolver in
+// src/shared/lib/forms (biome.json excludes that directory, tests and
+// generated code from this plugin's includes). Everything else goes through
+// protovalidateResolver, so the lazy loading and error mapping stay in one
+// spot. Rule page: docs/content/web/validation.md
+or {
+  `import $_ from "@bufbuild/protovalidate"`,
+  `import("@bufbuild/protovalidate")`
+} as $import where {
+  register_diagnostic(span=$import, message="Import @bufbuild/protovalidate only inside shared/lib/forms. Forms use protovalidateResolver from @/shared/lib/forms/protovalidate-resolver (docs/content/web/validation.md).", severity="error")
+}

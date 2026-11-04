@@ -1,0 +1,35 @@
+# Exceptions for scripts/check-docs.mjs. Format: <rule|*> <glob>  (rules: links, paths, prompts, frontmatter, cyrillic)
+# links/paths/prompts: glob matches the mentioned path as written. cyrillic: glob matches the file.
+# Every entry needs a reason in the comment above it.
+
+# Android default locale (res/values) is Russian by product decision; the other locales are values-*.
+cyrillic **/res/values/strings.xml
+# Apple per-locale permission strings and Android/Apple/desktop test data that assert Cyrillic input handling.
+cyrillic **/*.lproj/*.strings
+# Build outputs mentioned by CI upload steps; they exist only after a build.
+paths apps/web/app/.lighthouseci-signed-in/
+# Visual-regression baselines: created by web-record-baselines.yml (artifact) and committed afterwards.
+paths apps/web/app/visual-baselines
+paths apps/web/app/visual-baselines/
+paths apps/android/app/src/release/generated/baselineProfiles/
+# Test data that deliberately contains non-English text (unicode handling tests).
+cyrillic apps/android/benchmark/src/main/kotlin/com/aedst/benchmark/BenchmarkSession.kt
+cyrillic apps/android/core/ui/src/test/**
+cyrillic apps/server/internal/platform/idempotency/interceptor_test.go
+cyrillic apps/web/shared/lib/auth/session-claims.test.ts
+# Hook smoke-test fixtures: scripts/check-hooks.sh feeds fabricated paths to the hooks.
+paths apps/server/internal/modules/tasks/infrastructure/postgres/sqlc/query.sql.go
+paths apps/server/gen/aedst/tasks/v1/tasksv1connect/tasks.connect.go
+paths apps/server/internal/modules/tasks/domain/task.go
+paths apps/web/app/src/types/messages.d.ts
+paths apps/desktop-rs/crates/__no_such_file__.rs
+# Runtime log written by the CI load job.
+paths apps/server/server.log
+# Native-script language names in the locale switcher story (a language picker shows each language in its own script).
+cyrillic apps/web/shared/ui/locale-select.stories.tsx
+# CI-generated artifacts (web-ci import graph and mutation report).
+paths apps/web/app/dep-graph.svg
+paths apps/web/app/reports/mutation/
+# Docs site build output uploaded by docs-ci; absent in a clean clone.
+paths docs/.next
+paths docs/public/_pagefind

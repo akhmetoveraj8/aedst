@@ -1,0 +1,15 @@
+<resources>
+    <string name="nav_tasks">Вазифаҳо</string>
+    <string name="nav_search">Ҷустуҷӯ</string>
+    <string name="nav_notifications">Огоҳиномаҳо</string>
+    <string name="nav_media">Файлҳо</string>
+    <string name="nav_account">Ҳисоб</string>
+    <string name="nav_admin">Маъмур</string>
+
+    <string name="update_recommended">Версияи нави AEDST дастрас аст.</string>
+    <string name="update_recommended_action">Навсозӣ</string>
+    <string name="update_recommended_later">Ҳоло не</string>
+    <string name="outbox_failed_title">Баъзе тағйирот фиристода нашуд</string>
+    <string name="outbox_failed_description">Ин тағйирот фиристода нашуд. Такрор кунед ё нест кунед.</string>
+    <string name="outbox_failed_discard">Нест кардан</string>
+</resources>

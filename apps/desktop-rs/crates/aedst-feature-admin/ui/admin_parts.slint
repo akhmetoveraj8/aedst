@@ -1,0 +1,179 @@
+// Row and panel components of the Admin screen. Slint cannot reverse a layout, so every
+// side-by-side pair spells out both orders with `if AedstLayout.rtl`.
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstTextField, AedstBadge, AedstActionRow } from "@aedst-ui";
+import { AdminStore, AdminTaskRowData, AuditRowData, OverviewItemData } from "admin_store.slint";
+import { AdminTexts } from "admin_texts.slint";
+
+component Card inherits Rectangle {
+    border-radius: AedstTokens.radius-md;
+    background: AedstTokens.card;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+}
+
+component Muted inherits AedstLabel {
+    color: AedstTokens.muted-foreground;
+    font-size: AedstTokens.typography-body-small-font-size;
+}
+
+// A bold line with a badge at the end of the reading direction.
+component HeaderLine inherits HorizontalLayout {
+    in property <string> title;
+    in property <string> badge;
+    in property <string> tone: "neutral";
+    spacing: AedstTokens.spacing-sm;
+    if !AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        AedstLabel { text: root.title; font-weight: 600; horizontal-stretch: 1; vertical-alignment: center; }
+        if root.badge != "": AedstBadge { text: root.badge; tone: root.tone; }
+    }
+    if AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        if root.badge != "": AedstBadge { text: root.badge; tone: root.tone; }
+        AedstLabel { text: root.title; font-weight: 600; horizontal-stretch: 1; vertical-alignment: center; }
+    }
+}
+
+export component OverviewRow inherits Card {
+    in property <OverviewItemData> data;
+    height: 44px;
+    if !AedstLayout.rtl: HorizontalLayout {
+        padding: AedstTokens.spacing-md;
+        AedstLabel { text: AdminTexts.overview-label(root.data.key); horizontal-stretch: 1; vertical-alignment: center; }
+        AedstLabel { text: root.data.value; font-weight: 600; vertical-alignment: center; horizontal-alignment: right; }
+    }
+    if AedstLayout.rtl: HorizontalLayout {
+        padding: AedstTokens.spacing-md;
+        AedstLabel { text: root.data.value; font-weight: 600; vertical-alignment: center; horizontal-alignment: left; }
+        AedstLabel { text: AdminTexts.overview-label(root.data.key); horizontal-stretch: 1; vertical-alignment: center; }
+    }
+}
+
+export component TaskRow inherits Card {
+    in property <AdminTaskRowData> data;
+    height: 132px;
+    VerticalLayout {
+        padding: AedstTokens.spacing-md;
+        spacing: AedstTokens.spacing-xs;
+        HeaderLine {
+            title: root.data.title;
+            badge: AdminTexts.status-text(root.data.status);
+            tone: root.data.status == "done" ? "success" : "neutral";
+        }
+        Muted { text: @tr("" => "Owner: {}", root.data.owner); }
+        Muted { text: root.data.created; }
+        HorizontalLayout {
+            alignment: AedstLayout.rtl ? end : start;
+            AedstButton {
+                text: @tr("" => "Delete");
+                primary: false;
+                clicked => { AdminStore.request-delete(root.data.id); }
+            }
+        }
+    }
+}
+
+export component AuditRow inherits Card {
+    in property <AuditRowData> data;
+    height: 112px;
+    VerticalLayout {
+        padding: AedstTokens.spacing-md;
+        spacing: AedstTokens.spacing-xs;
+        HeaderLine { title: root.data.action; badge: root.data.created; }
+        Muted { text: @tr("" => "Target: {}", root.data.target); }
+        Muted { text: @tr("" => "By: {}", root.data.actor); }
+        Muted { text: root.data.reason; }
+    }
+}
+
+// Step two of the delete: asks for the reason. Rendered while the confirmation is open.
+export component DeleteConfirm inherits Card {
+    border-color: AedstTokens.destructive;
+    height: 190px;
+    VerticalLayout {
+        padding: AedstTokens.spacing-md;
+        spacing: AedstTokens.spacing-sm;
+        AedstLabel { text: @tr("" => "Delete task \"{}\"?", AdminStore.delete-title); font-weight: 600; }
+        Muted { text: @tr("" => "The reason is recorded in the audit log (3 to 500 characters)."); }
+        reason := AedstTextField {
+            label: @tr("" => "Reason for deleting");
+            placeholder: @tr("" => "Reason");
+            invalid: AdminStore.delete-state == "invalid";
+            accepted => { AdminStore.confirm-delete(self.text); }
+        }
+        if AdminStore.delete-state == "invalid": AedstLabel {
+            text: AdminTexts.validation-text(AdminStore.delete-error);
+            color: AedstTokens.destructive;
+        }
+        if AdminStore.delete-state == "failed": AedstLabel {
+            text: AdminTexts.kind-text(AdminStore.delete-error);
+            color: AedstTokens.destructive;
+        }
+        AedstActionRow {
+            primary-text: AdminStore.delete-state == "deleting" ? @tr("" => "Deleting...") : @tr("" => "Delete task");
+            secondary-text: @tr("" => "Cancel");
+            primary-clicked => {
+                if (AdminStore.delete-state != "deleting") { AdminStore.confirm-delete(reason.text); }
+            }
+            secondary-clicked => { AdminStore.cancel-delete(); }
+        }
+    }
+}
+
+export component BroadcastForm inherits VerticalLayout {
+    spacing: AedstTokens.spacing-sm;
+    alignment: start;
+    property <string> state: AdminStore.broadcast-state;
+    changed state => {
+        if (self.state == "sent") {
+            user.text = "";
+            title.text = "";
+            body.text = "";
+            link.text = "";
+        }
+    }
+    user := AedstTextField {
+        label: @tr("" => "Recipient id");
+        placeholder: @tr("" => "Recipient id (empty: everyone)");
+        invalid: AdminStore.broadcast-state == "invalid" && AdminStore.broadcast-error == "idInvalid";
+        edited => { AdminStore.broadcast-edited(); }
+    }
+    title := AedstTextField {
+        label: @tr("" => "Title");
+        placeholder: @tr("" => "Title");
+        invalid: AdminStore.broadcast-state == "invalid" && (AdminStore.broadcast-error == "titleRequired" || AdminStore.broadcast-error == "titleTooLong");
+        edited => { AdminStore.broadcast-edited(); }
+    }
+    body := AedstTextField {
+        label: @tr("" => "Message");
+        placeholder: @tr("" => "Message");
+        invalid: AdminStore.broadcast-state == "invalid" && AdminStore.broadcast-error == "bodyTooLong";
+        edited => { AdminStore.broadcast-edited(); }
+    }
+    link := AedstTextField {
+        label: @tr("" => "Link");
+        placeholder: @tr("" => "Link (optional, for example /tasks)");
+        invalid: AdminStore.broadcast-state == "invalid" && AdminStore.broadcast-error == "linkInvalid";
+        edited => { AdminStore.broadcast-edited(); }
+    }
+    if AdminStore.broadcast-state == "invalid": AedstLabel {
+        text: AdminTexts.validation-text(AdminStore.broadcast-error);
+        color: AedstTokens.destructive;
+    }
+    if AdminStore.broadcast-state == "failed": AedstLabel {
+        text: AdminTexts.kind-text(AdminStore.broadcast-error);
+        color: AedstTokens.destructive;
+    }
+    if AdminStore.broadcast-state == "sent": AedstLabel {
+        text: @tr("" => "Sent. Recipients reached: {}", AdminStore.recipients);
+        color: AedstTokens.success;
+    }
+    HorizontalLayout {
+        alignment: AedstLayout.rtl ? end : start;
+        AedstButton {
+            text: AdminStore.broadcast-state == "sending" ? @tr("" => "Sending...") : @tr("" => "Send notification");
+            enabled: AdminStore.broadcast-state != "sending";
+            clicked => { AdminStore.broadcast(user.text, title.text, body.text, link.text); }
+        }
+    }
+}

@@ -1,0 +1,32 @@
+# Backup destination for the CloudNativePG cluster, via the Barman Cloud Plugin
+# (https://cloudnative-pg.io/plugin-barman-cloud/). Replaces the deprecated in-tree
+# spec.backup.barmanObjectStore. Needs the plugin installed in the operator's
+# namespace (cnpg-system) and cert-manager; see docs/content/server/deployment.md.
+#
+# Environment-specific: every overlay MUST override destinationPath, the credentials
+# Secret and (where it differs) retentionPolicy (overlays/<env>/patch-objectstore.yaml).
+# Leave spec.configuration.serverName EMPTY: the plugin rejects it; the server name is
+# the `serverName` plugin parameter on the Cluster (spec.plugins), per environment.
+#
+# Fields verified against the plugin v0.15.1 CRD
+# (config/crd/bases/barmancloud.cnpg.io_objectstores.yaml) and its docs; NOT applied
+# to a live cluster.
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: aedst-pg-backup
+  annotations:
+    # Argo CD: create the store before the Cluster that archives into it.
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  # The plugin deletes base backups and WAL older than this. 30d replaces the old
+  # spec.backup.retentionPolicy (which only applies to the in-tree method).
+  retentionPolicy: 30d
+  configuration:
+    destinationPath: s3://OVERRIDE-IN-OVERLAY
+    # endpointURL: https://<s3-compatible-endpoint>  # non-AWS object stores
+    s3Credentials:
+      accessKeyId: {name: aedst-pg-backup-OVERRIDE, key: ACCESS_KEY_ID}
+      secretAccessKey: {name: aedst-pg-backup-OVERRIDE, key: ACCESS_SECRET_KEY}
+    wal: {compression: gzip}
+    data: {compression: gzip}

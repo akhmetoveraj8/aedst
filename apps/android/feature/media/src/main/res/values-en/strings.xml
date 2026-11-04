@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_title">Files</string>
+    <string name="media_empty">No files yet. Upload a photo or video.</string>
+    <string name="media_upload">Upload photo or video</string>
+    <string name="media_load_more">Load more</string>
+    <string name="media_back">Back</string>
+    <string name="media_delete">Delete file</string>
+    <string name="media_processing">Processing file…</string>
+    <string name="media_status_ready">Ready</string>
+    <string name="media_status_failed">The file could not be processed</string>
+</resources>

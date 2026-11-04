@@ -1,0 +1,106 @@
+# promtool unit tests for alerts.rules.yaml. Run with `task alerts:test`
+# (apps/server/Taskfile.yml); CI runs it in the `manifests` job of server-ci.yml.
+rule_files:
+  - alerts.rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  # No pool gauge for 6 minutes: every replica is down or unscraped -> page.
+  - interval: 1m
+    input_series:
+      - series: 'unrelated_metric{job="x"}'
+        values: "1+0x20"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: AedstNoInstancesReporting
+        exp_alerts: [] # still inside the 5m "for"
+      - eval_time: 8m
+        alertname: AedstNoInstancesReporting
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              pool: api
+              state: max
+            exp_annotations:
+              summary: No aedst-server instance is reporting metrics
+              description: No pod has exported metrics for 5 minutes — all replicas are down, crash-looping, or unscraped.
+              runbook_url: https://docs.aedst.dev/runbook#aedstnoinstancesreporting
+
+  # A healthy instance reports the pool gauge and serves only 2xx: nothing fires.
+  - interval: 1m
+    input_series:
+      - series: 'aedst_db_pool_connections{pool="api", state="max"}'
+        values: "10+0x30"
+      - series: 'http_server_request_duration_seconds_count{http_response_status_code="200"}'
+        values: "0+60x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: AedstNoInstancesReporting
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: AedstHighErrorRatio
+        exp_alerts: []
+
+  # Valkey errors for 15 minutes: rate limits silently stop being enforced.
+  - interval: 1m
+    input_series:
+      - series: 'aedst_ratelimit_fail_open_total{pod="a"}'
+        values: "0+30x30"
+      - series: 'aedst_readiness_degraded{pod="a", check="valkey"}'
+        values: "1+0x30"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: AedstRateLimiterFailingOpen
+        exp_alerts: [] # still inside the 10m "for"
+      - eval_time: 20m
+        alertname: AedstRateLimiterFailingOpen
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+            exp_annotations:
+              summary: Rate limits are not being enforced
+              description: Valkey errors for 10 minutes — every rate-limit decision is skipped (allowed) and the failed-authentication throttle is off. Requests are served normally.
+              runbook_url: https://docs.aedst.dev/runbook#aedstratelimiterfailingopen
+      - eval_time: 20m
+        alertname: AedstValkeyDegraded
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+              check: valkey
+            exp_annotations:
+              summary: "Optional dependency valkey has been failing for 10 minutes"
+              description: The instance serves in degraded mode (/readyz reports degraded, stays in rotation). For valkey that means no rate limiting; for database_read, reads fall back to the primary.
+              runbook_url: https://docs.aedst.dev/runbook#aedstvalkeydegraded
+
+  # A healthy cache: neither fires.
+  - interval: 1m
+    input_series:
+      - series: 'aedst_ratelimit_fail_open_total{pod="a"}'
+        values: "0+0x30"
+      - series: 'aedst_readiness_degraded{pod="a", check="valkey"}'
+        values: "0+0x30"
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: AedstRateLimiterFailingOpen
+        exp_alerts: []
+      - eval_time: 25m
+        alertname: AedstValkeyDegraded
+        exp_alerts: []
+
+  # Goroutines (OpenTelemetry runtime metric name, not client_golang's go_goroutines).
+  - interval: 1m
+    input_series:
+      - series: 'go_goroutine_count{pod="a"}'
+        values: "20000+0x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: AedstGoroutinesHigh
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+              pod: a
+            exp_annotations:
+              summary: "Pod a has more than 10000 goroutines"
+              description: A steadily high goroutine count usually means a leak or requests stuck on a slow dependency.
+              runbook_url: https://docs.aedst.dev/runbook#aedstgoroutineshigh

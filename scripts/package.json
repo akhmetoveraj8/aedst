@@ -1,0 +1,9 @@
+{
+  "name": "aedst-repo-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Dependencies of repo-wide check scripts (features.yaml parity, behaviour fixtures). Run via task check:features / check:behavior.",
+  "dependencies": {
+    "yaml": "2.9.1"
+  }
+}

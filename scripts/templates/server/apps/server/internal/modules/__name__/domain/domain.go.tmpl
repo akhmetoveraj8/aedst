@@ -1,0 +1,37 @@
+// Package domain holds the {{name}} module's entities and invariants. It
+// imports nothing outside the standard library and shared primitives (see
+// docs/content/server/modules.md). Scaffolded by `task new:module`.
+package domain
+
+import (
+	"strings"
+	"time"
+	"unicode/utf8"
+
+	sharederrors "github.com/aedst/server/internal/shared/errors"
+	"github.com/aedst/server/internal/shared/ids"
+)
+
+// MaxTitleLength mirrors the protovalidate constraint on the wire: the domain,
+// not the transport, is the authority on the rule.
+const MaxTitleLength = 200
+
+// Entry is owned entirely by its creator.
+type Entry struct {
+	ID        ids.ID
+	OwnerID   ids.ID
+	Title     string
+	CreatedAt time.Time
+}
+
+// NewEntry validates and builds an Entry. The title is trimmed.
+func NewEntry(id, ownerID ids.ID, title string, now time.Time) (Entry, error) {
+	title = strings.TrimSpace(title)
+	if title == "" {
+		return Entry{}, sharederrors.Validation("{{name}}.NewEntry", "title is required")
+	}
+	if utf8.RuneCountInString(title) > MaxTitleLength {
+		return Entry{}, sharederrors.Validation("{{name}}.NewEntry", "title is too long")
+	}
+	return Entry{ID: id, OwnerID: ownerID, Title: title, CreatedAt: now}, nil
+}

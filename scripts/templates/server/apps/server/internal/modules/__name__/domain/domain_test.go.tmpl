@@ -1,0 +1,42 @@
+package domain_test
+
+import (
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/aedst/server/internal/modules/{{name}}/domain"
+	sharederrors "github.com/aedst/server/internal/shared/errors"
+	"github.com/aedst/server/internal/shared/ids"
+)
+
+func TestNewEntry(t *testing.T) {
+	now := time.Date(2026, 1, 1, 12, 0, 0, 0, time.UTC)
+	tests := []struct {
+		name    string
+		title   string
+		wantErr bool
+	}{
+		{"valid", "  first entry ", false},
+		{"blank title", "   ", true},
+		{"title counts characters not bytes", strings.Repeat("é", domain.MaxTitleLength), false},
+		{"title too long", strings.Repeat("é", domain.MaxTitleLength+1), true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			entry, err := domain.NewEntry(ids.New(), ids.New(), tt.title, now)
+			if tt.wantErr {
+				if sharederrors.KindOf(err) != sharederrors.KindValidation {
+					t.Fatalf("want a validation error, got %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if entry.Title != strings.TrimSpace(tt.title) {
+				t.Fatalf("title not trimmed: %q", entry.Title)
+			}
+		})
+	}
+}

@@ -1,0 +1,87 @@
+name: desktop-rs-ci (experimental, non-blocking until first green run)
+
+# Rust + Slint desktop app (ADR-0001 in apps/desktop-rs/docs/adr). Nothing here has run on GitHub yet.
+on:
+  push:
+    branches: [main]
+    paths: ["apps/desktop-rs/**", ".github/workflows/desktop-rs-ci.yml"]
+  pull_request:
+    paths: ["apps/desktop-rs/**", ".github/workflows/desktop-rs-ci.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-rs-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/desktop-rs
+    shell: bash
+
+env:
+  CARGO_TERM_COLOR: always
+  # Version of cargo-deny (crates.io, verified 2026-11-01).
+  CARGO_DENY_VERSION: "0.20.2"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Toolchain comes from rust-toolchain.toml (rustup is preinstalled on the runner).
+      # buf (pinned in the repo-root mise.toml) builds the descriptor set that aedst-contract compiles.
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: buf
+          cache: true
+      - name: Toolchain
+        run: rustup show
+      # Slint (winit/femtovg/skia) system libraries on Linux. UNVERIFIED package list: fix on the first run.
+      - name: Linux system libraries
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libfontconfig1-dev libxkbcommon-dev libwayland-dev libx11-dev libxcb1-dev
+        working-directory: .
+      - run: cargo fmt --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # buf (pinned in the repo-root mise.toml) builds the descriptor set that aedst-contract compiles.
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: buf
+          cache: true
+      - name: Toolchain
+        run: rustup show
+      - name: Linux system libraries
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libfontconfig1-dev libxkbcommon-dev libwayland-dev libx11-dev libxcb1-dev
+        working-directory: .
+      - run: cargo build --workspace
+      - run: cargo test --workspace
+
+  deny:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # buf (pinned in the repo-root mise.toml) builds the descriptor set that aedst-contract compiles.
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: buf
+          cache: true
+      - name: Toolchain
+        run: rustup show
+      # No third-party action is pinned yet; compile cargo-deny from crates.io at the pinned version.
+      - run: cargo install --locked cargo-deny@${CARGO_DENY_VERSION}
+      - run: cargo deny check

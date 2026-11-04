@@ -1,0 +1,12 @@
+# Staging backup destination and credentials (never the production ones), shorter retention.
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: aedst-pg-backup
+spec:
+  retentionPolicy: 7d
+  configuration:
+    destinationPath: s3://aedst-pg-backups/staging # CHECK: your bucket
+    s3Credentials:
+      accessKeyId: {name: aedst-pg-backup-staging, key: ACCESS_KEY_ID}
+      secretAccessKey: {name: aedst-pg-backup-staging, key: ACCESS_SECRET_KEY}

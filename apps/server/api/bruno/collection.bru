@@ -1,0 +1,12 @@
+headers {
+  Connect-Protocol-Version: 1
+}
+
+script:pre-request {
+  // A fresh, collision-free value for this run's email/deviceId (Register
+  // fails with AlreadyExists on a re-run otherwise) — set once, reused by
+  // every request in the run.
+  if (!bru.getVar("runId")) {
+    bru.setVar("runId", Date.now().toString());
+  }
+}

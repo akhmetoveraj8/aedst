@@ -1,0 +1,17 @@
+replicaCount: 3
+existingSecret: aedst-web-prod
+config:
+  apiBaseUrl: http://aedst-server.aedst.svc.cluster.local
+  oidc:
+    issuer: https://auth.example.com
+    clientId: "<zitadel-app-client-id>"
+    projectId: "<zitadel-project-id>"
+  auth:
+    rolesClaim: urn:zitadel:iam:org:project:roles
+ingress:
+  enabled: true
+  className: nginx
+  host: app.example.com
+  tlsSecretName: aedst-web-tls
+autoscaling:
+  enabled: true

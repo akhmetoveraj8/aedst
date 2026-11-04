@@ -1,0 +1,8 @@
+language js
+
+// Intl formatters are constructed in one place (src/shared/intl) so that the
+// locale tag, caching and fallbacks are consistent. The date seam is
+// src/shared/date; numbers, bytes and relative time live in src/shared/intl.
+`new Intl.$ctor($args)` as $expr where {
+  register_diagnostic(span=$expr, message="Do not construct Intl formatters directly: use formatNumber / formatBytes / formatRelativeTime from @/shared/intl/format (dates: @/shared/date/format-date).", severity="error")
+}

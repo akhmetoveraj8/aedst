@@ -1,0 +1,35 @@
+{
+  "title": "Поиск",
+  "metaTitle": "Поиск",
+  "label": "Искать везде",
+  "placeholder": "Поиск по задачам и файлам…",
+  "kindsLabel": "Фильтр по типу",
+  "kinds": {
+    "all": "Все",
+    "task": "Задачи",
+    "media": "Файлы"
+  },
+  "resultsLabel": "Результаты поиска",
+  "emptyPrompt": "Начните вводить запрос, чтобы найти задачи и файлы.",
+  "noResults": "Ничего не найдено",
+  "noResultsDescription": "Попробуйте другие слова или другой фильтр.",
+  "errorTitle": "Поиск не удался",
+  "retry": "Повторить",
+  "loadMore": "Показать ещё",
+  "resultsCount": "{count, plural, one {# результат} few {# результата} many {# результатов} other {# результата}}",
+  "updated": "Обновлено {date}",
+  "palette": {
+    "title": "Командная палитра",
+    "description": "Найдите что-нибудь или перейдите к действию",
+    "placeholder": "Поиск или команда…",
+    "open": "Поиск…",
+    "searching": "Ищем…",
+    "noResults": "Ничего не найдено.",
+    "results": "Результаты",
+    "searchAll": "Искать «{query}»",
+    "actions": "Действия",
+    "newTask": "Создать задачу",
+    "goTasks": "К задачам",
+    "goNotifications": "К уведомлениям"
+  }
+}

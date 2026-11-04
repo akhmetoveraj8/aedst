@@ -1,0 +1,74 @@
+{
+  "behavior": "offline-outbox",
+  "rules": [
+    "Items are delivered in creation order (FIFO).",
+    "The item id is the Idempotency-Key sent with every delivery attempt of that item.",
+    "Enqueue with an id that already exists is ignored (double tap).",
+    "A success removes the item.",
+    "A retryable failure records an attempt and stops the run (run result 'retry'); later items are not attempted.",
+    "A permanent failure, an unknown type, or the 8th failed attempt parks the item as 'failed' and the run continues."
+  ],
+  "maxAttempts": 8,
+  "knownTypes": ["task.create", "task.update"],
+  "cases": [
+    {
+      "id": "delivers-in-order",
+      "steps": [
+        { "enqueue": { "id": "a", "type": "task.create" } },
+        { "enqueue": { "id": "b", "type": "task.update" } },
+        { "run": { "outcomes": ["ok", "ok"] },
+          "expect": { "result": "complete", "sent": [ { "id": "a", "idempotencyKey": "a" }, { "id": "b", "idempotencyKey": "b" } ], "queue": [] } }
+      ]
+    },
+    {
+      "id": "duplicate-enqueue-ignored",
+      "steps": [
+        { "enqueue": { "id": "a", "type": "task.create" } },
+        { "enqueue": { "id": "a", "type": "task.create" } },
+        { "run": { "outcomes": ["ok"] },
+          "expect": { "result": "complete", "sent": [ { "id": "a", "idempotencyKey": "a" } ], "queue": [] } }
+      ]
+    },
+    {
+      "id": "retryable-failure-blocks-later-items",
+      "steps": [
+        { "enqueue": { "id": "a", "type": "task.create" } },
+        { "enqueue": { "id": "b", "type": "task.update" } },
+        { "run": { "outcomes": ["retryable"] },
+          "expect": { "result": "retry", "sent": [ { "id": "a", "idempotencyKey": "a" } ],
+                      "queue": [ { "id": "a", "status": "pending", "attempts": 1 }, { "id": "b", "status": "pending", "attempts": 0 } ] } },
+        { "run": { "outcomes": ["ok", "ok"] },
+          "expect": { "result": "complete", "sent": [ { "id": "a", "idempotencyKey": "a" }, { "id": "b", "idempotencyKey": "b" } ], "queue": [] } }
+      ]
+    },
+    {
+      "id": "permanent-failure-parks-and-continues",
+      "steps": [
+        { "enqueue": { "id": "a", "type": "task.create" } },
+        { "enqueue": { "id": "b", "type": "task.update" } },
+        { "run": { "outcomes": ["permanent", "ok"] },
+          "expect": { "result": "complete", "sent": [ { "id": "a", "idempotencyKey": "a" }, { "id": "b", "idempotencyKey": "b" } ],
+                      "queue": [ { "id": "a", "status": "failed", "attempts": 0 } ] } }
+      ]
+    },
+    {
+      "id": "unknown-type-is-parked-without-sending",
+      "steps": [
+        { "enqueue": { "id": "a", "type": "no.such.handler" } },
+        { "enqueue": { "id": "b", "type": "task.update" } },
+        { "run": { "outcomes": ["ok"] },
+          "expect": { "result": "complete", "sent": [ { "id": "b", "idempotencyKey": "b" } ],
+                      "queue": [ { "id": "a", "status": "failed", "attempts": 0 } ] } }
+      ]
+    },
+    {
+      "id": "eighth-failure-parks-the-item",
+      "steps": [
+        { "enqueue": { "id": "a", "type": "task.create" } },
+        { "repeatRun": 7, "run": { "outcomes": ["retryable"] }, "expect": { "result": "retry" } },
+        { "run": { "outcomes": ["retryable"] },
+          "expect": { "result": "complete", "queue": [ { "id": "a", "status": "failed", "attempts": 7 } ] } }
+      ]
+    }
+  ]
+}

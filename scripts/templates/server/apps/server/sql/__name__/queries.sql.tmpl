@@ -1,0 +1,9 @@
+-- name: Create{{Name}}Entry :one
+INSERT INTO {{name}}.entries (id, owner_id, title, created_at)
+VALUES ($1, $2, $3, $4)
+RETURNING id, owner_id, title, created_at;
+
+-- name: Find{{Name}}EntryByIDAndOwner :one
+SELECT id, owner_id, title, created_at
+FROM {{name}}.entries
+WHERE id = $1 AND owner_id = $2;

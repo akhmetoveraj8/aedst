@@ -1,0 +1,21 @@
+{
+  "behavior": "client-version-gate",
+  "rules": [
+    "Every first-party request carries X-Aedst-Client: <platform>/<semver> with platform in web|android|apple|desktop.",
+    "The server gate (AEDST_MIN_CLIENT_VERSIONS, e.g. web=1.0.0,android=1.2.0) rejects a lower version with Connect code failed_precondition and reason CLIENT_UPGRADE_REQUIRED.",
+    "A missing or unparsable header is allowed; a platform without a configured minimum is allowed; an equal version is allowed.",
+    "Health endpoints are never gated.",
+    "On CLIENT_UPGRADE_REQUIRED a native client shows a blocking upgrade screen instead of a generic error."
+  ],
+  "minVersions": { "web": "1.0.0", "android": "1.2.0", "apple": "2.0.0" },
+  "cases": [
+    { "id": "lower-rejected", "header": "android/1.1.9", "path": "/aedst.tasks.v1.TasksService/List", "expect": { "allowed": false, "code": "failed_precondition", "reason": "CLIENT_UPGRADE_REQUIRED", "ui": "upgrade_screen" } },
+    { "id": "equal-allowed", "header": "android/1.2.0", "path": "/aedst.tasks.v1.TasksService/List", "expect": { "allowed": true } },
+    { "id": "higher-allowed", "header": "apple/2.10.0", "path": "/aedst.tasks.v1.TasksService/List", "expect": { "allowed": true } },
+    { "id": "numeric-not-lexical", "header": "apple/2.9.0", "path": "/aedst.tasks.v1.TasksService/List", "expect": { "allowed": true } },
+    { "id": "missing-header-allowed", "header": null, "path": "/aedst.tasks.v1.TasksService/List", "expect": { "allowed": true } },
+    { "id": "unparsable-header-allowed", "header": "garbage", "path": "/aedst.tasks.v1.TasksService/List", "expect": { "allowed": true } },
+    { "id": "platform-without-minimum-allowed", "header": "desktop/0.0.1", "path": "/aedst.tasks.v1.TasksService/List", "expect": { "allowed": true } },
+    { "id": "health-never-gated", "header": "android/0.0.1", "path": "/readyz", "expect": { "allowed": true } }
+  ]
+}

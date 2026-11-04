@@ -1,0 +1,37 @@
+{{- if .Values.httpRoute.enabled }}
+# Gateway API HTTPRoute (opt-in). Connect procedures are plain HTTP paths
+# (/<package>.<Service>/<Method>), so splitting one service out of the monolith is
+# a path-prefix rule that sends that service to its own backend; everything else
+# keeps going to this release's Service. Rules with a longer prefix win, so the
+# order below does not matter.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "aedst-server.fullname" . }}
+  labels:
+    {{- include "aedst-server.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    {{- toYaml (required "httpRoute.parentRefs is required (the Gateway to attach to)" .Values.httpRoute.parentRefs) | nindent 4 }}
+  {{- with .Values.httpRoute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.httpRoute.routes }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ required "httpRoute.routes[].servicePrefix is required, e.g. /aedst.tasks.v1.TasksService" .servicePrefix | quote }}
+      backendRefs:
+        - name: {{ required "httpRoute.routes[].backend.name is required" .backend.name | quote }}
+          port: {{ required "httpRoute.routes[].backend.port is required" .backend.port }}
+    {{- end }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ include "aedst-server.fullname" . }}
+          port: {{ .Values.service.port }}
+{{- end }}

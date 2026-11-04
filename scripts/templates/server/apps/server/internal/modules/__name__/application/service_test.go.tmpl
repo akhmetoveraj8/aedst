@@ -1,0 +1,59 @@
+package application_test
+
+import (
+	"context"
+	"testing"
+	"time"
+
+	"github.com/aedst/server/internal/modules/{{name}}/application"
+	"github.com/aedst/server/internal/modules/{{name}}/domain"
+	sharederrors "github.com/aedst/server/internal/shared/errors"
+	"github.com/aedst/server/internal/shared/ids"
+	sharedtime "github.com/aedst/server/internal/shared/time"
+)
+
+// fakeRepository is an in-memory double: use cases are testable without a database.
+type fakeRepository struct{ byID map[ids.ID]domain.Entry }
+
+func (f *fakeRepository) Create(_ context.Context, entry domain.Entry) (domain.Entry, error) {
+	f.byID[entry.ID] = entry
+	return entry, nil
+}
+
+func (f *fakeRepository) FindByIDAndOwner(_ context.Context, id, ownerID ids.ID) (domain.Entry, error) {
+	entry, ok := f.byID[id]
+	if !ok || entry.OwnerID != ownerID {
+		return domain.Entry{}, sharederrors.NotFound("{{name}}.Find", "entry not found")
+	}
+	return entry, nil
+}
+
+func newService() *application.Service {
+	repo := &fakeRepository{byID: map[ids.ID]domain.Entry{}}
+	return application.NewService(repo, sharedtime.Fixed{At: time.Date(2026, 1, 1, 12, 0, 0, 0, time.UTC)})
+}
+
+func TestCreateThenGet(t *testing.T) {
+	svc := newService()
+	owner := ids.New()
+	created, err := svc.CreateEntry(context.Background(), owner, "hello")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := svc.GetEntry(context.Background(), owner, created.ID)
+	if err != nil || got.Title != "hello" {
+		t.Fatalf("got %+v, %v", got, err)
+	}
+}
+
+func TestGetOfAnotherOwnersEntryIsNotFound(t *testing.T) {
+	svc := newService()
+	created, err := svc.CreateEntry(context.Background(), ids.New(), "hello")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = svc.GetEntry(context.Background(), ids.New(), created.ID)
+	if sharederrors.KindOf(err) != sharederrors.KindNotFound {
+		t.Fatalf("want NotFound, got %v", err)
+	}
+}

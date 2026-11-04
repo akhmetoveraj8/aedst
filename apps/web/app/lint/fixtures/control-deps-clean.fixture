@@ -1,0 +1,15 @@
+//// run: deps
+//// expect: pass
+//// file: src/shared/lib/util.ts
+export const util = 1;
+//// file: src/modules/a/manifest.ts
+import { util } from "@/shared/lib/util";
+
+export const manifest = { id: "a", util };
+//// file: src/modules/a/public.ts
+export const a = 1;
+//// file: src/app/page.ts
+import { manifest } from "@/modules/a/manifest";
+import { a } from "@/modules/a/public";
+
+export const page = [manifest, a];

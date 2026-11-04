@@ -1,0 +1,2 @@
+// NEGATIVE FIXTURE: sync is forbidden even inside Keychain.swift siblings
+let q: [String: Any] = [kSecAttrSynchronizable as String: true]

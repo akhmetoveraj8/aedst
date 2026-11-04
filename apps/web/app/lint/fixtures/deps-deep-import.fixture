@@ -1,0 +1,8 @@
+//// run: deps
+//// expect: module-public-entry-only
+//// file: src/modules/a/lib/internal.ts
+export const internal = 1;
+//// file: src/app/page.ts
+import { internal } from "@/modules/a/lib/internal";
+
+export const page = internal;

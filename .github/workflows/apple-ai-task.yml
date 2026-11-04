@@ -1,0 +1,64 @@
+name: apple-ai-task
+
+# An Issue labeled both `ai-task` and `apps/apple` (see
+# .github/ISSUE_TEMPLATE/apple-ai-task.yml) runs the write-spec -> ... ->
+# create-pr pipeline (apps/apple/AGENTS.md) when someone mentions @claude
+# on it. Scoped to apps/apple by the label check below, not by path (an
+# Issue has no diff/paths to filter on the way a PR does).
+#
+# author_association gate: same as android-ai-task.yml. This job has write
+# access, so only OWNER/MEMBER/COLLABORATOR may open the issue or post the
+# triggering @claude comment.
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+# One run per issue at a time; never cancel a run that may be mid-way through a PR.
+concurrency:
+  group: apple-ai-task-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  run-task:
+    if: >
+      contains(github.event.issue.labels.*.name, 'ai-task') &&
+      contains(github.event.issue.labels.*.name, 'apps/apple') &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association) &&
+      (
+        (github.event_name == 'issues') ||
+        (
+          github.event_name == 'issue_comment' &&
+          contains(github.event.comment.body, '@claude') &&
+          contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+        )
+      )
+    # Owner setup: create the GitHub Environment `ai-task` (Settings -> Environments) and add
+    # required reviewers, so every run waits for a human approval before it gets the secret and
+    # the write-scoped token. Without the environment, this line only creates an unprotected one.
+    environment: ai-task
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: anthropics/claude-code-action@8c3fd987fa6a6b2654f69275e323d08207fcd36c # v1.0.264
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Work this Issue (apps/apple) following the pipeline in
+            apps/apple/AGENTS.md: read .claude/skills/write-spec/SKILL.md
+            first and turn this Issue's description into a spec at
+            apps/apple/specs/<feature>/<name>.md, posted as a comment on
+            this Issue — then STOP and wait for a human to approve it
+            before scaffolding or writing any implementation code. Do not
+            open a PR in this run if the spec isn't already approved on a
+            prior run of this workflow (check the Issue's comment history).
+          claude_args: |
+            --max-turns 40

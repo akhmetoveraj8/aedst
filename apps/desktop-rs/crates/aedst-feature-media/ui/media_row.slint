@@ -1,0 +1,109 @@
+// One row of the library. Slint cannot reverse a layout, so the right-to-left order is spelled out
+// (the cost of mirroring recorded in ADR-0001).
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstBadge } from "@aedst-ui";
+import { MediaRowData, MediaStore } from "media_store.slint";
+import { MediaTexts } from "media_texts.slint";
+
+component RowInfo inherits VerticalLayout {
+    in property <MediaRowData> data;
+    spacing: 2px;
+    alignment: center;
+    AedstLabel { text: root.data.filename; font-weight: 600; }
+    AedstLabel {
+        text: MediaTexts.kind-label(root.data.kind) + " - " + MediaTexts.size-text(root.data.size-bytes);
+        color: AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-label-small-font-size;
+    }
+    if root.data.status == "failed": AedstLabel {
+        text: MediaTexts.failure-text(root.data.failure);
+        color: AedstTokens.destructive;
+    }
+}
+
+component StatusBadge inherits AedstBadge {
+    in property <string> status;
+    text: MediaTexts.status-text(root.status);
+    tone: root.status == "ready" ? "success" : root.status == "failed" ? "danger" : "neutral";
+}
+
+// Keeps the badge at its own height, centred on the row.
+component BadgeSlot inherits VerticalLayout {
+    in property <string> status;
+    alignment: center;
+    StatusBadge { status: root.status; }
+}
+
+component ViewButton inherits AedstButton {
+    in property <string> id;
+    text: @tr("" => "View");
+    primary: false;
+    clicked => { MediaStore.open(root.id); }
+}
+
+component DeleteButton inherits AedstButton {
+    in property <string> id;
+    text: @tr("" => "Delete");
+    primary: false;
+    enabled: !MediaStore.deleting;
+    clicked => { MediaStore.request-delete(root.id); }
+}
+
+// "Delete this file?" with the two answers; held in `MediaStore.confirm-delete-id`.
+component ConfirmButtons inherits HorizontalLayout {
+    spacing: AedstTokens.spacing-sm;
+    if !AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        AedstLabel { text: @tr("" => "Delete this file?"); vertical-alignment: center; wrap: no-wrap; }
+        AedstButton { text: @tr("" => "Delete"); enabled: !MediaStore.deleting; clicked => { MediaStore.confirm-delete(); } }
+        AedstButton { text: @tr("" => "Cancel"); primary: false; enabled: !MediaStore.deleting; clicked => { MediaStore.cancel-delete(); } }
+    }
+    if AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        AedstButton { text: @tr("" => "Cancel"); primary: false; enabled: !MediaStore.deleting; clicked => { MediaStore.cancel-delete(); } }
+        AedstButton { text: @tr("" => "Delete"); enabled: !MediaStore.deleting; clicked => { MediaStore.confirm-delete(); } }
+        AedstLabel { text: @tr("" => "Delete this file?"); vertical-alignment: center; wrap: no-wrap; }
+    }
+}
+
+component RowActions inherits HorizontalLayout {
+    in property <MediaRowData> data;
+    spacing: AedstTokens.spacing-sm;
+    if MediaStore.confirm-delete-id == root.data.id: ConfirmButtons {}
+    if MediaStore.confirm-delete-id != root.data.id && !AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        if root.data.openable: ViewButton { id: root.data.id; }
+        DeleteButton { id: root.data.id; }
+    }
+    if MediaStore.confirm-delete-id != root.data.id && AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        DeleteButton { id: root.data.id; }
+        if root.data.openable: ViewButton { id: root.data.id; }
+    }
+}
+
+export component MediaRow inherits Rectangle {
+    in property <MediaRowData> data;
+    border-radius: AedstTokens.radius-md;
+    background: AedstTokens.card;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+    min-height: content.min-height;
+    preferred-height: content.preferred-height;
+
+    // One layout child, so the row takes its height from what it holds.
+    content := VerticalLayout {
+        padding: AedstTokens.spacing-sm;
+        if !AedstLayout.rtl: HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            RowInfo { data: root.data; horizontal-stretch: 1; }
+            BadgeSlot { status: root.data.status; }
+            RowActions { data: root.data; }
+        }
+        if AedstLayout.rtl: HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            RowActions { data: root.data; }
+            BadgeSlot { status: root.data.status; }
+            RowInfo { data: root.data; horizontal-stretch: 1; }
+        }
+    }
+}

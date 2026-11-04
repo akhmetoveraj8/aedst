@@ -1,0 +1,38 @@
+{{- /*
+Optional worker Deployments: same image, ConfigMap and Secret as the API, but no
+Service, no migration hook, and their own queues / replicas / resources
+(AEDST_JOBS_QUEUES). Run the media queue here (media=4) and leave the API on
+default=50 so image/ffmpeg work cannot starve request handling.
+*/ -}}
+{{- range $w := .Values.workers }}
+{{- $name := required "workers[].name is required" $w.name }}
+{{- $selector := dict "app.kubernetes.io/name" (printf "%s-worker-%s" (include "aedst-server.name" $) $name) "app.kubernetes.io/instance" $.Release.Name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-worker-%s" (include "aedst-server.fullname" $) $name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "aedst-server.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: worker-{{ $name }}
+spec:
+  replicas: {{ $w.replicas | default 1 }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      {{- toYaml $selector | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") $ | sha256sum }}
+        {{- if and $.Values.metrics.enabled $.Values.metrics.podAnnotations }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ $.Values.containerPorts.metrics | int64 | quote }}
+        prometheus.io/path: /metrics
+        {{- end }}
+      labels:
+        {{- toYaml $selector | nindent 8 }}
+        app.kubernetes.io/component: worker-{{ $name }}
+    spec:
+      {{- include "aedst-server.podSpec" (dict "root" $ "selectorLabels" (toYaml $selector) "resources" ($w.resources | default $.Values.resources) "queues" (required (printf "workers[%s].queues is required" $name) $w.queues) "serviceName" (printf "%s-worker-%s" $.Values.config.serviceName $name)) | nindent 6 }}
+{{- end }}

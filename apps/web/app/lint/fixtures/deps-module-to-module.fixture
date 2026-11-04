@@ -1,0 +1,14 @@
+//// run: deps
+//// expect: modules-to-shared-only
+//// file: src/modules/a/manifest.ts
+export const manifest = { id: "a" };
+//// file: src/modules/a/public.ts
+import { b } from "@/modules/b/lib/b";
+
+export const a = b;
+//// file: src/modules/b/lib/b.ts
+export const b = 1;
+//// file: src/app/page.ts
+import { a } from "@/modules/a/public";
+
+export const page = a;

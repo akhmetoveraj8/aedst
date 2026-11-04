@@ -1,0 +1,29 @@
+meta {
+  name: VerifyAssertion
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/aedst.appattest.v1.AppAttestService/VerifyAssertion
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  clientData = "aedst.appattest.v1\n" + action + "\n" + payload; the app passes SHA-256(clientData) to
+  generateAssertion. payload is base64 in Connect JSON. A real assertion only comes from an Apple device.
+}
+
+body:json {
+  {
+    "keyId": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "assertion": "<base64 assertion object>",
+    "action": "login",
+    "payload": "bm9uY2UtMQ=="
+  }
+}

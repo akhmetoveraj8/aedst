@@ -1,0 +1,202 @@
+# aedst-feature-admin: Admin screen strings (ar).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-admin\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+msgid "Overview"
+msgstr "نظرة عامة"
+
+msgid "Tasks"
+msgstr "المهام"
+
+msgid "Audit log"
+msgstr "سجل التدقيق"
+
+msgid "Broadcast"
+msgstr "بث"
+
+msgid "Owner id"
+msgstr "معرّف المالك"
+
+msgid "Show only the tasks of one owner (id)"
+msgstr "عرض مهام مالك واحد فقط (المعرّف)"
+
+msgid "Apply"
+msgstr "تطبيق"
+
+msgid "Administration"
+msgstr "الإدارة"
+
+msgid "No access"
+msgstr "لا يوجد وصول"
+
+msgid "This screen is for operators only."
+msgstr "هذه الشاشة للمشغّلين فقط."
+
+msgid "Loading..."
+msgstr "جارٍ التحميل..."
+
+msgid "Could not load"
+msgstr "تعذّر التحميل"
+
+msgid "Try again"
+msgstr "حاول مرة أخرى"
+
+msgid "Nothing to show here."
+msgstr "لا يوجد ما يمكن عرضه هنا."
+
+msgid "Load more"
+msgstr "تحميل المزيد"
+
+msgid "Owner: {}"
+msgstr "المالك: {}"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Target: {}"
+msgstr "الهدف: {}"
+
+msgid "By: {}"
+msgstr "بواسطة: {}"
+
+msgid "Delete task \"{}\"?"
+msgstr "هل تريد حذف المهمة \"{}\"؟"
+
+msgid "The reason is recorded in the audit log (3 to 500 characters)."
+msgstr "يُسجَّل السبب في سجل التدقيق (من 3 إلى 500 حرف)."
+
+msgid "Reason for deleting"
+msgstr "سبب الحذف"
+
+msgid "Reason"
+msgstr "السبب"
+
+msgid "Deleting..."
+msgstr "جارٍ الحذف..."
+
+msgid "Delete task"
+msgstr "حذف المهمة"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Recipient id"
+msgstr "معرّف المستلم"
+
+msgid "Recipient id (empty: everyone)"
+msgstr "معرّف المستلم (فارغ: الجميع)"
+
+msgid "Title"
+msgstr "العنوان"
+
+msgid "Message"
+msgstr "الرسالة"
+
+msgid "Link"
+msgstr "الرابط"
+
+msgid "Link (optional, for example /tasks)"
+msgstr "الرابط (اختياري، مثل /tasks)"
+
+msgid "Sent. Recipients reached: {}"
+msgstr "تم الإرسال. عدد المستلمين: {}"
+
+msgid "Sending..."
+msgstr "جارٍ الإرسال..."
+
+msgid "Send notification"
+msgstr "إرسال إشعار"
+
+msgid "You are offline."
+msgstr "أنت غير متصل."
+
+msgid "The server is not available right now."
+msgstr "الخادم غير متاح حاليًا."
+
+msgid "The request took too long."
+msgstr "استغرق الطلب وقتًا طويلًا."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "طلبات كثيرة جدًا. حاول مرة أخرى بعد قليل."
+
+msgid "Please sign in again."
+msgstr "يرجى تسجيل الدخول مرة أخرى."
+
+msgid "You do not have access to this."
+msgstr "ليس لديك صلاحية الوصول إلى هذا."
+
+msgid "This item no longer exists."
+msgstr "لم يعد هذا العنصر موجودًا."
+
+msgid "The server did not accept this input."
+msgstr "لم يقبل الخادم هذا الإدخال."
+
+msgid "This item was changed elsewhere."
+msgstr "تم تغيير هذا العنصر في مكان آخر."
+
+msgid "Please update the app to continue."
+msgstr "يرجى تحديث التطبيق للمتابعة."
+
+msgid "Something went wrong."
+msgstr "حدث خطأ ما."
+
+msgid "Enter a valid user id or leave it empty."
+msgstr "أدخل معرّف مستخدم صالحًا أو اترك الحقل فارغًا."
+
+msgid "Enter a title."
+msgstr "أدخل عنوانًا."
+
+msgid "The title is too long (120 characters at most)."
+msgstr "العنوان طويل جدًا (120 حرفًا كحد أقصى)."
+
+msgid "The message is too long (1000 characters at most)."
+msgstr "الرسالة طويلة جدًا (1000 حرف كحد أقصى)."
+
+msgid "The link must be an in-app path such as /tasks."
+msgstr "يجب أن يكون الرابط مسارًا داخل التطبيق مثل /tasks."
+
+msgid "Enter a reason (3 characters at least)."
+msgstr "أدخل سببًا (3 أحرف على الأقل)."
+
+msgid "The reason is too long (500 characters at most)."
+msgstr "السبب طويل جدًا (500 حرف كحد أقصى)."
+
+msgid "To do"
+msgstr "للتنفيذ"
+
+msgid "In progress"
+msgstr "قيد التنفيذ"
+
+msgid "Done"
+msgstr "تم"
+
+msgid "Unknown"
+msgstr "غير معروف"
+
+msgid "Tasks done"
+msgstr "المهام المنجزة"
+
+msgid "Tasks overdue"
+msgstr "المهام المتأخرة"
+
+msgid "Media files"
+msgstr "ملفات الوسائط"
+
+msgid "Media size"
+msgstr "حجم الوسائط"
+
+msgid "Push devices"
+msgstr "أجهزة الإشعارات"
+
+msgid "Oldest waiting job (seconds)"
+msgstr "أقدم مهمة منتظرة (بالثواني)"
+
+msgid "Jobs pending"
+msgstr "المهام المعلّقة"

@@ -1,0 +1,96 @@
+{
+  "dashboard": {
+    "title": "المهام",
+    "totalTasks": "إجمالي المهام",
+    "todo": "قيد الانتظار",
+    "inProgress": "قيد التنفيذ",
+    "completed": "مكتملة",
+    "overdue": "متأخرة"
+  },
+  "list": {
+    "searchPlaceholder": "البحث عن المهام…",
+    "newTask": "مهمة جديدة",
+    "allStatuses": "كل الحالات",
+    "allPriorities": "كل الأولويات",
+    "sortCreatedDesc": "الأحدث أولاً",
+    "sortCreatedAsc": "الأقدم أولاً",
+    "sortDueAsc": "حسب الموعد (الأقرب)",
+    "sortDueDesc": "حسب الموعد (الأبعد)",
+    "emptyTitle": "لا توجد مهام بعد",
+    "emptyDescription": "أنشئ مهمتك الأولى للبدء.",
+    "noResultsTitle": "لا توجد مهام مطابقة",
+    "noResultsDescription": "جرّب بحثًا أو تصفية مختلفة.",
+    "errorTitle": "تعذّر تحميل المهام",
+    "retry": "إعادة المحاولة",
+    "previousPage": "السابق",
+    "nextPage": "التالي",
+    "due": "الموعد: {date}",
+    "searchLabel": "البحث في المهام",
+    "statusFilterLabel": "تصفية حسب الحالة",
+    "priorityFilterLabel": "تصفية حسب الأولوية",
+    "sortLabel": "فرز المهام",
+    "paginationLabel": "ترقيم الصفحات",
+    "resultsLabel": "المهام",
+    "resultCount": "{count, plural, zero {لا مهام} one {مهمة واحدة} two {مهمتان} few {# مهام} many {# مهمة} other {# مهمة}}"
+  },
+  "status": {
+    "todo": "قيد الانتظار",
+    "inProgress": "قيد التنفيذ",
+    "done": "مكتملة"
+  },
+  "priority": {
+    "low": "منخفضة",
+    "medium": "متوسطة",
+    "high": "عالية",
+    "urgent": "عاجلة"
+  },
+  "form": {
+    "createTitle": "مهمة جديدة",
+    "editTitle": "تعديل المهمة",
+    "titleLabel": "العنوان",
+    "titleRequired": "العنوان مطلوب.",
+    "titleTooLong": "بحد أقصى 200 حرف.",
+    "descriptionLabel": "الوصف",
+    "descriptionTooLong": "بحد أقصى 4000 حرف.",
+    "priorityLabel": "الأولوية",
+    "priorityRequired": "اختر أولوية.",
+    "dueDateLabel": "تاريخ الاستحقاق",
+    "dueDateOptional": "اختياري",
+    "cancel": "إلغاء",
+    "create": "إنشاء المهمة",
+    "save": "حفظ التغييرات",
+    "error": "تعذّر الحفظ: {message}"
+  },
+  "details": {
+    "backToList": "العودة إلى المهام",
+    "createdBy": "أنشأها",
+    "you": "أنت",
+    "createdAt": "تاريخ الإنشاء",
+    "updatedAt": "آخر تحديث",
+    "dueDate": "تاريخ الاستحقاق",
+    "noDueDate": "بدون موعد",
+    "edit": "تعديل",
+    "complete": "وضع علامة مكتملة",
+    "reopen": "إعادة الفتح",
+    "delete": "حذف",
+    "deleteConfirmTitle": "هل تريد حذف هذه المهمة؟",
+    "deleteConfirmDescription": "لا يمكن التراجع عن هذا الإجراء.",
+    "deleteConfirmAction": "حذف",
+    "deleteCancelAction": "إلغاء",
+    "notFoundTitle": "المهمة غير موجودة",
+    "notFoundDescription": "ربما تم حذفها أو أنها تخص مستخدمًا آخر.",
+    "loadErrorTitle": "تعذّر تحميل هذه المهمة",
+    "pageTitle": "المهمة"
+  },
+  "a11y": {
+    "priority": "الأولوية",
+    "status": "الحالة"
+  },
+  "sync": {
+    "pendingBadge": "في انتظار المزامنة",
+    "failedBadge": "لم تتم المزامنة",
+    "discard": "تجاهل",
+    "queuedTitle": "في انتظار المزامنة",
+    "queuedHint": "تم الحفظ على الجهاز. سيتم الإرسال تلقائيًا."
+  }
+}

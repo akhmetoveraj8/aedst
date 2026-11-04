@@ -1,0 +1,9 @@
+//// run: validation
+//// expect: useForm() without resolver
+//// file: src/modules/tasks/ui/NoResolverForm.tsx
+import { useForm } from "react-hook-form";
+
+export function NoResolverForm() {
+  const form = useForm<{ title: string }>({ defaultValues: { title: "" } });
+  return form.getValues("title");
+}

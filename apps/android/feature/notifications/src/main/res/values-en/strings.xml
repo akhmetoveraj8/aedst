@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_empty">No notifications yet.</string>
+    <string name="notifications_mark_all_read">Mark all as read</string>
+    <string name="notifications_preferences">Notification settings</string>
+    <string name="notifications_load_more">Load more</string>
+    <string name="notifications_back">Back</string>
+    <string name="notifications_pref_push">Push notifications</string>
+    <string name="notifications_pref_task_completed">Task completed</string>
+    <string name="notifications_pref_task_due_soon">Task due soon</string>
+    <string name="notifications_pref_media_ready">File processed</string>
+    <string name="notifications_channel_tasks">Tasks</string>
+    <string name="notifications_channel_media">Files</string>
+    <string name="notifications_channel_system">General</string>
+    <plurals name="notifications_unread_count">
+        <item quantity="one">Notifications, %d unread</item>
+        <item quantity="other">Notifications, %d unread</item>
+    </plurals>
+</resources>

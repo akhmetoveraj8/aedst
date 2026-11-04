@@ -1,0 +1,20 @@
+# Build context is the repository root (see Dockerfile). Keep only what the
+# image build reads: apps/web and the proto sources of apps/server.
+*
+!apps/web
+!apps/server/buf.yaml
+!apps/server/buf.lock
+!apps/server/api/proto
+
+apps/web/**/node_modules
+apps/web/**/.next
+apps/web/**/coverage
+apps/web/app/storybook-static
+apps/web/app/playwright-report
+apps/web/app/test-results
+apps/web/app/.lighthouseci
+apps/web/shared/api/connect/generated
+**/.env
+**/.env.*
+!**/.env.example
+**/*.tsbuildinfo

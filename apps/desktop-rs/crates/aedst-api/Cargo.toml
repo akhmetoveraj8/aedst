@@ -1,0 +1,25 @@
+[package]
+name = "aedst-api"
+version = "0.0.0"
+description = "Calling the server: client configuration, bearer token with one refresh and one replay, idempotency keys"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+aedst-common = { path = "../aedst-common" }
+aedst-oidc = { path = "../aedst-oidc" }
+connectrpc = { workspace = true }
+futures = { workspace = true }
+semver = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+
+[lints]
+workspace = true

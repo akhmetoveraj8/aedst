@@ -1,0 +1,7 @@
+package zzlintcheck
+
+import (
+	_ "github.com/lestrrat-go/jwx/v4/jwt"                     // depguard jwx-only-in-auth
+	_ "github.com/prometheus/client_golang/prometheus"        // depguard prometheus-only-in-observability
+	_ "go.opentelemetry.io/otel/exporters/prometheus"         // depguard otel-exporters-only-in-observability
+)

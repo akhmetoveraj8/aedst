@@ -1,0 +1,82 @@
+// Every message is the translated text of a KIND or a state key, never a raw server message.
+export global MediaTexts {
+    public pure function kind-text(kind: string) -> string {
+        if (kind == "offline") { return @tr("" => "You are offline. Try again when you are connected."); }
+        if (kind == "unavailable") { return @tr("" => "The server is not available right now."); }
+        if (kind == "timeout") { return @tr("" => "The request took too long."); }
+        if (kind == "rateLimited") { return @tr("" => "Too many requests. Try again in a moment."); }
+        if (kind == "unauthenticated") { return @tr("" => "Please sign in again."); }
+        if (kind == "forbidden") { return @tr("" => "You do not have access to this."); }
+        if (kind == "notFound") { return @tr("" => "This file no longer exists."); }
+        if (kind == "invalidInput") { return @tr("" => "The server did not accept this file."); }
+        if (kind == "conflict") { return @tr("" => "This file was changed elsewhere."); }
+        if (kind == "upgradeRequired") { return @tr("" => "Please update the app to continue."); }
+        if (kind == "storage") { return @tr("" => "Could not read the file on this device."); }
+        return @tr("" => "Something went wrong.");
+    }
+
+    public pure function validation-text(key: string) -> string {
+        if (key == "empty") { return @tr("" => "The file is empty."); }
+        if (key == "tooLarge") { return @tr("" => "The file is too large."); }
+        if (key == "unsupportedType") { return @tr("" => "This type of file is not supported."); }
+        if (key == "badFilename") { return @tr("" => "The file name is empty or too long."); }
+        return @tr("" => "The task for this file is not valid.");
+    }
+
+    public pure function kind-label(kind: string) -> string {
+        if (kind == "image") { return @tr("" => "Image"); }
+        if (kind == "video") { return @tr("" => "Video"); }
+        if (kind == "audio") { return @tr("" => "Audio"); }
+        if (kind == "document") { return @tr("" => "Document"); }
+        return @tr("" => "Unknown");
+    }
+
+    public pure function status-text(status: string) -> string {
+        if (status == "uploading") { return @tr("" => "Uploading"); }
+        if (status == "processing") { return @tr("" => "Processing"); }
+        if (status == "ready") { return @tr("" => "Ready"); }
+        if (status == "failed") { return @tr("" => "Failed"); }
+        return @tr("" => "Unknown");
+    }
+
+    public pure function failure-text(failure: string) -> string {
+        if (failure == "sizeMismatch") { return @tr("" => "The uploaded size did not match the file."); }
+        if (failure == "typeMismatch") { return @tr("" => "The content did not match the file type."); }
+        return @tr("" => "The file could not be processed.");
+    }
+
+    public pure function size-text(bytes: int) -> string {
+        if (bytes < 1024) { return @tr("" => "{} B", bytes); }
+        if (bytes < 1048576) { return @tr("" => "{} KB", Math.round(bytes / 102.4) / 10); }
+        return @tr("" => "{} MB", Math.round(bytes / 104857.6) / 10);
+    }
+
+    public pure function stage-text(stage: string) -> string {
+        if (stage == "validating") { return @tr("" => "Checking the file..."); }
+        if (stage == "creating") { return @tr("" => "Requesting the upload..."); }
+        if (stage == "uploading") { return @tr("" => "Uploading..."); }
+        return @tr("" => "Finishing...");
+    }
+
+    public pure function stage-failed-text(stage: string) -> string {
+        if (stage == "validating") { return @tr("" => "This file cannot be uploaded."); }
+        if (stage == "creating") { return @tr("" => "Could not start the upload."); }
+        if (stage == "uploading") { return @tr("" => "Could not send the file."); }
+        return @tr("" => "Could not finish the upload.");
+    }
+
+    public pure function cleanup-text(cleanup: string) -> string {
+        if (cleanup == "removed") { return @tr("" => "The unfinished upload was removed from the server."); }
+        if (cleanup == "failed") { return @tr("" => "An unfinished upload may remain on the server and will expire."); }
+        return "";
+    }
+
+    public pure function viewer-text(phase: string) -> string {
+        if (phase == "loading") { return @tr("" => "Loading..."); }
+        if (phase == "notReady") { return @tr("" => "This file is not ready yet."); }
+        if (phase == "videoUnavailable") { return @tr("" => "Video playback is not available yet."); }
+        if (phase == "noPreview") { return @tr("" => "No preview is available for this kind of file."); }
+        if (phase == "tooLarge") { return @tr("" => "This image is too large to show."); }
+        return @tr("" => "This image could not be shown.");
+    }
+}

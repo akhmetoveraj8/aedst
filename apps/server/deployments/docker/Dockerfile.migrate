@@ -1,0 +1,25 @@
+# Migration image used by the Helm pre-install/pre-upgrade hook Job
+# (deployments/helm/aedst-server/templates/migration-job.yaml). Contains the
+# goose CLI plus migrations/<module>/*.sql. Build context is apps/server:
+#   docker build -f deployments/docker/Dockerfile.migrate -t aedst-server-migrate .
+#
+# Alpine (not distroless) because the Job loops over module directories in sh.
+# The goose version must track github.com/pressly/goose/v3 in go.mod.
+FROM golang:1.27.3-alpine AS build
+RUN CGO_ENABLED=0 GOBIN=/out go install github.com/pressly/goose/v3/cmd/goose@v3.29.0
+# River's own schema (river_job, ...) is migrated by its CLI, once per release, here and not at
+# server startup. The version must equal github.com/riverqueue/river in go.mod (architecturetest).
+RUN CGO_ENABLED=0 GOBIN=/out go install github.com/riverqueue/river/cmd/river@v0.51.0
+
+# check-invalid-indexes fails the Job when a CONCURRENTLY build left an INVALID index.
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY scripts/check-invalid-indexes ./scripts/check-invalid-indexes
+RUN CGO_ENABLED=0 go build -trimpath -o /out/check-invalid-indexes ./scripts/check-invalid-indexes
+
+FROM alpine:3.24 AS runtime
+COPY --from=build /out/goose /out/river /out/check-invalid-indexes /usr/local/bin/
+COPY migrations /migrations
+USER 65532:65532
+ENTRYPOINT ["goose"]

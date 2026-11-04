@@ -1,0 +1,6 @@
+//// run: forms
+//// expect: without importing react-hook-form
+//// file: src/modules/tasks/ui/BadForm.tsx
+import { Form } from "@/shared/ui/form";
+
+export const BadForm = () => <Form>hand-rolled state</Form>;

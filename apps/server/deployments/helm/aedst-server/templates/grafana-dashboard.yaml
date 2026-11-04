@@ -1,0 +1,18 @@
+{{- if .Values.dashboards.enabled }}
+# Grafana dashboard, picked up by the Grafana sidecar (label below) — the
+# convention of kube-prometheus-stack and the grafana chart.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "aedst-server.fullname" . }}-dashboard
+  labels:
+    {{- include "aedst-server.labels" . | nindent 4 }}
+    {{ .Values.dashboards.sidecarLabel }}: "1"
+  {{- with .Values.dashboards.folder }}
+  annotations:
+    grafana_folder: {{ . | quote }}
+  {{- end }}
+data:
+  aedst-server.json: |-
+    {{- .Files.Get "files/aedst-server-dashboard.json" | nindent 4 }}
+{{- end }}

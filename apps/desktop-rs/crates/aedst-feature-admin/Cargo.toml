@@ -1,0 +1,32 @@
+[package]
+name = "aedst-feature-admin"
+version = "0.0.0"
+description = "Admin: operator overview, users, tasks, audit log and broadcast (domain, data, presentation, Slint view, five locales)"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+build = "build.rs"
+
+[dependencies]
+aedst-api = { path = "../aedst-api" }
+aedst-common = { path = "../aedst-common" }
+aedst-contract = { path = "../aedst-contract" }
+buffa = { workspace = true }
+buffa-types = { workspace = true }
+chrono = { workspace = true }
+connectrpc = { workspace = true }
+futures = { workspace = true }
+slint = { workspace = true }
+tokio = { workspace = true }
+uuid = { workspace = true }
+
+[build-dependencies]
+slint-build = { workspace = true }
+
+[dev-dependencies]
+image = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }
+
+[lints]
+workspace = true

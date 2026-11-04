@@ -1,0 +1,33 @@
+version: v2
+# Generates Kotlin Protobuf message types + a connect-kotlin service client
+# straight from apps/server's proto sources (the source of truth lives in
+# apps/server/api/proto; nothing is duplicated here) — the Kotlin-side
+# equivalent of apps/web's and apps/apple's buf.gen.yaml. Run via `make
+# generate` from this directory (see Makefile).
+#
+# Uses buf.build remote plugins so contributors don't need a local
+# protoc-gen-kotlin / protoc-gen-connect-kotlin toolchain — only the `buf`
+# CLI, same as everywhere else in this repo.
+managed:
+  enabled: true
+#
+# `lite=true` on the java/kotlin plugins: apps/android/core/datastore already
+# depends on the javalite runtime for its on-device DataStore schema (see its
+# build.gradle.kts) — generating full (non-lite) protobuf-java here as well
+# would pull a second, binary-incompatible `com.google.protobuf` runtime into
+# the same APK (duplicate-class dex merge failure). One protobuf runtime
+# version app-wide (see gradle/libs.versions.toml's `protobuf` version),
+# per "One Responsibility → One Primary Tool".
+plugins:
+  - remote: buf.build/protocolbuffers/java
+    out: core/network/src/main/kotlin-gen
+    opt:
+      - lite
+  - remote: buf.build/protocolbuffers/kotlin
+    out: core/network/src/main/kotlin-gen
+    opt:
+      - lite
+  - remote: buf.build/connectrpc/kotlin
+    out: core/network/src/main/kotlin-gen
+    opt:
+      - generateservicemetadataannotation=false

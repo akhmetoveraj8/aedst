@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tasks_title">المهام</string>
+    <string name="tasks_empty">لا توجد مهام بعد. أنشئ أول مهمة.</string>
+    <string name="tasks_select_prompt">اختر مهمة</string>
+    <string name="tasks_create">مهمة جديدة</string>
+    <string name="tasks_back">رجوع</string>
+    <string name="tasks_delete">حذف المهمة</string>
+    <string name="tasks_complete">إكمال</string>
+    <string name="tasks_reopen">إعادة فتح</string>
+    <string name="tasks_due">الموعد: %1$s</string>
+    <string name="tasks_attachments">المرفقات</string>
+    <string name="tasks_attach">إرفاق</string>
+    <string name="tasks_no_attachments">لا توجد مرفقات.</string>
+    <string name="tasks_field_title">العنوان</string>
+    <string name="tasks_field_title_required">أدخل عنوانًا.</string>
+    <string name="tasks_field_description">الوصف</string>
+    <string name="tasks_field_priority">الأولوية</string>
+    <string name="tasks_save">إنشاء</string>
+    <string name="tasks_status_todo">للتنفيذ</string>
+    <string name="tasks_status_in_progress">قيد التنفيذ</string>
+    <string name="tasks_status_done">منجزة</string>
+    <string name="tasks_status_unknown">غير معروفة</string>
+    <string name="tasks_priority_low">منخفضة</string>
+    <string name="tasks_priority_medium">متوسطة</string>
+    <string name="tasks_priority_high">عالية</string>
+    <string name="tasks_priority_urgent">عاجلة</string>
+    <string name="tasks_priority_unknown">غير معروفة</string>
+    <string name="tasks_pending_sync_title">تم الحفظ على هذا الجهاز</string>
+    <string name="tasks_pending_sync">سيتم الإرسال عند عودة الاتصال بالإنترنت.</string>
+</resources>

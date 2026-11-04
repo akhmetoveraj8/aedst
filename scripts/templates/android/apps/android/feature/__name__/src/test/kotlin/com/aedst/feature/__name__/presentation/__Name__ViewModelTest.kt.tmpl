@@ -1,0 +1,32 @@
+package com.aedst.feature.{{name}}.presentation
+
+import com.aedst.core.common.Outcome
+import com.aedst.core.testing.MainDispatcherExtension
+import com.aedst.feature.{{name}}.domain.{{Name}}Entry
+import com.aedst.feature.{{name}}.domain.{{Name}}Repository
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
+
+class {{Name}}ViewModelTest {
+
+    @JvmField
+    @RegisterExtension
+    val mainDispatcher = MainDispatcherExtension()
+
+    private val repository = object : {{Name}}Repository {
+        override suspend fun entries(): Outcome<List<{{Name}}Entry>> =
+            Outcome.Success(listOf({{Name}}Entry(id = "1", title = "first")))
+    }
+
+    @Test
+    fun `loads the entries from the repository`() = runTest(mainDispatcher.testDispatcher) {
+        val viewModel = {{Name}}ViewModel(repository)
+        testScheduler.advanceUntilIdle()
+
+        assertFalse(viewModel.state.value.isLoading)
+        assertEquals(listOf("first"), viewModel.state.value.entries.map { it.title })
+    }
+}

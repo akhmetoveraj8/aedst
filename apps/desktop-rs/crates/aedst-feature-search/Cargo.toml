@@ -1,0 +1,30 @@
+[package]
+name = "aedst-feature-search"
+version = "0.0.0"
+description = "Search: read-only cross-module search with suggestions (domain, data, presentation, Slint view, five locales)"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+build = "build.rs"
+
+[dependencies]
+aedst-api = { path = "../aedst-api" }
+aedst-common = { path = "../aedst-common" }
+aedst-contract = { path = "../aedst-contract" }
+buffa = { workspace = true }
+connectrpc = { workspace = true }
+futures = { workspace = true }
+slint = { workspace = true }
+tokio = { workspace = true }
+
+[build-dependencies]
+slint-build = { workspace = true }
+
+[dev-dependencies]
+buffa-types = { workspace = true }
+image = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }
+
+[lints]
+workspace = true

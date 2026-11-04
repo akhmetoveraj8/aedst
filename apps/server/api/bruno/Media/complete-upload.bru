@@ -1,0 +1,25 @@
+meta {
+  name: Complete Upload
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/aedst.media.v1.MediaService/CompleteUpload
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "id": "{{mediaId}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

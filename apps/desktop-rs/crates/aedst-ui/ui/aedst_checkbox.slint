@@ -1,0 +1,46 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+// A checkbox. `label` is announced by screen readers together with the checked state.
+export component AedstCheckbox inherits Rectangle {
+    in property <bool> checked;
+    in property <string> label;
+    in property <bool> enabled: true;
+    callback toggled();
+
+    width: 24px;
+    height: 24px;
+    border-radius: AedstTokens.radius-sm;
+    border-width: focus.has-focus ? 2px : 1px;
+    border-color: focus.has-focus ? AedstTokens.ring : AedstTokens.input;
+    background: root.checked ? AedstTokens.primary : AedstTokens.background;
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: checkbox;
+    accessible-label: root.label;
+    accessible-checked: root.checked;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { if (root.enabled) { root.toggled(); } }
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == " ") {
+                root.toggled();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    if root.checked: Text {
+        text: "✓";
+        color: AedstTokens.primary-foreground;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    TouchArea {
+        enabled: root.enabled;
+        clicked => { root.toggled(); }
+    }
+}

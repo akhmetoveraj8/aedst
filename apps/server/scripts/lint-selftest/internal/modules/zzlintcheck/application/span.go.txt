@@ -1,0 +1,13 @@
+package application
+
+import (
+	"context"
+
+	"go.opentelemetry.io/otel"
+)
+
+// spancheck: the span is started and never ended.
+func LeakySpan(ctx context.Context) {
+	_, span := otel.Tracer("t").Start(ctx, "op")
+	span.SetName("x")
+}

@@ -1,0 +1,235 @@
+// The Search screen. Stateless: it renders `SearchStore` and calls its callbacks; Rust
+// (`ui_glue.rs`) owns the state. Only `aedst-ui` components are used; no raw std-widgets control.
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstTextField, AedstBadge } from "@aedst-ui";
+
+export struct HitRowData {
+    kind: string,    // task | media | unknown
+    title: string,
+    snippet: string, // plain text, highlight markers already removed
+    openable: bool,
+}
+
+export global SearchStore {
+    in property <[HitRowData]> rows;
+    in property <[string]> suggestions;
+    in-out property <string> query;     // the text box content
+    in property <string> phase: "idle"; // idle | loading | ready | failed
+    in property <string> error-kind;    // set when phase == failed, or loading a later page failed
+    in property <int> total: -1;
+    in property <bool> has-more;
+    in property <bool> loading-more;
+    callback query-edited(string);      // the text box content, on every edit
+    callback submit();                  // Enter or "Try again"
+    callback pick-suggestion(string);
+    callback load-more();
+    callback open-hit(int);             // index into rows
+}
+
+// Every message is the translated text of a KIND, never a raw server message.
+export global SearchTexts {
+    public pure function kind-text(kind: string) -> string {
+        if (kind == "offline") { return @tr("" => "You are offline. Search needs a connection."); }
+        if (kind == "unavailable") { return @tr("" => "The server is not available right now."); }
+        if (kind == "timeout") { return @tr("" => "The request took too long."); }
+        if (kind == "rateLimited") { return @tr("" => "Too many requests. Try again in a moment."); }
+        if (kind == "unauthenticated") { return @tr("" => "Please sign in again."); }
+        if (kind == "forbidden") { return @tr("" => "You do not have access to this."); }
+        if (kind == "notFound") { return @tr("" => "Nothing was found at this address."); }
+        if (kind == "invalidInput") { return @tr("" => "The server did not accept this search."); }
+        if (kind == "conflict") { return @tr("" => "The data was changed elsewhere."); }
+        if (kind == "upgradeRequired") { return @tr("" => "Please update the app to continue."); }
+        if (kind == "storage") { return @tr("" => "Could not read data on this device."); }
+        return @tr("" => "Something went wrong.");
+    }
+
+    public pure function document-kind-text(kind: string) -> string {
+        if (kind == "task") { return @tr("" => "Task"); }
+        if (kind == "media") { return @tr("" => "File"); }
+        return @tr("" => "Other");
+    }
+}
+
+// A suggestion: one tap searches it.
+component SuggestionRow inherits Rectangle {
+    in property <string> suggestion;
+    height: 36px;
+    border-radius: AedstTokens.radius-md;
+    background: touch.has-hover ? AedstTokens.secondary : AedstTokens.card;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+    accessible-role: AccessibleRole.button;
+    accessible-label: root.suggestion;
+    accessible-action-default => { SearchStore.query = root.suggestion; SearchStore.pick-suggestion(root.suggestion); }
+
+    HorizontalLayout {
+        padding-left: AedstTokens.spacing-sm;
+        padding-right: AedstTokens.spacing-sm;
+        AedstLabel { text: root.suggestion; vertical-alignment: center; wrap: no-wrap; overflow: elide; }
+    }
+    touch := TouchArea {
+        clicked => { SearchStore.query = root.suggestion; SearchStore.pick-suggestion(root.suggestion); }
+    }
+}
+
+// One result: kind badge, title and excerpt. Slint cannot reverse a layout, so the badge/title
+// order is spelled out for right-to-left.
+component HitRow inherits Rectangle {
+    in property <HitRowData> data;
+    in property <int> index;
+    height: content.preferred-height;
+    border-radius: AedstTokens.radius-md;
+    background: touch.has-hover && root.data.openable ? AedstTokens.secondary : AedstTokens.card;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+    accessible-role: AccessibleRole.button;
+    accessible-label: root.data.title;
+    accessible-description: root.data.snippet;
+    accessible-enabled: root.data.openable;
+    accessible-action-default => { SearchStore.open-hit(root.index); }
+
+    content := VerticalLayout {
+        padding: AedstTokens.spacing-sm;
+        spacing: AedstTokens.spacing-xs;
+        if !AedstLayout.rtl: HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            AedstBadge { text: SearchTexts.document-kind-text(root.data.kind); vertical-stretch: 0; }
+            AedstLabel { text: root.data.title; font-weight: 600; horizontal-stretch: 1; }
+        }
+        if AedstLayout.rtl: HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            AedstLabel { text: root.data.title; font-weight: 600; horizontal-stretch: 1; }
+            AedstBadge { text: SearchTexts.document-kind-text(root.data.kind); vertical-stretch: 0; }
+        }
+        if root.data.snippet != "": AedstLabel {
+            text: root.data.snippet;
+            color: AedstTokens.muted-foreground;
+        }
+    }
+    touch := TouchArea {
+        enabled: root.data.openable;
+        mouse-cursor: root.data.openable ? MouseCursor.pointer : MouseCursor.default;
+        clicked => { SearchStore.open-hit(root.index); }
+    }
+}
+
+export component SearchListView inherits Rectangle {
+    background: AedstTokens.background;
+
+    VerticalLayout {
+        padding: AedstTokens.spacing-lg;
+        spacing: AedstTokens.spacing-md;
+
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            alignment: AedstLayout.rtl ? end : start;
+            vertical-stretch: 0;
+            height: 32px;
+            if !AedstLayout.rtl: HorizontalLayout {
+                spacing: AedstTokens.spacing-sm;
+                AedstLabel {
+                    text: @tr("" => "Search");
+                    font-size: AedstTokens.typography-title-large-font-size;
+                    font-weight: AedstTokens.typography-title-large-font-weight;
+                }
+                if SearchStore.phase == "ready" && SearchStore.total > 0: AedstBadge {
+                    text: @tr("" => "About {} results", SearchStore.total);
+                }
+            }
+            if AedstLayout.rtl: HorizontalLayout {
+                spacing: AedstTokens.spacing-sm;
+                if SearchStore.phase == "ready" && SearchStore.total > 0: AedstBadge {
+                    text: @tr("" => "About {} results", SearchStore.total);
+                }
+                AedstLabel {
+                    text: @tr("" => "Search");
+                    font-size: AedstTokens.typography-title-large-font-size;
+                    font-weight: AedstTokens.typography-title-large-font-weight;
+                }
+            }
+        }
+
+        AedstTextField {
+            text <=> SearchStore.query;
+            label: @tr("" => "Search");
+            placeholder: @tr("" => "Search tasks and files");
+            vertical-stretch: 0;
+            edited(text) => { SearchStore.query-edited(text); }
+            accepted => { SearchStore.submit(); }
+        }
+
+        // Suggestions: while the first page loads, and when nothing was found.
+        if SearchStore.suggestions.length > 0 && (SearchStore.phase == "loading" || (SearchStore.phase == "ready" && SearchStore.rows.length == 0)): VerticalLayout {
+            spacing: AedstTokens.spacing-xs;
+            vertical-stretch: 0;
+            AedstLabel { text: @tr("" => "Suggestions"); color: AedstTokens.muted-foreground; }
+            for suggestion[i] in SearchStore.suggestions: SuggestionRow {
+                suggestion: suggestion;
+                visible: i < 5;
+                height: i < 5 ? 36px : 0px;
+            }
+        }
+
+        if SearchStore.phase == "idle": VerticalLayout {
+            alignment: start;
+            vertical-stretch: 0;
+            AedstLabel { text: @tr("" => "Search your tasks and files"); font-weight: 600; }
+            AedstLabel { text: @tr("" => "Results appear as you type."); color: AedstTokens.muted-foreground; }
+        }
+        if SearchStore.phase == "loading" && SearchStore.rows.length == 0: AedstLabel {
+            text: @tr("" => "Searching...");
+            color: AedstTokens.muted-foreground;
+            vertical-stretch: 0;
+        }
+        if SearchStore.phase == "failed": VerticalLayout {
+            spacing: AedstTokens.spacing-sm;
+            alignment: start;
+            vertical-stretch: 0;
+            AedstLabel { text: @tr("" => "Could not search"); font-weight: 600; }
+            AedstLabel { text: SearchTexts.kind-text(SearchStore.error-kind); color: AedstTokens.destructive; }
+            AedstButton { text: @tr("" => "Try again"); primary: false; clicked => { SearchStore.submit(); } }
+        }
+        if SearchStore.phase == "ready" && SearchStore.rows.length == 0: VerticalLayout {
+            alignment: start;
+            vertical-stretch: 0;
+            AedstLabel { text: @tr("" => "No results"); font-weight: 600; }
+            AedstLabel { text: @tr("" => "Try a different word or check the spelling."); color: AedstTokens.muted-foreground; }
+        }
+        if SearchStore.phase == "ready" && SearchStore.error-kind != "": AedstLabel {
+            text: SearchTexts.kind-text(SearchStore.error-kind);
+            color: AedstTokens.destructive;
+            vertical-stretch: 0;
+        }
+
+        Flickable {
+            vertical-stretch: 1;
+            min-height: 160px;
+            content-height: results.preferred-height;
+            results := VerticalLayout {
+                spacing: AedstTokens.spacing-xs;
+                for row[i] in SearchStore.rows: HitRow { data: row; index: i; }
+            }
+        }
+
+        if SearchStore.has-more: AedstButton {
+            text: SearchStore.loading-more ? @tr("" => "Loading...") : @tr("" => "Load more");
+            enabled: !SearchStore.loading-more;
+            primary: false;
+            vertical-stretch: 0;
+            clicked => { SearchStore.load-more(); }
+        }
+    }
+}
+
+// A window for running the screen on its own (the example and screenshots). The app shell embeds
+// `SearchListView` in its own window instead.
+export component SearchDemoWindow inherits Window {
+    in-out property <bool> rtl <=> AedstLayout.rtl;
+    in-out property <bool> dark <=> AedstTokens.dark;
+    title: @tr("" => "Search");
+    background: AedstTokens.background;
+    min-width: 640px;
+    min-height: 560px;
+    preferred-width: 640px;
+    preferred-height: 560px;
+    SearchListView {}
+}

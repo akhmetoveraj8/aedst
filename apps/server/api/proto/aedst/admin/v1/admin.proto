@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package aedst.admin.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/aedst/server/gen/go/aedst/admin/v1;adminv1";
+
+// AdminService is a composition layer for operators. It owns no tables of
+// its own except the audit log; every read goes through other modules' api/
+// packages (tasks, media, notifications). Every RPC requires the
+// "admin" role — enforced by httpserver.RoleInterceptor through
+// AEDST_ROLE_POLICY (default `/aedst.admin.v1.AdminService/*=admin`), never
+// in handler code — and every mutating RPC writes an audit entry in the same
+// transaction as its effect.
+service AdminService {
+  rpc GetOverview(GetOverviewRequest) returns (GetOverviewResponse);
+  // Any user's tasks — the reference for cross-tenant admin reads.
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+  rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
+  // Sends a SYSTEM notification to one user (or everyone when user_id is
+  // empty) through the notifications module.
+  rpc BroadcastNotification(BroadcastNotificationRequest) returns (BroadcastNotificationResponse);
+  rpc ListAuditLog(ListAuditLogRequest) returns (ListAuditLogResponse);
+}
+
+message GetOverviewRequest {}
+
+message GetOverviewResponse {
+  // users_total (1) was removed with first-party auth (ADR-0019): the user
+  // directory lives in the identity provider.
+  reserved 1;
+  reserved "users_total";
+  // tasks_* count at most 1,000,000 tasks (lower bounds beyond that).
+  int64 tasks_total = 2;
+  int64 tasks_done = 3;
+  int64 tasks_overdue = 4;
+  int64 media_total = 5;
+  int64 media_bytes = 6;
+  int64 push_devices = 7;
+  // Age of the oldest ready River job (event deliveries included), seconds (0 when none waits). Field name kept for wire compatibility; it was the outbox lag before ADR-0014.
+  int64 outbox_lag_seconds = 8;
+  // Queued + retrying River jobs.
+  int64 jobs_pending = 9;
+}
+
+message AdminTask {
+  string id = 1;
+  string owner_id = 2;
+  string title = 3;
+  // aedst.tasks.v1.TaskStatus number; kept as int to avoid a cross-package
+  // proto import in an admin-only contract.
+  int32 status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp due_date = 6;
+}
+
+message ListTasksRequest {
+  // Empty means every user.
+  string owner_id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+  string query = 2 [(buf.validate.field).string.max_len = 200];
+  int32 page_size = 3 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  string page_token = 4 [(buf.validate.field).string.max_len = 512];
+}
+
+message ListTasksResponse {
+  repeated AdminTask tasks = 1;
+  string next_page_token = 2;
+}
+
+message DeleteTaskRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  // Recorded in the audit log.
+  string reason = 2 [(buf.validate.field).string = {
+    min_len: 3
+    max_len: 500
+  }];
+}
+
+message DeleteTaskResponse {}
+
+message BroadcastNotificationRequest {
+  string user_id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+  string title = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 120
+  }];
+  string body = 3 [(buf.validate.field).string.max_len = 1000];
+  string link = 4 [(buf.validate.field).string = {
+    max_len: 500
+    pattern: "^(/[^/].*)?$"
+  }];
+}
+
+message BroadcastNotificationResponse {
+  int64 recipients = 1;
+}
+
+message AuditEntry {
+  string id = 1;
+  string actor_id = 2;
+  string action = 3;
+  string target_kind = 4;
+  string target_id = 5;
+  string reason = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message ListAuditLogRequest {
+  int32 page_size = 1 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  string page_token = 2 [(buf.validate.field).string.max_len = 512];
+}
+
+message ListAuditLogResponse {
+  repeated AuditEntry entries = 1;
+  string next_page_token = 2;
+}

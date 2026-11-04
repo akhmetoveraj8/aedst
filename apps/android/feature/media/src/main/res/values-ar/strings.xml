@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_title">الملفات</string>
+    <string name="media_empty">لا توجد ملفات بعد. ارفع صورة أو فيديو.</string>
+    <string name="media_upload">رفع صورة أو فيديو</string>
+    <string name="media_load_more">تحميل المزيد</string>
+    <string name="media_back">رجوع</string>
+    <string name="media_delete">حذف الملف</string>
+    <string name="media_processing">جارٍ معالجة الملف…</string>
+    <string name="media_status_ready">جاهز</string>
+    <string name="media_status_failed">تعذّرت معالجة الملف</string>
+</resources>

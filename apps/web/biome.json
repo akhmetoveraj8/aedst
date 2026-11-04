@@ -1,0 +1,414 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!node_modules",
+      "!.next",
+      "!dist",
+      "!build",
+      "!coverage",
+      "!playwright-report",
+      "!.lighthouseci",
+      "!.lighthouseci-signed-in",
+      "!test-results",
+      "!app/lint/fixtures",
+      "!**/.next",
+      "!**/deployments",
+      "!pnpm-lock.yaml",
+      "!**/dist",
+      "!**/coverage",
+      "!**/node_modules",
+      "!shared/api/connect/generated"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "plugins": [
+    {
+      "path": "./app/lint/no-fetch-in-modules.grit",
+      "includes": ["**/src/modules/**", "!**/*.test.*"]
+    },
+    {
+      "path": "./app/lint/no-date-from-string.grit",
+      "includes": [
+        "**/src/**",
+        "**/shared/**",
+        "!**/shared/date/**",
+        "!**/*.test.*",
+        "!**/src/test/**"
+      ]
+    },
+    {
+      "path": "./app/lint/no-zod-in-ui.grit",
+      "includes": [
+        "**/src/modules/**/ui/**",
+        "**/src/app/**/*.tsx",
+        "**/shared/ui/**",
+        "!**/*.test.*",
+        "!**/*.stories.tsx"
+      ]
+    },
+    {
+      "path": "./app/lint/no-protovalidate-outside-forms.grit",
+      "includes": [
+        "**/src/**",
+        "**/shared/**",
+        "!**/shared/lib/forms/**",
+        "!**/*.test.*",
+        "!**/src/test/**"
+      ]
+    },
+    {
+      "path": "./app/lint/no-hookform-resolvers-subpath.grit",
+      "includes": [
+        "**/src/**",
+        "**/shared/**",
+        "!**/shared/lib/forms/**",
+        "!**/*.test.*",
+        "!**/src/test/**"
+      ]
+    },
+    {
+      "path": "./app/lint/no-inline-form-rules.grit",
+      "includes": [
+        "**/src/**",
+        "**/shared/**",
+        "!**/*.test.*",
+        "!**/src/test/**"
+      ]
+    },
+    {
+      "path": "./app/lint/no-inline-form-rules-jsx.grit",
+      "includes": [
+        "**/src/**",
+        "**/shared/**",
+        "!**/*.test.*",
+        "!**/src/test/**"
+      ]
+    },
+    {
+      "path": "./app/lint/no-intl-constructors.grit",
+      "includes": [
+        "**/src/**",
+        "**/shared/**",
+        "!**/shared/intl/**",
+        "!**/*.test.*",
+        "!**/src/test/**"
+      ]
+    }
+  ],
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "suspicious": {
+        "noConsole": "warn",
+        "noExplicitAny": "error",
+        "noImportCycles": "error"
+      },
+      "style": {
+        "noProcessEnv": {
+          "level": "error"
+        },
+        "noExcessiveLinesPerFile": {
+          "level": "error",
+          "options": {
+            "maxLines": 500,
+            "skipBlankLines": false
+          }
+        },
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "date-fns": "Use the seam in src/shared/date/format-date.ts, the only file that may import date-fns (docs/content/decisions.md: Temporal pending).",
+              "date-fns/locale": "Use the seam in src/shared/date/format-date.ts.",
+              "zustand": "Zustand is for UI state only and lives in src/shared/lib/stores/** or src/modules/<m>/lib/<name>-store.ts. Server data belongs in TanStack Query.",
+              "zustand/middleware": "Zustand is for UI state only and lives in src/shared/lib/stores/** or src/modules/<m>/lib/<name>-store.ts.",
+              "zustand/react/shallow": "Zustand is for UI state only: wrap the selector in a hook inside the store file.",
+              "posthog-js": "Use track() / useFeatureFlag from src/shared/lib/analytics (PostHog loads only after consent).",
+              "posthog-js/react": "Use track() / useFeatureFlag from src/shared/lib/analytics (PostHog loads only after consent).",
+              "@sentry/nextjs": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors (one Sentry path). Sentry init lives in src/app/config/sentry and src/instrumentation*.ts.",
+              "@/shared/ui/toast": "Sonner is the only toast: import { toast } from \"sonner\"."
+            }
+          }
+        }
+      }
+    },
+    "domains": {
+      "next": "recommended",
+      "react": "recommended",
+      "project": "recommended"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["shared/date/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "zustand": "Zustand is for UI state only and lives in src/shared/lib/stores/** or src/modules/<m>/lib/<name>-store.ts.",
+                  "posthog-js": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
+                  "posthog-js/react": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
+                  "@sentry/nextjs": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
+                  "@/shared/ui/toast": "Sonner is the only toast: import { toast } from \"sonner\"."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["shared/lib/stores/**", "*/src/modules/*/lib/*-store.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "date-fns": "Use the seam in src/shared/date/format-date.ts.",
+                  "date-fns/locale": "Use the seam in src/shared/date/format-date.ts.",
+                  "posthog-js": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
+                  "posthog-js/react": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
+                  "@sentry/nextjs": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
+                  "@/shared/ui/toast": "Sonner is the only toast: import { toast } from \"sonner\"."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["shared/lib/analytics/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "date-fns": "Use the seam in src/shared/date/format-date.ts.",
+                  "date-fns/locale": "Use the seam in src/shared/date/format-date.ts.",
+                  "zustand": "Zustand is for UI state only and lives in src/shared/lib/stores/** or src/modules/<m>/lib/<name>-store.ts.",
+                  "@sentry/nextjs": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
+                  "@/shared/ui/toast": "Sonner is the only toast: import { toast } from \"sonner\"."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "*/src/app/config/**",
+        "*/src/instrumentation*.ts",
+        "shared/lib/errors/**",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "*/src/test/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "date-fns": "Use the seam in src/shared/date/format-date.ts.",
+                  "date-fns/locale": "Use the seam in src/shared/date/format-date.ts.",
+                  "zustand": "Zustand is for UI state only and lives in src/shared/lib/stores/** or src/modules/<m>/lib/<name>-store.ts.",
+                  "posthog-js": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
+                  "posthog-js/react": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
+                  "@/shared/ui/toast": "Sonner is the only toast: import { toast } from \"sonner\"."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["*/src/**", "shared/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": {
+              "level": "error",
+              "options": {
+                "strictCase": false,
+                "conventions": [
+                  {
+                    "selector": {
+                      "kind": "objectLiteralProperty"
+                    },
+                    "formats": [
+                      "camelCase",
+                      "snake_case",
+                      "CONSTANT_CASE",
+                      "PascalCase"
+                    ]
+                  },
+                  {
+                    "selector": {
+                      "kind": "typeProperty"
+                    },
+                    "formats": [
+                      "camelCase",
+                      "snake_case",
+                      "CONSTANT_CASE",
+                      "PascalCase"
+                    ]
+                  }
+                ]
+              }
+            },
+            "useFilenamingConvention": {
+              "level": "error",
+              "options": {
+                "strictCase": false,
+                "requireAscii": true,
+                "filenameCases": ["kebab-case", "PascalCase"]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["shared/ui/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off",
+            "useFilenamingConvention": "off",
+            "useNamingConvention": "off"
+          },
+          "a11y": {
+            "useSemanticElements": "off",
+            "useFocusableInteractive": "off",
+            "useKeyWithClickEvents": "off",
+            "noLabelWithoutControl": "off",
+            "noRedundantRoles": "off"
+          },
+          "correctness": {
+            "useExhaustiveDependencies": "off"
+          },
+          "suspicious": {
+            "noArrayIndexKey": "off",
+            "noDoubleEquals": "off",
+            "noDocumentCookie": "off"
+          },
+          "security": {
+            "noDangerouslySetInnerHtml": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["*/src/modules/**", "*/src/app/**"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noRestrictedElements": {
+              "level": "error",
+              "options": {
+                "elements": {
+                  "button": "Use <Button> from @/shared/ui/button (icon-only: size=\"icon\" plus an aria-label).",
+                  "input": "Use <Input> from @/shared/ui/input (checkbox: ui/checkbox, switch: ui/switch, radio: ui/radio-group, OTP: ui/input-otp).",
+                  "select": "Use <Select> from @/shared/ui/select or <NativeSelect> from @/shared/ui/native-select.",
+                  "textarea": "Use <Textarea> from @/shared/ui/textarea.",
+                  "label": "Use <FieldLabel> inside <Field> (@/shared/ui/field) or <Label> from @/shared/ui/label.",
+                  "form": "Use <Form> from @/shared/ui/form with React Hook Form (docs/content/library-first/web.md)."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "shared/env/**",
+        "*/next.config.ts",
+        "*/playwright.config.ts",
+        "*/vitest*.ts",
+        "*/vitest*.mts",
+        "landing/src/env.ts",
+        "admin/src/app/config/env.ts",
+        "*/src/instrumentation*.ts",
+        "*/src/app/config/sentry/**",
+        "*/src/test/**",
+        "*/e2e/**",
+        "*/scripts/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noProcessEnv": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "*/scripts/**",
+        "*/src/instrumentation*.ts",
+        "*/e2e/mock-api/**"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["shared/ui/calendar.tsx", "**/*.test.tsx"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noComponentHookFactories": "off"
+          }
+        }
+      }
+    }
+  ],
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
+}

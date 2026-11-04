@@ -1,0 +1,4 @@
+// POSITIVE FIXTURE: AedstNetwork owns this concern.
+import Connect
+
+let client: Aedst_Tasks_V1_TasksServiceClient? = nil

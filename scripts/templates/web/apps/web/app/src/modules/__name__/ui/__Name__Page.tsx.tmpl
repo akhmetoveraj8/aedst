@@ -1,0 +1,27 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/shared/ui/empty";
+
+/** Scaffolded by `task new:module`: replace with the module's real screen. */
+export function {{Name}}Page() {
+  const t = useTranslations("{{name}}");
+
+  return (
+    <section className="flex flex-col gap-4">
+      <h1 className="font-semibold text-2xl">{t("title")}</h1>
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
+          <EmptyDescription>{t("emptyDescription")}</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    </section>
+  );
+}

@@ -1,0 +1,110 @@
+name: apple-record-snapshots
+
+# Manual only (`workflow_dispatch`): records the design-system pixel-snapshot references on the SAME macOS image,
+# Xcode and iOS Simulator runtime that apple-ci.yml verifies them on, then proves the recording by verifying it
+# once, uploads the images as an artifact and (by default) commits them to a branch and opens or updates a PR.
+# Run it whenever a component's look changes on purpose, and once to create the very first baseline.
+#
+#   gh workflow run apple-record-snapshots.yml            # from a branch; PR targets that branch
+#
+# Nothing here records during a normal CI run: apple-ci.yml only ever verifies (and skips while no references
+# exist). Runbook: docs/content/apple/snapshots.md. The scheme and the simulator are derived from `xcodebuild -list` and
+# `-showdestinations` by apps/apple/scripts/snapshots.sh (overrides: SNAPSHOT_SCHEME, SNAPSHOT_SIM_DEVICE, SNAPSHOT_SIM_OS);
+# the `doctor` step prints the choice and the raw lists first.
+#
+# Note: a PR opened with the default GITHUB_TOKEN does not start other workflows. Close and reopen it (or push an
+# empty commit) to run apple-ci on it.
+# UNVERIFIED: never run.
+on:
+  workflow_dispatch:
+    inputs:
+      open_pr:
+        description: "Commit the recorded images to a branch and open/update a PR (otherwise artifact only)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: apple-record-snapshots-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # Keep equal to apple-ci.yml.
+  XCODE_VERSION: "26.6"
+
+jobs:
+  record:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      # What would be used, and the raw Xcode lists: the first thing to read when the next step cannot find a destination.
+      - name: Doctor (derived scheme and simulator)
+        working-directory: apps/apple
+        run: bash scripts/snapshots.sh doctor
+
+      # The design-system package depends only on AedstCore, so no Connect codegen is needed here.
+      - name: Record, then verify the fresh recording
+        working-directory: apps/apple
+        run: bash scripts/snapshots.sh record
+
+      - name: Summary
+        working-directory: apps/apple
+        run: |
+          {
+            echo "### Recorded snapshot references"
+            echo '```'
+            bash scripts/snapshots.sh status
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: apple-snapshot-references
+          path: apps/apple/Core/AedstDesignSystem/Tests/AedstDesignSystemTests/Snapshots/__Snapshots__
+          if-no-files-found: error
+          retention-days: 14
+
+      # On failure: the result bundles (test logs, failure attachments with actual/diff images) and env.diff.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: apple-snapshot-record-logs
+          path: ${{ runner.temp }}/aedst-snapshots
+          retention-days: 7
+
+      - name: Commit to a branch and open or update the PR
+        if: inputs.open_pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          branch="chore/apple-snapshots-${BASE_BRANCH//\//-}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add apps/apple/Core/AedstDesignSystem/Tests/AedstDesignSystemTests/Snapshots/__Snapshots__
+          if git diff --cached --quiet; then
+            echo "Recorded references are identical to the committed ones; nothing to commit."
+            exit 0
+          fi
+          git commit -m "apple: record design-system snapshot references (Xcode ${XCODE_VERSION})"
+          # The branch is bot-owned and rebuilt from the dispatched ref each run, so a plain force push is correct
+          # (--force-with-lease would need a prior fetch of the remote branch).
+          git push --force origin "$branch"
+          body="Recorded by the apple-record-snapshots workflow (run ${GITHUB_RUN_ID}) on macos-26 with Xcode ${XCODE_VERSION}. Review the PNGs like any visual change; the recording was verified once on the same runner before upload."
+          if gh pr view "$branch" --json number >/dev/null 2>&1; then
+            gh pr edit "$branch" --body "$body"
+          else
+            gh pr create --head "$branch" --base "$BASE_BRANCH" \
+              --title "apple: design-system snapshot references" --body "$body"
+          fi

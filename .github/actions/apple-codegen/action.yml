@@ -1,0 +1,80 @@
+name: apple-codegen
+description: >
+  Generates the Connect-Swift client stubs for apps/apple from apps/server/api/proto
+  (buf + protoc-gen-swift + protoc-gen-connect-swift). The stubs are a build input and are
+  not committed. Requires a macOS runner with Xcode already selected.
+
+inputs:
+  swift-protobuf-version:
+    description: >
+      swift-protobuf tag to build protoc-gen-swift from. Empty (default) = read the floor from
+      apps/apple/Core/AedstNetwork/Package.swift, the single source of truth.
+    default: ""
+  connect-swift-version:
+    description: >
+      connect-swift tag to build protoc-gen-connect-swift from. Empty (default) = read the floor from
+      apps/apple/Core/AedstNetwork/Package.swift.
+    default: ""
+  buf-version:
+    description: buf version (keep in sync with server-ci.yml BUF_VERSION and mise.toml).
+    default: "1.73.0"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      with:
+        go-version-file: apps/server/go.mod
+
+    - name: Install buf
+      shell: bash
+      run: go install github.com/bufbuild/buf/cmd/buf@v${{ inputs.buf-version }}
+
+    # Package.swift declares `.package(url: ".../<name>", from: "x.y.z")`; the generators are built from
+    # exactly that tag so the generated code matches the runtime floor.
+    - name: Resolve generator versions
+      id: versions
+      shell: bash
+      env:
+        IN_SWIFT_PROTOBUF: ${{ inputs.swift-protobuf-version }}
+        IN_CONNECT_SWIFT: ${{ inputs.connect-swift-version }}
+      run: |
+        set -euo pipefail
+        manifest="$GITHUB_WORKSPACE/apps/apple/Core/AedstNetwork/Package.swift"
+        floor() {
+          sed -nE "s|.*github\.com/$1\"[^\"]*\"?, *from: *\"([0-9]+\.[0-9]+\.[0-9]+)\".*|\1|p" "$manifest" | head -n1
+        }
+        sp="${IN_SWIFT_PROTOBUF:-$(floor apple/swift-protobuf)}"
+        cs="${IN_CONNECT_SWIFT:-$(floor connectrpc/connect-swift)}"
+        if [ -z "$sp" ] || [ -z "$cs" ]; then
+          echo "::error::could not read swift-protobuf/connect-swift floors from $manifest"
+          exit 1
+        fi
+        echo "swift-protobuf=$sp" >> "$GITHUB_OUTPUT"
+        echo "connect-swift=$cs" >> "$GITHUB_OUTPUT"
+        echo "Generators: swift-protobuf $sp, connect-swift $cs"
+
+    # protoc-gen-swift and protoc-gen-connect-swift have no Homebrew formula;
+    # build them from the same tagged sources AedstNetwork's Package.swift pins.
+    - name: Build protoc-gen-swift
+      shell: bash
+      run: |
+        git clone --depth 1 --branch "${{ steps.versions.outputs.swift-protobuf }}" https://github.com/apple/swift-protobuf.git /tmp/swift-protobuf
+        swift build -c release --package-path /tmp/swift-protobuf --product protoc-gen-swift
+        echo "/tmp/swift-protobuf/.build/release" >> "$GITHUB_PATH"
+
+    - name: Build protoc-gen-connect-swift
+      shell: bash
+      run: |
+        git clone --depth 1 --branch "${{ steps.versions.outputs.connect-swift }}" https://github.com/connectrpc/connect-swift.git /tmp/connect-swift
+        swift build -c release --package-path /tmp/connect-swift --product protoc-gen-connect-swift
+        echo "/tmp/connect-swift/.build/release" >> "$GITHUB_PATH"
+
+    - name: go env PATH
+      shell: bash
+      run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+    - name: Generate Connect-Swift client stubs
+      shell: bash
+      working-directory: apps/apple
+      run: make generate

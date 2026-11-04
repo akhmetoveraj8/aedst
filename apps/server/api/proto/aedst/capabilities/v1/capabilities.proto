@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package aedst.capabilities.v1;
+
+option go_package = "github.com/aedst/server/gen/go/aedst/capabilities/v1;capabilitiesv1";
+
+// CapabilitiesService is capability negotiation: what this server is, which
+// client releases it supports, and which features it has switched on. Clients
+// (web, android, apple, desktop) call it at start-up and on resume, before
+// sign-in, and gate UI on the answer instead of guessing from the API version.
+//
+// Public (no token) and read-only. The caller identifies itself with the
+// X-Aedst-Client header ("<platform>/<semver>", ADR-0009); the answer never
+// depends on who the user is, so it is safe to cache for a few minutes.
+//
+// Compatibility: fields are only added. A client ignores feature names it does
+// not know and treats a missing feature as disabled.
+service CapabilitiesService {
+  rpc GetCapabilities(GetCapabilitiesRequest) returns (GetCapabilitiesResponse);
+}
+
+message GetCapabilitiesRequest {}
+
+// UpdateStatus is how the calling client's release compares with the policy.
+// A release below the minimum never gets this far: the version gate rejects the
+// call with CLIENT_UPGRADE_REQUIRED first.
+enum UpdateStatus {
+  UPDATE_STATUS_UNSPECIFIED = 0; // the caller did not identify itself, or no policy exists for its platform
+  UPDATE_STATUS_CURRENT = 1;
+  UPDATE_STATUS_RECOMMENDED = 2; // below the recommended release: show a non-blocking prompt
+}
+
+// ClientVersions is the support window of one platform. Empty = not configured.
+message ClientVersions {
+  // The oldest supported release; older ones are rejected.
+  string minimum = 1;
+  // The release clients should move to.
+  string recommended = 2;
+}
+
+// Feature is one switchable capability.
+//
+// Client rule (all four platforms): a feature the server lists is authoritative.
+// `enabled = false` always wins, even for a feature the client has built.
+// `required_client_version` (semver, empty = none) hides the feature on clients
+// older than it. A feature the server does NOT list falls back to the client's
+// default: a built-in feature (tasks, search, ...) is on, a flagged (optional,
+// experimental) feature is off.
+//
+// Names without a dot are coarse feature ids: one per server module ("tasks",
+// "media", "search", "admin", "notifications", "auth", ...), enabled when the
+// module is registered and not switched off by the operator, plus operator flags.
+// Dotted names ("media.uploads", "push.fcm") are sub-capabilities derived from
+// what this deployment has configured.
+message Feature {
+  bool enabled = 1;
+  // Free-form, feature-specific settings (all values are strings).
+  map<string, string> params = 2;
+  // Semver; empty = no requirement. Clients older than this hide the feature.
+  string required_client_version = 3;
+}
+
+message GetCapabilitiesResponse {
+  // The running server build (semver, a commit hash, or "dev").
+  string server_version = 1;
+  // Support window per platform: "web", "android", "apple", "desktop".
+  map<string, ClientVersions> clients = 2;
+  // Coarse module ids ("tasks"), dotted sub-capabilities ("media.uploads") and
+  // operator flags ("new_search"). See Feature for how clients treat a feature
+  // that is not listed.
+  map<string, Feature> features = 3;
+  // The caller's own standing, from its X-Aedst-Client header.
+  UpdateStatus update_status = 4;
+}

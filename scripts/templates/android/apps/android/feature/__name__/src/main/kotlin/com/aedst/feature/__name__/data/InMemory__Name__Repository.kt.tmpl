@@ -1,0 +1,10 @@
+package com.aedst.feature.{{name}}.data
+
+import com.aedst.core.common.Outcome
+import com.aedst.feature.{{name}}.domain.{{Name}}Entry
+import com.aedst.feature.{{name}}.domain.{{Name}}Repository
+import javax.inject.Inject
+
+class InMemory{{Name}}Repository @Inject constructor() : {{Name}}Repository {
+    override suspend fun entries(): Outcome<List<{{Name}}Entry>> = Outcome.Success(emptyList())
+}

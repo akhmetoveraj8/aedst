@@ -1,0 +1,8 @@
+//// run: validation
+//// expect: imports Zod and uses protovalidateResolver
+//// file: src/modules/tasks/ui/MixedForm.tsx
+import * as z from "zod/mini";
+import { protovalidateResolver } from "@/shared/lib/forms/protovalidate-resolver";
+
+export const schema = z.string();
+export const resolver = protovalidateResolver;

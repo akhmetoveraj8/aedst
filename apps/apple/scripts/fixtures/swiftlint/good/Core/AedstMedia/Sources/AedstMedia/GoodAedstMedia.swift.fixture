@@ -1,0 +1,6 @@
+// POSITIVE FIXTURE: AedstMedia owns this concern.
+import Nuke
+import NukeUI
+import SwiftUI
+
+let view = AsyncImage(url: nil)

@@ -1,0 +1,274 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "aedst-server values",
+  "description": "Typo guard for the settings that matter: closed key sets for config, jobs and workers, types and enums for the rest. Helm validates every render and lint against this file.",
+  "type": "object",
+  "properties": {
+    "replicaCount": {"type": "integer", "minimum": 1},
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {"type": "string", "minLength": 1},
+        "tag": {"type": "string"},
+        "pullPolicy": {"enum": ["Always", "IfNotPresent", "Never"]}
+      }
+    },
+    "existingSecret": {"type": "string"},
+    "secretKeys": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "valkeyPassword": {"type": "string"},
+        "storageAccessKeyId": {"type": "string"},
+        "storageSecretAccessKey": {"type": "string"},
+        "vapidPrivateKey": {"type": "string"},
+        "fcmCredentialsJson": {"type": "string"},
+        "apnsPrivateKey": {"type": "string"},
+        "integrityCredentialsJson": {"type": "string"}
+      }
+    },
+    "database": {
+      "type": "object",
+      "properties": {
+        "pooler": {"enum": ["none", "pgbouncer"]},
+        "maxConns": {"type": "integer", "minimum": 1},
+        "minConns": {"type": "integer", "minimum": 0},
+        "jobsMaxConns": {"type": "integer", "minimum": 1},
+        "serverMaxConnections": {"type": "integer", "minimum": 0},
+        "reservedConns": {"type": "integer", "minimum": 0},
+        "poolerServerConns": {"type": "integer", "minimum": 0},
+        "allowUnverifiedTls": {"type": "boolean"},
+        "jobsPollOnly": {"type": "boolean"},
+        "statementTimeoutMs": {"type": "integer", "minimum": 0},
+        "idleInTxTimeoutMs": {"type": "integer", "minimum": 0}
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "env": {"enum": ["development", "test", "staging", "production"]},
+        "requestTimeoutSeconds": {"type": "integer", "minimum": 1},
+        "maxRequestBytes": {"type": "integer", "minimum": 1},
+        "shutdownDrainSeconds": {"type": "integer", "minimum": 0},
+        "shutdownTimeoutSeconds": {"type": "integer", "minimum": 1},
+        "corsAllowedOrigins": {"type": "array", "items": {"type": "string"}},
+        "trustedProxyHops": {"type": "integer", "minimum": 0},
+        "authRateLimitPerMinute": {"type": "integer", "minimum": 0},
+        "authFailRateLimitPerMinute": {"type": "integer", "minimum": 0},
+        "pprofEnabled": {"type": "boolean"},
+        "rolePolicy": {"type": "object"},
+        "apiRateLimitPerMinute": {"type": "integer", "minimum": 0},
+        "maxInFlight": {"type": "integer", "minimum": 0},
+        "grpcReflectionEnabled": {"type": "boolean"},
+        "retention": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "intervalMinutes": {"type": "integer", "minimum": 1},
+            "idempotencyHours": {"type": "integer", "minimum": 1},
+            "tombstoneHours": {"type": "integer", "minimum": 1},
+            "notificationDays": {"type": "integer", "minimum": 1},
+            "auditDays": {"type": "integer", "minimum": 30}
+          }
+        },
+        "http": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "readHeaderTimeoutSeconds": {"type": "integer", "minimum": 1},
+            "readTimeoutSeconds": {"type": "integer", "minimum": 1},
+            "writeTimeoutSeconds": {"type": "integer", "minimum": 1},
+            "idleTimeoutSeconds": {"type": "integer", "minimum": 1},
+            "maxHeaderBytes": {"type": "integer", "minimum": 1},
+            "hstsMaxAgeSeconds": {"type": "integer", "minimum": 0},
+            "requireConnectProtocolHeader": {"type": "boolean"},
+            "tlsCertFile": {"type": "string"},
+            "tlsKeyFile": {"type": "string"}
+          }
+        },
+        "tasks": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {"dueSoonLeadMinutes": {"type": "integer", "minimum": 1}}
+        },
+        "storage": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provider": {"type": "string"},
+            "bucket": {"type": "string"},
+            "endpoint": {"type": "string"},
+            "publicEndpoint": {"type": "string"},
+            "region": {"type": "string"},
+            "pathStyle": {"type": "string"},
+            "uploadUrlTtlSeconds": {"type": "integer", "minimum": 1},
+            "downloadUrlTtlSeconds": {"type": "integer", "minimum": 1}
+          }
+        },
+        "push": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "timeoutSeconds": {"type": "integer", "minimum": 1},
+            "vapidPublicKey": {"type": "string"},
+            "vapidSubject": {"type": "string"},
+            "fcmProjectId": {"type": "string"},
+            "fcmCredentialsFile": {"type": "string"},
+            "apnsKeyId": {"type": "string"},
+            "apnsTeamId": {"type": "string"},
+            "apnsTopic": {"type": "string"},
+            "apnsPrivateKeyFile": {"type": "string"}
+          }
+        },
+        "media": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "maxImageBytes": {"type": "integer", "minimum": 1},
+            "maxVideoBytes": {"type": "integer", "minimum": 1},
+            "maxAudioBytes": {"type": "integer", "minimum": 1},
+            "maxDocumentBytes": {"type": "integer", "minimum": 1},
+            "maxImagePixels": {"type": "integer", "minimum": 1},
+            "ffmpegPath": {"type": "string"},
+            "ffprobePath": {"type": "string"},
+            "processTimeoutSeconds": {"type": "integer", "minimum": 1},
+            "pendingUploadTtlHours": {"type": "integer", "minimum": 1}
+          }
+        },
+        "integrity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "allowedPackages": {"type": "array", "items": {"type": "string"}},
+            "credentialsFile": {"type": "string"},
+            "maxTokenAgeSeconds": {"type": "integer", "minimum": 1},
+            "maxFutureSkewSeconds": {"type": "integer", "minimum": 0},
+            "minDeviceLevel": {"enum": ["basic", "device", "strong"]},
+            "requirePlayRecognized": {"type": "boolean"},
+            "requireLicensed": {"type": "boolean"},
+            "allowTestingResponses": {"type": "boolean"},
+            "rateLimitPerMinute": {"type": "integer", "minimum": 0},
+            "timeoutSeconds": {"type": "integer", "minimum": 1}
+          }
+        },
+        "appattest": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "teamId": {"type": "string"},
+            "allowedBundleIds": {"type": "array", "items": {"type": "string"}},
+            "allowDevelopment": {"type": "boolean"},
+            "rateLimitPerMinute": {"type": "integer", "minimum": 0},
+            "assertionRateLimitPerMinute": {"type": "integer", "minimum": 0},
+            "keyRetentionDays": {"type": "integer", "minimum": 1}
+          }
+        },
+        "valkey": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "addr": {"type": "string"},
+            "db": {"type": "integer", "minimum": 0},
+            "tls": {"type": "boolean"},
+            "tlsServerName": {"type": "string"},
+            "tlsCaFile": {"type": "string"},
+            "allowPlaintext": {"type": "boolean"}
+          }
+        },
+        "oidc": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "issuer": {"type": "string"},
+            "audience": {"type": "string"},
+            "jwksUrl": {"type": "string"},
+            "algorithms": {"type": "array", "items": {"type": "string"}},
+            "tokenTypes": {"type": "array", "items": {"type": "string"}},
+            "rolesClaim": {"type": "string"},
+            "rolesOrg": {"type": "string"},
+            "clockSkewSeconds": {"type": "integer", "minimum": 0}
+          }
+        },
+        "jobsRetention": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "completedHours": {"type": "integer", "minimum": 1},
+            "cancelledHours": {"type": "integer", "minimum": 1},
+            "discardedHours": {"type": "integer", "minimum": 1}
+          }
+        },
+        "minClientVersions": {"type": "string"},
+        "recommendedClientVersions": {"type": "string"},
+        "features": {"type": "object"},
+        "log": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {"level": {"enum": ["debug", "info", "warn", "error"]}, "format": {"enum": ["json", "text"]}}
+        },
+        "serviceName": {"type": "string"},
+        "otel": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {"endpoint": {"type": "string"}, "tracesEndpoint": {"type": "string"}, "resourceAttributes": {"type": "string"}}
+        }
+      }
+    },
+    "jobs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "queues": {
+          "type": "string",
+          "description": "AEDST_JOBS_QUEUES: queue=maxWorkers pairs, empty = insert-only",
+          "pattern": "^(|(default|media)=[0-9]+(,(default|media)=[0-9]+)*)$"
+        }
+      }
+    },
+    "workers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "queues"],
+        "properties": {
+          "name": {"type": "string", "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", "maxLength": 30},
+          "queues": {"type": "string", "pattern": "^(default|media)=[0-9]+(,(default|media)=[0-9]+)*$"},
+          "replicas": {"type": "integer", "minimum": 0},
+          "resources": {"type": "object"}
+        }
+      }
+    },
+    "extraEnv": {"type": "array"},
+    "extraVolumes": {"type": "array"},
+    "extraVolumeMounts": {"type": "array"},
+    "httpRoute": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "parentRefs": {"type": "array"},
+        "hostnames": {"type": "array", "items": {"type": "string"}},
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["servicePrefix", "backend"],
+            "properties": {
+              "servicePrefix": {"type": "string", "pattern": "^/[A-Za-z0-9_.]+(/[A-Za-z0-9_]+)?$"},
+              "backend": {
+                "type": "object",
+                "required": ["name", "port"],
+                "properties": {"name": {"type": "string"}, "port": {"type": "integer"}}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

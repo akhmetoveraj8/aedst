@@ -1,0 +1,91 @@
+# Default values for aedst-web. NOTHING SECRET LIVES HERE: OIDC_STATE_SECRET
+# (and OIDC_CLIENT_SECRET for a confidential client) come from an EXISTING
+# Kubernetes Secret provisioned out-of-band (External Secrets, sealed-secrets, SOPS).
+#
+# NEXT_PUBLIC_* values (site URL, Sentry DSN, PostHog key) are inlined at IMAGE
+# BUILD time (Dockerfile build args); they cannot be changed here. Build one
+# image per public origin. See docs/content/web/deployment.md.
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/aedst/aedst-web
+  # REQUIRED: pass --set image.tag=sha-<git sha>. Rendering fails while empty.
+  tag: ""
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+existingSecret: ""
+secretKeys:
+  oidcStateSecret: oidc-state-secret
+  oidcClientSecret: "" # set only for a confidential OIDC client
+
+containerPort: 3000
+
+config:
+  # Internal address of apps/server (server-to-server; never exposed to browsers).
+  apiBaseUrl: ""
+  oidc:
+    issuer: "" # must match apps/server AEDST_OIDC_ISSUER
+    clientId: ""
+    projectId: "" # ZITADEL project id (access token audience)
+    scope: ""
+  auth:
+    cookieName: aedst_session
+    rolesClaim: roles
+    rolesOrg: ""
+  mediaOrigins: [] # extra origins allowed for media (CSP img/media-src)
+
+extraEnv: []
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  host: ""
+  tlsSecretName: ""
+  annotations: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+podAnnotations: {}
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+nodeSelector: {}
+affinity: {}
+tolerations: []

@@ -1,0 +1,43 @@
+# AEDST agent rules (full text)
+
+Read these before modifying any code in this repository:
+
+1. **[CONVENTIONS.md](../../CONVENTIONS.md)** — naming standard for all 5 platforms (Web, Server, Android, Apple, Desktop). File/type/function/constant naming is a **Must**, enforced by linters and `scripts/check-naming.sh`.
+2. **[docs/content/library-first.md](../content/library-first.md)** — AEDST Library-First Development Standard: the approved stack per platform, the mandatory order of preference (standard library → platform API → existing AEDST dependency → approved library → custom code), the version policy, the explicit rejections, and the monorepo tooling rules.
+3. **[docs/content/decisions.md](../content/decisions.md)** — index of architectural decisions with rationale and "when to revisit". If a proposal contradicts it, do not implement or re-propose it.
+4. The `AGENTS.md` inside the app you touch (e.g. `apps/server/AGENTS.md`, `apps/web/AGENTS.md`) and platform ADRs (`apps/server/docs/adr/`, `apps/desktop-rs/docs/adr/`).
+
+## The one rule that matters most
+
+**Do not write code that an existing library or platform already does.** Before creating a utility, hook, component, service, repository, parser, formatter, validator, or any other new abstraction: check the standard library, the platform API, the libraries already in this repo's `package.json`/`go.mod`/`build.gradle.kts`/`Package.swift`/`vcpkg.json`, and the existing code in this repo — in that order. Only write custom code when none of those fit, and only for a documented technical reason (missing functionality, unsupported platform, incompatible API, unacceptable performance, security/compliance requirement, project-specific domain logic) — never "it's simpler to write myself" or "it's only 50 lines."
+
+This applies to every platform in this repo:
+- **Web**: React Hook Form (forms), Protovalidate via `protovalidateResolver` (API-message forms) and Zod (client-only data, env); the boundary and its gates are in `docs/content/web/validation.md`, date-fns (dates), dnd-kit (drag & drop), shadcn/ui via `apps/web/shared/ui/` (UI), TanStack Query/Table/Virtual, nuqs (URL state). Biome is the only linter/formatter.
+- **Server**: govips+libvips (image ingest only, build tag `vips`) + imgproxy (on-demand delivery), never the same operation in both (ADR-0015), net/http ServeMux (+ realclientip-go, rs/cors), Protobuf+Buf+ConnectRPC, Protovalidate, pgx+sqlc+Goose, River (deferred jobs and, via `InsertTx` in the producer's transaction, integration events - `internal/platform/events`, ADR-0014), Postgres advisory locks, Valkey (cache/rate limit only), jwx (OIDC resource server), OpenTelemetry (OTLP), caarlos0/env.
+- **Android**: Jetpack Compose, Hilt, Coroutines+Flow, connect-kotlin over OkHttp, Keystore + Tink, `apps/android/core/ui/`.
+- **Apple**: SwiftUI with native Observation (`@Observable`) and `NavigationStack`, GRDB, connect-swift, Nuke (images, only via `Core/AedstMedia`), Tuist, fastlane + match (signing/release), swift-format + SwiftLint, `apps/apple/Core/AedstDesignSystem/`. Min OS iOS/iPadOS 18, macOS 15 (single source: `apps/apple/Project.swift`).
+- **Desktop**: Rust + Slint in `apps/desktop-rs` (ADR-0001 there): `connectrpc`, `openidconnect`, `keyring`, `velopack`, `rusqlite`, `tracing`, workspace dependencies only.
+
+Full stack tables, anti-patterns, and the AI Definition-of-Done checklist are in `docs/content/library-first.md`.
+
+## Mandatory process rules
+
+- **Versions**: latest stable, verified against the registry. Never invent or guess a version; if you cannot verify it, say `UNVERIFIED`.
+- **Approved before first use is machine-enforced**: knip allowlist (`apps/web/app/knip.jsonc`) on Web; `go mod tidy` + golangci-lint `depguard` on Server. **Adding to any allowlist requires updating `docs/content/library-first.md` in the same change.**
+- **Monorepo tooling** : `mise.toml` pins toolchains; root `Taskfile.yml` (with per-app includes) is the single entry point, so use `task ...` instead of ad-hoc commands; design tokens come from `packages/design-tokens` (Style Dictionary) and generated token files must never be hand-edited.
+- **Honesty about verification**: Android is verified on the JVM only (never run on a device); Apple and Desktop were statically reviewed only (no Xcode or working Rust toolchain in the authoring environment) and their first real build is their acceptance test. Do not claim Apple or Desktop build.
+- **Docs are the source of truth**: when you change an architectural decision, update `library-first.md` and `decisions.md` in the same change.
+- **Docs ownership and drift**: `/docs/` is owned through `.github/CODEOWNERS`; a PR that changes a documented rule, path or command changes the doc in the same diff (the PR template asks). `task check:docs` fails on broken links, repo paths that no longer exist, missing front matter and stray Cyrillic. A decision row without a "Revisit when" is incomplete. When a path in a doc and the code disagree, the code wins and the doc is fixed in that PR.
+- **Working tree hygiene**: commit in atomic steps (one move or one concern per commit, generated files with their source). A large uncommitted tree has no rollback; the SessionStart hook warns above 200 changed files. Agents never commit, stash, reset or switch branches unless the user asks (several sessions can share one tree).
+
+## Decision records / forbidden list
+
+Rationale and revisit conditions for everything below: [docs/content/decisions.md](../content/decisions.md). Do **not** introduce or re-propose:
+
+- **Server**: `golang.org/x/image` or pre-generated generic image renditions (govips sanitizes the original, imgproxy resizes - ADR-0015); Redis (use Valkey, cache/rate-limit only, never correctness); RedSync/Redlock or any Valkey lock (use `internal/platform/lock`); NATS/JetStream/Kafka/RabbitMQ before a consumer becomes a separate service (events are River `InsertTx` jobs via `internal/platform/events`, ADR-0014; `events.Publisher` is the seam for a future broker; never publish from request handlers outside the producing transaction); a hand-built outbox/relay/in-process bus/inbox (superseded by ADR-0014); a second JWT/JOSE library; an ORM; Prometheus-specific instrumentation; trusting `X-Forwarded-For`/`X-Real-IP` blindly (use the realclientip trusted-hop strategy via `internal/platform/clientip`); chi or any third-party router (use `net/http` ServeMux); self-built identity features (MFA, recovery, social login) — ZITADEL is the default IdP (Keycloak is the alternative if a project bans AGPL), first-party auth is off by default (`AEDST_AUTH_FIRST_PARTY_ENABLED=false`) and time-boxed by `AEDST_AUTH_FIRST_PARTY_SUNSET`; self-hosted Tempo/Loki/Pyroscope by default.
+- **Web**: RxJS (use TanStack Query, `AbortController`, async iterators, Connect streaming); ESLint/Prettier (Biome only); test/dev packages outside `devDependencies`; a new third-party origin without adding it to the CSP in `apps/web/app/next.config.ts`.
+- **Android**: `security-crypto`/`EncryptedSharedPreferences` (use Keystore + Tink); Retrofit; Koin; `tv-foundation` lists; running on JDK other than 21.
+- **Apple**: XcodeGen/`project.yml` (use Tuist); SwiftData (use GRDB: explicit versioned migrations and control); swift-perception / FlowStacks (removed - native Observation and `NavigationStack`); the hand-written image loader (use Nuke via `Core/AedstMedia`); SwiftFormat (nicklockwood) / Periphery (swift-format + SwiftLint); `ASAuthorizationPlatformPublicKeyCredentialProvider` for passkeys (a self-built identity feature - passkeys come from the IdP's hosted login); a second session-replay tool (PostHog is the only one on iOS); swift-dependencies is not adopted yet (decisions.md, "when to revisit"). `grpc-swift-2` as primary transport is an owner decision (connect-swift), no longer an OS-floor issue.
+- **Desktop** (`apps/desktop-rs`): cxx-qt; Tauri/WebView (owner chose Slint); a hand-written Connect or OIDC client; hand-mirrored DTOs; committing generated code; `unwrap()` and `unsafe`.
+- **Infrastructure as code**: Terraform (BSL) - OpenTofu is the single IaC tool (`infra/`, `.terraform.lock.hcl` committed, providers pinned, one S3-compatible remote state backend with locking); no Pulumi/CDK/second tool.
+- **Kept by owner decision (do not propose replacing)**: Next.js (not Vite), React Hook Form, the `cn` npm package, Goose (Atlas is paid), Rust + Slint on Desktop (replaced Qt 6 / C++23 on 2026-11-01), Hilt on AGP 9. See "Explicit rejections" in `library-first.md`.

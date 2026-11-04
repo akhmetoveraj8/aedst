@@ -1,0 +1,13 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// Plain text. Aligned to the reading start edge (right for Arabic).
+export component AedstLabel inherits Text {
+    color: AedstTokens.foreground;
+    font-size: AedstTokens.typography-body-medium-font-size;
+    font-weight: AedstTokens.typography-body-medium-font-weight;
+    horizontal-alignment: AedstLayout.rtl ? right : left;
+    wrap: word-wrap;
+    accessible-role: AccessibleRole.text;
+    accessible-label: root.text;
+}

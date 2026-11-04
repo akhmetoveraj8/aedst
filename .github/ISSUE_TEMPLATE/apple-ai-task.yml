@@ -1,0 +1,44 @@
+name: "apps/apple: AI task"
+description: A task for the AI agent to pick up against the iOS app — triggers the write-spec -> ... -> create-pr pipeline via @claude.
+title: "[apple] "
+labels:
+  - apps/apple
+  - ai-task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Mentioning `@claude` in a comment on this Issue starts the pipeline
+        in `apps/apple/AGENTS.md`: a spec gets posted as the first comment
+        for you to approve, then scaffold/tests/implementation/review/PR
+        follow automatically. The spec follows `.claude/skills/write-spec/SKILL.md`.
+  - type: textarea
+    id: task
+    attributes:
+      label: What should exist when this is done?
+      description: A few lines is enough — the agent turns this into a full spec for you to approve before writing any code.
+      placeholder: |
+        e.g. "Readers should be able to bookmark an article while offline,
+        and see it in Bookmarks once back online."
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of task is this?
+      options:
+        - New feature / capability
+        - Bug fix
+        - Screen/addition to an existing feature
+        - Build from a design/screenshot
+        - Dependency update
+        - Other (say more below)
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything the agent shouldn't have to guess?
+      description: Related spec/ADR, a screenshot, an existing PR/Issue, a constraint not obvious from the code.
+    validations:
+      required: false

@@ -1,0 +1,16 @@
+//// run: validation
+//// expect: pass
+//// file: src/modules/tasks/ui/OkForm.tsx
+import { useForm } from "react-hook-form";
+import { protovalidateResolver } from "@/shared/lib/forms/protovalidate-resolver";
+
+const resolver = protovalidateResolver;
+
+export function OkForm() {
+  const form = useForm<{ title: string }>({ resolver, defaultValues: { title: "" } });
+  return form.getValues("title");
+}
+//// file: src/modules/tasks/lib/search-schema.ts
+import * as z from "zod/mini";
+
+export const searchSchema = z.object({ q: z.string() });

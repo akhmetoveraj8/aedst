@@ -1,0 +1,4 @@
+// Deployment target and device family are declared in Project.swift
+// (`deploymentTargets:` / `destinations:`), the single source of truth for
+// both — do not repeat IPHONEOS_DEPLOYMENT_TARGET / TARGETED_DEVICE_FAMILY here.
+SUPPORTS_MACCATALYST = NO

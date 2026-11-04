@@ -1,0 +1,27 @@
+meta {
+  name: Broadcast Notification
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/aedst.admin.v1.AdminService/BroadcastNotification
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Scheduled maintenance",
+    "body": "The service will be read-only for 5 minutes at 02:00 UTC.",
+    "link": "/status"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

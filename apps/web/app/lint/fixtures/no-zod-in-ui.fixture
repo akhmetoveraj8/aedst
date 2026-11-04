@@ -1,0 +1,6 @@
+//// run: biome
+//// expect: Do not import Zod in UI code
+//// file: src/modules/tasks/ui/BadZodForm.tsx
+import * as z from "zod/mini";
+
+export const schema = z.object({ title: z.string() });

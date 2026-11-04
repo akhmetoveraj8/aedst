@@ -1,0 +1,7 @@
+// POSITIVE FIXTURE: a feature Data layer may import Connect and name generated types.
+import Connect
+import Foundation
+
+struct GoodRepository {
+    let client: Aedst_Tasks_V1_TasksServiceClient
+}

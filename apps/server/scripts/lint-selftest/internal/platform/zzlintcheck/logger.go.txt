@@ -1,0 +1,5 @@
+package zzlintcheck
+
+import (
+	_ "github.com/sirupsen/logrus" // depguard no-second-logger
+)

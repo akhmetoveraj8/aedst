@@ -1,0 +1,16 @@
+{{- if .Values.alerts.enabled }}
+# Alert rules (files/alerts.rules.yaml) as a prometheus-operator PrometheusRule.
+# Requires the operator's CRDs; the rules themselves are plain Prometheus format
+# and can be loaded without the operator too.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "aedst-server.fullname" . }}
+  labels:
+    {{- include "aedst-server.labels" . | nindent 4 }}
+    {{- with .Values.alerts.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- .Files.Get "files/alerts.rules.yaml" | fromYaml | toYaml | nindent 2 }}
+{{- end }}

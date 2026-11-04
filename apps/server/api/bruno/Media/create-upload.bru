@@ -1,0 +1,42 @@
+meta {
+  name: Create Upload
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/aedst.media.v1.MediaService/CreateUpload
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "filename": "photo.png",
+    "contentType": "image/png",
+    "sizeBytes": "68"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("mediaId", res.body.media.id);
+    bru.setVar("uploadUrl", res.body.uploadUrl);
+  }
+}
+
+docs {
+  Returns a presigned PUT. Upload the file yourself (bytes never pass through
+  the API), sending every header in `headers` verbatim, e.g.
+  `curl -X PUT -H "Content-Type: image/png" --data-binary @photo.png "{{uploadUrl}}"`,
+  then run `Complete Upload`. Needs object storage (task up PROFILES="--profile minio"
+  and AEDST_STORAGE_BUCKET=aedst-media); otherwise FAILED_PRECONDITION.
+}

@@ -1,0 +1,18 @@
+package com.aedst.feature.{{name}}.navigation
+
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
+import com.aedst.core.navigation.AedstNavGraph
+import com.aedst.core.navigation.AedstNavigator
+import com.aedst.core.navigation.{{Name}}Key
+import com.aedst.feature.{{name}}.presentation.{{Name}}Route
+
+/**
+ * feature/{{name}}'s public boundary. `{{Name}}Key` lives in core/navigation; nothing navigates to it yet: add a tab
+ * (`AedstTab`) or a `navigator.navigate({{Name}}Key)` call and the matching `AedstRoutes` link when the screen is real.
+ */
+class {{Name}}NavGraph : AedstNavGraph {
+    override fun register(scope: EntryProviderScope<NavKey>, navigator: AedstNavigator) {
+        scope.entry<{{Name}}Key> { {{Name}}Route() }
+    }
+}

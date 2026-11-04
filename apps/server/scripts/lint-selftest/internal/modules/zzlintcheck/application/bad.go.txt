@@ -1,0 +1,31 @@
+package application
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"log/slog"
+	"net/http"
+	"time"
+
+	sharederrors "github.com/aedst/server/internal/shared/errors"
+)
+
+// Each block below must be reported by the linter named in the comment.
+func Bad(ctx context.Context, logger *slog.Logger, err error) error {
+	_ = time.Now()             // forbidigo time-now
+	_ = ctx.Value("k")         // forbidigo context-value
+	log.Println("x")           // forbidigo std-log
+	fmt.Println("x")           // forbidigo fmt-print
+	_ = http.DefaultClient     // forbidigo default-http
+	logger.Info("no context")  // sloglint (context: all)
+	logger.InfoContext(ctx, fmt.Sprintf("dynamic %d", 1)) // sloglint static-msg
+	logger.InfoContext(ctx, "bad key", "camelCase", 1)    // sloglint key-naming-case
+	switch sharederrors.KindOf(err) { // exhaustive: missing cases
+	case sharederrors.KindNotFound:
+	}
+	if err != nil {
+		return nil // nilerr
+	}
+	return nil //nolint:errcheck
+}

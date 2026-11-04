@@ -1,0 +1,33 @@
+---
+description: "Architecture, module boundaries and decision records for the aedst monorepo — a Go backend (apps/server) plus four clients (apps/web, apps/android,..."
+title: Overview
+---
+
+# AEDST docs
+
+Architecture, module boundaries and decision records for the `aedst` monorepo — a Go backend (`apps/server`) plus four clients (`apps/web`, `apps/android`, `apps/apple`, `apps/desktop`) built around one shared principle: **monolith first, boundaries first, microservices later**.
+
+## General
+
+Cross-platform pages that apply to everything:
+
+- **[Stack overview](/stack)** — headline stack per platform and how to keep versions current.
+- **[Library-First Development](/library-first)** — approved libraries, order of preference, explicit rejections.
+- **[Platform status & profiles](/status)** — what has actually been built and run, and the Core profile (Server + Web only).
+- **[UI kit](/ui-kit)** — cross-platform design tokens and component parity.
+- **[i18n overview](/i18n)** — locales and per-module translation rules.
+- **[Decision records](/decisions)** — the ADRs behind the stack choices.
+
+## Platforms
+
+Each platform has its own section with the same shape: **Architecture**, **Stack**, and the topics that only exist for it.
+
+| Platform | Pages |
+|---|---|
+| **[Server](/server)** | [Architecture](/server/architecture) · [Stack](/server/stack) · [Modules](/server/modules) · [Database](/server/database) · [Events](/server/events) · [Scaling](/server/scaling) · [Deployment](/server/deployment) · [Runbook](/server/runbook) |
+| **[Web](/web)** | [Architecture](/web/architecture) · [Stack](/web/stack) · [i18n](/web/i18n) |
+| **[Android](/android)** | [Architecture](/android/architecture) · [Stack](/android/stack) · [i18n](/android/i18n) |
+| **[Apple](/apple)** | [Architecture](/apple/architecture) · [Stack](/apple/stack) · [i18n](/apple/i18n) · [Release & signing](/apple/release) |
+| **[Desktop](/desktop)** | [Architecture](/desktop/architecture) · [Stack](/desktop/stack) · [i18n](/desktop/i18n) |
+
+Read the [Server architecture](/server/architecture) first: each client translates its module-boundary rule to its own build graph (Gradle, SwiftPM, CMake).

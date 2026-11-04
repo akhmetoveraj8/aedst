@@ -1,0 +1,64 @@
+name: tokens-ci
+
+on:
+  push:
+    branches: [main]
+    paths: ["packages/design-tokens/**", ".github/workflows/tokens-ci.yml"]
+  pull_request:
+    paths: ["packages/design-tokens/**", ".github/workflows/tokens-ci.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tokens-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "26"
+  PNPM_VERSION: "12.15.0"
+
+jobs:
+  # Fails when the committed generated outputs drift from the token sources
+  # (`pnpm check` in packages/design-tokens). Guarded so it is a no-op until
+  # the package exists.
+  tokens-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Detect packages/design-tokens
+        id: detect
+        run: |
+          if [ -f packages/design-tokens/package.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::packages/design-tokens not present yet; skipping."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.detect.outputs.present == 'true'
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - if: steps.detect.outputs.present == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        if: steps.detect.outputs.present == 'true'
+        working-directory: packages/design-tokens
+        run: |
+          if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install; fi
+
+      - name: Build tokens
+        if: steps.detect.outputs.present == 'true'
+        working-directory: packages/design-tokens
+        run: pnpm build
+
+      - name: Check for drift
+        if: steps.detect.outputs.present == 'true'
+        working-directory: packages/design-tokens
+        run: pnpm check

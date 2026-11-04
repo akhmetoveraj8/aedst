@@ -1,0 +1,118 @@
+# aedst-feature-notifications: Notifications views strings (ar).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-notifications\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+msgid "You are offline. Try again when you are connected."
+msgstr "أنت غير متصل. حاول مرة أخرى عند الاتصال."
+
+msgid "The server is not available right now."
+msgstr "الخادم غير متاح حاليًا."
+
+msgid "The request took too long."
+msgstr "استغرق الطلب وقتًا طويلًا."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "طلبات كثيرة جدًا. حاول مرة أخرى بعد قليل."
+
+msgid "Please sign in again."
+msgstr "يرجى تسجيل الدخول مرة أخرى."
+
+msgid "You do not have access to this."
+msgstr "ليس لديك صلاحية الوصول إلى هذا."
+
+msgid "This notification no longer exists."
+msgstr "هذا الإشعار لم يعد موجودًا."
+
+msgid "The server did not accept this input."
+msgstr "لم يقبل الخادم هذا الإدخال."
+
+msgid "This was changed elsewhere."
+msgstr "تم تغيير هذا من مكان آخر."
+
+msgid "Please update the app to continue."
+msgstr "يرجى تحديث التطبيق للمتابعة."
+
+msgid "Could not save on this device."
+msgstr "تعذر الحفظ على هذا الجهاز."
+
+msgid "Something went wrong."
+msgstr "حدث خطأ ما."
+
+msgid "Task completed"
+msgstr "اكتملت المهمة"
+
+msgid "Task due soon"
+msgstr "اقترب موعد المهمة"
+
+msgid "Media ready"
+msgstr "الوسائط جاهزة"
+
+msgid "System"
+msgstr "النظام"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Unread: {}"
+msgstr "غير مقروء: {}"
+
+msgid "Notifications"
+msgstr "الإشعارات"
+
+msgid "{} unread"
+msgstr "{} غير مقروءة"
+
+msgid "Marking..."
+msgstr "جارٍ التعليم..."
+
+msgid "Mark all as read"
+msgstr "تعليم الكل كمقروء"
+
+msgid "All"
+msgstr "الكل"
+
+msgid "Unread"
+msgstr "غير المقروءة"
+
+msgid "Loading..."
+msgstr "جارٍ التحميل..."
+
+msgid "Could not load notifications"
+msgstr "تعذر تحميل الإشعارات"
+
+msgid "Try again"
+msgstr "حاول مرة أخرى"
+
+msgid "No unread notifications"
+msgstr "لا توجد إشعارات غير مقروءة"
+
+msgid "No notifications yet"
+msgstr "لا توجد إشعارات بعد"
+
+msgid "You are all caught up."
+msgstr "لقد اطلعت على كل شيء."
+
+msgid "Load more"
+msgstr "تحميل المزيد"
+
+msgid "Notification preferences"
+msgstr "تفضيلات الإشعارات"
+
+msgid "Could not load preferences"
+msgstr "تعذر تحميل التفضيلات"
+
+msgid "Choose which notifications you receive."
+msgstr "اختر الإشعارات التي تريد تلقيها."
+
+msgid "Show notifications"
+msgstr "عرض الإشعارات"
+
+msgid "Could not save the setting. {}"
+msgstr "تعذر حفظ الإعداد. {}"

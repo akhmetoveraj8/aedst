@@ -1,0 +1,2 @@
+import PackageDescription
+let package = Package(name: "AedstAppShared", dependencies: [.package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.30.0")])

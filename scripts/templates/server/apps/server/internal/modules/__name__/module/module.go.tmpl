@@ -1,0 +1,41 @@
+// Package module registers the {{name}} module with the composition root
+// (internal/platform/modulekit). Scaffolded by `task new:module`; the single
+// blank-import line lives in cmd/server/modules.go.
+package module
+
+import (
+	"context"
+
+	"google.golang.org/protobuf/reflect/protoreflect"
+
+	{{name}}v1 "github.com/aedst/server/gen/go/aedst/{{name}}/v1"
+	{{name}}v1connect "github.com/aedst/server/gen/go/aedst/{{name}}/v1/{{name}}v1connect"
+	{{name}}api "github.com/aedst/server/internal/modules/{{name}}/api"
+	"github.com/aedst/server/internal/modules/{{name}}/application"
+	"github.com/aedst/server/internal/modules/{{name}}/infrastructure/postgres"
+	"github.com/aedst/server/internal/modules/{{name}}/transport"
+	"github.com/aedst/server/internal/platform/modulekit"
+)
+
+func init() {
+	m := &{{name}}Module{}
+	modulekit.Register(modulekit.Module{
+		Name:  "{{name}}",
+		Files: []protoreflect.FileDescriptor{{{name}}v1.File_aedst_{{name}}_v1_{{name}}_proto},
+		Setup: m.setup,
+		Mount: m.mount,
+	})
+}
+
+type {{name}}Module struct{ svc {{name}}api.Service }
+
+func (m *{{name}}Module) setup(_ context.Context, env *modulekit.Env) error {
+	m.svc = application.NewService(postgres.NewRepository(env.Pool), env.Clock)
+	modulekit.Provide[{{name}}api.Service](env, m.svc)
+	return nil
+}
+
+func (m *{{name}}Module) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
+	modulekit.Mount(mt, {{name}}v1connect.New{{Name}}ServiceHandler, {{name}}v1connect.{{Name}}ServiceHandler(transport.NewHandler(m.svc)), 0)
+	return nil
+}

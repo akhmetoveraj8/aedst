@@ -1,0 +1,3 @@
+# unwrap()/expect() stay denied in production code (workspace lints); tests may use them.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

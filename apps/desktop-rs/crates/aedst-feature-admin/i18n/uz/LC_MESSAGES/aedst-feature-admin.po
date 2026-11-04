@@ -1,0 +1,202 @@
+# aedst-feature-admin: Admin screen strings (uz).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-admin\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Overview"
+msgstr "Umumiy ko'rinish"
+
+msgid "Tasks"
+msgstr "Vazifalar"
+
+msgid "Audit log"
+msgstr "Audit jurnali"
+
+msgid "Broadcast"
+msgstr "Ommaviy xabar"
+
+msgid "Owner id"
+msgstr "Ega identifikatori"
+
+msgid "Show only the tasks of one owner (id)"
+msgstr "Faqat bitta eganing vazifalarini ko'rsatish (id)"
+
+msgid "Apply"
+msgstr "Qo'llash"
+
+msgid "Administration"
+msgstr "Boshqaruv"
+
+msgid "No access"
+msgstr "Ruxsat yo'q"
+
+msgid "This screen is for operators only."
+msgstr "Bu ekran faqat operatorlar uchun."
+
+msgid "Loading..."
+msgstr "Yuklanmoqda..."
+
+msgid "Could not load"
+msgstr "Yuklab bo'lmadi"
+
+msgid "Try again"
+msgstr "Qayta urinib ko'ring"
+
+msgid "Nothing to show here."
+msgstr "Bu yerda hozircha hech narsa yo'q."
+
+msgid "Load more"
+msgstr "Yana yuklash"
+
+msgid "Owner: {}"
+msgstr "Egasi: {}"
+
+msgid "Delete"
+msgstr "O'chirish"
+
+msgid "Target: {}"
+msgstr "Obyekt: {}"
+
+msgid "By: {}"
+msgstr "Kim tomonidan: {}"
+
+msgid "Delete task \"{}\"?"
+msgstr "\"{}\" vazifasi o'chirilsinmi?"
+
+msgid "The reason is recorded in the audit log (3 to 500 characters)."
+msgstr "Sabab audit jurnaliga yoziladi (3 dan 500 gacha belgi)."
+
+msgid "Reason for deleting"
+msgstr "O'chirish sababi"
+
+msgid "Reason"
+msgstr "Sabab"
+
+msgid "Deleting..."
+msgstr "O'chirilmoqda..."
+
+msgid "Delete task"
+msgstr "Vazifani o'chirish"
+
+msgid "Cancel"
+msgstr "Bekor qilish"
+
+msgid "Recipient id"
+msgstr "Qabul qiluvchi identifikatori"
+
+msgid "Recipient id (empty: everyone)"
+msgstr "Qabul qiluvchi identifikatori (bo'sh: hamma)"
+
+msgid "Title"
+msgstr "Sarlavha"
+
+msgid "Message"
+msgstr "Xabar"
+
+msgid "Link"
+msgstr "Havola"
+
+msgid "Link (optional, for example /tasks)"
+msgstr "Havola (ixtiyoriy, masalan /tasks)"
+
+msgid "Sent. Recipients reached: {}"
+msgstr "Yuborildi. Qabul qiluvchilar soni: {}"
+
+msgid "Sending..."
+msgstr "Yuborilmoqda..."
+
+msgid "Send notification"
+msgstr "Bildirishnoma yuborish"
+
+msgid "You are offline."
+msgstr "Siz oflayndasiz."
+
+msgid "The server is not available right now."
+msgstr "Server hozir mavjud emas."
+
+msgid "The request took too long."
+msgstr "So'rov juda uzoq davom etdi."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "So'rovlar juda ko'p. Birozdan keyin qayta urinib ko'ring."
+
+msgid "Please sign in again."
+msgstr "Iltimos, qayta kiring."
+
+msgid "You do not have access to this."
+msgstr "Sizda bunga ruxsat yo'q."
+
+msgid "This item no longer exists."
+msgstr "Bu element endi mavjud emas."
+
+msgid "The server did not accept this input."
+msgstr "Server bu ma'lumotni qabul qilmadi."
+
+msgid "This item was changed elsewhere."
+msgstr "Bu element boshqa joyda o'zgartirilgan."
+
+msgid "Please update the app to continue."
+msgstr "Davom etish uchun ilovani yangilang."
+
+msgid "Something went wrong."
+msgstr "Nimadir xato ketdi."
+
+msgid "Enter a valid user id or leave it empty."
+msgstr "To'g'ri foydalanuvchi identifikatorini kiriting yoki maydonni bo'sh qoldiring."
+
+msgid "Enter a title."
+msgstr "Sarlavhani kiriting."
+
+msgid "The title is too long (120 characters at most)."
+msgstr "Sarlavha juda uzun (ko'pi bilan 120 belgi)."
+
+msgid "The message is too long (1000 characters at most)."
+msgstr "Xabar juda uzun (ko'pi bilan 1000 belgi)."
+
+msgid "The link must be an in-app path such as /tasks."
+msgstr "Havola ilova ichidagi yo'l bo'lishi kerak, masalan /tasks."
+
+msgid "Enter a reason (3 characters at least)."
+msgstr "Sababni kiriting (kamida 3 belgi)."
+
+msgid "The reason is too long (500 characters at most)."
+msgstr "Sabab juda uzun (ko'pi bilan 500 belgi)."
+
+msgid "To do"
+msgstr "Bajarish kerak"
+
+msgid "In progress"
+msgstr "Jarayonda"
+
+msgid "Done"
+msgstr "Bajarildi"
+
+msgid "Unknown"
+msgstr "Noma'lum"
+
+msgid "Tasks done"
+msgstr "Bajarilgan vazifalar"
+
+msgid "Tasks overdue"
+msgstr "Muddati o'tgan vazifalar"
+
+msgid "Media files"
+msgstr "Media fayllar"
+
+msgid "Media size"
+msgstr "Media hajmi"
+
+msgid "Push devices"
+msgstr "Push qurilmalar"
+
+msgid "Oldest waiting job (seconds)"
+msgstr "Eng eski kutayotgan ish (soniya)"
+
+msgid "Jobs pending"
+msgstr "Navbatdagi ishlar"

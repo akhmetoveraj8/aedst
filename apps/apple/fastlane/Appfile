@@ -1,0 +1,8 @@
+# Team id and bundle ids are never committed secrets: APPLE_TEAM_ID comes from the
+# environment (CI secret / your shell), see Config/Signing.local.xcconfig.example.
+team_id(ENV["APPLE_TEAM_ID"])
+app_identifier("com.aedst.apple.ios")
+
+for_platform :mac do
+  app_identifier("com.aedst.apple.macos")
+end

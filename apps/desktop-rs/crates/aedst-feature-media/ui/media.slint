@@ -1,0 +1,190 @@
+// The Media screens: library with upload, and the image viewer. Stateless: they render
+// `MediaStore` and call its callbacks; Rust (`ui_glue.rs`) owns the state. Only `aedst-ui`
+// components are used; no raw std-widgets control.
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton } from "@aedst-ui";
+import { MediaStore } from "media_store.slint";
+import { MediaTexts } from "media_texts.slint";
+import { MediaRow } from "media_row.slint";
+
+export { MediaRowData, MediaStore } from "media_store.slint";
+export { MediaTexts } from "media_texts.slint";
+
+component UploadPanel inherits VerticalLayout {
+    spacing: AedstTokens.spacing-sm;
+    vertical-stretch: 0;
+
+    HorizontalLayout {
+        alignment: AedstLayout.rtl ? end : start;
+        AedstButton {
+            text: @tr("" => "Upload file");
+            enabled: MediaStore.upload-state != "running";
+            clicked => { MediaStore.pick-upload(); }
+        }
+    }
+    if MediaStore.upload-state == "running": VerticalLayout {
+        spacing: AedstTokens.spacing-xs;
+        AedstLabel { text: MediaStore.upload-file-name; font-weight: 600; }
+        AedstLabel {
+            text: MediaStore.upload-stage == "uploading"
+                ? @tr("" => "Uploading... {}%", MediaStore.upload-percent)
+                : MediaTexts.stage-text(MediaStore.upload-stage);
+            color: AedstTokens.muted-foreground;
+        }
+        // The progress bar fills from the reading start edge.
+        Rectangle {
+            height: 8px;
+            border-radius: AedstTokens.radius-full;
+            background: AedstTokens.secondary;
+            Rectangle {
+                width: parent.width * MediaStore.upload-percent / 100;
+                x: AedstLayout.rtl ? parent.width - self.width : 0px;
+                border-radius: AedstTokens.radius-full;
+                background: AedstTokens.primary;
+            }
+        }
+    }
+    if MediaStore.upload-state == "failed": VerticalLayout {
+        spacing: AedstTokens.spacing-xs;
+        AedstLabel { text: MediaStore.upload-file-name; font-weight: 600; }
+        AedstLabel { text: MediaTexts.stage-failed-text(MediaStore.upload-stage); color: AedstTokens.destructive; }
+        AedstLabel {
+            text: MediaStore.upload-reason-is-validation
+                ? MediaTexts.validation-text(MediaStore.upload-reason)
+                : MediaTexts.kind-text(MediaStore.upload-reason);
+            color: AedstTokens.destructive;
+        }
+        if MediaTexts.cleanup-text(MediaStore.upload-cleanup) != "": AedstLabel {
+            text: MediaTexts.cleanup-text(MediaStore.upload-cleanup);
+            color: AedstTokens.muted-foreground;
+        }
+        HorizontalLayout {
+            alignment: AedstLayout.rtl ? end : start;
+            AedstButton {
+                text: @tr("" => "Dismiss");
+                primary: false;
+                clicked => { MediaStore.dismiss-upload(); }
+            }
+        }
+    }
+}
+
+component Library inherits VerticalLayout {
+    padding: AedstTokens.spacing-lg;
+    spacing: AedstTokens.spacing-md;
+
+    AedstLabel {
+        text: @tr("" => "Media");
+        font-size: AedstTokens.typography-title-large-font-size;
+        font-weight: AedstTokens.typography-title-large-font-weight;
+        vertical-stretch: 0;
+        height: 32px;
+    }
+    UploadPanel {}
+
+    if MediaStore.phase == "loading": AedstLabel {
+        text: @tr("" => "Loading...");
+        color: AedstTokens.muted-foreground;
+    }
+    if MediaStore.phase == "failed": VerticalLayout {
+        spacing: AedstTokens.spacing-sm;
+        alignment: start;
+        vertical-stretch: 0;
+        AedstLabel { text: @tr("" => "Could not load media"); font-weight: 600; }
+        AedstLabel { text: MediaTexts.kind-text(MediaStore.error-kind); color: AedstTokens.destructive; }
+        HorizontalLayout {
+            alignment: AedstLayout.rtl ? end : start;
+            AedstButton { text: @tr("" => "Try again"); primary: false; clicked => { MediaStore.reload(); } }
+        }
+    }
+    if MediaStore.phase == "ready" && MediaStore.rows.length == 0: VerticalLayout {
+        alignment: start;
+        vertical-stretch: 0;
+        AedstLabel { text: @tr("" => "No files yet"); font-weight: 600; }
+        AedstLabel { text: @tr("" => "Upload your first file above."); color: AedstTokens.muted-foreground; }
+    }
+    if MediaStore.phase == "ready" && MediaStore.error-kind != "": AedstLabel {
+        text: MediaTexts.kind-text(MediaStore.error-kind);
+        color: AedstTokens.destructive;
+        vertical-stretch: 0;
+    }
+
+    Flickable {
+        vertical-stretch: 1;
+        min-height: 160px;
+        content-height: rows.preferred-height;
+        rows := VerticalLayout {
+            spacing: AedstTokens.spacing-xs;
+            for row in MediaStore.rows: MediaRow { data: row; }
+        }
+    }
+
+    if MediaStore.has-more: AedstButton {
+        text: @tr("" => "Load more");
+        primary: false;
+        vertical-stretch: 0;
+        clicked => { MediaStore.load-more(); }
+    }
+}
+
+component Viewer inherits VerticalLayout {
+    padding: AedstTokens.spacing-lg;
+    spacing: AedstTokens.spacing-md;
+
+    if !AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        vertical-stretch: 0;
+        height: 40px;
+        AedstButton { text: @tr("" => "Back"); primary: false; clicked => { MediaStore.close-viewer(); } }
+        AedstLabel { text: MediaStore.viewer-title; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; }
+    }
+    if AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        vertical-stretch: 0;
+        height: 40px;
+        AedstLabel { text: MediaStore.viewer-title; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; }
+        AedstButton { text: @tr("" => "Back"); primary: false; clicked => { MediaStore.close-viewer(); } }
+    }
+
+    if MediaStore.viewer-phase == "ready": Image {
+        source: MediaStore.viewer-image;
+        image-fit: contain;
+        vertical-stretch: 1;
+        accessible-role: AccessibleRole.image;
+        accessible-label: MediaStore.viewer-title;
+    }
+    if MediaStore.viewer-phase == "failed": VerticalLayout {
+        spacing: AedstTokens.spacing-sm;
+        alignment: start;
+        vertical-stretch: 1;
+        AedstLabel { text: MediaTexts.kind-text(MediaStore.viewer-error-kind); color: AedstTokens.destructive; }
+    }
+    if MediaStore.viewer-phase != "ready" && MediaStore.viewer-phase != "failed": VerticalLayout {
+        alignment: start;
+        vertical-stretch: 1;
+        AedstLabel {
+            text: MediaTexts.viewer-text(MediaStore.viewer-phase);
+            color: MediaStore.viewer-phase == "loading" ? AedstTokens.muted-foreground : AedstTokens.foreground;
+        }
+    }
+}
+
+// The library, or the viewer on top of it while a file is open.
+export component MediaListView inherits Rectangle {
+    background: AedstTokens.background;
+    if MediaStore.viewer-phase == "closed": Library {}
+    if MediaStore.viewer-phase != "closed": Viewer {}
+}
+
+// A window for running the screens on their own (the example and screenshots). The app shell
+// embeds `MediaListView` in its own window instead.
+export component MediaDemoWindow inherits Window {
+    in-out property <bool> rtl <=> AedstLayout.rtl;
+    in-out property <bool> dark <=> AedstTokens.dark;
+    title: @tr("" => "Media");
+    background: AedstTokens.background;
+    min-width: 640px;
+    min-height: 560px;
+    preferred-width: 640px;
+    preferred-height: 560px;
+    MediaListView {}
+}

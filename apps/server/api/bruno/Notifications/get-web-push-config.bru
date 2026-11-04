@@ -1,0 +1,23 @@
+meta {
+  name: Get Web Push Config
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/aedst.notifications.v1.NotificationsService/GetWebPushConfig
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {}
+}
+
+assert {
+  res.status: eq 200
+}

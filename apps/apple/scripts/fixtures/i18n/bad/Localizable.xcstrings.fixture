@@ -1,0 +1,22 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "countNoPlural" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld items" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Элементов: %lld" } }
+      }
+    },
+    "positionalNoPlural" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ has %2$lld tasks" } }
+      }
+    },
+    "plainD" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d left" } }
+      }
+    }
+  },
+  "version" : "1.1"
+}

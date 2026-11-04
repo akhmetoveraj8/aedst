@@ -1,0 +1,15 @@
+[package]
+name = "aedst-navigation"
+version = "0.0.0"
+description = "Routes, the destination graph, the back stack, link allow-list and the deep-link gate"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+[lints]
+workspace = true

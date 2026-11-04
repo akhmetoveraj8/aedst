@@ -1,0 +1,4 @@
+// POSITIVE FIXTURE
+import AuthenticationServices
+
+final class WebAuthenticator { let s: ASWebAuthenticationSession? = nil }

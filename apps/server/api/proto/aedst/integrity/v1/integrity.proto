@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package aedst.integrity.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/aedst/server/gen/go/aedst/integrity/v1;integrityv1";
+
+// IntegrityService verifies Google Play Integrity (STANDARD API) tokens
+// minted by the Android app (core/security PlayIntegrityFacade). The server
+// decodes the token with Google (playintegrity.googleapis.com
+// v1/{package}:decodeIntegrityToken), then applies its own policy: package
+// name, freshness, request binding, device/app/licensing verdicts, replay.
+//
+// Authenticated callers only. Disabled until AEDST_INTEGRITY_ENABLED=true
+// (FAILED_PRECONDITION while disabled). A token that fails the policy is NOT
+// an RPC error: the call succeeds with verified=false and a reason, so the
+// client can decide what to do (block, degrade, ask for a retry).
+service IntegrityService {
+  rpc VerifyIntegrityToken(VerifyIntegrityTokenRequest) returns (VerifyIntegrityTokenResponse);
+}
+
+// Request binding convention (client and server must agree):
+//
+//   request_hash = base64url_nopad(SHA-256("aedst.integrity.v1\n" + action + "\n" + payload))
+//
+// The client passes request_hash to the Play Integrity request
+// (StandardIntegrityTokenRequest.setRequestHash) and sends action + payload
+// here; the server recomputes the hash and requires that both request_hash and
+// the hash Google returns inside the signed verdict equal it. payload is
+// whatever the client wants the token bound to (a request body digest plus a
+// fresh random nonce, for example) and is never stored.
+message VerifyIntegrityTokenRequest {
+  // The opaque token from StandardIntegrityToken.token(). Never logged.
+  string integrity_token = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32768
+  }];
+  // What the token authorises, e.g. "login" or "purchase". Part of the bound hash.
+  string action = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+    pattern: "^[a-z][a-z0-9._-]*$"
+  }];
+  // Caller-chosen bytes the token is bound to (include a fresh nonce).
+  bytes payload = 3 [(buf.validate.field).bytes.max_len = 4096];
+  // The value given to setRequestHash: base64url (no padding) SHA-256, 43 chars.
+  string request_hash = 4 [(buf.validate.field).string = {
+    len: 43
+    pattern: "^[A-Za-z0-9_-]+$"
+  }];
+  // The app's applicationId. Empty means "the only allowed package" and is
+  // rejected when AEDST_INTEGRITY_ALLOWED_PACKAGES lists several. Must be one
+  // of the allowed packages; Google also checks the token was minted for it.
+  string package_name = 5 [(buf.validate.field).string = {
+    max_len: 255
+    pattern: "^([A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)*)?$"
+  }];
+}
+
+enum DeviceVerdict {
+  DEVICE_VERDICT_UNSPECIFIED = 0;
+  DEVICE_VERDICT_MEETS_BASIC_INTEGRITY = 1;
+  DEVICE_VERDICT_MEETS_DEVICE_INTEGRITY = 2;
+  DEVICE_VERDICT_MEETS_STRONG_INTEGRITY = 3;
+  DEVICE_VERDICT_MEETS_VIRTUAL_INTEGRITY = 4;
+}
+
+enum AppVerdict {
+  APP_VERDICT_UNSPECIFIED = 0;
+  APP_VERDICT_PLAY_RECOGNIZED = 1;
+  APP_VERDICT_UNRECOGNIZED_VERSION = 2;
+  APP_VERDICT_UNEVALUATED = 3;
+}
+
+enum AccountVerdict {
+  ACCOUNT_VERDICT_UNSPECIFIED = 0;
+  ACCOUNT_VERDICT_LICENSED = 1;
+  ACCOUNT_VERDICT_UNLICENSED = 2;
+  ACCOUNT_VERDICT_UNEVALUATED = 3;
+}
+
+// Why verified is false. UNSPECIFIED when verified is true.
+enum FailureReason {
+  FAILURE_REASON_UNSPECIFIED = 0;
+  // Google could not decode the token (malformed, expired, wrong project).
+  FAILURE_REASON_TOKEN_UNDECODABLE = 1;
+  // request_hash is not the hash of action + payload.
+  FAILURE_REASON_REQUEST_HASH_MISMATCH = 2;
+  // The hash inside Google's verdict differs from the expected one.
+  FAILURE_REASON_TOKEN_NOT_BOUND = 3;
+  FAILURE_REASON_PACKAGE_MISMATCH = 4;
+  FAILURE_REASON_TOKEN_EXPIRED = 5;
+  // The token's timestamp is in the future beyond the allowed clock skew.
+  FAILURE_REASON_TOKEN_FROM_FUTURE = 6;
+  FAILURE_REASON_DEVICE_NOT_TRUSTED = 7;
+  FAILURE_REASON_APP_NOT_RECOGNIZED = 8;
+  FAILURE_REASON_NOT_LICENSED = 9;
+  FAILURE_REASON_TESTING_RESPONSE = 10;
+  // This token was already verified.
+  FAILURE_REASON_TOKEN_REPLAYED = 11;
+}
+
+message VerifyIntegrityTokenResponse {
+  bool verified = 1;
+  FailureReason reason = 2;
+  // What Google reported (present whenever the token was decoded).
+  repeated DeviceVerdict device_verdicts = 3;
+  AppVerdict app_verdict = 4;
+  AccountVerdict account_verdict = 5;
+  // Echo of the verified action (empty when not verified).
+  string action = 6;
+  // When Google minted the token.
+  google.protobuf.Timestamp token_issued_at = 7;
+}

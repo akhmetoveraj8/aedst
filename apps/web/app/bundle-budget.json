@@ -1,0 +1,30 @@
+{
+  "$comment": "Gzip KB over every emitted client chunk (not just first load). Raised from 625/100 when PostHog (~100 KB, loaded only after analytics consent) and the search/notifications/media/admin routes were added; first-load weight is budgeted by lighthouserc.json (resource-summary:script:size). Total raised 760 -> 840 for @bufbuild/protovalidate (CEL + RE2 engines, ~70 KB gzip), reachable only through a dynamic import() on the first form validation (src/shared/lib/forms/protovalidate-resolver.ts). Total then 840 -> 905: lazy-loading the select filters, the attachment/delete dialogs and the signed-in shell widgets cut first load by up to 90 KB on a route, but every lazy chunk carries its own copy of the shared base-ui popup code (Turbopack does not factor it out), so emitted bytes grow while what a visitor downloads shrinks.",
+  "totalJsGzipKB": 905,
+  "largestJsChunkGzipKB": 110,
+  "totalCssGzipKB": 36,
+  "modules": {
+    "tasks": {
+      "routePrefix": "/[locale]/tasks",
+      "firstLoadGzipKB": 490
+    },
+    "admin": {
+      "routePrefix": "/[locale]/admin",
+      "firstLoadGzipKB": 442
+    },
+    "search": {
+      "routePrefix": "/[locale]/search",
+      "firstLoadGzipKB": 423
+    },
+    "notifications": {
+      "routePrefix": "/[locale]/notifications",
+      "firstLoadGzipKB": 423
+    }
+  },
+  "shell": {
+    "/[locale]": 361,
+    "/[locale]/forbidden": 359,
+    "/_not-found": 240
+  },
+  "$comment2": "modules/shell: first-load gzip JS per route (Next route-bundle-stats), the heaviest route of each module, ~3% above a normal minified build (2026-10-09): tasks 475.7 (/tasks/[id]), admin 428.7, search 407.2, notifications 410.6, locale root 350.6, forbidden 348.6, not-found 226.1 KB. The jump from the earlier 520/485/435 limits came from three fixes: (1) the signed-in layouts import single-export files from modules/<id>/entries/* instead of the module barrels (a Server Component importing a barrel pulls in the client chunks of every re-export: -47 KB on admin, -16 KB on search); (2) the task-list select filters are a ssr:false dynamic chunk with a same-size placeholder (-39 KB on every tasks route); (3) the attachment viewer/delete dialogs and the admin delete dialog load on first click. Growth of the shell over its 2026-10 baseline (339 KB) is the consent/privacy layer, web-vitals reporting, error-kind strings and per-segment i18n providers. A module owning no route (auth, media) is covered by the routes that embed it. Next candidates: date-fns locale data for all five locales (~15 KB gzip in one chunk), tasks/new (TaskForm carries the Select stack, 472 KB)."
+}

@@ -1,0 +1,69 @@
+// Shared across every target and configuration. Platform- and
+// configuration-specific overrides live in the other files in this
+// directory and are layered on top by Project.swift.
+
+// Swift 6 language mode with complete strict concurrency, the same as every local package
+// (`swiftLanguageModes: [.v6]` in each Package.swift). Project.swift repeats both at project level so the
+// UI-test target, which has no xcconfig, gets them too. The two upcoming features exist in Swift 6.2/6.3
+// (verified in swiftlang/swift Features.def): SE-0461 nonisolated-async runs on the caller's actor, SE-0470
+// infers isolated conformances.
+SWIFT_VERSION = 6
+SWIFT_STRICT_CONCURRENCY = complete
+OTHER_SWIFT_FLAGS = $(inherited) -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-upcoming-feature InferIsolatedConformances
+MARKETING_VERSION = 0.1.0
+CURRENT_PROJECT_VERSION = 1
+PRODUCT_BUNDLE_IDENTIFIER_PREFIX = com.aedst.apple
+ENABLE_USER_SCRIPT_SANDBOXING = YES
+
+// Signing. Automatic by default; the team id is NEVER committed. Provide it
+// through the gitignored Signing.local.xcconfig (copy Signing.local.xcconfig.example)
+// or on the xcodebuild command line (DEVELOPMENT_TEAM=...), which is what CI does.
+CODE_SIGN_STYLE = Automatic
+#include? "Signing.local.xcconfig"
+
+// Telemetry (see Core/AedstTelemetry). Empty = SDK disabled: a fork without
+// accounts ships with no telemetry. Real values come from the gitignored
+// Secrets.local.xcconfig (copy the .example) or from xcodebuild arguments in CI
+// (AEDST_SENTRY_DSN=... AEDST_POSTHOG_KEY=...). These are client-side
+// identifiers, not secrets, but keeping them out of git keeps forks clean.
+// NOTE: "//" starts a comment in xcconfig files, so write URLs as https:/$()/host.
+AEDST_SENTRY_DSN =
+AEDST_POSTHOG_KEY =
+AEDST_POSTHOG_HOST = https:/$()/eu.i.posthog.com
+// PostHog session replay (iOS only, opt-in via analytics consent, all text
+// inputs/images masked). Off by default; set YES per environment to enable.
+AEDST_POSTHOG_SESSION_REPLAY = NO
+// Numeric Apple ID of the app record in App Store Connect. Used only by the blocking "update required"
+// screen (server CLIENT_UPGRADE_REQUIRED, ADR-0009) to link to the App Store page. Empty = no button.
+AEDST_APP_STORE_ID =
+// Where the access token carries roles (same rules as the server setting
+// AEDST_OIDC_ROLES_CLAIM; ZITADEL: urn:zitadel:iam:org:project:roles, Keycloak: realm_access.roles). Only used to show or
+// hide the admin entry point; the server authorizes every admin call.
+AEDST_ROLES_CLAIM = roles
+
+// Browser sign-in against the identity provider (Authorization Code + PKCE via
+// ASWebAuthenticationSession; ADR-0001). This is the only sign-in path
+// (first-party email/password was removed); with AEDST_OIDC_ISSUER empty sign-in cannot succeed. Set the real values per environment in the gitignored
+// Secrets.local.xcconfig or via xcodebuild arguments (public-client identifiers, not secrets).
+// "//" starts a comment here, so write the issuer as https:/$()/idp.example.com
+AEDST_OIDC_ISSUER =
+AEDST_OIDC_CLIENT_ID =
+AEDST_OIDC_SCOPES = openid profile email offline_access
+// Optional extra scope, e.g. ZITADEL: urn:zitadel:iam:org:project:id:<project-id>:aud
+AEDST_OIDC_AUDIENCE_SCOPE =
+// Custom URL scheme of the redirect URI "<scheme>:/oauth2redirect" (register that exact
+// string at the IdP). Reverse-DNS, shared by the iOS and macOS targets.
+AEDST_OIDC_REDIRECT_SCHEME = com.aedst.apple
+// Refresh tokens carry no lifetime in the token response; this is the local estimate (days).
+// The IdP's invalid_grant answer is the real expiry.
+AEDST_OIDC_REFRESH_TTL_DAYS = 30
+// YES = sign-in uses a private browser session (no shared cookies, no SSO, no saved passkeys prompt), so the
+// IdP leaves nothing signed in after app sign-out. Default NO: shared session (SSO, passkeys, password manager).
+AEDST_OIDC_EPHEMERAL_SESSION = NO
+// Host of the "webcredentials:" Associated Domains entry (entitlements). PLACEHOLDER:
+// ".invalid" can never resolve, so the entry is inert until you set the IdP's real host
+// (without scheme) and publish its apple-app-site-association webcredentials block.
+// Passkeys at the hosted login work in the browser session without it; the entry only
+// lets the system offer credentials to the app itself.
+AEDST_OIDC_WEBCREDENTIALS_DOMAIN = idp.example.invalid
+#include? "Secrets.local.xcconfig"

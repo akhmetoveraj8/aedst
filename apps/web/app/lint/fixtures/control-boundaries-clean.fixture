@@ -1,0 +1,14 @@
+//// run: boundaries
+//// expect: pass
+//// file: src/modules/demo/manifest.ts
+export const manifest = {
+  id: "demo",
+};
+//// file: src/modules/demo/public.ts
+export const demo = 1;
+//// file: src/app/config/modules/registry.ts
+import { manifest } from "@/modules/demo/manifest";
+
+export const registry = [manifest];
+//// file: src/shared/lib/ok.ts
+export const n = 1;

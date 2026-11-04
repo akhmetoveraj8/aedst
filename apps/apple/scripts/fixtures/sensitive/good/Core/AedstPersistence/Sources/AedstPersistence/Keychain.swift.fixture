@@ -1,0 +1,8 @@
+// POSITIVE FIXTURE
+import Security
+
+/// SecItemAdd lives here and only here.
+func save() {
+    let q: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrSynchronizable as String: false]
+    _ = SecItemAdd(q as CFDictionary, nil)
+}

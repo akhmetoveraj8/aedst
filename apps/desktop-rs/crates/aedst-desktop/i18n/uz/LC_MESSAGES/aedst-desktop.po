@@ -1,0 +1,100 @@
+# aedst-desktop: window shell strings (uz).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-desktop\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Tasks"
+msgstr "Vazifalar"
+
+msgid "Search"
+msgstr "Qidiruv"
+
+msgid "Notifications"
+msgstr "Bildirishnomalar"
+
+msgid "Files"
+msgstr "Fayllar"
+
+msgid "Admin"
+msgstr "Boshqaruv"
+
+msgid "Sign out"
+msgstr "Chiqish"
+
+msgid "Inbox"
+msgstr "Kiruvchilar"
+
+msgid "Preferences"
+msgstr "Sozlamalar"
+
+msgid "Starting..."
+msgstr "Ishga tushmoqda..."
+
+msgid "Sign in to continue"
+msgstr "Davom etish uchun kiring"
+
+msgid "Continue in browser"
+msgstr "Brauzerda davom etish"
+
+msgid "Waiting for the browser..."
+msgstr "Brauzer kutilmoqda..."
+
+msgid "Cancel"
+msgstr "Bekor qilish"
+
+msgid "Sign-in failed. Please try again."
+msgstr "Kirib bo'lmadi. Qayta urinib ko'ring."
+
+msgid "Could not reach the identity provider."
+msgstr "Kirish xizmatiga ulanib bo'lmadi."
+
+msgid "Secure storage is not available on this device."
+msgstr "Bu qurilmada xavfsiz xotira mavjud emas."
+
+msgid "Sign-in timed out."
+msgstr "Kirish vaqti tugadi."
+
+msgid "Sign-in is not configured."
+msgstr "Kirish sozlanmagan."
+
+msgid "Privacy"
+msgstr "Maxfiylik"
+
+msgid "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device."
+msgstr "Siz bu yerda ruxsat bermaguningizcha hech narsa yuborilmaydi. Shaxsiy ma'lumotlar yuborishdan oldin olib tashlanadi."
+
+msgid "Send crash reports"
+msgstr "Nosozlik hisobotlarini yuborish"
+
+msgid "Technical details about a failure, so it can be fixed."
+msgstr "Nosozlik haqida texnik ma'lumot, uni tuzatish uchun."
+
+msgid "Share anonymous usage statistics"
+msgstr "Anonim foydalanish statistikasini ulashish"
+
+msgid "Which features are used, never what you type."
+msgstr "Qaysi funksiyalar ishlatilishi, yozganingiz emas."
+
+msgid "Not available in this build."
+msgstr "Bu tuzilmada mavjud emas."
+
+msgid "A new version is available"
+msgstr "Yangi versiya mavjud"
+
+msgid "Downloading the update: {}%"
+msgstr "Yangilanish yuklanmoqda: {}%"
+
+msgid "Restart to update"
+msgstr "Yangilash uchun qayta ishga tushirish"
+
+msgid "Update required"
+msgstr "Yangilash kerak"
+
+msgid "This version of the app is too old for the server. Please update it to continue."
+msgstr "Ilovaning bu versiyasi server uchun juda eski. Davom etish uchun uni yangilang."

@@ -1,0 +1,22 @@
+replicaCount: 1
+existingSecret: aedst-server-dev
+config:
+  env: development
+  trustedProxyHops: 0
+  shutdownDrainSeconds: 0
+  corsAllowedOrigins: ["http://localhost:3000", "http://localhost:3001"]
+  log:
+    level: debug
+database:
+  maxConns: 10
+  jobsMaxConns: 5
+autoscaling:
+  enabled: false
+podDisruptionBudget:
+  enabled: false
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi

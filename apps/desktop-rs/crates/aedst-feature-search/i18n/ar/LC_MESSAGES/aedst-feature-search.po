@@ -1,0 +1,94 @@
+# aedst-feature-search: Search screen strings (ar).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-search\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+msgid "You are offline. Search needs a connection."
+msgstr "أنت غير متصل. يتطلب البحث اتصالًا."
+
+msgid "The server is not available right now."
+msgstr "الخادم غير متاح حاليًا."
+
+msgid "The request took too long."
+msgstr "استغرق الطلب وقتًا طويلًا."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "طلبات كثيرة جدًا. حاول مرة أخرى بعد قليل."
+
+msgid "Please sign in again."
+msgstr "يرجى تسجيل الدخول مرة أخرى."
+
+msgid "You do not have access to this."
+msgstr "ليس لديك صلاحية الوصول إلى هذا."
+
+msgid "Nothing was found at this address."
+msgstr "لم يتم العثور على شيء في هذا العنوان."
+
+msgid "The server did not accept this search."
+msgstr "لم يقبل الخادم هذا البحث."
+
+msgid "The data was changed elsewhere."
+msgstr "تم تغيير البيانات في مكان آخر."
+
+msgid "Please update the app to continue."
+msgstr "يرجى تحديث التطبيق للمتابعة."
+
+msgid "Could not read data on this device."
+msgstr "تعذرت قراءة البيانات على هذا الجهاز."
+
+msgid "Something went wrong."
+msgstr "حدث خطأ ما."
+
+msgid "Task"
+msgstr "مهمة"
+
+msgid "File"
+msgstr "ملف"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Search"
+msgstr "بحث"
+
+msgid "About {} results"
+msgstr "حوالي {} نتيجة"
+
+msgid "Search tasks and files"
+msgstr "ابحث في المهام والملفات"
+
+msgid "Suggestions"
+msgstr "اقتراحات"
+
+msgid "Search your tasks and files"
+msgstr "ابحث في مهامك وملفاتك"
+
+msgid "Results appear as you type."
+msgstr "تظهر النتائج أثناء الكتابة."
+
+msgid "Searching..."
+msgstr "جارٍ البحث..."
+
+msgid "Could not search"
+msgstr "تعذر البحث"
+
+msgid "Try again"
+msgstr "حاول مرة أخرى"
+
+msgid "No results"
+msgstr "لا توجد نتائج"
+
+msgid "Try a different word or check the spelling."
+msgstr "جرّب كلمة أخرى أو تحقق من الإملاء."
+
+msgid "Loading..."
+msgstr "جارٍ التحميل..."
+
+msgid "Load more"
+msgstr "تحميل المزيد"

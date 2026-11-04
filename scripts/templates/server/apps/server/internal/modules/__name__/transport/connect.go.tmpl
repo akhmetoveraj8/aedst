@@ -1,0 +1,68 @@
+// Package transport implements the {{name}} module's ConnectRPC handlers. It
+// depends only on modules/{{name}}/api, and derives the owner from the
+// authenticated context, never from a request field.
+package transport
+
+import (
+	"context"
+
+	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	{{name}}v1 "github.com/aedst/server/gen/go/aedst/{{name}}/v1"
+	"github.com/aedst/server/internal/modules/{{name}}/api"
+	platformauth "github.com/aedst/server/internal/platform/auth"
+	"github.com/aedst/server/internal/platform/httpserver"
+	sharederrors "github.com/aedst/server/internal/shared/errors"
+	"github.com/aedst/server/internal/shared/ids"
+)
+
+type Handler struct {
+	service api.Service
+}
+
+func NewHandler(service api.Service) *Handler { return &Handler{service: service} }
+
+func (h *Handler) CreateEntry(ctx context.Context, req *connect.Request[{{name}}v1.CreateEntryRequest]) (*connect.Response[{{name}}v1.CreateEntryResponse], error) {
+	ownerID, err := requireIdentity(ctx)
+	if err != nil {
+		return nil, err
+	}
+	entry, svcErr := h.service.CreateEntry(ctx, ownerID, req.Msg.GetTitle())
+	if svcErr != nil {
+		return nil, httpserver.ToConnectError(svcErr)
+	}
+	return connect.NewResponse(&{{name}}v1.CreateEntryResponse{Entry: toProto(entry)}), nil
+}
+
+func (h *Handler) GetEntry(ctx context.Context, req *connect.Request[{{name}}v1.GetEntryRequest]) (*connect.Response[{{name}}v1.GetEntryResponse], error) {
+	ownerID, err := requireIdentity(ctx)
+	if err != nil {
+		return nil, err
+	}
+	id, parseErr := ids.Parse(req.Msg.GetId())
+	if parseErr != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, parseErr)
+	}
+	entry, svcErr := h.service.GetEntry(ctx, ownerID, id)
+	if svcErr != nil {
+		return nil, httpserver.ToConnectError(svcErr)
+	}
+	return connect.NewResponse(&{{name}}v1.GetEntryResponse{Entry: toProto(entry)}), nil
+}
+
+func requireIdentity(ctx context.Context) (ids.ID, error) {
+	identity, ok := platformauth.FromContext(ctx)
+	if !ok {
+		return ids.Nil, httpserver.ToConnectError(sharederrors.Unauthorized("{{name}}", "missing identity"))
+	}
+	return identity.UserID, nil
+}
+
+func toProto(e api.Entry) *{{name}}v1.Entry {
+	return &{{name}}v1.Entry{
+		Id:        e.ID.String(),
+		Title:     e.Title,
+		CreatedAt: timestamppb.New(e.CreatedAt),
+	}
+}

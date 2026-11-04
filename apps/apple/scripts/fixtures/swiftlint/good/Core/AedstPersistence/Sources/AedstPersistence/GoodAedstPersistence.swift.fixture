@@ -1,0 +1,2 @@
+// POSITIVE FIXTURE: AedstPersistence owns this concern.
+import GRDB

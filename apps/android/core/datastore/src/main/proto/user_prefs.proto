@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option java_package = "com.aedst.core.datastore";
+option java_multiple_files = true;
+
+// One key-value prefs document per device. Feature-specific preferences
+// (e.g. auth's "remember device" flag) add fields here rather than creating
+// a second DataStore file, matching how the server keeps config in one
+// env-driven struct per docs/content/server/architecture.md's platform/config.
+//
+// Never store secrets here (this file is not encrypted): tokens live in
+// core/security's Keystore + Tink store.
+message UserPrefs {
+  string last_logged_in_user_id = 1;
+  bool has_completed_onboarding = 2;
+  // Product analytics (PostHog) is opt-in, like apps/web's `aedst_consent`
+  // cookie. Crash/error reporting (Sentry) is operational and not gated.
+  AnalyticsConsent analytics_consent = 3;
+  // Push registration bookkeeping (feature/notifications): the server-side
+  // device id from RegisterPushDevice (needed to unregister on sign-out) and
+  // the FCM token it was registered with (re-register only when it rotates).
+  string push_device_id = 4;
+  string push_registered_token = 5;
+  string push_registered_user_id = 6;
+  // Last GetCapabilitiesResponse (serialized aedst.capabilities.v1 message), the "last known" capabilities used when a
+  // fetch fails (core/capabilities). Public server data, not user data. Empty = never fetched.
+  bytes capabilities_snapshot = 7;
+}
+
+enum AnalyticsConsent {
+  ANALYTICS_CONSENT_UNSET = 0;
+  ANALYTICS_CONSENT_GRANTED = 1;
+  ANALYTICS_CONSENT_DENIED = 2;
+}

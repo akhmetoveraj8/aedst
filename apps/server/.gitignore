@@ -1,0 +1,9 @@
+bin/
+.env
+*.local.env
+coverage.out
+
+# Secrets: never commit private keys or decrypted secret files.
+key.txt
+*.agekey
+deployments/secrets/*.dec.yaml

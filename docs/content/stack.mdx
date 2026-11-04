@@ -1,0 +1,34 @@
+---
+title: Stack overview
+description: One-page summary of the AEDST stack per platform, linking to each platform's full stack page.
+---
+
+# Stack overview
+
+The headline choices per platform. Each platform's complete table, with exact
+versions checked against the registries on **2026-10-07**, lives under that
+platform's own **Stack** page.
+
+| Platform | Language / UI | API transport | Local storage | Full stack |
+|---|---|---|---|---|
+| Server | Go 1.27 · net/http · ConnectRPC | Protobuf + Buf + ConnectRPC | PostgreSQL 18 · pgx + sqlc + Goose | [Server stack](/server/stack) |
+| Web | TypeScript · Next.js 16 · React 19 | ConnectRPC (Connect-Web) | TanStack Query | [Web stack](/web/stack) |
+| Android | Kotlin 2.4 · Jetpack Compose | connect-kotlin over OkHttp | Room · DataStore · Keystore + Tink | [Android stack](/android/stack) |
+| Apple | Swift 6 · SwiftUI (iOS 18+, macOS 15+) | connect-swift | GRDB · Keychain | [Apple stack](/apple/stack) |
+| Desktop | C++23 · Qt 6.12 (QML) | protoc messages + Qt Network `ConnectClient` | SQLite | [Desktop stack](/desktop/stack) |
+
+The rules behind these picks (order of preference, approved libraries,
+explicit rejections) are in [Library-First](/library-first).
+
+## Keeping it current
+
+```bash
+task deps:check            # report what is outdated, per platform
+task deps:update           # bump everything to the latest stable, then build/test
+task deps:update -- web    # one platform
+```
+
+`scripts/update-deps.sh` uses each ecosystem's own tool (go get, pnpm, Gradle
+version-catalog-update, SwiftPM, vcpkg, mise). Renovate keeps opening PRs between
+manual runs. After a bump, update the versions on the platform's Stack page and in
+[library-first](/library-first).

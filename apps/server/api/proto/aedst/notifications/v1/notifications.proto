@@ -1,0 +1,181 @@
+syntax = "proto3";
+
+package aedst.notifications.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/aedst/server/gen/go/aedst/notifications/v1;notificationsv1";
+
+// NotificationsService serves the caller's in-app inbox and manages the push
+// channels (Web Push, FCM, APNs) notifications are fanned out to. Like
+// TasksService, every RPC is scoped to the authenticated caller — user_id is
+// never a request field.
+//
+// The inbox is a projection: the notifications module never receives a
+// synchronous call from the module that caused a notification. It consumes
+// that module's integration events (reference: tasks.v1.TaskCompleted) inside
+// an inbox transaction and delivers push messages from a River job.
+service NotificationsService {
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  rpc GetUnreadCount(GetUnreadCountRequest) returns (GetUnreadCountResponse);
+  rpc MarkRead(MarkReadRequest) returns (MarkReadResponse);
+  rpc MarkAllRead(MarkAllReadRequest) returns (MarkAllReadResponse);
+
+  // Push channels. A device registers once per install (or per browser push
+  // subscription) and re-registers when the platform rotates its token.
+  rpc RegisterPushDevice(RegisterPushDeviceRequest) returns (RegisterPushDeviceResponse);
+  rpc UnregisterPushDevice(UnregisterPushDeviceRequest) returns (UnregisterPushDeviceResponse);
+  // Public VAPID key the browser needs for PushManager.subscribe. Empty when
+  // Web Push is not configured on this deployment.
+  rpc GetWebPushConfig(GetWebPushConfigRequest) returns (GetWebPushConfigResponse);
+
+  rpc GetPreferences(GetPreferencesRequest) returns (GetPreferencesResponse);
+  rpc UpdatePreferences(UpdatePreferencesRequest) returns (UpdatePreferencesResponse);
+}
+
+enum NotificationKind {
+  NOTIFICATION_KIND_UNSPECIFIED = 0;
+  // Reference kind produced from tasks.v1.TaskCompleted.
+  NOTIFICATION_KIND_TASK_COMPLETED = 1;
+  NOTIFICATION_KIND_TASK_DUE_SOON = 2;
+  NOTIFICATION_KIND_MEDIA_READY = 3;
+  NOTIFICATION_KIND_SYSTEM = 4;
+}
+
+message Notification {
+  string id = 1;
+  NotificationKind kind = 2;
+  string title = 3;
+  string body = 4;
+  // In-app route the client opens on tap, e.g. "/tasks/<id>". Relative only.
+  string link = 5;
+  // ID of the entity the notification is about (task id for task kinds).
+  string subject_id = 6;
+  google.protobuf.Timestamp created_at = 7;
+  // Unset while unread.
+  google.protobuf.Timestamp read_at = 8;
+}
+
+message ListNotificationsRequest {
+  bool unread_only = 1;
+  // Defaults to 20, clamped to 100.
+  int32 page_size = 2 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  // Opaque keyset cursor from next_page_token.
+  string page_token = 3 [(buf.validate.field).string.max_len = 512];
+}
+
+message ListNotificationsResponse {
+  repeated Notification notifications = 1;
+  string next_page_token = 2;
+}
+
+message GetUnreadCountRequest {}
+
+message GetUnreadCountResponse {
+  int32 unread = 1;
+}
+
+message MarkReadRequest {
+  repeated string ids = 1 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 100
+    items: {
+      string: {uuid: true}
+    }
+  }];
+}
+
+message MarkReadResponse {}
+
+message MarkAllReadRequest {}
+
+message MarkAllReadResponse {
+  int32 marked = 1;
+}
+
+enum PushPlatform {
+  PUSH_PLATFORM_UNSPECIFIED = 0;
+  // Browser Push API (RFC 8030 + VAPID RFC 8292).
+  PUSH_PLATFORM_WEB_PUSH = 1;
+  // Firebase Cloud Messaging (Android, and optionally web/iOS via FCM).
+  PUSH_PLATFORM_FCM = 2;
+  // Apple Push Notification service (iOS, iPadOS, macOS, tvOS, visionOS).
+  PUSH_PLATFORM_APNS = 3;
+}
+
+message WebPushSubscription {
+  string endpoint = 1 [(buf.validate.field).string = {
+    uri: true
+    max_len: 2048
+  }];
+  // Base64url-encoded keys from PushSubscription.toJSON().keys.
+  string p256dh = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 256
+  }];
+  string auth = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message RegisterPushDeviceRequest {
+  PushPlatform platform = 1 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  // FCM registration token or APNs device token (hex). Empty for WEB_PUSH.
+  string token = 2 [(buf.validate.field).string.max_len = 4096];
+  // Required for WEB_PUSH, ignored otherwise.
+  WebPushSubscription web_push = 3;
+  // APNs only: the bundle id the token belongs to (topic) and whether it was
+  // issued by the sandbox environment.
+  string apns_topic = 4 [(buf.validate.field).string.max_len = 255];
+  bool apns_sandbox = 5;
+  // Free-form, shown in "your devices" (e.g. "Pixel 9 · Android 17").
+  string device_name = 6 [(buf.validate.field).string.max_len = 120];
+  string locale = 7 [(buf.validate.field).string.max_len = 35];
+}
+
+message RegisterPushDeviceResponse {
+  string device_id = 1;
+}
+
+message UnregisterPushDeviceRequest {
+  string device_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message UnregisterPushDeviceResponse {}
+
+message GetWebPushConfigRequest {}
+
+message GetWebPushConfigResponse {
+  // Base64url (uncompressed P-256 point), as PushManager.subscribe expects
+  // for applicationServerKey.
+  string vapid_public_key = 1;
+}
+
+message Preferences {
+  bool push_enabled = 1;
+  bool task_completed = 2;
+  bool task_due_soon = 3;
+  bool media_ready = 4;
+}
+
+message GetPreferencesRequest {}
+
+message GetPreferencesResponse {
+  Preferences preferences = 1;
+}
+
+message UpdatePreferencesRequest {
+  Preferences preferences = 1 [(buf.validate.field).required = true];
+}
+
+message UpdatePreferencesResponse {
+  Preferences preferences = 1;
+}

@@ -1,0 +1,19 @@
+//// run: biome
+//// expect: pass
+//// file: src/modules/tasks/ui/OkRegister.tsx
+import { useForm } from "react-hook-form";
+
+export function OkRegister() {
+  const { register } = useForm();
+  return register("title");
+}
+//// file: src/modules/tasks/lib/search-schema.ts
+import * as z from "zod/mini";
+
+export const searchSchema = z.object({ q: z.string() });
+//// file: src/shared/lib/forms/resolver.ts
+import { createValidator } from "@bufbuild/protovalidate";
+import { toNestErrors } from "@hookform/resolvers";
+
+export const validator = createValidator();
+export const nest = toNestErrors;

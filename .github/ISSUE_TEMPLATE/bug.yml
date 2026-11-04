@@ -1,0 +1,47 @@
+name: Bug report
+description: Something that should work does not.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - apps/server
+        - apps/web
+        - apps/android
+        - apps/apple
+        - apps/desktop-rs
+        - packages / design tokens
+        - docs / CI / tooling
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Commands, input and the smallest case you have.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Output of `git rev-parse --short HEAD`, or the released version.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, screenshots, `task doctor` output
+      description: Redact tokens, emails and any personal data.
+    validations:
+      required: false

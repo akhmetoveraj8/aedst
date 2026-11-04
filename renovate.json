@@ -1,0 +1,337 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices"
+  ],
+  "enabledManagers": [
+    "github-actions",
+    "gomod",
+    "npm",
+    "cargo",
+    "gradle",
+    "gradle-wrapper",
+    "swift",
+    "bundler",
+    "mise",
+    "dockerfile",
+    "docker-compose",
+    "custom.regex"
+  ],
+  "packageRules": [
+    {
+      "description": "Pin GitHub Actions by digest (Renovate keeps the version tag as a comment) and group them.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "pinDigests": true,
+      "groupName": "GitHub Actions",
+      "commitMessagePrefix": "chore(ci):"
+    },
+    {
+      "matchFileNames": [
+        "apps/server/**"
+      ],
+      "groupName": "server (Go)",
+      "commitMessagePrefix": "chore(server):"
+    },
+    {
+      "description": "Group Go minor/patch updates; majors stay separate PRs.",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "groupName": "Go modules (minor/patch)"
+    },
+    {
+      "description": "Web workspace (shared, app, admin, landing): versions live in apps/web/pnpm-workspace.yaml catalog (Renovate's pnpm manager reads catalogs), so one PR bumps all three projects.",
+      "matchFileNames": [
+        "apps/web/**",
+        "docs/**",
+        "packages/**"
+      ],
+      "groupName": "web (Next.js)",
+      "commitMessagePrefix": "chore(web):"
+    },
+    {
+      "description": "Group npm minor/patch updates; majors stay separate PRs.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "npm (minor/patch)"
+    },
+    {
+      "matchFileNames": [
+        "apps/android/**"
+      ],
+      "groupName": "android (Gradle)",
+      "commitMessagePrefix": "chore(android):"
+    },
+    {
+      "description": "Kotlin, KSP, Compose compiler (== Kotlin version), AGP and Hilt must move together: one PR, never split.",
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchPackageNames": [
+        "org.jetbrains.kotlin{/,}**",
+        "com.google.devtools.ksp{/,}**",
+        "com.android.tools.build{/,}**",
+        "com.android.application",
+        "com.android.library",
+        "com.google.dagger{/,}**",
+        "com.google.dagger.hilt.android"
+      ],
+      "groupName": "android toolchain (Kotlin + KSP + Compose compiler + AGP + Hilt)"
+    },
+    {
+      "description": "Android: Compose BOM and the androidx libraries it does not manage move in one PR; majors stay separate.",
+      "matchFileNames": [
+        "apps/android/**"
+      ],
+      "matchPackageNames": [
+        "androidx.compose{/,}**",
+        "androidx.activity{/,}**",
+        "androidx.lifecycle{/,}**",
+        "androidx.navigation3{/,}**",
+        "androidx.hilt{/,}**"
+      ],
+      "groupName": "android (androidx + Compose)",
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
+    },
+    {
+      "description": "Android: protobuf-javalite, the protobuf Gradle plugin and buf.gen.yaml must agree (see apps/android/buf.gen.yaml); one PR, reviewed by hand.",
+      "matchFileNames": [
+        "apps/android/**"
+      ],
+      "matchPackageNames": [
+        "com.google.protobuf{/,}**",
+        "com.connectrpc{/,}**",
+        "com.squareup.okhttp3{/,}**"
+      ],
+      "groupName": "android (protobuf + connect + OkHttp)",
+      "automerge": false
+    },
+    {
+      "description": "Android: Sentry SDK, its BOM and the Gradle plugin; Firebase BoM stays on messaging only.",
+      "matchFileNames": [
+        "apps/android/**"
+      ],
+      "matchPackageNames": [
+        "io.sentry{/,}**",
+        "com.posthog{/,}**",
+        "com.google.firebase{/,}**",
+        "com.google.gms{/,}**"
+      ],
+      "groupName": "android (telemetry + FCM)"
+    },
+    {
+      "description": "Android: test stack (JUnit 4/6, MockK, Turbine, Robolectric, Roborazzi, benchmark) moves together and never blocks the app toolchain.",
+      "matchFileNames": [
+        "apps/android/**"
+      ],
+      "matchPackageNames": [
+        "org.junit{/,}**",
+        "junit:junit",
+        "io.mockk{/,}**",
+        "app.cash.turbine{/,}**",
+        "org.robolectric{/,}**",
+        "io.github.takahirom.roborazzi{/,}**",
+        "androidx.test{/,}**",
+        "androidx.benchmark{/,}**"
+      ],
+      "groupName": "android (test stack)"
+    },
+    {
+      "description": "Intentional exception to the stable-only policy (owner decision, 2026-10-08): apps/android is on dev.detekt 2.0.0-alpha.6, so Renovate may propose newer dev.detekt pre-releases (alpha/beta/rc) until 2.0.0 stable. Applies ONLY to dev.detekt packages; everything else stays stable-only. See docs/content/decisions.md.",
+      "matchPackageNames": [
+        "dev.detekt{/,}**"
+      ],
+      "ignoreUnstable": false,
+      "respectLatest": false
+    },
+    {
+      "matchFileNames": [
+        "apps/apple/**"
+      ],
+      "groupName": "apple (SwiftPM)",
+      "commitMessagePrefix": "chore(apple):"
+    },
+    {
+      "description": "Apple: fastlane and its gems (apps/apple/Gemfile) move together. Gemfile.lock is committed.",
+      "matchManagers": [
+        "bundler"
+      ],
+      "matchFileNames": [
+        "apps/apple/**"
+      ],
+      "groupName": "apple (fastlane)",
+      "commitMessagePrefix": "chore(apple):"
+    },
+    {
+      "description": "Apple: Point-Free packages (swift-dependencies, swift-snapshot-testing, ...) share toolchain requirements; one PR.",
+      "matchManagers": [
+        "swift"
+      ],
+      "matchPackageNames": [
+        "pointfreeco/**",
+        "https://github.com/pointfreeco/**"
+      ],
+      "groupName": "apple (Point-Free)"
+    },
+    {
+      "description": "Apple: Sentry and PostHog SDKs (telemetry) update together, separate from the app stack.",
+      "matchManagers": [
+        "swift"
+      ],
+      "matchPackageNames": [
+        "getsentry/**",
+        "https://github.com/getsentry/**",
+        "PostHog/**",
+        "https://github.com/PostHog/**"
+      ],
+      "groupName": "apple (Sentry + PostHog)"
+    },
+    {
+      "description": "Policy for all swift packages: when a package's latest tag needs a swift-tools-version newer than the Xcode in apple-ci (XCODE_VERSION), cap it with an explicit allowedVersions rule next to this one and name the tools-version and the Xcode that lifts the cap. No such caps are active today. Intent here: swift-protobuf is floored at 1.31.0 (apple-ci SWIFT_PROTOBUF_VERSION) and must match the generator plugin; no auto major bump.",
+      "matchManagers": [
+        "swift"
+      ],
+      "matchPackageNames": [
+        "apple/swift-protobuf",
+        "https://github.com/apple/swift-protobuf"
+      ],
+      "allowedVersions": ">=1.31.0 <2.0.0"
+    },
+    {
+      "description": "Rust + Slint desktop workspace (apps/desktop-rs Cargo.toml and Cargo.lock): minor and patch updates in one grouped PR after a 7 day soak. Slint and the Rust toolchain move by hand.",
+      "matchManagers": [
+        "cargo"
+      ],
+      "matchFileNames": [
+        "apps/desktop-rs/**"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "desktop-rs (cargo minor/patch)",
+      "minimumReleaseAge": "7 days",
+      "commitMessagePrefix": "chore(desktop):"
+    },
+    {
+      "description": "Rust desktop majors: separate PRs, longer soak.",
+      "matchManagers": [
+        "cargo"
+      ],
+      "matchFileNames": [
+        "apps/desktop-rs/**"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "minimumReleaseAge": "14 days",
+      "commitMessagePrefix": "chore(desktop):"
+    },
+    {
+      "description": "mise.toml toolchain pins. Keep in sync with go.mod, CI env versions and package.json.",
+      "matchManagers": [
+        "mise"
+      ],
+      "groupName": "toolchain (mise)",
+      "commitMessagePrefix": "chore(tools):"
+    },
+    {
+      "description": "Custom-regex pins (workflow env versions) are reviewed by hand; never automerge.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "automerge": false,
+      "commitMessagePrefix": "chore(pins):"
+    }
+  ],
+  "gradle": {
+    "managerFilePatterns": [
+      "/^apps/android/.*\\.gradle\\.kts$/",
+      "/^apps/android/gradle/libs\\.versions\\.toml$/"
+    ]
+  },
+  "swift": {
+    "managerFilePatterns": [
+      "/^apps/apple/.*Package\\.swift$/"
+    ]
+  },
+  "bundler": {
+    "managerFilePatterns": [
+      "/^apps/apple/Gemfile$/"
+    ]
+  },
+  "mise": {
+    "managerFilePatterns": [
+      "/(^|/)mise.toml$/"
+    ]
+  },
+  "postUpdateOptions": [
+    "gomodTidy"
+  ],
+  "osvVulnerabilityAlerts": true,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Workflow env pin SWIFTLINT_VERSION",
+      "managerFilePatterns": [
+        "/^.github/workflows/[^/]+.ya?ml$/"
+      ],
+      "matchStrings": [
+        "\\bSWIFTLINT_VERSION:\\s*[\"']?(?<currentValue>[0-9][^\"'\\s]*)[\"']?"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "realm/SwiftLint"
+    },
+    {
+      "customType": "regex",
+      "description": "Workflow env pin SWIFT_PROTOBUF_VERSION",
+      "managerFilePatterns": [
+        "/^.github/workflows/[^/]+.ya?ml$/"
+      ],
+      "matchStrings": [
+        "\\bSWIFT_PROTOBUF_VERSION:\\s*[\"']?(?<currentValue>[0-9][^\"'\\s]*)[\"']?"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "apple/swift-protobuf"
+    },
+    {
+      "customType": "regex",
+      "description": "Workflow env pin CONNECT_SWIFT_VERSION",
+      "managerFilePatterns": [
+        "/^.github/workflows/[^/]+.ya?ml$/"
+      ],
+      "matchStrings": [
+        "\\bCONNECT_SWIFT_VERSION:\\s*[\"']?(?<currentValue>[0-9][^\"'\\s]*)[\"']?"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "connectrpc/connect-swift"
+    },
+    {
+      "customType": "regex",
+      "description": "Workflow env pin SENTRY_CLI_VERSION",
+      "managerFilePatterns": [
+        "/^.github/workflows/[^/]+.ya?ml$/"
+      ],
+      "matchStrings": [
+        "\\bSENTRY_CLI_VERSION:\\s*[\"']?(?<currentValue>[0-9][^\"'\\s]*)[\"']?"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "getsentry/sentry-cli"
+    }
+  ]
+}

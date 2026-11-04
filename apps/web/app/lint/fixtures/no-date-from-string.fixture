@@ -1,0 +1,4 @@
+//// run: biome
+//// expect: Do not build a Date
+//// file: src/modules/tasks/lib/bad-date.ts
+export const due = (text: string) => new Date(text);

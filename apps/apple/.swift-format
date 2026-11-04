@@ -1,0 +1,25 @@
+{
+  "version" : 1,
+  "lineLength" : 120,
+  "indentation" : {
+    "spaces" : 4
+  },
+  "tabWidth" : 4,
+  "maximumBlankLines" : 1,
+  "respectsExistingLineBreaks" : true,
+  "lineBreakBeforeControlFlowKeywords" : false,
+  "lineBreakBeforeEachArgument" : true,
+  "multiElementCollectionTrailingCommas" : true,
+  "fileScopedDeclarationPrivacy" : {
+    "accessLevel" : "private"
+  },
+  "rules" : {
+    "AlwaysUseLowerCamelCase" : true,
+    "OrderedImports" : true,
+    "UseLetInEveryBoundCaseVariable" : true,
+    "NeverForceUnwrap" : false,
+    "NeverUseForceTry" : false,
+    "NeverUseImplicitlyUnwrappedOptionals" : false,
+    "AllPublicDeclarationsHaveDocumentation" : false
+  }
+}

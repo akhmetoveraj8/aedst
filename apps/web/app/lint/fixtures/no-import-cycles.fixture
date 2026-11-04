@@ -1,0 +1,10 @@
+//// run: biome
+//// expect: noImportCycles
+//// file: src/shared/lib/cycle-a.ts
+import { b } from "./cycle-b";
+
+export const a = () => b();
+//// file: src/shared/lib/cycle-b.ts
+import { a } from "./cycle-a";
+
+export const b = () => a();

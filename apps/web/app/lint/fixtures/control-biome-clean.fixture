@@ -1,0 +1,22 @@
+//// run: biome
+//// expect: pass
+//// file: src/shared/ui/ok-primitives.tsx
+export function Ok() {
+  return <button type="button">raw elements are fine in shared/ui</button>;
+}
+//// file: src/shared/date/ok-date.ts
+export const d = (text: string) => new Date(text);
+//// file: src/shared/intl/ok-intl.ts
+export const f = new Intl.NumberFormat("en");
+//// file: src/shared/lib/stores/ok-store.ts
+import { create } from "zustand";
+
+export const useOk = create<{ n: number }>()(() => ({ n: 0 }));
+//// file: src/modules/tasks/lib/ok-store.ts
+import { create } from "zustand";
+
+export const useOkModule = create<{ n: number }>()(() => ({ n: 0 }));
+//// file: src/shared/env/ok-env.ts
+export const apiBase = process.env.API_BASE_URL;
+//// file: src/shared/lib/ok-fetch.ts
+export const load = () => fetch("/api/x");

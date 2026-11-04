@@ -1,0 +1,14 @@
+#include "Base.xcconfig"
+
+AEDST_API_ENVIRONMENT = local
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG
+ONLY_ACTIVE_ARCH = YES
+
+// Push: development-signed builds get APNs sandbox tokens. APS_ENVIRONMENT feeds
+// the aps-environment entitlement; AEDST_APNS_SANDBOX tells the server which
+// APNs gateway the token belongs to (RegisterPushDevice.apns_sandbox).
+APS_ENVIRONMENT = development
+// App Attest (iOS entitlement com.apple.developer.devicecheck.appattest-environment): development attestations
+// use a different AAGUID than production ones; the server must accept both while testing (ADR-0016).
+APP_ATTEST_ENVIRONMENT = development
+AEDST_APNS_SANDBOX = YES

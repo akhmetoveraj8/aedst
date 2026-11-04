@@ -1,0 +1,94 @@
+# aedst-feature-search: Search screen strings (ru).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-search\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "You are offline. Search needs a connection."
+msgstr "Вы не в сети. Для поиска нужно подключение."
+
+msgid "The server is not available right now."
+msgstr "Сервер сейчас недоступен."
+
+msgid "The request took too long."
+msgstr "Запрос занял слишком много времени."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "Слишком много запросов. Повторите чуть позже."
+
+msgid "Please sign in again."
+msgstr "Войдите снова."
+
+msgid "You do not have access to this."
+msgstr "У вас нет доступа к этому."
+
+msgid "Nothing was found at this address."
+msgstr "По этому адресу ничего не найдено."
+
+msgid "The server did not accept this search."
+msgstr "Сервер не принял этот поиск."
+
+msgid "The data was changed elsewhere."
+msgstr "Данные были изменены в другом месте."
+
+msgid "Please update the app to continue."
+msgstr "Обновите приложение, чтобы продолжить."
+
+msgid "Could not read data on this device."
+msgstr "Не удалось прочитать данные на этом устройстве."
+
+msgid "Something went wrong."
+msgstr "Что-то пошло не так."
+
+msgid "Task"
+msgstr "Задача"
+
+msgid "File"
+msgstr "Файл"
+
+msgid "Other"
+msgstr "Другое"
+
+msgid "Search"
+msgstr "Поиск"
+
+msgid "About {} results"
+msgstr "Примерно результатов: {}"
+
+msgid "Search tasks and files"
+msgstr "Искать задачи и файлы"
+
+msgid "Suggestions"
+msgstr "Подсказки"
+
+msgid "Search your tasks and files"
+msgstr "Поиск по вашим задачам и файлам"
+
+msgid "Results appear as you type."
+msgstr "Результаты появляются по мере ввода."
+
+msgid "Searching..."
+msgstr "Идёт поиск..."
+
+msgid "Could not search"
+msgstr "Не удалось выполнить поиск"
+
+msgid "Try again"
+msgstr "Повторить"
+
+msgid "No results"
+msgstr "Ничего не найдено"
+
+msgid "Try a different word or check the spelling."
+msgstr "Попробуйте другое слово или проверьте написание."
+
+msgid "Loading..."
+msgstr "Загрузка..."
+
+msgid "Load more"
+msgstr "Загрузить ещё"

@@ -1,0 +1,161 @@
+# GitOps delivery with Argo CD (https://argo-cd.readthedocs.io): the cluster
+# follows this repository. Apply this file once to the Argo CD namespace; from
+# then on a merge is a deployment.
+#
+# UNVERIFIED: written against the argoproj.io/v1alpha1 API but never applied to
+# a cluster. Adjust repoURL, destinations and project before first use.
+#
+#   staging   follows `main`, syncs automatically (prune + self-heal).
+#   prod      follows the release tag, syncs MANUALLY: a person promotes it after
+#             staging is green (argocd app sync aedst-server-prod).
+#
+# The chart's migration Job is a Helm pre-install/pre-upgrade hook, which Argo CD
+# runs as a PreSync hook: migrations complete before any new pod starts.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: aedst
+  namespace: argocd
+spec:
+  description: aedst backend
+  sourceRepos:
+    - https://github.com/aedst/aedst.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: aedst-*
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - {group: "", kind: "*"}
+    - {group: apps, kind: "*"}
+    - {group: batch, kind: "*"}
+    - {group: policy, kind: "*"}
+    - {group: autoscaling, kind: "*"}
+    - {group: networking.k8s.io, kind: "*"}
+    - {group: monitoring.coreos.com, kind: "*"}
+    - {group: postgresql.cnpg.io, kind: "*"}
+    - {group: barmancloud.cnpg.io, kind: ObjectStore} # Barman Cloud Plugin backup destination
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aedst-postgres-staging
+  namespace: argocd
+spec:
+  project: aedst
+  source:
+    repoURL: https://github.com/aedst/aedst.git
+    targetRevision: main
+    path: apps/server/deployments/k8s/postgres/overlays/staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: aedst-staging
+  syncPolicy:
+    automated: {prune: false, selfHeal: true} # never prune a database
+    syncOptions: [CreateNamespace=true]
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aedst-server-staging
+  namespace: argocd
+spec:
+  project: aedst
+  source:
+    repoURL: https://github.com/aedst/aedst.git
+    targetRevision: main
+    path: apps/server/deployments/helm/aedst-server
+    helm:
+      valueFiles: [values.yaml, values-staging.yaml]
+      # image.tag has no default (the chart refuses to render without it). The
+      # promotion PR sets it to the immutable sha-<git sha> that server-ci pushed
+      # (server and migrate images share the tag). The placeholder is not a real
+      # tag, so an unset environment fails with ImagePullBackOff, never `latest`.
+      parameters:
+        - {name: image.tag, value: sha-CHANGE-ME}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: aedst-staging
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+    retry:
+      limit: 3
+      backoff: {duration: 30s, factor: 2, maxDuration: 5m}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aedst-postgres-prod
+  namespace: argocd
+spec:
+  project: aedst
+  source:
+    repoURL: https://github.com/aedst/aedst.git
+    targetRevision: server/v1 # move deliberately; a tag or release branch, not main
+    path: apps/server/deployments/k8s/postgres/overlays/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: aedst-prod
+  syncPolicy:
+    syncOptions: [CreateNamespace=true] # manual sync: database changes are promoted by a person
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aedst-server-prod
+  namespace: argocd
+spec:
+  project: aedst
+  source:
+    repoURL: https://github.com/aedst/aedst.git
+    targetRevision: server/v1
+    path: apps/server/deployments/helm/aedst-server
+    helm:
+      valueFiles: [values.yaml, values-prod.yaml]
+      # Promoted by a person together with targetRevision: the release tag
+      # (server-v*, pushed as v* image tags) or the sha that passed staging.
+      parameters:
+        - {name: image.tag, value: sha-CHANGE-ME}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: aedst-prod
+  syncPolicy:
+    syncOptions: [CreateNamespace=true]
+---
+# Secrets: SOPS-encrypted Secret decrypted by ksops in the repo-server
+# (deployments/secrets/README.md, "Delivering to the cluster"). Sync these before
+# the aedst-server Applications: the chart's migration hook needs the Secret.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aedst-secrets-staging
+  namespace: argocd
+spec:
+  project: aedst
+  source:
+    repoURL: https://github.com/aedst/aedst.git
+    targetRevision: main
+    path: apps/server/deployments/k8s/secrets/overlays/staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: aedst-staging
+  syncPolicy:
+    automated: {prune: false, selfHeal: true}
+    syncOptions: [CreateNamespace=true]
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aedst-secrets-prod
+  namespace: argocd
+spec:
+  project: aedst
+  source:
+    repoURL: https://github.com/aedst/aedst.git
+    targetRevision: server/v1
+    path: apps/server/deployments/k8s/secrets/overlays/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: aedst-prod
+  syncPolicy:
+    syncOptions: [CreateNamespace=true] # manual sync, like the other prod Applications

@@ -1,0 +1,449 @@
+name: server-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/server/**"
+      - "mise.toml"
+      - ".github/actions/server-setup/**"
+      - ".github/workflows/server-ci.yml"
+    # A server-v* tag publishes and signs a release image (paths filters do not apply to tags).
+    tags: ["server-v*"]
+  pull_request:
+    paths:
+      - "apps/server/**"
+      - "mise.toml"
+      - ".github/actions/server-setup/**"
+      - ".github/workflows/server-ci.yml"
+  # Weekly: govulncheck reports advisories published after the last merge.
+  schedule:
+    - cron: "23 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: server-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/server
+
+# Tool versions (go, buf, task, sqlc, golangci-lint) come from the repo-root
+# mise.toml through .github/actions/server-setup (jdx/mise-action); nothing is
+# duplicated here (gofumpt, govulncheck and goose use the mise go: backend).
+#
+# Every job below is one Taskfile.yml target — the same `task <name>` a
+# contributor runs locally, so there is exactly one place ("what does lint
+# actually run?") to look, not a Makefile version and a CI-YAML version that
+# can drift apart. The `ci` job is the only required status check: adding a
+# new job here never requires touching branch protection settings.
+# The `schedule` trigger runs only `vuln`; every other job is skipped for it.
+jobs:
+  gen-check:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task buf sqlc "go:mvdan.cc/gofumpt"
+      - run: task gen:check
+
+  lint:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # golangci-lint v2 (the config is `version: "2"`) runs staticcheck,
+      # govet, errcheck, depguard, ...; `task lint` adds gofumpt, `go vet`,
+      # `sqlc vet` and buf lint/format.
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task buf sqlc golangci-lint "go:mvdan.cc/gofumpt"
+      - run: task lint
+      - run: task lint:selftest
+
+  arch:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task
+      - run: task arch
+
+  vuln:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task "go:golang.org/x/vuln/cmd/govulncheck"
+      - run: task vuln
+
+  unit:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task
+      # The default (no "vips" tag) build must stay buildable without cgo: it
+      # uses the images_novips.go stub (ADR-0015). unit-vips covers the real path.
+      - run: CGO_ENABLED=0 go build ./... && CGO_ENABLED=0 go vet ./...
+      - run: task test:race
+
+  unit-vips:
+    # The real image path (govips + libvips, cgo, build tag "vips"): the only
+    # place it is compiled and tested. Default-tag jobs use the stub.
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libvips-dev pkg-config
+      - run: go vet -tags vips ./internal/modules/media/...
+      - run: task test:vips
+      - run: task test:vips:integration
+      - run: task build:vips
+
+  lint-migrations:
+    # squawk runs via Docker inside the task (see Taskfile.yml's
+    # lint:migrations) — no separate tool install needed, github-hosted
+    # runners already have Docker.
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task
+      - run: task lint:migrations
+
+  breaking:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task buf
+      - run: task breaking
+
+  integration:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task
+      - run: task test:integration
+
+  # Deployment manifests: the Helm chart renders for every environment overlay
+  # and the output is schema-valid, and the Prometheus alert rules compile and
+  # pass their unit tests. Tools are pinned and downloaded with a SHA-256 check
+  # (Helm via azure/setup-helm; promtool and kubeconform from their releases).
+  manifests:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HELM_VERSION: v4.3.1 # chart tested with Helm 4; latest 3.x is v3.22.1
+      KUBECONFORM_VERSION: v0.8.0
+      KUBECONFORM_SHA256: 9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883
+      PROMETHEUS_VERSION: "3.15.1"
+      PROMETHEUS_SHA256: 2a542df32eac02ee17b9d844fb2aa1de00dafa5476579ba8a3ba862e9d572ea0
+      K8S_VERSION: "1.30.0" # chart kubeVersion is >=1.27
+      KUSTOMIZE_VERSION: v5.8.3
+      KUSTOMIZE_SHA256: cb9e31198d3f63b44848bd0afc4c8efc56e6cfef9c93a4a39a211940e6decd61
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: task
+          cache: true
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: ${{ env.HELM_VERSION }}
+      - name: Install kubeconform, kustomize and promtool (SHA-256 verified)
+        working-directory: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSLO "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz"
+          echo "${KUBECONFORM_SHA256}  kubeconform-linux-amd64.tar.gz" | sha256sum -c -
+          tar -xzf kubeconform-linux-amd64.tar.gz -C "$HOME/.local/bin" kubeconform
+          curl -fsSLO "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
+          echo "${KUSTOMIZE_SHA256}  kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" | sha256sum -c -
+          tar -xzf "kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" -C "$HOME/.local/bin" kustomize
+          prom="prometheus-${PROMETHEUS_VERSION}.linux-amd64"
+          curl -fsSLO "https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/${prom}.tar.gz"
+          echo "${PROMETHEUS_SHA256}  ${prom}.tar.gz" | sha256sum -c -
+          tar -xzf "${prom}.tar.gz" -C "$HOME/.local/bin" --strip-components=1 "${prom}/promtool"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: helm lint --strict and helm template | kubeconform (per overlay)
+        run: |
+          set -euo pipefail
+          chart=deployments/helm/aedst-server
+          # CRD schemas (PrometheusRule, ServiceMonitor) come from the Datree CRDs catalog
+          # (UNVERIFIED pin: it tracks the main branch); everything else is checked against
+          # the Kubernetes schema for K8S_VERSION. Strict: unknown fields fail.
+          crds='https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+          for overlay in dev staging prod; do
+            echo "::group::values-${overlay}.yaml"
+            helm lint "$chart" --strict -f "$chart/values-${overlay}.yaml" --set image.tag=sha-ci
+            helm template aedst "$chart" -f "$chart/values-${overlay}.yaml" --set image.tag=sha-ci |
+              kubeconform -strict -summary -kubernetes-version "$K8S_VERSION" \
+                -schema-location default -schema-location "$crds"
+            echo "::endgroup::"
+          done
+      - name: Worker Deployment, AEDST_JOBS_QUEUES and the config schema
+        run: |
+          set -euo pipefail
+          chart=deployments/helm/aedst-server
+          out="$(helm template aedst "$chart" -f "$chart/values-prod.yaml" --set image.tag=sha-ci --kube-version "$K8S_VERSION")"
+          echo "$out" | grep -q 'AEDST_JOBS_QUEUES: "default=50"'
+          echo "$out" | grep -q 'name: aedst-aedst-server-worker-media'
+          echo "$out" | grep -q 'value: "media=4"'
+          # the API Deployment and the worker are two Deployments; the Service selects only the API
+          test "$(echo "$out" | grep -c '^kind: Deployment$')" = 2
+          # the connection budget fails a render that cannot fit in Postgres max_connections
+          if helm template aedst "$chart" -f "$chart/values-prod.yaml" --set image.tag=sha-ci --set database.jobsMaxConns=30 --kube-version "$K8S_VERSION" >/dev/null 2>&1; then
+            echo "::error::the connection budget accepted 660 direct connections against max_connections 400"; exit 1
+          fi
+          # a typo in values is rejected by values.schema.json
+          if helm lint "$chart" -f "$chart/values-dev.yaml" --set image.tag=sha-ci --set config.storag.bucket=x >/dev/null 2>&1; then
+            echo "::error::values.schema.json accepted an unknown key"; exit 1
+          fi
+      - name: HTTPRoute renders and is schema-valid (opt-in)
+        run: |
+          set -euo pipefail
+          chart=deployments/helm/aedst-server
+          crds='https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+          out="$(helm template aedst "$chart" -f "$chart/values-prod.yaml" -f "$chart/ci/httproute-values.yaml" --set image.tag=sha-ci --kube-version "$K8S_VERSION")"
+          echo "$out" | kubeconform -strict -summary -kubernetes-version "$K8S_VERSION" -schema-location default -schema-location "$crds"
+          echo "$out" | grep -q 'value: "/aedst.tasks.v1.TasksService"'
+          # off by default
+          ! helm template aedst "$chart" -f "$chart/values-prod.yaml" --set image.tag=sha-ci --kube-version "$K8S_VERSION" | grep -q 'kind: HTTPRoute'
+      - name: kustomize build + kubeconform (Postgres overlays)
+        run: |
+          set -euo pipefail
+          crds='https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+          for env in staging prod; do
+            kustomize build "deployments/k8s/postgres/overlays/${env}" > "pg-${env}.yaml"
+            kubeconform -strict -summary -kubernetes-version "$K8S_VERSION" -schema-location default -schema-location "$crds" "pg-${env}.yaml"
+          done
+          kubeconform -strict -summary -kubernetes-version "$K8S_VERSION" -schema-location default -schema-location "$crds" deployments/k8s/postgres/recovery.example.yaml
+          # each environment archives to its own path
+          grep -q 'destinationPath: s3://aedst-pg-backups/staging' pg-staging.yaml
+          grep -q 'destinationPath: s3://aedst-pg-backups/prod' pg-prod.yaml
+          # backups use the Barman Cloud Plugin (ObjectStore + spec.plugins), never the deprecated in-tree API
+          for env in staging prod; do
+            if grep -q 'barmanObjectStore' "pg-${env}.yaml"; then echo "::error::in-tree barmanObjectStore in ${env}"; exit 1; fi
+            grep -q 'kind: ObjectStore' "pg-${env}.yaml"
+            grep -q 'isWALArchiver: true' "pg-${env}.yaml"
+            grep -q 'method: plugin' "pg-${env}.yaml"
+            grep -q "serverName: aedst-pg-${env}$" "pg-${env}.yaml"
+            if grep -q 'OVERRIDE' "pg-${env}.yaml"; then echo "::error::unreplaced OVERRIDE placeholder in ${env}"; exit 1; fi
+          done
+          if grep -q 'barmanObjectStore' deployments/k8s/postgres/recovery.example.yaml; then echo "::error::in-tree API in recovery example"; exit 1; fi
+      - name: image.tag is required (no floating latest)
+        run: |
+          if helm template aedst deployments/helm/aedst-server -f deployments/helm/aedst-server/values-dev.yaml --kube-version "$K8S_VERSION" >/dev/null 2>err.txt; then
+            echo "::error::chart rendered without image.tag"; exit 1
+          fi
+          grep -q "image.tag is required" err.txt
+      - name: Alert rules (promtool check + unit tests)
+        run: task alerts:test
+
+  # Supply chain for the container images (server and the goose migration
+  # image used by the Helm pre-install hook): build, scan (Trivy, fails on
+  # fixable HIGH/CRITICAL), SBOM (Syft, uploaded as a workflow artifact), and on
+  # main / server-v* tags: push to GHCR with the same tags and sign the pushed
+  # digest keyless with cosign (GitHub OIDC -> Sigstore Fulcio; no long-lived
+  # key). Action refs are pinned by commit SHA (verified against the GitHub API
+  # when this was written); bump them deliberately. Pull requests only build,
+  # scan and produce the SBOM. This job is also the only container build check
+  # (a separate plain `docker build` job would duplicate it). NOTE: the server
+  # Dockerfile moved from Debian bookworm to trixie (libvips42t64) without a local
+  # docker build; the first run of this job is the acceptance test.
+  image:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: server
+            image: ghcr.io/aedst/aedst-server # keep in sync with deployments/helm/aedst-server/values.yaml
+            file: apps/server/deployments/docker/Dockerfile
+          - name: migrate
+            image: ghcr.io/aedst/aedst-server-migrate # keep in sync with values.yaml migrations.image.repository
+            file: apps/server/deployments/docker/Dockerfile.migrate
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env:
+      IMAGE: ${{ matrix.image }}
+      PUBLISH: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/server-v')) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: build (local)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: apps/server
+          file: ${{ matrix.file }}
+          load: true
+          tags: aedst-${{ matrix.name }}:ci
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+      - name: scan (Trivy, HIGH/CRITICAL fail the job)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: aedst-${{ matrix.name }}:ci
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true # only vulnerabilities with a fix available gate the build
+          exit-code: "1"
+          format: table
+      - name: SBOM (Syft)
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          image: aedst-${{ matrix.name }}:ci
+          format: cyclonedx-json
+          artifact-name: aedst-${{ matrix.name }}.sbom.cdx.json
+      - if: env.PUBLISH == 'true'
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: image tags
+        id: meta
+        if: env.PUBLISH == 'true'
+        working-directory: .
+        run: |
+          tags="${IMAGE}:sha-${GITHUB_SHA}"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then tags="${tags}"$'\n'"${IMAGE}:${GITHUB_REF_NAME#server-}"; fi
+          { echo "tags<<EOF"; echo "${tags}"; echo "EOF"; } >> "${GITHUB_OUTPUT}"
+      - name: push
+        id: push
+        if: env.PUBLISH == 'true'
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: apps/server
+          file: ${{ matrix.file }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+      - if: env.PUBLISH == 'true'
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      - name: sign (cosign keyless)
+        if: env.PUBLISH == 'true'
+        working-directory: .
+        run: cosign sign --yes "${IMAGE}@${{ steps.push.outputs.digest }}"
+
+  # Not part of the `ci` gate's needs: a trend to watch, not a merge blocker
+  # — a slow query shouldn't block an unrelated PR the way a correctness
+  # regression should. Only runs on push to main / manual dispatch, so PRs
+  # aren't waiting on a k6 run every time.
+  load:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    # A k6 threshold miss never fails the run (continue-on-error on the k6 steps
+    # only); a server that does not start, or a broken harness, does.
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      K6_VERSION: v2.3.0 # == grafana/k6 image tag in Taskfile.yml
+      K6_SHA256: 39c3117b6af817592dcd0ce4242105c0a7af10948c2a425306f0be8f7a8a8ab1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task "go:github.com/pressly/goose/v3/cmd/goose"
+      - name: Install k6 (SHA-256 verified)
+        working-directory: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          f="k6-${K6_VERSION}-linux-amd64.tar.gz"
+          curl -fsSLO "https://github.com/grafana/k6/releases/download/${K6_VERSION}/${f}"
+          echo "${K6_SHA256}  ${f}" | sha256sum -c -
+          mkdir -p "$HOME/.local/bin"
+          tar -xzf "$f" -C "$HOME/.local/bin" --strip-components=1 "k6-${K6_VERSION}-linux-amd64/k6"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - run: docker compose -f deployments/docker/docker-compose.yml up -d --wait postgres valkey
+      - run: task migrate
+      - name: start server
+        run: |
+          set -a; . ./.env.example; set +a
+          # The load scenario registers users through the first-party auth
+          # endpoints, which .env.example turns off.
+          export AEDST_AUTH_FIRST_PARTY_ENABLED=true
+          # The scenario drives every request as one user; the per-user limit
+          # exists to stop exactly that, so the limits are off for the load test.
+          export AEDST_API_RATE_LIMIT_PER_MINUTE=0 AEDST_AUTH_RATE_LIMIT_PER_MINUTE=0 AEDST_LOGIN_RATE_LIMIT_PER_MINUTE=0
+          nohup go run ./cmd/server > server.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8080/livez >/dev/null; then echo "server up after ${i}s"; exit 0; fi
+            sleep 1
+          done
+          echo "::error::server did not become live within 60s"; tail -n 50 server.log; exit 1
+      - run: task load SCENARIO=smoke K6_ARGS=--summary-export=k6-smoke.json
+        continue-on-error: true
+      - run: task load SCENARIO=load RATE=10 DURATION=1m K6_ARGS=--summary-export=k6-load.json
+        continue-on-error: true
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: k6-summary
+          path: |
+            apps/server/k6-*.json
+            apps/server/server.log
+          if-no-files-found: warn
+          retention-days: 14
+      - if: always()
+        run: docker compose -f deployments/docker/docker-compose.yml down -v
+
+  ci:
+    if: always()
+    needs:
+      [
+        gen-check,
+        lint,
+        arch,
+        vuln,
+        unit,
+        unit-vips,
+        lint-migrations,
+        breaking,
+        integration,
+        manifests,
+        image,
+      ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1

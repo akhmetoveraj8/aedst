@@ -1,0 +1,206 @@
+syntax = "proto3";
+
+package aedst.tasks.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/aedst/server/gen/go/aedst/tasks/v1;tasksv1";
+
+// TasksService is the tasks module's public API boundary (see
+// docs/content/server/modules.md). It is the reference module for the AEDST pattern: every
+// RPC here demonstrates the same module shape (domain/application/
+// infrastructure/transport/api) any future module should follow.
+//
+// Every RPC operates on the caller's own tasks only. `user_id` is never a
+// request field — it is derived from the authenticated context
+// (internal/platform/httpserver's AuthInterceptor), never trusted from the
+// client. Trusting a client-supplied user id here would be a textbook IDOR
+// vulnerability; TasksService is deliberately designed so that mistake is
+// not representable in the request shape at all.
+service TasksService {
+  rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+  rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+  // Mutates title/description/priority/due_date only — never status. Status
+  // is a state machine (see TaskStatus), not a plain field: it only moves
+  // through CompleteTask/ReopenTask, which is also where completed_at is
+  // stamped/cleared. This keeps "can DONE go back to IN_PROGRESS without an
+  // explicit reopen" a single well-known no, not something every caller of
+  // UpdateTask has to remember not to do by omitting status from the mask.
+  rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
+  rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
+  rpc CompleteTask(CompleteTaskRequest) returns (CompleteTaskResponse);
+  rpc ReopenTask(ReopenTaskRequest) returns (ReopenTaskResponse);
+  // GetTaskStats backs the dashboard (total/todo/in_progress/done/overdue) —
+  // one aggregate query instead of the client computing it from a full list.
+  rpc GetTaskStats(GetTaskStatsRequest) returns (GetTaskStatsResponse);
+}
+
+enum TaskStatus {
+  TASK_STATUS_UNSPECIFIED = 0;
+  TASK_STATUS_TODO = 1;
+  TASK_STATUS_IN_PROGRESS = 2;
+  TASK_STATUS_DONE = 3;
+}
+
+enum TaskPriority {
+  TASK_PRIORITY_UNSPECIFIED = 0;
+  TASK_PRIORITY_LOW = 1;
+  TASK_PRIORITY_MEDIUM = 2;
+  TASK_PRIORITY_HIGH = 3;
+  TASK_PRIORITY_URGENT = 4;
+}
+
+message Task {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  TaskStatus status = 4;
+  TaskPriority priority = 5;
+  google.protobuf.Timestamp due_date = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp completed_at = 9;
+  string created_by = 10;
+  // Bumped on every mutation. Send it back as UpdateTaskRequest.expected_version
+  // to detect that someone else changed the task since you read it.
+  int32 version = 11;
+}
+
+message CreateTaskRequest {
+  string title = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  string description = 2 [(buf.validate.field).string.max_len = 4000];
+  TaskPriority priority = 3 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  // Optional.
+  google.protobuf.Timestamp due_date = 4;
+}
+
+message CreateTaskResponse {
+  Task task = 1;
+}
+
+message GetTaskRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetTaskResponse {
+  Task task = 1;
+}
+
+enum TaskSortField {
+  TASK_SORT_FIELD_UNSPECIFIED = 0;
+  TASK_SORT_FIELD_CREATED_AT = 1;
+  TASK_SORT_FIELD_DUE_DATE = 2;
+}
+
+enum SortDirection {
+  SORT_DIRECTION_UNSPECIFIED = 0;
+  SORT_DIRECTION_ASC = 1;
+  SORT_DIRECTION_DESC = 2;
+}
+
+message ListTasksRequest {
+  // Empty means "any status"; same for priorities below.
+  repeated TaskStatus statuses = 1 [(buf.validate.field).repeated.items.enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  repeated TaskPriority priorities = 2 [(buf.validate.field).repeated.items.enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  // Case-insensitive substring match against title + description (LIKE
+  // wildcards in the input match literally).
+  string search = 3 [(buf.validate.field).string.max_len = 200];
+  // Defaults to CREATED_AT if unspecified.
+  TaskSortField sort_by = 4;
+  // Defaults to DESC if unspecified.
+  SortDirection sort_direction = 5;
+  // Defaults to 20, clamped to 100, if unspecified.
+  int32 page_size = 6 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  // Opaque keyset cursor — echo back exactly what a previous response returned
+  // in next_page_token, with the same filters and sort. Empty means "first
+  // page". A token issued for a different sort order is rejected with
+  // INVALID_ARGUMENT. Never parse or construct one: the format may change.
+  string page_token = 7 [(buf.validate.field).string.max_len = 512];
+}
+
+message ListTasksResponse {
+  repeated Task tasks = 1;
+  // Empty means there is no next page.
+  string next_page_token = 2;
+  // Count of tasks matching the filter (statuses/priorities/search), not
+  // just this page — what the UI shows next to "Tasks". Populated on the
+  // FIRST page only (request page_token empty) and 0 on every later page:
+  // counting the matching set is O(rows) and would otherwise be paid on every
+  // page. Clients should keep the value from the first response. Capped at
+  // 10,000: a larger match set reports 10000, meaning "at least 10000".
+  int32 total_count = 3;
+}
+
+message UpdateTaskRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  // title and priority are validated by the domain only when named in
+  // update_mask (or when there is no mask), so a client that updates just
+  // due_date need not resend them.
+  string title = 2 [(buf.validate.field).string = {max_len: 200}];
+  string description = 3 [(buf.validate.field).string.max_len = 4000];
+  TaskPriority priority = 4 [(buf.validate.field).enum = {defined_only: true}];
+  google.protobuf.Timestamp due_date = 5;
+  // Which of title/description/priority/due_date to apply — lets a client
+  // clear due_date (present in the mask, absent as a value) without also
+  // having to resend the current title/description/priority verbatim.
+  google.protobuf.FieldMask update_mask = 6;
+  // Optimistic concurrency: when set, the update applies only if the task is
+  // still at this version; otherwise the RPC fails with ABORTED and the client
+  // should re-read and retry. Omit for last-write-wins.
+  optional int32 expected_version = 7 [(buf.validate.field).int32.gte = 1];
+}
+
+message UpdateTaskResponse {
+  Task task = 1;
+}
+
+message DeleteTaskRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message DeleteTaskResponse {}
+
+message CompleteTaskRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message CompleteTaskResponse {
+  Task task = 1;
+}
+
+message ReopenTaskRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message ReopenTaskResponse {
+  Task task = 1;
+}
+
+message GetTaskStatsRequest {}
+
+message GetTaskStatsResponse {
+  int32 total = 1;
+  int32 todo = 2;
+  int32 in_progress = 3;
+  int32 done = 4;
+  // status != DONE and due_date is in the past.
+  int32 overdue = 5;
+}

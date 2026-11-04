@@ -1,0 +1,9 @@
+language js
+
+// `<Controller rules={...}>` is the JSX twin of register(name, { required, ... }):
+// rules belong in the .proto and run through protovalidateResolver.
+// Rule page: docs/content/web/validation.md
+JsxAttribute(name=$n) as $attr where {
+  $n <: r"^rules$",
+  register_diagnostic(span=$attr, message="No inline validation rules on form controls (rules=): the rules live in the .proto and run through protovalidateResolver (docs/content/web/validation.md).", severity="error")
+}

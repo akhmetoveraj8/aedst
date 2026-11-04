@@ -1,0 +1,577 @@
+version: "3"
+
+# Single entry point (go-task). Per-app logic lives in each app's own
+# Taskfile/Makefile/package.json scripts; this file only delegates.
+# apps/server has a Taskfile and is included; the other apps expose
+# Makefile / pnpm / Gradle / CMake entry points, wrapped in namespaced tasks
+# below (web:*, app:*, admin:*, landing:*, android:*, apple:*, desktop-rs:*).
+#
+# PROFILE: the aggregate tasks (generate, lint, test, build, check) run the Core
+# profile (server + web + design tokens) by default. Android, Apple and Desktop are
+# frozen until each has a first green CI run; include them with `task lint PROFILE=full`.
+
+includes:
+  server:
+    taskfile: apps/server/Taskfile.yml
+    dir: apps/server
+
+tasks:
+  default:
+    desc: List available tasks.
+    cmds:
+      - task --list
+
+  setup:
+    desc: Install dependencies and git hooks for the current machine.
+    cmds:
+      - lefthook install
+      - pnpm install --dir scripts --ignore-workspace --frozen-lockfile --silent
+      - pnpm --dir apps/web install --frozen-lockfile
+      - pnpm --dir docs install --frozen-lockfile
+      - task: generate
+
+  generate:
+    desc: "Regenerate buf/sqlc outputs and design tokens (Core profile: server, web, tokens; PROFILE=full adds android, apple on macOS, desktop-rs)."
+    cmds:
+      - task: server:gen
+      - task: web:generate
+      - task: tokens:build
+      - task: generate:frozen
+
+  generate:frozen:
+    desc: Regenerate the outputs of the frozen platforms (android, apple on macOS). Runs only with PROFILE=full.
+    status:
+      - '{{if eq (.PROFILE | default "core") "full"}}false{{else}}true{{end}}'
+    cmds:
+      - task: android:generate
+      - task: apple:generate
+
+  lint:
+    desc: Lint the Core profile (server, web); PROFILE=full adds android, apple, desktop-rs (only where the toolchain exists).
+    cmds:
+      - task: server:lint
+      - task: web:lint
+      - task: lint:frozen
+
+  lint:frozen:
+    desc: Lint the frozen platforms (android, apple, desktop-rs). Runs only with PROFILE=full.
+    status:
+      - '{{if eq (.PROFILE | default "core") "full"}}false{{else}}true{{end}}'
+    cmds:
+      - task: android:lint
+      - task: apple:lint
+      - task: desktop-rs:lint
+
+  test:
+    desc: Unit tests of the Core profile (server, web); PROFILE=full adds android, apple, desktop-rs.
+    cmds:
+      - task: server:test
+      - task: web:test
+      - task: test:frozen
+
+  test:frozen:
+    desc: Unit tests of the frozen platforms (android, apple, desktop-rs). Runs only with PROFILE=full.
+    status:
+      - '{{if eq (.PROFILE | default "core") "full"}}false{{else}}true{{end}}'
+    cmds:
+      - task: android:test
+      - task: apple:test
+      - task: desktop-rs:test
+
+  build:
+    desc: Build the Core profile (server, web); PROFILE=full adds android, apple, desktop-rs (only where the toolchain exists).
+    cmds:
+      - task: server:build
+      - task: web:build
+      - task: build:frozen
+
+  build:frozen:
+    desc: Build the frozen platforms (android, apple, desktop-rs). Runs only with PROFILE=full.
+    status:
+      - '{{if eq (.PROFILE | default "core") "full"}}false{{else}}true{{end}}'
+    cmds:
+      - task: android:build
+      - task: apple:build
+      - task: desktop-rs:build
+
+  audit:status:
+    desc: Validate docs/audit/2026-10-08-backlog.md (every item has a status, none skipped) and print counters.
+    cmds:
+      - node scripts/check-backlog.mjs
+
+  check:
+    desc: Cheap static checks (naming, file size, colors, i18n, boundaries, knip, migrations, tokens, infra fmt). Core profile by default; PROFILE=full adds the android, apple and desktop-rs gates.
+    cmds:
+      - task: check:naming
+      - task: check:file-size
+      - task: check:status
+      - task: check:colors
+      - task: check:i18n
+      - task: check:boundaries
+      - task: check:features
+      - task: check:behavior
+      - task: check:analytics
+      - task: check:hooks
+      - task: check:docs
+      - task: check:agpl
+      - task: check:gates
+      - task: check:gates:frozen
+      - task: web:knip
+      - task: server:lint:migrations
+      - task: tokens:check
+      - task: infra:fmt
+
+  check:gates:
+    desc: Library-First gates for the Core profile (web forms/selftest, server lint selftest), each with its negative self-test.
+    cmds:
+      - pnpm --dir apps/web/app check:forms
+      - pnpm --dir apps/web/app check:selftest
+      - task: server:lint:selftest
+
+  check:gates:frozen:
+    desc: Static gates of the frozen platforms (apple custom rules, android gates). Runs only with PROFILE=full.
+    status:
+      - '{{if eq (.PROFILE | default "core") "full"}}false{{else}}true{{end}}'
+    cmds:
+      - bash apps/apple/scripts/check-swiftlint-rules-static.sh
+      - bash apps/apple/scripts/check-apple-sensitive-apis.sh
+      - bash apps/apple/scripts/check-dependencies.sh
+      - bash apps/android/scripts/test-gates.sh
+
+  check:naming:
+    desc: File/directory naming conventions (CONVENTIONS.md).
+    cmds:
+      - bash scripts/check-naming.sh
+
+  check:file-size:
+    desc: File-size policy (CONVENTIONS.md, File size; red over 500 lines fails). Limits in scripts/file-size.config.
+    cmds:
+      - bash scripts/check-file-size.sh {{.CLI_ARGS}}
+
+  check:status:
+    desc: Measured numbers in docs/content/status.md match the tree (regenerate with `node scripts/status-metrics.mjs`).
+    cmds:
+      - node scripts/status-metrics.mjs --check
+
+  check:template-profiles:
+    desc: Generate the core and mobile profiles with template-new and run the repo-wide checks inside them (proves that removing a platform works).
+    cmds:
+      - bash scripts/check-template-profiles.sh {{.CLI_ARGS}}
+
+  check:colors:
+    desc: No color literals in hand-written UI code (use design tokens). Allowlist in scripts/color-literals.allowlist.
+    cmds:
+      - node scripts/check-color-literals.mjs {{.CLI_ARGS}}
+
+  check:i18n:
+    desc: i18n key and placeholder parity across web, android, apple and desktop-rs (en, ru, tg, uz, ar). Pass --cross for the cross-platform report.
+    cmds:
+      - node scripts/check-i18n-parity.mjs {{.CLI_ARGS}}
+
+  check:boundaries:
+    desc: Feature module boundary checks for all platforms (web, android, apple, desktop-rs scripts + server architecturetest).
+    cmds:
+      - bash scripts/check-boundaries.sh {{.CLI_ARGS}}
+
+  check:agpl:
+    desc: ZITADEL (AGPL-3.0) stays unmodified and separate - official pinned images only, no FROM/COPY/clone/patch/Go-module link; includes a negative self-test (docs/content/server/licensing-agpl.md).
+    cmds:
+      - node scripts/check-zitadel-agpl.mjs
+
+  check:docs:
+    desc: Markdown links resolve, repo paths in scripts/workflows/prompts exist, no Cyrillic outside docs/archive and locales. Exceptions in scripts/check-docs.allowlist.
+    cmds:
+      - node --test scripts/check-docs.test.mjs
+      - node scripts/check-docs.mjs
+
+  check:features:
+    desc: features.yaml parity matrix (feature x platform x status) and the per-feature shape (layers, locales, tests, navigation, ids, flagged, outbox) match the tree. Pass --require-complete for the release gate (no `missing`).
+    cmds:
+      - node --test scripts/test/check-features-shape.test.mjs
+      - node --test scripts/test/check-backlog.test.mjs
+      - node scripts/check-features.mjs {{.CLI_ARGS}}
+
+  check:behavior:
+    desc: Shared behaviour fixtures (docs/contract/behavior) agree with the reference model.
+    cmds:
+      - node scripts/check-behavior-fixtures.mjs
+
+  check:analytics:
+    desc: Analytics event names emitted by web, Android, Apple and Desktop match docs/contract/analytics-events.json.
+    cmds:
+      - node scripts/check-analytics-events.mjs
+
+  new:module:
+    desc: "Scaffold a feature module on every platform and register it: task new:module -- NAME=<id> [--platforms=server,web] [--dry-run] [--remove]. See docs/agent/new-module.md."
+    cmds:
+      - node scripts/new-module.mjs {{.CLI_ARGS}}
+
+  template:new:
+    desc: "Turn this template into a product: task template:new -- --name <brand> --profile core|mobile|full (--out <dir> | --in-place) [--dry-run]. See README, 'Using this repo as a template'."
+    cmds:
+      - node scripts/template-new.mjs {{.CLI_ARGS}}
+
+  check:hooks:
+    desc: Smoke-test the Claude Code hooks (.claude/hooks, apps/server/.claude/hooks) and settings.json files by piping sample JSON into them.
+    cmds:
+      - bash scripts/check-hooks.sh
+
+  doctor:
+    desc: "Print the active profile (PROFILE, default core) and detect installed toolchains: which verification level (static / tests / build) is possible per platform."
+    cmds:
+      - bash scripts/doctor.sh
+
+  # --- verify:<platform>: print the exact commands that verify a platform --------
+  # These only print; run them yourself (or use the platform tasks). See docs/content/status.md.
+  verify:server:
+    desc: Print the commands that verify the server.
+    silent: true
+    cmds:
+      - |
+        echo "task server:check                              # gen:check, lint (incl. tidy:check), arch, vuln, unit tests: the fast gate CI runs"
+        echo "task server:build server:test:race             # build and race-detector unit tests (race needs cgo)"
+        echo "task server:test:integration                 # needs Docker, or AEDST_TEST_DATABASE_URL pointing at a Postgres"
+  verify:web:
+    desc: Print the commands that verify the web workspace (app, admin, landing).
+    silent: true
+    cmds:
+      - |
+        echo "pnpm --dir apps/web install --frozen-lockfile      # ONE install for the whole workspace"
+        echo "task web:lint web:knip web:test:coverage web:build web:check:bundle   # all three projects"
+        echo "task app:lint app:test | admin:lint admin:test | landing:lint landing:test   # one project"
+        echo "task app:test:e2e           # Playwright, needs browsers"
+  verify:android:
+    desc: Print the commands that verify Android (needs JDK 21 and the Android SDK).
+    silent: true
+    cmds:
+      - |
+        echo "task android:generate android:lint android:test android:build"
+        echo "task android:androidtest    # emulator/device"
+  verify:apple:
+    desc: Print the commands that verify Apple (macOS, Xcode 26.6).
+    silent: true
+    cmds:
+      - |
+        echo "task apple:generate apple:lint apple:test apple:build   # macOS only; Tuist install/generate and xcodebuild"
+        echo "then launch the app in a simulator"
+  verify:desktop-rs:
+    desc: Print the commands that verify the Rust + Slint Desktop app (cargo, Windows or Linux).
+    silent: true
+    cmds:
+      - |
+        echo "rustup toolchain install <version in apps/desktop-rs/rust-toolchain.toml>"
+        echo "task desktop-rs:lint desktop-rs:test desktop-rs:build   # rustfmt, clippy -D warnings, cargo test, cargo build"
+        echo "task desktop-rs:deny                                    # needs: cargo install --locked cargo-deny@0.20.2"
+        echo "Linux needs Slint system libraries (fontconfig, xkbcommon, wayland): UNVERIFIED list, see desktop-rs-ci.yml"
+  deps:update:
+    desc: Update every platform to the latest stable dependencies (pass platforms as CLI_ARGS, e.g. `task deps:update -- server web`).
+    cmds:
+      - bash scripts/update-deps.sh {{.CLI_ARGS}}
+
+  deps:check:
+    desc: Report outdated dependencies on every platform without changing anything.
+    cmds:
+      - bash scripts/update-deps.sh --check {{.CLI_ARGS}}
+
+  dev:
+    desc: Start local infra + the server (run web:dev in another shell).
+    cmds:
+      - task: server:dev
+
+  # --- infrastructure as code (OpenTofu; infra/ does not exist yet) -------
+  # Single IaC tool: OpenTofu (decisions.md). These no-op until infra/ exists.
+  infra:fmt:
+    desc: tofu fmt -check -recursive on infra/ (no-op while infra/ is absent).
+    cmds:
+      - |
+        if [ ! -d infra ]; then echo "infra/ absent: nothing to format"; exit 0; fi
+        command -v tofu >/dev/null 2>&1 || { echo "tofu not installed (mise install)" >&2; exit 1; }
+        tofu fmt -check -recursive infra
+
+  infra:validate:
+    desc: tofu init -backend=false + validate for every infra/ root module (no-op while infra/ is absent).
+    cmds:
+      - |
+        if [ ! -d infra ]; then echo "infra/ absent: nothing to validate"; exit 0; fi
+        command -v tofu >/dev/null 2>&1 || { echo "tofu not installed (mise install)" >&2; exit 1; }
+        for d in $(find infra -name '*.tf' -not -path '*/.terraform/*' -exec dirname {} \; | sort -u); do
+          (cd "$d" && tofu init -backend=false -input=false >/dev/null && tofu validate) || exit 1
+        done
+
+  # --- design tokens (packages/design-tokens, may not exist yet) ---------
+  tokens:build:
+    desc: Regenerate the design-token outputs for every platform (never hand-edit generated files).
+    status:
+      - test ! -d packages/design-tokens
+    cmds:
+      - pnpm --dir packages/design-tokens install --frozen-lockfile
+      - pnpm --dir packages/design-tokens build
+
+  tokens:check:
+    desc: Fail if generated design-token outputs drift from their source.
+    status:
+      - test ! -d packages/design-tokens
+    cmds:
+      - pnpm --dir packages/design-tokens install --frozen-lockfile
+      - pnpm --dir packages/design-tokens check
+
+  # --- docs site (docs/, Nextra) ---------------------------------------------
+  docs:dev:
+    desc: Start the docs site dev server.
+    cmds:
+      - pnpm --dir docs dev
+  docs:test:
+    desc: Unit tests for the docs site generators (llms.txt, llms-full.txt, front matter).
+    cmds:
+      - pnpm --dir docs test
+  docs:build:
+    desc: Build the docs site (Nextra + pagefind index).
+    cmds:
+      - pnpm --dir docs build
+
+  # --- web (workspace apps/web: shared + app + admin + landing) ------------
+  # web:* runs every project; app:* / admin:* / landing:* run one project.
+  # The ONE install is: pnpm --dir apps/web install --frozen-lockfile
+  web:generate:
+    desc: Regenerate the shared Connect clients from the protos.
+    cmds:
+      - task: app:generate
+  web:lint:
+    desc: Biome lint and typecheck of app, admin and landing.
+    cmds:
+      - task: app:lint
+      - task: admin:lint
+      - task: landing:lint
+  web:knip:
+    desc: knip of app, admin and landing.
+    cmds:
+      - task: app:knip
+      - task: admin:knip
+      - task: landing:knip
+  web:test:
+    desc: Unit tests of app, admin and landing (shared tests are hosted by app).
+    cmds:
+      - task: app:test
+      - task: admin:test
+      - task: landing:test
+  web:test:coverage:
+    desc: Coverage-gated tests (app; admin and landing have no thresholds yet).
+    cmds:
+      - task: app:test:coverage
+  web:test:e2e:
+    desc: Playwright suite (app).
+    cmds:
+      - task: app:test:e2e
+  web:check:bundle:
+    desc: Client bundle size budget (app; run after web:build).
+    cmds:
+      - task: app:check:bundle
+  web:lighthouse:
+    desc: Lighthouse CI budgets (app; run after web:build).
+    cmds:
+      - task: app:lighthouse
+  web:build:
+    desc: Production build of app, admin and landing.
+    cmds:
+      - task: app:build
+      - task: admin:build
+      - task: landing:build
+  web:dev:
+    desc: Start all three dev servers (app 3000, admin 3001, landing 3002).
+    dir: apps/web
+    cmds: ["pnpm -r --parallel dev"]
+
+  # --- web: app (product, signed-in users, port 3000) ----------------------
+  app:generate:
+    desc: Regenerate the shared Connect clients from the protos (pnpm connect:generate, hosted by app).
+    dir: apps/web/app
+    cmds: [pnpm connect:generate]
+  app:test:coverage:
+    desc: App unit/integration tests with the coverage thresholds CI enforces.
+    dir: apps/web/app
+    cmds: [pnpm test:coverage]
+  app:test:e2e:
+    desc: App Playwright suite (all browsers + phones) against the mock API.
+    dir: apps/web/app
+    cmds: [pnpm test:e2e:prod]
+  app:check:bundle:
+    desc: App client bundle size budget (run after app:build).
+    dir: apps/web/app
+    cmds: [pnpm check:bundle]
+  app:lighthouse:
+    desc: App Lighthouse CI budgets (run after app:build; needs Chrome).
+    dir: apps/web/app
+    cmds: [pnpm lighthouse]
+  app:dev:
+    desc: Start the app dev server.
+    dir: apps/web/app
+    cmds: [pnpm dev]
+  app:build:
+    desc: Production build of the app (Next.js).
+    dir: apps/web/app
+    cmds: [pnpm build]
+  app:lint:
+    desc: app Biome lint and TypeScript typecheck.
+    dir: apps/web/app
+    cmds: ["pnpm lint", "pnpm typecheck"]
+  app:knip:
+    desc: app unused files/exports/dependencies and the approved-library allowlist (knip).
+    dir: apps/web/app
+    cmds: [pnpm knip]
+  app:test:
+    desc: app unit tests (Vitest).
+    dir: apps/web/app
+    cmds: [pnpm test]
+
+  # --- web: admin (staff panel, port 3001) ---------------------------------
+  admin:dev:
+    desc: Start the admin dev server.
+    dir: apps/web/admin
+    cmds: [pnpm dev]
+  admin:build:
+    desc: Production build of the admin (Next.js).
+    dir: apps/web/admin
+    cmds: [pnpm build]
+  admin:lint:
+    desc: admin Biome lint and TypeScript typecheck.
+    dir: apps/web/admin
+    cmds: ["pnpm lint", "pnpm typecheck"]
+  admin:knip:
+    desc: admin unused files/exports/dependencies and the approved-library allowlist (knip).
+    dir: apps/web/admin
+    cmds: [pnpm knip]
+  admin:test:
+    desc: admin unit tests (Vitest).
+    dir: apps/web/admin
+    cmds: [pnpm test]
+
+  # --- web: landing (marketing site, port 3002) ----------------------------
+  landing:dev:
+    desc: Start the landing dev server.
+    dir: apps/web/landing
+    cmds: [pnpm dev]
+  landing:build:
+    desc: Production build of the landing (Next.js).
+    dir: apps/web/landing
+    cmds: [pnpm build]
+  landing:lint:
+    desc: landing Biome lint and TypeScript typecheck.
+    dir: apps/web/landing
+    cmds: ["pnpm lint", "pnpm typecheck"]
+  landing:knip:
+    desc: landing unused files/exports/dependencies and the approved-library allowlist (knip).
+    dir: apps/web/landing
+    cmds: [pnpm knip]
+  landing:test:
+    desc: landing unit tests (Vitest).
+    dir: apps/web/landing
+    cmds: [pnpm test]
+
+  # --- android -------------------------------------------------------------
+  android:generate:
+    desc: Generate Android Connect/protobuf code (buf, via make generate).
+    dir: apps/android
+    cmds: [make generate]
+  android:lint:
+    desc: Android ktlint, detekt and Android Lint (needs JDK 21 and the Android SDK).
+    dir: apps/android
+    cmds: ["./gradlew ktlintCheck detekt lintDebug"]
+  android:test:
+    desc: Android JVM unit tests (testDebugUnitTest).
+    dir: apps/android
+    cmds: ["./gradlew testDebugUnitTest"]
+  android:build:
+    desc: Assemble the Android debug APKs (needs JDK 21 and the Android SDK).
+    dir: apps/android
+    cmds: ["./gradlew assembleDebug"]
+  android:androidtest:
+    desc: Compose UI tests with Accessibility Test Framework checks (needs an emulator/device).
+    dir: apps/android
+    cmds: ["./gradlew connectedDebugAndroidTest"]
+  android:release:
+    desc: R8 release build; pass pins as ARGS="-Paedst.certPins=sha256/<live>,sha256/<backup>" (refuses to build unpinned).
+    dir: apps/android
+    cmds: ["./gradlew :app:assembleRelease {{.CLI_ARGS}}"]
+
+  # --- apple (macOS only) --------------------------------------------------
+  apple:generate:
+    desc: Apple Connect/protobuf codegen (macOS only).
+    platforms: [darwin]
+    dir: apps/apple
+    cmds: [make generate]
+  apple:lint:
+    desc: Apple SwiftLint and swift-format lint (macOS only).
+    platforms: [darwin]
+    dir: apps/apple
+    cmds: [make lint]
+  apple:test:
+    desc: Apple package unit tests (macOS only; never run in the authoring environment).
+    platforms: [darwin]
+    dir: apps/apple
+    cmds: [make test]
+  apple:project:
+    desc: Generate the Xcode project/workspace with Tuist (macOS only).
+    platforms: [darwin]
+    dir: apps/apple
+    cmds: [make project]
+  apple:build:
+    desc: Build both Apple app schemes through Tuist (macOS only, needs Xcode; never compiled in the authoring environment).
+    platforms: [darwin]
+    dir: apps/apple
+    cmds: [make tuist-build]
+  apple:release-ios:
+    desc: fastlane (match + gym + deliver) iOS release; needs `bundle install`, APPLE_TEAM_ID, ASC_*, MATCH_*; see docs/content/apple/release.md.
+    platforms: [darwin]
+    dir: apps/apple
+    cmds: [make release-ios]
+  apple:release-macos:
+    desc: fastlane macOS Developer ID build, notarized and stapled (DISTRIBUTION=app-store for the Mac App Store).
+    platforms: [darwin]
+    dir: apps/apple
+    cmds: [make release-macos]
+  apple:signing-sync:
+    desc: ADMIN, local - create/refresh all match certificates and profiles (fastlane match_sync).
+    platforms: [darwin]
+    dir: apps/apple
+    cmds: [make signing-sync]
+  apple:format:
+    desc: swift-format in place (Generated/.build excluded).
+    platforms: [darwin]
+    dir: apps/apple
+    cmds: [make format]
+
+  # --- desktop-rs (Rust + Slint, ADR apps/desktop-rs/docs/adr/0001; needs cargo) ---
+  desktop-rs:fmt:
+    desc: Format the Rust workspace with rustfmt.
+    dir: apps/desktop-rs
+    cmds:
+      - cargo fmt
+  desktop-rs:lint:
+    desc: rustfmt --check and clippy -D warnings over the Rust desktop workspace; prints SKIPPED without cargo.
+    dir: apps/desktop-rs
+    cmds:
+      - |
+        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (desktop-rs:lint)"; exit 0; }
+        cargo fmt --check
+        cargo clippy --workspace --all-targets -- -D warnings
+  desktop-rs:test:
+    desc: Unit and integration tests of the Rust desktop workspace; prints SKIPPED without cargo.
+    dir: apps/desktop-rs
+    cmds:
+      - |
+        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (desktop-rs:test)"; exit 0; }
+        cargo test --workspace
+  desktop-rs:build:
+    desc: Build the Rust desktop workspace (debug, or RELEASE=1); prints SKIPPED without cargo.
+    dir: apps/desktop-rs
+    cmds:
+      - |
+        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (desktop-rs:build)"; exit 0; }
+        cargo build --workspace {{if .RELEASE}}--release{{end}}
+  desktop-rs:deny:
+    desc: cargo-deny (licenses, advisories, bans, sources); prints SKIPPED when cargo-deny is missing.
+    dir: apps/desktop-rs
+    cmds:
+      - |
+        command -v cargo-deny >/dev/null 2>&1 || { echo "SKIPPED: cargo-deny not installed (cargo install --locked cargo-deny@0.20.2)"; exit 0; }
+        cargo deny check

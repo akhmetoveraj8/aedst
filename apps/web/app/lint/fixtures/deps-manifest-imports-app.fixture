@@ -1,0 +1,12 @@
+//// run: deps
+//// expect: manifest-imports-shared-only
+//// file: src/modules/a/lib/x.ts
+export const x = 1;
+//// file: src/modules/a/manifest.ts
+import { x } from "./lib/x";
+
+export const manifest = { id: "a", x };
+//// file: src/app/page.ts
+import { manifest } from "@/modules/a/manifest";
+
+export const page = manifest;

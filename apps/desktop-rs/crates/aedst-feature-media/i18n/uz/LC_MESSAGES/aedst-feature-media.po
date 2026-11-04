@@ -1,0 +1,196 @@
+# aedst-feature-media: Media screen strings (uz).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-media\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Upload file"
+msgstr "Fayl yuklash"
+
+msgid "Uploading... {}%"
+msgstr "Yuklanmoqda... {}%"
+
+msgid "Dismiss"
+msgstr "Yopish"
+
+msgid "Media"
+msgstr "Media"
+
+msgid "Loading..."
+msgstr "Yuklanmoqda..."
+
+msgid "Could not load media"
+msgstr "Mediani yuklab bo'lmadi"
+
+msgid "Try again"
+msgstr "Qayta urinish"
+
+msgid "No files yet"
+msgstr "Hozircha fayl yo'q"
+
+msgid "Upload your first file above."
+msgstr "Birinchi faylingizni yuqorida yuklang."
+
+msgid "Load more"
+msgstr "Yana ko'rsatish"
+
+msgid "Back"
+msgstr "Orqaga"
+
+msgid "View"
+msgstr "Ko'rish"
+
+msgid "Delete"
+msgstr "O'chirish"
+
+msgid "Delete this file?"
+msgstr "Bu fayl o'chirilsinmi?"
+
+msgid "Cancel"
+msgstr "Bekor qilish"
+
+msgid "You are offline. Try again when you are connected."
+msgstr "Siz oflayn rejimdasiz. Ulanganingizda qayta urinib ko'ring."
+
+msgid "The server is not available right now."
+msgstr "Server hozir mavjud emas."
+
+msgid "The request took too long."
+msgstr "So'rov juda uzoq davom etdi."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "So'rovlar juda ko'p. Birozdan keyin qayta urinib ko'ring."
+
+msgid "Please sign in again."
+msgstr "Iltimos, qaytadan kiring."
+
+msgid "You do not have access to this."
+msgstr "Sizda bunga ruxsat yo'q."
+
+msgid "This file no longer exists."
+msgstr "Bu fayl endi mavjud emas."
+
+msgid "The server did not accept this file."
+msgstr "Server bu faylni qabul qilmadi."
+
+msgid "This file was changed elsewhere."
+msgstr "Bu fayl boshqa joyda o'zgartirilgan."
+
+msgid "Please update the app to continue."
+msgstr "Davom etish uchun ilovani yangilang."
+
+msgid "Could not read the file on this device."
+msgstr "Faylni bu qurilmada o'qib bo'lmadi."
+
+msgid "Something went wrong."
+msgstr "Nimadir xato ketdi."
+
+msgid "The file is empty."
+msgstr "Fayl bo'sh."
+
+msgid "The file is too large."
+msgstr "Fayl juda katta."
+
+msgid "This type of file is not supported."
+msgstr "Bu turdagi fayl qo'llab-quvvatlanmaydi."
+
+msgid "The file name is empty or too long."
+msgstr "Fayl nomi bo'sh yoki juda uzun."
+
+msgid "The task for this file is not valid."
+msgstr "Bu fayl uchun vazifa yaroqsiz."
+
+msgid "Image"
+msgstr "Rasm"
+
+msgid "Video"
+msgstr "Video"
+
+msgid "Audio"
+msgstr "Audio"
+
+msgid "Document"
+msgstr "Hujjat"
+
+msgid "Unknown"
+msgstr "Noma'lum"
+
+msgid "Uploading"
+msgstr "Yuklanmoqda"
+
+msgid "Processing"
+msgstr "Qayta ishlanmoqda"
+
+msgid "Ready"
+msgstr "Tayyor"
+
+msgid "Failed"
+msgstr "Xato"
+
+msgid "The uploaded size did not match the file."
+msgstr "Yuklangan hajm fayl hajmiga mos kelmadi."
+
+msgid "The content did not match the file type."
+msgstr "Tarkib fayl turiga mos kelmadi."
+
+msgid "The file could not be processed."
+msgstr "Faylni qayta ishlab bo'lmadi."
+
+msgid "{} B"
+msgstr "{} B"
+
+msgid "{} KB"
+msgstr "{} KB"
+
+msgid "{} MB"
+msgstr "{} MB"
+
+msgid "Checking the file..."
+msgstr "Fayl tekshirilmoqda..."
+
+msgid "Requesting the upload..."
+msgstr "Yuklash so'ralmoqda..."
+
+msgid "Uploading..."
+msgstr "Yuklanmoqda..."
+
+msgid "Finishing..."
+msgstr "Yakunlanmoqda..."
+
+msgid "This file cannot be uploaded."
+msgstr "Bu faylni yuklab bo'lmaydi."
+
+msgid "Could not start the upload."
+msgstr "Yuklashni boshlab bo'lmadi."
+
+msgid "Could not send the file."
+msgstr "Faylni yuborib bo'lmadi."
+
+msgid "Could not finish the upload."
+msgstr "Yuklashni yakunlab bo'lmadi."
+
+msgid "The unfinished upload was removed from the server."
+msgstr "Tugallanmagan yuklash serverdan o'chirildi."
+
+msgid "An unfinished upload may remain on the server and will expire."
+msgstr "Tugallanmagan yuklash serverda qolishi mumkin va vaqt o'tib bekor bo'ladi."
+
+msgid "This file is not ready yet."
+msgstr "Bu fayl hali tayyor emas."
+
+msgid "Video playback is not available yet."
+msgstr "Videoni ijro etish hozircha mavjud emas."
+
+msgid "No preview is available for this kind of file."
+msgstr "Bu turdagi fayl uchun ko'rib chiqish mavjud emas."
+
+msgid "This image is too large to show."
+msgstr "Bu rasm ko'rsatish uchun juda katta."
+
+msgid "This image could not be shown."
+msgstr "Bu rasmni ko'rsatib bo'lmadi."

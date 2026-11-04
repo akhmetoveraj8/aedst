@@ -1,0 +1,35 @@
+{
+  "title": "Search",
+  "metaTitle": "Search",
+  "label": "Search everything",
+  "placeholder": "Search tasks and files…",
+  "kindsLabel": "Filter by type",
+  "kinds": {
+    "all": "All",
+    "task": "Tasks",
+    "media": "Files"
+  },
+  "resultsLabel": "Search results",
+  "emptyPrompt": "Type to search your tasks and files.",
+  "noResults": "Nothing found",
+  "noResultsDescription": "Try different words or another filter.",
+  "errorTitle": "Search failed",
+  "retry": "Retry",
+  "loadMore": "Load more",
+  "resultsCount": "{count, plural, one {# result} other {# results}}",
+  "updated": "Updated {date}",
+  "palette": {
+    "title": "Command palette",
+    "description": "Search or jump to an action",
+    "placeholder": "Search or type a command…",
+    "open": "Search…",
+    "searching": "Searching…",
+    "noResults": "No results.",
+    "results": "Results",
+    "searchAll": "Search for “{query}”",
+    "actions": "Actions",
+    "newTask": "Create a task",
+    "goTasks": "Go to tasks",
+    "goNotifications": "Go to notifications"
+  }
+}

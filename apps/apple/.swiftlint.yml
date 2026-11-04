@@ -1,0 +1,263 @@
+# SwiftLint lints *semantic* rules only. Formatting belongs to swift-format
+# (.swift-format, `make format` / `make format-check`), the same split as
+# Biome / ktlint elsewhere in this repo. Every SwiftLint rule that overlaps
+# with swift-format output is disabled below so the two tools can never
+# disagree (a swift-format-clean file must be SwiftLint-clean).
+included:
+  - Core
+  - Features
+  - App
+
+excluded:
+  - "**/.build"
+  - "**/Generated"
+  - "**/.swiftpm"
+
+opt_in_rules:
+  - contains_over_filter_count
+  - empty_count
+  - explicit_init
+  - fatal_error_message
+  - first_where
+  - overridden_super_call
+  - prefer_self_in_static_references
+  - redundant_type_annotation
+  - sorted_first_last
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+
+disabled_rules:
+  - todo # TODO(codegen) markers are intentional until `make generate` runs
+  # --- formatting: owned by swift-format -------------------------------------
+  - line_length # swift-format lineLength = 120 (soft wrap); long string literals are allowed
+  - trailing_comma # swift-format adds trailing commas to multi-element collections
+  - trailing_whitespace
+  - trailing_newline
+  - leading_whitespace
+  - vertical_whitespace
+  - colon
+  - comma
+  - opening_brace
+  - statement_position
+  - return_arrow_whitespace
+  - closure_spacing
+  - switch_case_alignment
+
+identifier_name:
+  min_length: 2
+  excluded:
+    - id
+
+type_name:
+  min_length: 3
+
+# File-size policy. scripts/check-file-size.sh reports on raw line counts (300 green, over 500 red). SwiftLint
+# runs with --strict (a warning fails CI), so `warning` is the line a file must be split at (400) and `error`
+# the hard stop (500). 301-400 stays visible in check-file-size.sh output but does not fail lint.
+# missing_docs is NOT enabled: ~450 public members in Core/* were undocumented when this was decided, so the
+# rule could only be red or ignored; documentation is a review item (decisions/apple.md, "SwiftLint strictness").
+file_length:
+  warning: 400
+  error: 500
+  ignore_comment_only_lines: false
+
+type_body_length:
+  warning: 400
+  error: 500
+
+# ---------------------------------------------------------------------------------------------------------
+# custom_rules: every "mandatory library per concern" rule (docs/content/library-first/apple.md).
+# SINGLE SOURCE for two engines: SwiftLint (CI, macOS) and apps/apple/scripts/check-swiftlint-rules-static.sh
+# (anywhere; parses THIS block, so the two can never drift). Keep the block machine-readable:
+#   - `regex`, `included`, `excluded` values are single-quoted scalars; lists use "- 'x'" lines;
+#   - paths are matched against "/apps/apple/<repo-relative path>";
+#   - comments are never matched (excluded_match_kinds);
+#   - a trailing `// i18n-ok` / `// concurrency-ok:` marker on the same line is the only escape hatch.
+# Negative fixtures that MUST fail live in scripts/fixtures/swiftlint (run `check-swiftlint-rules-static.sh --self-test`).
+# ---------------------------------------------------------------------------------------------------------
+custom_rules:
+  no_observable_object:
+    name: "No ObservableObject"
+    message: "Use Observation: @Observable final class, @State, @Bindable, @Environment(Type.self)."
+    regex: '\b(ObservableObject|StateObject|ObservedObject|EnvironmentObject)\b'
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/Generated/'
+
+  no_combine_swiftdata:
+    name: "No Combine / SwiftData / CoreData"
+    message: "Use async/await + AsyncSequence and GRDB (library-first/apple.md)."
+    regex: '^import (Combine|SwiftData|CoreData)\b'
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/Generated/'
+
+  sdk_telemetry_only_in_telemetry:
+    name: "Sentry/PostHog only in Core/AedstTelemetry"
+    message: "Import Sentry and PostHog only in Core/AedstTelemetry; features use AnalyticsClient."
+    regex: '^import (Sentry|PostHog)\b'
+    severity: error
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/apps/apple/Core/AedstTelemetry/'
+
+  sdk_nuke_only_in_media:
+    name: "Nuke only in Core/AedstMedia"
+    message: "Import Nuke/NukeUI only in Core/AedstMedia; use AedstRemoteImage."
+    regex: '^import (Nuke|NukeUI)\b'
+    severity: error
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/apps/apple/Core/AedstMedia/'
+
+  sdk_connect_only_in_network:
+    name: "Connect only in AedstNetwork, App/Shared and feature Data layers"
+    message: "Import Connect only in Core/AedstNetwork, App/Shared (composition root) or Features/*/Data."
+    regex: '^import Connect\b'
+    severity: error
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/apps/apple/Core/AedstNetwork/'
+      - '/apps/apple/App/Shared/'
+      - '/apps/apple/Features/[^/]+/Sources/[^/]+/Data/'
+      - '/Tests/'
+
+  sdk_grdb_only_in_persistence:
+    name: "GRDB only in Core/AedstPersistence"
+    message: "Import GRDB only in Core/AedstPersistence; features use repositories from there."
+    regex: '^import GRDB\b'
+    severity: error
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/apps/apple/Core/AedstPersistence/'
+
+  generated_types_only_in_data:
+    name: "Generated proto types only in Data / AedstNetwork"
+    message: "Aedst_*_V1_* types stay behind a repository protocol: Features/*/Data or Core/AedstNetwork."
+    regex: '\bAedst_[A-Za-z]+_V1_'
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/Generated/'
+      - '/apps/apple/Core/AedstNetwork/'
+      - '/apps/apple/Features/[^/]+/Sources/[^/]+/Data/'
+      - '/Tests/'
+
+  no_user_defaults:
+    name: "No UserDefaults"
+    message: "Persist through GRDB (AedstDatabase); secrets only in the Keychain."
+    regex: '\bUserDefaults\b'
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/Generated/'
+
+  no_print:
+    name: "No print"
+    message: "Use AedstLogger (os.Logger); print leaks to release logs."
+    regex: '\b(print|debugPrint)\('
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/Generated/'
+      - '/Tests/'
+      - '/UITests/'
+
+  no_async_image:
+    name: "No AsyncImage"
+    message: "Use AedstRemoteImage from Core/AedstMedia (Nuke: cache, downsampling)."
+    regex: '\bAsyncImage\('
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/apps/apple/Core/AedstMedia/'
+
+  no_task_detached:
+    name: "No Task.detached without a reason"
+    message: "Task.detached drops actor isolation and priority inheritance; add `// concurrency-ok: <reason>` on the same line."
+    regex: 'Task\.detached(?![^\n]*concurrency-ok)'
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/Generated/'
+
+  no_wall_clock_in_presentation:
+    name: "No wall clock in Presentation / App"
+    message: "Inject AedstClock (ManualClock in tests) instead of Date() / Date.now."
+    regex: '\bDate\(\)|\bDate\.now\b'
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/Presentation/'
+      - '/apps/apple/App/'
+    excluded:
+      - '/Tests/'
+      - '/UITests/'
+
+  no_sleep_nanoseconds:
+    name: "No Task.sleep(nanoseconds:)"
+    message: "Use Task.sleep(for: .seconds(n)) or AedstClock.sleep."
+    regex: 'Task\.sleep\(nanoseconds'
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/apps/apple/Core/AedstCore/'
+      - '/Tests/'
+      - '/UITests/'
+
+  no_hardcoded_text:
+    name: "No hard-coded user-facing text"
+    message: "Use String(localized:) with a key in the package's Localizable.xcstrings; `// i18n-ok` on the line for a deliberate exception."
+    regex: '\b(Text|Label|Button)\("([A-Za-z]|\\\()(?![^\n]*i18n-ok)'
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/Generated/'
+      - '/Tests/'
+      - '/UITests/'
+
+  no_raw_sheet:
+    name: "No raw .sheet in Features"
+    message: "Use the AedstSheetModifier wrapper from Core/AedstDesignSystem (aedstSheet)."
+    regex: '\.sheet\('
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/Features/'
+    excluded:
+      - '/Tests/'
+
+  no_navigation_link_destination:
+    name: "No eager NavigationLink destination"
+    message: "Use NavigationLink(value:) with a typed AedstRoute and aedstDestination."
+    regex: 'NavigationLink\s*(\(\s*destination\s*:|\{)'
+    severity: error
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
+    included:
+      - '/apps/apple/'
+    excluded:
+      - '/Generated/'

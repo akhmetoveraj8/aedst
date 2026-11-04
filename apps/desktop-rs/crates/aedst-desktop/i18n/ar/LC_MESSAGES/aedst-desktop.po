@@ -1,0 +1,100 @@
+# aedst-desktop: window shell strings (ar).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-desktop\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+msgid "Tasks"
+msgstr "المهام"
+
+msgid "Search"
+msgstr "بحث"
+
+msgid "Notifications"
+msgstr "الإشعارات"
+
+msgid "Files"
+msgstr "الملفات"
+
+msgid "Admin"
+msgstr "الإدارة"
+
+msgid "Sign out"
+msgstr "تسجيل الخروج"
+
+msgid "Inbox"
+msgstr "الوارد"
+
+msgid "Preferences"
+msgstr "التفضيلات"
+
+msgid "Starting..."
+msgstr "جارٍ البدء..."
+
+msgid "Sign in to continue"
+msgstr "سجّل الدخول للمتابعة"
+
+msgid "Continue in browser"
+msgstr "المتابعة في المتصفح"
+
+msgid "Waiting for the browser..."
+msgstr "بانتظار المتصفح..."
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Sign-in failed. Please try again."
+msgstr "فشل تسجيل الدخول. حاول مرة أخرى."
+
+msgid "Could not reach the identity provider."
+msgstr "تعذر الوصول إلى مزود الهوية."
+
+msgid "Secure storage is not available on this device."
+msgstr "التخزين الآمن غير متاح على هذا الجهاز."
+
+msgid "Sign-in timed out."
+msgstr "انتهت مهلة تسجيل الدخول."
+
+msgid "Sign-in is not configured."
+msgstr "تسجيل الدخول غير مهيأ."
+
+msgid "Privacy"
+msgstr "الخصوصية"
+
+msgid "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device."
+msgstr "لا يُرسل شيء ما لم تختر ذلك هنا. تتم إزالة البيانات الشخصية قبل مغادرة أي شيء لهذا الجهاز."
+
+msgid "Send crash reports"
+msgstr "إرسال تقارير الأعطال"
+
+msgid "Technical details about a failure, so it can be fixed."
+msgstr "تفاصيل تقنية عن العطل ليتم إصلاحه."
+
+msgid "Share anonymous usage statistics"
+msgstr "مشاركة إحصاءات الاستخدام المجهولة"
+
+msgid "Which features are used, never what you type."
+msgstr "أي الميزات تُستخدم، وليس ما تكتبه."
+
+msgid "Not available in this build."
+msgstr "غير متاح في هذا الإصدار."
+
+msgid "A new version is available"
+msgstr "يتوفر إصدار جديد"
+
+msgid "Downloading the update: {}%"
+msgstr "جارٍ تنزيل التحديث: {}%"
+
+msgid "Restart to update"
+msgstr "أعد التشغيل للتحديث"
+
+msgid "Update required"
+msgstr "التحديث مطلوب"
+
+msgid "This version of the app is too old for the server. Please update it to continue."
+msgstr "هذا الإصدار من التطبيق قديم جدًا بالنسبة للخادم. يرجى تحديثه للمتابعة."

@@ -1,0 +1,11 @@
+//// run: biome
+//// expect: pass
+//// file: src/modules/tasks/lib/local-schema.ts
+import * as z from "zod/mini";
+
+export const localSchema = z.object({ q: z.string() });
+//// file: src/modules/tasks/lib/local-resolver.ts
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { localSchema } from "@/modules/tasks/lib/local-schema";
+
+export const localResolver = standardSchemaResolver(localSchema);

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "apps/web/app", "dev", "--port", "3100"],
+      "port": 3100
+    },
+    {
+      "name": "docs-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "docs", "dev", "--port", "3200"],
+      "port": 3200
+    }
+  ]
+}

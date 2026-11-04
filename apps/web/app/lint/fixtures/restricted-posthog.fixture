@@ -1,0 +1,6 @@
+//// run: biome
+//// expect: useFeatureFlag from src/shared/lib/analytics
+//// file: src/modules/tasks/ui/BadAnalytics.tsx
+import posthog from "posthog-js";
+
+export const ping = () => posthog.capture("x");

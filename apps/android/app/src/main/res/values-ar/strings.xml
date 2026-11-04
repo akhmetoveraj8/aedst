@@ -1,0 +1,15 @@
+<resources>
+    <string name="nav_tasks">المهام</string>
+    <string name="nav_search">بحث</string>
+    <string name="nav_notifications">الإشعارات</string>
+    <string name="nav_media">الملفات</string>
+    <string name="nav_account">الحساب</string>
+    <string name="nav_admin">الإدارة</string>
+
+    <string name="update_recommended">يتوفر إصدار جديد من AEDST.</string>
+    <string name="update_recommended_action">تحديث</string>
+    <string name="update_recommended_later">ليس الآن</string>
+    <string name="outbox_failed_title">تعذّر إرسال بعض التغييرات</string>
+    <string name="outbox_failed_description">لم يتم إرسال هذه التغييرات. أعد المحاولة أو تجاهلها.</string>
+    <string name="outbox_failed_discard">تجاهل</string>
+</resources>

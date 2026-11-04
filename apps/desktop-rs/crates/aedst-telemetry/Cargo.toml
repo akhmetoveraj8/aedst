@@ -1,0 +1,28 @@
+[package]
+name = "aedst-telemetry"
+version = "0.0.0"
+description = "Consent-gated crash reports (Sentry), analytics port (own server), redacted file logging and the one PII scrubber"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+aedst-common = { path = "../aedst-common" }
+aedst-persistence = { path = "../aedst-persistence" }
+futures = { workspace = true }
+sentry = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-appender = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["json", "env-filter"] }
+uuid = { workspace = true }
+
+[dev-dependencies]
+sentry = { workspace = true, features = ["test"] }
+wiremock = { workspace = true }
+
+[lints]
+workspace = true

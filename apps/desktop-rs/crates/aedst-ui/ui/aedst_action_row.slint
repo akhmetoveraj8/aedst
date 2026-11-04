@@ -1,0 +1,28 @@
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstButton } from "aedst_button.slint";
+
+// Primary and secondary action. The primary action sits at the end edge of the reading
+// direction (right in LTR, left in RTL). Slint cannot reverse a layout, so both orders are spelled out.
+export component AedstActionRow inherits HorizontalLayout {
+    in property <string> primary-text;
+    in property <string> secondary-text;
+    callback primary-clicked();
+    callback secondary-clicked();
+
+    spacing: AedstTokens.spacing-sm;
+    // Slint's `start`/`end` are physical (left/right): the end edge of reading is the left in RTL.
+    alignment: AedstLayout.rtl ? start : end;
+    vertical-stretch: 0;
+
+    if !AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        AedstButton { text: root.secondary-text; primary: false; clicked => { root.secondary-clicked(); } }
+        AedstButton { text: root.primary-text; clicked => { root.primary-clicked(); } }
+    }
+    if AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        AedstButton { text: root.primary-text; clicked => { root.primary-clicked(); } }
+        AedstButton { text: root.secondary-text; primary: false; clicked => { root.secondary-clicked(); } }
+    }
+}

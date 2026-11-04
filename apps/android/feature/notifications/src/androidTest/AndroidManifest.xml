@@ -1,0 +1,4 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The test talks to a MockWebServer on 127.0.0.1 over plain http. Test APK only. -->
+    <application android:usesCleartextTraffic="true" />
+</manifest>

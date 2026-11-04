@@ -1,0 +1,13 @@
+language js
+
+// Feature modules reach the server through the generated Connect client
+// (connect-query / TanStack Query), never through raw fetch. Allowed places
+// (src/app/api, src/shared/api, src/shared/lib, e2e) are simply not in this
+// plugin's `includes` (biome.json).
+or {
+  `fetch($args)`,
+  `window.fetch($args)`,
+  `globalThis.fetch($args)`
+} as $call where {
+  register_diagnostic(span=$call, message="Raw fetch() is not allowed in feature modules: call the server through the generated Connect client (connect-query + TanStack Query, see docs/content/library-first/web.md).", severity="error")
+}

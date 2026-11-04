@@ -1,0 +1,48 @@
+{
+  "behavior": "session-refresh",
+  "rules": [
+    "A 401 on an authenticated request triggers exactly one refresh and exactly one replay of that request.",
+    "Concurrent 401s share one refresh (single flight): the rotating refresh token is redeemed once.",
+    "invalid_grant from the IdP clears the session (signed_out); the request fails as unauthenticated.",
+    "A transient refresh failure keeps the session (signed_in); the request fails as a retryable error.",
+    "If the replay is also 401, do not refresh again; fail as unauthenticated and keep the session."
+  ],
+  "cases": [
+    {
+      "id": "refresh-once-and-replay",
+      "requests": [ { "id": "r1", "server": [401, 200] } ],
+      "refresh": ["ok"],
+      "expect": { "refreshCalls": 1, "results": { "r1": "ok" }, "session": "signed_in", "replays": { "r1": 1 } }
+    },
+    {
+      "id": "concurrent-401s-single-flight",
+      "requests": [ { "id": "r1", "server": [401, 200] }, { "id": "r2", "server": [401, 200] }, { "id": "r3", "server": [401, 200] } ],
+      "refresh": ["ok"],
+      "expect": { "refreshCalls": 1, "results": { "r1": "ok", "r2": "ok", "r3": "ok" }, "session": "signed_in", "replays": { "r1": 1, "r2": 1, "r3": 1 } }
+    },
+    {
+      "id": "invalid-grant-signs-out",
+      "requests": [ { "id": "r1", "server": [401] } ],
+      "refresh": ["invalid_grant"],
+      "expect": { "refreshCalls": 1, "results": { "r1": "unauthenticated" }, "session": "signed_out", "replays": { "r1": 0 } }
+    },
+    {
+      "id": "transient-failure-keeps-session",
+      "requests": [ { "id": "r1", "server": [401] } ],
+      "refresh": ["transient"],
+      "expect": { "refreshCalls": 1, "results": { "r1": "retryable_error" }, "session": "signed_in", "replays": { "r1": 0 } }
+    },
+    {
+      "id": "second-401-after-replay-does-not-loop",
+      "requests": [ { "id": "r1", "server": [401, 401] } ],
+      "refresh": ["ok"],
+      "expect": { "refreshCalls": 1, "results": { "r1": "unauthenticated" }, "session": "signed_in", "replays": { "r1": 1 } }
+    },
+    {
+      "id": "no-refresh-when-not-401",
+      "requests": [ { "id": "r1", "server": [200] } ],
+      "refresh": [],
+      "expect": { "refreshCalls": 0, "results": { "r1": "ok" }, "session": "signed_in", "replays": { "r1": 0 } }
+    }
+  ]
+}

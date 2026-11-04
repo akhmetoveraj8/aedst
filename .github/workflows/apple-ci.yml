@@ -1,0 +1,376 @@
+name: apple-ci (experimental, non-blocking until first green run)
+
+on:
+  push:
+    branches: [main]
+    paths: ["apps/apple/**", ".github/workflows/apple-ci.yml", ".github/actions/apple-codegen/**"]
+  pull_request:
+    paths: ["apps/apple/**", ".github/workflows/apple-ci.yml", ".github/actions/apple-codegen/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apple-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/apple
+
+env:
+  # Runner + Xcode verified 2026-10-07 against actions/runner-images
+  # (images/macos/macos-26-Readme.md: Xcode 26.6 is the default). App Store
+  # uploads require the current SDK; Swift 6.1+ is needed for GRDB 7.11's
+  # tools-version. `swift format` ships in this Xcode toolchain.
+  XCODE_VERSION: "26.6"
+  # SwiftLint is pinned in apps/apple/mise.toml (aqua backend verifies its checksum). The protoc generator versions
+  # (swift-protobuf, connect-swift) are read from Core/AedstNetwork/Package.swift by .github/actions/apple-codegen.
+
+jobs:
+  # The Connect-Swift client stubs are a *build input*: every feature's
+  # Connect*Repository / Connect*RemoteDataSource calls the generated
+  # Aedst_*_V1_* types (auth, tasks, notifications, search, media, admin), so
+  # nothing that compiles a feature can run before this job. It generates them
+  # once from apps/server/api/proto and shares them as an artifact with every
+  # downstream job (they are gitignored, never committed).
+  generate:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - uses: ./.github/actions/apple-codegen
+
+      - name: swift build (AedstNetwork, with real generated stubs)
+        working-directory: apps/apple/Core/AedstNetwork
+        run: swift build
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: connect-swift-stubs
+          path: apps/apple/Core/AedstNetwork/Sources/AedstNetwork/Generated
+          if-no-files-found: error
+          retention-days: 3
+
+  lint:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      # SwiftLint version comes from apps/apple/mise.toml; the aqua backend verifies the release checksum.
+      # UNVERIFIED: the aqua registry entry on a macos-26 runner (never run).
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: aqua:realm/SwiftLint
+          working_directory: apps/apple
+
+      # Formatting is swift-format's job (.swift-format); SwiftLint only lints semantic rules.
+      - name: swift-format lint
+        run: make format-check
+
+      - name: SwiftLint
+        run: swiftlint lint --config .swiftlint.yml --strict
+
+      # Runs the repo-policy gates: feature boundaries, colors, file size, approved packages (check-dependencies.sh),
+      # Keychain/web-auth confinement (check-apple-sensitive-apis.sh) and the static mirror of the .swiftlint.yml
+      # custom rules (check-swiftlint-rules-static.sh, which also runs its negative fixtures).
+      - name: Feature package boundaries and library-first gates
+        run: ./scripts/check-feature-boundaries.sh
+
+      # Negative self-tests: fixtures that MUST fail. A gate that stops failing on them is broken.
+      - name: Gate self-tests (negative fixtures)
+        run: |
+          bash scripts/check-dependencies.sh --self-test
+          bash scripts/check-apple-sensitive-apis.sh --self-test
+          node scripts/i18n-apple-checks.mjs --self-test
+          node ../../scripts/check-i18n-parity.mjs --platform apple
+
+      # Release-critical resources: a malformed plist / privacy manifest / entitlements
+      # file is an App Store rejection (or a crash at launch) found far too late.
+      - name: Lint plists, privacy manifests and entitlements
+        run: |
+          plutil -lint App/iOS/Info.plist App/macOS/Info.plist \
+            App/iOS/PrivacyInfo.xcprivacy App/macOS/PrivacyInfo.xcprivacy \
+            App/iOS/AEDST.entitlements App/macOS/AEDST.entitlements
+          plutil -lint App/iOS/Resources/*.lproj/InfoPlist.strings
+
+      - name: Shell scripts parse
+        run: for script in scripts/*.sh; do bash -n "$script"; done
+
+      # `ruby -c` only checks syntax (gems are not installed here); lanes are exercised by apple-release.
+      - name: Fastfile / Matchfile / Appfile syntax
+        run: ruby -c fastlane/Fastfile && ruby -c fastlane/Matchfile && ruby -c fastlane/Appfile
+
+  test:
+    needs: generate
+    runs-on: macos-26
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - Core/AedstCore
+          - Core/AedstNetwork
+          - Core/AedstPersistence
+          - Core/AedstDesignSystem
+          - Core/AedstNavigation
+          - Core/AedstAnalytics
+          - Core/AedstMedia
+          - Core/AedstTelemetry
+          - Features/Auth
+          - Features/Tasks
+          - Features/Search
+          - Features/Notifications
+          - Features/Media
+          - Features/Admin
+          - App/Shared
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: connect-swift-stubs
+          path: apps/apple/Core/AedstNetwork/Sources/AedstNetwork/Generated
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            apps/apple/${{ matrix.package }}/.build
+            ~/Library/Caches/org.swift.swiftpm
+          key: spm-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-${{ matrix.package }}-${{ hashFiles(format('apps/apple/{0}/Package.resolved', matrix.package), format('apps/apple/{0}/Package.swift', matrix.package)) }}
+          restore-keys: |
+            spm-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-${{ matrix.package }}-
+
+      # AEDST_SNAPSHOTS defaults to "auto": the macOS snapshot suite in Core/AedstDesignSystem runs only when
+      # macOS references are committed and is reported as skipped otherwise. "never" = a missing image fails
+      # and nothing is ever written here.
+      - name: swift test (${{ matrix.package }})
+        working-directory: apps/apple/${{ matrix.package }}
+        env:
+          SNAPSHOT_TESTING_RECORD: never
+          # Opt-in real-Keychain tests (AedstPersistence KeychainIntegrationTests); other packages ignore it.
+          # A bare `swift test` process is unsigned, so on macOS the tests use the legacy keychain; the data
+          # protection keychain the shipping app uses needs a signed host (AEDST_KEYCHAIN_DATA_PROTECTION=1 there).
+          # UNVERIFIED: the hosted runner's login keychain is usable without a prompt (never run).
+          AEDST_KEYCHAIN_TESTS: "1"
+        run: swift test --enable-code-coverage
+
+      # Dependency drift gate: once a Package.resolved is committed (see README, "lock files"), a run that changes
+      # it means a dependency moved without a reviewed bump. Before the first commit this only prints a notice.
+      - name: Package.resolved is unchanged
+        working-directory: apps/apple
+        run: |
+          if git ls-files --error-unmatch "${{ matrix.package }}/Package.resolved" >/dev/null 2>&1; then
+            git diff --exit-code -- "${{ matrix.package }}/Package.resolved"
+          else
+            echo "::notice::${{ matrix.package }}/Package.resolved is not committed yet (commit it after the first Mac run)"
+          fi
+
+      # SwiftPM writes default.profdata next to the codecov JSON; export lcov for the test bundle with llvm-cov.
+      - name: Export coverage (llvm-cov lcov)
+        working-directory: apps/apple/${{ matrix.package }}
+        env:
+          APPLE_COVERAGE_MIN: "30"
+        run: |
+          set -euo pipefail
+          profdata="$(dirname "$(swift test --show-codecov-path)")/default.profdata"
+          bin_path="$(swift build --show-bin-path)"
+          bundle="$(find "$bin_path" -maxdepth 1 -name '*PackageTests.xctest' | head -n1)"
+          test -f "$profdata" && test -n "$bundle"
+          binary="$bundle/Contents/MacOS/$(basename "$bundle" .xctest)"
+          lcov="$RUNNER_TEMP/coverage-$(basename '${{ matrix.package }}').lcov"
+          # Only this package's own sources: not sibling local packages, third-party checkouts or tests.
+          sources=$(find Sources -name '*.swift' -not -path '*/Generated/*')
+          xcrun llvm-cov export -format=lcov -instr-profile="$profdata" "$binary" $sources > "$lcov"
+          # Line-coverage floor per package. UNVERIFIED starting value (nothing has been measured yet): raise it
+          # from the first real numbers. LF = lines found, LH = lines hit, summed over the lcov records.
+          awk -F: -v min="$APPLE_COVERAGE_MIN" '/^LF:/{lf+=$2} /^LH:/{lh+=$2} END{
+            if (lf == 0) { print "no instrumented lines"; exit 0 }
+            pct = 100 * lh / lf; printf "line coverage %.1f%% (floor %s%%)\n", pct, min
+            if (pct < min) { print "::error::line coverage below the floor"; exit 1 }
+          }' "$lcov"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/coverage-*.lcov
+          if-no-files-found: warn
+          retention-days: 7
+
+  # The real acceptance test for the app: generate the Xcode workspace with
+  # Tuist and BUILD both app targets (Release configuration, no signing), so
+  # target wiring, resources (xcstrings, privacy manifests), Info.plist and
+  # entitlements are all exercised — not just the SwiftPM packages.
+  app-build:
+    needs: generate
+    runs-on: macos-26
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scheme: App_iOS
+            destination: "generic/platform=iOS Simulator"
+          - scheme: App_macOS
+            destination: "generic/platform=macOS"
+    env:
+      # Optional: set these repository secrets/variables to upload dSYMs to
+      # Sentry from main. Without them the step is skipped (forks stay green).
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT_APPLE }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: connect-swift-stubs
+          path: apps/apple/Core/AedstNetwork/Sources/AedstNetwork/Generated
+
+      # Tuist is pinned in apps/apple/mise.toml (overrides the repo-root "latest").
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: tuist
+          working_directory: apps/apple
+
+      - name: tuist install
+        run: tuist install
+
+      # Same drift gate as the package test jobs, for the app's own dependency graph.
+      - name: Tuist/Package.resolved is unchanged
+        run: |
+          if git ls-files --error-unmatch Tuist/Package.resolved >/dev/null 2>&1; then
+            git diff --exit-code -- Tuist/Package.resolved
+          else
+            echo "::notice::Tuist/Package.resolved is not committed yet (commit it after the first Mac run)"
+          fi
+
+      - name: tuist generate
+        run: tuist generate --no-open
+
+      - name: xcodebuild (${{ matrix.scheme }}, Release, unsigned)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -workspace AEDST.xcworkspace \
+            -scheme "${{ matrix.scheme }}" \
+            -configuration Release \
+            -destination "${{ matrix.destination }}" \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/xcodebuild-${{ matrix.scheme }}.log"
+
+      - name: Privacy manifest is inside the built app
+        run: |
+          app=$(find "$RUNNER_TEMP/DerivedData" -path "*Release*" -name "AEDST.app" -type d | head -1)
+          echo "built app: $app"
+          test -n "$app"
+          find "$app" -name PrivacyInfo.xcprivacy | grep -q .
+
+      # Symbol upload path is exercised on main so a broken script is caught
+      # before a release needs it (apple-release.yml should call the same script
+      # on the archive's dSYMs).
+      - name: Upload dSYMs to Sentry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.SENTRY_AUTH_TOKEN != ''
+        run: ./scripts/upload-dsyms.sh "$RUNNER_TEMP/DerivedData/Build/Products"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: xcodebuild-log-${{ matrix.scheme }}
+          path: ${{ runner.temp }}/xcodebuild-${{ matrix.scheme }}.log
+
+  # Pixel snapshots (Core/AedstDesignSystem Tests/Snapshots): VERIFY only. This job never records.
+  # scripts/snapshots.sh skips a platform with a notice while it has no committed references (so a fresh
+  # checkout is not red with "no reference" noise) and fails on any missing or differing image once they
+  # exist. References are recorded by the manual apple-record-snapshots workflow (same runner image, Xcode
+  # and simulator runtime), see docs/content/apple/snapshots.md. The pinned simulator and the scheme name
+  # live in scripts/snapshots.sh (UNVERIFIED: check with `xcodebuild -list` / `xcrun simctl list runtimes`).
+  snapshot-test:
+    needs: generate
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Design-system snapshot tests (verify; iOS Simulator + macOS)
+        run: bash scripts/snapshots.sh verify
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: snapshot-test-results
+          path: ${{ runner.temp }}/aedst-snapshots
+
+  # XCUITest end-to-end smoke + accessibility audit (performAccessibilityAudit)
+  # of the signed-out screens. Needs no backend: -aedst-ui-testing (DEBUG only)
+  # swaps in an in-memory secure store and disables telemetry.
+  ui-test:
+    needs: generate
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: connect-swift-stubs
+          path: apps/apple/Core/AedstNetwork/Sources/AedstNetwork/Generated
+
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: tuist
+          working_directory: apps/apple
+
+      - name: tuist install
+        run: tuist install
+
+      - name: tuist generate
+        run: tuist generate --no-open
+
+      - name: UI tests and accessibility audit (iOS Simulator)
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -workspace AEDST.xcworkspace \
+            -scheme App_iOS \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -only-testing:App_iOS_UITests \
+            -resultBundlePath "$RUNNER_TEMP/ui.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/ui-test.log"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: ui-test-results
+          path: |
+            ${{ runner.temp }}/ui.xcresult
+            ${{ runner.temp }}/ui-test.log

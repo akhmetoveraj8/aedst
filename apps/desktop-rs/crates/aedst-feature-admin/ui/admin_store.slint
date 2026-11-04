@@ -1,0 +1,55 @@
+// The state the Admin screen renders. Rust (`ui_glue.rs`) owns it; the view only reads it and
+// calls the callbacks.
+
+export struct OverviewItemData {
+    key: string,    // tasks | tasksDone | tasksOverdue | media | mediaBytes | pushDevices | jobLag | jobsPending
+    value: string,  // already formatted
+}
+
+export struct AdminTaskRowData {
+    id: string,
+    title: string,
+    owner: string,
+    status: string,  // todo | in-progress | done | unknown
+    created: string,
+}
+
+export struct AuditRowData {
+    action: string,
+    target: string,
+    reason: string,
+    actor: string,
+    created: string,
+}
+
+export global AdminStore {
+    in-out property <string> tab: "overview";   // overview | tasks | audit | broadcast
+    in property <bool> no-access: false;
+    // The selected list tab: idle | loading | ready | failed.
+    in property <string> phase: "idle";
+    in property <string> error-kind;            // set when phase == failed, or a later page failed
+    in property <bool> has-more;
+    in property <bool> loading-more;
+    in property <[OverviewItemData]> overview-items;
+    in property <[AdminTaskRowData]> tasks;
+    in property <[AuditRowData]> audit;
+    in property <bool> filter-invalid;
+    // The two-step delete: idle | confirming | invalid | deleting | failed.
+    in property <string> delete-state: "idle";
+    in property <string> delete-title;
+    in property <string> delete-error;          // a validation key or an error kind
+    // The broadcast form: idle | sending | invalid | failed | sent.
+    in property <string> broadcast-state: "idle";
+    in property <string> broadcast-error;
+    in property <int> recipients;
+
+    callback select-tab(string);
+    callback reload();
+    callback load-more();
+    callback filter-owner(string);              // owner id; empty: everyone
+    callback request-delete(string);            // task id (step one)
+    callback cancel-delete();
+    callback confirm-delete(string);            // reason (step two)
+    callback broadcast(string, string, string, string); // user id, title, body, link
+    callback broadcast-edited();
+}

@@ -1,0 +1,12 @@
+# Build context is apps/server (see deployments/docker/Dockerfile*).
+.git
+.env
+.env.*
+!.env.example
+bin/
+test/
+specs/
+deployments/secrets/
+deployments/helm/
+*.md
+**/*_test.go

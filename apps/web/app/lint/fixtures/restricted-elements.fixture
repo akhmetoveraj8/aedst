@@ -1,0 +1,15 @@
+//// run: biome
+//// expect: noRestrictedElements
+//// file: src/modules/tasks/ui/BadElements.tsx
+export function BadElements() {
+  return (
+    <div>
+      <button type="button">x</button>
+      <input />
+      <select />
+      <textarea />
+      <label>y</label>
+      <form />
+    </div>
+  );
+}

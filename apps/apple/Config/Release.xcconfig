@@ -1,0 +1,19 @@
+#include "Base.xcconfig"
+
+AEDST_API_ENVIRONMENT = production
+ONLY_ACTIVE_ARCH = NO
+
+// Push: TestFlight / App Store / Developer ID builds use the production APNs gateway.
+APS_ENVIRONMENT = production
+APP_ATTEST_ENVIRONMENT = production
+AEDST_APNS_SANDBOX = NO
+VALIDATE_PRODUCT = YES
+
+// Shipping build: optimised, testability off, symbols kept in a dSYM (for
+// crash symbolication) and stripped from the binary.
+SWIFT_COMPILATION_MODE = wholemodule
+SWIFT_OPTIMIZATION_LEVEL = -O
+ENABLE_TESTABILITY = NO
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+STRIP_INSTALLED_PRODUCT = YES
+COPY_PHASE_STRIP = YES

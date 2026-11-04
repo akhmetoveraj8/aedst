@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "$comment": "Declarative input of scripts/template-new.mjs. `profiles` choose which platforms are removed. `perPlatform` ops are instantiated for every removed platform (`${p}` = lowercase id, `${P}` = label). `platforms.<id>` lists what only that platform owns. Ops: dropLines {file|globs, pattern}, dropBlocks {file, indent, key, bodyMatch, toml}, dropMarkdownSections {file|globs, heading}. All patterns are JavaScript regular expressions. server and web are in every profile.",
+  "profiles": {
+    "core": {
+      "description": "Server + web (the two verified platforms).",
+      "remove": ["android", "apple", "desktop"]
+    },
+    "mobile": {
+      "description": "Core + Android + Apple (phones, tablets, TV).",
+      "remove": ["desktop"]
+    },
+    "full": {
+      "description": "Everything, including the Rust + Slint desktop client.",
+      "remove": []
+    }
+  },
+  "markdownGlobs": ["README.md", "AGENTS.md", "CONVENTIONS.md", "docs/agent/**/*.md", "docs/content/**/*.md", "docs/content/**/*.mdx", ".github/**/*.md", "apps/server/**/*.md", "apps/web/**/*.md", "packages/**/*.md"],
+  "perPlatform": [
+    { "file": "Taskfile.yml", "op": "dropBlocks", "indent": 2, "key": "^(${p}:|verify:${p}$)" },
+    { "file": "Taskfile.yml", "op": "dropLines", "pattern": "^\\s*-\\s+task:\\s+${p}:" },
+    { "file": "lefthook.yml", "op": "dropBlocks", "indent": 4, "key": "^${p}-", "bodyMatch": "apps/${p}/" },
+    { "file": ".github/CODEOWNERS", "op": "dropLines", "pattern": "^\\s*/?(apps/${p}|docs/content/${p})\\b" },
+    { "file": ".gitignore", "op": "dropLines", "pattern": "(^|[!/ ])apps/${p}\\b|^# --- added: ${p}\\b" },
+    { "file": ".gitattributes", "op": "dropLines", "pattern": "apps/${p}\\b" },
+    { "file": "scripts/color-literals.allowlist", "op": "dropLines", "pattern": "apps/${p}\\b" },
+    { "file": "scripts/i18n-parity.allowlist", "op": "dropLines", "pattern": "(^|\\s)apps/${p}\\b|^cross-${p}\\s" },
+    { "file": "scripts/file-size.config", "op": "dropLines", "pattern": "^exclude\\s+\\S*apps/${p}/" },
+    { "globs": ["AGENTS.md", "docs/agent/rules.md"], "op": "dropLines", "pattern": "^\\s*[-*]\\s+\\**${P}\\**:" },
+    { "globs": ["docs/**/_meta.ts"], "op": "dropLines", "pattern": "^\\s*\"?(\\d+-)?${p}(-[\\w-]*)?\"?\\s*:" },
+    { "globs": [".github/workflows/*.yml"], "op": "dropLines", "pattern": "^\\s*-\\s*[\"']?(\\./)?apps/${p}\\b" },
+    { "globs": ["@markdown"], "op": "dropLines", "pattern": "^\\|\\s*(\\*\\*)?\\[?${P}\\]?(\\*\\*)?\\s*\\|" },
+    { "file": ".github/PULL_REQUEST_TEMPLATE.md", "op": "dropMarkdownSections", "heading": "\\b${P}\\b" },
+    { "file": "scripts/check-docs.allowlist", "op": "appendLines", "lines": ["", "# template:new removed ${p}: scripts and docs still mention its paths in branches and comments.", "paths apps/${p}", "paths apps/${p}/**", "prompts apps/${p}/**", "links apps/${p}/**"] }
+  ],
+  "ifAnyRemoved": [
+    { "file": "docs/agent/INDEX.md", "op": "dropLines", "pattern": "^\\(Only server and web have an `AGENTS.md`" }
+  ],
+  "platforms": {
+    "android": {
+      "label": "Android",
+      "delete": [
+        "apps/android",
+        ".github/workflows/ai-review-android.yml",
+        ".github/workflows/android-*.yml",
+        ".github/ISSUE_TEMPLATE/android-*.yml",
+        "docs/content/android",
+        "docs/content/decisions/android.md",
+        "docs/content/decisions/*-android-*.md",
+        "docs/content/library-first/android.md",
+        "docs/agent/conventions/android.md",
+        "docs/agent/review/android.md"
+      ],
+      "ops": [
+        { "file": "lefthook.yml", "op": "dropBlocks", "indent": 4, "key": "^(ktlint|kotlin|detekt)" },
+        { "file": "mise.toml", "op": "dropLines", "pattern": "^java\\s*=" }
+      ],
+      "extUnused": ["kt", "kts"],
+      "renovate": { "managers": ["gradle", "gradle-wrapper"], "packageNames": ["dev.detekt"], "topLevelKeys": ["gradle"], "pathPrefixes": ["apps/android"] }
+    },
+    "apple": {
+      "label": "Apple",
+      "delete": [
+        "apps/apple",
+        ".github/workflows/ai-review-apple.yml",
+        ".github/workflows/apple-*.yml",
+        ".github/ISSUE_TEMPLATE/apple-*.yml",
+        ".github/actions/apple-codegen",
+        "docs/content/apple",
+        "docs/content/decisions/apple.md",
+        "docs/content/library-first/apple.md",
+        "docs/agent/conventions/apple.md",
+        "docs/agent/review/apple.md"
+      ],
+      "ops": [
+        { "file": "lefthook.yml", "op": "dropBlocks", "indent": 4, "key": "^(swiftlint|swift)" },
+        { "file": "mise.toml", "op": "dropBlocks", "toml": true, "key": "^\\[tools\\.tuist\\]" }
+      ],
+      "extUnused": ["swift"],
+      "renovate": { "managers": ["swift", "bundler"], "packageNames": [], "topLevelKeys": ["swift", "bundler"], "pathPrefixes": ["apps/apple"] }
+    },
+    "desktop": {
+      "label": "Desktop",
+      "delete": [
+        "apps/desktop-rs",
+        ".github/workflows/ai-review-desktop.yml",
+        ".github/workflows/desktop-*.yml",
+        ".github/ISSUE_TEMPLATE/desktop-*.yml",
+        "docs/content/desktop",
+        "docs/content/decisions/desktop.md",
+        "docs/content/library-first/desktop.md",
+        "docs/agent/conventions/desktop.md",
+        "docs/agent/review/desktop.md"
+      ],
+      "ops": [
+        { "file": "lefthook.yml", "op": "dropBlocks", "indent": 4, "key": "^desktop-rs-" }
+      ],
+      "extUnused": ["rs", "slint"],
+      "renovate": { "managers": ["cargo"], "packageNames": [], "topLevelKeys": ["cargo"], "pathPrefixes": ["apps/desktop-rs"] }
+    }
+  },
+  "finalize": {
+    "deleteTool": ["scripts/template-new.mjs", "scripts/template-profiles.json", "scripts/template-lib", "scripts/test/template-new.test.mjs"],
+    "taskfileBlocks": [{ "file": "Taskfile.yml", "op": "dropBlocks", "indent": 2, "key": "^template:" }],
+    "markerFiles": ["README.md"],
+    "markers": ["<!-- template:begin -->", "<!-- template:end -->"]
+  }
+}

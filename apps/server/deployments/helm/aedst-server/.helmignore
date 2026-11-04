@@ -1,0 +1,6 @@
+.git/
+*.swp
+*.bak
+# promtool unit tests are CI-only; they are not part of the packaged chart.
+files/alerts.rules.test.yaml
+ci/

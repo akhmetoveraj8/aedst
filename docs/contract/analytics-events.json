@@ -1,0 +1,29 @@
+{
+  "$comment": "Single source of product-analytics event names for web, Android, Apple and Desktop. A client emits only names listed here; platforms lists where the event exists today. Properties are product facts, never PII (no emails, titles, free text, file names). A client may send a subset of the listed properties but no other. Checked by scripts/check-analytics-events.mjs (task check:analytics). Web types: apps/web/shared/lib/analytics/analytics.ts.",
+  "version": 1,
+  "events": {
+    "task_created": { "platforms": ["web", "android", "apple", "desktop"], "properties": { "priority": "string", "has_due_date": "boolean" } },
+    "task_completed": { "platforms": ["web", "android", "apple", "desktop"], "properties": {} },
+    "task_reopened": { "platforms": ["apple"], "properties": {} },
+    "task_queued_offline": { "platforms": ["apple"], "properties": {} },
+    "task_attachment_added": { "platforms": ["android"], "properties": { "count": "number" } },
+    "search_performed": { "platforms": ["web", "apple", "desktop"], "properties": { "query_length": "number", "results": "number" } },
+    "search_result_opened": { "platforms": ["web", "desktop"], "properties": { "kind": "string", "position": "number" } },
+    "command_palette_opened": { "platforms": ["web"], "properties": { "via": "shortcut | button" } },
+    "media_uploaded": { "platforms": ["web", "apple", "desktop"], "properties": { "kind": "string", "size_bytes": "number", "compressed": "boolean", "attached_to_task": "boolean" } },
+    "media_upload_failed": { "platforms": ["web"], "properties": { "reason": "string" } },
+    "notification_opened": { "platforms": ["web", "apple", "desktop"], "properties": { "kind": "string", "via": "inbox | push" } },
+    "notifications_marked_read": { "platforms": ["web"], "properties": { "count": "number" } },
+    "push_opt_in": { "platforms": ["web"], "properties": { "result": "granted | denied | unsupported | error" } },
+    "pwa_install_prompt": { "platforms": ["web"], "properties": { "outcome": "accepted | dismissed" } },
+    "admin_task_deleted": { "platforms": ["web", "apple"], "properties": {} },
+    "admin_broadcast_sent": { "platforms": ["web", "desktop"], "properties": { "audience": "user | everyone" } },
+    "web_vital": { "platforms": ["web"], "properties": { "name": "CLS | FCP | INP | LCP | TTFB", "value": "number", "rating": "good | needs-improvement | poor", "navigation_type": "string" } },
+    "login_success": { "platforms": ["android", "apple", "desktop"], "properties": { "method": "browser | device | password" } },
+    "login_failure": { "platforms": ["android", "apple", "desktop"], "properties": { "method": "browser | device | password", "reason": "string" } },
+    "login_cancelled": { "platforms": ["android", "apple"], "properties": {} },
+    "logout": { "platforms": ["android", "desktop"], "properties": {} },
+    "device_attestation": { "platforms": ["android"], "properties": { "verified": "boolean", "reason": "string", "device": "string" } },
+    "diagnostics_received": { "platforms": ["apple"], "properties": { "crashes": "number", "hangs": "number", "cpu_exceptions": "number", "disk_write_exceptions": "number" } }
+  }
+}

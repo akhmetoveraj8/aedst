@@ -1,0 +1,43 @@
+{{- if .Values.networkPolicy.enabled }}
+# Least-privilege network access for the API pods: ingress only from the ingress
+# controller (and, for scraping, the monitoring namespace); egress only to DNS,
+# Postgres, Valkey, the OTLP collector and the OIDC provider. Opt-in because the
+# selectors depend on how the cluster is laid out.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "aedst-server.fullname" . }}
+  labels:
+    {{- include "aedst-server.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "aedst-server.selectorLabels" . | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        {{- toYaml .Values.networkPolicy.ingressFrom | nindent 8 }}
+      ports:
+        - port: {{ .Values.containerPorts.http }}
+          protocol: TCP
+    {{- if and .Values.metrics.enabled .Values.networkPolicy.metricsFrom }}
+    - from:
+        {{- toYaml .Values.networkPolicy.metricsFrom | nindent 8 }}
+      ports:
+        - port: {{ .Values.containerPorts.metrics }}
+          protocol: TCP
+    {{- end }}
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }
+    {{- with .Values.networkPolicy.egressTo }}
+    - to:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

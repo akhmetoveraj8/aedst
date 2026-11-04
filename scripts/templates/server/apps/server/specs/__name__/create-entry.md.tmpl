@@ -1,0 +1,28 @@
+# Spec: {{name}}/create-entry
+
+Type: Command
+Module: {{name}}
+Status: Draft
+
+## Context
+
+Scaffolded by `task new:module`. Replace this with the real first feature of the
+module; copy the structure of `specs/_template.md`.
+
+## Scenarios
+
+**Happy path**
+
+- Given an authenticated caller
+- When the caller calls `CreateEntry` with a non-blank title
+- Then the entry is stored for that caller and returned
+
+**Edge cases**
+
+- Given a blank or over-long title
+- When `CreateEntry` is called
+- Then the request is rejected (protovalidate on the wire, `domain.NewEntry` in code)
+
+- Given an entry that belongs to another caller
+- When `GetEntry` is called with its id
+- Then `NotFound` is returned, never `PermissionDenied`

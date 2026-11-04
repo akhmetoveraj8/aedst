@@ -1,0 +1,220 @@
+# Highly available PostgreSQL for aedst-server on Kubernetes, using the
+# CloudNativePG operator (https://cloudnative-pg.io) — cloud-agnostic, so it
+# works on any conformant cluster. Apply the operator first, then this file.
+#
+# Requires CloudNativePG >= 1.25 (the declarative Database resource first shipped
+# in v1.25.0; latest stable at time of writing: v1.30.1). Validated offline
+# against the v1.30.1 CRD schemas (every field, unknown fields rejected), NOT
+# applied to a live cluster: run `kubectl apply --dry-run=server` against your
+# operator version before first use.
+#
+# Topology: 3 instances (1 primary + 2 replicas) on different nodes, one
+# synchronous replica so an acknowledged commit survives losing the primary,
+# automatic failover, continuous WAL archiving + scheduled base backups to
+# S3-compatible object storage (point-in-time recovery), and a PgBouncer pooler
+# in transaction mode for the API pool.
+#
+# Layout: this is the environment-neutral Kustomize base. Argo CD applications
+# point at overlays/staging or overlays/prod (namespace, backup destination and
+# credentials, sizing); `kustomize build` of both runs in the CI `manifests` job.
+#
+# Backups: the Barman Cloud Plugin (objectstore.yaml: ObjectStore CRD
+# barmancloud.cnpg.io/v1; spec.plugins below with isWALArchiver; the ScheduledBackup
+# below uses method: plugin). The deprecated in-tree spec.backup.barmanObjectStore is
+# not used (the CRD refuses it together with an archiver plugin). Requires the plugin
+# (v0.15.1 verified) and CloudNativePG >= 1.26. Field names verified against the
+# upstream CRDs, NOT applied to a live cluster: see docs/content/server/deployment.md.
+#
+# How the server connects (see docs/content/server/deployment.md):
+#   AEDST_DATABASE_URL         -> the pooler   (aedst-pg-pooler-rw:5432)
+#   AEDST_DATABASE_DIRECT_DSN  -> the cluster  (aedst-pg-rw:5432): River's
+#     LISTEN/NOTIFY, advisory locks and migrations need a session connection.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: aedst-pg
+spec:
+  instances: 3
+  # Pin the major version; upgrade deliberately (rolling, replicas first).
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  primaryUpdateStrategy: unsupervised
+  enableSuperuserAccess: false
+
+
+  # Never put two instances on one node or (where labelled) one zone.
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          cnpg.io/cluster: aedst-pg
+
+  postgresql:
+    # One synchronous replica (quorum: ANY 1 of the two), so an acknowledged
+    # commit survives losing the primary. dataDurability: required keeps writes
+    # blocked rather than ack'ing without a standby; use "preferred" to favour
+    # availability. Replaces the deprecated minSyncReplicas/maxSyncReplicas.
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
+    parameters:
+      # replicas x (AEDST_DATABASE_MAX_CONNS + JOBS_MAX_CONNS) must fit under
+      # this once the pooler is in front of the API pool; size from the load test.
+      max_connections: "300"
+      shared_buffers: 1GB
+      effective_cache_size: 3GB
+      work_mem: 8MB
+      maintenance_work_mem: 256MB
+      # Statement statistics for the runbook's slow-query steps (the operator adds
+      # pg_stat_statements to shared_preload_libraries itself).
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
+      log_min_duration_statement: "500"
+      log_lock_waits: "on"
+      idle_in_transaction_session_timeout: "60000"
+    # TLS only: CloudNativePG serves TLS with its own CA (Secret aedst-pg-ca), so clients
+    # connect with sslmode=verify-full and sslrootcert=<that ca.crt>. Reject any TCP
+    # connection that is not TLS (the operator itself uses the unix socket).
+    # UNVERIFIED against the operator version: confirm the rule order in the generated
+    # pg_hba.conf (kubectl exec ... -- cat /controller/certificates/../pg_hba.conf) after the first apply.
+    pg_hba:
+      - hostnossl all all 0.0.0.0/0 reject
+      - hostnossl all all ::/0 reject
+
+  bootstrap:
+    initdb:
+      database: aedst
+      owner: aedst
+      secret:
+        name: aedst-pg-app # kubernetes.io/basic-auth: username=aedst, password=<generated>
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS pg_trgm
+        # Timeouts the pooled API pool cannot send as startup parameters.
+        # Keep in step with AEDST_DATABASE_STATEMENT_TIMEOUT_MS / IDLE_IN_TX_TIMEOUT_MS.
+        # (postInitApplicationSQL runs once at bootstrap; change later with ALTER ROLE.)
+        - ALTER ROLE aedst SET statement_timeout = '15s'
+        - ALTER ROLE aedst SET idle_in_transaction_session_timeout = '30s'
+
+  # Optional identity provider (ZITADEL, ADR-0001) on THIS cluster: its own role
+  # here and its own database (Database resource below, CloudNativePG >= 1.25). No shared schemas and no
+  # grants across the two databases: the app role cannot connect to `zitadel`
+  # and the zitadel role cannot connect to `aedst`. PostgreSQL grants CONNECT to
+  # PUBLIC by default, so run once per database (not automated here):
+  #   REVOKE CONNECT ON DATABASE aedst   FROM PUBLIC; GRANT CONNECT ON DATABASE aedst   TO aedst;
+  #   REVOKE CONNECT ON DATABASE zitadel FROM PUBLIC; GRANT CONNECT ON DATABASE zitadel TO zitadel;
+  # ZITADEL connects to aedst-pg-rw:5432 DIRECTLY, never to the transaction-mode
+  # Pooler below (see the Pooler comment). Remove this block if the IdP runs
+  # elsewhere (ZITADEL Cloud / its own cluster).
+  managed:
+    roles:
+      - name: zitadel
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        passwordSecret:
+          name: zitadel-pg-app # kubernetes.io/basic-auth: username=zitadel, password=<generated>
+        # Same reasoning as the aedst role: protect the shared instance from a
+        # runaway IdP query. Idle-in-tx is left to ZITADEL's own handling.
+        connectionLimit: 40
+
+  storage:
+    size: 100Gi
+    # storageClass: <fast SSD class of your cluster>
+  walStorage:
+    size: 20Gi
+
+  resources:
+    requests: {cpu: "2", memory: 4Gi}
+    limits: {memory: 4Gi}
+
+  monitoring:
+    enablePodMonitor: true # needs the prometheus-operator CRDs
+
+  # WAL archiving and base backups go through the Barman Cloud Plugin. Retention is
+  # on the ObjectStore (spec.retentionPolicy), not on the Cluster. Every overlay MUST
+  # override serverName (a different Barman directory per environment).
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: aedst-pg-backup
+        serverName: OVERRIDE-IN-OVERLAY
+
+---
+# A base backup every night; WAL is archived continuously, so recovery can stop
+# at any second inside the retention window.
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: aedst-pg-nightly
+spec:
+  schedule: "0 0 2 * * *" # CloudNativePG cron has a leading seconds field
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+  cluster:
+    name: aedst-pg
+---
+# PgBouncer in transaction mode in front of the primary, for the API pool.
+# The jobs pool bypasses it (AEDST_DATABASE_DIRECT_DSN): River's LISTEN/NOTIFY
+# and session advisory locks do not survive transaction pooling.
+# Set AEDST_DATABASE_POOLER=pgbouncer on the server (helm: database.pooler):
+# it forces pgx onto QueryExecModeCacheDescribe whatever the DSN says, and
+# config validation then demands AEDST_DATABASE_DIRECT_DSN (or
+# AEDST_JOBS_POLL_ONLY=true). This Pooler resource IS the Kubernetes path: do
+# not deploy the edoburu/pgbouncer image here (it exists only in docker-compose).
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: aedst-pg-pooler-rw
+spec:
+  cluster:
+    name: aedst-pg
+  instances: 3
+  type: rw
+  pgbouncer:
+    poolMode: transaction
+    parameters:
+      max_client_conn: "2000"
+      default_pool_size: "40"
+      # Protocol-level prepared statements through transaction pooling
+      # (PgBouncer >= 1.21; the operator's PgBouncer image must be newer than
+      # that: pin spec.pgbouncer.image to >= 1.21 if the operator default is
+      # older). Safety net: with AEDST_DATABASE_POOLER=pgbouncer pgx uses
+      # CacheDescribe and creates none. The operator lists it as customisable.
+      max_prepared_statements: "200"
+      # Tolerated startup parameters. With AEDST_DATABASE_POOLER=pgbouncer the
+      # server no longer sends statement_timeout / idle_in_transaction_session_timeout
+      # (they would be silently ignored); they are set on the role below instead.
+      # The operator appends this list to its own required
+      # "extra_float_digits,options" (connection_pooling docs), so only ours here.
+      ignore_startup_parameters: "statement_timeout,idle_in_transaction_session_timeout"
+---
+# Separate database for ZITADEL, owned by its own role (declared above under
+# spec.managed.roles). Needs the Database CRD, introduced in CloudNativePG
+# v1.25.0 (check: `kubectl get crd databases.postgresql.cnpg.io`); on older
+# operators create it once by hand instead:  CREATE DATABASE zitadel OWNER zitadel;
+# ZITADEL's `init` step normally uses an admin DSN to create the database and
+# user; with both pre-created, point ZITADEL at the zitadel role only
+# (Database.postgres.User) and skip the admin credentials. UNVERIFIED against
+# ZITADEL's init behaviour; the first real deploy is the acceptance test.
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: aedst-pg-zitadel
+spec:
+  cluster:
+    name: aedst-pg
+  name: zitadel
+  owner: zitadel
+  ensure: present
+  databaseReclaimPolicy: retain

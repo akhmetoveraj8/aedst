@@ -1,0 +1,14 @@
+# Production backup destination. A different path per environment: two clusters must
+# never write WAL into one Barman server directory (the serverName is set on the
+# Cluster plugin parameters, patch-cluster.yaml).
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: aedst-pg-backup
+spec:
+  retentionPolicy: 30d
+  configuration:
+    destinationPath: s3://aedst-pg-backups/prod # CHECK: your bucket
+    s3Credentials:
+      accessKeyId: {name: aedst-pg-backup-prod, key: ACCESS_KEY_ID}
+      secretAccessKey: {name: aedst-pg-backup-prod, key: ACCESS_SECRET_KEY}

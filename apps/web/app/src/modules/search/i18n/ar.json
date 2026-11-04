@@ -1,0 +1,35 @@
+{
+  "title": "البحث",
+  "metaTitle": "البحث",
+  "label": "البحث في كل شيء",
+  "placeholder": "ابحث في المهام والملفات…",
+  "kindsLabel": "التصفية حسب النوع",
+  "kinds": {
+    "all": "الكل",
+    "task": "المهام",
+    "media": "الملفات"
+  },
+  "resultsLabel": "نتائج البحث",
+  "emptyPrompt": "اكتب للبحث في مهامك وملفاتك.",
+  "noResults": "لم يتم العثور على شيء",
+  "noResultsDescription": "جرّب كلمات أخرى أو تصفية مختلفة.",
+  "errorTitle": "فشل البحث",
+  "retry": "إعادة المحاولة",
+  "loadMore": "عرض المزيد",
+  "resultsCount": "{count, plural, zero {لا نتائج} one {نتيجة واحدة} two {نتيجتان} few {# نتائج} many {# نتيجة} other {# نتيجة}}",
+  "updated": "آخر تحديث {date}",
+  "palette": {
+    "title": "لوحة الأوامر",
+    "description": "ابحث أو انتقل إلى إجراء",
+    "placeholder": "ابحث أو اكتب أمرًا…",
+    "open": "بحث…",
+    "searching": "جارٍ البحث…",
+    "noResults": "لا توجد نتائج.",
+    "results": "النتائج",
+    "searchAll": "البحث عن «{query}»",
+    "actions": "الإجراءات",
+    "newTask": "إنشاء مهمة",
+    "goTasks": "الانتقال إلى المهام",
+    "goNotifications": "الانتقال إلى الإشعارات"
+  }
+}

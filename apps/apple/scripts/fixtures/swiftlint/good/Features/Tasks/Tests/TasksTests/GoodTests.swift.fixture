@@ -1,0 +1,10 @@
+// POSITIVE FIXTURE: tests may print, use literals and the wall clock, and import Connect.
+import Connect
+import SwiftUI
+
+func probe() {
+    print("ok")
+    _ = Text("Literal")
+    _ = Date()
+    _ = Aedst_Tasks_V1_Task()
+}

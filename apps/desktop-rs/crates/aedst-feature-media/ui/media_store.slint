@@ -1,0 +1,45 @@
+// State and callbacks of the Media screens. Rust (`ui_glue.rs`) fills the properties and handles the
+// callbacks; the views only render and call.
+
+export struct MediaRowData {
+    id: string,
+    filename: string,
+    kind: string,       // image | video | audio | document | unknown
+    status: string,     // uploading | processing | ready | failed | unknown
+    failure: string,    // sizeMismatch | typeMismatch | unprocessable, or empty
+    size-bytes: int,
+    openable: bool,
+}
+
+export global MediaStore {
+    in property <[MediaRowData]> rows;
+    in property <string> phase: "idle";            // idle | loading | ready | failed
+    in property <string> error-kind;               // phase == failed, or a delete/page failed
+    in property <bool> has-more;
+    in property <string> confirm-delete-id;        // the row whose delete awaits confirmation
+    in property <bool> deleting;
+
+    in property <string> upload-state: "idle";     // idle | running | failed
+    in property <string> upload-stage: "validating"; // validating | creating | uploading | completing
+    in property <string> upload-file-name;
+    in property <int> upload-percent;
+    in property <string> upload-reason;            // a validation key or an error kind
+    in property <bool> upload-reason-is-validation;
+    in property <string> upload-cleanup: "notNeeded"; // notNeeded | removed | failed
+
+    // closed | loading | ready | failed | notReady | videoUnavailable | noPreview | tooLarge | undecodable
+    in property <string> viewer-phase: "closed";
+    in property <string> viewer-title;
+    in property <string> viewer-error-kind;
+    in property <image> viewer-image;
+
+    callback reload();
+    callback load-more();
+    callback pick-upload();
+    callback dismiss-upload();
+    callback request-delete(string);               // media id
+    callback cancel-delete();
+    callback confirm-delete();
+    callback open(string);                         // media id
+    callback close-viewer();
+}

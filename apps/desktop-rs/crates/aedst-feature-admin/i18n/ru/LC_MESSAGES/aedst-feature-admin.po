@@ -1,0 +1,202 @@
+# aedst-feature-admin: Admin screen strings (ru).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-admin\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "Overview"
+msgstr "Обзор"
+
+msgid "Tasks"
+msgstr "Задачи"
+
+msgid "Audit log"
+msgstr "Журнал аудита"
+
+msgid "Broadcast"
+msgstr "Рассылка"
+
+msgid "Owner id"
+msgstr "Идентификатор владельца"
+
+msgid "Show only the tasks of one owner (id)"
+msgstr "Показать задачи только одного владельца (id)"
+
+msgid "Apply"
+msgstr "Применить"
+
+msgid "Administration"
+msgstr "Администрирование"
+
+msgid "No access"
+msgstr "Нет доступа"
+
+msgid "This screen is for operators only."
+msgstr "Этот экран только для операторов."
+
+msgid "Loading..."
+msgstr "Загрузка..."
+
+msgid "Could not load"
+msgstr "Не удалось загрузить"
+
+msgid "Try again"
+msgstr "Повторить"
+
+msgid "Nothing to show here."
+msgstr "Здесь пока ничего нет."
+
+msgid "Load more"
+msgstr "Загрузить ещё"
+
+msgid "Owner: {}"
+msgstr "Владелец: {}"
+
+msgid "Delete"
+msgstr "Удалить"
+
+msgid "Target: {}"
+msgstr "Объект: {}"
+
+msgid "By: {}"
+msgstr "Кем: {}"
+
+msgid "Delete task \"{}\"?"
+msgstr "Удалить задачу \"{}\"?"
+
+msgid "The reason is recorded in the audit log (3 to 500 characters)."
+msgstr "Причина записывается в журнал аудита (от 3 до 500 символов)."
+
+msgid "Reason for deleting"
+msgstr "Причина удаления"
+
+msgid "Reason"
+msgstr "Причина"
+
+msgid "Deleting..."
+msgstr "Удаление..."
+
+msgid "Delete task"
+msgstr "Удалить задачу"
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid "Recipient id"
+msgstr "Идентификатор получателя"
+
+msgid "Recipient id (empty: everyone)"
+msgstr "Идентификатор получателя (пусто: все)"
+
+msgid "Title"
+msgstr "Заголовок"
+
+msgid "Message"
+msgstr "Сообщение"
+
+msgid "Link"
+msgstr "Ссылка"
+
+msgid "Link (optional, for example /tasks)"
+msgstr "Ссылка (необязательно, например /tasks)"
+
+msgid "Sent. Recipients reached: {}"
+msgstr "Отправлено. Получателей: {}"
+
+msgid "Sending..."
+msgstr "Отправка..."
+
+msgid "Send notification"
+msgstr "Отправить уведомление"
+
+msgid "You are offline."
+msgstr "Нет подключения к сети."
+
+msgid "The server is not available right now."
+msgstr "Сервер сейчас недоступен."
+
+msgid "The request took too long."
+msgstr "Запрос выполнялся слишком долго."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "Слишком много запросов. Попробуйте через минуту."
+
+msgid "Please sign in again."
+msgstr "Войдите снова."
+
+msgid "You do not have access to this."
+msgstr "У вас нет доступа к этому."
+
+msgid "This item no longer exists."
+msgstr "Этого элемента больше нет."
+
+msgid "The server did not accept this input."
+msgstr "Сервер не принял эти данные."
+
+msgid "This item was changed elsewhere."
+msgstr "Этот элемент был изменён в другом месте."
+
+msgid "Please update the app to continue."
+msgstr "Обновите приложение, чтобы продолжить."
+
+msgid "Something went wrong."
+msgstr "Что-то пошло не так."
+
+msgid "Enter a valid user id or leave it empty."
+msgstr "Введите корректный идентификатор пользователя или оставьте поле пустым."
+
+msgid "Enter a title."
+msgstr "Введите заголовок."
+
+msgid "The title is too long (120 characters at most)."
+msgstr "Заголовок слишком длинный (не более 120 символов)."
+
+msgid "The message is too long (1000 characters at most)."
+msgstr "Сообщение слишком длинное (не более 1000 символов)."
+
+msgid "The link must be an in-app path such as /tasks."
+msgstr "Ссылка должна быть путём внутри приложения, например /tasks."
+
+msgid "Enter a reason (3 characters at least)."
+msgstr "Укажите причину (не менее 3 символов)."
+
+msgid "The reason is too long (500 characters at most)."
+msgstr "Причина слишком длинная (не более 500 символов)."
+
+msgid "To do"
+msgstr "К выполнению"
+
+msgid "In progress"
+msgstr "В работе"
+
+msgid "Done"
+msgstr "Выполнено"
+
+msgid "Unknown"
+msgstr "Неизвестно"
+
+msgid "Tasks done"
+msgstr "Выполнено задач"
+
+msgid "Tasks overdue"
+msgstr "Просрочено задач"
+
+msgid "Media files"
+msgstr "Медиафайлы"
+
+msgid "Media size"
+msgstr "Размер медиа"
+
+msgid "Push devices"
+msgstr "Устройства push"
+
+msgid "Oldest waiting job (seconds)"
+msgstr "Самая старая ожидающая задача (секунды)"
+
+msgid "Jobs pending"
+msgstr "Задач в очереди"

@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package aedst.{{name}}.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/aedst/server/gen/go/aedst/{{name}}/v1;{{name}}v1";
+
+// {{Name}}Service is the {{name}} module's public API boundary. Scaffolded by
+// `task new:module`; replace the sample Entry with the module's real aggregate.
+//
+// Every RPC operates on the caller's own entries only. `owner_id` is never a
+// request field: it is derived from the authenticated context, so acting on
+// another user's data is not representable in the request shape.
+service {{Name}}Service {
+  rpc CreateEntry(CreateEntryRequest) returns (CreateEntryResponse);
+  rpc GetEntry(GetEntryRequest) returns (GetEntryResponse);
+}
+
+message Entry {
+  string id = 1;
+  string title = 2;
+  google.protobuf.Timestamp created_at = 3;
+}
+
+message CreateEntryRequest {
+  string title = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+}
+
+message CreateEntryResponse {
+  Entry entry = 1;
+}
+
+message GetEntryRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetEntryResponse {
+  Entry entry = 1;
+}

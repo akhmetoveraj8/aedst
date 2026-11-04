@@ -1,0 +1,4 @@
+//// run: deps
+//// expect: no-orphans
+//// file: src/shared/lib/unused.ts
+export const unused = 1;

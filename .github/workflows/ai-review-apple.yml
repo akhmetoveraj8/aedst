@@ -1,0 +1,29 @@
+name: ai-review-apple
+
+# Thin caller of the reusable ai-review.yml. Prompt: docs/agent/review/apple.md.
+
+on:
+  pull_request:
+    paths:
+      - "apps/apple/**"
+      - "docs/agent/review/apple.md"
+      - ".github/workflows/ai-review.yml"
+      - ".github/workflows/ai-review-apple.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+concurrency:
+  group: ai-review-apple-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    uses: ./.github/workflows/ai-review.yml
+    with:
+      app_path: apps/apple
+      prompt_file: docs/agent/review/apple.md
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

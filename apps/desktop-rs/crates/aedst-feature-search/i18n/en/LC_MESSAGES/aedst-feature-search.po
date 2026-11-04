@@ -1,0 +1,94 @@
+# aedst-feature-search: Search screen strings (en).
+# Source text.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-search\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You are offline. Search needs a connection."
+msgstr "You are offline. Search needs a connection."
+
+msgid "The server is not available right now."
+msgstr "The server is not available right now."
+
+msgid "The request took too long."
+msgstr "The request took too long."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "Too many requests. Try again in a moment."
+
+msgid "Please sign in again."
+msgstr "Please sign in again."
+
+msgid "You do not have access to this."
+msgstr "You do not have access to this."
+
+msgid "Nothing was found at this address."
+msgstr "Nothing was found at this address."
+
+msgid "The server did not accept this search."
+msgstr "The server did not accept this search."
+
+msgid "The data was changed elsewhere."
+msgstr "The data was changed elsewhere."
+
+msgid "Please update the app to continue."
+msgstr "Please update the app to continue."
+
+msgid "Could not read data on this device."
+msgstr "Could not read data on this device."
+
+msgid "Something went wrong."
+msgstr "Something went wrong."
+
+msgid "Task"
+msgstr "Task"
+
+msgid "File"
+msgstr "File"
+
+msgid "Other"
+msgstr "Other"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "About {} results"
+msgstr "About {} results"
+
+msgid "Search tasks and files"
+msgstr "Search tasks and files"
+
+msgid "Suggestions"
+msgstr "Suggestions"
+
+msgid "Search your tasks and files"
+msgstr "Search your tasks and files"
+
+msgid "Results appear as you type."
+msgstr "Results appear as you type."
+
+msgid "Searching..."
+msgstr "Searching..."
+
+msgid "Could not search"
+msgstr "Could not search"
+
+msgid "Try again"
+msgstr "Try again"
+
+msgid "No results"
+msgstr "No results"
+
+msgid "Try a different word or check the spelling."
+msgstr "Try a different word or check the spelling."
+
+msgid "Loading..."
+msgstr "Loading..."
+
+msgid "Load more"
+msgstr "Load more"

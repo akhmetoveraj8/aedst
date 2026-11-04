@@ -1,0 +1,305 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: standard
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gocritic
+    - revive
+    - depguard
+    - bodyclose
+    - contextcheck
+    - errorlint
+    - noctx
+    - sqlclosecheck
+    - wrapcheck
+    - forbidigo
+    - sloglint
+    - exhaustive
+    - spancheck
+    - gosec
+    - nilerr
+    - nolintlint
+
+  settings:
+    sloglint:
+      context: all
+      static-msg: true
+      key-naming-case: snake
+
+    exhaustive:
+      # A switch over sharederrors.Kind (and any other enum) must list every member;
+      # a default does not make it exhaustive, so a new Kind cannot be forgotten.
+      default-signifies-exhaustive: false
+      # Module-local enums, generated protobuf enums and connect.Code map onto a wire
+      # vocabulary and keep a deliberate default; sharederrors.Kind and platform enums do not.
+      ignore-enum-types: '^(github\.com/aedst/server/(gen/go|internal/modules)/|connectrpc\.com/)'
+
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-unused: false
+
+    forbidigo:
+      analyze-types: true
+      forbid:
+        - pattern: '^time\.Now$'
+          msg: "time-now: inject sharedtime.Clock (internal/shared/time) instead of calling time.Now in a module"
+        - pattern: '^context\.Context\.Value$'
+          msg: "context-value: do not read context values in domain/application; pass the value as an explicit argument"
+        - pattern: '^log\.(Print|Fatal|Panic).*$'
+          msg: "std-log: use slog with the request context (second logger is forbidden)"
+        - pattern: '^fmt\.(Print|Println|Printf)$'
+          msg: "fmt-print: use slog with the request context"
+        - pattern: '^http\.(DefaultClient|DefaultTransport)$'
+          msg: "default-http: build a client with timeouts (internal/platform/resilience); the shared default has none"
+
+    revive:
+      rules:
+        # revive's own default rule set enables `exported` (require a doc
+        # comment on every exported symbol) and `package-comments`, which
+        # fight this codebase's actual convention (see the repo's own
+        # CLAUDE.md): self-documenting names, with a comment added only
+        # where the WHY is non-obvious. Disabled explicitly rather than
+        # left off `rules:` entirely, because omitting `rules:` falls back
+        # to revive's own defaults, which include both.
+        - name: exported
+          disabled: true
+        - name: package-comments
+          disabled: true
+
+    wrapcheck:
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Join(
+        - connect/v2.NewError(
+        - shared/errors.New(
+        - shared/errors.NotFound(
+        - shared/errors.AlreadyExists(
+        - shared/errors.Conflict(
+        - shared/errors.Validation(
+        - shared/errors.Unauthorized(
+        - shared/errors.Forbidden(
+        - shared/errors.Wrap(
+        - shared/errors.FailedPrecondition(
+        - ids.New(
+        - river.JobCancel(
+
+    depguard:
+      rules:
+        # A module's domain package is the one place that must stay free of
+        # every dependency except stdlib and shared, business-agnostic
+        # primitives — see docs/content/server/architecture.md and
+        # internal/shared/{errors,ids,time}'s own doc comments. This is the
+        # property architecturetest.TestDomainDoesNotImportInfrastructure
+        # also enforces at the application/infrastructure boundary; depguard
+        # catches it earlier, at lint time, file-glob scoped instead of
+        # requiring `go test` to load the whole module graph.
+        domain-is-pure:
+          files:
+            - "**/internal/modules/*/domain/**/*.go"
+          allow:
+            - $gostd
+            - github.com/aedst/server/internal/shared
+            - github.com/aedst/server/internal/shared/**
+          deny:
+            - pkg: github.com/aedst/server/internal/modules
+              desc: "domain must not depend on any module package, including its own application/infrastructure/transport"
+            - pkg: github.com/aedst/server/internal/platform
+              desc: "domain must not depend on platform infrastructure"
+
+        # Cross-module imports (a module may only reach another through its api/
+        # package) are enforced by architecturetest.TestModuleBoundaries, which
+        # discovers modules from the directory tree. It is deliberately NOT
+        # duplicated here as one depguard rule per module pair: that list grows
+        # quadratically with the number of modules and silently misses any module
+        # nobody remembered to add. `task arch` runs in CI on every change.
+
+        # Banned libraries (NATS, RedSync/Redlock, competing JWT/router/ORM
+        # stacks) and "only internal/platform/valkey imports go-redis" are
+        # enforced by architecturetest (exact, rather than glob-approximate)
+        # and by the `banned-dependencies` depguard rule below (fast feedback
+        # in the editor/lint step).
+        banned-dependencies:
+          files:
+            - "**/*.go"
+          deny:
+            - pkg: github.com/nats-io
+              desc: "no external broker until a consumer becomes a separate service (ADR-0014): events go through internal/platform/events (River InsertTx)"
+            - pkg: github.com/go-redsync/redsync
+              desc: "no distributed locks in Valkey: use PostgreSQL advisory locks (internal/platform/lock)"
+            - pkg: github.com/golang-jwt
+              desc: "JWT/JOSE goes through lestrrat-go/jwx only"
+            - pkg: gorm.io/gorm
+              desc: "no ORM: SQL goes through sqlc"
+            - pkg: github.com/minio/minio-go
+              desc: "object storage goes through internal/platform/storage (aws-sdk-go-v2)"
+
+        # CBOR is only needed to decode Apple App Attest objects (ADR-0016); keep
+        # the dependency inside that module instead of letting it spread.
+        cbor-only-in-appattest:
+          files:
+            - "**/*.go"
+            - "!**/internal/modules/appattest/**"
+          deny:
+            - pkg: github.com/fxamacker/cbor
+              desc: "CBOR is approved only for modules/appattest (Apple App Attest objects); see docs/content/library-first.md"
+
+        # One library per concern, owned by one package (docs/content/library-first/server.md).
+        prometheus-only-in-observability:
+          files:
+            - "**/*.go"
+            - "!**/internal/platform/observability/**"
+          deny:
+            - pkg: github.com/prometheus/client_golang
+              desc: "Prometheus is reached only through internal/platform/observability (OpenTelemetry API everywhere else)"
+
+        jwx-only-in-auth:
+          files:
+            - "**/*.go"
+            - "!**/internal/platform/auth/**"
+            - "!**/internal/platform/push/push_test.go" # signs/verifies VAPID tokens in a test
+          deny:
+            - pkg: github.com/lestrrat-go
+              desc: "JWT/JOSE (jwx) is imported only by internal/platform/auth"
+            - pkg: github.com/jwx-go
+              desc: "JWT/JOSE (jwx) is imported only by internal/platform/auth"
+
+        otelpgx-only-in-database:
+          files:
+            - "**/*.go"
+            - "!**/internal/platform/database/**"
+          deny:
+            - pkg: github.com/exaring/otelpgx
+              desc: "pgx tracing is installed only by internal/platform/database (all pools get the same parent-only tracer)"
+
+        otelriver-only-in-jobs:
+          files:
+            - "**/*.go"
+            - "!**/internal/platform/jobs/**"
+          deny:
+            - pkg: github.com/riverqueue/rivercontrib
+              desc: "River middleware is installed only by internal/platform/jobs"
+
+        miniredis-only-in-tests:
+          files:
+            - "!**/*_test.go"
+          deny:
+            - pkg: github.com/alicebob/miniredis
+              desc: "miniredis is test-only"
+
+        no-second-logger:
+          files:
+            - "**/*.go"
+          deny:
+            - pkg: go.uber.org/zap
+              desc: "slog is the only logger (a second logger is forbidden)"
+            - pkg: github.com/sirupsen/logrus
+              desc: "slog is the only logger (a second logger is forbidden)"
+            - pkg: github.com/rs/zerolog
+              desc: "slog is the only logger (a second logger is forbidden)"
+
+        otel-exporters-only-in-observability:
+          files:
+            - "**/*.go"
+            - "!**/internal/platform/observability/**"
+          deny:
+            - pkg: go.opentelemetry.io/otel/exporters
+              desc: "OpenTelemetry exporters are configured only in internal/platform/observability"
+            - pkg: go.opentelemetry.io/contrib/exporters
+              desc: "OpenTelemetry exporters are configured only in internal/platform/observability"
+
+        # cmd/** may import internal/modules/<name>/module only: depguard cannot express
+        # "every layer except module" without listing each module, so the gate is
+        # architecturetest.TestModuleBoundaries (it loads cmd/... and resolves import paths).
+
+        platform-no-modules:
+          files:
+            - "**/internal/platform/**/*.go"
+          deny:
+            - pkg: github.com/aedst/server/internal/modules
+              desc: "platform must not depend on modules — modules depend on platform, never the reverse"
+            - pkg: github.com/aedst/server/internal/modules/**
+              desc: "platform must not depend on modules — modules depend on platform, never the reverse"
+
+  exclusions:
+    generated: lax
+    rules:
+      - path: '_test\.go$'
+        linters:
+          - wrapcheck
+          - contextcheck
+          - noctx
+          - errcheck
+      - path: 'internal/modules/.*/(transport|application|infrastructure|jobs|module)/'
+        linters:
+          - wrapcheck
+        # transport passes through sharederrors.Kind-classified errors from
+        # application unchanged (httpserver.ToConnectError does the actual
+        # mapping); application passes through Repository port errors, which
+        # infrastructure already classified via sharederrors.Wrap/NotFound/
+        # etc. at the point a pgx/sqlc error originates — wrapping again at
+        # every layer above that would bury the one useful wrap under
+        # several redundant ones (see docs/content/server/architecture.md's error model).
+      - path: 'cmd/'
+        linters:
+          - wrapcheck
+        # cmd/server only ever returns errors straight from platform
+        # constructors, which already wrap with fmt.Errorf("pkg: action: %w").
+      - path: 'internal/platform/(httpserver|observability|resilience|rpc|events|push)/'
+        linters:
+          - wrapcheck
+        # These platform packages sit at the same architectural layer as the
+        # errors they pass through (net/http, slog.Handler, another platform
+        # package's already-wrapped error) rather than above it.
+      - path: 'internal/platform/resilience/roundtripper\.go$'
+        linters:
+          - bodyclose
+      - path: 'gen/'
+        linters:
+          - all
+      # Scoped bans: forbidigo patterns are global, the path decides where each applies.
+      - linters: [forbidigo]
+        text: 'time-now:'
+        path-except: 'internal/modules/'
+      - linters: [forbidigo]
+        text: 'context-value:'
+        path-except: 'internal/modules/[^/]+/(domain|application)/'
+      - linters: [forbidigo]
+        text: 'default-http:'
+        path: 'internal/platform/(push|auth|resilience|storage)/'
+      # G115 (int -> int32): page sizes are clamped by internal/shared/pagination and
+      # proto int32 fields round-trip through int; sqlc params are int32.
+      - linters: [gosec]
+        text: 'G115:'
+        path: 'internal/(modules/[^/]+/(transport|infrastructure)|platform/idempotency)/'
+      - path: '_test\.go$'
+        linters:
+          - forbidigo
+          - gosec
+          - spancheck
+          - sloglint
+      - linters: [gosec]
+        text: 'G115:'
+        path: 'internal/modules/appattest/appattesttest/'
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/aedst/server
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

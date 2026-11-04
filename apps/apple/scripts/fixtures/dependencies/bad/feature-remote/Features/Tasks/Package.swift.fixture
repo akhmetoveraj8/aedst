@@ -1,0 +1,2 @@
+import PackageDescription
+let package = Package(name: "Tasks", dependencies: [.package(url: "https://github.com/kean/Nuke", from: "13.2.0")])

@@ -1,0 +1,28 @@
+# Squawk lints every module's goose migrations (`task lint:migrations`) for
+# changes that take long locks or break running code before they reach
+# `task migrate`. Rule list: https://squawkhq.com/docs/rules
+#
+# Goose runs each migration inside a transaction unless the file starts with
+# `-- +goose NO TRANSACTION`; scripts/lint-migrations.sh flips this per file.
+pg_version = "18.0"
+assume_in_transaction = true
+
+excluded_rules = [
+  # lock_timeout is enforced where migrations are RUN, not repeated in every
+  # file: `task migrate` and the Helm migration Job export
+  # PGOPTIONS="-c lock_timeout=5s", so a DDL statement that cannot get its lock
+  # fails fast instead of queueing behind traffic and blocking it. (No
+  # statement_timeout: CREATE INDEX CONCURRENTLY on a large table legitimately
+  # runs for minutes.)
+  "require-lock-timeout",
+  "require-statement-timeout",
+
+  # Every primary key is a UUID; the integer columns are bounded counters
+  # (event schema version, delivery attempts, a per-row optimistic-lock
+  # version) that cannot approach 2^31.
+  "prefer-bigint-over-int",
+
+  # `text` is the idiomatic Postgres string type and this project uses it
+  # everywhere; the rule pushes toward varchar limits we do not want.
+  "prefer-text-field",
+]

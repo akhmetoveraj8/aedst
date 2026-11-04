@@ -1,0 +1,38 @@
+# mise (https://mise.jdx.dev) toolchain pins. `mise install` gives every
+# contributor the same versions CI uses. Taskfile.yml is the entry point for
+# commands; mise only provides tools. Keep versions in sync with:
+#   go        -> apps/server/go.mod
+#   node/pnpm -> .github/workflows/web-ci.yml, docs-ci.yml
+#   buf       -> apps/web/package.json (@bufbuild/buf), server-ci.yml
+#   task/sqlc -> server-ci.yml
+#   gofumpt/govulncheck/goose -> go: backend (built with the pinned go)
+[tools]
+go = "1.27.3"
+node = "26"        # Node 26.12.1 = latest stable (Current line; LTS flag not yet set in nodejs.org/dist/index.json), verified 2026-10-28
+pnpm = "12.15.0"     # latest stable, verified 2026-10-28 (npm view pnpm version)
+java = "temurin-21"      # Android (AGP 9 / Gradle)
+buf = "1.75.0"        # latest stable, verified 2026-10-28 (GitHub releases)
+task = "3.54.0"       # latest stable, verified 2026-10-28 (GitHub releases)
+sqlc = "1.31.1"       # latest stable, verified 2026-10-28 (GitHub releases)
+"go:mvdan.cc/gofumpt" = "0.12.0"                       # tag v0.12.0 = latest, verified 2026-10-28 (GitHub releases)
+"go:golang.org/x/vuln/cmd/govulncheck" = "1.9.0"        # task vuln; tag v1.9.0 = latest, verified 2026-10-28 via git ls-remote
+"go:github.com/pressly/goose/v3/cmd/goose" = "3.29.0"   # task migrate; v3.29.0 = latest, verified 2026-10-28 (GitHub releases)
+golangci-lint = "2.15.0"  # latest stable v2.15.0 verified via GitHub releases 2026-10-28
+lefthook = "2.2.2"        # latest stable verified via GitHub releases 2026-10-28
+gitleaks = "8.30.1"       # secret scanning (.gitleaks.toml); latest v8.30.1 re-verified via GitHub releases 2026-10-28
+opentofu = "1.13.2"      # IaC (decisions.md); latest stable verified via GitHub releases 2026-10-28
+# squawk has no mise registry entry; scripts/lint-migrations.sh uses the npm package.
+"npm:squawk-cli" = "2.70.0"   # latest stable, verified 2026-10-28 (npm view squawk-cli version)
+
+# Apple: Tuist is only useful on macOS (Xcode required).
+[tools.tuist]
+version = "4.214.0"   # latest stable, verified 2026-10-28 (git ls-remote --tags, plain X.Y.Z tags only; matches apps/apple/mise.toml)
+os = ["macos"]
+
+# Not managed here (install separately):
+#   Rust (apps/desktop-rs/rust-toolchain.toml; rustup reads it, so mise does not pin it here),
+#   Xcode 26.6 (macOS), Android SDK, Docker.
+
+[tasks.setup]
+description = "Install pinned tools and run the repo-wide setup"
+run = "task setup"

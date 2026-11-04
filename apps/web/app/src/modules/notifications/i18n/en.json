@@ -1,0 +1,48 @@
+{
+  "bell": {
+    "label": "Notifications",
+    "labelWithCount": "Notifications, {count, plural, one {# unread} other {# unread}}"
+  },
+  "inbox": {
+    "title": "Notifications",
+    "preferences": "Preferences",
+    "markAllRead": "Mark all as read",
+    "filterLabel": "Show",
+    "all": "All",
+    "unread": "Unread",
+    "listLabel": "Notifications",
+    "unreadMarker": "Unread",
+    "emptyTitle": "You’re all caught up",
+    "emptyDescription": "New notifications will show up here.",
+    "errorTitle": "Couldn’t load notifications",
+    "retry": "Retry",
+    "loadMore": "Load more"
+  },
+  "preferences": {
+    "title": "Notification preferences",
+    "metaTitle": "Notification preferences",
+    "kindsTitle": "What to notify me about",
+    "toggles": {
+      "pushEnabled": "Push notifications",
+      "taskCompleted": "A task is completed",
+      "taskDueSoon": "A task is due soon",
+      "mediaReady": "An upload finished processing"
+    },
+    "saved": "Preferences saved",
+    "loadError": "Couldn’t load your preferences.",
+    "retry": "Retry"
+  },
+  "push": {
+    "title": "Push notifications on this device",
+    "checking": "Checking this browser…",
+    "unsupported": "This browser doesn’t support push notifications.",
+    "requiresInstall": "On iPhone and iPad, install the app to your Home Screen first (Share → Add to Home Screen), then enable push here.",
+    "notConfigured": "Push notifications aren’t set up on this server.",
+    "blocked": "Notifications are blocked for this site. Allow them in your browser’s site settings.",
+    "off": "Get notified on this device even when the app is closed.",
+    "on": "Push notifications are on for this device.",
+    "enable": "Turn on",
+    "disable": "Turn off",
+    "failed": "Couldn’t change push notifications. Try again."
+  }
+}

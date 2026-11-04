@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_title">Файлҳо</string>
+    <string name="media_empty">Ҳоло файл нест. Акс ё видео бор кунед.</string>
+    <string name="media_upload">Бор кардани акс ё видео</string>
+    <string name="media_load_more">Боз бор кардан</string>
+    <string name="media_back">Бозгашт</string>
+    <string name="media_delete">Нест кардани файл</string>
+    <string name="media_processing">Файл коркард мешавад…</string>
+    <string name="media_status_ready">Тайёр</string>
+    <string name="media_status_failed">Коркарди файл имконнопазир шуд</string>
+</resources>

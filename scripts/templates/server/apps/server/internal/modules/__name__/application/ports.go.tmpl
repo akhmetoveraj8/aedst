@@ -1,0 +1,18 @@
+// Package application holds the {{name}} module's use cases. It depends only on
+// domain and the interfaces declared here; infrastructure/postgres provides the
+// implementation, which keeps this package testable without a database.
+package application
+
+import (
+	"context"
+
+	"github.com/aedst/server/internal/modules/{{name}}/domain"
+	"github.com/aedst/server/internal/shared/ids"
+)
+
+// Repository is the persistence port. Implementations report NotFound (never a
+// permission error) when an entry belongs to another owner.
+type Repository interface {
+	Create(ctx context.Context, entry domain.Entry) (domain.Entry, error)
+	FindByIDAndOwner(ctx context.Context, id, ownerID ids.ID) (domain.Entry, error)
+}

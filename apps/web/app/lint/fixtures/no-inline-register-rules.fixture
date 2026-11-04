@@ -1,0 +1,9 @@
+//// run: biome
+//// expect: No inline validation rules in register()
+//// file: src/modules/tasks/ui/BadRegister.tsx
+import { useForm } from "react-hook-form";
+
+export function BadRegister() {
+  const { register } = useForm();
+  return register("title", { required: true, maxLength: 120 });
+}

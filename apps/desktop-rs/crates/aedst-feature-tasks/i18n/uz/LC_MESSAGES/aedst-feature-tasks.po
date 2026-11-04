@@ -1,0 +1,127 @@
+# aedst-feature-tasks: Tasks screen strings (uz).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-tasks\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You are offline. Changes will sync later."
+msgstr "Siz oflaynsiz. O'zgarishlar keyinroq sinxronlanadi."
+
+msgid "The server is not available right now."
+msgstr "Server hozir mavjud emas."
+
+msgid "The request took too long."
+msgstr "So'rov juda uzoq davom etdi."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "So'rovlar juda ko'p. Birozdan keyin qayta urinib ko'ring."
+
+msgid "Please sign in again."
+msgstr "Iltimos, qaytadan kiring."
+
+msgid "You do not have access to this."
+msgstr "Sizda bunga ruxsat yo'q."
+
+msgid "This task no longer exists."
+msgstr "Bu vazifa endi mavjud emas."
+
+msgid "The server did not accept this input."
+msgstr "Server bu ma'lumotni qabul qilmadi."
+
+msgid "This task was changed elsewhere."
+msgstr "Bu vazifa boshqa joyda o'zgartirilgan."
+
+msgid "Please update the app to continue."
+msgstr "Davom etish uchun ilovani yangilang."
+
+msgid "Could not save on this device."
+msgstr "Bu qurilmada saqlab bo'lmadi."
+
+msgid "Something went wrong."
+msgstr "Nimadir xato ketdi."
+
+msgid "Enter a title."
+msgstr "Sarlavhani kiriting."
+
+msgid "The title is too long (200 characters at most)."
+msgstr "Sarlavha juda uzun (ko'pi bilan 200 belgi)."
+
+msgid "The description is too long."
+msgstr "Tavsif juda uzun."
+
+msgid "Choose a priority."
+msgstr "Ustuvorlikni tanlang."
+
+msgid "To do"
+msgstr "Bajarilishi kerak"
+
+msgid "In progress"
+msgstr "Jarayonda"
+
+msgid "Done"
+msgstr "Bajarildi"
+
+msgid "Unknown"
+msgstr "Noma'lum"
+
+msgid "Low"
+msgstr "Past"
+
+msgid "Medium"
+msgstr "O'rta"
+
+msgid "High"
+msgstr "Yuqori"
+
+msgid "Urgent"
+msgstr "Shoshilinch"
+
+msgid "Tasks"
+msgstr "Vazifalar"
+
+msgid "{} in total"
+msgstr "Jami: {}"
+
+msgid "Waiting to sync: {}"
+msgstr "Sinxronlash kutilmoqda: {}"
+
+msgid "New task title"
+msgstr "Yangi vazifa sarlavhasi"
+
+msgid "What needs to be done?"
+msgstr "Nima qilish kerak?"
+
+msgid "Adding..."
+msgstr "Qo'shilmoqda..."
+
+msgid "Add task"
+msgstr "Vazifa qo'shish"
+
+msgid "Loading..."
+msgstr "Yuklanmoqda..."
+
+msgid "Could not load tasks"
+msgstr "Vazifalarni yuklab bo'lmadi"
+
+msgid "Try again"
+msgstr "Qayta urinib ko'ring"
+
+msgid "No tasks yet"
+msgstr "Hozircha vazifalar yo'q"
+
+msgid "Add your first task above."
+msgstr "Birinchi vazifani yuqorida qo'shing."
+
+msgid "Mark \"{}\" as done"
+msgstr "“{}” vazifasini bajarilgan deb belgilash"
+
+msgid "Pending sync"
+msgstr "Sinxronlash kutilmoqda"
+
+msgid "Load more"
+msgstr "Yana yuklash"

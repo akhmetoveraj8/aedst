@@ -1,0 +1,35 @@
+{
+  "title": "Ҷустуҷӯ",
+  "metaTitle": "Ҷустуҷӯ",
+  "label": "Ҷустуҷӯ дар ҳама ҷо",
+  "placeholder": "Ҷустуҷӯи вазифаҳо ва файлҳо…",
+  "kindsLabel": "Филтр аз рӯи навъ",
+  "kinds": {
+    "all": "Ҳама",
+    "task": "Вазифаҳо",
+    "media": "Файлҳо"
+  },
+  "resultsLabel": "Натиҷаҳои ҷустуҷӯ",
+  "emptyPrompt": "Барои ёфтани вазифаҳо ва файлҳо нависед.",
+  "noResults": "Чизе ёфт нашуд",
+  "noResultsDescription": "Калимаҳои дигар ё филтри дигарро санҷед.",
+  "errorTitle": "Ҷустуҷӯ ноком шуд",
+  "retry": "Такрор кардан",
+  "loadMore": "Боз нишон додан",
+  "resultsCount": "{count, plural, one {# натиҷа} other {# натиҷа}}",
+  "updated": "Навсозӣ: {date}",
+  "palette": {
+    "title": "Палитраи фармонҳо",
+    "description": "Ҷустуҷӯ кунед ё ба амал гузаред",
+    "placeholder": "Ҷустуҷӯ ё фармон…",
+    "open": "Ҷустуҷӯ…",
+    "searching": "Ҷустуҷӯ…",
+    "noResults": "Натиҷа нест.",
+    "results": "Натиҷаҳо",
+    "searchAll": "Ҷустуҷӯи «{query}»",
+    "actions": "Амалҳо",
+    "newTask": "Сохтани вазифа",
+    "goTasks": "Ба вазифаҳо",
+    "goNotifications": "Ба огоҳиномаҳо"
+  }
+}

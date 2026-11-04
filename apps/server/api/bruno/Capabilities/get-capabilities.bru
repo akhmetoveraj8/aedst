@@ -1,0 +1,33 @@
+meta {
+  name: Get Capabilities
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/aedst.capabilities.v1.CapabilitiesService/GetCapabilities
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Connect-Protocol-Version: 1
+  X-Aedst-Client: web/1.0.0
+}
+
+body:json {
+  {}
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Public (no token). Returns the server version, the support window per client
+  platform, the server-derived capabilities (media.uploads, push.fcm, ...) and
+  the operator feature flags (AEDST_FEATURES). updateStatus reflects the
+  X-Aedst-Client header above; a release below AEDST_MIN_CLIENT_VERSIONS gets
+  failed_precondition / CLIENT_UPGRADE_REQUIRED instead.
+}

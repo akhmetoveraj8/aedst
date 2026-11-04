@@ -1,0 +1,5 @@
+// The deployment target is declared in Project.swift (`deploymentTargets:`) — do
+// not repeat MACOSX_DEPLOYMENT_TARGET here.
+
+// Required for notarization (Developer ID) and recommended for the Mac App Store.
+ENABLE_HARDENED_RUNTIME = YES

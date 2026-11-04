@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tasks_title">Vazifalar</string>
+    <string name="tasks_empty">Hozircha vazifalar yo‘q. Birinchisini yarating.</string>
+    <string name="tasks_select_prompt">Vazifani tanlang</string>
+    <string name="tasks_create">Yangi vazifa</string>
+    <string name="tasks_back">Orqaga</string>
+    <string name="tasks_delete">Vazifani o‘chirish</string>
+    <string name="tasks_complete">Bajarildi</string>
+    <string name="tasks_reopen">Qayta ochish</string>
+    <string name="tasks_due">Muddat: %1$s</string>
+    <string name="tasks_attachments">Ilovalar</string>
+    <string name="tasks_attach">Biriktirish</string>
+    <string name="tasks_no_attachments">Ilovalar yo‘q.</string>
+    <string name="tasks_field_title">Nomi</string>
+    <string name="tasks_field_title_required">Nomini kiriting.</string>
+    <string name="tasks_field_description">Tavsif</string>
+    <string name="tasks_field_priority">Ustuvorlik</string>
+    <string name="tasks_save">Yaratish</string>
+    <string name="tasks_status_todo">Bajarilishi kerak</string>
+    <string name="tasks_status_in_progress">Jarayonda</string>
+    <string name="tasks_status_done">Tayyor</string>
+    <string name="tasks_status_unknown">Noma’lum</string>
+    <string name="tasks_priority_low">Past</string>
+    <string name="tasks_priority_medium">O‘rta</string>
+    <string name="tasks_priority_high">Yuqori</string>
+    <string name="tasks_priority_urgent">Shoshilinch</string>
+    <string name="tasks_priority_unknown">Noma’lum</string>
+    <string name="tasks_pending_sync_title">Qurilmada saqlandi</string>
+    <string name="tasks_pending_sync">Internetga ulanganingizda yuboriladi.</string>
+</resources>

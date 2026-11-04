@@ -1,0 +1,71 @@
+{{- if .Values.migrations.enabled }}
+# Runs goose for every module schema BEFORE the new pods roll out. Uses the
+# direct (non-pooled) DSN when configured: migrations take advisory locks and
+# run DDL, which must not go through a transaction-pooling proxy.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "aedst-server.fullname" . }}-migrate
+  labels:
+    {{- include "aedst-server.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migrate
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ .Values.migrations.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.migrations.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "aedst-server.name" . }}-migrate
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: migrate
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: migrate
+          image: {{ include "aedst-server.migrationImage" . | quote }}
+          imagePullPolicy: {{ .Values.migrations.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              # River first: it owns river_job and friends; idempotent, tracked in river_migration.
+              river migrate-up --database-url "$GOOSE_DBSTRING"
+              for m in "$@"; do
+                echo "migrating module $m"
+                goose -dir "/migrations/$m" -table "goose_$m" up
+              done
+              # A failed CREATE INDEX CONCURRENTLY leaves an INVALID index: fail the Job.
+              check-invalid-indexes
+            - --
+            {{- range .Values.migrations.modules }}
+            - {{ . | quote }}
+            {{- end }}
+          env:
+            - name: GOOSE_DRIVER
+              value: postgres
+            # Fail fast instead of queueing a DDL lock behind live traffic (see
+            # .squawk.toml); applies to every migration statement.
+            - name: PGOPTIONS
+              value: "-c lock_timeout=5s"
+            - name: GOOSE_DBSTRING
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aedst-server.secretName" . }}
+                  key: {{ .Values.database.directDsnSecretKey | default .Values.database.dsnSecretKey }}
+          resources:
+            {{- toYaml .Values.migrations.resources | nindent 12 }}
+{{- end }}

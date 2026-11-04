@@ -1,0 +1,263 @@
+# AEDST Apple release lanes (fastlane + match). Ported from the former
+# scripts/release-ios.sh / release-macos.sh / _release-common.sh.
+#
+#   bundle exec fastlane ios beta            # match appstore (readonly in CI) -> gym -> TestFlight
+#   bundle exec fastlane ios release         # same, then App Store Connect (NOT submitted for review)
+#   bundle exec fastlane mac developer_id    # match developer_id -> gym -> notarize + staple -> .zip
+#   bundle exec fastlane mac app_store       # match appstore (+installer cert) -> gym -> App Store Connect
+#   bundle exec fastlane match_sync          # ADMIN, local only: create/refresh every cert + profile
+#   bundle exec fastlane certs_check         # readonly: fails if a cert/profile is missing (CI)
+#
+# Environment: APPLE_TEAM_ID, MATCH_* (see Matchfile), and for App Store Connect
+# ASC_KEY_ID, ASC_ISSUER_ID and ASC_KEY_CONTENT (base64 of the .p8) or ASC_KEY_FILEPATH.
+# Optional: BUILD_NUMBER (override), SENTRY_AUTH_TOKEN/SENTRY_ORG/SENTRY_PROJECT (dSYM upload).
+#
+# NOT executed in the authoring environment (Windows, no Xcode/Ruby): the first
+# real run is the acceptance test. Syntax check: `ruby -c fastlane/Fastfile`.
+
+require "shellwords"
+
+default_platform(:ios)
+
+APP_ROOT = File.expand_path("..", __dir__)
+IOS_BUNDLE_ID = "com.aedst.apple.ios"
+MAC_BUNDLE_ID = "com.aedst.apple.macos"
+WORKSPACE = "AEDST.xcworkspace"
+PROJECT = "AEDST.xcodeproj"
+
+# ---- helpers ---------------------------------------------------------------
+
+def team_id
+  ENV.fetch("APPLE_TEAM_ID") { UI.user_error!("APPLE_TEAM_ID is required") }
+end
+
+# App Store Connect API key (also picked up implicitly by match/pilot/deliver).
+def asc_key
+  options = { key_id: ENV.fetch("ASC_KEY_ID"), issuer_id: ENV.fetch("ASC_ISSUER_ID"), in_house: false }
+  if ENV["ASC_KEY_FILEPATH"].to_s.empty?
+    options[:key_content] = ENV.fetch("ASC_KEY_CONTENT")
+    options[:is_key_content_base64] = true
+  else
+    options[:key_filepath] = ENV["ASC_KEY_FILEPATH"]
+  end
+  app_store_connect_api_key(**options)
+end
+
+# Connect-Swift stubs are a build input (not committed), then the Tuist workspace.
+def generate_workspace
+  sh("cd #{APP_ROOT.shellescape} && make generate && tuist install && tuist generate --no-open")
+end
+
+# Public, per-environment app configuration that normally comes from the gitignored
+# Config/Secrets.local.xcconfig (absent on CI). Passed to xcodebuild as build settings, which
+# beat xcconfig values. They are only read by Info.plist / entitlements substitution, so
+# applying them to every target (xcargs is global) is harmless. Unset/empty = keep the
+# xcconfig default (e.g. OIDC off).
+CONFIG_ENV_KEYS = %w[
+  AEDST_API_ENVIRONMENT AEDST_SENTRY_DSN AEDST_POSTHOG_KEY AEDST_POSTHOG_HOST
+  AEDST_POSTHOG_SESSION_REPLAY AEDST_ROLES_CLAIM AEDST_OIDC_ISSUER AEDST_OIDC_CLIENT_ID
+  AEDST_OIDC_SCOPES AEDST_OIDC_AUDIENCE_SCOPE AEDST_OIDC_REDIRECT_SCHEME
+  AEDST_OIDC_REFRESH_TTL_DAYS AEDST_OIDC_EPHEMERAL_SESSION AEDST_OIDC_WEBCREDENTIALS_DOMAIN
+].freeze
+
+def build_xcargs(build_number)
+  settings = ["CURRENT_PROJECT_VERSION=#{build_number}"]
+  CONFIG_ENV_KEYS.each do |key|
+    value = ENV[key].to_s
+    settings << "#{key}=#{Shellwords.escape(value)}" unless value.empty?
+  end
+  settings.join(" ")
+end
+
+def prepare_ci
+  setup_ci if ENV["CI"] # temporary keychain for match
+end
+
+def profile_name(bundle_id)
+  lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING].fetch(bundle_id)
+end
+
+# Switch one target of the generated project to manual signing with the match profile.
+#
+# Why update_code_signing_settings and not gym `xcargs` (CODE_SIGN_STYLE=Manual
+# PROVISIONING_PROFILE_SPECIFIER=...): the Tuist project attaches Config/<platform>-<config>.xcconfig
+# (which includes Base.xcconfig: CODE_SIGN_STYLE = Automatic) at TARGET level. Target build
+# settings written into project.pbxproj beat a target xcconfig, so this action wins. xcargs would
+# win too (command line is highest) but applies to EVERY target of the build, including the
+# Tuist-generated static-framework / resource-bundle targets of the SwiftPM dependencies, which
+# reject a provisioning profile ("does not support provisioning profiles"). Those targets live
+# in separate generated projects, so editing only AEDST.xcodeproj + `targets:` is exact.
+# The action needs `TargetAttributes` in the project root object; Tuist writes it because of
+# the App_iOS_UITests target (TestTargetID) - removing that target would break this call.
+# Only CURRENT_PROJECT_VERSION and the public AEDST_* config values (build_xcargs) go through xcargs (harmless on every target).
+def use_match_signing(target:, bundle_id:, identity:)
+  update_code_signing_settings(
+    use_automatic_signing: false,
+    path: File.join(APP_ROOT, PROJECT),
+    team_id: team_id,
+    targets: [target],
+    build_configurations: ["Release"],
+    code_sign_identity: identity,
+    profile_name: profile_name(bundle_id)
+  )
+end
+
+# The App Store rejects binaries without a privacy manifest; fail early.
+def assert_privacy_manifest(app)
+  found = Dir.glob(File.join(app, "**", "PrivacyInfo.xcprivacy")).any?
+  UI.user_error!("no PrivacyInfo.xcprivacy inside #{app}") unless found
+end
+
+def upload_dsyms(archive)
+  return if ENV["SENTRY_AUTH_TOKEN"].to_s.empty?
+  sh("cd #{APP_ROOT.shellescape} && ./scripts/upload-dsyms.sh #{archive.shellescape}")
+end
+
+def export_options(bundle_id, extra = {})
+  {
+    signingStyle: "manual",
+    teamID: team_id,
+    provisioningProfiles: { bundle_id => profile_name(bundle_id) },
+    uploadSymbols: true
+  }.merge(extra)
+end
+
+# iOS: match appstore -> manual signing -> archive + export an .ipa.
+def build_ios
+  prepare_ci
+  key = asc_key
+  match(type: "appstore", platform: "ios", app_identifier: [IOS_BUNDLE_ID], api_key: key,
+        readonly: ENV["CI"] ? true : false)
+  generate_workspace
+  use_match_signing(target: "App_iOS", bundle_id: IOS_BUNDLE_ID, identity: "Apple Distribution")
+  build_number = (ENV["BUILD_NUMBER"].to_s.empty? ? latest_testflight_build_number(api_key: key, app_identifier: IOS_BUNDLE_ID) + 1 : ENV["BUILD_NUMBER"].to_i)
+  gym(
+    workspace: File.join(APP_ROOT, WORKSPACE),
+    scheme: "App_iOS",
+    configuration: "Release",
+    destination: "generic/platform=iOS",
+    export_method: "app-store",
+    export_options: export_options(IOS_BUNDLE_ID, stripSwiftSymbols: true, manageAppVersionAndBuildNumber: false),
+    archive_path: File.join(APP_ROOT, "build/ios/AEDST.xcarchive"),
+    output_directory: File.join(APP_ROOT, "build/ios"),
+    output_name: "AEDST",
+    xcargs: build_xcargs(build_number),
+    clean: true
+  )
+  assert_privacy_manifest(File.join(APP_ROOT, "build/ios/AEDST.xcarchive/Products/Applications/AEDST.app"))
+  upload_dsyms(File.join(APP_ROOT, "build/ios/AEDST.xcarchive"))
+  key
+end
+
+# macOS: archive + export with the given match type (app-store | developer-id).
+def build_macos(match_type:, export_method:, identity:)
+  prepare_ci
+  key = asc_key
+  match(type: match_type, platform: "macos", app_identifier: [MAC_BUNDLE_ID], api_key: key,
+        additional_cert_types: match_type == "appstore" ? ["mac_installer_distribution"] : [],
+        readonly: ENV["CI"] ? true : false)
+  generate_workspace
+  use_match_signing(target: "App_macOS", bundle_id: MAC_BUNDLE_ID, identity: identity)
+  # Minutes since the Unix epoch: monotonic, fits in 32 bits (~30M today). A yyyymmddHHMM number
+  # (2.0e11) risks exceeding the integer range App Store Connect accepts for CFBundleVersion.
+  build_number = ENV["BUILD_NUMBER"].to_s.empty? ? Time.now.to_i / 60 : ENV["BUILD_NUMBER"].to_i
+  extra = match_type == "appstore" ? { installerSigningCertificate: "Mac Installer Distribution" } : { signingCertificate: identity }
+  gym(
+    workspace: File.join(APP_ROOT, WORKSPACE),
+    scheme: "App_macOS",
+    configuration: "Release",
+    destination: "generic/platform=macOS",
+    export_method: export_method,
+    export_options: export_options(MAC_BUNDLE_ID, extra),
+    archive_path: File.join(APP_ROOT, "build/macos/AEDST.xcarchive"),
+    output_directory: File.join(APP_ROOT, "build/macos"),
+    output_name: "AEDST",
+    xcargs: build_xcargs(build_number),
+    clean: true
+  )
+  assert_privacy_manifest(File.join(APP_ROOT, "build/macos/AEDST.xcarchive/Products/Applications/AEDST.app"))
+  upload_dsyms(File.join(APP_ROOT, "build/macos/AEDST.xcarchive"))
+  [key, build_number]
+end
+
+# ---- iOS -------------------------------------------------------------------
+
+platform :ios do
+  desc "Build the iOS app and upload it to TestFlight"
+  lane :beta do
+    key = build_ios
+    upload_to_testflight(api_key: key, skip_waiting_for_build_processing: true)
+  end
+
+  desc "Build the iOS app and upload it to App Store Connect (not submitted for review)"
+  lane :release do
+    key = build_ios
+    upload_to_app_store(
+      api_key: key,
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false,
+      force: true
+    )
+  end
+end
+
+# ---- macOS -----------------------------------------------------------------
+
+platform :mac do
+  desc "Developer ID build, notarized and stapled, zipped to build/macos/AEDST-<build>.zip"
+  lane :developer_id do
+    key, build_number = build_macos(match_type: "developer_id", export_method: "developer-id",
+                                    identity: "Developer ID Application")
+    app = File.join(APP_ROOT, "build/macos/AEDST.app")
+    # Hardened runtime is mandatory for notarization.
+    sh("codesign --verify --deep --strict --verbose=2 #{app.shellescape}")
+    flags = sh("codesign -dv #{app.shellescape} 2>&1")
+    UI.user_error!("hardened runtime is not enabled on #{app}") unless flags.include?("runtime")
+    notarize(package: app, api_key: key, print_log: true) # submits with notarytool, waits, staples
+    sh("xcrun stapler validate #{app.shellescape}")
+    sh("spctl --assess --type execute --verbose=4 #{app.shellescape}")
+    sh("ditto -c -k --keepParent #{app.shellescape} #{File.join(APP_ROOT, "build/macos/AEDST-#{build_number}.zip").shellescape}")
+  end
+
+  desc "Mac App Store build uploaded to App Store Connect (not submitted for review)"
+  lane :app_store do
+    key, _build_number = build_macos(match_type: "appstore", export_method: "app-store",
+                                     identity: "Apple Distribution")
+    upload_to_app_store(
+      api_key: key,
+      platform: "osx",
+      pkg: File.join(APP_ROOT, "build/macos/AEDST.pkg"),
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false,
+      force: true
+    )
+  end
+end
+
+# ---- signing administration ------------------------------------------------
+
+desc "ADMIN, local: create/refresh every certificate and profile in the match store (not readonly)"
+lane :match_sync do
+  key = asc_key
+  match(type: "development", platform: "ios", app_identifier: [IOS_BUNDLE_ID], api_key: key,
+        readonly: false, force_for_new_devices: true)
+  match(type: "appstore", platform: "ios", app_identifier: [IOS_BUNDLE_ID], api_key: key, readonly: false)
+  match(type: "development", platform: "macos", app_identifier: [MAC_BUNDLE_ID], api_key: key, readonly: false)
+  match(type: "appstore", platform: "macos", app_identifier: [MAC_BUNDLE_ID], api_key: key,
+        additional_cert_types: ["mac_installer_distribution"], readonly: false)
+  match(type: "developer_id", platform: "macos", app_identifier: [MAC_BUNDLE_ID], api_key: key, readonly: false)
+end
+
+desc "Readonly: fail when a certificate or profile used by the release lanes is missing"
+lane :certs_check do
+  prepare_ci
+  key = asc_key
+  match(type: "appstore", platform: "ios", app_identifier: [IOS_BUNDLE_ID], api_key: key, readonly: true)
+  match(type: "appstore", platform: "macos", app_identifier: [MAC_BUNDLE_ID], api_key: key,
+        additional_cert_types: ["mac_installer_distribution"], readonly: true)
+  match(type: "developer_id", platform: "macos", app_identifier: [MAC_BUNDLE_ID], api_key: key, readonly: true)
+end

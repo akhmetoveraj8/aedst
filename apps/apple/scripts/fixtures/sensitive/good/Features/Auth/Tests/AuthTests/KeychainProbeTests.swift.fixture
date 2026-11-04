@@ -1,0 +1,4 @@
+// POSITIVE FIXTURE: tests are exempt
+import Security
+let q = [kSecAttrSynchronizable as String: kSecAttrSynchronizableAny]
+let r = SecItemCopyMatching

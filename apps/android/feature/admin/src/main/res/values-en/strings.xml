@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="admin_title">Admin</string>
+    <string name="admin_forbidden">This area is available to administrators only.</string>
+    <string name="admin_tab_overview">Overview</string>
+    <string name="admin_tab_tasks">Tasks</string>
+    <string name="admin_tab_audit">Audit log</string>
+    <string name="admin_search">Search</string>
+    <string name="admin_delete_task">Delete task</string>
+    <string name="admin_delete_reason">Reason (recorded in the audit log)</string>
+    <string name="admin_delete_confirm">Delete</string>
+    <string name="admin_cancel">Cancel</string>
+    <string name="admin_tasks_total">Tasks</string>
+    <string name="admin_tasks_done">Done</string>
+    <string name="admin_tasks_overdue">Overdue</string>
+    <string name="admin_media_total">Files</string>
+    <string name="admin_push_devices">Push devices</string>
+    <string name="admin_outbox_lag">Outbox lag, s</string>
+    <string name="admin_jobs_pending">Background jobs pending</string>
+</resources>

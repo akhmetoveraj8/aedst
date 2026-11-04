@@ -1,0 +1,69 @@
+# Restore the production database into a NEW cluster from the object store
+# (CloudNativePG bootstrap.recovery). NOT part of any kustomization: copy it,
+# set the target, apply it in a scratch namespace for a drill, or in the real one
+# for a disaster. Procedure, RPO/RTO and drill cadence: docs/content/server/runbook.md
+# ("Restore, PITR and failover").
+#
+# The new cluster must NOT reuse the source's name or serverName: it would start
+# archiving WAL into the source's Barman directory. Here it is aedst-pg-restore, and
+# its own backup section (below) writes to a separate path until you promote it.
+#
+# Uses the Barman Cloud Plugin (externalClusters[].plugin). The source ObjectStore
+# (aedst-pg-backup, overlays/prod) must exist in the namespace you apply this to: in
+# another namespace, copy that ObjectStore and its credentials Secret there first.
+#
+# UNVERIFIED: validated against the CloudNativePG and plugin CRD schemas in CI
+# (kubeconform), never restored from a real backup. The first drill is the acceptance test.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: aedst-pg-restore
+  namespace: aedst-prod # a scratch namespace for drills
+spec:
+  instances: 1 # one instance is enough to verify; scale up after promotion
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  storage:
+    size: 100Gi
+  walStorage:
+    size: 20Gi
+
+  bootstrap:
+    recovery:
+      source: aedst-pg-prod-backup
+      # Point in time recovery: replay WAL up to this moment (UTC). Omit recoveryTarget
+      # to recover to the end of the archived WAL (latest consistent point).
+      recoveryTarget:
+        targetTime: "2026-01-01 00:00:00+00" # CHANGE-ME: just before the bad change
+        # exclusive: true  # stop right BEFORE targetTime instead of right after
+
+  externalClusters:
+    - name: aedst-pg-prod-backup
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: aedst-pg-backup # the source ObjectStore (overlays/prod)
+          serverName: aedst-pg-prod # the source cluster's serverName (overlays/prod)
+
+  # Backups of the restored cluster go to their own store and path, never the
+  # source's. Recovery does NOT enable WAL archiving by itself: this does.
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: aedst-pg-restore-backup
+        serverName: aedst-pg-restore
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: aedst-pg-restore-backup
+  namespace: aedst-prod # same namespace as the restored Cluster
+spec:
+  retentionPolicy: 30d
+  configuration:
+    destinationPath: s3://aedst-pg-backups/prod-restored
+    s3Credentials:
+      accessKeyId: {name: aedst-pg-backup-prod, key: ACCESS_KEY_ID}
+      secretAccessKey: {name: aedst-pg-backup-prod, key: ACCESS_SECRET_KEY}
+    wal: {compression: gzip}
+    data: {compression: gzip}

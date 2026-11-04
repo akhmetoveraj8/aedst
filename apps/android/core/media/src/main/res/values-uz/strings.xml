@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_upload_channel_name">Fayllarni yuklash</string>
+    <string name="media_upload_notification_title">Fayl yuklanmoqda…</string>
+    <string name="media_upload_preparing">Tayyorlanmoqda…</string>
+    <string name="media_upload_uploading">Yuklanmoqda…</string>
+    <string name="media_upload_finishing">Yakunlanmoqda…</string>
+    <string name="media_upload_done">Yuklandi</string>
+    <string name="media_upload_failed">Yuklab bo‘lmadi</string>
+    <string name="media_upload_cancelled">Bekor qilindi</string>
+    <string name="media_upload_cancel">Yuklashni bekor qilish</string>
+    <string name="media_play">Ijro etish</string>
+    <string name="media_pause">Pauza</string>
+</resources>

@@ -1,0 +1,80 @@
+name: apple-beta
+
+# Manual only (`workflow_dispatch`): iOS build -> TestFlight through fastlane
+# (`ios beta`, certificates from match, readonly). Never triggered by a push, PR
+# or Issue automation, so an AI agent's normal pipeline can never reach this.
+# Same secrets as apple-release.yml (set them as repository secrets here, or
+# move the job to the `apple-release` Environment to get reviewer approval):
+#   APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_CONTENT (base64 .p8),
+#   MATCH_PASSWORD, MATCH_GIT_URL, MATCH_GIT_BASIC_AUTHORIZATION (or an SSH deploy key).
+# None of these are available to this repo's AI agent (.claude/settings.json).
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apple-release
+  cancel-in-progress: false
+
+env:
+  XCODE_VERSION: "26.6"
+
+defaults:
+  run:
+    working-directory: apps/apple
+
+jobs:
+  beta:
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: tuist
+          working_directory: apps/apple
+
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
+        with:
+          ruby-version: "3.4.12" # == apps/apple/mise.toml
+          working-directory: apps/apple
+          bundler-cache: true
+
+      - uses: ./.github/actions/apple-codegen
+
+      - run: bundle exec fastlane ios beta
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          MATCH_STORAGE_MODE: ${{ vars.MATCH_STORAGE_MODE || 'git' }}
+          MATCH_S3_BUCKET: ${{ vars.MATCH_S3_BUCKET }}
+          MATCH_S3_REGION: ${{ vars.MATCH_S3_REGION }}
+          MATCH_S3_ACCESS_KEY: ${{ secrets.MATCH_S3_ACCESS_KEY }}
+          MATCH_S3_SECRET_ACCESS_KEY: ${{ secrets.MATCH_S3_SECRET_ACCESS_KEY }}
+          # Public per-environment app config (repository/environment VARIABLES, not secrets): read by
+          # fastlane build_xcargs and passed to xcodebuild. Empty = xcconfig default (OIDC off).
+          AEDST_API_ENVIRONMENT: ${{ vars.AEDST_API_ENVIRONMENT }}
+          AEDST_SENTRY_DSN: ${{ vars.AEDST_SENTRY_DSN }}
+          AEDST_POSTHOG_KEY: ${{ vars.AEDST_POSTHOG_KEY }}
+          AEDST_POSTHOG_HOST: ${{ vars.AEDST_POSTHOG_HOST }}
+          AEDST_POSTHOG_SESSION_REPLAY: ${{ vars.AEDST_POSTHOG_SESSION_REPLAY }}
+          AEDST_ROLES_CLAIM: ${{ vars.AEDST_ROLES_CLAIM }}
+          AEDST_OIDC_ISSUER: ${{ vars.AEDST_OIDC_ISSUER }}
+          AEDST_OIDC_CLIENT_ID: ${{ vars.AEDST_OIDC_CLIENT_ID }}
+          AEDST_OIDC_SCOPES: ${{ vars.AEDST_OIDC_SCOPES }}
+          AEDST_OIDC_AUDIENCE_SCOPE: ${{ vars.AEDST_OIDC_AUDIENCE_SCOPE }}
+          AEDST_OIDC_REDIRECT_SCHEME: ${{ vars.AEDST_OIDC_REDIRECT_SCHEME }}
+          AEDST_OIDC_REFRESH_TTL_DAYS: ${{ vars.AEDST_OIDC_REFRESH_TTL_DAYS }}
+          AEDST_OIDC_WEBCREDENTIALS_DOMAIN: ${{ vars.AEDST_OIDC_WEBCREDENTIALS_DOMAIN }}

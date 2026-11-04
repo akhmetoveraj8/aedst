@@ -1,0 +1,154 @@
+name: web-release
+
+# Tag web-vX.Y.Z (or a manual run) builds the production container image of
+# apps/web/app (the product app; admin and landing have their own images) with the PRODUCTION environment and, only here, uploads Sentry
+# source maps of exactly the build that is deployed. web-ci.yml builds for
+# tests only and never uploads maps (a build nobody deploys would create a
+# Sentry release whose maps belong to no running code).
+#
+# Repository VARIABLES (public values, inlined into the client bundle):
+#   WEB_SITE_URL (required: the real public origin), WEB_SENTRY_DSN,
+#   WEB_SENTRY_ENVIRONMENT, WEB_POSTHOG_KEY, WEB_POSTHOG_HOST, WEB_PRIVACY_POLICY_URL,
+#   WEB_GOOGLE_SITE_VERIFICATION, WEB_BING_SITE_VERIFICATION,
+#   SENTRY_ORG, SENTRY_PROJECT.
+# Repository SECRET (optional; without it the upload is skipped and says so):
+#   SENTRY_AUTH_TOKEN (passed as a BuildKit secret, never a build arg).
+# Deployment and rollback: docs/content/web/deployment.md.
+
+on:
+  push:
+    tags: ["web-v*"]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Push the image to ghcr.io (otherwise build + scan only)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env:
+      IMAGE: ghcr.io/aedst/aedst-web # keep in sync with apps/web/app/deployments/helm/aedst-web/values.yaml
+      PUBLISH: ${{ github.event_name == 'push' || inputs.publish }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Require the production origin
+        env:
+          WEB_SITE_URL: ${{ vars.WEB_SITE_URL }}
+          HAS_SENTRY_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
+        run: |
+          if [ -z "${WEB_SITE_URL}" ]; then
+            echo "::error::repository variable WEB_SITE_URL is empty; NEXT_PUBLIC_SITE_URL is inlined at build time"; exit 1
+          fi
+          if [ "${HAS_SENTRY_TOKEN}" != "true" ]; then
+            echo "::warning::SENTRY_AUTH_TOKEN is not set; source maps will NOT be uploaded for this release"
+          fi
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # Build context is the repository root: the Dockerfile generates the
+      # ConnectRPC stubs from apps/server/api/proto.
+      - name: build (local, for the scan)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/web/app/deployments/docker/Dockerfile
+          load: true
+          tags: aedst-web:release
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ vars.WEB_SITE_URL }}
+            AEDST_REQUIRE_REAL_SEO=${{ vars.WEB_REQUIRE_REAL_SEO || '1' }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ vars.WEB_SENTRY_DSN }}
+            NEXT_PUBLIC_SENTRY_ENVIRONMENT=${{ vars.WEB_SENTRY_ENVIRONMENT || 'production' }}
+            NEXT_PUBLIC_POSTHOG_KEY=${{ vars.WEB_POSTHOG_KEY }}
+            NEXT_PUBLIC_POSTHOG_HOST=${{ vars.WEB_POSTHOG_HOST }}
+            NEXT_PUBLIC_PRIVACY_POLICY_URL=${{ vars.WEB_PRIVACY_POLICY_URL }}
+            NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=${{ vars.WEB_GOOGLE_SITE_VERIFICATION }}
+            NEXT_PUBLIC_BING_SITE_VERIFICATION=${{ vars.WEB_BING_SITE_VERIFICATION }}
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+            SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
+            SENTRY_RELEASE=${{ github.sha }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+
+      - name: scan (Trivy, HIGH/CRITICAL fail the job)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: aedst-web:release
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+
+      - name: SBOM (Syft)
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          image: aedst-web:release
+          format: cyclonedx-json
+          artifact-name: aedst-web.sbom.cdx.json
+
+      - if: env.PUBLISH == 'true'
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: image tags
+        id: meta
+        if: env.PUBLISH == 'true'
+        run: |
+          tags="${IMAGE}:sha-${GITHUB_SHA}"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then tags="${tags}"$'\n'"${IMAGE}:${GITHUB_REF_NAME#web-}"; fi
+          { echo "tags<<EOF"; echo "${tags}"; echo "EOF"; } >> "${GITHUB_OUTPUT}"
+
+      # Same inputs as the local build, so every layer (including the one that
+      # uploaded the maps) comes from the cache; nothing is rebuilt differently.
+      - name: push
+        id: push
+        if: env.PUBLISH == 'true'
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/web/app/deployments/docker/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ vars.WEB_SITE_URL }}
+            AEDST_REQUIRE_REAL_SEO=${{ vars.WEB_REQUIRE_REAL_SEO || '1' }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ vars.WEB_SENTRY_DSN }}
+            NEXT_PUBLIC_SENTRY_ENVIRONMENT=${{ vars.WEB_SENTRY_ENVIRONMENT || 'production' }}
+            NEXT_PUBLIC_POSTHOG_KEY=${{ vars.WEB_POSTHOG_KEY }}
+            NEXT_PUBLIC_POSTHOG_HOST=${{ vars.WEB_POSTHOG_HOST }}
+            NEXT_PUBLIC_PRIVACY_POLICY_URL=${{ vars.WEB_PRIVACY_POLICY_URL }}
+            NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=${{ vars.WEB_GOOGLE_SITE_VERIFICATION }}
+            NEXT_PUBLIC_BING_SITE_VERIFICATION=${{ vars.WEB_BING_SITE_VERIFICATION }}
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+            SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
+            SENTRY_RELEASE=${{ github.sha }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          cache-from: type=gha,scope=web
+
+      - if: env.PUBLISH == 'true'
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - name: sign (cosign keyless)
+        if: env.PUBLISH == 'true'
+        run: cosign sign --yes "${IMAGE}@${{ steps.push.outputs.digest }}"

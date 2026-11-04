@@ -1,0 +1,19 @@
+/node_modules
+/.next/
+/out/
+/coverage
+/build
+.DS_Store
+*.pem
+npm-debug.log*
+.pnpm-debug.log*
+
+# env files (only the example is committed)
+.env*
+!.env.example
+
+*.tsbuildinfo
+next-env.d.ts
+.vitest-attachments/
+__screenshots__/
+/dep-graph.dot

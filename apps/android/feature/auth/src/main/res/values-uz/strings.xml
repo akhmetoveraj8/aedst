@@ -1,0 +1,23 @@
+<resources>
+    <string name="auth_login_title">Kirish</string>
+    <string name="auth_login_subtitle">Siz brauzerdagi xavfsiz sahifa orqali kirasiz.</string>
+    <string name="auth_login_submit">Davom etish</string>
+    <string name="auth_login_not_configured">Ushbu ilova versiyasida kirish sozlanmagan.</string>
+    <string name="auth_login_no_browser">Kirish uchun brauzer topilmadi. Brauzerni o\'rnating yoki yoqing va qayta urinib ko\'ring.</string>
+    <string name="auth_login_failed_title">Kirish muvaffaqiyatsiz</string>
+
+    <string name="auth_sign_out">Chiqish</string>
+    <string name="auth_signed_in_as">%1$s sifatida kirdingiz</string>
+    <string name="auth_analytics_consent">Anonim foydalanish statistikasini yuborish</string>
+
+    <string name="auth_device_title">Televizorda kirish</string>
+    <string name="auth_device_step_open">Telefon yoki kompyuterda oching</string>
+    <string name="auth_device_step_enter">va kodni kiriting</string>
+    <string name="auth_device_code_description">Kod: %1$s</string>
+    <string name="auth_device_or_open">Yoki to‘g‘ridan-to‘g‘ri oching: %1$s</string>
+    <string name="auth_device_expires_in">Kod %1$d:%2$02d dan keyin tugaydi</string>
+    <string name="auth_device_waiting">Tasdiqlash kutilmoqda…</string>
+    <string name="auth_device_denied">Kirish boshqa qurilmada rad etildi.</string>
+    <string name="auth_device_expired">Kodning amal qilish muddati tugadi.</string>
+    <string name="auth_device_new_code">Yangi kod olish</string>
+</resources>

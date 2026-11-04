@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_placeholder">Искать задачи и файлы</string>
+    <string name="search_hint">Введите хотя бы два символа.</string>
+    <string name="search_no_results">Ничего не найдено.</string>
+</resources>

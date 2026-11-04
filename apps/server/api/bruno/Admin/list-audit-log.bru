@@ -1,0 +1,25 @@
+meta {
+  name: List Audit Log
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/aedst.admin.v1.AdminService/ListAuditLog
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "pageSize": 20
+  }
+}
+
+assert {
+  res.status: eq 200
+}

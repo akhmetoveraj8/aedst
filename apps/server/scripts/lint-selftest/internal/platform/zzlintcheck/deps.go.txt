@@ -1,0 +1,6 @@
+package zzlintcheck
+
+import (
+	_ "github.com/exaring/otelpgx"
+	_ "github.com/riverqueue/rivercontrib/otelriver"
+)

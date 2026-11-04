@@ -1,0 +1,55 @@
+[package]
+name = "aedst-desktop"
+version = "0.0.0"
+description = "The AEDST desktop application: composition root, window and navigation shell"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+build = "build.rs"
+
+[[bin]]
+name = "aedst-desktop"
+path = "src/main.rs"
+
+[dependencies]
+aedst-api = { path = "../aedst-api" }
+aedst-capabilities = { path = "../aedst-capabilities" }
+aedst-common = { path = "../aedst-common" }
+aedst-contract = { path = "../aedst-contract" }
+aedst-feature-admin = { path = "../aedst-feature-admin" }
+aedst-feature-media = { path = "../aedst-feature-media" }
+aedst-feature-notifications = { path = "../aedst-feature-notifications" }
+aedst-feature-search = { path = "../aedst-feature-search" }
+aedst-feature-tasks = { path = "../aedst-feature-tasks" }
+aedst-navigation = { path = "../aedst-navigation" }
+aedst-oidc = { path = "../aedst-oidc" }
+aedst-outbox = { path = "../aedst-outbox" }
+aedst-persistence = { path = "../aedst-persistence" }
+aedst-telemetry = { path = "../aedst-telemetry" }
+aedst-update = { path = "../aedst-update" }
+chrono = { workspace = true }
+connectrpc = { workspace = true }
+dirs = { workspace = true }
+futures = { workspace = true }
+thiserror = { workspace = true }
+rustls = { workspace = true }
+rustls-native-certs = { workspace = true }
+semver = { workspace = true }
+serde_json = { workspace = true }
+slint = { workspace = true }
+sys-locale = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+i-slint-backend-testing = { workspace = true }
+
+[build-dependencies]
+slint-build = { workspace = true }
+
+[lints]
+workspace = true

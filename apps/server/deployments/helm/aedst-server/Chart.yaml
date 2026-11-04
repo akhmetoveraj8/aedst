@@ -1,0 +1,8 @@
+apiVersion: v2
+name: aedst-server
+description: AEDST modular-monolith API server (ConnectRPC over HTTP).
+type: application
+version: 0.1.0
+# appVersion is informational only; the image tag is required (--set image.tag=<sha>).
+appVersion: "0.1.0"
+kubeVersion: ">=1.27.0-0"

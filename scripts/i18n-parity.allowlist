@@ -1,0 +1,12 @@
+# Intentional exceptions for scripts/check-i18n-parity.mjs.
+# Line: <platform> <bundle-glob> <key-glob>    # reason (required)
+#   platform: web | android | apple | desktop | * ; for cross-platform gaps use cross-web | cross-android | cross-apple
+#   bundle-glob: repo-relative path of the bundle (web i18n dir, android res dir, .xcstrings file, desktop .ts family prefix)
+#   key-glob: `*` = any run of characters. Use `*` as the key to allow a whole missing locale file.
+# Do not add a line to hide a real gap; fix the translation instead.
+
+# The Android TV app ships a Russian-only default `values/` (no values-en); other locales are not planned for TV.
+android apps/android/app-tv/src/main/res *    # TV UI is single-locale (ru) until TV i18n is scheduled
+
+# Platform-specific features (no counterpart on the other clients), cross-platform report only.
+cross-web apps/web/admin/src/modules/admin/i18n *    # admin console is web-only (android/apple/desktop admin screens are a reduced set)

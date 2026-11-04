@@ -1,0 +1,8 @@
+# Render fixture for CI (server-ci.yml, job manifests): HTTPRoute with one service split out.
+httpRoute:
+  enabled: true
+  parentRefs: [{name: gw, namespace: gateway-system}]
+  hostnames: [api.example.com]
+  routes:
+    - servicePrefix: /aedst.tasks.v1.TasksService
+      backend: {name: aedst-tasks, port: 80}

@@ -1,0 +1,22 @@
+import AedstCore
+import Foundation
+import Testing
+@testable import {{Name}}
+
+struct FixedRepository: {{Name}}Repository {
+    func entries() async -> Outcome<[{{Name}}Entry]> {
+        .success([{{Name}}Entry(id: "1", title: "first")])
+    }
+}
+
+@Suite("{{Name}}ViewModel")
+@MainActor
+struct {{Name}}ViewModelTests {
+    @Test("load publishes the repository entries")
+    func loadsEntries() async {
+        let viewModel = {{Name}}ViewModel(repository: FixedRepository())
+        await viewModel.load()
+        #expect(viewModel.entries.map(\.title) == ["first"])
+        #expect(!viewModel.isLoading)
+    }
+}

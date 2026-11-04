@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notifications_title">Огоҳиномаҳо</string>
+    <string name="notifications_empty">Ҳоло огоҳинома нест.</string>
+    <string name="notifications_mark_all_read">Ҳамаро хондашуда қайд кардан</string>
+    <string name="notifications_preferences">Танзимоти огоҳиномаҳо</string>
+    <string name="notifications_load_more">Боз бор кардан</string>
+    <string name="notifications_back">Бозгашт</string>
+    <string name="notifications_pref_push">Огоҳиномаҳои push</string>
+    <string name="notifications_pref_task_completed">Вазифа анҷом ёфт</string>
+    <string name="notifications_pref_task_due_soon">Мӯҳлати вазифа наздик аст</string>
+    <string name="notifications_pref_media_ready">Файл коркард шуд</string>
+    <string name="notifications_channel_tasks">Вазифаҳо</string>
+    <string name="notifications_channel_media">Файлҳо</string>
+    <string name="notifications_channel_system">Умумӣ</string>
+    <plurals name="notifications_unread_count">
+        <item quantity="one">Огоҳиномаҳо, %d нохонда</item>
+        <item quantity="other">Огоҳиномаҳо, %d нохонда</item>
+    </plurals>
+</resources>

@@ -1,0 +1,73 @@
+# cargo-deny policy for the Rust desktop app (task desktop-rs:deny, CI job `deny`).
+# Adding a license or an exception needs a line in docs/content/library-first/desktop.md in the same change.
+
+[graph]
+targets = [
+    { triple = "x86_64-pc-windows-msvc" },
+    { triple = "x86_64-unknown-linux-gnu" },
+]
+
+[advisories]
+version = 2
+yanked = "deny"
+# Only our own direct dependencies may be unmaintained. Four transitive crates pulled in by Slint
+# (ttf-parser, zbus_names, zvariant, zvariant_derive: RUSTSEC-2026-0192/0370/0371/0372) are
+# informational "unmaintained" notices with no vulnerability; tracked in ADR-0001, re-check on Slint bumps.
+unmaintained = "workspace"
+ignore = [
+    # Marvin attack on RSA *private-key* operations; no fixed release exists. Production code only
+    # verifies ID-token signatures with the provider's public keys (openidconnect). The tests sign with a
+    # throw-away key generated on the spot. Revisit when `rsa` ships a constant-time release.
+    { id = "RUSTSEC-2023-0071", reason = "only public-key verification in production; private-key use is test-only" },
+    # `zip` 8.6 comes from `velopack` 1.2.161 (requires ^8.6; the fix is zip >= 9.0.0, checked 2026-11-04). The
+    # advisories concern `ZipArchive::extract` on an attacker-controlled archive. The only archive Velopack opens is the
+    # update package, which the app verifies against the Ed25519-signed manifest (version, SHA-256, size) before install;
+    # whether Velopack calls `extract` on it is UNVERIFIED. Revisit when velopack ships with zip 9.
+    { id = "RUSTSEC-2026-0367", reason = "zip via velopack; archive is hash-bound to the signed manifest; fix needs zip 9 (velopack pins ^8.6)" },
+    { id = "RUSTSEC-2026-0368", reason = "zip via velopack; archive is hash-bound to the signed manifest; fix needs zip 9 (velopack pins ^8.6)" },
+    { id = "RUSTSEC-2026-0369", reason = "zip via velopack; archive is hash-bound to the signed manifest; fix needs zip 9 (velopack pins ^8.6)" },
+    { id = "RUSTSEC-2026-0429", reason = "zip via velopack; archive is hash-bound to the signed manifest; fix needs zip 9 (velopack pins ^8.6)" },
+]
+
+[licenses]
+version = 2
+confidence-threshold = 0.9
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "MIT",
+    "MIT-0",
+    "Unicode-3.0",
+    "Zlib",
+    "CC0-1.0",
+    "MPL-2.0",
+    "OpenSSL",
+    "0BSD",
+    "CDLA-Permissive-2.0", # webpki-roots: the Mozilla CA bundle data
+    "BSL-1.0",
+    "Unlicense",
+    # Slint is `GPL-3.0-only OR LicenseRef-Slint-Royalty-free-2.0 OR LicenseRef-Slint-Software-3.0`.
+    # We rely on the Royalty-free branch; owner confirmation of its terms is still PENDING
+    # (decisions/desktop.md). The GPL branch is deliberately not allowed.
+    "LicenseRef-Slint-Royalty-free-2.0",
+]
+
+[bans]
+multiple-versions = "warn"
+# Approved alternatives are in docs/content/library-first/desktop.md.
+deny = [
+    { crate = "keyring", reason = "use keyring-core with explicitly chosen stores (aedst-oidc)" },
+    { crate = "posthog-rs", reason = "product analytics goes through the project's own server" },
+    { crate = "rusqlite_migration", reason = "pins rusqlite 0.40; migrations are in aedst-persistence" },
+]
+wildcards = "deny"
+# Path dependencies between our own crates carry no version.
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

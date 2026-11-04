@@ -1,0 +1,39 @@
+{{- include "aedst-server.connectionBudget" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aedst-server.fullname" . }}
+  labels:
+    {{- include "aedst-server.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      {{- include "aedst-server.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- if and .Values.metrics.enabled .Values.metrics.podAnnotations }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.containerPorts.metrics | int64 | quote }}
+        prometheus.io/path: /metrics
+        {{- end }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "aedst-server.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "aedst-server.podSpec" (dict "root" . "selectorLabels" (include "aedst-server.selectorLabels" .) "resources" .Values.resources "queues" "" "serviceName" "") | nindent 6 }}

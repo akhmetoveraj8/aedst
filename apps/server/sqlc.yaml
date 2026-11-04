@@ -1,0 +1,139 @@
+version: "2"
+
+# `sqlc vet` (task lint) runs the offline rules below over every query.
+# Rules that need a live database (sqlc/db-prepare, EXPLAIN-based checks) are
+# intentionally not enabled: `task test:integration` exercises the queries
+# against a real Postgres via Testcontainers instead. `sqlc verify` needs the
+# paid sqlc Cloud and is not used.
+rules:
+  - name: delete-needs-where
+    message: "DELETE without WHERE removes every row"
+    rule: query.sql.contains("DELETE FROM") && !query.sql.contains("WHERE")
+  - name: update-needs-where
+    message: "UPDATE without WHERE rewrites every row"
+    rule: query.sql.startsWith("UPDATE") && !query.sql.contains("WHERE")
+  - name: audit-log-is-append-only
+    message: "admin.audit_log is append-only: no UPDATE or TRUNCATE, and DELETE only in PurgeAuditEntries (retention)"
+    rule: query.sql.contains("admin.audit_log") && (query.sql.startsWith("UPDATE") || query.sql.contains("TRUNCATE") || (query.sql.contains("DELETE FROM") && query.name != "PurgeAuditEntries"))
+  - name: verified-tokens-are-insert-only
+    message: "integrity.verified_tokens is replay evidence: insert and retention purge only, never UPDATE"
+    rule: query.sql.contains("integrity.verified_tokens") && query.sql.startsWith("UPDATE")
+
+sql:
+  - schema: migrations/tasks
+    queries: sql/tasks
+    engine: postgresql
+    gen:
+      go:
+        package: tasksdb
+        out: gen/db/tasks
+        sql_package: pgx/v5
+        emit_json_tags: true
+        emit_interface: true
+    rules:
+      - delete-needs-where
+      - update-needs-where
+
+  - schema: migrations/notifications
+    queries: sql/notifications
+    engine: postgresql
+    gen:
+      go:
+        package: notificationsdb
+        out: gen/db/notifications
+        sql_package: pgx/v5
+        emit_json_tags: true
+        emit_interface: true
+    rules:
+      - delete-needs-where
+      - update-needs-where
+
+  - schema: migrations/search
+    queries: sql/search
+    engine: postgresql
+    gen:
+      go:
+        package: searchdb
+        out: gen/db/search
+        sql_package: pgx/v5
+        emit_json_tags: true
+        emit_interface: true
+    rules:
+      - delete-needs-where
+      - update-needs-where
+
+  - schema: migrations/media
+    queries: sql/media
+    engine: postgresql
+    gen:
+      go:
+        package: mediadb
+        out: gen/db/media
+        sql_package: pgx/v5
+        emit_json_tags: true
+        emit_interface: true
+    rules:
+      - delete-needs-where
+      - update-needs-where
+
+  - schema: migrations/admin
+    queries: sql/admin
+    engine: postgresql
+    gen:
+      go:
+        package: admindb
+        out: gen/db/admin
+        sql_package: pgx/v5
+        emit_json_tags: true
+        emit_interface: true
+    rules:
+      - delete-needs-where
+      - update-needs-where
+      - audit-log-is-append-only
+
+  - schema: migrations/integrity
+    queries: sql/integrity
+    engine: postgresql
+    gen:
+      go:
+        package: integritydb
+        out: gen/db/integrity
+        sql_package: pgx/v5
+        emit_json_tags: true
+        emit_interface: true
+    rules:
+      - delete-needs-where
+      - update-needs-where
+      - verified-tokens-are-insert-only
+
+  - schema: migrations/appattest
+    queries: sql/appattest
+    engine: postgresql
+    gen:
+      go:
+        package: appattestdb
+        out: gen/db/appattest
+        sql_package: pgx/v5
+        emit_json_tags: true
+        emit_interface: true
+    rules:
+      - delete-needs-where
+      - update-needs-where
+
+  # Shared platform tables (idempotency keys) and the River job counts. river_job is
+  # declared in sql/platform/river_schema.sql for sqlc only (River migrates it).
+  - schema:
+      - migrations/platform
+      - sql/platform/river_schema.sql
+    queries: sql/platform/queries.sql
+    engine: postgresql
+    gen:
+      go:
+        package: platformdb
+        out: gen/db/platform
+        sql_package: pgx/v5
+        emit_json_tags: true
+        emit_interface: true
+    rules:
+      - delete-needs-where
+      - update-needs-where

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Push Notifications capability. APS_ENVIRONMENT is "development" in Debug and
+	  "production" in Release (Config/Debug.xcconfig / Config/Release.xcconfig); the
+	  App ID must have Push Notifications enabled and the provisioning profile must
+	  include it, or signing fails. Unsigned CI builds (CODE_SIGNING_ALLOWED=NO)
+	  ignore entitlements.
+	-->
+	<key>aps-environment</key>
+	<string>$(APS_ENVIRONMENT)</string>
+	<!--
+	  App Attest (ADR-0016). Without this entitlement DCAppAttestService cannot generate keys on a device, and the
+	  fail-open coordinator would silently never enroll. APP_ATTEST_ENVIRONMENT is "development" in Debug and
+	  "production" in Release; the App ID needs the App Attest capability. Unsigned CI builds ignore it.
+	-->
+	<key>com.apple.developer.devicecheck.appattest-environment</key>
+	<string>$(APP_ATTEST_ENVIRONMENT)</string>
+	<!--
+	  Associated Domains, webcredentials only: lets the system offer the IdP's passkeys and saved
+	  credentials to the app. Passkey sign-in itself runs in the IdP's hosted login inside
+	  ASWebAuthenticationSession and does not depend on this entry. AEDST_OIDC_WEBCREDENTIALS_DOMAIN
+	  (Config/Base.xcconfig) is a ".invalid" placeholder until set to the IdP host, whose
+	  /.well-known/apple-app-site-association must list this app under "webcredentials". Needs the
+	  Associated Domains capability on the App ID, like Push; unsigned CI builds ignore it.
+	-->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>webcredentials:$(AEDST_OIDC_WEBCREDENTIALS_DOMAIN)</string>
+	</array>
+</dict>
+</plist>

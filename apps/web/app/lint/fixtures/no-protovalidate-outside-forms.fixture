@@ -1,0 +1,6 @@
+//// run: biome
+//// expect: only inside shared/lib/forms
+//// file: src/modules/tasks/lib/bad-validator.ts
+import { createValidator } from "@bufbuild/protovalidate";
+
+export const validator = createValidator();

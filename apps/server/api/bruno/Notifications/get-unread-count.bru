@@ -1,0 +1,23 @@
+meta {
+  name: Get Unread Count
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/aedst.notifications.v1.NotificationsService/GetUnreadCount
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {}
+}
+
+assert {
+  res.status: eq 200
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Project-wide Android Lint config (LintConvention.kt points every module here; warnings are errors there).
+  Add an <issue ... severity="ignore"> only with a comment saying why, and prefer a module lint-baseline.xml for
+  findings that are being worked off.
+-->
+<lint>
+    <!-- Backup/restore must never copy secrets (decisions/android: allowBackup=false, Tink store). -->
+    <issue id="DataExtractionRules" severity="error" />
+
+    <!-- Renovate is the only dependency updater (decisions/android); a "newer version available" warning would
+         otherwise fail every build the day a release is published. -->
+    <issue id="GradleDependency" severity="ignore" />
+    <issue id="NewerVersionAvailable" severity="ignore" />
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+</lint>

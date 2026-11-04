@@ -1,0 +1,26 @@
+meta {
+  name: Suggest
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/aedst.search.v1.SearchService/Suggest
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "prefix": "Exp",
+    "limit": 8
+  }
+}
+
+assert {
+  res.status: eq 200
+}

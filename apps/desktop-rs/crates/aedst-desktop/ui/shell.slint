@@ -1,0 +1,272 @@
+// The application window: sign-in, the navigation sidebar and the five feature views.
+// Every feature view is compiled in THIS compilation (see build.rs); the Rust glue of each feature is
+// compiled against the types generated here, so every store, row struct and text global the glue uses
+// is re-exported below.
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstBadge, AedstCheckbox } from "@aedst-ui";
+import { TasksListView } from "../../aedst-feature-tasks/ui/tasks.slint";
+import { SearchListView } from "../../aedst-feature-search/ui/search.slint";
+import { NotificationsListView, NotificationPreferencesView } from "../../aedst-feature-notifications/ui/notifications.slint";
+import { MediaListView } from "../../aedst-feature-media/ui/media.slint";
+import { AdminListView } from "../../aedst-feature-admin/ui/admin.slint";
+
+export { TasksStore, TaskRowData, TaskTexts } from "../../aedst-feature-tasks/ui/tasks.slint";
+export { HitRowData, SearchStore, SearchTexts } from "../../aedst-feature-search/ui/search.slint";
+export { NotificationRowData, NotificationsStore, NotificationsTexts } from "../../aedst-feature-notifications/ui/notifications.slint";
+export { MediaRowData, MediaStore } from "../../aedst-feature-media/ui/media.slint";
+export { MediaTexts } from "../../aedst-feature-media/ui/media_texts.slint";
+export { AdminStore, OverviewItemData, AdminTaskRowData, AuditRowData } from "../../aedst-feature-admin/ui/admin.slint";
+export { AdminTexts } from "../../aedst-feature-admin/ui/admin_texts.slint";
+export { AedstLayout, AedstTokens } from "@aedst-ui";
+
+export global ShellState {
+    // starting | login | app | upgrade
+    in property <string> screen: "starting";
+    in-out property <string> section: "tasks";
+    in property <bool> busy;
+    // failed | unreachable | keychain | timeout | unconfigured, or empty
+    in property <string> sign-in-error;
+    in property <bool> show-admin;
+    in property <int> unread;
+    // none | available | downloading | ready
+    in property <string> update-phase: "none";
+    in property <int> update-percent;
+    // Consent: separate opt-ins, both off until the user says yes; `*-available` is false when the
+    // build has no DSN / key, so the switch cannot do anything.
+    in property <bool> crash-consent;
+    in property <bool> analytics-consent;
+    in property <bool> crash-available;
+    in property <bool> analytics-available;
+    callback install-update();
+    callback set-crash-consent(bool);
+    callback set-analytics-consent(bool);
+    callback sign-in();
+    callback cancel-sign-in();
+    callback sign-out();
+    callback select(string);
+}
+
+component Sidebar inherits Rectangle {
+    background: AedstTokens.card;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+    min-width: 200px;
+    max-width: 200px;
+
+    VerticalLayout {
+        padding: AedstTokens.spacing-md;
+        spacing: AedstTokens.spacing-sm;
+        alignment: start;
+        AedstLabel {
+            text: "AEDST";
+            font-size: AedstTokens.typography-title-large-font-size;
+            font-weight: AedstTokens.typography-title-large-font-weight;
+        }
+        AedstButton {
+            text: @tr("" => "Tasks");
+            primary: ShellState.section == "tasks";
+            clicked => { ShellState.select("tasks"); }
+        }
+        AedstButton {
+            text: @tr("" => "Search");
+            primary: ShellState.section == "search";
+            clicked => { ShellState.select("search"); }
+        }
+        AedstButton {
+            text: @tr("" => "Notifications");
+            primary: ShellState.section == "notifications";
+            clicked => { ShellState.select("notifications"); }
+        }
+        if ShellState.unread > 0: AedstBadge { text: "\{ShellState.unread}"; tone: "danger"; }
+        AedstButton {
+            text: @tr("" => "Files");
+            primary: ShellState.section == "media";
+            clicked => { ShellState.select("media"); }
+        }
+        if ShellState.show-admin: AedstButton {
+            text: @tr("" => "Admin");
+            primary: ShellState.section == "admin";
+            clicked => { ShellState.select("admin"); }
+        }
+        AedstButton {
+            text: @tr("" => "Privacy");
+            primary: ShellState.section == "privacy";
+            clicked => { ShellState.select("privacy"); }
+        }
+        Rectangle { vertical-stretch: 1; }
+        if ShellState.update-phase == "available": AedstLabel {
+            text: @tr("" => "A new version is available");
+            color: AedstTokens.muted-foreground;
+        }
+        if ShellState.update-phase == "downloading": AedstLabel {
+            text: @tr("" => "Downloading the update: {}%", ShellState.update-percent);
+            color: AedstTokens.muted-foreground;
+        }
+        if ShellState.update-phase == "ready": AedstButton {
+            text: @tr("" => "Restart to update");
+            clicked => { ShellState.install-update(); }
+        }
+        AedstButton {
+            text: @tr("" => "Sign out");
+            primary: false;
+            clicked => { ShellState.sign-out(); }
+        }
+    }
+}
+
+// One consent switch with its explanation; the checkbox sits at the reading start.
+component ConsentRow inherits Rectangle {
+    in property <string> title;
+    in property <string> detail;
+    in property <bool> checked;
+    in property <bool> available;
+    callback toggled();
+    min-height: 64px;
+    max-height: 96px;
+
+    if !AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-md;
+        AedstCheckbox { checked: root.checked; enabled: root.available; label: root.title; toggled => { root.toggled(); } }
+        VerticalLayout {
+            spacing: AedstTokens.spacing-xs;
+            AedstLabel { text: root.title; font-weight: 600; }
+            AedstLabel { text: root.detail; color: AedstTokens.muted-foreground; }
+            if !root.available: AedstLabel { text: @tr("" => "Not available in this build."); color: AedstTokens.muted-foreground; }
+        }
+    }
+    if AedstLayout.rtl: HorizontalLayout {
+        spacing: AedstTokens.spacing-md;
+        VerticalLayout {
+            spacing: AedstTokens.spacing-xs;
+            AedstLabel { text: root.title; font-weight: 600; }
+            AedstLabel { text: root.detail; color: AedstTokens.muted-foreground; }
+            if !root.available: AedstLabel { text: @tr("" => "Not available in this build."); color: AedstTokens.muted-foreground; }
+        }
+        AedstCheckbox { checked: root.checked; enabled: root.available; label: root.title; toggled => { root.toggled(); } }
+    }
+}
+
+component PrivacyView inherits Rectangle {
+    background: AedstTokens.background;
+    VerticalLayout {
+        padding: AedstTokens.spacing-lg;
+        spacing: AedstTokens.spacing-md;
+        alignment: start;
+        AedstLabel {
+            text: @tr("" => "Privacy");
+            font-size: AedstTokens.typography-title-large-font-size;
+            font-weight: AedstTokens.typography-title-large-font-weight;
+        }
+        AedstLabel {
+            text: @tr("" => "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device.");
+            color: AedstTokens.muted-foreground;
+        }
+        ConsentRow {
+            title: @tr("" => "Send crash reports");
+            detail: @tr("" => "Technical details about a failure, so it can be fixed.");
+            checked: ShellState.crash-consent;
+            available: ShellState.crash-available;
+            toggled => { ShellState.set-crash-consent(!ShellState.crash-consent); }
+        }
+        ConsentRow {
+            title: @tr("" => "Share anonymous usage statistics");
+            detail: @tr("" => "Which features are used, never what you type.");
+            checked: ShellState.analytics-consent;
+            available: ShellState.analytics-available;
+            toggled => { ShellState.set-analytics-consent(!ShellState.analytics-consent); }
+        }
+    }
+}
+
+component Content inherits Rectangle {
+    background: AedstTokens.background;
+    property <string> inbox-screen: "inbox"; // inbox | preferences
+
+    if ShellState.section == "tasks": TasksListView {}
+    if ShellState.section == "search": SearchListView {}
+    if ShellState.section == "notifications": VerticalLayout {
+        HorizontalLayout {
+            padding: AedstTokens.spacing-md;
+            spacing: AedstTokens.spacing-sm;
+            alignment: AedstLayout.rtl ? end : start;
+            vertical-stretch: 0;
+            AedstButton {
+                text: @tr("" => "Inbox");
+                primary: root.inbox-screen == "inbox";
+                clicked => { root.inbox-screen = "inbox"; }
+            }
+            AedstButton {
+                text: @tr("" => "Preferences");
+                primary: root.inbox-screen == "preferences";
+                clicked => { root.inbox-screen = "preferences"; }
+            }
+        }
+        if root.inbox-screen == "inbox": NotificationsListView {}
+        if root.inbox-screen == "preferences": NotificationPreferencesView {}
+    }
+    if ShellState.section == "media": MediaListView {}
+    if ShellState.section == "admin": AdminListView {}
+    if ShellState.section == "privacy": PrivacyView {}
+}
+
+component Notice inherits VerticalLayout {
+    in property <string> title;
+    in property <string> body;
+    alignment: center;
+    padding: AedstTokens.spacing-lg * 2;
+    spacing: AedstTokens.spacing-md;
+    AedstLabel {
+        text: root.title;
+        font-size: AedstTokens.typography-title-large-font-size;
+        font-weight: AedstTokens.typography-title-large-font-weight;
+    }
+    if root.body != "": AedstLabel { text: root.body; color: AedstTokens.muted-foreground; }
+    @children
+}
+
+export component AppWindow inherits Window {
+    in-out property <bool> rtl <=> AedstLayout.rtl;
+    in-out property <bool> dark <=> AedstTokens.dark;
+    title: "AEDST";
+    background: AedstTokens.background;
+    min-width: 900px;
+    min-height: 620px;
+    preferred-width: 1100px;
+    preferred-height: 720px;
+
+    if ShellState.screen == "starting": Notice { title: @tr("" => "Starting..."); body: ""; }
+
+    if ShellState.screen == "login": Notice {
+        title: @tr("" => "Sign in to continue");
+        body: ShellState.sign-in-error == "failed" ? @tr("" => "Sign-in failed. Please try again.")
+            : ShellState.sign-in-error == "unreachable" ? @tr("" => "Could not reach the identity provider.")
+            : ShellState.sign-in-error == "keychain" ? @tr("" => "Secure storage is not available on this device.")
+            : ShellState.sign-in-error == "timeout" ? @tr("" => "Sign-in timed out.")
+            : ShellState.sign-in-error == "unconfigured" ? @tr("" => "Sign-in is not configured.")
+            : ShellState.busy ? @tr("" => "Waiting for the browser...") : "";
+        if !ShellState.busy: AedstButton {
+            text: @tr("" => "Continue in browser");
+            enabled: ShellState.sign-in-error != "unconfigured";
+            clicked => { ShellState.sign-in(); }
+        }
+        if ShellState.busy: AedstButton {
+            text: @tr("" => "Cancel");
+            primary: false;
+            clicked => { ShellState.cancel-sign-in(); }
+        }
+    }
+
+    if ShellState.screen == "upgrade": Notice {
+        title: @tr("" => "Update required");
+        body: @tr("" => "This version of the app is too old for the server. Please update it to continue.");
+    }
+
+    // The sidebar sits at the reading start: left in LTR, right in RTL (Slint cannot reverse a layout).
+    if ShellState.screen == "app" && !AedstLayout.rtl: HorizontalLayout {
+        Sidebar {}
+        Content {}
+    }
+    if ShellState.screen == "app" && AedstLayout.rtl: HorizontalLayout {
+        Content {}
+        Sidebar {}
+    }
+}

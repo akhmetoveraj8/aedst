@@ -1,0 +1,33 @@
+package application
+
+import (
+	"context"
+
+	"github.com/aedst/server/internal/modules/{{name}}/domain"
+	"github.com/aedst/server/internal/shared/ids"
+	sharedtime "github.com/aedst/server/internal/shared/time"
+)
+
+type Service struct {
+	repo  Repository
+	clock sharedtime.Clock
+}
+
+func NewService(repo Repository, clock sharedtime.Clock) *Service {
+	return &Service{repo: repo, clock: clock}
+}
+
+// CreateEntry validates through the domain, then persists.
+func (s *Service) CreateEntry(ctx context.Context, ownerID ids.ID, title string) (domain.Entry, error) {
+	entry, err := domain.NewEntry(ids.New(), ownerID, title, s.clock.Now())
+	if err != nil {
+		return domain.Entry{}, err
+	}
+	return s.repo.Create(ctx, entry)
+}
+
+// GetEntry returns NotFound when id belongs to another owner, so a caller
+// cannot learn that a guessed id exists.
+func (s *Service) GetEntry(ctx context.Context, ownerID, id ids.ID) (domain.Entry, error) {
+	return s.repo.FindByIDAndOwner(ctx, id, ownerID)
+}

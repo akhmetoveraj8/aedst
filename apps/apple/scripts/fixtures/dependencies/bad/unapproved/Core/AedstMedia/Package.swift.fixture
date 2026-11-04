@@ -1,0 +1,2 @@
+import PackageDescription
+let package = Package(name: "AedstMedia", dependencies: [.package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0")])

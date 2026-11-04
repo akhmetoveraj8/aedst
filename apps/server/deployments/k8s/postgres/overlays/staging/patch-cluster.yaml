@@ -1,0 +1,31 @@
+# Staging: smaller footprint, availability over durability, its own backup
+# destination, server name and credentials Secret (never the production ones).
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: aedst-pg
+spec:
+  instances: 2
+  postgresql:
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: preferred # one replica: do not block writes while it restarts
+    parameters:
+      max_connections: "150"
+      shared_buffers: 256MB
+      effective_cache_size: 768MB
+  storage:
+    size: 20Gi
+  walStorage:
+    size: 5Gi
+  resources:
+    requests: {cpu: 500m, memory: 1Gi}
+    limits: {memory: 1Gi}
+  # Replaces the whole plugins list (no merge key): keep every field.
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: aedst-pg-backup
+        serverName: aedst-pg-staging

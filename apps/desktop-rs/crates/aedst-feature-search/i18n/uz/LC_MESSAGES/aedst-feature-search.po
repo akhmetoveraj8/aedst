@@ -1,0 +1,94 @@
+# aedst-feature-search: Search screen strings (uz).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-search\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You are offline. Search needs a connection."
+msgstr "Siz oflaynsiz. Qidiruv uchun ulanish kerak."
+
+msgid "The server is not available right now."
+msgstr "Server hozir mavjud emas."
+
+msgid "The request took too long."
+msgstr "So'rov juda uzoq davom etdi."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "So'rovlar juda ko'p. Birozdan keyin qayta urinib ko'ring."
+
+msgid "Please sign in again."
+msgstr "Iltimos, qaytadan kiring."
+
+msgid "You do not have access to this."
+msgstr "Sizda bunga ruxsat yo'q."
+
+msgid "Nothing was found at this address."
+msgstr "Bu manzilda hech narsa topilmadi."
+
+msgid "The server did not accept this search."
+msgstr "Server bu qidiruvni qabul qilmadi."
+
+msgid "The data was changed elsewhere."
+msgstr "Ma'lumotlar boshqa joyda o'zgartirildi."
+
+msgid "Please update the app to continue."
+msgstr "Davom etish uchun ilovani yangilang."
+
+msgid "Could not read data on this device."
+msgstr "Bu qurilmada ma'lumotlarni o'qib bo'lmadi."
+
+msgid "Something went wrong."
+msgstr "Nimadir xato ketdi."
+
+msgid "Task"
+msgstr "Vazifa"
+
+msgid "File"
+msgstr "Fayl"
+
+msgid "Other"
+msgstr "Boshqa"
+
+msgid "Search"
+msgstr "Qidiruv"
+
+msgid "About {} results"
+msgstr "Taxminan natijalar: {}"
+
+msgid "Search tasks and files"
+msgstr "Vazifalar va fayllarni qidirish"
+
+msgid "Suggestions"
+msgstr "Takliflar"
+
+msgid "Search your tasks and files"
+msgstr "Vazifalar va fayllaringizdan qidiring"
+
+msgid "Results appear as you type."
+msgstr "Natijalar yozayotganingizda chiqadi."
+
+msgid "Searching..."
+msgstr "Qidirilmoqda..."
+
+msgid "Could not search"
+msgstr "Qidirib bo'lmadi"
+
+msgid "Try again"
+msgstr "Qayta urinib ko'ring"
+
+msgid "No results"
+msgstr "Natija yo'q"
+
+msgid "Try a different word or check the spelling."
+msgstr "Boshqa so'zni sinab ko'ring yoki imloni tekshiring."
+
+msgid "Loading..."
+msgstr "Yuklanmoqda..."
+
+msgid "Load more"
+msgstr "Yana yuklash"

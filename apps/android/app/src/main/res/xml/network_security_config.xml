@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Production policy: HTTPS only, system CAs only (user-installed CAs are NOT trusted, so a MITM proxy cert added
+     to the device cannot read API traffic). Certificate pinning is applied in code from the aedst.certPins build
+     property (core/network), because SPKI hashes are per-environment and rotate independently of this file. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

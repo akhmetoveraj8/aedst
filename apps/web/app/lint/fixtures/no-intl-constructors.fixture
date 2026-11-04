@@ -1,0 +1,4 @@
+//// run: biome
+//// expect: Do not construct Intl
+//// file: src/modules/tasks/lib/bad-intl.ts
+export const fmt = (n: number) => new Intl.NumberFormat("en").format(n);

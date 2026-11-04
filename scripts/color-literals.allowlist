@@ -1,0 +1,29 @@
+# Allowlist for scripts/check-color-literals.mjs. One repo-relative glob per line (`*` = any run of
+# characters), then `  # reason` (mandatory). Generated token files (header contains GENERATED), test
+# files and comment-only lines are skipped automatically and do NOT belong here.
+# Do not allowlist a literal that a design token can express; fix the code instead.
+
+# Static launcher/notification icon resources: Android requires literal colours in vector drawables
+# (they are rendered by the launcher, outside the app theme).
+apps/android/*/src/main/res/drawable/ic_launcher_*.xml   # adaptive launcher icon (brand asset)
+apps/android/app/src/main/res/values/colors.xml          # ic_launcher_background brand colour
+apps/android/app-tv/src/main/res/drawable/tv_banner.xml # TV launcher banner (brand asset)
+apps/android/feature/notifications/src/main/res/drawable/ic_notification.xml   # status-bar icons must be white-on-transparent
+
+# shadcn/ui vendored primitives: selector strings and relative-colour syntax that reference tokens/recharts internals.
+apps/web/shared/ui/chart.tsx    # upstream shadcn selectors (recharts stroke='#ccc' overrides)
+apps/web/shared/ui/bubble.tsx   # oklch(from var(--primary) ...) derives from a token, no literal colour value
+
+# Web surfaces rendered outside the themed DOM: no CSS variables or Tailwind theme exist there.
+# Mirrors the per-app list in apps/web/app/scripts/check-color-literals.mjs.
+apps/web/app/src/app/*/*/opengraph-image.tsx   # next/og image is rasterised by satori, no CSS variables
+apps/web/app/src/app/config/pwa/offline-page.ts   # standalone offline HTML served by the service worker, before any CSS loads
+apps/web/app/src/app/config/seo.ts   # <meta name="theme-color"> accepts literal colours only
+apps/web/app/src/app/icons/*/route.tsx   # generated PWA icons (next/og), brand asset
+
+# Video letterbox: must stay pure black in every theme so the picture edge is not tinted by the palette.
+apps/android/core/media/src/main/kotlin/com/aedst/core/media/ui/VideoPlayer.kt   # Color.Black behind the player surface
+
+# Tailwind palette reduced to white/black/red-700 (see the comment above @theme).
+apps/web/app/src/app/styles/globals.css   # --color-white/black/red-700 theme entries; every other palette colour is removed by --color-*: initial
+apps/web/landing/src/app/config/seo.ts   # <meta name="theme-color"> accepts literal colours only (same as the app)

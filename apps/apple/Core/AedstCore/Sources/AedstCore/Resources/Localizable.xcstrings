@@ -1,0 +1,356 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "errorConflict" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تم تغيير هذا في مكان آخر. حدّث الصفحة وحاول مرة أخرى."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This was changed elsewhere. Refresh and try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данные изменились в другом месте. Обновите и попробуйте снова."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ин дар ҷои дигар тағйир ёфт. Навсозӣ кунед ва бори дигар кӯшиш кунед."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu boshqa joyda oʻzgartirildi. Yangilang va qayta urinib koʻring."
+          }
+        }
+      }
+    },
+    "errorForbidden" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ليس لديك إذن للقيام بذلك."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You don't have permission to do that."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вас нет прав на это действие."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шумо барои ин амал иҷозат надоред."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu amal uchun sizda ruxsat yoʻq."
+          }
+        }
+      }
+    },
+    "errorNetwork" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذّر الاتصال بالخادم. تحقق من اتصالك وحاول مرة أخرى."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach the server. Check your connection and try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удаётся связаться с сервером. Проверьте подключение и повторите попытку."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пайвастшавӣ бо сервер имконнопазир аст. Пайвастшавиро санҷед ва бори дигар кӯшиш кунед."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serverga ulanib bo‘lmadi. Ulanishni tekshirib, qayta urinib ko‘ring."
+          }
+        }
+      }
+    },
+    "errorNotFound" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لم نتمكن من العثور على ما تبحث عنه."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn't find what you were looking for."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось найти запрошенное."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мо чизеро, ки шумо ҷустуҷӯ доштед, ёфта натавонистем."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siz izlagan narsa topilmadi."
+          }
+        }
+      }
+    },
+    "errorRateLimited" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "محاولات كثيرة جدًا. يرجى الانتظار قليلًا ثم المحاولة مرة أخرى."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many attempts. Please wait a moment and try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Слишком много попыток. Подождите немного и повторите."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кӯшишҳо аз ҳад зиёданд. Лутфан, каме интизор шавед ва бори дигар кӯшиш кунед."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Urinishlar juda ko‘p. Biroz kutib, qayta urinib ko‘ring."
+          }
+        }
+      }
+    },
+    "errorStorage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذّر حفظ بياناتك بأمان على هذا الجهاز."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save your data securely on this device."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось безопасно сохранить данные на этом устройстве."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Маълумоти шумо дар ин дастгоҳ бехатар нигоҳ дошта нашуд."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ma’lumotlaringizni ushbu qurilmada xavfsiz saqlab bo‘lmadi."
+          }
+        }
+      }
+    },
+    "errorUnauthorized" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your session has ended. Please sign in again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сеанс завершён. Войдите снова."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ҷаласаи шумо ба охир расид. Лутфан, дубора ворид шавед."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seansingiz tugadi. Iltimos, qayta kiring."
+          }
+        }
+      }
+    },
+    "errorUnknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something went wrong. Please try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что-то пошло не так. Повторите попытку."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чизе нодуруст шуд. Лутфан, бори дигар кӯшиш кунед."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nimadir xato ketdi. Qayta urinib ko‘ring."
+          }
+        }
+      }
+    },
+    "errorUpgradeRequired" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لم يعد هذا الإصدار من التطبيق مدعومًا. حدّث التطبيق للمتابعة."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This version of the app is no longer supported. Update to continue."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эта версия приложения больше не поддерживается. Обновите приложение, чтобы продолжить."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ин нусхаи барнома дигар дастгирӣ намешавад. Барои идома додан барномаро навсозӣ кунед."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ilovaning bu versiyasi endi qoʻllab-quvvatlanmaydi. Davom etish uchun yangilang."
+          }
+        }
+      }
+    },
+    "errorValidation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يرجى التحقق من المعلومات التي أدخلتها."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please check the information you entered."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверьте введённые данные."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лутфан, маълумоти воридкардаатонро санҷед."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiritilgan ma’lumotlarni tekshiring."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

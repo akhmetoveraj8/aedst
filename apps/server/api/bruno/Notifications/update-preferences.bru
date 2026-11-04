@@ -1,0 +1,30 @@
+meta {
+  name: Update Preferences
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/aedst.notifications.v1.NotificationsService/UpdatePreferences
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "preferences": {
+      "pushEnabled": true,
+      "taskCompleted": true,
+      "taskDueSoon": true,
+      "mediaReady": false
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+}

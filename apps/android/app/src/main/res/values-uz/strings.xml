@@ -1,0 +1,15 @@
+<resources>
+    <string name="nav_tasks">Vazifalar</string>
+    <string name="nav_search">Qidiruv</string>
+    <string name="nav_notifications">Xabarlar</string>
+    <string name="nav_media">Fayllar</string>
+    <string name="nav_account">Hisob</string>
+    <string name="nav_admin">Admin</string>
+
+    <string name="update_recommended">AEDST ning yangi versiyasi mavjud.</string>
+    <string name="update_recommended_action">Yangilash</string>
+    <string name="update_recommended_later">Hozir emas</string>
+    <string name="outbox_failed_title">Ba’zi o‘zgarishlar yuborilmadi</string>
+    <string name="outbox_failed_description">Bu o‘zgarishlar yuborilmadi. Qayta urinib ko‘ring yoki o‘chirib tashlang.</string>
+    <string name="outbox_failed_discard">O‘chirish</string>
+</resources>

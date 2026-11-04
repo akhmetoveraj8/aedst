@@ -1,0 +1,25 @@
+meta {
+  name: List Media
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/aedst.media.v1.MediaService/ListMedia
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "pageSize": 20
+  }
+}
+
+assert {
+  res.status: eq 200
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Enroll
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/aedst.appattest.v1.AppAttestService/Enroll
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  A real attestationObject only comes from an Apple device (DCAppAttestService.attestKey with
+  clientDataHash = SHA-256(challenge)); this request is for shape checks.
+  keyId is the standard base64 (44 chars) key identifier from generateKey().
+}
+
+body:json {
+  {
+    "keyId": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "attestationObject": "<base64 attestation object>",
+    "challenge": "<base64 challenge from CreateChallenge>",
+    "bundleId": "com.aedst.apple"
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "color": {
+    "light": {
+      "$type": "color",
+      "background": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [1, 0, 0]
+        }
+      },
+      "foreground": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.145, 0, 0]
+        }
+      },
+      "card": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [1, 0, 0]
+        }
+      },
+      "cardForeground": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.145, 0, 0]
+        }
+      },
+      "popover": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [1, 0, 0]
+        }
+      },
+      "popoverForeground": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.145, 0, 0]
+        }
+      },
+      "primary": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.205, 0, 0]
+        }
+      },
+      "primaryForeground": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.985, 0, 0]
+        }
+      },
+      "secondary": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.97, 0, 0]
+        }
+      },
+      "secondaryForeground": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.205, 0, 0]
+        }
+      },
+      "muted": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.97, 0, 0]
+        }
+      },
+      "mutedForeground": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.556, 0, 0]
+        }
+      },
+      "accent": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.97, 0, 0]
+        }
+      },
+      "accentForeground": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.205, 0, 0]
+        }
+      },
+      "destructive": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.577, 0.245, 27.325]
+        }
+      },
+      "border": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.922, 0, 0]
+        }
+      },
+      "input": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.922, 0, 0]
+        }
+      },
+      "ring": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.708, 0, 0]
+        }
+      },
+      "chart1": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.87, 0, 0]
+        }
+      },
+      "chart2": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.556, 0, 0]
+        }
+      },
+      "chart3": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.439, 0, 0]
+        }
+      },
+      "chart4": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.371, 0, 0]
+        }
+      },
+      "chart5": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.269, 0, 0]
+        }
+      },
+      "sidebar": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.985, 0, 0]
+        }
+      },
+      "sidebarForeground": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.145, 0, 0]
+        }
+      },
+      "sidebarPrimary": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.205, 0, 0]
+        }
+      },
+      "sidebarPrimaryForeground": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.985, 0, 0]
+        }
+      },
+      "sidebarAccent": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.97, 0, 0]
+        }
+      },
+      "sidebarAccentForeground": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.205, 0, 0]
+        }
+      },
+      "sidebarBorder": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.922, 0, 0]
+        }
+      },
+      "sidebarRing": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.708, 0, 0]
+        }
+      },
+      "success": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0824, 0.502, 0.2392],
+          "hex": "#15803d"
+        }
+      },
+      "successForeground": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9804, 0.9804, 0.9804],
+          "hex": "#fafafa"
+        }
+      },
+      "warning": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7059, 0.3255, 0.0353],
+          "hex": "#b45309"
+        }
+      },
+      "warningForeground": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9804, 0.9804, 0.9804],
+          "hex": "#fafafa"
+        }
+      },
+      "info": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1137, 0.3059, 0.8471],
+          "hex": "#1d4ed8"
+        }
+      },
+      "infoForeground": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9804, 0.9804, 0.9804],
+          "hex": "#fafafa"
+        }
+      },
+      "destructiveForeground": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9804, 0.9804, 0.9804],
+          "hex": "#fafafa"
+        }
+      }
+    }
+  }
+}

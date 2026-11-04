@@ -1,0 +1,14 @@
+# SOPS rules for deployments/secrets (see deployments/secrets/README.md).
+#
+# `age` MUST list the real recipient public keys (age1...) of the people and the
+# Argo CD repo-server key that decrypts in-cluster. The value below is a
+# placeholder: `task secrets:edit` refuses to run while it is present. The
+# first-time steps that produce a real key are in deployments/secrets/README.md.
+#
+# encrypted_regex keeps apiVersion/kind/metadata readable, so Kustomize (ksops)
+# can read the Secret name and namespace; only data/stringData are encrypted.
+creation_rules:
+  - path_regex: deployments/secrets/secrets\..*\.enc\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: >-
+      age1REPLACE0WITH0YOUR0OWN0AGE0PUBLIC0KEY0FROM0AGE-KEYGEN0abcdefghijk

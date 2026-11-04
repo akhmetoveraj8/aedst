@@ -1,0 +1,4 @@
+//// run: biome
+//// expect: useFilenamingConvention
+//// file: src/shared/lib/Bad_File_Name.ts
+export const x = 1;

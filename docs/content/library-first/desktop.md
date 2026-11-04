@@ -1,0 +1,43 @@
+---
+title: "Library-First: Desktop stack"
+description: "Part of the Library-First standard. Principles, version policy, explicit rejections and the Definition of Done are in General rules."
+---
+
+# Library-First: Desktop stack
+
+Part of the [Library-First standard](../library-first.md). Principles, version policy, explicit rejections and the Definition of Done are in [General rules](general.md).
+
+> **Verification status:** built, linted and tested on Windows only. Never compiled on Linux. Versions below were checked against crates.io on 2026-11-04 (all were already the latest stable); anything else is `UNVERIFIED`. The `connectrpc` conformance suite is a **deferred follow-up** (not done).
+
+## Stack: Rust + Slint (`apps/desktop-rs`)
+
+Owner decision of 2026-11-01, see [ADR-0001](../../../apps/desktop-rs/docs/adr/0001-rust-slint-replaces-qt.md). Rust edition 2024, toolchain in `rust-toolchain.toml`, one Cargo workspace. All versions live once in the root `Cargo.toml` `[workspace.dependencies]`; a crate is approved only when it is listed there and in this table (`cargo deny` enforces licences, sources and advisories).
+
+| Responsibility | Crate / tool |
+|---|---|
+| UI | **slint** 1.18.1 (+ `slint-build`); components in `aedst-ui` (`AedstLabel`, `AedstButton`, `AedstTextField`, `AedstCheckbox`, `AedstBadge`, `AedstActionRow`, RTL handling in `AedstLayout`); tokens generated from `packages/design-tokens` into `crates/aedst-ui/ui/aedst_tokens.slint` (`pnpm --dir packages/design-tokens build`, never hand-edited) |
+| UI tests | **i-slint-backend-testing** `=1.18.1` (approved 2026-11-04). An internal Slint crate without semver: it must be pinned with `=` and equal the `slint` version, bumped together. Dev-dependency only (`aedst-ui`, `aedst-desktop`). Headless backend, `init_no_event_loop()` in every test, elements found by `accessible-label`, keys sent with `Window::dispatch_event`. Same licence as Slint |
+| Async / HTTP | **tokio** 1.54.1, `tokio-util`, `futures`; **reqwest** 0.13.5 (rustls) for non-RPC HTTP (update feed, presigned media transfer) |
+| API contract | **connectrpc** `=0.9.1` (Tower-based Connect client; `default-features = false`, features `json gzip client client-tls`: its `zstd` carries RUSTSEC-2026-0391/0398/0403) + **connectrpc-build** `=0.9.0` (codegen in `build.rs`) + **buffa** 0.9.2 / **buffa-types** 0.9.2. Pre-1.0, so pinned exactly. `buf build` runs in `apps/server` and the descriptor set feeds `connectrpc-build`; nothing generated is committed |
+| Sign-in (OIDC) | **openidconnect** 4.1.0 (feature `timing-resistant-secret-traits`; Authorization Code + PKCE S256, ID-token checks, refresh, RFC 7009 revocation) in `crates/aedst-oidc`; **webbrowser** 1.2.6 opens the system browser; **subtle** 2.6.1 for the constant-time `state` comparison. This is the ONLY sign-in: there is no email/password flow. Custom code (no library offers a native-app loopback receiver): `loopback.rs`, `callback.rs`, single-flight refresh in `session.rs` (see the [custom code register](/desktop/custom-code-register)). IdP TLS roots are `openidconnect`'s bundled Mozilla roots, not the OS store: decide before release |
+| Secrets | **keyring-core** 1.0.1 with explicitly chosen stores: **windows-native-keyring-store** 1.1.0 (Credential Manager, `cfg(windows)`) and **zbus-secret-service-keyring-store** 1.0.1 (Linux, feature `crypto-rust`, as the `keyring` crate itself uses; `cfg(unix, not macOS/iOS/Android)`). Chosen because the `keyring` 4.x docs tell applications to depend on `keyring-core` plus the stores they need rather than the meta crate (which drags in every store). Entries are built by the store value (`KeychainStore::with_store`), no global default store; tests use `keyring_core::mock`. Holds `{refresh_token, subject}` under service `com.aedst.Desktop`, entry `oidc-<24 hex of SHA-256(issuer, client id)>`; no file fallback (a missing keychain fails sign-in and the new token is revoked). The entry layout is the same as under `keyring` 4.2, so existing entries stay readable. **aes-gcm** 0.11.1 for an at-rest envelope later; **zeroize** 1.9.1. The `keyring` meta crate is denied in `deny.toml` |
+| Local DB | **rusqlite** 0.41.1 (feature `bundled`) in `crates/aedst-persistence`: all SQLite work on ONE dedicated `std::thread`, WAL, `secure_delete`, `PRAGMA user_version` migrations frozen by SHA-256 (`schema_history` test), a newer file is refused, no SQLCipher while only an already-encrypted session and outbox payloads are stored. **`rusqlite_migration` evaluated and rejected (2026-11-04)**: 2.6.0 (Apache-2.0, MSRV 1.95, maintained) requires `rusqlite ^0.40`, two `libsqlite3-sys` cannot link, and it has no hash freeze. The custom migrator is about 40 lines; revisit when `rusqlite_migration` releases support for the current `rusqlite` |
+| Offline queue | `crates/aedst-outbox` on `aedst-persistence` + `tokio`; handlers per feature behind `OutboxHandler`; the item id is the `Idempotency-Key`; backoff 2 s doubling to 5 min with equal jitter (`rand`) |
+| Capabilities / versions | `crates/aedst-capabilities`: pure rules + `CapabilitiesService`; **semver** 1.0.28 for the version window |
+| Navigation | `crates/aedst-navigation`: routes, `NavGraph`, `Router`, link allow-list, `DeepLinkGate`; UI-independent |
+| Calling the server | `crates/aedst-api`: `ClientConfig` with `X-Aedst-Client`, transport policy, `call_authenticated` (one refresh, one replay), `with_idempotency_key` |
+| Crypto / updates | **ed25519-dalek** 3.0.0 (`verify_strict`), **sha2** 0.11.1, **rand** 0.10.3; **velopack** 1.2.161 behind the `Installer` port of `crates/aedst-update`. The SIGNED MANIFEST is the authority; the Velopack feed is not trusted. Custom code: manifest format and policy, `fsutil` atomic writes, a strict hex codec |
+| Logging / errors / telemetry | **tracing** 0.1.44, `tracing-subscriber` 0.3.23 (`json`, `env-filter`), `tracing-appender` 0.2.5 (daily rolling JSON file, 14 kept, every line scrubbed; `AEDST_LOG` filter); **sentry** 0.49.5 with `default-features = false` and `backtrace contexts debug-images panic reqwest rustls` (no `minidump`). Sentry is consent-gated (default OFF). **Product analytics: no third-party SDK (`posthog-rs` removed 2026-11-04).** Events go to the project's own server so there is one consent point for all clients; `aedst-telemetry` exposes the `AnalyticsSink` / `EventTransport` port, the allow-list from `docs/contract/analytics-events.json`, and today an in-memory bounded `BufferedTransport` (nothing leaves the process; the server ingest RPC is a follow-up, see decisions). One hand-written PII scanner (`aedst_telemetry::scrub`; no `regex` crate approved) |
+| Errors | **thiserror** 2.0.21 (libraries), **anyhow** 1.0.104 (binary only) |
+| Shell | `crates/aedst-desktop`: composition root `services.rs`, window `ui/shell.slint`, flows `flow.rs`; **dirs** 7.0.0, **sys-locale** 0.3.2, **rustls** 0.23.46 (`ring` provider passed explicitly) with **rustls-native-certs** 0.8.5 so the API client trusts the OS store; **chrono** 0.4.45 for the Admin screen's time formatting |
+| Ids / errors | **uuid** 1.29.0 (v4 idempotency keys); the thirteen failure kinds live in `aedst-common::ErrorKind` |
+| Data | **serde** 1.0.229, **serde_json** 1.0.154, **url** 2.5.8 |
+| Media / notifications | **image** 0.25.10 (decode on a blocking thread, 40-megapixel and 40 MiB caps); **reqwest** (`rustls`, `stream`) in `aedst-feature-media` only, for the presigned PUT and image downloads; **notify-rust** 4.18.2 is NOT wired yet; video playback undecided |
+| Features | `aedst-feature-tasks` (reference), `-search`, `-notifications`, `-admin`, `-media`; examples are named `<feature>_demo` |
+| Tests / analysis | `cargo test` (`cargo nextest` optional), **proptest** 1.12.0, **insta** 1.49.0, **mockall** 0.15.0, **wiremock** 0.6.5; `clippy -D warnings`, `rustfmt`, `cargo-deny` |
+
+Test-only: **wiremock** (fake identity provider), **chrono**, **rsa** 0.9.10 (`pem`) and **rand_core** 0.6.4 (`getrandom`; the version `rsa` 0.9 needs, 0.10.1 exists) to sign test ID tokens with a key generated at run time, so no private key is committed.
+
+Not approved yet (decide with the `add-dependency` skill): packaging tools (`cargo-deb`, `cargo-generate-rpm`), a reachability crate, a video player, a gettext runtime for Slint.
+
+Rejected for this app: cxx-qt, Tauri/WebView, Iced/egui/Dioxus (owner chose Slint), a second async runtime, `sqlx`, `oauth2` alone, a hand-written Connect or OIDC client, **PostHog or any third-party analytics SDK**, **`rusqlite_migration`** (rusqlite pin, see above), the **`keyring` meta crate** (use `keyring-core` plus chosen stores), email/password sign-in.

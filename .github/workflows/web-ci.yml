@@ -1,0 +1,470 @@
+name: web-ci
+
+on:
+  push:
+    branches: [main]
+    # The TypeScript client is generated from apps/server's protos, so a
+    # contract change must re-run this pipeline (codegen, contract test).
+    paths:
+      [
+        "apps/web/app/**",
+        "apps/web/shared/**",
+        "apps/web/package.json",
+        "apps/web/biome.json",
+        "apps/web/pnpm-*.yaml",
+        "apps/server/api/proto/**",
+        ".github/workflows/web-ci.yml",
+      ]
+  pull_request:
+    paths:
+      [
+        "apps/web/app/**",
+        "apps/web/shared/**",
+        "apps/web/package.json",
+        "apps/web/biome.json",
+        "apps/web/pnpm-*.yaml",
+        "apps/server/api/proto/**",
+        ".github/workflows/web-ci.yml",
+      ]
+  # Nightly full browser matrix (see the e2e-plan job); also runnable by hand.
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/web/app
+
+env:
+  NODE_VERSION: "26"
+  PNPM_VERSION: "12.15.0"
+  # The e2e/Lighthouse servers listen here; NEXT_PUBLIC_* is inlined at build
+  # time, so the build must already know the origin it will be served from.
+  SITE_URL: http://127.0.0.1:3100
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
+        run: pnpm install --frozen-lockfile
+
+      # `pnpm lint` is `biome check --error-on-warnings`: the mandatory-library
+      # rules (noProcessEnv, restricted imports/elements, GritQL plugins in
+      # apps/web/app/lint, naming, import cycles) are all Biome diagnostics.
+      - name: Biome (lint + format check; Biome only, no ESLint/Prettier)
+        run: pnpm lint
+
+      # dependency-cruiser: import direction app -> modules -> shared, no cycles,
+      # public entry only, no orphans (apps/web/app/.dependency-cruiser.cjs).
+      - name: Import graph (dependency-cruiser)
+        run: pnpm check:deps
+
+      - name: Import graph artifact
+        if: ${{ !cancelled() }}
+        run: |
+          sudo apt-get install -y --no-install-recommends graphviz >/dev/null
+          pnpm check:deps:graph
+          dot -Tsvg dep-graph.dot -o dep-graph.svg
+
+      - name: Upload import graph
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-dep-graph
+          path: apps/web/app/dep-graph.svg
+          retention-days: 7
+
+      - name: Feature module boundaries
+        run: pnpm check:feature-boundaries
+
+      - name: Forms use React Hook Form
+        run: pnpm check:forms
+
+      - name: No color literals or Tailwind palette classes
+        run: pnpm check:colors
+
+      # Negative self-test: every gate above must FAIL on its broken fixture
+      # (apps/web/app/lint/fixtures), so a gate that silently stopped working is caught.
+      - name: Gate self-test
+        run: pnpm check:selftest
+
+      # Generated ConnectRPC stubs are gitignored/generated; knip needs them
+      # to resolve imports.
+      - name: Generate ConnectRPC client stubs
+        run: pnpm connect:generate
+
+      - name: knip (unused files/exports/deps)
+        run: pnpm knip
+
+  typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate ConnectRPC client stubs
+        run: pnpm connect:generate
+
+      # The generated stubs directory is gitignored, so a `git diff` on it can
+      # never fail. Drift against apps/server/api/proto is caught here instead:
+      # the type check below breaks on a removed/renamed message, and the
+      # contract test (unit job) checks the mock API against the descriptors.
+
+      # `next typegen` emits the route types (PageProps, RouteContext, …) the
+      # source relies on, which a plain `tsc` on a fresh checkout would miss.
+      - name: Generate Next.js route types
+        run: pnpm exec next typegen
+
+      - name: Type check
+        run: pnpm typecheck
+
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate ConnectRPC client stubs
+        run: pnpm connect:generate
+
+      # Component tests run in real Chromium (Vitest Browser Mode, project
+      # "browser" in vitest.config.mts); the pure-logic project needs nothing.
+      - name: Install Playwright Chromium (Vitest browser mode)
+        run: pnpm exec playwright install --with-deps chromium
+
+      # The Playwright mock API must match the proto contract: every mocked
+      # procedure exists in the generated descriptors and its responses parse
+      # strictly as the declared messages (src/test/contract). Run on its own
+      # first so a contract drift is named as such in the PR checks.
+      - name: Contract test (e2e mock API vs proto descriptors)
+        run: pnpm test:contract
+
+      # Fails when coverage drops under the thresholds in vitest.config.mts.
+      - name: Unit + integration tests with coverage
+        run: pnpm test:coverage
+
+      - name: Upload coverage
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-coverage
+          path: apps/web/app/coverage/
+          retention-days: 7
+
+  # Storybook stories of shared/ui (hosted by the app project) in real Chromium: smoke render + axe via
+  # the a11y addon (`a11y.test: "error"` in .storybook/preview.tsx), so an
+  # accessibility violation fails the job.
+  stories:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate ConnectRPC client stubs
+        run: pnpm connect:generate
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Story tests (smoke + a11y)
+        run: pnpm test:stories
+
+  # Known-vulnerable production dependencies (npm advisory DB). Scheduled runs
+  # catch advisories published after a merge, not only changes in a PR.
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: pnpm audit (production, high and critical)
+        run: pnpm audit --prod --audit-level=high
+
+  # Blocks pull requests that add a dependency with a known high-severity
+  # vulnerability or a disallowed license. Needs the repository's dependency
+  # graph enabled (Settings > Code security); a no-op for non-PR events.
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [lint, typecheck, unit]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate ConnectRPC client stubs
+        run: pnpm connect:generate
+
+      # Next.js incremental build cache (SWC/webpack/turbopack output). Keyed on
+      # the lockfile; restore-keys fall back to the newest cache of this lock.
+      - name: Cache Next.js build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: apps/web/app/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('apps/web/pnpm-lock.yaml') }}-${{ hashFiles('apps/web/app/src/**', 'apps/web/shared/**', 'apps/web/app/next.config.*') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('apps/web/pnpm-lock.yaml') }}-
+
+      # Test build only: it is never deployed, so it must not upload source
+      # maps (they would belong to no running code). web-release.yml builds
+      # the deployed image and is the only place that uploads them.
+      - name: Build
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ env.SITE_URL }}
+        run: pnpm build
+
+      # Performance budget: fails the PR that adds the weight.
+      - name: Client bundle budget
+        run: pnpm check:bundle
+
+      # Defence in depth: no source map may be served publicly, whether or
+      # not the Sentry upload ran.
+      - name: No public source maps
+        run: |
+          if find .next/static -name "*.map" | grep -q .; then
+            echo "::error::source maps found under .next/static"; exit 1
+          fi
+
+      - name: Upload build for the e2e and Lighthouse jobs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-build
+          path: |
+            apps/web/app/.next
+            !apps/web/app/.next/cache
+          include-hidden-files: true
+          retention-days: 1
+
+  # Pull requests run the two engines that cover the most risk (Blink on
+  # desktop, WebKit on a touch phone: iOS Safari is the strictest target in
+  # the browserslist baseline). Pushes to main, the nightly schedule and manual
+  # runs run all five projects of playwright.config.ts.
+  e2e-plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - id: plan
+        working-directory: .
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            echo 'matrix={"include":[{"project":"chromium","browser":"chromium"},{"project":"mobile-safari","browser":"webkit"}]}' >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"include":[{"project":"chromium","browser":"chromium"},{"project":"firefox","browser":"firefox"},{"project":"webkit","browser":"webkit"},{"project":"mobile-chrome","browser":"chromium"},{"project":"mobile-safari","browser":"webkit"}]}' >> "$GITHUB_OUTPUT"
+          fi
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build, e2e-plan]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.e2e-plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate ConnectRPC client stubs
+        run: pnpm connect:generate
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: web-build
+          path: apps/web/app/.next
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+
+      # Playwright starts two servers itself (see playwright.config.ts):
+      # `next start` on the build above, and e2e/mock-api — an in-memory
+      # stand-in for apps/server — so the flows behind authentication (login,
+      # token refresh, dashboard, filters, pagination, CRUD) run without a
+      # database or the Go service.
+      - name: Playwright e2e (${{ matrix.project }})
+        env:
+          CI: "1"
+          NEXT_PUBLIC_SITE_URL: ${{ env.SITE_URL }}
+        run: pnpm exec playwright test --project=${{ matrix.project }}
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: apps/web/app/playwright-report/
+          retention-days: 7
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [build]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Install dependencies (one install for the whole web workspace)
+        working-directory: apps/web
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate ConnectRPC client stubs
+        run: pnpm connect:generate
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: web-build
+          path: apps/web/app/.next
+
+      # Budgets for Core Web Vitals, category scores (a11y = 100) and script
+      # weight live in lighthouserc.json. The pages audited are public, so no
+      # backend is needed.
+      - name: Lighthouse CI
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ env.SITE_URL }}
+        run: pnpm lighthouse
+
+      - name: Upload Lighthouse reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-reports
+          path: apps/web/app/.lighthouseci/
+          retention-days: 7
+
+      # Signed-in pages (/en/tasks, /en/tasks/new): the script starts the e2e
+      # mock API (also the OIDC provider) and the server, signs a seeded user
+      # in with Playwright and audits with the session cookies as a header.
+      - name: Install Playwright Chromium (sign-in for the audit)
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Lighthouse CI (signed-in pages)
+        run: pnpm lighthouse:signed-in
+
+      - name: Upload signed-in Lighthouse reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-signed-in-reports
+          path: apps/web/app/.lighthouseci-signed-in/
+          retention-days: 7

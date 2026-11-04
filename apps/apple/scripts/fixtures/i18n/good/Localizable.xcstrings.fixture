@@ -1,0 +1,24 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "count %lld" : {
+      "localizations" : {
+        "en" : { "variations" : { "plural" : {
+          "one" : { "stringUnit" : { "state" : "translated", "value" : "%lld item" } },
+          "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld items" } }
+        } } }
+      }
+    },
+    "greeting %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hello, %@" } }
+      }
+    },
+    "percentLiteral" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "100%% done" } }
+      }
+    }
+  },
+  "version" : "1.1"
+}

@@ -1,0 +1,39 @@
+# --- build outputs ---
+*/build/
+build/
+.gradle/
+captures/
+out/
+
+# --- local machine config ---
+local.properties
+
+# --- IDE ---
+.idea/
+*.iml
+*.ipr
+*.iws
+.navigation/
+.cxx/
+
+# --- OS ---
+.DS_Store
+
+# --- signing / secrets (never commit real values) ---
+*.jks
+*.keystore
+app/google-services.json
+!app/google-services.json.example
+key.properties
+
+# --- generated ---
+# Room's exported schemas (core/database/schemas/<db>/<version>.json) are NOT ignored: they are committed with the change
+# that bumps the @Database version (scripts/check-room-schemas.sh), because migrations and MigrationTestHelper read them.
+# ConnectRPC/Protobuf Kotlin stubs written by `make generate` (see
+# ../buf.gen.yaml and core/network/build.gradle.kts) — regenerated from
+# apps/server/api/proto, never committed.
+**/kotlin-gen/
+
+# Roborazzi verify/compare byproducts next to the committed goldens
+core/ui/src/test/snapshots/*_actual.png
+core/ui/src/test/snapshots/*_compare.png

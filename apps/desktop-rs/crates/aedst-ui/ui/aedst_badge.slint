@@ -1,0 +1,31 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+// A small status label. `tone`: neutral, success, danger.
+export component AedstBadge inherits Rectangle {
+    in property <string> text;
+    in property <string> tone: "neutral";
+
+    background: root.tone == "success" ? AedstTokens.success
+        : root.tone == "danger" ? AedstTokens.destructive
+        : AedstTokens.secondary;
+    border-radius: AedstTokens.radius-sm;
+    max-height: 24px;
+    accessible-role: AccessibleRole.text;
+    accessible-label: root.text;
+
+    HorizontalLayout {
+        padding-left: AedstTokens.spacing-xs + 2px;
+        padding-right: AedstTokens.spacing-xs + 2px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        Text {
+            text: root.text;
+            color: root.tone == "success" ? AedstTokens.success-foreground
+                : root.tone == "danger" ? AedstTokens.destructive-foreground
+                : AedstTokens.secondary-foreground;
+            font-size: AedstTokens.typography-label-small-font-size;
+            font-weight: AedstTokens.typography-label-small-font-weight;
+            vertical-alignment: center;
+        }
+    }
+}

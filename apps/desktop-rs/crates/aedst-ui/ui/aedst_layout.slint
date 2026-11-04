@@ -1,0 +1,7 @@
+// Slint shapes right-to-left text but does not mirror layouts or alignment (spike, ADR-0001).
+// Every mirroring decision lives in this crate: features read `AedstLayout.rtl` only through
+// the components in this library and never branch on it themselves.
+export global AedstLayout {
+    // Set from the active locale at startup and on language change (ar is the only RTL locale).
+    in-out property <bool> rtl: false;
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- App Sandbox: mandatory for the Mac App Store, kept on for Developer ID too. -->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<!-- Outgoing connections to the API. No server/listening socket, no file access, no camera/mic. -->
+	<key>com.apple.security.network.client</key>
+	<true/>
+	<!-- Read only the files the user explicitly picks (Media upload via .fileImporter). -->
+	<key>com.apple.security.files.user-selected.read-only</key>
+	<true/>
+	<!-- Push Notifications (APNs). The macOS key differs from iOS's "aps-environment".
+	     APS_ENVIRONMENT: development (Debug) / production (Release). -->
+	<key>com.apple.developer.aps-environment</key>
+	<string>$(APS_ENVIRONMENT)</string>
+	<!-- Associated Domains, webcredentials only; same rationale and placeholder as the iOS entitlements. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>webcredentials:$(AEDST_OIDC_WEBCREDENTIALS_DOMAIN)</string>
+	</array>
+	<!--
+	  Deliberately absent (add only with a documented reason):
+	  - Data protection keychain: Keychain.swift stores items there on macOS (kSecUseDataProtectionKeychain). It
+	    needs the application identifier that signing with the provisioning profile adds; an unsigned build
+	    (CODE_SIGNING_ALLOWED=NO) compiles but cannot read or write the session (errSecMissingEntitlement).
+	  - keychain-access-groups: the session is app-private. Add it, with the same group
+	    as `Keychain(accessGroup:)`, when an extension must share the session.
+	  - other com.apple.security.files.*, com.apple.security.device.*, com.apple.security.cs.* exceptions.
+	  Touch ID (LocalAuthentication) needs no entitlement.
+	-->
+</dict>
+</plist>

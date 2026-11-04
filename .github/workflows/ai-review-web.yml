@@ -1,0 +1,29 @@
+name: ai-review-web
+
+# Thin caller of the reusable ai-review.yml. Prompt: docs/agent/review/web.md.
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/**"
+      - "docs/agent/review/web.md"
+      - ".github/workflows/ai-review.yml"
+      - ".github/workflows/ai-review-web.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+concurrency:
+  group: ai-review-web-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    uses: ./.github/workflows/ai-review.yml
+    with:
+      app_path: apps/web
+      prompt_file: docs/agent/review/web.md
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

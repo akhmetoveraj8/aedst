@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notifications_title">Уведомления</string>
+    <string name="notifications_empty">Уведомлений пока нет.</string>
+    <string name="notifications_mark_all_read">Отметить все как прочитанные</string>
+    <string name="notifications_preferences">Настройки уведомлений</string>
+    <string name="notifications_load_more">Загрузить ещё</string>
+    <string name="notifications_back">Назад</string>
+    <string name="notifications_pref_push">Push-уведомления</string>
+    <string name="notifications_pref_task_completed">Задача завершена</string>
+    <string name="notifications_pref_task_due_soon">Скоро срок задачи</string>
+    <string name="notifications_pref_media_ready">Файл обработан</string>
+    <string name="notifications_channel_tasks">Задачи</string>
+    <string name="notifications_channel_media">Файлы</string>
+    <string name="notifications_channel_system">Общие</string>
+    <string name="notifications_channel_system_id" translatable="false">system</string>
+    <plurals name="notifications_unread_count">
+        <item quantity="one">Уведомления, %d непрочитанное</item>
+        <item quantity="few">Уведомления, %d непрочитанных</item>
+        <item quantity="many">Уведомления, %d непрочитанных</item>
+        <item quantity="other">Уведомления, %d непрочитанных</item>
+    </plurals>
+</resources>

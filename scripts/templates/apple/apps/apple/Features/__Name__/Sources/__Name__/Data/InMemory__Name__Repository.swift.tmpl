@@ -1,0 +1,10 @@
+import AedstCore
+
+/// Placeholder repository that returns no entries.
+public struct InMemory{{Name}}Repository: {{Name}}Repository {
+    public init() {}
+
+    public func entries() async -> Outcome<[{{Name}}Entry]> {
+        .success([])
+    }
+}

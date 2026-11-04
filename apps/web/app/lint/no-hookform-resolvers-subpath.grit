@@ -1,0 +1,14 @@
+language js
+
+// Resolver packages. `@hookform/resolvers` (root, toNestErrors) is used by
+// shared/lib/forms only. The one resolver feature code may import is the stock
+// `standardSchemaResolver` (`@hookform/resolvers/standard-schema`), and only
+// for a client-only form with a Zod schema in lib/ (no API message, so no
+// .proto rule exists). Every other resolver (zod, yup, ajv, ...) is a second
+// rule dialect and is refused; a form that submits an API message uses
+// protovalidateResolver. Rule page: docs/content/web/validation.md
+`import $_ from $source` as $import where {
+  $source <: r".*@hookform/resolvers.*",
+  ! $source <: r".*@hookform/resolvers/standard-schema.*",
+  register_diagnostic(span=$import, message="Do not import @hookform/resolvers in feature code except standardSchemaResolver (@hookform/resolvers/standard-schema) for a client-only Zod form. A form that submits an API message uses protovalidateResolver (@/shared/lib/forms/protovalidate-resolver); see docs/content/web/validation.md.", severity="error")
+}

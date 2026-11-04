@@ -1,0 +1,35 @@
+# gitleaks configuration (CI: .github/workflows/policies-ci.yml job `secrets`; local:
+# `gitleaks protect --staged` in lefthook.yml). Version pinned in mise.toml.
+#
+# Everything allowlisted below is a documented, public, dev-only placeholder. Real secrets never
+# belong in the repo; if a new placeholder trips the scanner, add the exact value here with a
+# comment saying where it is documented, never a broad pattern.
+#
+# NOTE: written without being able to run gitleaks (no network when authored); the allowlist is
+# derived from `git grep` of the placeholders. First CI run is the acceptance test (UNVERIFIED).
+
+title = "AEDST gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented dev-only placeholders"
+regexes = [
+  # apps/server/internal/platform/config/config.go DevSigningKey; Load rejects it when deployed.
+  '''dev-only-signing-key-change-me-0123456789''',
+  # Local Postgres DSN of docker-compose / .env.example / Taskfile (user and password are "aedst").
+  '''postgres://aedst:aedst@[A-Za-z0-9.\-]+:\d+/aedst''',
+  # imgproxy dev key/salt: hex of "aedst-dev-imgproxy-key" / "aedst-dev-imgproxy-salt"
+  # (apps/server/.env.example, apps/server/deployments/docker/docker-compose.yml).
+  '''61656473742d6465762d696d6770726f78792d6b6579''',
+  '''61656473742d6465762d696d6770726f78792d73616c74''',
+]
+paths = [
+  # Lockfiles carry integrity hashes, not secrets.
+  '''(^|/)pnpm-lock\.yaml$''',
+  '''(^|/)Package\.resolved$''',
+  '''(^|/)Gemfile\.lock$''',
+  '''(^|/)go\.sum$''',
+  '''(^|/)Cargo\.lock$''',
+]

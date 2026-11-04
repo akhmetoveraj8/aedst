@@ -1,0 +1,41 @@
+# Backup health alerts for the CloudNativePG cluster. Needs the prometheus-operator
+# CRDs and the cluster's PodMonitor (spec.monitoring.enablePodMonitor in cluster.yaml).
+# UNVERIFIED: the cnpg_* metric names follow the CloudNativePG monitoring docs of the
+# operator version in cluster.yaml's header; confirm them with
+# `curl <instance>:9187/metrics | grep cnpg_collector` after the first deploy.
+# UNVERIFIED with the Barman Cloud Plugin: the Cluster CRD marks the in-tree backup
+# status fields "not set for backup plugins", so cnpg_collector_last_available_backup_timestamp
+# and ..._last_failed_backup_timestamp may stay at 0 for plugin backups. If they do, replace
+# those two alerts with ones on Backup resources (kube-state-metrics custom resource state
+# on backups.postgresql.cnpg.io .status.phase / .status.stoppedAt) before relying on them.
+# AedstPgWalArchivingFailing uses PostgreSQL's pg_stat_archiver and is method-independent.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: aedst-pg-backups
+spec:
+  groups:
+    - name: aedst-pg-backups
+      rules:
+        - alert: AedstPgBackupTooOld
+          # The nightly ScheduledBackup runs at 02:00; 26 h tolerates one late run.
+          expr: time() - max by (cluster) (cnpg_collector_last_available_backup_timestamp{cluster=~"aedst-pg.*"}) > 26 * 3600
+          for: 15m
+          labels: {severity: critical}
+          annotations:
+            summary: "No successful PostgreSQL base backup for {{ $labels.cluster }} in 26 hours"
+            description: "Point-in-time recovery depends on a recent base backup. See runbook: Restore, PITR and failover."
+        - alert: AedstPgBackupFailed
+          expr: max by (cluster) (cnpg_collector_last_failed_backup_timestamp{cluster=~"aedst-pg.*"}) > max by (cluster) (cnpg_collector_last_available_backup_timestamp{cluster=~"aedst-pg.*"})
+          for: 5m
+          labels: {severity: warning}
+          annotations:
+            summary: "The latest PostgreSQL backup of {{ $labels.cluster }} failed"
+        - alert: AedstPgWalArchivingFailing
+          # A growing failure count means WAL is not reaching the object store: the
+          # RPO silently grows and the primary's WAL volume fills.
+          expr: increase(cnpg_pg_stat_archiver_failed_count{cluster=~"aedst-pg.*"}[15m]) > 0
+          for: 15m
+          labels: {severity: critical}
+          annotations:
+            summary: "WAL archiving is failing for {{ $labels.cluster }}"

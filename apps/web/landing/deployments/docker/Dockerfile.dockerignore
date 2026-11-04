@@ -1,0 +1,15 @@
+# Build context is apps/web. Keep only what the landing image build reads.
+*
+!pnpm-workspace.yaml
+!pnpm-lock.yaml
+!shared
+!landing
+
+**/node_modules
+**/.next
+**/coverage
+**/.lighthouseci
+**/.env
+**/.env.*
+!**/.env.example
+**/*.tsbuildinfo

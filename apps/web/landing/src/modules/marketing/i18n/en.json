@@ -1,0 +1,122 @@
+{
+  "meta": { "title": "Plan and finish tasks, online or offline" },
+  "hero": {
+    "eyebrow": "Fast, accessible, works offline",
+    "title": "Plan, track and finish your tasks anywhere",
+    "subtitle": "AEDST is a task app that stays fast on slow networks, keeps working offline and speaks English, Russian, Tajik, Uzbek and Arabic.",
+    "primary": "Get started",
+    "secondary": "See how it works"
+  },
+  "features": {
+    "title": "Everything you need to stay on top of work",
+    "subtitle": "A focused feature set built for speed, access and trust.",
+    "items": {
+      "offline": {
+        "title": "Works offline",
+        "description": "Create and edit tasks without a connection. Changes are queued and sent when you are back online."
+      },
+      "fast": {
+        "title": "Fast by design",
+        "description": "Pages load quickly and stay light, even on low-end phones and slow networks."
+      },
+      "accessible": {
+        "title": "Accessible to everyone",
+        "description": "Keyboard friendly, screen reader tested and readable in light and dark themes."
+      },
+      "secure": {
+        "title": "Private and secure",
+        "description": "Sign-in tokens never reach page scripts, and you stay in control of your data."
+      },
+      "languages": {
+        "title": "Five languages",
+        "description": "English, Russian, Tajik, Uzbek and Arabic, including full right-to-left layout."
+      },
+      "sync": {
+        "title": "Always in sync",
+        "description": "Your tasks follow you across phone, tablet and computer."
+      }
+    }
+  },
+  "howItWorks": {
+    "title": "How it works",
+    "steps": {
+      "create": {
+        "title": "Create",
+        "description": "Capture a task in seconds, with a due date and notes."
+      },
+      "organize": {
+        "title": "Organize",
+        "description": "Search, filter and sort to focus on what matters today."
+      },
+      "finish": {
+        "title": "Finish",
+        "description": "Check tasks off and get notified about what is next."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Simple pricing",
+    "subtitle": "Start free and upgrade when your team grows.",
+    "popular": "Most popular",
+    "note": "Placeholder plans: final names, prices and limits will be announced before launch.",
+    "tiers": {
+      "free": {
+        "name": "Free",
+        "price": "$0",
+        "description": "For individuals getting started.",
+        "f1": "Unlimited personal tasks",
+        "f2": "Offline mode",
+        "f3": "All five languages",
+        "cta": "Start free"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "To be announced",
+        "description": "For people who want more.",
+        "f1": "Everything in Free",
+        "f2": "Attachments and search",
+        "f3": "Priority support",
+        "cta": "Get started"
+      },
+      "team": {
+        "name": "Team",
+        "price": "To be announced",
+        "description": "For teams working together.",
+        "f1": "Everything in Pro",
+        "f2": "Shared workspaces",
+        "f3": "Admin controls",
+        "cta": "Get started"
+      }
+    }
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "items": {
+      "q1": {
+        "question": "What is AEDST?",
+        "answer": "AEDST is a task app for planning, tracking and finishing work. It is fast, accessible and keeps working without an internet connection."
+      },
+      "q2": {
+        "question": "Does it work offline?",
+        "answer": "Yes. You can create and edit tasks offline. Changes are saved on your device and sent automatically once you reconnect."
+      },
+      "q3": {
+        "question": "Which languages are supported?",
+        "answer": "English, Russian, Tajik, Uzbek and Arabic. Arabic uses a full right-to-left layout."
+      },
+      "q4": {
+        "question": "Is there a free plan?",
+        "answer": "A free plan is planned. Pricing shown on this page is a placeholder and will be confirmed before launch."
+      },
+      "q5": {
+        "question": "How is my data protected?",
+        "answer": "Sign-in sessions are kept in secure cookies that page scripts cannot read, and analytics only run after you consent. See the privacy policy for details."
+      }
+    }
+  },
+  "cta": {
+    "title": "Ready to get things done?",
+    "subtitle": "Create your account in a minute and start planning today.",
+    "button": "Get started"
+  }
+}

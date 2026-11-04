@@ -1,0 +1,81 @@
+{
+  "title": "Administration",
+  "signOut": "Sign out",
+  "nav": {
+    "label": "Administration sections",
+    "overview": "Overview",
+    "tasks": "All tasks",
+    "broadcast": "Broadcast",
+    "audit": "Audit log"
+  },
+  "table": {
+    "loading": "Loading…",
+    "pagination": "Pages",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "overview": {
+    "title": "Overview",
+    "loadError": "Couldn’t load the overview.",
+    "retry": "Retry",
+    "metrics": {
+      "tasksTotal": "Tasks",
+      "tasksDone": "Completed tasks",
+      "tasksOverdue": "Overdue tasks",
+      "mediaTotal": "Files",
+      "mediaBytes": "Storage used",
+      "pushDevices": "Push devices",
+      "outboxLagSeconds": "Outbox lag (s)",
+      "jobsPending": "Pending jobs"
+    }
+  },
+  "tasks": {
+    "title": "All tasks",
+    "search": "Search by title",
+    "taskTitle": "Title",
+    "owner": "Owner",
+    "status": "Status",
+    "createdAt": "Created",
+    "actions": "Actions",
+    "statuses": {
+      "todo": "Todo",
+      "inProgress": "In progress",
+      "done": "Done"
+    },
+    "delete": "Delete",
+    "deleteTitle": "Delete this task?",
+    "deleteDescription": "“{title}” will be deleted for its owner. The reason is recorded in the audit log.",
+    "reason": "Reason",
+    "reasonInvalid": "Give a reason of 3 to 500 characters.",
+    "cancel": "Cancel",
+    "confirmDelete": "Delete task",
+    "empty": "No tasks found.",
+    "loadError": "Couldn’t load tasks."
+  },
+  "broadcast": {
+    "title": "Broadcast notification",
+    "userId": "User ID",
+    "userIdHint": "Leave empty to notify every user.",
+    "userIdInvalid": "Enter a valid user ID or leave it empty.",
+    "titleLabel": "Title",
+    "titleRequired": "Enter a title.",
+    "titleTooLong": "Keep it under 120 characters.",
+    "body": "Message",
+    "bodyInvalid": "Keep it under 1000 characters.",
+    "link": "Link",
+    "linkHint": "Optional in-app path, e.g. /tasks",
+    "linkInvalid": "Use an in-app path starting with /.",
+    "send": "Send",
+    "sent": "{count, plural, one {Sent to # user} other {Sent to # users}}"
+  },
+  "audit": {
+    "title": "Audit log",
+    "when": "When",
+    "actor": "Actor",
+    "action": "Action",
+    "target": "Target",
+    "reason": "Reason",
+    "empty": "No entries yet.",
+    "loadError": "Couldn’t load the audit log."
+  }
+}

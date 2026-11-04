@@ -1,0 +1,4 @@
+//// run: biome
+//// expect: Raw fetch() is not allowed
+//// file: src/modules/tasks/lib/bad-fetch.ts
+export const load = () => fetch("/api/x");

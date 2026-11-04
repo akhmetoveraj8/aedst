@@ -1,0 +1,47 @@
+name: ai-review
+
+# Reusable AI pull-request review (anthropics/claude-code-action). Called by the thin per-app
+# workflows ai-review-<app>.yml, which own the path filter and pass the app directory and the
+# prompt file (docs/agent/review/<app>.md). The prompt lives in the repo so it can be reviewed
+# and so scripts/check-docs.mjs can verify every path it mentions exists.
+#
+# Auth: ANTHROPIC_API_KEY repo secret. Fork PRs get no secrets, so the job is skipped for them.
+
+on:
+  workflow_call:
+    inputs:
+      app_path:
+        description: App directory the review is scoped to, e.g. apps/server
+        type: string
+        required: true
+      prompt_file:
+        description: Repo-relative review prompt, e.g. docs/agent/review/server.md
+        type: string
+        required: true
+    secrets:
+      ANTHROPIC_API_KEY:
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+jobs:
+  review:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: anthropics/claude-code-action@8c3fd987fa6a6b2654f69275e323d08207fcd36c # v1.0.264
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: --max-turns 30
+          prompt: |
+            Review this pull request's changes under ${{ inputs.app_path }}/.
+
+            Read ${{ inputs.prompt_file }} first and apply exactly the checks it lists.
+            Post your findings as a PR review. If nothing in the checklist applies,
+            approve with no comments; do not invent issues to have something to say.

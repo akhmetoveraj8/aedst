@@ -1,0 +1,36 @@
+meta {
+  name: VerifyIntegrityToken
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/aedst.integrity.v1.IntegrityService/VerifyIntegrityToken
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  Needs AEDST_INTEGRITY_ENABLED=true; otherwise 400 failed_precondition.
+  requestHash = base64url_nopad(SHA-256("aedst.integrity.v1\n" + action + "\n" + payload)).
+  payload is base64 in Connect JSON. A real integrityToken only comes from the Android app
+  (StandardIntegrityToken.token()); this request is for shape checks.
+}
+
+body:json {
+  {
+    "integrityToken": "<token from the Android app>",
+    "action": "login",
+    "payload": "bm9uY2UtMQ==",
+    "requestHash": "UkAvAJYvJMZg2YwnrmEJU958ycebRjwq-tR0Fxs6at8",
+    "packageName": "com.aedst.android"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

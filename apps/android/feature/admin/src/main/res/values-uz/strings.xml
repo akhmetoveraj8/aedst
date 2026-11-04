@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="admin_title">Boshqaruv</string>
+    <string name="admin_forbidden">Bu bo‘lim faqat administratorlar uchun.</string>
+    <string name="admin_tab_overview">Umumiy ko‘rinish</string>
+    <string name="admin_tab_tasks">Vazifalar</string>
+    <string name="admin_tab_audit">Audit jurnali</string>
+    <string name="admin_search">Qidiruv</string>
+    <string name="admin_delete_task">Vazifani o‘chirish</string>
+    <string name="admin_delete_reason">Sabab (audit jurnaliga yoziladi)</string>
+    <string name="admin_delete_confirm">O‘chirish</string>
+    <string name="admin_cancel">Bekor qilish</string>
+    <string name="admin_tasks_total">Vazifalar</string>
+    <string name="admin_tasks_done">Bajarilgan</string>
+    <string name="admin_tasks_overdue">Muddati o‘tgan</string>
+    <string name="admin_media_total">Fayllar</string>
+    <string name="admin_push_devices">Push qurilmalar</string>
+    <string name="admin_outbox_lag">Outbox kechikishi, s</string>
+    <string name="admin_jobs_pending">Navbatdagi fon vazifalari</string>
+</resources>

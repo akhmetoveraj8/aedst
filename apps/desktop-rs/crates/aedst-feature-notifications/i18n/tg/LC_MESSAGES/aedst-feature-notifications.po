@@ -1,0 +1,118 @@
+# aedst-feature-notifications: Notifications views strings (tg).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-notifications\n"
+"Language: tg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You are offline. Try again when you are connected."
+msgstr "Шумо онлайн нестед. Ҳангоми пайвастшавӣ дубора кӯшиш кунед."
+
+msgid "The server is not available right now."
+msgstr "Сервер ҳоло дастнорас аст."
+
+msgid "The request took too long."
+msgstr "Дархост хеле тӯл кашид."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "Дархостҳо хеле зиёд аст. Баъди як лаҳза дубора кӯшиш кунед."
+
+msgid "Please sign in again."
+msgstr "Лутфан, дубора ворид шавед."
+
+msgid "You do not have access to this."
+msgstr "Шумо ба ин дастрасӣ надоред."
+
+msgid "This notification no longer exists."
+msgstr "Ин огоҳинома дигар вуҷуд надорад."
+
+msgid "The server did not accept this input."
+msgstr "Сервер ин маълумотро қабул накард."
+
+msgid "This was changed elsewhere."
+msgstr "Ин дар ҷои дигар тағйир дода шуд."
+
+msgid "Please update the app to continue."
+msgstr "Барои идома додан барномаро навсозӣ кунед."
+
+msgid "Could not save on this device."
+msgstr "Дар ин дастгоҳ захира карда нашуд."
+
+msgid "Something went wrong."
+msgstr "Чизе нодуруст рафт."
+
+msgid "Task completed"
+msgstr "Вазифа иҷро шуд"
+
+msgid "Task due soon"
+msgstr "Мӯҳлати вазифа наздик аст"
+
+msgid "Media ready"
+msgstr "Медиа тайёр аст"
+
+msgid "System"
+msgstr "Низом"
+
+msgid "Other"
+msgstr "Дигар"
+
+msgid "Unread: {}"
+msgstr "Хонда нашудааст: {}"
+
+msgid "Notifications"
+msgstr "Огоҳиномаҳо"
+
+msgid "{} unread"
+msgstr "Хонда нашуда: {}"
+
+msgid "Marking..."
+msgstr "Қайд карда истодаем..."
+
+msgid "Mark all as read"
+msgstr "Ҳамаро хондашуда қайд кардан"
+
+msgid "All"
+msgstr "Ҳама"
+
+msgid "Unread"
+msgstr "Хонда нашуда"
+
+msgid "Loading..."
+msgstr "Бор шуда истодааст..."
+
+msgid "Could not load notifications"
+msgstr "Огоҳиномаҳо бор нашуданд"
+
+msgid "Try again"
+msgstr "Бори дигар кӯшиш кунед"
+
+msgid "No unread notifications"
+msgstr "Огоҳиномаи хонданашуда нест"
+
+msgid "No notifications yet"
+msgstr "Ҳоло огоҳинома нест"
+
+msgid "You are all caught up."
+msgstr "Ҳама хонда шудааст."
+
+msgid "Load more"
+msgstr "Бештар бор кардан"
+
+msgid "Notification preferences"
+msgstr "Танзимоти огоҳиномаҳо"
+
+msgid "Could not load preferences"
+msgstr "Танзимот бор нашуданд"
+
+msgid "Choose which notifications you receive."
+msgstr "Интихоб кунед, кадом огоҳиномаҳоро мегиред."
+
+msgid "Show notifications"
+msgstr "Нишон додани огоҳиномаҳо"
+
+msgid "Could not save the setting. {}"
+msgstr "Танзим захира нашуд. {}"

@@ -1,0 +1,64 @@
+// Package postgres implements the {{name}} module's Repository against the
+// sqlc-generated queries in gen/db/{{name}}. Not imported outside this module.
+package postgres
+
+import (
+	"context"
+	"errors"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	{{name}}db "github.com/aedst/server/gen/db/{{name}}"
+	"github.com/aedst/server/internal/modules/{{name}}/application"
+	"github.com/aedst/server/internal/modules/{{name}}/domain"
+	sharederrors "github.com/aedst/server/internal/shared/errors"
+	"github.com/aedst/server/internal/shared/ids"
+)
+
+type Repository struct {
+	pool *pgxpool.Pool
+}
+
+var _ application.Repository = (*Repository)(nil)
+
+func NewRepository(pool *pgxpool.Pool) *Repository { return &Repository{pool: pool} }
+
+func (r *Repository) Create(ctx context.Context, entry domain.Entry) (domain.Entry, error) {
+	row, err := {{name}}db.New(r.pool).Create{{Name}}Entry(ctx, {{name}}db.Create{{Name}}EntryParams{
+		ID:        toPgUUID(entry.ID),
+		OwnerID:   toPgUUID(entry.OwnerID),
+		Title:     entry.Title,
+		CreatedAt: pgtype.Timestamptz{Time: entry.CreatedAt, Valid: true},
+	})
+	if err != nil {
+		return domain.Entry{}, sharederrors.Wrap("{{name}}.Create", err)
+	}
+	return fromDB(row), nil
+}
+
+func (r *Repository) FindByIDAndOwner(ctx context.Context, id, ownerID ids.ID) (domain.Entry, error) {
+	row, err := {{name}}db.New(r.pool).Find{{Name}}EntryByIDAndOwner(ctx, {{name}}db.Find{{Name}}EntryByIDAndOwnerParams{
+		ID:      toPgUUID(id),
+		OwnerID: toPgUUID(ownerID),
+	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.Entry{}, sharederrors.NotFound("{{name}}.Find", "entry not found")
+	}
+	if err != nil {
+		return domain.Entry{}, sharederrors.Wrap("{{name}}.Find", err)
+	}
+	return fromDB(row), nil
+}
+
+func fromDB(row {{name}}db.{{Name}}Entry) domain.Entry {
+	return domain.Entry{
+		ID:        ids.ID(row.ID.Bytes),
+		OwnerID:   ids.ID(row.OwnerID.Bytes),
+		Title:     row.Title,
+		CreatedAt: row.CreatedAt.Time,
+	}
+}
+
+func toPgUUID(id ids.ID) pgtype.UUID { return pgtype.UUID{Bytes: id, Valid: !id.IsNil()} }

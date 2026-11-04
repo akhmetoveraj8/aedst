@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notifications_title">Bildirishnomalar</string>
+    <string name="notifications_empty">Hozircha bildirishnomalar yo‘q.</string>
+    <string name="notifications_mark_all_read">Hammasini o‘qilgan deb belgilash</string>
+    <string name="notifications_preferences">Bildirishnoma sozlamalari</string>
+    <string name="notifications_load_more">Yana yuklash</string>
+    <string name="notifications_back">Orqaga</string>
+    <string name="notifications_pref_push">Push-bildirishnomalar</string>
+    <string name="notifications_pref_task_completed">Vazifa bajarildi</string>
+    <string name="notifications_pref_task_due_soon">Vazifa muddati yaqin</string>
+    <string name="notifications_pref_media_ready">Fayl qayta ishlandi</string>
+    <string name="notifications_channel_tasks">Vazifalar</string>
+    <string name="notifications_channel_media">Fayllar</string>
+    <string name="notifications_channel_system">Umumiy</string>
+    <plurals name="notifications_unread_count">
+        <item quantity="one">Bildirishnomalar, %d ta o‘qilmagan</item>
+        <item quantity="other">Bildirishnomalar, %d ta o‘qilmagan</item>
+    </plurals>
+</resources>

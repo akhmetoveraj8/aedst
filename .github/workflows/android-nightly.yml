@@ -1,0 +1,139 @@
+name: android-nightly
+
+# A scheduled independent rerun of the same checks android-ci.yml runs on
+# every PR — catches things a green PR can miss: flaky tests that happened
+# to pass once, a transitive dependency that changed underneath an
+# unpinned range, or drift between what's cached and what a clean
+# checkout actually resolves. Not a substitute for android-ci.yml; a
+# safety net alongside it.
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-nightly-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: apps/android
+
+jobs:
+  full-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          # A clean run every night, not the warm cache PRs get — that's
+          # the whole point of catching cache-vs-clean drift.
+          cache-read-only: true
+
+      - uses: bufbuild/buf-setup-action@a47c93e0b1648d5651a065437926377d060baa99 # v1.50.0
+
+      - name: Generate ConnectRPC/Protobuf client stubs
+        run: make generate
+
+      - name: Copy placeholder google-services.json
+        run: cp app/google-services.json.example app/google-services.json
+
+      # The same gates as android-ci.yml plus both release bundles (R8). The bundles use the explicit unpinned
+      # opt-out: real TLS pins and signing exist only in android-release.yml.
+      - name: Full check and release bundles
+        env:
+          AEDST_REQUIRE_CONTRACT: "1"
+        run: >
+          ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest
+          :app:bundleRelease :app-tv:bundleRelease
+          -Paedst.allowUnpinnedRelease=true --rerun-tasks
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: android-nightly-reports
+          path: |
+            apps/android/**/build/reports/tests/
+            apps/android/**/build/test-results/
+          retention-days: 14
+
+  # Macrobenchmarks and Baseline Profile generation on an emulator (same KVM + android-emulator-runner lane as the
+  # `instrumented` job in android-ci.yml). Emulator timings are not comparable with a device; this lane proves the
+  # benchmarks and the profile generator still run and publishes the raw results. Real numbers: run
+  # `./gradlew :benchmark:connectedBenchmarkReleaseAndroidTest` on a physical device (apps/android/README.md).
+  #
+  # The signed-in journeys (task-list scroll, signed-in startup, signed-in profile) need a test account on a reachable
+  # backend: set the repository secrets AEDST_BENCHMARK_EMAIL / AEDST_BENCHMARK_PASSWORD (optionally
+  # AEDST_BENCHMARK_SUBMIT_LABEL) and the variable AEDST_BENCHMARK_BASE_URL (https, trailing slash). Without them those
+  # tests are skipped with an explicit message and only startup/login-screen coverage runs.
+  benchmarks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      AEDST_BENCHMARK_EMAIL: ${{ secrets.AEDST_BENCHMARK_EMAIL }}
+      AEDST_BENCHMARK_PASSWORD: ${{ secrets.AEDST_BENCHMARK_PASSWORD }}
+      AEDST_BENCHMARK_SUBMIT_LABEL: ${{ secrets.AEDST_BENCHMARK_SUBMIT_LABEL }}
+      AEDST_BASE_URL: ${{ vars.AEDST_BENCHMARK_BASE_URL }}
+      AEDST_BENCHMARK_SUPPRESS_ERRORS: EMULATOR,LOW-BATTERY
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - uses: bufbuild/buf-setup-action@a47c93e0b1648d5651a065437926377d060baa99 # v1.50.0
+
+      - name: Generate ConnectRPC/Protobuf client stubs
+        run: make generate
+
+      - name: Copy placeholder google-services.json
+        run: cp app/google-services.json.example app/google-services.json
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # The benchmark build types (nonMinifiedRelease / benchmarkRelease) are not hooked by the release TLS-pin guard
+      # (it is attached to preReleaseBuild only); -Paedst.allowUnpinnedRelease=true is passed anyway so a chained
+      # release task cannot fail the lane. The benchmarked build is therefore unpinned: never ship it.
+      - name: Baseline profile generation and macrobenchmarks (emulator)
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          working-directory: apps/android
+          script: |
+            ./gradlew :app:generateBaselineProfile -Paedst.allowUnpinnedRelease=true
+            ./gradlew :benchmark:connectedBenchmarkReleaseAndroidTest -Paedst.allowUnpinnedRelease=true -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=macrobenchmark
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: android-benchmarks
+          path: |
+            apps/android/app/src/release/generated/baselineProfiles/
+            apps/android/benchmark/build/outputs/connected_android_test_additional_output/
+            apps/android/benchmark/build/reports/androidTests/
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,6 @@
+//// run: colors
+//// expect: pass
+//// file: src/modules/tasks/ui/OkColor.tsx
+export const OkColor = () => <p className="bg-destructive text-muted-foreground">x</p>;
+//// file: src/shared/ui/palette-ok.tsx
+export const Ok = () => <p className="text-red-700">shared/ui is reviewed with the kit</p>;

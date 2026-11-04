@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_placeholder">ابحث في المهام والملفات</string>
+    <string name="search_hint">اكتب حرفين على الأقل.</string>
+    <string name="search_no_results">لا توجد نتائج.</string>
+</resources>

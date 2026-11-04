@@ -1,0 +1,9 @@
+{
+  "motion": {
+    "$type": "time",
+    "$description": "Animation durations in milliseconds (Style Dictionary `time` type).",
+    "durationFast": { "$value": 100 },
+    "durationNormal": { "$value": 160 },
+    "durationSlow": { "$value": 240 }
+  }
+}

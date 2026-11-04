@@ -1,0 +1,3 @@
+// POSITIVE FIXTURE: String(format: String(localized: "x"), y) in a comment is ignored.
+let a = String(localized: "tasksDue \(formatted)", bundle: .module)
+let b = String(format: "%.2f", value)

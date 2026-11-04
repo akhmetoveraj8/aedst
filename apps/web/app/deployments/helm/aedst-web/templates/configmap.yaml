@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "aedst-web.fullname" . }}
+  labels:
+    {{- include "aedst-web.labels" . | nindent 4 }}
+data:
+  NODE_ENV: production
+  HOSTNAME: "0.0.0.0"
+  PORT: {{ .Values.containerPort | quote }}
+  API_BASE_URL: {{ required "config.apiBaseUrl is required (internal address of apps/server)" .Values.config.apiBaseUrl | quote }}
+  OIDC_ISSUER: {{ required "config.oidc.issuer is required" .Values.config.oidc.issuer | quote }}
+  OIDC_CLIENT_ID: {{ required "config.oidc.clientId is required" .Values.config.oidc.clientId | quote }}
+  {{- with .Values.config.oidc.projectId }}
+  OIDC_PROJECT_ID: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.oidc.scope }}
+  OIDC_SCOPE: {{ . | quote }}
+  {{- end }}
+  AUTH_COOKIE_NAME: {{ .Values.config.auth.cookieName | quote }}
+  AUTH_ROLES_CLAIM: {{ .Values.config.auth.rolesClaim | quote }}
+  AUTH_ROLES_ORG: {{ .Values.config.auth.rolesOrg | quote }}
+  {{- with .Values.config.mediaOrigins }}
+  MEDIA_ORIGINS: {{ join "," . | quote }}
+  {{- end }}

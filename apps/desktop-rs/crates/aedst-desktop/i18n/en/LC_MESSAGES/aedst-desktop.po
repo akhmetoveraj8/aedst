@@ -1,0 +1,100 @@
+# aedst-desktop: window shell strings (en).
+# Source language.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-desktop\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Tasks"
+msgstr "Tasks"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "Files"
+msgstr "Files"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Sign out"
+msgstr "Sign out"
+
+msgid "Inbox"
+msgstr "Inbox"
+
+msgid "Preferences"
+msgstr "Preferences"
+
+msgid "Starting..."
+msgstr "Starting..."
+
+msgid "Sign in to continue"
+msgstr "Sign in to continue"
+
+msgid "Continue in browser"
+msgstr "Continue in browser"
+
+msgid "Waiting for the browser..."
+msgstr "Waiting for the browser..."
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Sign-in failed. Please try again."
+msgstr "Sign-in failed. Please try again."
+
+msgid "Could not reach the identity provider."
+msgstr "Could not reach the identity provider."
+
+msgid "Secure storage is not available on this device."
+msgstr "Secure storage is not available on this device."
+
+msgid "Sign-in timed out."
+msgstr "Sign-in timed out."
+
+msgid "Sign-in is not configured."
+msgstr "Sign-in is not configured."
+
+msgid "Privacy"
+msgstr "Privacy"
+
+msgid "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device."
+msgstr "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device."
+
+msgid "Send crash reports"
+msgstr "Send crash reports"
+
+msgid "Technical details about a failure, so it can be fixed."
+msgstr "Technical details about a failure, so it can be fixed."
+
+msgid "Share anonymous usage statistics"
+msgstr "Share anonymous usage statistics"
+
+msgid "Which features are used, never what you type."
+msgstr "Which features are used, never what you type."
+
+msgid "Not available in this build."
+msgstr "Not available in this build."
+
+msgid "A new version is available"
+msgstr "A new version is available"
+
+msgid "Downloading the update: {}%"
+msgstr "Downloading the update: {}%"
+
+msgid "Restart to update"
+msgstr "Restart to update"
+
+msgid "Update required"
+msgstr "Update required"
+
+msgid "This version of the app is too old for the server. Please update it to continue."
+msgstr "This version of the app is too old for the server. Please update it to continue."

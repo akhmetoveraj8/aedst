@@ -1,0 +1,196 @@
+# aedst-feature-media: Media screen strings (en).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-media\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Upload file"
+msgstr "Upload file"
+
+msgid "Uploading... {}%"
+msgstr "Uploading... {}%"
+
+msgid "Dismiss"
+msgstr "Dismiss"
+
+msgid "Media"
+msgstr "Media"
+
+msgid "Loading..."
+msgstr "Loading..."
+
+msgid "Could not load media"
+msgstr "Could not load media"
+
+msgid "Try again"
+msgstr "Try again"
+
+msgid "No files yet"
+msgstr "No files yet"
+
+msgid "Upload your first file above."
+msgstr "Upload your first file above."
+
+msgid "Load more"
+msgstr "Load more"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "View"
+msgstr "View"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Delete this file?"
+msgstr "Delete this file?"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "You are offline. Try again when you are connected."
+msgstr "You are offline. Try again when you are connected."
+
+msgid "The server is not available right now."
+msgstr "The server is not available right now."
+
+msgid "The request took too long."
+msgstr "The request took too long."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "Too many requests. Try again in a moment."
+
+msgid "Please sign in again."
+msgstr "Please sign in again."
+
+msgid "You do not have access to this."
+msgstr "You do not have access to this."
+
+msgid "This file no longer exists."
+msgstr "This file no longer exists."
+
+msgid "The server did not accept this file."
+msgstr "The server did not accept this file."
+
+msgid "This file was changed elsewhere."
+msgstr "This file was changed elsewhere."
+
+msgid "Please update the app to continue."
+msgstr "Please update the app to continue."
+
+msgid "Could not read the file on this device."
+msgstr "Could not read the file on this device."
+
+msgid "Something went wrong."
+msgstr "Something went wrong."
+
+msgid "The file is empty."
+msgstr "The file is empty."
+
+msgid "The file is too large."
+msgstr "The file is too large."
+
+msgid "This type of file is not supported."
+msgstr "This type of file is not supported."
+
+msgid "The file name is empty or too long."
+msgstr "The file name is empty or too long."
+
+msgid "The task for this file is not valid."
+msgstr "The task for this file is not valid."
+
+msgid "Image"
+msgstr "Image"
+
+msgid "Video"
+msgstr "Video"
+
+msgid "Audio"
+msgstr "Audio"
+
+msgid "Document"
+msgstr "Document"
+
+msgid "Unknown"
+msgstr "Unknown"
+
+msgid "Uploading"
+msgstr "Uploading"
+
+msgid "Processing"
+msgstr "Processing"
+
+msgid "Ready"
+msgstr "Ready"
+
+msgid "Failed"
+msgstr "Failed"
+
+msgid "The uploaded size did not match the file."
+msgstr "The uploaded size did not match the file."
+
+msgid "The content did not match the file type."
+msgstr "The content did not match the file type."
+
+msgid "The file could not be processed."
+msgstr "The file could not be processed."
+
+msgid "{} B"
+msgstr "{} B"
+
+msgid "{} KB"
+msgstr "{} KB"
+
+msgid "{} MB"
+msgstr "{} MB"
+
+msgid "Checking the file..."
+msgstr "Checking the file..."
+
+msgid "Requesting the upload..."
+msgstr "Requesting the upload..."
+
+msgid "Uploading..."
+msgstr "Uploading..."
+
+msgid "Finishing..."
+msgstr "Finishing..."
+
+msgid "This file cannot be uploaded."
+msgstr "This file cannot be uploaded."
+
+msgid "Could not start the upload."
+msgstr "Could not start the upload."
+
+msgid "Could not send the file."
+msgstr "Could not send the file."
+
+msgid "Could not finish the upload."
+msgstr "Could not finish the upload."
+
+msgid "The unfinished upload was removed from the server."
+msgstr "The unfinished upload was removed from the server."
+
+msgid "An unfinished upload may remain on the server and will expire."
+msgstr "An unfinished upload may remain on the server and will expire."
+
+msgid "This file is not ready yet."
+msgstr "This file is not ready yet."
+
+msgid "Video playback is not available yet."
+msgstr "Video playback is not available yet."
+
+msgid "No preview is available for this kind of file."
+msgstr "No preview is available for this kind of file."
+
+msgid "This image is too large to show."
+msgstr "This image is too large to show."
+
+msgid "This image could not be shown."
+msgstr "This image could not be shown."

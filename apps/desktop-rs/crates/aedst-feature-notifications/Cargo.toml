@@ -1,0 +1,31 @@
+[package]
+name = "aedst-feature-notifications"
+version = "0.0.0"
+description = "Notifications: inbox, unread badge with polling backoff, preferences (domain, data, presentation, Slint views, five locales)"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+build = "build.rs"
+
+[dependencies]
+aedst-api = { path = "../aedst-api" }
+aedst-common = { path = "../aedst-common" }
+aedst-contract = { path = "../aedst-contract" }
+buffa = { workspace = true }
+buffa-types = { workspace = true }
+connectrpc = { workspace = true }
+futures = { workspace = true }
+slint = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+[build-dependencies]
+slint-build = { workspace = true }
+
+[dev-dependencies]
+image = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }
+
+[lints]
+workspace = true

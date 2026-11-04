@@ -1,0 +1,416 @@
+name: aedst
+
+# Local development infrastructure.
+#
+#   docker compose -f deployments/docker/docker-compose.yml up -d --wait
+#       -> Postgres + Valkey (the only required services)
+#
+#   ... --profile observability up -d
+#       -> + Grafana otel-lgtm (Grafana, Loki, Tempo, Mimir/Prometheus and an
+#          OTLP receiver in ONE container). Point the server at it with
+#          OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 (see .env.example)
+#          and open Grafana at http://localhost:3001 (admin/admin).
+#
+#   ... --profile idp up -d
+#       -> + ZITADEL (the template's default OIDC provider) on
+#          http://localhost:8085 for exercising the server as an OIDC resource
+#          server (AEDST_OIDC_ISSUER). Then run deployments/zitadel/bootstrap.sh;
+#          see docs/adr/0017-identity-provider.md and .env.example.
+#
+#   ... --profile minio up -d --wait
+#       -> + MinIO (S3-compatible object storage for MediaService) on
+#          localhost:9000 (console :9001, aedst/aedst-dev-secret) with the
+#          bucket "aedst-media" created. Server settings: AEDST_STORAGE_PROVIDER=minio
+#          AEDST_STORAGE_ENDPOINT=http://localhost:9000 AEDST_STORAGE_BUCKET=aedst-media
+#          AEDST_STORAGE_ACCESS_KEY_ID=aedst AEDST_STORAGE_SECRET_ACCESS_KEY=aedst-dev-secret
+#          MinIO no longer publishes free images on Docker Hub; override the
+#          image with AEDST_MINIO_IMAGE (any S3-compatible server works, e.g.
+#          RustFS, since the server only speaks the S3 API).
+#
+#   ... --profile media up -d --wait
+#       -> + MinIO (as above) + imgproxy on localhost:8086 (signed, on-demand
+#          WebP/AVIF renditions of the media bucket; see the imgproxy service).
+#
+#   ... --profile pgbouncer up -d
+#       -> + PgBouncer (transaction pooling) on localhost:6432 in front of
+#          postgres. Point AEDST_DATABASE_URL at it to rehearse production:
+#          postgres://aedst:aedst@localhost:6432/aedst?sslmode=disable
+#          with AEDST_DATABASE_POOLER=pgbouncer (forces pgx CacheDescribe; no
+#          DSN parameter needed) and keep AEDST_DATABASE_DIRECT_DSN on
+#          localhost:5432 (River LISTEN/NOTIFY, advisory locks and migrations
+#          need a direct connection). The server refuses to start with
+#          POOLER=pgbouncer unless DIRECT_DSN or AEDST_JOBS_POLL_ONLY=true.
+#          This standalone image is compose-only; on Kubernetes use the
+#          CloudNativePG Pooler (deployments/k8s/postgres/base/cluster.yaml).
+#
+#   ... --profile pgbouncer --profile loadtest up -d --build --scale server=4
+#       -> + N `server` replicas behind an nginx balancer on localhost:8088,
+#          all going through PgBouncer. Driven by `task loadtest:pgbouncer`
+#          (see docs/content/server/scaling.md). Run `task migrate` first.
+#
+# There is deliberately no message broker: async work (jobs and integration
+# events) is River on Postgres, events inserted transactionally (internal/platform/events).
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: aedst
+      POSTGRES_PASSWORD: aedst
+      POSTGRES_DB: aedst
+    ports:
+      - "5432:5432"
+    volumes:
+      - aedst_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aedst"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Valkey (BSD-3, Linux Foundation) is the cache + rate-limit store. The
+  # server talks to it with the go-redis client; the wire protocol is the same.
+  valkey:
+    image: valkey/valkey:9-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # --- optional: PgBouncer in transaction-pooling mode (compose only) ---
+  # The server forces pgx onto CacheDescribe itself when
+  # AEDST_DATABASE_POOLER=pgbouncer; MAX_PREPARED_STATEMENTS is the safety net
+  # for any other client that does use protocol-level prepared statements
+  # (PgBouncer >= 1.21 tracks and re-prepares them per server connection).
+  # statement_timeout & co. are NOT sent as startup parameters in that mode, so
+  # set them on the role (ALTER ROLE aedst SET statement_timeout = '15s').
+  # UNVERIFIED: whether the edoburu image passes MAX_PREPARED_STATEMENTS,
+  # ADMIN_USERS and STATS_USERS through to pgbouncer.ini - the load-test helper
+  # (scripts/loadtest-pgbouncer-watch.sh check-config) asserts it via SHOW CONFIG.
+  pgbouncer:
+    profiles: ["pgbouncer"]
+    image: edoburu/pgbouncer:v1.26.1-p0
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: aedst
+      DB_PASSWORD: aedst
+      DB_NAME: aedst
+      LISTEN_PORT: "6432"
+      POOL_MODE: transaction
+      AUTH_TYPE: scram-sha-256
+      MAX_CLIENT_CONN: "1000"
+      DEFAULT_POOL_SIZE: "20"
+      MAX_PREPARED_STATEMENTS: "200"
+      ADMIN_USERS: aedst
+      STATS_USERS: aedst
+      IGNORE_STARTUP_PARAMETERS: extra_float_digits,statement_timeout,idle_in_transaction_session_timeout,options
+    ports:
+      - "6432:6432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # --- optional: N server replicas through PgBouncer (load-test profile) ---
+  # `--scale server=N` to choose the pod count. Pool arithmetic per replica:
+  # API pool 8 conns through PgBouncer, jobs pool 4 conns direct to Postgres.
+  # Rate limits are off because every virtual user shares one account.
+  server:
+    profiles: ["loadtest"]
+    build:
+      context: ../..
+      dockerfile: deployments/docker/Dockerfile
+    environment:
+      AEDST_ENV: development
+      AEDST_DATABASE_URL: postgres://aedst:aedst@pgbouncer:6432/aedst?sslmode=disable
+      AEDST_DATABASE_POOLER: pgbouncer
+      AEDST_DATABASE_DIRECT_DSN: postgres://aedst:aedst@postgres:5432/aedst?sslmode=disable
+      AEDST_DATABASE_MAX_CONNS: ${LOADTEST_API_MAX_CONNS:-8}
+      AEDST_DATABASE_MIN_CONNS: "2"
+      AEDST_DATABASE_JOBS_MAX_CONNS: ${LOADTEST_JOBS_MAX_CONNS:-4}
+      AEDST_VALKEY_ADDR: valkey:6379
+      AEDST_API_RATE_LIMIT_PER_MINUTE: "0"
+      AEDST_AUTH_RATE_LIMIT_PER_MINUTE: "100000"
+      # The server only verifies OIDC tokens (ADR-0019): point it at your provider
+      # (exported before `task loadtest:pgbouncer`) and pass TOKEN=<bearer> to k6.
+      AEDST_OIDC_ISSUER: ${AEDST_OIDC_ISSUER:-http://host.docker.internal:8085}
+      AEDST_OIDC_AUDIENCE: ${AEDST_OIDC_AUDIENCE:-aedst}
+      AEDST_OIDC_ROLES_CLAIM: ${AEDST_OIDC_ROLES_CLAIM:-urn:zitadel:iam:org:project:roles}
+      AEDST_LOG_LEVEL: warn
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+
+  # Round-robin entry point for the scaled `server` replicas (Docker DNS returns
+  # every replica; nginx re-resolves every 5 s, see loadtest-nginx.conf).
+  loadbalancer:
+    profiles: ["loadtest"]
+    image: nginx:stable-alpine
+    ports:
+      - "8088:80"
+    volumes:
+      - ./loadtest-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - server
+
+  # --- optional: S3-compatible object storage for media (dev only) ---
+  minio:
+    profiles: ["minio", "media"]
+    image: ${AEDST_MINIO_IMAGE:-quay.io/minio/minio:latest}
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: aedst
+      MINIO_ROOT_PASSWORD: aedst-dev-secret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - aedst_minio_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local || curl -fsS http://localhost:9000/minio/health/live"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  minio-init:
+    profiles: ["minio", "media"]
+    image: ${AEDST_MINIO_IMAGE:-quay.io/minio/minio:latest}
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        mc alias set local http://minio:9000 aedst aedst-dev-secret &&
+        mc mb --ignore-existing local/aedst-media
+    restart: "no"
+
+  # --- optional: imgproxy, on-demand image delivery (ADR-0015) ---
+  # Reads the sanitized originals from MinIO and renders the presets
+  # (thumb_64, avatar_256, card_400, feed_800x600, story_1080x1350) as
+  # WebP/AVIF/JPEG per the request's Accept header. The server only signs
+  # URLs: set AEDST_IMGPROXY_ENABLED=true AEDST_IMGPROXY_URL=http://localhost:8086
+  # AEDST_IMGPROXY_KEY / AEDST_IMGPROXY_SALT to the values below (dev-only hex,
+  # not secrets). IMGPROXY_PRESETS must equal imgproxy.PresetsEnv
+  # (internal/platform/imgproxy). Image tag verified on Docker Hub
+  # (darthsim/imgproxy v4.0.20, 2026-10-28); the env var names follow
+  # docs.imgproxy.net (v4) but this service was NOT started where it was authored.
+  imgproxy:
+    profiles: ["media"]
+    image: ${AEDST_IMGPROXY_IMAGE:-darthsim/imgproxy:v4.0.20}
+    environment:
+      IMGPROXY_BIND: ":8080"
+      IMGPROXY_KEY: ${AEDST_IMGPROXY_KEY:-61656473742d6465762d696d6770726f78792d6b6579}
+      IMGPROXY_SALT: ${AEDST_IMGPROXY_SALT:-61656473742d6465762d696d6770726f78792d73616c74}
+      IMGPROXY_USE_S3: "true"
+      IMGPROXY_S3_ENDPOINT: http://minio:9000
+      IMGPROXY_S3_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: aedst
+      AWS_SECRET_ACCESS_KEY: aedst-dev-secret
+      IMGPROXY_ALLOWED_SOURCES: s3://aedst-media/
+      IMGPROXY_PRESETS: "thumb_64=resize:fill:64:64/gravity:sm,avatar_256=resize:fill:256:256/gravity:sm,card_400=resize:fit:400:0,feed_800x600=resize:fill:800:600/gravity:sm,story_1080x1350=resize:fill:1080:1350/gravity:sm"
+      IMGPROXY_AUTO_WEBP: "true"
+      IMGPROXY_AUTO_AVIF: "true"
+      IMGPROXY_MAX_SRC_RESOLUTION: "50"
+      IMGPROXY_MAX_SRC_FILE_SIZE: "20971520"
+    ports:
+      - "8086:8080"
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "imgproxy", "health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # --- optional: observability (OpenTelemetry backend in one container) ---
+  otel-lgtm:
+    profiles: ["observability"]
+    image: grafana/otel-lgtm:0.38.1
+    ports:
+      - "3001:3000" # Grafana (3001 to avoid clashing with apps/web on 3000)
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    volumes:
+      - aedst_lgtm_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # --- optional: ZITADEL, the template's default OIDC identity provider ---
+  # Dev-only: HTTP on localhost:8085, throwaway credentials, a dedicated
+  # Postgres. Mirrors ZITADEL's official compose stack (Traefik -> API + Login
+  # UI v2 -> Postgres; github.com/zitadel/zitadel/deploy/compose). ZITADEL is
+  # AGPL-3.0: run it unmodified as this separate service (ADR-0017).
+  # Its Postgres is a dedicated container, never the app database and never the
+  # pgbouncer profile (ZITADEL must not sit behind a transaction-mode pooler).
+  # In Kubernetes: same CloudNativePG cluster, separate database and role, direct
+  # connection (deployments/k8s/postgres/base/cluster.yaml, deployments/zitadel/).
+  # Console: http://localhost:8085/ui/console  (zitadel-admin@zitadel.localhost / Password1!)
+  # After "up --wait", run deployments/zitadel/bootstrap.sh to create the
+  # project, roles, PKCE app and service user.
+  zitadel-proxy:
+    profiles: ["idp"]
+    image: traefik:v3.7.16
+    restart: unless-stopped
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=aedst_zitadel
+      - --entrypoints.web.address=:80
+      - --api.insecure=false
+      - --ping=true
+      - --ping.entrypoint=web
+    ports:
+      - "8085:80"
+    networks: [zitadel]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      zitadel-api:
+        condition: service_healthy
+      zitadel-login:
+        condition: service_healthy
+
+  zitadel-api:
+    profiles: ["idp"]
+    image: ghcr.io/zitadel/zitadel:${AEDST_ZITADEL_VERSION:-v4.20.0}
+    restart: unless-stopped
+    user: "0"
+    # Exactly 32 characters, immutable after first start. Dev value only.
+    command: start-from-init --masterkey "MasterkeyNeedsToHave32Characters"
+    environment:
+      ZITADEL_PORT: 8080
+      ZITADEL_EXTERNALDOMAIN: localhost
+      ZITADEL_EXTERNALPORT: 8085
+      ZITADEL_EXTERNALSECURE: "false"
+      ZITADEL_TLS_ENABLED: "false"
+      ZITADEL_DATABASE_POSTGRES_DSN: postgresql://postgres:postgres@zitadel-postgres:5432/zitadel?sslmode=disable
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: "false"
+      ZITADEL_FIRSTINSTANCE_LOGINCLIENTPATPATH: /zitadel/bootstrap/login-client.pat
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_USERNAME: login-client
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_NAME: Automatically Initialized IAM_LOGIN_CLIENT
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_PAT_EXPIRATIONDATE: "2099-01-01T00:00:00Z"
+      # Admin machine user + PAT used by deployments/zitadel/bootstrap.sh
+      # (written to deployments/zitadel/.local/admin.pat, git-ignored).
+      ZITADEL_FIRSTINSTANCE_PATPATH: /zitadel/local/admin.pat
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME: aedst-bootstrap
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME: AEDST bootstrap
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_PAT_EXPIRATIONDATE: "2099-01-01T00:00:00Z"
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_REQUIRED: "true"
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_BASEURI: http://localhost:8085/ui/v2/login/
+      ZITADEL_OIDC_DEFAULTLOGINURLV2: http://localhost:8085/ui/v2/login/login?authRequest=
+      ZITADEL_OIDC_DEFAULTLOGOUTURLV2: http://localhost:8085/ui/v2/login/logout?post_logout_redirect=
+      ZITADEL_SAML_DEFAULTLOGINURLV2: http://localhost:8085/ui/v2/login/login?samlRequest=
+      # Accept argon2id and bcrypt hashes of imported users (import-users.sh); without this only the
+      # active hasher (bcrypt) is accepted and an argon2id hash fails with CRYPT-r8Qm2.
+      ZITADEL_SYSTEMDEFAULTS_PASSWORDHASHER_VERIFIERS: argon2,bcrypt
+    healthcheck:
+      test: ["CMD", "/app/zitadel", "ready"]
+      interval: 10s
+      timeout: 30s
+      retries: 12
+      start_period: 20s
+    volumes:
+      - zitadel_bootstrap:/zitadel/bootstrap:rw
+      - ../zitadel/.local:/zitadel/local:rw
+    networks: [zitadel]
+    depends_on:
+      zitadel-postgres:
+        condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=aedst_zitadel
+      - traefik.http.services.zitadel-api.loadbalancer.server.port=8080
+      - traefik.http.services.zitadel-api.loadbalancer.server.scheme=h2c
+      - traefik.http.middlewares.zitadel-strip-api.stripprefix.prefixes=/api
+      - traefik.http.middlewares.zitadel-strip-api.stripprefix.forceSlash=false
+      - traefik.http.routers.zitadel-api-alias-web.rule=Host(`localhost`) && PathPrefix(`/api`)
+      - traefik.http.routers.zitadel-api-alias-web.entrypoints=web
+      - traefik.http.routers.zitadel-api-alias-web.middlewares=zitadel-strip-api
+      - traefik.http.routers.zitadel-api-alias-web.service=zitadel-api
+      - traefik.http.routers.zitadel-api-alias-web.priority=200
+      - traefik.http.routers.zitadel-canonical-web.rule=Host(`localhost`) && !PathPrefix(`/ui/v2/login`) && !PathPrefix(`/api`) && !Path(`/`)
+      - traefik.http.routers.zitadel-canonical-web.entrypoints=web
+      - traefik.http.routers.zitadel-canonical-web.service=zitadel-api
+      - traefik.http.routers.zitadel-canonical-web.priority=100
+
+  zitadel-login:
+    profiles: ["idp"]
+    image: ghcr.io/zitadel/zitadel-login:${AEDST_ZITADEL_VERSION:-v4.20.0}
+    restart: unless-stopped
+    user: "0"
+    environment:
+      ZITADEL_API_URL: http://zitadel-api:8080
+      NEXT_PUBLIC_BASE_PATH: /ui/v2/login
+      ZITADEL_SERVICE_USER_TOKEN_FILE: /zitadel/bootstrap/login-client.pat
+      ZITADEL_SESSION_COOKIE_SECRET: dev-only-cookie-secret-change-me-0123456789
+      CUSTOM_REQUEST_HEADERS: Host:localhost,X-Forwarded-Proto:http
+    healthcheck:
+      test: ["CMD", "/bin/sh", "-c", "node /app/healthcheck.mjs http://localhost:3000/ui/v2/login/healthy"]
+      interval: 10s
+      timeout: 30s
+      retries: 12
+      start_period: 20s
+    volumes:
+      - zitadel_bootstrap:/zitadel/bootstrap:ro
+    networks: [zitadel]
+    depends_on:
+      zitadel-api:
+        condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=aedst_zitadel
+      - traefik.http.services.zitadel-login.loadbalancer.server.port=3000
+      - traefik.http.middlewares.zitadel-root-rewrite.replacepath.path=/ui/v2/login/
+      - traefik.http.routers.zitadel-root-web.rule=Host(`localhost`) && Path(`/`)
+      - traefik.http.routers.zitadel-root-web.entrypoints=web
+      - traefik.http.routers.zitadel-root-web.middlewares=zitadel-root-rewrite
+      - traefik.http.routers.zitadel-root-web.service=zitadel-login
+      - traefik.http.routers.zitadel-root-web.priority=400
+      - traefik.http.routers.zitadel-login-web.rule=Host(`localhost`) && PathPrefix(`/ui/v2/login`)
+      - traefik.http.routers.zitadel-login-web.entrypoints=web
+      - traefik.http.routers.zitadel-login-web.service=zitadel-login
+      - traefik.http.routers.zitadel-login-web.priority=250
+
+  zitadel-postgres:
+    profiles: ["idp"]
+    image: postgres:17.11-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: zitadel
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d zitadel -U postgres"]
+      interval: 10s
+      timeout: 30s
+      retries: 10
+      start_period: 20s
+    volumes:
+      - zitadel_postgres_data:/var/lib/postgresql/data:rw
+    networks: [zitadel]
+
+networks:
+  zitadel:
+    name: aedst_zitadel
+
+volumes:
+  aedst_postgres_data:
+  zitadel_postgres_data:
+  zitadel_bootstrap:
+  aedst_lgtm_data:
+  aedst_minio_data:

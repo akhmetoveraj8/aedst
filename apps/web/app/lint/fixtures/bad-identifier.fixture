@@ -1,0 +1,4 @@
+//// run: biome
+//// expect: useNamingConvention
+//// file: src/shared/lib/bad-identifier.ts
+export const my_value = 1;

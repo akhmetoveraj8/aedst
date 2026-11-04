@@ -1,0 +1,118 @@
+# aedst-feature-notifications: Notifications views strings (en).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-notifications\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You are offline. Try again when you are connected."
+msgstr "You are offline. Try again when you are connected."
+
+msgid "The server is not available right now."
+msgstr "The server is not available right now."
+
+msgid "The request took too long."
+msgstr "The request took too long."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "Too many requests. Try again in a moment."
+
+msgid "Please sign in again."
+msgstr "Please sign in again."
+
+msgid "You do not have access to this."
+msgstr "You do not have access to this."
+
+msgid "This notification no longer exists."
+msgstr "This notification no longer exists."
+
+msgid "The server did not accept this input."
+msgstr "The server did not accept this input."
+
+msgid "This was changed elsewhere."
+msgstr "This was changed elsewhere."
+
+msgid "Please update the app to continue."
+msgstr "Please update the app to continue."
+
+msgid "Could not save on this device."
+msgstr "Could not save on this device."
+
+msgid "Something went wrong."
+msgstr "Something went wrong."
+
+msgid "Task completed"
+msgstr "Task completed"
+
+msgid "Task due soon"
+msgstr "Task due soon"
+
+msgid "Media ready"
+msgstr "Media ready"
+
+msgid "System"
+msgstr "System"
+
+msgid "Other"
+msgstr "Other"
+
+msgid "Unread: {}"
+msgstr "Unread: {}"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "{} unread"
+msgstr "{} unread"
+
+msgid "Marking..."
+msgstr "Marking..."
+
+msgid "Mark all as read"
+msgstr "Mark all as read"
+
+msgid "All"
+msgstr "All"
+
+msgid "Unread"
+msgstr "Unread"
+
+msgid "Loading..."
+msgstr "Loading..."
+
+msgid "Could not load notifications"
+msgstr "Could not load notifications"
+
+msgid "Try again"
+msgstr "Try again"
+
+msgid "No unread notifications"
+msgstr "No unread notifications"
+
+msgid "No notifications yet"
+msgstr "No notifications yet"
+
+msgid "You are all caught up."
+msgstr "You are all caught up."
+
+msgid "Load more"
+msgstr "Load more"
+
+msgid "Notification preferences"
+msgstr "Notification preferences"
+
+msgid "Could not load preferences"
+msgstr "Could not load preferences"
+
+msgid "Choose which notifications you receive."
+msgstr "Choose which notifications you receive."
+
+msgid "Show notifications"
+msgstr "Show notifications"
+
+msgid "Could not save the setting. {}"
+msgstr "Could not save the setting. {}"

@@ -1,0 +1,28 @@
+import AedstCore
+import Observation
+
+@MainActor
+@Observable
+public final class {{Name}}ViewModel {
+    public private(set) var entries: [{{Name}}Entry] = []
+    public private(set) var isLoading = false
+    /// Bound to `aedstErrorPresenter`.
+    public var error: AedstError?
+
+    private let repository: any {{Name}}Repository
+
+    public init(repository: any {{Name}}Repository) {
+        self.repository = repository
+    }
+
+    public func load() async {
+        isLoading = true
+        defer { isLoading = false }
+        switch await repository.entries() {
+        case .success(let loaded):
+            entries = loaded
+        case .failure(let failure):
+            error = failure
+        }
+    }
+}

@@ -1,0 +1,6 @@
+//// run: validation
+//// expect: hand-written validator
+//// file: src/modules/tasks/lib/title-rules.ts
+export function validateTitle(title: string): boolean {
+  return title.trim().length > 0 && title.length <= 120;
+}

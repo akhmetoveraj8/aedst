@@ -1,0 +1,22 @@
+aedst-server {{ include "aedst-server.imageTag" . }} deployed to namespace {{ .Release.Namespace }} (env: {{ .Values.config.env }}).
+
+Secret: {{ include "aedst-server.secretName" . }} (must already exist; keys: {{ .Values.database.dsnSecretKey }}{{ if .Values.database.directDsnSecretKey }}, {{ .Values.database.directDsnSecretKey }}{{ end }})
+
+Reach the API from inside the cluster at:
+  http://{{ include "aedst-server.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+
+Smoke test:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "aedst-server.fullname" . }} 8080:{{ .Values.service.port }}
+  curl -fsS localhost:8080/readyz
+
+Database checklist for production:
+  - {{ .Values.database.dsnSecretKey }} should target the connection pooler (on Kubernetes the
+    CloudNativePG Pooler, deployments/k8s/postgres/cluster.yaml; no separate PgBouncer image).
+    database.pooler is "{{ .Values.database.pooler | default "none" }}": set it to "pgbouncer" when the DSN is pooled so the server
+    forces pgx QueryExecModeCacheDescribe (no DSN parameter needed).
+  - database.pooler=pgbouncer needs database.directDsnSecretKey (or database.jobsPollOnly=true);
+    the server refuses to start otherwise.
+{{- if not .Values.database.directDsnSecretKey }}
+  - WARNING: database.directDsnSecretKey is empty. Session advisory locks and River
+    LISTEN/NOTIFY will use the main DSN; do not point it at a transaction pooler.
+{{- end }}

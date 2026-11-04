@@ -1,0 +1,6 @@
+//// run: biome
+//// expect: noExplicitAny
+//// file: src/shared/lib/bad-any.ts
+export function parse(input: any) {
+  return input;
+}

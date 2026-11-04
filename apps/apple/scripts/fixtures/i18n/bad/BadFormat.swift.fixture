@@ -1,0 +1,6 @@
+// NEGATIVE FIXTURE: each of these four forms must be flagged.
+let a = String(format: String(localized: "tasksDue", bundle: .module), formatted)
+let b = String(format: NSLocalizedString("tasksDue", comment: ""), formatted)
+let c = String.localizedStringWithFormat(String(localized: "n", bundle: .module), 3)
+let d = String(format:
+    String(localized: "split", bundle: .module), 3)

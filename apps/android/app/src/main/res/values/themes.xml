@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.Aedst" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Launch theme: AndroidX SplashScreen shows it while MainActivity waits for the session restore, then
+         swaps to Theme.Aedst. -->
+    <style name="Theme.Aedst.Starting" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/Theme.Aedst</item>
+    </style>
+</resources>

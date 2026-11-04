@@ -1,0 +1,27 @@
+import AedstDesignSystem
+import SwiftUI
+
+public struct {{Name}}View: View {
+    @State private var viewModel: {{Name}}ViewModel
+
+    public init(viewModel: {{Name}}ViewModel) {
+        self._viewModel = State(wrappedValue: viewModel)
+    }
+
+    public var body: some View {
+        @Bindable var viewModel = viewModel
+
+        List {
+            if viewModel.entries.isEmpty, !viewModel.isLoading {
+                Text(String(localized: "{{name}}Empty", bundle: .module))
+                    .foregroundStyle(AedstColor.mutedForeground)
+            }
+            ForEach(viewModel.entries) { entry in
+                Text(entry.title)
+            }
+        }
+        .navigationTitle(String(localized: "{{name}}Title", bundle: .module))
+        .task { await viewModel.load() }
+        .aedstErrorPresenter($viewModel.error)
+    }
+}

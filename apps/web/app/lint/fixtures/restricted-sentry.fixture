@@ -1,0 +1,6 @@
+//// run: biome
+//// expect: one Sentry path
+//// file: src/modules/tasks/lib/bad-sentry.ts
+import * as Sentry from "@sentry/nextjs";
+
+export const boom = (error: unknown) => Sentry.captureException(error);

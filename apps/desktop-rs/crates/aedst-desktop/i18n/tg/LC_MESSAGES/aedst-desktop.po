@@ -1,0 +1,100 @@
+# aedst-desktop: window shell strings (tg).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-desktop\n"
+"Language: tg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Tasks"
+msgstr "Вазифаҳо"
+
+msgid "Search"
+msgstr "Ҷустуҷӯ"
+
+msgid "Notifications"
+msgstr "Огоҳиномаҳо"
+
+msgid "Files"
+msgstr "Файлҳо"
+
+msgid "Admin"
+msgstr "Маъмурият"
+
+msgid "Sign out"
+msgstr "Баромад"
+
+msgid "Inbox"
+msgstr "Воридот"
+
+msgid "Preferences"
+msgstr "Танзимот"
+
+msgid "Starting..."
+msgstr "Оғоз шуда истодааст..."
+
+msgid "Sign in to continue"
+msgstr "Барои идома ворид шавед"
+
+msgid "Continue in browser"
+msgstr "Дар браузер идома диҳед"
+
+msgid "Waiting for the browser..."
+msgstr "Интизори браузер..."
+
+msgid "Cancel"
+msgstr "Бекор кардан"
+
+msgid "Sign-in failed. Please try again."
+msgstr "Ворид нашуд. Бори дигар кӯшиш кунед."
+
+msgid "Could not reach the identity provider."
+msgstr "Ба хидмати ворид шудан пайваст нашуд."
+
+msgid "Secure storage is not available on this device."
+msgstr "Захирагоҳи бехатар дар ин дастгоҳ дастнорас аст."
+
+msgid "Sign-in timed out."
+msgstr "Мӯҳлати ворид шудан гузашт."
+
+msgid "Sign-in is not configured."
+msgstr "Ворид шудан танзим нашудааст."
+
+msgid "Privacy"
+msgstr "Махфият"
+
+msgid "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device."
+msgstr "Чизе фиристода намешавад, то шумо дар ин ҷо иҷозат надиҳед. Маълумоти шахсӣ пеш аз фиристодан тоза карда мешавад."
+
+msgid "Send crash reports"
+msgstr "Фиристодани ҳисоботҳои хатогӣ"
+
+msgid "Technical details about a failure, so it can be fixed."
+msgstr "Маълумоти техникӣ дар бораи хатогӣ барои ислоҳи он."
+
+msgid "Share anonymous usage statistics"
+msgstr "Мубодилаи омори беному истифода"
+
+msgid "Which features are used, never what you type."
+msgstr "Кадом хусусиятҳо истифода мешаванд, на он чӣ шумо менависед."
+
+msgid "Not available in this build."
+msgstr "Дар ин нусха дастнорас аст."
+
+msgid "A new version is available"
+msgstr "Версияи нав мавҷуд аст"
+
+msgid "Downloading the update: {}%"
+msgstr "Боркунии навсозӣ: {}%"
+
+msgid "Restart to update"
+msgstr "Барои навсозӣ аз нав оғоз кунед"
+
+msgid "Update required"
+msgstr "Навсозӣ лозим аст"
+
+msgid "This version of the app is too old for the server. Please update it to continue."
+msgstr "Ин версияи барнома барои сервер хеле кӯҳна аст. Барои идома додан онро навсозӣ кунед."

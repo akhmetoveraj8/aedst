@@ -1,0 +1,196 @@
+# aedst-feature-media: Media screen strings (ar).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-media\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+msgid "Upload file"
+msgstr "رفع ملف"
+
+msgid "Uploading... {}%"
+msgstr "جارٍ الرفع... {}%"
+
+msgid "Dismiss"
+msgstr "إغلاق"
+
+msgid "Media"
+msgstr "الوسائط"
+
+msgid "Loading..."
+msgstr "جارٍ التحميل..."
+
+msgid "Could not load media"
+msgstr "تعذّر تحميل الوسائط"
+
+msgid "Try again"
+msgstr "حاول مرة أخرى"
+
+msgid "No files yet"
+msgstr "لا توجد ملفات بعد"
+
+msgid "Upload your first file above."
+msgstr "ارفع ملفك الأول أعلاه."
+
+msgid "Load more"
+msgstr "عرض المزيد"
+
+msgid "Back"
+msgstr "رجوع"
+
+msgid "View"
+msgstr "عرض"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Delete this file?"
+msgstr "هل تريد حذف هذا الملف؟"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "You are offline. Try again when you are connected."
+msgstr "أنت غير متصل. حاول مرة أخرى عند الاتصال."
+
+msgid "The server is not available right now."
+msgstr "الخادم غير متاح حاليًا."
+
+msgid "The request took too long."
+msgstr "استغرق الطلب وقتًا طويلًا."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "طلبات كثيرة جدًا. حاول مرة أخرى بعد قليل."
+
+msgid "Please sign in again."
+msgstr "يرجى تسجيل الدخول مرة أخرى."
+
+msgid "You do not have access to this."
+msgstr "ليس لديك صلاحية الوصول إلى هذا."
+
+msgid "This file no longer exists."
+msgstr "هذا الملف لم يعد موجودًا."
+
+msgid "The server did not accept this file."
+msgstr "لم يقبل الخادم هذا الملف."
+
+msgid "This file was changed elsewhere."
+msgstr "تم تغيير هذا الملف في مكان آخر."
+
+msgid "Please update the app to continue."
+msgstr "يرجى تحديث التطبيق للمتابعة."
+
+msgid "Could not read the file on this device."
+msgstr "تعذّرت قراءة الملف على هذا الجهاز."
+
+msgid "Something went wrong."
+msgstr "حدث خطأ ما."
+
+msgid "The file is empty."
+msgstr "الملف فارغ."
+
+msgid "The file is too large."
+msgstr "الملف كبير جدًا."
+
+msgid "This type of file is not supported."
+msgstr "هذا النوع من الملفات غير مدعوم."
+
+msgid "The file name is empty or too long."
+msgstr "اسم الملف فارغ أو طويل جدًا."
+
+msgid "The task for this file is not valid."
+msgstr "المهمة الخاصة بهذا الملف غير صالحة."
+
+msgid "Image"
+msgstr "صورة"
+
+msgid "Video"
+msgstr "فيديو"
+
+msgid "Audio"
+msgstr "صوت"
+
+msgid "Document"
+msgstr "مستند"
+
+msgid "Unknown"
+msgstr "غير معروف"
+
+msgid "Uploading"
+msgstr "جارٍ الرفع"
+
+msgid "Processing"
+msgstr "قيد المعالجة"
+
+msgid "Ready"
+msgstr "جاهز"
+
+msgid "Failed"
+msgstr "فشل"
+
+msgid "The uploaded size did not match the file."
+msgstr "حجم الملف المرفوع لا يطابق حجم الملف."
+
+msgid "The content did not match the file type."
+msgstr "المحتوى لا يطابق نوع الملف."
+
+msgid "The file could not be processed."
+msgstr "تعذّرت معالجة الملف."
+
+msgid "{} B"
+msgstr "{} بايت"
+
+msgid "{} KB"
+msgstr "{} ك.ب"
+
+msgid "{} MB"
+msgstr "{} م.ب"
+
+msgid "Checking the file..."
+msgstr "جارٍ فحص الملف..."
+
+msgid "Requesting the upload..."
+msgstr "جارٍ طلب الرفع..."
+
+msgid "Uploading..."
+msgstr "جارٍ الرفع..."
+
+msgid "Finishing..."
+msgstr "جارٍ الإنهاء..."
+
+msgid "This file cannot be uploaded."
+msgstr "لا يمكن رفع هذا الملف."
+
+msgid "Could not start the upload."
+msgstr "تعذّر بدء الرفع."
+
+msgid "Could not send the file."
+msgstr "تعذّر إرسال الملف."
+
+msgid "Could not finish the upload."
+msgstr "تعذّر إنهاء الرفع."
+
+msgid "The unfinished upload was removed from the server."
+msgstr "تمت إزالة الرفع غير المكتمل من الخادم."
+
+msgid "An unfinished upload may remain on the server and will expire."
+msgstr "قد يبقى رفع غير مكتمل على الخادم وستنتهي صلاحيته."
+
+msgid "This file is not ready yet."
+msgstr "هذا الملف ليس جاهزًا بعد."
+
+msgid "Video playback is not available yet."
+msgstr "تشغيل الفيديو غير متاح بعد."
+
+msgid "No preview is available for this kind of file."
+msgstr "لا تتوفر معاينة لهذا النوع من الملفات."
+
+msgid "This image is too large to show."
+msgstr "هذه الصورة كبيرة جدًا للعرض."
+
+msgid "This image could not be shown."
+msgstr "تعذّر عرض هذه الصورة."

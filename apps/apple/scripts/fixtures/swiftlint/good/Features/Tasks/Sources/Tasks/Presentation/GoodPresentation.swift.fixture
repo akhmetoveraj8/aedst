@@ -1,0 +1,27 @@
+// POSITIVE FIXTURE: allowed shapes and the documented escape hatches. Must produce zero violations.
+// Comments never match: print("x"), ObservableObject, Date(), Task.detached, AsyncImage(url:), .sheet(
+/// Doc comment mentioning UserDefaults.standard and import Combine.
+import AedstDesignSystem
+import SwiftUI
+
+struct GoodView: View {
+    let clock: any AedstClock
+    @State private var isPresented = false
+
+    var body: some View {
+        VStack {
+            Text(String(localized: "goodTitle", bundle: .module))
+            Text(verbatim: "AEDST")
+            Text("Preview only") // i18n-ok: preview
+            Label(String(localized: "goodLabel", bundle: .module), systemImage: "plus")
+            NavigationLink(value: GoodRoute.detail) { Text(verbatim: "go") }
+        }
+        .aedstSheet(isPresented: $isPresented) { EmptyView() }
+        .task {
+            try? await Task.sleep(for: .seconds(1))
+            _ = clock.now
+            Task.detached(priority: .utility) { await work() } // concurrency-ok: off the main actor
+        }
+        /* block comment: print("x") Task.sleep(nanoseconds: 1) */
+    }
+}

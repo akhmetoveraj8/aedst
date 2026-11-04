@@ -1,0 +1,35 @@
+{
+  "title": "Qidiruv",
+  "metaTitle": "Qidiruv",
+  "label": "Hamma joydan qidirish",
+  "placeholder": "Vazifalar va fayllarni qidirish…",
+  "kindsLabel": "Turi bo‘yicha filtr",
+  "kinds": {
+    "all": "Hammasi",
+    "task": "Vazifalar",
+    "media": "Fayllar"
+  },
+  "resultsLabel": "Qidiruv natijalari",
+  "emptyPrompt": "Vazifa va fayllarni topish uchun yozing.",
+  "noResults": "Hech narsa topilmadi",
+  "noResultsDescription": "Boshqa so‘zlar yoki boshqa filtrni sinab ko‘ring.",
+  "errorTitle": "Qidiruv amalga oshmadi",
+  "retry": "Qayta urinish",
+  "loadMore": "Yana ko‘rsatish",
+  "resultsCount": "{count, plural, one {# natija} other {# natija}}",
+  "updated": "Yangilangan: {date}",
+  "palette": {
+    "title": "Buyruqlar paneli",
+    "description": "Qidiring yoki amalga o‘ting",
+    "placeholder": "Qidiruv yoki buyruq…",
+    "open": "Qidiruv…",
+    "searching": "Qidirilmoqda…",
+    "noResults": "Natija yo‘q.",
+    "results": "Natijalar",
+    "searchAll": "«{query}» bo‘yicha qidirish",
+    "actions": "Amallar",
+    "newTask": "Vazifa yaratish",
+    "goTasks": "Vazifalarga o‘tish",
+    "goNotifications": "Bildirishnomalarga o‘tish"
+  }
+}

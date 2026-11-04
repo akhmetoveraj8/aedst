@@ -1,0 +1,20 @@
+-- +goose Up
+CREATE SCHEMA IF NOT EXISTS {{name}};
+
+-- No FK from owner_id to another module's schema: modules never reference
+-- another module's tables (docs/content/server/database.md). The owner id comes
+-- from the verified token, not from a request field.
+CREATE TABLE {{name}}.entries (
+    id         UUID PRIMARY KEY,
+    owner_id   UUID NOT NULL,
+    title      TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Every query is scoped to the owner first; created_at DESC is the natural
+-- listing order (keyset pagination, see internal/shared/pagination).
+CREATE INDEX idx_{{name}}_entries_owner_created ON {{name}}.entries (owner_id, created_at DESC, id);
+
+-- +goose Down
+DROP TABLE {{name}}.entries;
+DROP SCHEMA {{name}};

@@ -1,0 +1,4 @@
+//// run: colors
+//// expect: #ff0000
+//// file: src/modules/tasks/ui/BadHex.tsx
+export const BadHex = () => <p style={{ color: "#ff0000" }}>x</p>;

@@ -1,0 +1,96 @@
+{
+  "dashboard": {
+    "title": "Задачи",
+    "totalTasks": "Всего задач",
+    "todo": "К выполнению",
+    "inProgress": "В работе",
+    "completed": "Выполнено",
+    "overdue": "Просрочено"
+  },
+  "list": {
+    "searchPlaceholder": "Поиск задач…",
+    "newTask": "Новая задача",
+    "allStatuses": "Все статусы",
+    "allPriorities": "Все приоритеты",
+    "sortCreatedDesc": "Сначала новые",
+    "sortCreatedAsc": "Сначала старые",
+    "sortDueAsc": "По сроку (ближайшие)",
+    "sortDueDesc": "По сроку (дальние)",
+    "emptyTitle": "Пока нет задач",
+    "emptyDescription": "Создайте первую задачу, чтобы начать.",
+    "noResultsTitle": "Ничего не найдено",
+    "noResultsDescription": "Попробуйте изменить поиск или фильтры.",
+    "errorTitle": "Не удалось загрузить задачи",
+    "retry": "Повторить",
+    "previousPage": "Назад",
+    "nextPage": "Вперёд",
+    "due": "Срок: {date}",
+    "searchLabel": "Поиск задач",
+    "statusFilterLabel": "Фильтр по статусу",
+    "priorityFilterLabel": "Фильтр по приоритету",
+    "sortLabel": "Сортировка задач",
+    "paginationLabel": "Постраничная навигация",
+    "resultsLabel": "Задачи",
+    "resultCount": "{count, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}}"
+  },
+  "status": {
+    "todo": "К выполнению",
+    "inProgress": "В работе",
+    "done": "Выполнено"
+  },
+  "priority": {
+    "low": "Низкий",
+    "medium": "Средний",
+    "high": "Высокий",
+    "urgent": "Срочный"
+  },
+  "form": {
+    "createTitle": "Новая задача",
+    "editTitle": "Редактирование задачи",
+    "titleLabel": "Название",
+    "titleRequired": "Название обязательно.",
+    "titleTooLong": "Не более 200 символов.",
+    "descriptionLabel": "Описание",
+    "descriptionTooLong": "Не более 4000 символов.",
+    "priorityLabel": "Приоритет",
+    "priorityRequired": "Выберите приоритет.",
+    "dueDateLabel": "Срок выполнения",
+    "dueDateOptional": "Необязательно",
+    "cancel": "Отмена",
+    "create": "Создать задачу",
+    "save": "Сохранить изменения",
+    "error": "Не удалось сохранить: {message}"
+  },
+  "details": {
+    "backToList": "К списку задач",
+    "createdBy": "Создал(а)",
+    "you": "вы",
+    "createdAt": "Создано",
+    "updatedAt": "Обновлено",
+    "dueDate": "Срок выполнения",
+    "noDueDate": "Без срока",
+    "edit": "Редактировать",
+    "complete": "Отметить выполненной",
+    "reopen": "Вернуть в работу",
+    "delete": "Удалить",
+    "deleteConfirmTitle": "Удалить эту задачу?",
+    "deleteConfirmDescription": "Это действие нельзя отменить.",
+    "deleteConfirmAction": "Удалить",
+    "deleteCancelAction": "Отмена",
+    "notFoundTitle": "Задача не найдена",
+    "notFoundDescription": "Возможно, она удалена или принадлежит другому пользователю.",
+    "loadErrorTitle": "Не удалось загрузить задачу",
+    "pageTitle": "Задача"
+  },
+  "a11y": {
+    "priority": "Приоритет",
+    "status": "Статус"
+  },
+  "sync": {
+    "pendingBadge": "Ожидает синхронизации",
+    "failedBadge": "Не синхронизировано",
+    "discard": "Отменить",
+    "queuedTitle": "Ожидают синхронизации",
+    "queuedHint": "Сохранено на устройстве. Будет отправлено автоматически."
+  }
+}

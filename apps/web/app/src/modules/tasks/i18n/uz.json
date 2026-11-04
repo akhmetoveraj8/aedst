@@ -1,0 +1,96 @@
+{
+  "dashboard": {
+    "title": "Vazifalar",
+    "totalTasks": "Jami vazifalar",
+    "todo": "Bajarilishi kerak",
+    "inProgress": "Jarayonda",
+    "completed": "Bajarilgan",
+    "overdue": "Muddati o'tgan"
+  },
+  "list": {
+    "searchPlaceholder": "Vazifalarni qidirish…",
+    "newTask": "Yangi vazifa",
+    "allStatuses": "Barcha holatlar",
+    "allPriorities": "Barcha ustuvorliklar",
+    "sortCreatedDesc": "Avval yangilari",
+    "sortCreatedAsc": "Avval eskilari",
+    "sortDueAsc": "Muddat bo'yicha (yaqin)",
+    "sortDueDesc": "Muddat bo'yicha (uzoq)",
+    "emptyTitle": "Hali vazifalar yo'q",
+    "emptyDescription": "Boshlash uchun birinchi vazifangizni yarating.",
+    "noResultsTitle": "Mos vazifalar topilmadi",
+    "noResultsDescription": "Qidiruv yoki filtrni o'zgartirib ko'ring.",
+    "errorTitle": "Vazifalarni yuklab bo'lmadi",
+    "retry": "Qayta urinish",
+    "previousPage": "Oldingi",
+    "nextPage": "Keyingi",
+    "due": "Muddat: {date}",
+    "searchLabel": "Vazifalarni qidirish",
+    "statusFilterLabel": "Holat bo'yicha filtr",
+    "priorityFilterLabel": "Ustuvorlik bo'yicha filtr",
+    "sortLabel": "Vazifalarni saralash",
+    "paginationLabel": "Sahifalash",
+    "resultsLabel": "Vazifalar",
+    "resultCount": "{count, plural, one {# ta vazifa} other {# ta vazifa}}"
+  },
+  "status": {
+    "todo": "Bajarilishi kerak",
+    "inProgress": "Jarayonda",
+    "done": "Bajarilgan"
+  },
+  "priority": {
+    "low": "Past",
+    "medium": "O'rta",
+    "high": "Yuqori",
+    "urgent": "Shoshilinch"
+  },
+  "form": {
+    "createTitle": "Yangi vazifa",
+    "editTitle": "Vazifani tahrirlash",
+    "titleLabel": "Sarlavha",
+    "titleRequired": "Sarlavha talab qilinadi.",
+    "titleTooLong": "200 belgidan oshmasin.",
+    "descriptionLabel": "Tavsif",
+    "descriptionTooLong": "4000 belgidan oshmasin.",
+    "priorityLabel": "Ustuvorlik",
+    "priorityRequired": "Ustuvorlikni tanlang.",
+    "dueDateLabel": "Muddat",
+    "dueDateOptional": "Ixtiyoriy",
+    "cancel": "Bekor qilish",
+    "create": "Vazifa yaratish",
+    "save": "O'zgarishlarni saqlash",
+    "error": "Saqlab bo'lmadi: {message}"
+  },
+  "details": {
+    "backToList": "Vazifalar ro'yxatiga",
+    "createdBy": "Yaratdi",
+    "you": "siz",
+    "createdAt": "Yaratilgan",
+    "updatedAt": "Yangilangan",
+    "dueDate": "Muddat",
+    "noDueDate": "Muddatsiz",
+    "edit": "Tahrirlash",
+    "complete": "Bajarilgan deb belgilash",
+    "reopen": "Qayta ochish",
+    "delete": "O'chirish",
+    "deleteConfirmTitle": "Bu vazifani o'chirasizmi?",
+    "deleteConfirmDescription": "Bu amalni qaytarib bo'lmaydi.",
+    "deleteConfirmAction": "O'chirish",
+    "deleteCancelAction": "Bekor qilish",
+    "notFoundTitle": "Vazifa topilmadi",
+    "notFoundDescription": "U o'chirilgan yoki boshqa foydalanuvchiga tegishli bo'lishi mumkin.",
+    "loadErrorTitle": "Vazifani yuklab bo'lmadi",
+    "pageTitle": "Vazifa"
+  },
+  "a11y": {
+    "priority": "Ustuvorlik",
+    "status": "Holat"
+  },
+  "sync": {
+    "pendingBadge": "Sinxronlash kutilmoqda",
+    "failedBadge": "Sinxronlanmadi",
+    "discard": "Bekor qilish",
+    "queuedTitle": "Sinxronlash kutilmoqda",
+    "queuedHint": "Qurilmada saqlandi. Avtomatik yuboriladi."
+  }
+}

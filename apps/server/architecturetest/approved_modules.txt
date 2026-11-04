@@ -1,0 +1,60 @@
+# Direct (non-indirect) requires allowed in apps/server/go.mod.
+# TestDirectRequiresAreApproved fails on a direct require missing here, and on a
+# line here that is no longer a direct require. Change this list ONLY together
+# with docs/content/library-first/server.md (same change); see CONVENTIONS.md.
+# Format: <module path>  # concern
+
+buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go  # validation: protovalidate descriptors
+connectrpc.com/connect/v2  # RPC (v2: connecthttp, connectproto)
+connectrpc.com/grpchealth/v2  # health
+connectrpc.com/grpcreflect/v2  # gRPC reflection (off by default)
+connectrpc.com/otelconnect  # observability: RPC tracing
+connectrpc.com/validate  # validation: protovalidate interceptor
+firebase.google.com/go/v4  # push: FCM (internal/platform/push only)
+github.com/SherClockHolmes/webpush-go  # push: Web Push (internal/platform/push only)
+github.com/alicebob/miniredis/v2  # tests only: in-memory Valkey for internal/platform/valkey rate-limit tests
+github.com/aws/aws-sdk-go-v2  # object storage (internal/platform/storage only)
+github.com/aws/aws-sdk-go-v2/config  # object storage
+github.com/aws/aws-sdk-go-v2/credentials  # object storage
+github.com/aws/aws-sdk-go-v2/service/s3  # object storage
+github.com/aws/smithy-go  # object storage
+github.com/caarlos0/env/v11  # configuration
+github.com/davidbyttow/govips/v2  # media: images (build tag vips)
+github.com/exaring/otelpgx  # observability: pgx query tracing (internal/platform/database only)
+github.com/fxamacker/cbor/v2  # appattest only
+github.com/go-redis/redis_rate/v10  # rate limiting (internal/platform/valkey only)
+github.com/jackc/pgx/v5  # database driver
+github.com/jwx-go/jwkfetch/v4  # JWT/JOSE: JWKS fetch
+github.com/lestrrat-go/httprc/v3  # JWT/JOSE: jwx cache dependency
+github.com/lestrrat-go/jwx/v4  # JWT/JOSE (internal/platform/auth only)
+github.com/riverqueue/rivercontrib/otelriver  # observability: River job tracing/metrics (internal/platform/jobs only)
+github.com/pressly/goose/v3  # migrations
+github.com/prometheus/client_golang  # observability: optional /metrics (internal/platform/observability only)
+github.com/realclientip/realclientip-go  # client IP
+github.com/redis/go-redis/v9  # Valkey client (internal/platform/valkey only)
+github.com/riverqueue/river  # jobs and events
+github.com/riverqueue/river/riverdriver/riverpgxv5  # jobs and events
+github.com/riverqueue/river/rivertype  # jobs and events
+github.com/rs/cors  # CORS
+github.com/sideshow/apns2  # push: APNs (internal/platform/push only)
+github.com/sony/gobreaker/v2  # resilience: circuit breaker
+github.com/testcontainers/testcontainers-go  # integration testing
+github.com/testcontainers/testcontainers-go/modules/postgres  # integration testing
+go.opentelemetry.io/contrib/bridges/otelslog  # observability
+go.opentelemetry.io/contrib/exporters/autoexport  # observability (exporters: internal/platform/observability only)
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp  # observability
+go.opentelemetry.io/contrib/instrumentation/runtime  # observability
+go.opentelemetry.io/otel  # observability
+go.opentelemetry.io/otel/exporters/prometheus  # observability (internal/platform/observability only)
+go.opentelemetry.io/otel/metric  # observability
+go.opentelemetry.io/otel/sdk  # observability
+go.opentelemetry.io/otel/sdk/log  # observability
+go.opentelemetry.io/otel/sdk/metric  # observability
+go.opentelemetry.io/otel/trace  # observability
+golang.org/x/mod  # architecturetest: go.mod parsing
+golang.org/x/sync  # errgroup
+golang.org/x/time  # rate
+golang.org/x/tools  # architecturetest: go/packages
+google.golang.org/api  # Play Integrity client, FCM options
+google.golang.org/genproto/googleapis/rpc  # RPC error details
+google.golang.org/protobuf  # protobuf runtime

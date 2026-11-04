@@ -1,0 +1,17 @@
+language js
+
+// Zod is for client-only data (env, URL/search params, storage payloads, route
+// handler input). It is never the rule source of a form or a screen: a form
+// that submits an API message gets its rules from the .proto through
+// protovalidateResolver. biome.json scopes this plugin to UI files only
+// (ui/**, shared/ui/**, src/app/**/*.tsx); schemas live in lib/ or env files.
+// Rule page: docs/content/web/validation.md
+or {
+  `import $_ from "zod"`,
+  `import $_ from "zod/mini"`,
+  `import $_ from "zod/v4"`,
+  `import $_ from "zod/v4-mini"`,
+  `import $_ from "zod/v3"`
+} as $import where {
+  register_diagnostic(span=$import, message="Do not import Zod in UI code: put the schema in the module's lib/ (or shared/env, shared/lib) and import it. A form that submits an API message takes its rules from the .proto via protovalidateResolver (docs/content/web/validation.md).", severity="error")
+}

@@ -1,0 +1,153 @@
+# detekt 2 dropped the build.maxIssues key: any finding fails the build (ignoreFailures stays false).
+# Formatting is owned by ktlint (apps/android/.editorconfig: max_line_length = 120, no-wildcard-imports, modifier-order,
+# final-newline, filename). detekt keeps only semantic rules, so every formatting concern is reported exactly once;
+# the overlapping detekt rules below are switched off rather than configured twice. detekt-formatting (the ktlint
+# wrapper, detekt-rules-ktlint-wrapper in 2.x) is deliberately not used for the same reason.
+#
+# Targets detekt 2.0.0-alpha.6 (dev.detekt). 2.x validates the config (config.validation: true), so a key that no
+# longer exists fails the run. Renames from 1.23: LongMethod.threshold -> allowedLines, LongParameterList.
+# functionThreshold/constructorThreshold -> allowedFunctionParameters/allowedConstructorParameters (2.x defaults are
+# one lower: 5/6), CyclomaticComplexMethod.threshold -> allowedComplexity, TooManyFunctions.thresholdInFiles ->
+# allowedFunctionsPerFile, UnusedPrivateMember -> UnusedPrivateFunction/Property/Class. ForbiddenComment.comments is
+# now a list of {value, reason}. `ignoreAnnotated` is a generic per-rule key and is unchanged.
+style:
+  MaxLineLength:
+    active: false # ktlint: max-line-length (.editorconfig)
+  NewLineAtEndOfFile:
+    active: false # ktlint: final-newline
+  WildcardImport:
+    active: false # ktlint: no-wildcard-imports (enabled in .editorconfig)
+  ModifierOrder:
+    active: false # ktlint: modifier-order
+  MagicNumber:
+    active: false
+  ReturnCount:
+    active: true
+    max: 3
+    excludeGuardClauses: true
+  UnusedPrivateFunction:
+    # @Preview composables (and the @AedstWindowSizePreviews multipreview) are only used by IDE / screenshot tooling.
+    ignoreAnnotated: ['Preview', 'AedstWindowSizePreviews']
+  UnusedPrivateProperty:
+    # Off: detekt 2.0.0-alpha.6 reports a false positive when a constructor property is only read inside a lambda that a
+    # property initializer captures (callbackFlow { context... }, flow { repository... }); kotlinc already warns on a
+    # truly unused private. Revisit with dev.detekt 2.0.0 stable.
+    active: false
+  AbstractClassCanBeInterface:
+    # Hilt @Module classes with only @Binds members must stay abstract classes (Dagger requirement for @Binds).
+    ignoreAnnotated: ['Module']
+  ForbiddenComment:
+    # TODO markers are allowed in the template; FIXME/STOPSHIP still fail the build.
+    comments:
+      - value: 'FIXME:'
+        reason: 'Forbidden FIXME marker in comment, please fix the problem.'
+      - value: 'STOPSHIP:'
+        reason: 'Forbidden STOPSHIP marker in comment, please address it before shipping.'
+
+  # --- Library-First gates (docs/content/library-first/android.md, "Enforced gates") -----------------------------
+  # scripts/test-gates.sh seeds each violation and proves the gate fails (negative self-test). The detekt rule
+  # instances are separate keys (`ForbiddenImport/<Name>`) because the allowed scope differs per rule.
+  ForbiddenImport:
+    active: true
+    excludes: ['**/build/**', '**/kotlin-gen/**']
+    forbiddenImports:
+      - { value: 'retrofit2.*', reason: 'Retrofit is rejected: the API is generated ConnectRPC (decisions/android).' }
+      - { value: 'com.squareup.moshi.*', reason: 'No JSON DTO libraries: the API is protobuf.' }
+      - { value: 'com.google.gson.*', reason: 'No JSON DTO libraries: the API is protobuf.' }
+      - { value: 'androidx.security.crypto.*', reason: 'security-crypto is deprecated: use Keystore + Tink (core/security).' }
+      - { value: 'org.koin.*', reason: 'Koin is rejected: Hilt gives compile-time DI checks.' }
+      - { value: 'io.reactivex.*', reason: 'RxJava is rejected: use Coroutines + Flow.' }
+      - { value: 'kotlinx.coroutines.GlobalScope', reason: 'Use an injected, structured CoroutineScope.' }
+      - { value: 'androidx.compose.runtime.collectAsState', reason: 'Use collectAsStateWithLifecycle.' }
+  ForbiddenImport/MainThreadAndLogging:
+    # android.util.Log only inside core/common (the logging facade); Dispatchers only behind DispatcherProvider.
+    active: true
+    excludes: ['**/build/**', '**/kotlin-gen/**', '**/core/common/**', '**/core/testing/**', '**/src/test/**', '**/src/androidTest/**']
+    forbiddenImports:
+      - { value: 'android.util.Log', reason: 'Log through the core/common logging facade, not android.util.Log.' }
+      - { value: 'kotlinx.coroutines.Dispatchers', reason: 'Inject DispatcherProvider (core/common) instead of Dispatchers.*.' }
+      - { value: 'kotlinx.coroutines.Dispatchers.*', reason: 'Inject DispatcherProvider (core/common) instead of Dispatchers.*.' }
+  ForbiddenImport/OkHttpOutsideNetwork:
+    # OkHttp is the engine under connect-kotlin: only the modules that own HTTP may import it.
+    active: true
+    excludes: ['**/build/**', '**/kotlin-gen/**', '**/core/network/**', '**/core/media/**', '**/core/analytics/**', '**/feature/auth/**', '**/src/test/**', '**/src/androidTest/**']
+    forbiddenImports:
+      - { value: 'okhttp3.*', reason: 'okhttp3 is allowed only in core/network, core/media, core/analytics and feature/auth.' }
+  ForbiddenImport/Material3Raw:
+    # Aedst* wrappers exist in core/ui/components; feature and app code never reaches for the raw Material 3 widget.
+    active: true
+    includes: ['**/feature/**', '**/app/**', '**/app-tv/**']
+    excludes: ['**/build/**', '**/src/test/**', '**/src/androidTest/**']
+    forbiddenImports:
+      - { value: 'androidx.compose.material3.IconButton', reason: 'Use AedstIconButton (core/ui).' }
+      - { value: 'androidx.compose.material3.HorizontalDivider', reason: 'Use AedstDivider (core/ui).' }
+      - { value: 'androidx.compose.material3.FloatingActionButton', reason: 'Use AedstFab (core/ui).' }
+      - { value: 'androidx.compose.material3.TextButton', reason: 'Use AedstButton with the text variant (core/ui).' }
+      - { value: 'androidx.compose.material3.FilterChip', reason: 'Use AedstFilterChip (core/ui).' }
+      - { value: 'androidx.compose.material3.AlertDialog', reason: 'Use AedstAlertDialog (core/ui).' }
+      - { value: 'androidx.compose.material3.Badge', reason: 'Use AedstBadge (core/ui).' }
+      - { value: 'androidx.compose.material3.CircularProgressIndicator', reason: 'Use AedstProgressIndicator / LoadingIndicator (core/ui).' }
+  ForbiddenMethodCall:
+    active: true
+    excludes: ['**/build/**', '**/src/test/**', '**/src/androidTest/**']
+    methods:
+      - { value: 'java.lang.Thread.sleep', reason: 'Never block a thread: use kotlinx.coroutines.delay.' }
+
+coroutines:
+  GlobalCoroutineUsage:
+    active: true
+  SuspendFunSwallowedCancellation:
+    # Type resolution (detektDebug). runCatching around a suspend call swallows CancellationException.
+    active: true
+  InjectDispatcher:
+    # Type resolution. Redundant with the import ban in app code, but also catches Dispatchers passed as arguments.
+    active: true
+    excludes: ['**/core/common/**', '**/core/testing/**', '**/src/test/**', '**/src/androidTest/**']
+
+complexity:
+  LongMethod:
+    allowedLines: 60
+    ignoreAnnotated: ['Composable']
+  CyclomaticComplexMethod:
+    ignoreAnnotated: ['Composable']
+  LongParameterList:
+    allowedFunctionParameters: 5 # 1.23: functionThreshold 6 (report at >= 6)
+    allowedConstructorParameters: 7 # 1.23: constructorThreshold 8
+    ignoreDefaultParameters: true
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    allowedFunctionsPerFile: 20
+
+naming:
+  FunctionNaming:
+    # allow PascalCase for @Composable functions
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
+  MatchingDeclarationName:
+    active: false # ktlint: filename (CONVENTIONS.md: file name matches the single top-level class)
+
+comments:
+  active: false
+
+
+# compose-rules (io.nlopez.compose.rules:detekt, added by DetektConventionPlugin). Active by default; the rules below
+# are tuned with the reason next to each. Everything else stays on.
+Compose:
+  ParameterNaming:
+    # Off: it rejects `onTabSelected` / `onDateSelected` / `onOptionSelected` / `onErrorShown`, which are the names
+    # Material itself uses and the ones the existing call sites and tests are written against. Revisit if the owner
+    # wants present-tense names across core/ui (a rename of about 11 parameters).
+    active: false
+  PreviewAnnotationNaming:
+    # Off: the multipreview is named @AedstWindowSizePreviews (scripts/check-policies.sh requires that name on screens).
+    active: false
+  UnnecessaryLaunchedEffect:
+    # Off: the suggested replacement SideEffect has no key and re-runs on every recomposition, which would re-fire the
+    # keyed one-shot work here (navigation set-up, load-more, telemetry). Revisit if compose-rules makes the rule
+    # key-aware.
+    active: false
+  CompositionLocalAllowlist:
+    active: true
+    allowedCompositionLocals:
+      - LocalAedstExtendedColors
+      # Which palette AedstTheme chose; read by components that pick palette tokens (AedstAlert), never the system flag.
+      - LocalAedstDarkTheme

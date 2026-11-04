@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_upload_channel_name">Боргузории файлҳо</string>
+    <string name="media_upload_notification_title">Файл бор карда мешавад…</string>
+    <string name="media_upload_preparing">Омодасозӣ…</string>
+    <string name="media_upload_uploading">Боргузорӣ…</string>
+    <string name="media_upload_finishing">Анҷомдиҳӣ…</string>
+    <string name="media_upload_done">Бор карда шуд</string>
+    <string name="media_upload_failed">Бор кардан имконнопазир шуд</string>
+    <string name="media_upload_cancelled">Бекор карда шуд</string>
+    <string name="media_upload_cancel">Бекор кардани боргузорӣ</string>
+    <string name="media_play">Пахш кардан</string>
+    <string name="media_pause">Таваққуф</string>
+</resources>

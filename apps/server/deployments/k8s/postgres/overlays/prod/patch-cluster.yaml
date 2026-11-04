@@ -1,0 +1,22 @@
+# Production: base sizing (3 instances, synchronous replica) plus its own backup
+# destination (patch-objectstore.yaml) and serverName. A different path AND serverName per environment: two clusters must
+# never write WAL into one Barman server directory.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: aedst-pg
+spec:
+  # Replaces the whole plugins list (no merge key): keep every field.
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: aedst-pg-backup
+        serverName: aedst-pg-prod
+  postgresql:
+    parameters:
+      # Connection budget of deployments/helm/aedst-server/values-prod.yaml
+      # (database.serverMaxConnections): 20 API + 2 worker pods x 10 direct jobs
+      # connections, 3 pooler instances x 40 server connections, 40 for ZITADEL.
+      # The chart refuses a render that exceeds it. Each backend costs memory.
+      max_connections: "400"

@@ -1,0 +1,11 @@
+//// run: forms
+//// expect: pass
+//// file: src/modules/tasks/ui/OkForm.tsx
+import { useForm } from "react-hook-form";
+
+import { Form } from "@/shared/ui/form";
+
+export function OkForm() {
+  const form = useForm();
+  return <Form onSubmit={form.handleSubmit(() => undefined)} />;
+}

@@ -1,0 +1,29 @@
+meta {
+  name: Get Task
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/aedst.tasks.v1.TasksService/GetTask
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "id": "{{taskId}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Run `Create Task` first to populate `{{taskId}}`.
+}

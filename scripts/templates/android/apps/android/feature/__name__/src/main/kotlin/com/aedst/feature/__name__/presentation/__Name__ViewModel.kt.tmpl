@@ -1,0 +1,29 @@
+package com.aedst.feature.{{name}}.presentation
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.aedst.core.common.Outcome
+import com.aedst.feature.{{name}}.domain.{{Name}}Entry
+import com.aedst.feature.{{name}}.domain.{{Name}}Repository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+data class {{Name}}State(val isLoading: Boolean = true, val entries: List<{{Name}}Entry> = emptyList())
+
+@HiltViewModel
+class {{Name}}ViewModel @Inject constructor(private val repository: {{Name}}Repository) : ViewModel() {
+
+    private val mutableState = MutableStateFlow({{Name}}State())
+    val state: StateFlow<{{Name}}State> = mutableState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val entries = (repository.entries() as? Outcome.Success)?.value.orEmpty()
+            mutableState.value = {{Name}}State(isLoading = false, entries = entries)
+        }
+    }
+}

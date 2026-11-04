@@ -1,0 +1,123 @@
+# Root ignore rules. Each app also has its own .gitignore (apps/android, apps/apple, apps/desktop-rs,
+# apps/web) with the full per-app list; only cross-cutting and monorepo-level rules live here.
+
+# --- Claude Code session state ---
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+
+# --- OS / editor ---
+.DS_Store
+*.pem
+# Public trust anchor embedded by go:embed; a clean clone does not build without it.
+!apps/server/internal/modules/appattest/infrastructure/apple/Apple_App_Attestation_Root_CA.pem
+.idea/
+.vscode/
+
+# --- repo-wide build artifacts ---
+*.tsbuildinfo
+coverage.out
+
+# --- apps/server (Go) ---
+apps/server/bin/
+apps/server/.env
+apps/server/*.local.env
+
+# --- apps/web (workspace: shared, app, admin, landing; Next.js) ---
+# Each project also has its own .gitignore where needed; these patterns cover
+# the workspace root and all four directories.
+apps/web/**/node_modules/
+apps/web/**/.pnp
+apps/web/**/.pnp.*
+apps/web/**/.yarn/*
+!apps/web/**/.yarn/patches
+!apps/web/**/.yarn/plugins
+!apps/web/**/.yarn/releases
+!apps/web/**/.yarn/versions
+apps/web/**/coverage/
+apps/web/**/.lighthouseci/
+apps/web/**/.lighthouseci-signed-in/
+apps/web/**/.next/
+apps/web/**/out/
+apps/web/**/build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+apps/web/**/.pnpm-debug.log*
+apps/web/**/.env*
+!apps/web/**/.env.example
+apps/web/**/.vercel
+apps/web/**/next-env.d.ts
+apps/web/**/test-results/
+apps/web/**/playwright-report/
+
+# --- docs (Next.js / Nextra) ---
+docs/node_modules/
+scripts/node_modules/
+docs/.next/
+docs/out/
+docs/build/
+docs/next-env.d.ts
+docs/public/_pagefind/
+
+# --- apps/android (Gradle) --- see apps/android/.gitignore for the full list
+apps/android/**/build/
+apps/android/.gradle/
+apps/android/.kotlin/
+apps/android/**/local.properties
+apps/android/app/google-services.json
+apps/android/**/*.jks
+apps/android/**/*.keystore
+apps/android/keystore.properties
+# generated ConnectRPC/Protobuf Kotlin stubs (run `make generate` from
+# apps/android/) - sourced from apps/server/api/proto, regenerated rather
+# than hand-edited. See apps/android/buf.gen.yaml.
+apps/android/core/network/src/main/kotlin-gen/
+
+# --- apps/apple (Swift/Xcode/Tuist) --- see apps/apple/.gitignore
+# Package.resolved (Tuist/ and each package) and Gemfile.lock are COMMITTED on purpose (CI cache keys
+# and bundler-cache hash them); never add them here.
+apps/apple/**/.build/
+apps/apple/**/.swiftpm/
+apps/apple/AEDST.xcodeproj/
+apps/apple/*.xcworkspace/
+apps/apple/DerivedData/
+apps/apple/**/xcuserdata/
+apps/apple/**/*.xcuserstate
+apps/apple/**/Derived/
+apps/apple/Tuist/.build/
+apps/apple/build/
+apps/apple/Config/Signing.local.xcconfig
+apps/apple/*.p12
+apps/apple/*.p8
+apps/apple/*.mobileprovision
+apps/apple/Core/AedstNetwork/Sources/AedstNetwork/Generated/*.swift
+
+# --- apps/desktop-rs (Rust + Slint) ---
+apps/desktop-rs/target/
+apps/desktop-rs/**/target/
+apps/desktop-rs/dist/
+apps/desktop-rs/**/*.pdb
+apps/desktop-rs/**/*.rs.bk
+apps/desktop-rs/**/*.msix
+apps/desktop-rs/**/*.AppImage
+apps/desktop-rs/**/*.appimage
+# cargo output anywhere in the tree (Cargo.lock stays committed for the binary workspace)
+**/target/debug/
+**/target/release/
+**/target/doc/
+**/target/.rustc_info.json
+**/target/CACHEDIR.TAG
+
+# --- root / tooling ---
+packages/**/node_modules/
+packages/**/dist/
+.mise.local.toml
+mise.local.toml
+
+# age private keys and decrypted secrets
+key.txt
+*.agekey
+*.dec.yaml
+
+# Stryker sandbox (apps/web/app/stryker.config.mjs)
+/.stryker-tmp/

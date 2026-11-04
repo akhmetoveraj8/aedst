@@ -1,0 +1,40 @@
+// expect: no_observable_object no_combine_swiftdata sdk_telemetry_only_in_telemetry sdk_nuke_only_in_media
+// expect: sdk_connect_only_in_network sdk_grdb_only_in_persistence generated_types_only_in_data no_user_defaults
+// expect: no_print no_async_image no_task_detached no_wall_clock_in_presentation no_sleep_nanoseconds
+// expect: no_hardcoded_text no_raw_sheet no_navigation_link_destination
+//
+// NEGATIVE FIXTURE. Never compiled, never linted by SwiftLint (wrong extension, outside included paths).
+// scripts/check-swiftlint-rules-static.sh --self-test requires every rule listed above to fire on this file.
+import Combine
+import Connect
+import GRDB
+import Nuke
+import SwiftData
+import Sentry
+import SwiftUI
+
+final class BadModel: ObservableObject {
+    @StateObject var legacy = Legacy()
+}
+
+struct BadView: View {
+    let defaults = UserDefaults.standard
+    let request = Aedst_Tasks_V1_ListTasksRequest()
+
+    var body: some View {
+        VStack {
+            print("debug")
+            Text("Hard-coded English")
+            Text("\(defaults)")
+            AsyncImage(url: nil)
+            NavigationLink(destination: Text(verbatim: "x")) { Text(verbatim: "y") }
+        }
+        .sheet(isPresented: .constant(true)) { EmptyView() }
+        .task {
+            let now = Date()
+            _ = Date.now
+            try? await Task.sleep(nanoseconds: 1_000_000)
+            Task.detached { _ = now }
+        }
+    }
+}

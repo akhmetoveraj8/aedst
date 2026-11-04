@@ -1,0 +1,208 @@
+# Lefthook (https://lefthook.dev) git hooks. Install the CLI once per machine
+# at the version pinned in mise.toml (`mise install`, or the same version via
+# `npm i -g lefthook` / `brew install lefthook`; see mise.toml for the pin and
+# do not install an unpinned "latest"), then run `lefthook install` once per
+# clone to wire these into `.git/hooks`.
+#
+# Every command is `glob`-scoped to one app, so a commit touching only
+# apps/server never pays for apps/web's typecheck and vice versa (web is split
+# into app, admin and landing, each with its own typecheck and knip). `glob`
+# paths are always relative to the repo root regardless of `root:` (see
+# https://lefthook.dev/configuration/glob.html) - matched twice per app
+# (`app/**/*.ext` and `app/*.ext`) because lefthook's `**` requires at
+# least one directory in between, so it alone would miss a top-level file
+# like `apps/web/app/next.config.ts`. `root:` does two things once a command
+# actually runs: it `cd`s into that directory, AND it rewrites
+# `{staged_files}` to be relative to it instead of the repo root -
+# verified empirically (not just from the docs) before relying on it here.
+#
+# Wired apps: web (Biome, tsc, knip), server (gofumpt, go vet) and, when the
+# toolchain is installed, the cheap native linters: ktlint (Android), swiftlint
+# (Apple), clang-format + the C++ subset check (Desktop). Each native command
+# first checks `command -v <tool>` and is SKIPPED (not failed) when the binary
+# is missing, because JDK/Gradle, Xcode and Qt/vcpkg are too heavy for a
+# pre-commit hook. CI is the authority; locally run `task lint`.
+# Repo-wide guards: naming, file size, color literals, staged-file hygiene
+# (ASCII names, <= 1 MiB) and gitleaks (when installed).
+# Biome is the only JS linter/formatter (no ESLint/Prettier).
+pre-commit:
+  parallel: true
+  commands:
+    # One Biome config for the whole web workspace (apps/web/biome.json), run
+    # from apps/web so shared/, app/, admin/ and landing/ are all covered.
+    # Staged files only, deliberately: `pnpm lint` (whole project) would also
+    # fail on any pre-existing violation in a file this commit never touched.
+    # `--write` autofixes what Biome can; `stage_fixed` re-stages the result.
+    web-lint:
+      root: "apps/web/"
+      glob:
+        - "apps/web/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+      run: pnpm biome check --write --error-on-warnings --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+
+    # tsc has no single-file mode, so each project is checked whole. A change in
+    # shared/ triggers the app (it hosts the shared tests and tooling).
+    web-app-typecheck:
+      root: "apps/web/app/"
+      glob:
+        - "apps/web/app/**/*.{ts,tsx}"
+        - "apps/web/app/*.{ts,tsx}"
+        - "apps/web/shared/**/*.{ts,tsx}"
+        - "apps/web/shared/*.{ts,tsx}"
+      run: pnpm typecheck
+    web-app-knip:
+      root: "apps/web/app/"
+      glob:
+        - "apps/web/app/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/app/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/shared/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/shared/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+      run: pnpm knip
+    web-admin-typecheck:
+      root: "apps/web/admin/"
+      glob:
+        - "apps/web/admin/**/*.{ts,tsx}"
+        - "apps/web/admin/*.{ts,tsx}"
+      run: pnpm typecheck
+    web-admin-knip:
+      root: "apps/web/admin/"
+      glob:
+        - "apps/web/admin/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/admin/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+      run: pnpm knip
+    web-landing-typecheck:
+      root: "apps/web/landing/"
+      glob:
+        - "apps/web/landing/**/*.{ts,tsx}"
+        - "apps/web/landing/*.{ts,tsx}"
+      run: pnpm typecheck
+    web-landing-knip:
+      root: "apps/web/landing/"
+      glob:
+        - "apps/web/landing/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/landing/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+      run: pnpm knip
+
+    # Gates hosted by the app project (they scan app/src and shared/): a staged
+    # form without React Hook Form, an upward import, a cross-module import,
+    # a color literal. All are whole-tree and fast.
+    web-forms:
+      root: "apps/web/app/"
+      glob:
+        - "apps/web/app/**/*.{ts,tsx}"
+        - "apps/web/app/*.{ts,tsx}"
+        - "apps/web/shared/**/*.{ts,tsx}"
+        - "apps/web/shared/*.{ts,tsx}"
+      run: node scripts/check-forms.mjs
+    web-deps:
+      root: "apps/web/app/"
+      glob:
+        - "apps/web/app/**/*.{ts,tsx}"
+        - "apps/web/app/*.{ts,tsx}"
+        - "apps/web/shared/**/*.{ts,tsx}"
+        - "apps/web/shared/*.{ts,tsx}"
+      run: pnpm check:deps
+    web-boundaries:
+      root: "apps/web/app/"
+      glob:
+        - "apps/web/app/**/*.{ts,tsx}"
+        - "apps/web/app/*.{ts,tsx}"
+        - "apps/web/shared/**/*.{ts,tsx}"
+        - "apps/web/shared/*.{ts,tsx}"
+      run: bash scripts/check-feature-boundaries.sh
+    web-colors:
+      root: "apps/web/app/"
+      glob:
+        - "apps/web/**/*.{ts,tsx,css}"
+      run: node scripts/check-color-literals.mjs
+    # The gates themselves: only when a rule, plugin, fixture or script changes.
+    web-gate-selftest:
+      root: "apps/web/app/"
+      glob:
+        - "apps/web/biome.json"
+        - "apps/web/app/lint/**"
+        - "apps/web/app/scripts/**"
+      run: node scripts/check-selftest.mjs
+
+    # File/directory naming (CONVENTIONS.md). --staged keeps it fast.
+    naming:
+      run: bash scripts/check-naming.sh --staged
+    # File-size policy (CONVENTIONS.md, "File size"): fails on staged files over 500 lines.
+    file-size:
+      run: bash scripts/check-file-size.sh --staged
+    # No color literals in hand-written UI code (design tokens only); desktop is report-only.
+    color-literals:
+      glob: "apps/**/*.{ts,tsx,js,mjs,css,kt,xml,swift,qml,cpp,hpp,html,tmpl}"
+      run: node scripts/check-color-literals.mjs --staged
+
+    # Go: formatting on staged files, vet on the whole module (a type error can
+    # be caused by a change in another package). gen/ is sqlc/buf output
+    # (excluded from server-fmt: generator import order); regenerate it instead of editing it by hand.
+    server-fmt:
+      root: "apps/server/"
+      glob:
+        - "apps/server/**/*.go"
+        - "apps/server/*.go"
+      # gofumpt (stricter superset of gofmt), the same formatter as
+      # apps/server/Taskfile.yml `lint` and the PostToolUse hook. Prints the
+      # unformatted files and fails; silent and green otherwise.
+      run: "! gofumpt -l {staged_files} | grep -v '^gen.go.aedst' | grep ."
+    server-vet:
+      root: "apps/server/"
+      glob:
+        - "apps/server/**/*.go"
+        - "apps/server/*.go"
+      run: go vet ./...
+
+    # Hygiene: no non-ASCII file names (pasted chat prompts, odd screenshots) and no staged
+    # file over 1 MiB. See scripts/check-staged-files.sh (AEDST_ALLOW_LARGE_FILES=1 to override size).
+    staged-files:
+      run: bash scripts/check-staged-files.sh
+
+    # Secret scanning on the staged diff. Skipped when gitleaks is not installed (CI runs it
+    # unconditionally, see .gitleaks.toml). `gitleaks git --pre-commit --staged` is the current
+    # form (the pinned version is in mise.toml); older releases only know `protect --staged`.
+    # UNVERIFIED locally: no gitleaks binary was available when this was written.
+    gitleaks:
+      run: bash scripts/pre-commit-gitleaks.sh
+
+    # Native clients: cheap, staged-files-only linters, each skipped when its binary is missing.
+    # ktlint reads apps/android/.editorconfig. The Gradle-pinned ktlint is the CI authority;
+    # a different native version can disagree on edge cases, so treat a local-only failure as a hint.
+    android-ktlint:
+      root: "apps/android/"
+      glob:
+        - "apps/android/**/*.{kt,kts}"
+      exclude: "**/kotlin-gen/**"
+      run: bash ../../scripts/run-if-installed.sh ktlint "CI runs ./gradlew ktlintCheck" {staged_files}
+    # Android Library-First shell gates (grep/awk only, no Gradle): module boundaries, UI tokens and screen previews,
+    # RPC contract vs call sites, catalog allowlist. The full set (detekt rules, Lint, Kover) runs in android-ci.
+    android-gates:
+      root: "apps/android/"
+      glob:
+        - "apps/android/**/*.{kt,kts,xml,toml}"
+        - "docs/content/library-first/android.md"
+      exclude: "**/kotlin-gen/**"
+      run: bash scripts/check-feature-boundaries.sh && bash scripts/check-ui-tokens.sh && bash scripts/check-rpc-contract.sh && bash scripts/check-catalog-allowlist.sh
+    apple-swiftlint:
+      root: "apps/apple/"
+      glob:
+        - "apps/apple/**/*.swift"
+      exclude: "**/Generated/**"
+      run: bash ../../scripts/run-if-installed.sh swiftlint "CI runs make lint" lint --config .swiftlint.yml {staged_files}
+    # Library-first gates that need no Xcode/SwiftLint: custom rules (static mirror of .swiftlint.yml custom_rules),
+    # approved packages, Keychain/web-auth confinement. CI runs the same via scripts/check-feature-boundaries.sh.
+    apple-library-first:
+      root: "apps/apple/"
+      glob:
+        - "apps/apple/**/*.{swift,xcstrings}"
+        - "apps/apple/**/Package.swift"
+        - "apps/apple/.swiftlint.yml"
+      exclude: "**/Generated/**"
+      run: node scripts/swiftlint-rules-static.mjs && bash scripts/check-apple-sensitive-apis.sh && bash scripts/check-dependencies.sh
+    desktop-rs-fmt:
+      root: "apps/desktop-rs/"
+      glob:
+        - "apps/desktop-rs/**/*.rs"
+      run: bash ../../scripts/run-if-installed.sh cargo "CI runs cargo fmt --check" fmt --check

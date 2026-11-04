@@ -1,0 +1,127 @@
+# aedst-feature-tasks: Tasks screen strings (tg).
+# Machine-assisted translation; native review is advisable.
+msgid ""
+msgstr ""
+"Project-Id-Version: aedst-feature-tasks\n"
+"Language: tg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You are offline. Changes will sync later."
+msgstr "Шумо оффлайн ҳастед. Тағйирот баъдтар ҳамоҳанг мешавад."
+
+msgid "The server is not available right now."
+msgstr "Сервер ҳоло дастнорас аст."
+
+msgid "The request took too long."
+msgstr "Дархост хеле тӯл кашид."
+
+msgid "Too many requests. Try again in a moment."
+msgstr "Дархостҳо аз ҳад зиёданд. Каме баъдтар такрор кунед."
+
+msgid "Please sign in again."
+msgstr "Лутфан, дубора ворид шавед."
+
+msgid "You do not have access to this."
+msgstr "Шумо ба ин дастрасӣ надоред."
+
+msgid "This task no longer exists."
+msgstr "Ин вазифа дигар вуҷуд надорад."
+
+msgid "The server did not accept this input."
+msgstr "Сервер ин маълумотро қабул накард."
+
+msgid "This task was changed elsewhere."
+msgstr "Ин вазифа дар ҷои дигар тағйир дода шуд."
+
+msgid "Please update the app to continue."
+msgstr "Барои идома додан барномаро навсозӣ кунед."
+
+msgid "Could not save on this device."
+msgstr "Дар ин дастгоҳ захира карда нашуд."
+
+msgid "Something went wrong."
+msgstr "Чизе нодуруст рафт."
+
+msgid "Enter a title."
+msgstr "Сарлавҳаро ворид кунед."
+
+msgid "The title is too long (200 characters at most)."
+msgstr "Сарлавҳа хеле дароз аст (на зиёда аз 200 аломат)."
+
+msgid "The description is too long."
+msgstr "Тавсиф хеле дароз аст."
+
+msgid "Choose a priority."
+msgstr "Афзалиятро интихоб кунед."
+
+msgid "To do"
+msgstr "Барои иҷро"
+
+msgid "In progress"
+msgstr "Дар ҷараён"
+
+msgid "Done"
+msgstr "Анҷом ёфт"
+
+msgid "Unknown"
+msgstr "Номаълум"
+
+msgid "Low"
+msgstr "Паст"
+
+msgid "Medium"
+msgstr "Миёна"
+
+msgid "High"
+msgstr "Баланд"
+
+msgid "Urgent"
+msgstr "Фаврӣ"
+
+msgid "Tasks"
+msgstr "Вазифаҳо"
+
+msgid "{} in total"
+msgstr "Ҳамагӣ: {}"
+
+msgid "Waiting to sync: {}"
+msgstr "Мунтазири ҳамоҳангсозӣ: {}"
+
+msgid "New task title"
+msgstr "Сарлавҳаи вазифаи нав"
+
+msgid "What needs to be done?"
+msgstr "Чӣ бояд иҷро шавад?"
+
+msgid "Adding..."
+msgstr "Илова шуда истодааст..."
+
+msgid "Add task"
+msgstr "Илова кардани вазифа"
+
+msgid "Loading..."
+msgstr "Бор шуда истодааст..."
+
+msgid "Could not load tasks"
+msgstr "Вазифаҳо бор нашуданд"
+
+msgid "Try again"
+msgstr "Дубора кӯшиш кунед"
+
+msgid "No tasks yet"
+msgstr "Ҳоло вазифае нест"
+
+msgid "Add your first task above."
+msgstr "Вазифаи аввалинро дар боло илова кунед."
+
+msgid "Mark \"{}\" as done"
+msgstr "Вазифаи «{}»-ро иҷрошуда қайд кунед"
+
+msgid "Pending sync"
+msgstr "Мунтазири ҳамоҳангсозӣ"
+
+msgid "Load more"
+msgstr "Бештар бор кардан"

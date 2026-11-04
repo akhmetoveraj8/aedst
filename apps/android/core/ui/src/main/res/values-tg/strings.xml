@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Accessibility descriptions for design-system components -->
+    <string name="aedst_a11y_avatar">Аватар</string>
+    <string name="aedst_a11y_avatar_named">Аватар: %1$s</string>
+    <string name="aedst_a11y_loading">Боргирӣ</string>
+
+    <!-- User-facing text for each AedstError kind (see AedstError.userMessageRes) -->
+    <string name="aedst_error_offline">Пайвастшавӣ ба интернет нест. Шабакаро санҷед ва бори дигар кӯшиш кунед.</string>
+    <string name="aedst_error_network">Пайваст шудан ба сервер имконнопазир аст. Баъдтар кӯшиш кунед.</string>
+    <string name="aedst_error_unauthorized">Маълумот нодуруст аст ё сессия ба охир расидааст. Дубора ворид шавед.</string>
+    <string name="aedst_error_not_found">Маълумоти дархостшуда ёфт нашуд.</string>
+    <string name="aedst_error_validation">Маълумоти воридшударо санҷед.</string>
+    <string name="aedst_error_unknown">Хатогӣ рух дод. Бори дигар кӯшиш кунед.</string>
+    <string name="aedst_error_storage">Хондан ё захира кардани маълумот дар ин дастгоҳ имкон надод.</string>
+    <string name="aedst_error_forbidden">Шумо ба ин қисмат дастрасӣ надоред.</string>
+    <string name="aedst_error_conflict">Маълумот тағйир ёфт. Навсозӣ кунед ва бори дигар кӯшиш кунед.</string>
+    <string name="aedst_error_rate_limited">Дархостҳо аз ҳад зиёданд. Каме интизор шавед ва бори дигар кӯшиш кунед.</string>
+    <string name="aedst_error_upgrade_required">Барои идома додан барномаро навсозӣ кунед.</string>
+
+    <!-- Blocking screen shown when the server rejects this app version (CLIENT_UPGRADE_REQUIRED, ADR-0009) -->
+    <string name="aedst_upgrade_title">Навсозӣ лозим аст</string>
+    <string name="aedst_upgrade_body">Ин версияи AEDST дигар дастгирӣ намешавад. Барои идома додан барномаро дар Google Play навсозӣ кунед.</string>
+    <string name="aedst_upgrade_action">Дар Google Play навсозӣ кардан</string>
+
+    <string name="aedst_offline_banner">Пайвастшавӣ ба интернет нест</string>
+
+    <!-- Shared dialog actions -->
+    <string name="aedst_action_ok">Хуб</string>
+    <string name="aedst_action_cancel">Бекор кардан</string>
+    <string name="aedst_action_confirm">Тасдиқ кардан</string>
+    <string name="aedst_action_retry">Такрор кардан</string>
+</resources>

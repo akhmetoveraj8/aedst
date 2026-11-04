@@ -1,0 +1,49 @@
+# Pinned tool versions for apps/apple. `mise install` (run from this directory)
+# reproduces the toolchain CI uses; the repo-root mise.toml tracks the other
+# platforms. Xcode (incl. `swift format`) comes from the Xcode install, not mise.
+# Commands live in the Makefile; the tasks below only wrap its targets.
+
+[tools]
+# Tuist CLI 4.215.0 = latest stable, verified 2026-11-04 (git ls-remote --tags, excluding canaries).
+# Registry backend (prebuilt binary). Overrides the repo-root mise.toml ("latest").
+tuist = "4.215.0"
+# SwiftLint 0.65.1 = latest stable, verified 2026-10-07 (same as apple-ci SWIFTLINT_VERSION).
+"aqua:realm/SwiftLint" = "0.65.1"
+# Ruby for fastlane (Gemfile). 3.4.12 = latest 3.4 patch, verified 2026-10-28 against
+# cache.ruby-lang.org/pub/ruby/index.txt. fastlane 2.241.2 requires Ruby >= 3.1 (no upper bound;
+# gemspec already lists Ruby 4.x stdlib-gem workarounds), so 3.4 is allowed; 4.0.x also exists
+# but 3.4 is kept for the lower-risk, longest-tested fastlane dependency set.
+# ruby/setup-ruby in the workflows also reads this file when `ruby-version` is omitted.
+ruby = "3.4.12"
+
+[tasks.generate]
+description = "Generate Connect-Swift stubs from apps/server/api/proto (needs buf + protoc plugins)."
+run = "make generate"
+
+[tasks.bootstrap]
+description = "After cloning: Connect codegen + tuist install + tuist generate (the stubs are not committed)."
+run = "make bootstrap"
+
+[tasks.project]
+description = "tuist install + tuist generate: AEDST.xcworkspace (gitignored, ADR-0004)."
+run = "make project"
+
+[tasks.format]
+description = "Apply swift-format in place (Generated/.build excluded)."
+run = "make format"
+
+[tasks.format-check]
+description = "swift format lint --strict (what CI runs)."
+run = "make format-check"
+
+[tasks.lint]
+description = "SwiftLint (semantic rules only)."
+run = "make lint"
+
+[tasks.test]
+description = "swift test every local package."
+run = "make test"
+
+[tasks.build]
+description = "swift build every local package."
+run = "make build"

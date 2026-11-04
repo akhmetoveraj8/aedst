@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: aedst-staging
+resources:
+  - ../../base
+patches:
+  - path: patch-cluster.yaml
+    target: {kind: Cluster, name: aedst-pg}
+  - path: patch-pooler.yaml
+    target: {kind: Pooler, name: aedst-pg-pooler-rw}
+  - path: patch-objectstore.yaml
+    target: {kind: ObjectStore, name: aedst-pg-backup}

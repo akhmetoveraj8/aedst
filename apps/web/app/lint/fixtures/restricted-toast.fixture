@@ -1,0 +1,6 @@
+//// run: biome
+//// expect: Sonner is the only toast
+//// file: src/modules/tasks/ui/BadToast.tsx
+import { Toast } from "@/shared/ui/toast";
+
+export const BadToast = () => <Toast />;

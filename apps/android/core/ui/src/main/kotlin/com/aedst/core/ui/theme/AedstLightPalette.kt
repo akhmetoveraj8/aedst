@@ -1,0 +1,46 @@
+// GENERATED — do not edit; edit packages/design-tokens/tokens
+
+package com.aedst.core.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+object AedstLightPalette {
+    val accent = Color(0xfff5f5f5)
+    val accentForeground = Color(0xff171717)
+    val background = Color(0xffffffff)
+    val border = Color(0xffe5e5e5)
+    val card = Color(0xffffffff)
+    val cardForeground = Color(0xff0a0a0a)
+    val chart1 = Color(0xffd4d4d4)
+    val chart2 = Color(0xff737373)
+    val chart3 = Color(0xff525252)
+    val chart4 = Color(0xff404040)
+    val chart5 = Color(0xff262626)
+    val destructive = Color(0xffe7000b)
+    val destructiveForeground = Color(0xfffafafa)
+    val foreground = Color(0xff0a0a0a)
+    val info = Color(0xff1d4ed8)
+    val infoForeground = Color(0xfffafafa)
+    val input = Color(0xffe5e5e5)
+    val muted = Color(0xfff5f5f5)
+    val mutedForeground = Color(0xff737373)
+    val popover = Color(0xffffffff)
+    val popoverForeground = Color(0xff0a0a0a)
+    val primary = Color(0xff171717)
+    val primaryForeground = Color(0xfffafafa)
+    val ring = Color(0xffa1a1a1)
+    val secondary = Color(0xfff5f5f5)
+    val secondaryForeground = Color(0xff171717)
+    val sidebar = Color(0xfffafafa)
+    val sidebarAccent = Color(0xfff5f5f5)
+    val sidebarAccentForeground = Color(0xff171717)
+    val sidebarBorder = Color(0xffe5e5e5)
+    val sidebarForeground = Color(0xff0a0a0a)
+    val sidebarPrimary = Color(0xff171717)
+    val sidebarPrimaryForeground = Color(0xfffafafa)
+    val sidebarRing = Color(0xffa1a1a1)
+    val success = Color(0xff15803d)
+    val successForeground = Color(0xfffafafa)
+    val warning = Color(0xffb45309)
+    val warningForeground = Color(0xfffafafa)
+}

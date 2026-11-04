@@ -1,0 +1,79 @@
+# Optional: run ZITADEL on Kubernetes with its official Helm chart instead of the
+# dev compose profile. Chart: https://github.com/zitadel/zitadel-charts
+# (Apache-2.0), repository https://charts.zitadel.com, chart name `zitadel`.
+#
+#   helm repo add zitadel https://charts.zitadel.com
+#   helm upgrade --install zitadel zitadel/zitadel --version 10.3.0 \
+#     -n identity --create-namespace -f helm-values.example.yaml
+#
+# Versions: chart 10.3.0 is the latest GitHub release seen on 2026-10-08
+# (published 2026-10-02; appVersion v4.19.2 in the chart's Chart.yaml; the
+# repository index also lists 11.0.0-beta.10, a pre-release, deliberately not
+# used). Re-check before use; the compose profile pins ZITADEL v4.19.4, so set
+# `image.tag` explicitly if you want the application version to match.
+#
+# STATUS: UNVERIFIED. Keys below were taken from the chart's values.yaml on its
+# main branch; this file was never rendered or installed (no cluster/Docker in
+# the authoring environment). Run `helm template` / `helm lint` first.
+#
+# Database: the SAME CloudNativePG cluster as the app, but a SEPARATE database
+# and role (deployments/k8s/postgres/base/cluster.yaml: managed role `zitadel`, Database
+# `zitadel`). Connect to the cluster's rw Service DIRECTLY (aedst-pg-rw), never
+# to the transaction-mode PgBouncer Pooler (aedst-pg-pooler-rw). This is a
+# deliberate policy: transaction pooling breaks session state (prepared
+# statements, session settings), and ZITADEL's documentation does not promise
+# support for it (UNVERIFIED either way). If you ever need pooling for it, use a
+# SEPARATE Pooler in session mode, never the app's. Count its connections in the
+# cluster's max_connections budget.
+zitadel:
+  # Generate once and keep: `openssl rand -hex 16` (exactly 32 bytes). Losing or
+  # changing it makes encrypted data in the database unreadable.
+  masterkeySecretName: zitadel-masterkey # Secret with key `masterkey`
+
+  configmapConfig:
+    ExternalDomain: auth.example.com # becomes AEDST_OIDC_ISSUER=https://auth.example.com
+    ExternalSecure: true
+    TLS:
+      Enabled: false # TLS terminates at the ingress / gateway
+    # Required to import first-party password hashes (import-users.sh): by default only
+    # the active hasher (bcrypt) is accepted, an argon2id PHC string is rejected with
+    # CRYPT-r8Qm2 "passwap: not a bcrypt version". Env form: ZITADEL_SYSTEMDEFAULTS_PASSWORDHASHER_VERIFIERS.
+    # Verified as an env var on ZITADEL v4.19.4 (README.md "Verification log"); this YAML key path
+    # and chart rendering are UNVERIFIED.
+    SystemDefaults:
+      PasswordHasher:
+        Verifiers: [argon2, bcrypt]
+    Database:
+      Postgres:
+        Host: aedst-pg-rw.<app-namespace>.svc.cluster.local
+        Port: 5432
+        Database: zitadel
+        MaxOpenConns: 20
+        MaxIdleConns: 10
+        User:
+          Username: zitadel
+          SSL:
+            Mode: require # CHECK: verify-full with dbSslCaCrtSecret if the cluster CA is mounted
+        # Admin is used only by the init job; with the database and role
+        # pre-created by CloudNativePG it is the same unprivileged role.
+        # UNVERIFIED against the init job's behaviour.
+        Admin:
+          Username: zitadel
+          SSL:
+            Mode: require
+
+  # The password (and the admin copy) belong in a Secret, not the ConfigMap.
+  secretConfig:
+    Database:
+      Postgres:
+        User:
+          Password: change-me # inject from your secret manager (External Secrets / SOPS), do not commit
+        Admin:
+          Password: change-me
+
+login:
+  enabled: true # Login UI v2 (the dev compose profile uses it too)
+
+# Ingress: route /ui/v2/login to the login service and everything else for the
+# ExternalDomain to the API (see the chart's `ingress` values; className and TLS
+# are cluster specific).

@@ -1,0 +1,12 @@
+{
+  "elevation": {
+    "$type": "dimension",
+    "$description": "Elevation scale for cards, sheets, dialogs and popovers (dp on Android; shadow radius reference elsewhere).",
+    "none": { "$value": { "value": 0, "unit": "px" } },
+    "level1": { "$value": { "value": 1, "unit": "px" } },
+    "level2": { "$value": { "value": 3, "unit": "px" } },
+    "level3": { "$value": { "value": 6, "unit": "px" } },
+    "level4": { "$value": { "value": 8, "unit": "px" } },
+    "level5": { "$value": { "value": 12, "unit": "px" } }
+  }
+}

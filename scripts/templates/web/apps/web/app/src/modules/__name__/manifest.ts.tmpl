@@ -1,0 +1,14 @@
+import { defineModule } from "@/shared/modules/manifest";
+
+export const manifest = defineModule({
+  id: "{{name}}",
+  i18nNamespaces: ["{{name}}"],
+  routes: [{ path: "/{{name}}", access: "session" }],
+  // No primary-navigation entry yet: add { href, labelKey, order } here, the
+  // label under `common.nav` in the app-shell catalogue, and update
+  // src/app/config/modules/registry.test.ts (it pins the navigation order).
+  nav: [],
+  featureFlags: [],
+  capabilities: [],
+  permissions: [],
+});

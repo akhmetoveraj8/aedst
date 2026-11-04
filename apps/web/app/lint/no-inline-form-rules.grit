@@ -1,0 +1,24 @@
+language js
+
+// React Hook Form holds form state only; rules never live in the component.
+// `register("f", { required, minLength, maxLength, min, max, pattern,
+// validate, ... })` duplicates (and drifts from) the .proto rules that
+// protovalidateResolver enforces.
+// Rule page: docs/content/web/validation.md
+or {
+  `$form.register($name, $opts)`,
+  `register($name, $opts)`
+} as $call where {
+  $opts <: contains or {
+    `required: $_`,
+    `minLength: $_`,
+    `maxLength: $_`,
+    `min: $_`,
+    `max: $_`,
+    `pattern: $_`,
+    `validate: $_`,
+    `deps: $_`,
+    `setValueAs: $_`
+  },
+  register_diagnostic(span=$call, message="No inline validation rules in register(): the rules live in the .proto and run through protovalidateResolver. register() takes the field name only (docs/content/web/validation.md).", severity="error")
+}

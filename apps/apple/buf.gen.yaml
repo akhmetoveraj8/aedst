@@ -1,0 +1,16 @@
+version: v2
+# Generates Swift Connect client stubs straight from apps/server's proto
+# sources (the source of truth lives in apps/server/api/proto; nothing is
+# duplicated here) — the Swift-side equivalent of apps/web's and
+# apps/server's buf.gen.yaml. Run via `make generate` from this directory.
+managed:
+  enabled: true
+plugins:
+  - local: protoc-gen-swift
+    out: Core/AedstNetwork/Sources/AedstNetwork/Generated
+    opt:
+      - Visibility=Public
+  - local: protoc-gen-connect-swift
+    out: Core/AedstNetwork/Sources/AedstNetwork/Generated
+    opt:
+      - Visibility=Public

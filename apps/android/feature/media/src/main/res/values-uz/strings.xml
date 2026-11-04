@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_title">Fayllar</string>
+    <string name="media_empty">Hozircha fayllar yo‘q. Rasm yoki video yuklang.</string>
+    <string name="media_upload">Rasm yoki video yuklash</string>
+    <string name="media_load_more">Yana yuklash</string>
+    <string name="media_back">Orqaga</string>
+    <string name="media_delete">Faylni o‘chirish</string>
+    <string name="media_processing">Fayl qayta ishlanmoqda…</string>
+    <string name="media_status_ready">Tayyor</string>
+    <string name="media_status_failed">Faylni qayta ishlab bo‘lmadi</string>
+</resources>

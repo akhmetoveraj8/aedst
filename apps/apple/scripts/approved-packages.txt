@@ -1,0 +1,12 @@
+# Approved third-party Swift packages for apps/apple (one URL per line, no trailing .git).
+# Enforced by scripts/check-dependencies.sh: every `.package(url:` in apps/apple/**/Package.swift must be listed here.
+# Adding a line REQUIRES the same change to update docs/content/library-first/apple.md ("Approved package URLs")
+# and, if it is a new concern, docs/content/decisions/apple.md. A line unused for one release cycle is removed.
+# Format: <url>   # concern, owning package (the only Package.swift allowed to declare it)
+https://github.com/kean/Nuke                              # remote images; Core/AedstMedia
+https://github.com/connectrpc/connect-swift               # API client; Core/AedstNetwork
+https://github.com/apple/swift-protobuf                   # protobuf runtime; Core/AedstNetwork
+https://github.com/groue/GRDB.swift                       # local persistence; Core/AedstPersistence
+https://github.com/getsentry/sentry-cocoa                 # crash reporting; Core/AedstTelemetry
+https://github.com/PostHog/posthog-ios                    # analytics, flags, replay; Core/AedstTelemetry
+https://github.com/pointfreeco/swift-snapshot-testing     # snapshot tests (test dependency); Core/AedstDesignSystem

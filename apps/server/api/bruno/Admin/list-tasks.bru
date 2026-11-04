@@ -1,0 +1,25 @@
+meta {
+  name: List Tasks
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/aedst.admin.v1.AdminService/ListTasks
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "pageSize": 20
+  }
+}
+
+assert {
+  res.status: eq 200
+}

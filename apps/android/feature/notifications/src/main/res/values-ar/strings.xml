@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notifications_title">الإشعارات</string>
+    <string name="notifications_empty">لا توجد إشعارات بعد.</string>
+    <string name="notifications_mark_all_read">تعليم الكل كمقروء</string>
+    <string name="notifications_preferences">إعدادات الإشعارات</string>
+    <string name="notifications_load_more">تحميل المزيد</string>
+    <string name="notifications_back">رجوع</string>
+    <string name="notifications_pref_push">الإشعارات الفورية</string>
+    <string name="notifications_pref_task_completed">اكتمال مهمة</string>
+    <string name="notifications_pref_task_due_soon">اقتراب موعد مهمة</string>
+    <string name="notifications_pref_media_ready">اكتمال معالجة ملف</string>
+    <string name="notifications_channel_tasks">المهام</string>
+    <string name="notifications_channel_media">الملفات</string>
+    <string name="notifications_channel_system">عام</string>
+    <plurals name="notifications_unread_count">
+        <item quantity="zero">الإشعارات، لا يوجد غير مقروء</item>
+        <item quantity="one">الإشعارات، %d غير مقروء</item>
+        <item quantity="two">الإشعارات، %d غير مقروءين</item>
+        <item quantity="few">الإشعارات، %d غير مقروءة</item>
+        <item quantity="many">الإشعارات، %d غير مقروء</item>
+        <item quantity="other">الإشعارات، %d غير مقروء</item>
+    </plurals>
+</resources>

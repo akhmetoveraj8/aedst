@@ -1,0 +1,25 @@
+meta {
+  name: Get Media
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/aedst.media.v1.MediaService/GetMedia
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "id": "{{mediaId}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

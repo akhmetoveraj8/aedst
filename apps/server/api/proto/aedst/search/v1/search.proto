@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package aedst.search.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/aedst/server/gen/go/aedst/search/v1;searchv1";
+
+// SearchService is a read-only, cross-module search over the caller's own
+// content. The search module owns a projection (search.documents, Postgres
+// full-text search with tsvector + pg_trgm for typo tolerance) that it builds
+// by consuming other modules' integration events — it never queries another
+// module's tables. Tasks is the reference producer (TaskCreated, TaskUpdated,
+// TaskCompleted, TaskDeleted).
+//
+// Results are always filtered to documents owned by the authenticated caller.
+service SearchService {
+  rpc Search(SearchRequest) returns (SearchResponse);
+  // Prefix suggestions for a search box (title-only, cheap).
+  rpc Suggest(SuggestRequest) returns (SuggestResponse);
+}
+
+enum DocumentKind {
+  DOCUMENT_KIND_UNSPECIFIED = 0;
+  DOCUMENT_KIND_TASK = 1;
+  DOCUMENT_KIND_MEDIA = 2;
+}
+
+message SearchRequest {
+  string query = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  // Empty means every kind.
+  repeated DocumentKind kinds = 2 [(buf.validate.field).repeated.items.enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  // Defaults to 20, clamped to 50.
+  int32 page_size = 3 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 50
+  }];
+  string page_token = 4 [(buf.validate.field).string.max_len = 512];
+}
+
+message SearchHit {
+  DocumentKind kind = 1;
+  // ID in the owning module (task id for DOCUMENT_KIND_TASK).
+  string id = 2;
+  string title = 3;
+  // Plain-text excerpt; matched terms are wrapped in U+E000 / U+E001 so each
+  // client renders highlighting natively without parsing HTML.
+  string snippet = 4;
+  float score = 5;
+  // In-app route, e.g. "/tasks/<id>".
+  string link = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message SearchResponse {
+  repeated SearchHit hits = 1;
+  string next_page_token = 2;
+  // Approximate total; populated on the first page only.
+  int32 total_estimate = 3;
+}
+
+message SuggestRequest {
+  string prefix = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+  // Defaults to 8, clamped to 20.
+  int32 limit = 2 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 20
+  }];
+}
+
+message SuggestResponse {
+  repeated string suggestions = 1;
+}

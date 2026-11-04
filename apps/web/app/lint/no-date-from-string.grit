@@ -1,0 +1,15 @@
+language js
+
+// `new Date("2026-01-15")` is UTC while `new Date("2026-01-15T00:00")` is
+// local time, and engines differ for other shapes. Date parsing goes through
+// src/shared/date (date-fns), which is exempt through `includes` in biome.json.
+//
+// Only the one-argument form that starts like a string, template, identifier,
+// member access or call is flagged. new Date(), new Date(y, m, d) (a comma),
+// new Date(<number literal>) and new Date(Date.now() ...) are not. A call whose
+// own arguments contain a comma slips through: this is a guard rail, not a type checker.
+`new Date($arg)` as $expr where {
+  $arg <: r"^[\"'`A-Za-z_$][^,]*$",
+  $arg <: not r"^Date\.now\(",
+  register_diagnostic(span=$expr, message="Do not build a Date from a string or unknown value with new Date(x): use parseDateInputValue from @/shared/date/format-date.", severity="error")
+}

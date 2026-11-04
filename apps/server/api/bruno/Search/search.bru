@@ -1,0 +1,27 @@
+meta {
+  name: Search
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/aedst.search.v1.SearchService/Search
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "module",
+    "kinds": ["DOCUMENT_KIND_TASK"],
+    "pageSize": 10
+  }
+}
+
+assert {
+  res.status: eq 200
+}

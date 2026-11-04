@@ -1,0 +1,77 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Entry points knip cannot discover on its own. instrumentation*, proxy.ts,
+  // next.config.ts and vitest/playwright configs are auto-detected by plugins.
+  // knip looks for the pnpm catalog next to this file; it lives one level up
+  // (apps/web/pnpm-workspace.yaml), so the check is off here.
+  "rules": { "catalogReferences": "off" },
+  "entry": [
+    // Shared tests run under this project (vitest include); they use the test mocks.
+    "../shared/**/*.{test,stories}.{ts,tsx}",
+    "../shared/**/*.test-support.ts",
+    // Loaded by path from next.config.ts (next-intl plugin), not imported.
+    "src/app/config/i18n/request.ts",
+    // next-intl `AppConfig` type augmentation (Locale), picked up by tsc, never imported.
+    "src/app/config/i18n/messages-types.ts",
+    // Aliased in place of `server-only` by vitest.config.mts, not imported.
+    "src/test/mocks/empty-module.ts",
+    // Service worker entry, bundled by Serwist (app/serwist/[path]/route.ts),
+    // never imported by the app.
+    "src/app/sw.ts",
+    // Aliased in place of `@/shared/i18n/navigation` by .storybook/main.ts.
+    ".storybook/navigation-stub.tsx",
+    "scripts/*.mjs",
+    // A module's full public surface (docs/content/web/architecture.md). The signed-in
+    // layouts import the single-export files in `entries/` instead, so part of
+    // each barrel is no longer imported by the app but stays the supported API.
+    "src/modules/*/public.ts"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "../shared/**/*.{ts,tsx}",
+    "e2e/**/*.ts",
+    "scripts/**/*.mjs"
+  ],
+  "ignore": [
+    // Vendored shadcn/ui design-system primitives. This is a boilerplate
+    // template: the full component set is kept available on purpose, so
+    // unused files/exports here are expected, not dead code.
+    // shared/ is a source-only kit used by three projects: a file unused by the
+    // app may be used by admin or landing, so it is not judged from here.
+    "../shared/**",
+    // shadcn "utils" alias (components.json); shared/ui imports `cn` directly.
+    "../shared/lib/utils/cn.ts"
+  ],
+  // Public API surface of template modules, kept complete for first use.
+  "ignoreIssues": {
+    // Used by ../shared/lib/auth/oidc/login-flow.test-support.ts (a shared test helper hosted by this project).
+    "src/test/mocks/oidc.ts": ["exports"],
+    "../shared/i18n/locales.ts": ["exports"],
+    // Builders for pages that do not exist yet (FAQ, changelog, breadcrumbs); see docs/content/web/seo-geo.md.
+    "src/app/config/structured-data.ts": ["exports"],
+    "../shared/i18n/navigation.ts": ["exports"],
+    "../shared/api/connect/client.ts": ["exports"]
+  },
+  // POLICY (docs/content/library-first.md): libraries on the approved Web
+  // stack may be added to package.json BEFORE their first use. Only that
+  // explicit allowlist is exempt from "unused dependency". Anything else
+  // that is unused must be removed, or added here together with a docs
+  // update approving it.
+  "ignoreDependencies": [
+    // Approved stack, planned but not imported yet.
+    "@dnd-kit/react",
+    // Referenced only from CSS (@import) or CLI config, which knip does not
+    // follow: globals.css, shadcn CLI, buf.gen.yaml / scripts/connect-generate.mjs.
+    "shadcn",
+    "tw-animate-css",
+    "tailwindcss",
+    "@bufbuild/buf",
+    "@bufbuild/protoc-gen-es",
+    // Marker package that only takes effect via a bare side-effect import.
+    "client-only",
+    // Peer of @axe-core/playwright.
+    "axe-core",
+    // Built into @stryker-mutator/core; knip infers it from testRunner: "command".
+    "@stryker-mutator/command-runner"
+  ]
+}

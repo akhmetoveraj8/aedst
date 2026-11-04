@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_placeholder">Vazifalar va fayllarni qidirish</string>
+    <string name="search_hint">Kamida ikkita belgi kiriting.</string>
+    <string name="search_no_results">Hech narsa topilmadi.</string>
+</resources>

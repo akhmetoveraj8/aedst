@@ -1,0 +1,11 @@
+{
+  "media_id": "0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0d",
+  "user_id": "0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0c",
+  "kind": "image",
+  "filename": "photo.jpg",
+  "content_type": "image/jpeg",
+  "size_bytes": 123456,
+  "task_id": "0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0b",
+  "ready_at": "2026-03-01T11:00:00Z",
+  "version": 2
+}

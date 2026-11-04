@@ -1,0 +1,62 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+export component AedstButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> primary: true;
+    in property <bool> enabled: true;
+    callback clicked();
+
+    min-height: 40px;
+    preferred-height: 40px;
+    max-height: 40px;
+    min-width: 64px;
+    border-radius: AedstTokens.radius-md;
+    background: !root.enabled ? AedstTokens.muted
+        : root.primary ? (touch.pressed ? AedstTokens.ring : AedstTokens.primary)
+        : AedstTokens.secondary;
+    border-width: root.primary ? 0px : 1px;
+    border-color: AedstTokens.border;
+    forward-focus: focus;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { root.clicked(); }
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n") {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    // The padding makes the button as wide as its text (translations differ a lot in length).
+    HorizontalLayout {
+        padding-left: AedstTokens.spacing-lg;
+        padding-right: AedstTokens.spacing-lg;
+        Text {
+            text: root.text;
+            color: !root.enabled ? AedstTokens.muted-foreground
+                : root.primary ? AedstTokens.primary-foreground : AedstTokens.secondary-foreground;
+            font-size: AedstTokens.typography-label-large-font-size;
+            font-weight: AedstTokens.typography-label-large-font-weight;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    // Visible keyboard focus ring.
+    Rectangle {
+        border-width: focus.has-focus ? 2px : 0px;
+        border-color: AedstTokens.ring;
+        border-radius: AedstTokens.radius-md;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => { root.clicked(); }
+    }
+}

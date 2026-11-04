@@ -1,0 +1,19 @@
+import AedstNavigation
+import SwiftUI
+
+/// Route to the {{name}} screen.
+public enum {{Name}}Route: AedstRoute {
+    case list
+}
+
+extension View {
+    /// Registers the {{name}} destination on the root stack.
+    public func {{name}}Destinations(@ViewBuilder make{{Name}}: @escaping () -> some View) -> some View {
+        aedstDestination(for: {{Name}}Route.self) { route in
+            switch route {
+            case .list:
+                make{{Name}}()
+            }
+        }
+    }
+}

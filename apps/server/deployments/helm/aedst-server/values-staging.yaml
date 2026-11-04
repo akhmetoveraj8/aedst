@@ -1,0 +1,29 @@
+replicaCount: 2
+existingSecret: aedst-server-staging
+config:
+  env: staging
+  trustedProxyHops: 2
+  corsAllowedOrigins: ["https://staging.example.com"]
+  valkey:
+    tls: true
+    tlsCaFile: /etc/tls/valkey/ca.crt
+database:
+  directDsnSecretKey: database-direct-url
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 4
+alerts:
+  enabled: true
+dashboards:
+  enabled: true
+
+migrations:
+  activeDeadlineSeconds: 900
+
+# Transport security, as in values-prod.yaml.
+extraVolumes:
+  - {name: valkey-tls, secret: {secretName: valkey-tls}}
+  - {name: pg-ca, secret: {secretName: aedst-pg-ca}}
+extraVolumeMounts:
+  - {name: valkey-tls, mountPath: /etc/tls/valkey, readOnly: true}
+  - {name: pg-ca, mountPath: /etc/tls/pg, readOnly: true}

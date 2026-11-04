@@ -1,0 +1,15 @@
+package com.aedst.feature.{{name}}.data
+
+import com.aedst.feature.{{name}}.domain.{{Name}}Repository
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class {{Name}}Module {
+
+    @Binds
+    abstract fun bind{{Name}}Repository(impl: InMemory{{Name}}Repository): {{Name}}Repository
+}

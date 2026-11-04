@@ -1,0 +1,6 @@
+//// run: biome
+//// expect: Zustand is for UI state only
+//// file: src/modules/tasks/ui/BadStore.tsx
+import { create } from "zustand";
+
+export const useBad = create<{ n: number }>()(() => ({ n: 0 }));

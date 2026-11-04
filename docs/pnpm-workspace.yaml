@@ -1,0 +1,21 @@
+# next@16.4.3 is newer than pnpm's default minimumReleaseAge; excluded explicitly
+# (verified against the npm registry). Remove entries once they age past it.
+minimumReleaseAgeExclude:
+  - '@next/env@16.4.3'
+  - '@next/swc-darwin-arm64@16.4.3'
+  - '@next/swc-darwin-x64@16.4.3'
+  - '@next/swc-linux-arm64-gnu@16.4.3'
+  - '@next/swc-linux-arm64-musl@16.4.3'
+  - '@next/swc-linux-x64-gnu@16.4.3'
+  - '@next/swc-linux-x64-musl@16.4.3'
+  - '@next/swc-win32-arm64-msvc@16.4.3'
+  - '@next/swc-win32-x64-msvc@16.4.3'
+  - next@16.4.3
+overrides:
+  # nextra-theme-docs@4.6.1's <Layout> throws "expected nonoptional, received
+  # undefined -> at children" on zod >=4.4.0 (upstream: shuding/nextra#4989,
+  # #5008, #5036 — fix landed for #4990 but not yet in a published 4.x
+  # release as of this writing). Pin below the regression until a fixed
+  # nextra-theme-docs release lands, then drop this override.
+  zod: 4.3.6
+# twoslash needs a TypeScript with a JS compiler API: see .pnpmfile.cjs.

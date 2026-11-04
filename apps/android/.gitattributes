@@ -1,0 +1,7 @@
+# ktlint/Spotless (myapp.quality) enforce LF — force it here regardless of a
+# contributor's global core.autocrlf, discovered when Spotless failed on
+# Windows-checked-out CRLF line endings building Phase 2 for real.
+* text=auto eol=lf
+*.jar binary
+*.png binary
+*.jpg binary

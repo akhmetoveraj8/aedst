@@ -1,0 +1,4 @@
+//// run: biome
+//// expect: noProcessEnv
+//// file: src/modules/tasks/lib/bad-env.ts
+export const apiBase = process.env.API_BASE_URL;

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tasks_title">Вазифаҳо</string>
+    <string name="tasks_empty">Ҳоло вазифа нест. Аввалинашро эҷод кунед.</string>
+    <string name="tasks_select_prompt">Вазифаро интихоб кунед</string>
+    <string name="tasks_create">Вазифаи нав</string>
+    <string name="tasks_back">Бозгашт</string>
+    <string name="tasks_delete">Нест кардани вазифа</string>
+    <string name="tasks_complete">Анҷом додан</string>
+    <string name="tasks_reopen">Аз нав кушодан</string>
+    <string name="tasks_due">Мӯҳлат: %1$s</string>
+    <string name="tasks_attachments">Замимаҳо</string>
+    <string name="tasks_attach">Замима кардан</string>
+    <string name="tasks_no_attachments">Замима нест.</string>
+    <string name="tasks_field_title">Ном</string>
+    <string name="tasks_field_title_required">Номро ворид кунед.</string>
+    <string name="tasks_field_description">Тавсиф</string>
+    <string name="tasks_field_priority">Афзалият</string>
+    <string name="tasks_save">Эҷод кардан</string>
+    <string name="tasks_status_todo">Барои иҷро</string>
+    <string name="tasks_status_in_progress">Дар ҷараён</string>
+    <string name="tasks_status_done">Тайёр</string>
+    <string name="tasks_status_unknown">Номаълум</string>
+    <string name="tasks_priority_low">Паст</string>
+    <string name="tasks_priority_medium">Миёна</string>
+    <string name="tasks_priority_high">Баланд</string>
+    <string name="tasks_priority_urgent">Фаврӣ</string>
+    <string name="tasks_priority_unknown">Номаълум</string>
+    <string name="tasks_pending_sync_title">Дар дастгоҳ захира шуд</string>
+    <string name="tasks_pending_sync">Он ҳангоми пайвастшавӣ ба шабака фиристода мешавад.</string>
+</resources>

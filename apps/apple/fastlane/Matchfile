@@ -1,0 +1,29 @@
+# match: certificates + provisioning profiles in an encrypted private store.
+# Environment (see the header of .github/workflows/apple-release.yml):
+#   MATCH_PASSWORD                  encryption passphrase (match reads it itself)
+#   MATCH_STORAGE_MODE              git (default) | s3
+#   MATCH_GIT_URL                   private repo for the certs (git mode)
+#   MATCH_GIT_BASIC_AUTHORIZATION   base64("user:token") for HTTPS access (match reads it itself)
+#   MATCH_S3_BUCKET / MATCH_S3_REGION / MATCH_S3_ACCESS_KEY / MATCH_S3_SECRET_ACCESS_KEY
+#                                   S3-compatible storage (s3 mode)
+#   MATCH_TYPE                      default type when a lane does not pass one
+#   APPLE_TEAM_ID                   developer team id
+# The platform is passed per lane (ios / macos).
+
+storage_mode(ENV.fetch("MATCH_STORAGE_MODE", "git"))
+
+if ENV.fetch("MATCH_STORAGE_MODE", "git") == "s3"
+  s3_bucket(ENV["MATCH_S3_BUCKET"])
+  s3_region(ENV["MATCH_S3_REGION"])
+  s3_access_key(ENV["MATCH_S3_ACCESS_KEY"])
+  s3_secret_access_key(ENV["MATCH_S3_SECRET_ACCESS_KEY"])
+else
+  git_url(ENV["MATCH_GIT_URL"])
+end
+
+type(ENV.fetch("MATCH_TYPE", "development"))
+team_id(ENV["APPLE_TEAM_ID"])
+app_identifier(["com.aedst.apple.ios", "com.aedst.apple.macos"])
+
+# CI only reads: certificates are created by an admin with `make signing-sync`.
+readonly(true) if ENV["CI"]

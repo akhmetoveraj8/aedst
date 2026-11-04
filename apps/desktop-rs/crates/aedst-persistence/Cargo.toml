@@ -1,0 +1,18 @@
+[package]
+name = "aedst-persistence"
+version = "0.0.0"
+description = "Local SQLite database on one dedicated thread, versioned migrations frozen by hash, a small key-value table"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+rusqlite = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+[lints]
+workspace = true

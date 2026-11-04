@@ -1,0 +1,23 @@
+// Package api is the {{name}} module's public boundary: the only package of
+// modules/{{name}} that cmd/server and other modules may import (enforced by
+// architecturetest).
+package api
+
+import (
+	"context"
+
+	"github.com/aedst/server/internal/modules/{{name}}/application"
+	"github.com/aedst/server/internal/modules/{{name}}/domain"
+	"github.com/aedst/server/internal/shared/ids"
+)
+
+type Entry = domain.Entry
+
+// Service is everything a transport handler can do. Every method takes the
+// owner explicitly, derived by the caller from the authenticated context.
+type Service interface {
+	CreateEntry(ctx context.Context, ownerID ids.ID, title string) (Entry, error)
+	GetEntry(ctx context.Context, ownerID, id ids.ID) (Entry, error)
+}
+
+var _ Service = (*application.Service)(nil)

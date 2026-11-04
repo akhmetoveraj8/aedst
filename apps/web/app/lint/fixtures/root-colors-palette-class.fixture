@@ -1,0 +1,4 @@
+//// run: rootcolors
+//// expect: bg-blue-500
+//// file: apps/web/app/src/modules/tasks/ui/BadColor.tsx
+export const BadColor = () => <p className="bg-blue-500">x</p>;

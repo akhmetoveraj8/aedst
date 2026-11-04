@@ -1,0 +1,16 @@
+import { screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { {{Name}}Page } from "@/modules/{{name}}/ui/{{Name}}Page";
+import { messages, renderWithProviders } from "@/test/render";
+
+describe("{{Name}}Page", () => {
+  it("renders the title and the empty state", () => {
+    renderWithProviders(<{{Name}}Page />);
+
+    expect(
+      screen.getByRole("heading", { name: messages.{{name}}.title }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(messages.{{name}}.emptyTitle)).toBeInTheDocument();
+  });
+});

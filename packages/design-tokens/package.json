@@ -1,0 +1,14 @@
+{
+  "name": "@aedst/design-tokens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Single source of truth for AEDST design tokens (DTCG JSON -> Style Dictionary -> web/android/apple/desktop).",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs --check"
+  },
+  "devDependencies": {
+    "style-dictionary": "5.7.1"
+  }
+}

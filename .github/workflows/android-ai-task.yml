@@ -1,0 +1,81 @@
+name: android-ai-task
+
+# An Issue labeled both `ai-task` and `apps/android` (see
+# .github/ISSUE_TEMPLATE/android-ai-task.yml) runs the write-spec -> ... ->
+# create-pr pipeline (apps/android/AGENTS.md) when someone mentions @claude
+# on it. Scoped to apps/android by the label check below, not by path (an
+# Issue has no diff/paths to filter on the way a PR does) — mirrors
+# apple-ai-task.yml with its own label instead of also matching apps/apple.
+#
+# author_association gate (security-auditor's Phase 9 self-review finding,
+# HIGH): the Issue template auto-labels `ai-task` + `apps/android` on every
+# issue regardless of who files it, and the original condition below had no
+# check on who opened the issue or posted the `@claude` comment — this job
+# runs with contents:write/pull-requests:write/issues:write, and the only
+# thing stopping an arbitrary external user from steering it via
+# prompt-injected issue/comment text was the workflow prompt's own
+# natural-language "wait for a human" instruction, not a real ACL. Requiring
+# OWNER/MEMBER/COLLABORATOR on both the issue author and (for the
+# comment-triggered path) the commenter closes that gap.
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+# One run per issue at a time; never cancel a run that may be mid-way through a PR.
+concurrency:
+  group: android-ai-task-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  run-task:
+    # Owner setup: create the GitHub Environment `ai-task` (Settings -> Environments) and add
+    # required reviewers, so every run waits for a human approval before it gets the secret and
+    # the write-scoped token. Without the environment, this line only creates an unprotected one.
+    environment: ai-task
+    timeout-minutes: 60
+    if: >
+      contains(github.event.issue.labels.*.name, 'ai-task') &&
+      contains(github.event.issue.labels.*.name, 'apps/android') &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association) &&
+      (
+        (github.event_name == 'issues') ||
+        (
+          github.event_name == 'issue_comment' &&
+          contains(github.event.comment.body, '@claude') &&
+          contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+        )
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+
+      - uses: anthropics/claude-code-action@8c3fd987fa6a6b2654f69275e323d08207fcd36c # v1.0.264
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Work this Issue (apps/android) following the pipeline in
+            apps/android/AGENTS.md: read
+            .claude/skills/write-spec/SKILL.md first and turn this
+            Issue's description into a spec at
+            apps/android/specs/<feature>.md, posted as a comment on
+            this Issue — then STOP and wait for a human to approve it
+            before scaffolding or writing any
+            implementation code. Do not open a PR in this run if the spec
+            isn't already approved on a prior run of this workflow (check
+            the Issue's comment history).
+          claude_args: |
+            --max-turns 40

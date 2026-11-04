@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_upload_channel_name">رفع الملفات</string>
+    <string name="media_upload_notification_title">جارٍ رفع الملف…</string>
+    <string name="media_upload_preparing">جارٍ التحضير…</string>
+    <string name="media_upload_uploading">جارٍ الرفع…</string>
+    <string name="media_upload_finishing">جارٍ الإنهاء…</string>
+    <string name="media_upload_done">تم الرفع</string>
+    <string name="media_upload_failed">تعذّر الرفع</string>
+    <string name="media_upload_cancelled">أُلغي</string>
+    <string name="media_upload_cancel">إلغاء الرفع</string>
+    <string name="media_play">تشغيل</string>
+    <string name="media_pause">إيقاف مؤقت</string>
+</resources>
