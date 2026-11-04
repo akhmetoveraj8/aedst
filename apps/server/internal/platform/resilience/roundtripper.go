@@ -46,10 +46,7 @@ type resilientRoundTripper struct {
 // is a reasonable future extension if a dependency's failure mode turns out
 // to be "responds slowly with 503" rather than "stops responding".
 func WrapRoundTripper(next http.RoundTripper, cfg Config) http.RoundTripper {
-	burst := int(cfg.RateLimitRPS)
-	if burst < 1 {
-		burst = 1
-	}
+	burst := max(int(cfg.RateLimitRPS), 1)
 
 	return &resilientRoundTripper{
 		next:    next,

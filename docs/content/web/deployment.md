@@ -5,7 +5,7 @@ description: "How the apps/web projects ship (this page details the app project;
 
 # Web Deployment
 
-The three web projects (`app`, `admin`, `landing`) are separate deployables, one container image each, on separate domains (see [Web projects](/web/projects)). This page details the **app** project; `admin` and `landing` follow the same shape with their own `deployments/docker/Dockerfile` (ports 3001 and 3002, no release workflow or Helm chart yet). Each image is built from the Next.js `output: "standalone"` bundle. The
+The three web projects (`app`, `admin`, `landing`) are separate deployables, one container image each, on separate domains (see [Web projects](/web/projects)). This page details the **app** project; `landing` follows the same shape with its own `deployments/docker/Dockerfile` (port 3002, no release workflow or Helm chart yet), built from the Next.js `output: "standalone"` bundle. `admin` is a Vite SPA plus a Hono BFF and is described in [Admin (Vite + Hono BFF)](#admin-vite--hono-bff) below. The
 Vercel/OpenNext route is documented at the end and is **not implemented**.
 
 Status: the Dockerfile, the Helm chart and `web-release.yml` were authored without Docker, Helm or a CI run
@@ -112,6 +112,28 @@ helm upgrade --install aedst-web apps/web/app/deployments/helm/aedst-web \
   back before the server.
 - Sentry keeps the maps of every release, so a rolled-back build still has readable stacks.
 - `OIDC_STATE_SECRET` must not change during a rollout (in-flight sign-ins would fail); rotate it in a quiet window.
+
+## Admin (Vite + Hono BFF)
+
+Status: authored and unit/e2e/smoke tested locally on Windows (see the verification notes in decisions/web.md); the Docker image was **not built** (no Docker available): **UNVERIFIED** until the first image build.
+
+- **Image**: `apps/web/admin/deployments/docker/Dockerfile` (repository root as context). Stage 1 (`node:26.12.1-trixie-slim`, pnpm 12.15.0) installs the admin and app projects, generates the Connect stubs and runs `pnpm --filter @aedst/web-admin build:all` (`vite build` to `dist/`, then the esbuild bundle `dist-server/main.mjs`); it fails if `dist` contains a `.map`. Stage 2 (`gcr.io/distroless/nodejs26-debian13:nonroot`, uid 65532, no shell) holds only `dist/` and `dist-server/main.mjs` (no `node_modules`) and runs `node dist-server/main.mjs` on port 3001. Same pinning policy and `HEALTHCHECK` (bundled node against `/api/healthz`) as above. There is no Helm chart or Kustomize for admin; probes are `httpGet /api/healthz` on 3001.
+- **Build args** (inlined into the static bundle, one image per public origin): `VITE_SITE_URL`, `VITE_APP_URL`, `VITE_SENTRY_DSN`, `VITE_SENTRY_ENVIRONMENT`, and `SENTRY_ORG`/`SENTRY_PROJECT`/`SENTRY_RELEASE` plus the BuildKit secret `sentry_auth_token` for the source-map upload done by `vite build`.
+- **Runtime variables** (validated at boot, see `apps/web/admin/server/.env.example`):
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `ADMIN_ORIGIN` | yes in prod | Browser-visible origin; OIDC redirect URI is `${ADMIN_ORIGIN}/api/auth/callback`; https turns on `Secure` + `__Host-` cookies |
+| `PORT` (or `ADMIN_BFF_PORT`) | no | Listening port (image sets 3001; default 3101 outside the image) |
+| `API_BASE_URL` | yes | Internal address of `apps/server` |
+| `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_STATE_SECRET` | yes in prod | Identity provider (client `aedst-admin`); the state secret is >= 32 chars and identical on every replica |
+| `OIDC_CLIENT_SECRET`, `OIDC_PROJECT_ID`, `OIDC_SCOPE` | no | As for `app` |
+| `AUTH_COOKIE_NAME`, `AUTH_ROLES_CLAIM`, `AUTH_ROLES_ORG` | no | Use `aedst_admin_session`; roles claim mirrors the server |
+| `SENTRY_DSN` | no | Derives the CSP report URI and the Sentry ingest origin allowed in `connect-src` |
+| `TRUST_PROXY`, `LOG_LEVEL`, `ADMIN_STATIC_DIR` | no | Client address from X-Forwarded-For in logs; log level; static directory override |
+
+- **Health**: `GET /api/healthz` never calls `apps/server` or the IdP. **Shutdown**: SIGTERM stops accepting connections, closes idle ones and exits (forced after 10 s).
+- **Local run**: `pnpm build:all && pnpm start` in `apps/web/admin` (or `task admin:build admin:start`). Without `dist/` the HTML routes answer 503.
 
 ## Alternative: Vercel / OpenNext (documented, not implemented)
 

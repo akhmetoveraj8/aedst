@@ -116,26 +116,26 @@ func syntheticRequest(t *testing.T, withRules bool) protoreflect.MessageDescript
 	}
 	typeEnum := descriptorpb.FieldDescriptorProto_TYPE_ENUM
 	file := &descriptorpb.FileDescriptorProto{
-		Name:    proto.String("selftest.proto"),
-		Package: proto.String("selftest"),
-		Syntax:  proto.String("proto3"),
+		Name:    new("selftest.proto"),
+		Package: new("selftest"),
+		Syntax:  new("proto3"),
 		EnumType: []*descriptorpb.EnumDescriptorProto{{
-			Name:  proto.String("Color"),
-			Value: []*descriptorpb.EnumValueDescriptorProto{{Name: proto.String("COLOR_UNSPECIFIED"), Number: proto.Int32(0)}, {Name: proto.String("COLOR_RED"), Number: proto.Int32(1)}},
+			Name:  new("Color"),
+			Value: []*descriptorpb.EnumValueDescriptorProto{{Name: new("COLOR_UNSPECIFIED"), Number: proto.Int32(0)}, {Name: new("COLOR_RED"), Number: proto.Int32(1)}},
 		}},
 		MessageType: []*descriptorpb.DescriptorProto{{
-			Name: proto.String("ListThingsRequest"),
+			Name: new("ListThingsRequest"),
 			Field: []*descriptorpb.FieldDescriptorProto{
 				{
-					Name: proto.String("page_size"), Number: proto.Int32(1), Type: descriptorpb.FieldDescriptorProto_TYPE_INT32.Enum(), Label: descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+					Name: new("page_size"), Number: proto.Int32(1), Type: descriptorpb.FieldDescriptorProto_TYPE_INT32.Enum(), Label: descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 					Options: opt(&validate.FieldRules{Type: &validate.FieldRules_Int32{Int32: &validate.Int32Rules{LessThan: &validate.Int32Rules_Lte{Lte: 100}}}}),
 				},
 				{
-					Name: proto.String("page_token"), Number: proto.Int32(2), Type: descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(), Label: descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+					Name: new("page_token"), Number: proto.Int32(2), Type: descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(), Label: descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 					Options: opt(&validate.FieldRules{Type: &validate.FieldRules_String_{String_: &validate.StringRules{MaxLen: proto.Uint64(512)}}}),
 				},
 				{
-					Name: proto.String("colors"), Number: proto.Int32(3), Type: &typeEnum, TypeName: proto.String(".selftest.Color"), Label: descriptorpb.FieldDescriptorProto_LABEL_REPEATED.Enum(),
+					Name: new("colors"), Number: proto.Int32(3), Type: &typeEnum, TypeName: new(".selftest.Color"), Label: descriptorpb.FieldDescriptorProto_LABEL_REPEATED.Enum(),
 					Options: opt(&validate.FieldRules{Type: &validate.FieldRules_Repeated{Repeated: &validate.RepeatedRules{Items: &validate.FieldRules{
 						Type: &validate.FieldRules_Enum{Enum: &validate.EnumRules{NotIn: []int32{0}}},
 					}}}}),

@@ -13,7 +13,6 @@ describe("admin permissions", () => {
   it("lets admin do everything", () => {
     const all: AdminPermission[] = [
       "overview.read",
-      "users.read",
       "tasks.read",
       "tasks.delete",
       "notifications.broadcast",
@@ -25,7 +24,7 @@ describe("admin permissions", () => {
   });
 
   it("keeps support read-only and away from the audit log", () => {
-    expect(can([SUPPORT_ROLE], "users.read")).toBe(true);
+    expect(can([SUPPORT_ROLE], "tasks.read")).toBe(true);
     expect(can([SUPPORT_ROLE], "tasks.delete")).toBe(false);
     expect(can([SUPPORT_ROLE], "notifications.broadcast")).toBe(false);
     expect(can([SUPPORT_ROLE], "audit.read")).toBe(false);
@@ -34,7 +33,6 @@ describe("admin permissions", () => {
   it("keeps auditor to the overview and the audit log", () => {
     expect(can([AUDITOR_ROLE], "overview.read")).toBe(true);
     expect(can([AUDITOR_ROLE], "audit.read")).toBe(true);
-    expect(can([AUDITOR_ROLE], "users.read")).toBe(false);
     expect(can([AUDITOR_ROLE], "tasks.read")).toBe(false);
   });
 

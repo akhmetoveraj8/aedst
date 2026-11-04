@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"io"
+	"net/http"
 	"net/url"
 	"strings"
 	"testing"
@@ -69,7 +70,7 @@ func TestS3_PresignedUploadSignsTypeLengthAndChecksum(t *testing.T) {
 			t.Errorf("signed headers %q lack %s", signed, h)
 		}
 	}
-	if req.Method != "PUT" || req.Headers["Content-Type"] != "image/png" || req.Headers["X-Amz-Checksum-Sha256"] == "" {
+	if req.Method != http.MethodPut || req.Headers["Content-Type"] != "image/png" || req.Headers["X-Amz-Checksum-Sha256"] == "" {
 		t.Errorf("request = %+v", req)
 	}
 	if _, ok := req.Headers["Host"]; ok {

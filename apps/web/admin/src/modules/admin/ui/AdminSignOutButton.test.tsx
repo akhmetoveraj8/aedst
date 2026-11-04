@@ -2,18 +2,18 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { logoutAction } from "@/modules/admin/lib/auth-actions";
 import { AdminSignOutButton } from "@/modules/admin/ui/AdminSignOutButton";
+import { requestLogout } from "@/shared/lib/auth/logout";
 import { routerMock } from "@/test/mocks/navigation";
 import { messages, renderWithProviders } from "@/test/render";
 
-vi.mock("@/modules/admin/lib/auth-actions", () => ({
-  logoutAction: vi.fn(),
+vi.mock("@/shared/lib/auth/logout", () => ({
+  requestLogout: vi.fn(),
 }));
 
 describe("AdminSignOutButton", () => {
   it("revokes the session and returns to the site root", async () => {
-    vi.mocked(logoutAction).mockResolvedValue({ endSessionUrl: null });
+    vi.mocked(requestLogout).mockResolvedValue({ endSessionUrl: null });
     renderWithProviders(<AdminSignOutButton />, { initialUserId: "user-1" });
 
     await userEvent.click(
@@ -21,12 +21,12 @@ describe("AdminSignOutButton", () => {
     );
 
     await waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith("/"));
-    expect(logoutAction).toHaveBeenCalledOnce();
+    expect(requestLogout).toHaveBeenCalledOnce();
     expect(routerMock.refresh).toHaveBeenCalled();
   });
 
   it("signs out locally even when the revoke call fails", async () => {
-    vi.mocked(logoutAction).mockRejectedValue(new Error("network"));
+    vi.mocked(requestLogout).mockRejectedValue(new Error("network"));
     renderWithProviders(<AdminSignOutButton />, { initialUserId: "user-1" });
 
     await userEvent.click(

@@ -11,7 +11,7 @@ import { backend } from "./src/test/mocks/transport";
 // the 1 s default on a loaded runner.
 configure({ asyncUtilTimeout: 3_000 });
 
-// next-intl's navigation needs a mounted App Router; swap it for a spy-able stub.
+// The navigation seam needs a mounted TanStack router; swap it for a spy-able stub.
 vi.mock("@/shared/i18n/navigation", async () => {
   return await import("./src/test/mocks/navigation");
 });

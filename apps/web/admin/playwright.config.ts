@@ -13,7 +13,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  // The dev server compiles routes on first hit; more workers just queue on it.
+  // One BFF process serves every worker.
   workers: 2,
   reporter: process.env.CI
     ? [["line"], ["html", { open: "never" }]]
@@ -46,10 +46,14 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: process.env.CI
-        ? `pnpm start -p ${ADMIN_PORT}`
-        : `pnpm dev -p ${ADMIN_PORT}`,
+      // The production shape: the static Vite build served by the Hono BFF.
+      // CI builds in an earlier step; locally this builds first (dist/ and
+      // dist-server/ are gitignored). No dev server, so no HMR surprises.
+      command: process.env.CI ? "pnpm start" : "pnpm build:all && pnpm start",
       env: {
+        NODE_ENV: "production",
+        PORT: String(ADMIN_PORT),
+        ADMIN_ORIGIN: baseURL,
         API_BASE_URL: mockApiURL,
         OIDC_ISSUER: `${mockApiURL}/oidc`,
         OIDC_CLIENT_ID: "aedst-admin",
@@ -57,10 +61,9 @@ export default defineConfig({
         OIDC_STATE_SECRET: "e2e-only-state-secret-e2e-only-state-secret",
         AUTH_ROLES_CLAIM: "urn:zitadel:iam:org:project:roles",
         AUTH_COOKIE_NAME: "aedst_admin_session",
-        NEXT_PUBLIC_SITE_URL: baseURL,
       },
       url: `${baseURL}/api/healthz`,
-      timeout: 120_000,
+      timeout: 240_000,
       reuseExistingServer: !process.env.CI,
     },
   ],

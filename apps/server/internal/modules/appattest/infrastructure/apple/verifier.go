@@ -21,6 +21,7 @@ import (
 	"crypto/x509"
 	_ "embed"
 	"encoding/asn1"
+	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -50,7 +51,7 @@ func AppleRoots() (*x509.CertPool, error) {
 	if err != nil {
 		return nil, fmt.Errorf("appattest: embedded Apple root CA: %w", err)
 	}
-	if fp := sha256.Sum256(cert.Raw); fmt.Sprintf("%x", fp) != RootCAFingerprint {
+	if fp := sha256.Sum256(cert.Raw); hex.EncodeToString(fp[:]) != RootCAFingerprint {
 		return nil, errors.New("appattest: embedded Apple root CA does not match its pinned fingerprint")
 	}
 	pool := x509.NewCertPool()

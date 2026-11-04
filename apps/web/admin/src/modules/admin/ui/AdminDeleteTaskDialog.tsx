@@ -2,9 +2,9 @@
 
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "use-intl";
 import { AdminService } from "@/shared/api/connect/client";
 import {
   type AdminTask,

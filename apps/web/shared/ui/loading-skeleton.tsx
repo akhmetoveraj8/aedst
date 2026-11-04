@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "cn";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "use-intl";
 
 /**
  * A busy region of skeleton placeholders with an accessible name: a

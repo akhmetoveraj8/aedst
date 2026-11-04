@@ -43,7 +43,7 @@ func run() error {
 		return err
 	}
 	var sections []*section
-	collect(reflect.TypeOf(config.Config{}), "Core", docs, &sections)
+	collect(reflect.TypeFor[config.Config](), "Core", docs, &sections)
 
 	var sb strings.Builder
 	sb.WriteString("---\ntitle: \"Configuration reference\"\ndescription: \"Every environment variable the server reads, generated from internal/platform/config.\"\n---\n\n")
@@ -82,8 +82,7 @@ func cell(s string) string {
 func collect(t reflect.Type, name string, docs map[string]string, sections *[]*section) {
 	sec := &section{name: name}
 	*sections = append(*sections, sec)
-	for i := range t.NumField() {
-		f := t.Field(i)
+	for f := range t.Fields() {
 		tag, _, _ := strings.Cut(f.Tag.Get("env"), ",")
 		if f.Type.Kind() == reflect.Struct && tag == "" {
 			collect(f.Type, strings.TrimSuffix(f.Type.Name(), "Config"), docs, sections)

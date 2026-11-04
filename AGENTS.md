@@ -7,7 +7,8 @@ Always applicable:
 1. **[CONVENTIONS.md](CONVENTIONS.md)**: naming for the 5 platforms (Web, Server, Android, Apple, Desktop) and the file-size policy. **Must** rules are enforced by linters and `scripts/check-naming.sh`.
 2. **[docs/content/library-first.md](docs/content/library-first.md)**: Library-First standard; platform stack pages are linked from it.
 3. **[docs/content/decisions.md](docs/content/decisions.md)**: decisions with rationale and "revisit when". If a proposal contradicts one, do not implement or re-propose it.
-4. The `AGENTS.md` of the app you touch (`apps/server`, or `apps/web` and then the one web project `app` / `admin` / `landing` you work in, see [docs/content/web/projects.md](docs/content/web/projects.md)) and platform ADRs (`apps/server/docs/adr/`, `apps/desktop/docs/adr/`).
+4. **[docs/agent/quality-bar.md](docs/agent/quality-bar.md)**: the senior-level bar (modern features of the pinned toolchain, API design, security, performance); full pages in `docs/content/engineering/`. Run the `quality-pass` skill before reporting a change done; start API work with the `api-design` skill.
+5. The `AGENTS.md` of the app you touch (`apps/server`, or `apps/web` and then the one web project `app` / `admin` / `landing` you work in, see [docs/content/web/projects.md](docs/content/web/projects.md)) and platform ADRs (`apps/server/docs/adr/`, `apps/desktop/docs/adr/`).
 
 ## The one rule that matters most
 
@@ -37,4 +38,4 @@ Full list with rationale: [docs/agent/rules.md](docs/agent/rules.md) and the pla
 - Apple: XcodeGen, SwiftData, swift-perception, a hand-written image loader, SwiftFormat/Periphery (nicklockwood).
 - Desktop (`apps/desktop-rs`): Qt/C++ (deleted), cxx-qt, Tauri/WebView, a hand-written Connect or OIDC client, hand-mirrored DTOs, committed generated code, `unwrap()` and `unsafe`.
 - Infrastructure as code: Terraform (use OpenTofu only).
-- Kept by owner decision (do not propose replacing): Next.js, React Hook Form, the `cn` package, Goose, Rust + Slint on Desktop (replaced Qt 6 / C++23 on 2026-11-01), Hilt on AGP 9.
+- Kept by owner decision (do not propose replacing): Next.js for `app` and `landing` (`admin` moves to Vite + TanStack Router, planned), React Hook Form, the `cn` package, Goose, Rust + Slint on Desktop (replaced Qt 6 / C++23 on 2026-11-01), Hilt on AGP 9.

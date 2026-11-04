@@ -1,5 +1,5 @@
 /node_modules
-/.next/
+/dist/
 /out/
 /coverage
 /build
@@ -13,7 +13,7 @@ npm-debug.log*
 !.env.example
 
 *.tsbuildinfo
-next-env.d.ts
+.vitest/
 .vitest-attachments/
 __screenshots__/
 /dep-graph.dot

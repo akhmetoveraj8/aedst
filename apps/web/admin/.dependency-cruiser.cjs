@@ -4,8 +4,6 @@
  * dependency-cruiser only analyses the import graph.
  * Direction: src/app -> src/modules -> ../shared. Paths are relative to this
  * directory, so the source-only kit is `^../shared/`.
- * UNVERIFIED: written without running depcruise (no install in the authoring
- * environment); adjust the `../shared` patterns if the first run reports none.
  */
 
 const TEST_FILE =

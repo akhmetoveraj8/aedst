@@ -18,5 +18,6 @@ Review the pull request diff under `apps/web/` (a workspace of four directories:
 - No color literals in hand-written UI code (`scripts/check-color-literals.mjs`) and all five locales stay in parity (`scripts/check-i18n-parity.mjs`).
 - Generated files (`apps/web/shared/api/connect/generated/**`, `packages/design-tokens/dist/**`) are not hand-edited.
 - New dependencies are in the knip allowlist (`apps/web/app/knip.jsonc`) and in `docs/content/library-first/web.md`.
+- Engineering standard (`docs/agent/quality-bar.md`; full pages in `docs/content/engineering/`): React 19.3 / Next 16.4 / TypeScript 7 idioms from `docs/content/engineering/modern-language.md` (no manual memoization under the React Compiler, no `unstable_` or experimental flags), the frontend rules in `docs/content/engineering/performance.md` (Server Components first, lazy-loaded heavy UI, `next/image` and `next/font` only, budgets in `apps/web/app/bundle-budget.json` and `apps/web/app/lighthouserc.json` not raised without a reason), and the output and input rows of `docs/content/engineering/security.md`.
 
 Post findings as a PR review. If nothing applies, approve with no comments.

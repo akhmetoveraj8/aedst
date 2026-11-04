@@ -37,6 +37,14 @@ findings, then stop.
    instead of going through `sharederrors.Wrap` (see
    `internal/platform/httpserver.ToConnectError`, which already redacts
    `KindUnknown` messages — code that bypasses it reintroduces the leak)?
+9. **Outbound requests (SSRF)** — does new code fetch a URL or host taken
+   from a request, or use a client without a timeout? Outbound HTTP goes
+   through a configured client (`internal/platform/resilience`) to an
+   allowlisted host; `http.DefaultClient` is banned by forbidigo.
+10. **Identifiers and PII on the wire** — does a new RPC, path, query string
+    or log carry an email, phone or other personal identifier, or expose a
+    sequential id? Ids are opaque UUIDv7 (`internal/shared/ids`); full table:
+    `docs/content/engineering/security.md`.
 
 ## Output
 

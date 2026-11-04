@@ -1,8 +1,8 @@
 import { defaultLocale, type Locale, locales } from "@/shared/i18n/locales";
 
 /**
- * Strings for the two pages that render *outside* the locale layout and so
- * cannot use next-intl: the root 404 and `global-error.tsx`. Kept as a plain
+ * Strings for the two screens that render *outside* the locale layout and so
+ * cannot use the intl provider: the root 404 and the root error screen. Kept as a plain
  * object (no provider, no async loading) because they run when everything
  * above them may be broken.
  */

@@ -17,5 +17,6 @@ Review the pull request diff under `apps/android/`. Report findings only; do not
 - Security: no token or PII logged, no cleartext traffic or newly exported component in the manifest, certificate pins and signing config are not hardcoded.
 - Strings exist in all five locales (`scripts/check-i18n-parity.mjs`); no color literals (`scripts/check-color-literals.mjs`); generated token files are not hand-edited.
 - `apps/android/Makefile` targets and ktlint/detekt rules still hold (`apps/android/detekt.yml`).
+- Engineering standard (`docs/agent/quality-bar.md`; full pages in `docs/content/engineering/`): Kotlin 2.4 stable features only (`docs/content/engineering/modern-language.md`: explicit backing fields, `when` guards; no experimental `-X` language flags), plus the security and performance pages.
 
 Post findings as a PR review. If nothing applies, approve with no comments.

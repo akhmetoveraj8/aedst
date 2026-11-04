@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"slices"
 
 	"github.com/aedst/server/internal/shared/ids"
 )
@@ -25,12 +26,7 @@ type Identity struct {
 }
 
 func (i Identity) HasRole(role string) bool {
-	for _, r := range i.Roles {
-		if r == role {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(i.Roles, role)
 }
 
 type identityKey struct{}
@@ -49,10 +45,5 @@ func FromContext(ctx context.Context) (Identity, bool) {
 
 // HasAnyRole reports whether the identity holds at least one of roles.
 func (i Identity) HasAnyRole(roles ...string) bool {
-	for _, role := range roles {
-		if i.HasRole(role) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(roles, i.HasRole)
 }

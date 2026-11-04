@@ -62,14 +62,28 @@ All web versions are pinned once, in the `catalog:` of `apps/web/pnpm-workspace.
 (`pnpm --dir apps/web install --frozen-lockfile`) and one lockfile serve every project. Renovate reads the catalog and opens one PR for all three
 projects. A new dependency also goes to the project's knip allowlist and to [Library-First: Web](/library-first/web).
 
+## Admin on Vite
+
+Owner decision, 2026-11-04 (implemented the same day, see the UNVERIFIED list in decisions/web.md): `admin` is a React + Vite + TanStack Router single-page app (static `dist/`) served by a thin Hono backend-for-frontend (BFF) in the same image and process; `app` and `landing` stay on Next.js. The frontend is in `apps/web/admin/src` ([admin/README.md](../../../apps/web/admin/README.md)); the BFF is `apps/web/admin/server`.
+
+### Server (BFF)
+
+- **Shape**: `createApp(deps)` (Hono 4, `@hono/node-server`) in `server/app.ts`; `server/main.ts` listens and shuts down gracefully on SIGTERM. All I/O (fetch, the OIDC calls of `shared/lib/auth`, index.html) is injected, which is how the server tests run without an IdP. One Zod-validated env in `server/env.ts` (`server/.env.example` lists every variable); JSON logs with request ids and no tokens, cookies or query strings.
+- **Routes** (ported 1:1 from the Next Route Handlers): `GET /api/auth/login`, `GET /api/auth/callback` (307, `__Host-` cookies on https, failures to the locale-less `/forbidden?auth_error=`; the SPA adds the locale), `POST /api/auth/logout` (needs the `x-requested-with` header; clears the cookies, revokes the refresh token, returns `{endSessionUrl}`), `GET /api/auth/session` (`200 {authenticated, email, name?, sub?, roles}` or `401 {authenticated:false}`, never a token; a retryable `503` while the IdP is down), `POST /api/rpc/<aedst.(admin|capabilities).v1.XService/Method>` (same-origin check, 1 MB body cap, header allowlist, bearer attach, one refresh retry, streaming passthrough, header and idle timeouts), and `GET /api/healthz`. Anything else under `/api/` is a JSON 404.
+- **HTML guard** (replaces `proxy.ts`): a GET navigation that is not `/api/**` or a file resolves the session, rotates an expired access token through the refresh cookie (single-flight, cookies written on the response), then applies `decideRoute`: anonymous -> 302 `/api/auth/login?next=<path+query>`, signed in without an operator role -> 302 `/{locale}/forbidden` (locale-less `/forbidden` when the path has no locale), else `index.html` for every other non-file path (SPA fallback). A path without a locale prefix (`/`) is guarded too; `/forbidden` is exempt. A missing file (`/assets/x.js`, any path with an extension) is a 404, never the SPA.
+- **Nonce**: Vite stamps `__CSP_NONCE__` on script, style and link tags (`html.cspNonce`); the BFF replaces every occurrence with a fresh per-request nonce and sends the matching CSP. `dist/index.html` is never served as a file. `dist/assets/*` is immutable for a year, other files revalidate hourly, HTML is `no-store`.
+- **Build and run**: `pnpm build:all` (`vite build` + `server/build.mjs`, an esbuild bundle to `dist-server/main.mjs`), `pnpm start`. esbuild was chosen over Node type stripping because the shared kit is imported through the `@/shared/*` alias and extensionless paths, which Node does not resolve, and a single file keeps the runtime image free of `node_modules`. Dev: `pnpm dev` runs Vite on 3001 and the BFF on 3101 (`ADMIN_BFF_PORT`/`PORT`); Vite proxies `/api` to it (`ADMIN_BFF_URL`). In dev Vite serves the HTML itself, so the HTML guard is exercised in the built shape (`pnpm build:all && pnpm start`, e2e, CI smoke).
+- **Tests**: `pnpm test:server` (Vitest, node, `vitest.server.config.mts`); typecheck with its own `server/tsconfig.json` (`pnpm typecheck:server`, part of `pnpm typecheck`).
+- **Not carried over**: server-side Sentry. The Next build reported BFF errors through `@sentry/nextjs`; the Hono process logs them as structured JSON instead (`@sentry/node` is not approved; add it through the Library-First page if wanted).
+
 ## Auth between app and admin
 
 Status: **DECIDED** (owner, 2026-10-28). `admin` does not share the session of `app`. It is a separate OIDC client at the same IdP and keeps its own host-only cookies.
 
-- `app` and `admin` each run the OIDC Authorization Code + PKCE flow as a backend-for-frontend (see [Architecture](/web/architecture#auth-data-and-security-model)) through their own `/api/auth/{login,callback}` Route Handlers, both built on `shared/lib/auth`. Admin has no copy of the app's pages: an anonymous visitor or an expired session is redirected to admin's OWN `/api/auth/login?next=<path>`; a relative `next` is honoured after login (`safeRedirectPath`).
+- `app` and `admin` each run the OIDC Authorization Code + PKCE flow as a backend-for-frontend (see [Architecture](/web/architecture#auth-data-and-security-model)) through their own `/api/auth/{login,callback}` Route Handlers, both built on `shared/lib/auth`. Admin has no copy of the app's pages: an anonymous visitor or an expired session is redirected by the admin BFF to admin's OWN `/api/auth/login?next=<path>`; a relative `next` is honoured after login (`safeRedirectPath`).
 - ZITADEL SSO makes the second sign-in seamless: a user already signed in at the IdP is not asked for credentials again.
 - Each project keeps its own `__Host-` cookies (Secure, `Path=/`, no `Domain`) on its own origin, so an XSS in `app` can never read the admin session. A parent-domain cookie (`Domain=.<domain>`) is not used: separate subdomains plus the `__Host-` prefix cannot share cookies, and widening to a parent-domain cookie would weaken staff sessions (any subdomain could set or shadow it).
-- Admin access requires role `admin`. The UI check in `admin` (`route-guard.ts`) is cosmetic; the real check is the server's RoleInterceptor policy per RPC. A signed-in user without the role lands on `/{locale}/forbidden`; login failures also land there (`?auth_error=`), because that page is exempt from the sign-in guard (no redirect loop).
+- Admin access requires role `admin`. The UI check in `admin` (`server/security/route-guard.ts` and the SPA route guards) is cosmetic; the real check is the server's RoleInterceptor policy per RPC. A signed-in user without the role lands on `/{locale}/forbidden`; login failures also land there (`?auth_error=`), because that page is exempt from the sign-in guard (no redirect loop).
 - `landing` has no session and no access to auth code or the Connect client.
 
 | | `app` | `admin` |
@@ -89,7 +103,7 @@ Logout: signing out of `admin` clears only admin's cookies, revokes its refresh 
 | Project | Image | Port | Domain | Pipeline |
 |---|---|---|---|---|
 | `app` | `apps/web/app/deployments/docker/Dockerfile`, Helm chart `apps/web/app/deployments/helm/aedst-web` | 3000 | `app.<domain>` (proposed) | `web-ci.yml`, `web-release.yml` (tag `web-v*`) |
-| `admin` | `apps/web/admin/deployments/docker/Dockerfile` | 3001 | `admin.<domain>` | `admin-ci.yml` (no release workflow or chart yet) |
+| `admin` | `apps/web/admin/deployments/docker/Dockerfile` (SPA `dist/` + BFF bundle, one distroless Node process) | 3001 | `admin.<domain>` | `admin-ci.yml` (no release workflow or chart yet) |
 | `landing` | `apps/web/landing/deployments/docker/Dockerfile` | 3002 | `<domain>` | `landing-ci.yml` (no release workflow or chart yet) |
 
 Every image is built with the repository root as context (the stubs are generated from `apps/server/api/proto` during the build and `shared/` is compiled in). Details and rollback
@@ -98,7 +112,7 @@ each browser origin that calls it directly; the browsers call their own project'
 
 ## CSP per project
 
-Each project builds its own nonce CSP (`src/app/config/security/csp.ts` and `proxy.ts` in `app` and `admin`). `landing` is static and must not need a per-request nonce, so its
+`app` builds its nonce CSP in `src/app/config/security/csp.ts` and `proxy.ts`; `admin` builds its own in `server/security/csp.ts`, applied by the BFF (the browser talks to its own origin only, plus the Sentry ingest origin derived from the DSN in `connect-src`, there is no tunnel; Trusted Types report-only and `Reporting-Endpoints` when a Sentry DSN is set). `landing` is static and must not need a per-request nonce, so its
 CSP is set in its `next.config.ts` and it allows no third-party origins. A new third-party origin goes into the CSP of the project that loads it, in the same change. `admin` allows
 no analytics or tracking origins.
 

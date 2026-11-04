@@ -4,6 +4,13 @@ All notable changes to this repository are documented here. The format follows [
 
 ## [Unreleased]
 
+### Added (engineering standard, 2026-11-04)
+
+- **Engineering standard** (`docs/content/engineering/`): modern language features per pinned toolchain (Go 1.27, TypeScript 7 / React 19.3 / Next 16.4, Kotlin 2.4, Swift 6 on the 6.3 compiler, Rust 2024 at MSRV 1.92), API design for ConnectRPC/Protobuf, the roadmap.sh API security checklist and the frontend and backend performance checklists, each mapped to the gate that enforces it. Short agent form: `docs/agent/quality-bar.md` (read on every code task; linked from `AGENTS.md`, `CLAUDE.md`, `docs/agent/INDEX.md`, `docs/agent/rules.md`).
+- **Skills**: `api-design` (contract-first API work) and `quality-pass` (self-review against the bar before "done"). All five review checklists and the server `security-auditor` / `architect-reviewer` checklists check the standard.
+- **Security, web**: Next.js 16.4.4 → 16.4.5 (security release of 2026-11-03, seven advisories, one High: cross-tenant cache disclosure when `unstable_cache` and `use cache` are combined; https://nextjs.org/blog/november-2026-security-release). Version verified with `npm view next version`.
+- **Server**: golangci-lint now enables `modernize`, `perfsprint` and `usestdlibvars`, with a negative self-test fixture (`scripts/lint-selftest/internal/platform/zzlintcheck/modern.go.txt`). Every existing finding was fixed (`errors.AsType`, `new(expr)`, `WaitGroup.Go`, `slices.Backward`, `maps.Copy`, `reflect.TypeFor`, `strings.SplitSeq`, string concatenation instead of `fmt.Sprintf`, `http.Method*`/`http.Status*` constants).
+
 ### Changed (Core-first, auth and Desktop, 2026-11-04)
 
 - **Breaking, contract**: first-party authentication is removed (ADR-0019). `aedst/auth/v1/auth.proto` is deleted (`AuthService`: Register, Login, RefreshToken, Logout, GetCurrentUser), as are `AdminService.ListUsers`, its messages and `GetOverviewResponse.users_total`. The server is a pure OIDC resource server; `AEDST_OIDC_ISSUER` and `AEDST_OIDC_AUDIENCE` are required, and `AEDST_AUTH_FIRST_PARTY_*`, `AEDST_JWT_*`, token TTL, login rate limit and session retention variables are gone. Migration `auth/00004` drops `auth.sessions`, `auth.credentials` and the `auth` schema. Every client signs in through the IdP only; the admin user list was removed from web, Android and Apple.
@@ -11,6 +18,8 @@ All notable changes to this repository are documented here. The format follows [
 - **Working mode**: the Core profile (Server + Web) is the default; `task generate|lint|test|build|check` run Core only and `PROFILE=full` adds Android, Apple and Desktop, which are frozen until each has one green CI run. Their workflows are labelled experimental and path-filtered.
 - **Android**: Room 2.8.5 → 3.0.3 (`androidx.room3`, not compiled), AGP 9.5.0, KSP 2.3.13. **Server**: River 0.51.0, pgx 5.12.0 and other bumps, `testing/synctest` in the readiness tests. **Web**: Next 16.4.4, Vitest 5.1.0, `@hookform/resolvers` 7, `@dnd-kit/react` pinned at 0.5.3, `standardSchemaResolver` for forms without an RPC, Stryker moved to a nightly workflow. **Apple**: Nuke, GRDB, Sentry and PostHog bumps (not compiled).
 - Kept after review and recorded: go-redis with miniredis, `sideshow/apns2`, `sharedtime.Clock`.
+- **Web**: `admin` is planned to move from Next.js to React + Vite + TanStack Router with a Hono BFF (decision recorded, not started). `shared/ui` and `shared/lib/errors` now use `use-intl` instead of `next-intl`, enforced by Biome. Fixed `roles.test.ts`, which still asserted the removed `users.read` permission.
+- **Web admin BFF**: `apps/web/admin/server` (Hono 4.13 + `@hono/node-server` 2.1, one esbuild bundle `dist-server/main.mjs`) replaces the Next route handlers and `proxy.ts`: OIDC login/callback, `GET /api/auth/session`, the `/api/rpc` proxy, `/api/healthz`, `POST /api/auth/logout`, and a guarded HTML route that stamps a per-request CSP nonce into the Vite `index.html`. New Dockerfile (distroless, no `node_modules`), `admin-ci.yml`, `task admin:start`, e2e against the built BFF. Server tests: 88 passing; Docker image build UNVERIFIED.
 
 ### Changed (web split, 2026-10-28)
 

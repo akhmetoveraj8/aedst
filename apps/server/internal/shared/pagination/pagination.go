@@ -19,6 +19,7 @@ package pagination
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -71,10 +72,10 @@ func Decode(token, wantSort string) (*Cursor, error) {
 	}
 	parts := strings.Split(string(raw), "|")
 	if len(parts) != 4 || parts[0] != cursorVersion {
-		return nil, fmt.Errorf("pagination: unsupported cursor")
+		return nil, errors.New("pagination: unsupported cursor")
 	}
 	if parts[1] != wantSort {
-		return nil, fmt.Errorf("pagination: cursor was issued for a different sort order")
+		return nil, errors.New("pagination: cursor was issued for a different sort order")
 	}
 	micros, err := strconv.ParseInt(parts[2], 10, 64)
 	if err != nil {

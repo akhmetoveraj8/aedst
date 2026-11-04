@@ -450,9 +450,7 @@ func TestVerifyAssertion_ConcurrentSameCounterHasOneWinner(t *testing.T) {
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	for range 16 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			res, err := h.svc.VerifyAssertion(context.Background(), application.AssertionInput{UserID: h.user, KeyID: h.keyIDText, Assertion: []byte("a"), Action: "login"})
 			if err != nil {
 				t.Error(err)
@@ -463,7 +461,7 @@ func TestVerifyAssertion_ConcurrentSameCounterHasOneWinner(t *testing.T) {
 				wins++
 				mu.Unlock()
 			}
-		}()
+		})
 	}
 	wg.Wait()
 	if wins != 1 {

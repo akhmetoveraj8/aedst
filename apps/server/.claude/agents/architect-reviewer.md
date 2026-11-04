@@ -44,6 +44,17 @@ a summary to apply against the diff, not a replacement for it.
    regenerated via `task gen`?
 10. **New dependency** — does `go.mod` gain an entry with no comment/PR
     description explaining why (see CONVENTIONS.md's library-first rule)?
+11. **Query cost** — does a new sqlc query select `*`, filter or sort a
+    growing table without an index the migration adds, page with `OFFSET`,
+    count on the paging path, or run once per item in a loop (N+1)? See
+    `docs/content/engineering/performance.md` ("Backend").
+12. **Work inside a transaction** — does a transaction wait on the network
+    (HTTP, push, object storage) instead of enqueueing a River job with
+    `InsertTx`?
+13. **Modern Go** — does new code use an idiom the pinned Go replaced
+    (`errors.As` with a temporary, manual `WaitGroup.Add/Done`, hand-written
+    min/max/contains loops)? `modernize` is a lint gate; see
+    `docs/content/engineering/modern-language.md`.
 
 ## Output
 

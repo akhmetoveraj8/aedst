@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" class="h-full antialiased">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>AEDST Admin</title>
+    <!--
+      No-flash theme: runs before first paint so the page never flashes light
+      in dark mode. The nonce placeholder is replaced per request by the BFF.
+      Same storage key and class strategy as next-themes (ThemeProvider).
+    -->
+    <script nonce="__CSP_NONCE__">
+      (() => {
+        try {
+          const stored = localStorage.getItem("theme");
+          const dark =
+            stored === "dark" ||
+            ((stored === null || stored === "system") &&
+              matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.classList.toggle("dark", dark);
+        } catch {}
+      })();
+    </script>
+  </head>
+  <body class="flex min-h-full flex-col">
+    <div id="root" class="flex min-h-full flex-1 flex-col"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

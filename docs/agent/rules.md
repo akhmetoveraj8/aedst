@@ -5,7 +5,8 @@ Read these before modifying any code in this repository:
 1. **[CONVENTIONS.md](../../CONVENTIONS.md)** — naming standard for all 5 platforms (Web, Server, Android, Apple, Desktop). File/type/function/constant naming is a **Must**, enforced by linters and `scripts/check-naming.sh`.
 2. **[docs/content/library-first.md](../content/library-first.md)** — AEDST Library-First Development Standard: the approved stack per platform, the mandatory order of preference (standard library → platform API → existing AEDST dependency → approved library → custom code), the version policy, the explicit rejections, and the monorepo tooling rules.
 3. **[docs/content/decisions.md](../content/decisions.md)** — index of architectural decisions with rationale and "when to revisit". If a proposal contradicts it, do not implement or re-propose it.
-4. The `AGENTS.md` inside the app you touch (e.g. `apps/server/AGENTS.md`, `apps/web/AGENTS.md`) and platform ADRs (`apps/server/docs/adr/`, `apps/desktop-rs/docs/adr/`).
+4. **[docs/agent/quality-bar.md](quality-bar.md)** — the engineering standard in short form: write for the pinned toolchain with its modern features (no experimental ones), design APIs contract-first (`api-design` skill), keep every security and performance gate, and run the `quality-pass` skill before reporting done. Full text: `docs/content/engineering/` (modern-language, api-design, security, performance).
+5. The `AGENTS.md` inside the app you touch (e.g. `apps/server/AGENTS.md`, `apps/web/AGENTS.md`) and platform ADRs (`apps/server/docs/adr/`, `apps/desktop-rs/docs/adr/`).
 
 ## The one rule that matters most
 

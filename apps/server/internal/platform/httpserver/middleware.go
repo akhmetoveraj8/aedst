@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"regexp"
 	"runtime/debug"
+	"slices"
 	"time"
 	"uuid"
 
@@ -108,8 +109,8 @@ func NewRouter(opts Options) *Router {
 	mux.Handle("GET /readyz", opts.Readiness.Handler())
 
 	var h http.Handler = mux
-	for i := len(stack) - 1; i >= 0; i-- {
-		h = stack[i](h)
+	for _, s := range slices.Backward(stack) {
+		h = s(h)
 	}
 	return &Router{ServeMux: mux, handler: h}
 }

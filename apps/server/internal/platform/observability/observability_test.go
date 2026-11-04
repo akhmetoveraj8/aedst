@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -95,7 +96,7 @@ func TestSetup_ExposesOTelMetricsOnThePrometheusHandler(t *testing.T) {
 	counter.Add(ctx, 3)
 
 	rec := httptest.NewRecorder()
-	tel.MetricsHandler.ServeHTTP(rec, httptest.NewRequest("GET", "/metrics", nil))
+	tel.MetricsHandler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/metrics", nil))
 	body := rec.Body.String()
 	for _, want := range []string{"aedst_test_events_total", "go_goroutine_count", "go_memory_used_bytes"} {
 		if !strings.Contains(body, want) {

@@ -76,7 +76,7 @@ export default defineConfig({
         // Found late by Vite on a cold cache ("optimized dependencies changed.
         // reloading"), which reloads the page mid-run and fails random files.
         optimizeDeps: {
-          include: ["next-intl/server", "@tanstack/react-virtual"],
+          include: ["next-intl/server", "use-intl", "@tanstack/react-virtual"],
         },
         test: {
           name: "browser",

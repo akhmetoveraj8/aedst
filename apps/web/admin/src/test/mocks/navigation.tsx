@@ -2,8 +2,8 @@ import type { ComponentProps } from "react";
 import { vi } from "vitest";
 
 /**
- * Stand-in for `@/shared/i18n/navigation` (next-intl's navigation, which
- * needs a mounted App Router). Registered globally in vitest.setup.ts; tests
+ * Stand-in for `@/shared/i18n/navigation` (the TanStack Router seam in
+ * src/app/i18n/navigation.tsx, which needs a mounted router). Registered globally in vitest.setup.ts; tests
  * assert on `routerMock` instead of mocking the module themselves.
  */
 export const routerMock = {

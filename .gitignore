@@ -37,6 +37,8 @@ apps/web/**/coverage/
 apps/web/**/.lighthouseci/
 apps/web/**/.lighthouseci-signed-in/
 apps/web/**/.next/
+apps/web/**/dist/
+apps/web/**/dist-server/
 apps/web/**/out/
 apps/web/**/build/
 npm-debug.log*

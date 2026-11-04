@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "cn";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "use-intl";
 
 import { ADMIN_SECTIONS } from "@/modules/admin/lib/sections";
 import { Link, usePathname } from "@/shared/i18n/navigation";

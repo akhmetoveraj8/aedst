@@ -193,8 +193,8 @@ func (e *Env) OnClose(f func()) { e.closers = append(e.closers, f) }
 
 // Close runs the registered cleanups.
 func (e *Env) Close() {
-	for i := len(e.closers) - 1; i >= 0; i-- {
-		e.closers[i]()
+	for _, v := range slices.Backward(e.closers) {
+		v()
 	}
 	e.closers = nil
 }

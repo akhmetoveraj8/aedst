@@ -15,6 +15,7 @@ const meta: MetaRecord = {
   "ui-kit": "UI kit",
   i18n: "i18n overview",
   decisions: "Decision records",
+  engineering: "Engineering standard",
   "---platforms---": {
     type: "separator",
     title: "Platforms",

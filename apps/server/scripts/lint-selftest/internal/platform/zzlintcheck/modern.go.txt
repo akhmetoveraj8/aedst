@@ -1,0 +1,31 @@
+package zzlintcheck
+
+import (
+	"errors"
+	"fmt"
+	"net"
+	"net/http"
+	"sync"
+)
+
+// OldIdioms uses idioms the pinned Go replaced; each line must be reported.
+func OldIdioms(err error, parts []string) (string, bool) {
+	var netErr net.Error
+	if errors.As(err, &netErr) { // modernize: errorsastype
+		return netErr.Error(), true
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(1) // modernize: waitgroupgo
+	go func() {
+		defer wg.Done()
+	}()
+	wg.Wait()
+
+	return fmt.Sprintf("%s", parts[0]), false // perfsprint
+}
+
+// IsGet is the usestdlibvars fixture.
+func IsGet(r *http.Request) bool {
+	return r.Method == "GET" // usestdlibvars: http.MethodGet
+}

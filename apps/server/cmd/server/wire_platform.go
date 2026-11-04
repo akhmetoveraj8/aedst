@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log/slog"
+	"slices"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -43,8 +44,8 @@ type app struct {
 func (a *app) onClose(f func()) { a.closers = append(a.closers, f) }
 
 func (a *app) close() {
-	for i := len(a.closers) - 1; i >= 0; i-- {
-		a.closers[i]()
+	for _, v := range slices.Backward(a.closers) {
+		v()
 	}
 }
 

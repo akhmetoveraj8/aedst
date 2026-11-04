@@ -27,6 +27,12 @@ linters:
     - gosec
     - nilerr
     - nolintlint
+    # Modern Go (docs/content/engineering/modern-language.md): code uses the
+    # language and std features of the pinned toolchain (go.mod), not idioms
+    # from older releases. All three are auto-fixable: `golangci-lint run --fix`.
+    - modernize
+    - perfsprint
+    - usestdlibvars
 
   settings:
     sloglint:

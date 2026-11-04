@@ -66,8 +66,7 @@ func TestDueReminderWorker(t *testing.T) {
 	})
 	t.Run("malformed ids cancel the job", func(t *testing.T) {
 		_, err := run(t, &marker{}, jobs.DueReminderArgs{TaskID: "x", UserID: userID.String()})
-		var cancel *rivertype.JobCancelError
-		if !errors.As(err, &cancel) {
+		if _, ok := errors.AsType[*rivertype.JobCancelError](err); !ok {
 			t.Fatalf("err = %v, want a JobCancel (retrying cannot fix a bad id)", err)
 		}
 	})

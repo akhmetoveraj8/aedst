@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"slices"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -51,8 +52,8 @@ type Telemetry struct {
 // Shutdown flushes and stops every provider; call it last on exit.
 func (t *Telemetry) Shutdown(ctx context.Context) error {
 	var errs []error
-	for i := len(t.shutdowns) - 1; i >= 0; i-- {
-		errs = append(errs, t.shutdowns[i](ctx))
+	for _, v := range slices.Backward(t.shutdowns) {
+		errs = append(errs, v(ctx))
 	}
 	return errors.Join(errs...)
 }

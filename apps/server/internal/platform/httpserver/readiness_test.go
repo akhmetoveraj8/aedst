@@ -26,13 +26,11 @@ func TestReadiness_ConcurrentProbesShareOneEvaluation(t *testing.T) {
 		var wg sync.WaitGroup
 		codes := make(chan int, 20)
 		for range 20 {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
+			wg.Go(func() {
 				rec := httptest.NewRecorder()
 				r.Handler()(rec, httptest.NewRequest(http.MethodGet, "/readyz", nil))
 				codes <- rec.Code
-			}()
+			})
 		}
 		synctest.Wait() // every probe is now blocked on the shared evaluation
 		close(release)

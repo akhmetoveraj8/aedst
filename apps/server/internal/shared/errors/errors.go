@@ -80,8 +80,7 @@ func Wrap(op string, err error) *Error {
 // KindOf extracts the Kind from err, walking wrapped errors, defaulting to
 // KindUnknown if err is not (or does not wrap) an *Error.
 func KindOf(err error) Kind {
-	var e *Error
-	if errors.As(err, &e) {
+	if e, ok := errors.AsType[*Error](err); ok {
 		return e.Kind
 	}
 	return KindUnknown

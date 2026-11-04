@@ -17,5 +17,6 @@ Review the pull request diff under `apps/desktop-rs/` (Rust + Slint). Report fin
 - Naming holds (`scripts/check-naming.sh`: snake_case `.rs` and `.slint` files); feature crates are `aedst-feature-<id>` with `src/{data,domain,presentation}`, `ui/<id>.slint`, `i18n/<locale>/LC_MESSAGES/*.po` and `tests/`.
 - Secrets go through `keyring`, never plain settings or config files.
 - Generated tokens (`aedst_tokens.slint`) are not hand-edited; change `packages/design-tokens` and regenerate.
+- Engineering standard (`docs/agent/quality-bar.md`; full pages in `docs/content/engineering/`): Rust edition 2024 idioms within MSRV 1.92 (`docs/content/engineering/modern-language.md`: let chains, `LazyLock`, `#[expect]` over `#[allow]`), plus the security and performance pages.
 
 Post findings as a PR review. If nothing applies, approve with no comments.

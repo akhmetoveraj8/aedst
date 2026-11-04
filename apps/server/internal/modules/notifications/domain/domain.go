@@ -4,7 +4,6 @@
 package domain
 
 import (
-	"fmt"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -57,7 +56,7 @@ func NewTaskCompleted(userID, sourceEventID, taskID ids.ID, taskTitle string, cr
 		ID:            ids.New(),
 		UserID:        userID,
 		Kind:          KindTaskCompleted,
-		Title:         truncate(fmt.Sprintf("Task completed: %s", taskTitle), MaxTitleLength),
+		Title:         truncate("Task completed: "+taskTitle, MaxTitleLength),
 		Link:          "/tasks/" + taskID.String(),
 		SubjectID:     &taskID,
 		SourceEventID: sourceEventID,
@@ -71,7 +70,7 @@ func NewTaskDueSoon(userID, sourceEventID, taskID ids.ID, taskTitle string, due,
 		ID:            ids.New(),
 		UserID:        userID,
 		Kind:          KindTaskDueSoon,
-		Title:         truncate(fmt.Sprintf("Due soon: %s", taskTitle), MaxTitleLength),
+		Title:         truncate("Due soon: "+taskTitle, MaxTitleLength),
 		Body:          "Due " + due.UTC().Format(time.RFC3339),
 		Link:          "/tasks/" + taskID.String(),
 		SubjectID:     &taskID,
@@ -86,7 +85,7 @@ func NewMediaReady(userID, sourceEventID, mediaID ids.ID, filename string, creat
 		ID:            ids.New(),
 		UserID:        userID,
 		Kind:          KindMediaReady,
-		Title:         truncate(fmt.Sprintf("Ready: %s", filename), MaxTitleLength),
+		Title:         truncate("Ready: "+filename, MaxTitleLength),
 		Link:          "/media/" + mediaID.String(),
 		SubjectID:     &mediaID,
 		SourceEventID: sourceEventID,

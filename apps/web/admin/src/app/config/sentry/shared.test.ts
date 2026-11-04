@@ -1,4 +1,4 @@
-import type { Breadcrumb, ErrorEvent } from "@sentry/nextjs";
+import type { Breadcrumb, ErrorEvent } from "@sentry/react";
 import { describe, expect, it } from "vitest";
 
 import {

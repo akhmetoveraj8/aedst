@@ -23,6 +23,8 @@
       "!**/deployments",
       "!pnpm-lock.yaml",
       "!**/dist",
+      "!**/routeTree.gen.ts",
+      "!**/dist-server",
       "!**/coverage",
       "!**/node_modules",
       "!shared/api/connect/generated"
@@ -151,6 +153,7 @@
               "posthog-js": "Use track() / useFeatureFlag from src/shared/lib/analytics (PostHog loads only after consent).",
               "posthog-js/react": "Use track() / useFeatureFlag from src/shared/lib/analytics (PostHog loads only after consent).",
               "@sentry/nextjs": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors (one Sentry path). Sentry init lives in src/app/config/sentry and src/instrumentation*.ts.",
+              "@sentry/react": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors (one Sentry path). Sentry init lives in src/app/config/sentry and src/instrumentation*.ts.",
               "@/shared/ui/toast": "Sonner is the only toast: import { toast } from \"sonner\"."
             }
           }
@@ -177,6 +180,7 @@
                   "posthog-js": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
                   "posthog-js/react": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
                   "@sentry/nextjs": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
+                  "@sentry/react": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
                   "@/shared/ui/toast": "Sonner is the only toast: import { toast } from \"sonner\"."
                 }
               }
@@ -199,6 +203,7 @@
                   "posthog-js": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
                   "posthog-js/react": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
                   "@sentry/nextjs": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
+                  "@sentry/react": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
                   "@/shared/ui/toast": "Sonner is the only toast: import { toast } from \"sonner\"."
                 }
               }
@@ -220,6 +225,7 @@
                   "date-fns/locale": "Use the seam in src/shared/date/format-date.ts.",
                   "zustand": "Zustand is for UI state only and lives in src/shared/lib/stores/** or src/modules/<m>/lib/<name>-store.ts.",
                   "@sentry/nextjs": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
+                  "@sentry/react": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
                   "@/shared/ui/toast": "Sonner is the only toast: import { toast } from \"sonner\"."
                 }
               }
@@ -305,6 +311,14 @@
       }
     },
     {
+      "includes": ["*/src/app/routes/**"],
+      "linter": {
+        "rules": {
+          "style": { "useFilenamingConvention": "off" }
+        }
+      }
+    },
+    {
       "includes": ["shared/ui/**"],
       "linter": {
         "rules": {
@@ -365,6 +379,9 @@
         "*/vitest*.mts",
         "landing/src/env.ts",
         "admin/src/app/config/env.ts",
+        "admin/server/bootstrap.ts",
+        "admin/server/test/**",
+        "admin/server/*.mjs",
         "*/src/instrumentation*.ts",
         "*/src/app/config/sentry/**",
         "*/src/test/**",
@@ -399,6 +416,41 @@
         "rules": {
           "correctness": {
             "noComponentHookFactories": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "shared/ui/**",
+        "!shared/ui/**/*.test.tsx",
+        "!shared/ui/**/*.stories.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "next-intl": "shared/ui must stay framework-neutral so a Vite project can use it: import hooks from \"use-intl\" (the same API). Routing helpers live in src/shared/i18n/navigation.",
+                  "next/navigation": "shared/ui must stay framework-neutral: take a callback or an href prop; navigation is wired by the host project.",
+                  "next/link": "shared/ui must stay framework-neutral: take a callback or an href prop; navigation is wired by the host project.",
+                  "next/image": "shared/ui must stay framework-neutral: render a plain img or take a slot prop.",
+                  "next/dynamic": "shared/ui must stay framework-neutral: use React.lazy.",
+                  "date-fns": "Use the seam in src/shared/date/format-date.ts, the only file that may import date-fns.",
+                  "date-fns/locale": "Use the seam in src/shared/date/format-date.ts.",
+                  "zustand": "Zustand is for UI state only and lives in src/shared/lib/stores/** or src/modules/<m>/lib/<name>-store.ts.",
+                  "zustand/middleware": "Zustand is for UI state only and lives in src/shared/lib/stores/**.",
+                  "zustand/react/shallow": "Zustand is for UI state only: wrap the selector in a hook inside the store file.",
+                  "posthog-js": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
+                  "posthog-js/react": "Use track() / useFeatureFlag from src/shared/lib/analytics.",
+                  "@sentry/nextjs": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
+                  "@sentry/react": "Use reportError / ErrorBoundary / addBreadcrumb from src/shared/lib/errors.",
+                  "@/shared/ui/toast": "Sonner is the only toast: import { toast } from \"sonner\"."
+                }
+              }
+            }
           }
         }
       }

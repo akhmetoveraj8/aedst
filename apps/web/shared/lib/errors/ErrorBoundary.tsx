@@ -1,8 +1,8 @@
 "use client";
 
 import * as Sentry from "@sentry/nextjs";
-import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import { useTranslations } from "use-intl";
 
 import { toAppError } from "@/shared/lib/errors/app-error";
 import { Button } from "@/shared/ui/button";

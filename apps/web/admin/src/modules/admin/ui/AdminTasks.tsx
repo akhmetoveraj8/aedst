@@ -3,9 +3,8 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useQuery } from "@connectrpc/connect-query";
 import { keepPreviousData } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
-import { useLocale, useTranslations } from "next-intl";
-import { useId, useMemo, useState } from "react";
+import { lazy, Suspense, useId, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "use-intl";
 import { useCursorPages } from "@/modules/admin/lib/use-cursor-pages";
 import { type AdminColumn, DataTable } from "@/modules/admin/ui/DataTable";
 import { AdminService } from "@/shared/api/connect/client";
@@ -21,10 +20,10 @@ const PAGE_SIZE = 25;
 
 // The dialog (Dialog stack, React Hook Form, Protovalidate) is needed only after
 // "Delete" is clicked, so it loads on demand and then stays mounted.
-const AdminDeleteTaskDialog = dynamic(() =>
-  import("@/modules/admin/ui/AdminDeleteTaskDialog").then(
-    (m) => m.AdminDeleteTaskDialog,
-  ),
+const AdminDeleteTaskDialog = lazy(() =>
+  import("@/modules/admin/ui/AdminDeleteTaskDialog").then((m) => ({
+    default: m.AdminDeleteTaskDialog,
+  })),
 );
 
 const STATUS_KEYS: Partial<Record<number, "todo" | "inProgress" | "done">> = {
@@ -117,11 +116,13 @@ export function AdminTasks() {
         onNext={() => pages.next(tasks.data?.nextPageToken ?? "")}
       />
       {deleting && (
-        <AdminDeleteTaskDialog
-          task={deleting.task}
-          open={deleting.open}
-          onClose={() => setDeleting({ ...deleting, open: false })}
-        />
+        <Suspense fallback={null}>
+          <AdminDeleteTaskDialog
+            task={deleting.task}
+            open={deleting.open}
+            onClose={() => setDeleting({ ...deleting, open: false })}
+          />
+        </Suspense>
       )}
     </div>
   );

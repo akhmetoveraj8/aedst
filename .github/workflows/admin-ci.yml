@@ -1,9 +1,10 @@
 name: admin-ci
 
-# Web admin project (apps/web/admin). Same shape as web-ci.yml, scoped to this
-# project: it runs when the project, the shared kit or the workspace config
-# changes, or the protos the generated client comes from. The one install is
-# for the whole apps/web workspace; versions come from its pnpm catalog.
+# Web admin project (apps/web/admin): a Vite SPA plus its Hono BFF (server/).
+# Same shape as web-ci.yml, scoped to this project: it runs when the project,
+# the shared kit or the workspace config changes, or the protos the generated
+# client comes from. The one install is for the whole apps/web workspace;
+# versions come from its pnpm catalog.
 on:
   push:
     branches: [main]
@@ -76,19 +77,55 @@ jobs:
       - name: Biome (lint + format check)
         run: pnpm lint
 
-      - name: Generate Next.js route types
-        run: pnpm exec next typegen
-
-      - name: Type check
+      - name: Type check (SPA, then the BFF with its own tsconfig)
         run: pnpm typecheck
 
       - name: knip (unused files/exports/deps)
         run: pnpm knip
 
-      - name: Unit tests
+      - name: Install Chromium for the browser test project
+        run: pnpm test:browser:install
+
+      - name: Tests (unit + browser projects, then the BFF server tests)
         run: pnpm test
 
-      - name: Build
+      - name: Build (vite build, then the BFF bundle)
         env:
-          NEXT_PUBLIC_SITE_URL: ${{ env.SITE_URL }}
-        run: pnpm build
+          VITE_SITE_URL: ${{ env.SITE_URL }}
+        run: pnpm build:all
+
+      - name: Bundle size report
+        run: |
+          {
+            echo "### admin bundle sizes"
+            echo '```'
+            du -sh dist dist-server/main.mjs
+            find dist/assets -type f '(' -name '*.js' -o -name '*.css' ')' -printf '%s %p\n' | sort -rn | head -10
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Smoke the built BFF (health, guard redirect, session 401, nonce parity)
+        run: |
+          ADMIN_ORIGIN=${{ env.SITE_URL }} PORT=3001 NODE_ENV=production \
+            OIDC_ISSUER=http://127.0.0.1:9 OIDC_CLIENT_ID=ci \
+            OIDC_STATE_SECRET=ci-only-state-secret-ci-only-state-secret \
+            node dist-server/main.mjs &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          up=0
+          for i in $(seq 1 20); do
+            if curl -sf http://127.0.0.1:3001/api/healthz > /dev/null; then up=1; break; fi
+            sleep 0.5
+          done
+          if [ "$up" != 1 ]; then echo "BFF did not become healthy"; exit 1; fi
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3001/)" = 302
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3001/api/auth/session)" = 401
+          curl -sf -D headers.txt -o body.html http://127.0.0.1:3001/en/forbidden
+          nonce=$(grep -i '^content-security-policy:' headers.txt | grep -o "nonce-[A-Za-z0-9+/=]*" | head -1 | cut -c7-)
+          test -n "$nonce"
+          grep -q "nonce=\"$nonce\"" body.html
+          # `! cmd` never fails a step under errexit, so test the placeholder explicitly.
+          if grep -q __CSP_NONCE__ body.html; then echo "unreplaced nonce placeholder"; exit 1; fi
+          # script-src must not allow inline code or eval.
+          script_src=$(grep -i '^content-security-policy:' headers.txt | tr ';' '\n' | grep -i "script-src")
+          if echo "$script_src" | grep -Eq "unsafe-inline|unsafe-eval"; then echo "script-src is not strict: $script_src"; exit 1; fi

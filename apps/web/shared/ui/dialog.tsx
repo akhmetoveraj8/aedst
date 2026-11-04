@@ -4,8 +4,8 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "cn";
-import { useTranslations } from "next-intl";
 import type * as React from "react";
+import { useTranslations } from "use-intl";
 import { Button } from "@/shared/ui/button";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {

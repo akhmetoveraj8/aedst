@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"strings"
 	"time"
@@ -89,9 +90,7 @@ func (f *FCM) Send(ctx context.Context, target Target, msg Message) error {
 		return fmt.Errorf("%w: empty fcm token", ErrInvalidToken)
 	}
 	data := make(map[string]string, len(msg.Data)+5)
-	for k, v := range msg.Data {
-		data[k] = v
-	}
+	maps.Copy(data, msg.Data)
 	data["kind"] = msg.Kind
 	data["title"] = msg.Title
 	data["body"] = msg.Body

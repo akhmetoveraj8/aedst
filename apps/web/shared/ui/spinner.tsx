@@ -3,8 +3,8 @@
 import { Loading03Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "cn";
-import { useTranslations } from "next-intl";
 import type * as React from "react";
+import { useTranslations } from "use-intl";
 
 type SpinnerProps = Omit<React.ComponentProps<"svg">, "strokeWidth">;
 

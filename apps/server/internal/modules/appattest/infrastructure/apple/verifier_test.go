@@ -8,8 +8,8 @@ import (
 	"crypto/x509"
 	"encoding/asn1"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/pem"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -318,7 +318,7 @@ func TestAppleRoots_PinnedFingerprintAndSubject(t *testing.T) {
 	}
 	sum := sha256.Sum256(cert.Raw)
 	// openssl x509 -fingerprint -sha256: 1C:B9:82:3B:A2:8B:A6:AD:2D:33:A0:06:94:1D:E2:AE:4F:51:3E:F1:D4:E8:31:B9:F7:E0:FA:7B:62:42:C9:32
-	got := fmt.Sprintf("%x", sum)
+	got := hex.EncodeToString(sum[:])
 	if got != "1cb9823ba28ba6ad2d33a006941de2ae4f513ef1d4e831b9f7e0fa7b6242c932" {
 		t.Errorf("fingerprint = %s", got)
 	}

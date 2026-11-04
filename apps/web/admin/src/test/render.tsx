@@ -1,9 +1,9 @@
 import { TransportProvider } from "@connectrpc/connect-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { type RenderOptions, render } from "@testing-library/react";
-import { NextIntlClientProvider } from "next-intl";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import type { ReactElement } from "react";
+import { IntlProvider } from "use-intl";
 
 import commonMessages from "@/app/config/i18n/common/en.json";
 import adminMessages from "@/modules/admin/i18n/en.json";
@@ -34,7 +34,7 @@ type Options = Omit<RenderOptions, "wrapper"> & {
  * Renders with the provider stack the real layout builds (i18n, Connect
  * transport = the in-memory router transport in mocks/transport.ts, TanStack
  * Query without retries, URL state, auth) minus anything needing a running
- * Next server.
+ * server.
  */
 export function renderWithProviders(
   ui: ReactElement,
@@ -58,7 +58,7 @@ export function renderWithProviders(
   const result = render(ui, {
     ...options,
     wrapper: ({ children }) => (
-      <NextIntlClientProvider locale="en" messages={messages}>
+      <IntlProvider locale="en" messages={messages}>
         <TransportProvider transport={transport}>
           <QueryClientProvider client={queryClient}>
             <NuqsTestingAdapter
@@ -75,7 +75,7 @@ export function renderWithProviders(
             </NuqsTestingAdapter>
           </QueryClientProvider>
         </TransportProvider>
-      </NextIntlClientProvider>
+      </IntlProvider>
     ),
   });
 

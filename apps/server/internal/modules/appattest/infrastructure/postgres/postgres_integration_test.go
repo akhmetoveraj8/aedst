@@ -182,9 +182,7 @@ func TestChallenge_SingleUseExpiryAndOwnershipInPostgres(t *testing.T) {
 	var wins atomic.Int32
 	var wg sync.WaitGroup
 	for range 8 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			ok, err := s.challenges.Consume(ctx, user, ch, now)
 			if err != nil {
 				t.Errorf("Consume: %v", err)
@@ -192,7 +190,7 @@ func TestChallenge_SingleUseExpiryAndOwnershipInPostgres(t *testing.T) {
 			if ok {
 				wins.Add(1)
 			}
-		}()
+		})
 	}
 	wg.Wait()
 	if wins.Load() != 1 {
@@ -219,9 +217,7 @@ func TestAdvanceCounter_ConcurrentSameValueHasOneWinner(t *testing.T) {
 	var wins atomic.Int32
 	var wg sync.WaitGroup
 	for range 8 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			ok, err := s.keys.AdvanceCounter(ctx, dev.KeyID, user, 10, s.clock.Now())
 			if err != nil {
 				t.Errorf("AdvanceCounter: %v", err)
@@ -229,7 +225,7 @@ func TestAdvanceCounter_ConcurrentSameValueHasOneWinner(t *testing.T) {
 			if ok {
 				wins.Add(1)
 			}
-		}()
+		})
 	}
 	wg.Wait()
 	if wins.Load() != 1 {

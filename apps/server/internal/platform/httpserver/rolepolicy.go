@@ -3,6 +3,7 @@ package httpserver
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 	"strings"
 
@@ -16,7 +17,7 @@ func ParseRolePolicy(raw map[string]string) (map[string][]string, error) {
 	var errs []error
 	for procedure, spec := range raw {
 		var roles []string
-		for _, role := range strings.Split(spec, "|") {
+		for role := range strings.SplitSeq(spec, "|") {
 			if role = strings.TrimSpace(role); role != "" {
 				roles = append(roles, role)
 			}
@@ -89,12 +90,8 @@ func ValidateRolePolicy(policy map[string][]string, known, public map[string]boo
 // with an empty AEDST_ROLE_POLICY is not open to every signed-in user.
 func MergeRolePolicy(defaults, configured map[string][]string) map[string][]string {
 	out := make(map[string][]string, len(defaults)+len(configured))
-	for k, v := range defaults {
-		out[k] = v
-	}
-	for k, v := range configured {
-		out[k] = v
-	}
+	maps.Copy(out, defaults)
+	maps.Copy(out, configured)
 	return out
 }
 

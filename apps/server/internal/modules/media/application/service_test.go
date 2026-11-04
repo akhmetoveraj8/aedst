@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"net/http"
 	"strings"
 	"testing"
 	"time"
@@ -114,7 +115,7 @@ func TestCreateUpload_PolicyAndAttachmentOwnership(t *testing.T) {
 	if up.Media.Filename != "a.png" || up.Media.ContentType != "image/png" || up.Media.Status != domain.StatusPendingUpload {
 		t.Errorf("media = %+v", up.Media)
 	}
-	if !strings.HasPrefix(up.Media.ObjectKey, "media/"+owner.String()+"/") || up.Request.Method != "PUT" {
+	if !strings.HasPrefix(up.Media.ObjectKey, "media/"+owner.String()+"/") || up.Request.Method != http.MethodPut {
 		t.Errorf("key %q / request %+v", up.Media.ObjectKey, up.Request)
 	}
 }

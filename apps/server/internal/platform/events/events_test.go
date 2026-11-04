@@ -103,8 +103,7 @@ func TestWorker_UnknownConsumerIsRetriedNotCancelled(t *testing.T) {
 	if err == nil {
 		t.Fatal("Work() = nil for an unknown consumer")
 	}
-	var cancel *river.JobCancelError
-	if errors.As(err, &cancel) {
+	if _, ok := errors.AsType[*river.JobCancelError](err); ok {
 		t.Fatalf("unknown consumer was cancelled: %v", err)
 	}
 }
@@ -117,8 +116,7 @@ func TestWorker_MalformedDeliveryIsCancelled(t *testing.T) {
 	args := validArgs("m.one")
 	args.EventID = "not-a-uuid"
 	err := w.Work(context.Background(), newJob(args, 1, maxAttempts))
-	var cancel *river.JobCancelError
-	if !errors.As(err, &cancel) {
+	if _, ok := errors.AsType[*river.JobCancelError](err); !ok {
 		t.Fatalf("Work() = %v, want river.JobCancel (retrying can never succeed)", err)
 	}
 }

@@ -14,8 +14,7 @@ import (
 
 // envNames returns every environment variable Config reads (its `env:` tags).
 func envNames(t reflect.Type, out map[string]struct{}) {
-	for i := range t.NumField() {
-		f := t.Field(i)
+	for f := range t.Fields() {
 		if f.Type.Kind() == reflect.Struct && f.Tag.Get("env") == "" {
 			envNames(f.Type, out)
 			continue
@@ -29,7 +28,7 @@ func envNames(t reflect.Type, out map[string]struct{}) {
 func configEnvNames(t *testing.T) []string {
 	t.Helper()
 	set := map[string]struct{}{}
-	envNames(reflect.TypeOf(config.Config{}), set)
+	envNames(reflect.TypeFor[config.Config](), set)
 	if len(set) < 50 {
 		t.Fatalf("found only %d env tags; the reflection walk is broken", len(set))
 	}

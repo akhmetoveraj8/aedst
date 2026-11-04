@@ -82,8 +82,7 @@ func (d *Decoder) Decode(ctx context.Context, packageName, token string) (domain
 	}
 	resp, err := d.service.V1.DecodeIntegrityToken(packageName, &playintegrity.DecodeIntegrityTokenRequest{IntegrityToken: token}).Context(ctx).Do()
 	if err != nil {
-		var gerr *googleapi.Error
-		if errors.As(err, &gerr) {
+		if gerr, ok := errors.AsType[*googleapi.Error](err); ok {
 			if gerr.Code == http.StatusBadRequest {
 				return domain.Evidence{}, application.ErrUndecodable
 			}

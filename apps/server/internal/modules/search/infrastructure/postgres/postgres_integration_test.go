@@ -110,7 +110,7 @@ func TestSearch_KeysetPagingAndSuggest(t *testing.T) {
 	}
 	seen := map[ids.ID]bool{}
 	token := ""
-	for page := 0; page < 5; page++ {
+	for range 5 {
 		res, err := h.svc.Search(ctx, user, "deploy", nil, 2, token)
 		if err != nil {
 			t.Fatal(err)

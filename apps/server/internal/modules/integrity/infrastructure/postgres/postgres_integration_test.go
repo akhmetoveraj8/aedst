@@ -24,9 +24,7 @@ func TestClaim_FirstWinsEvenUnderRace(t *testing.T) {
 	var wins atomic.Int32
 	var wg sync.WaitGroup
 	for range 8 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			first, err := repo.Claim(ctx, hash, ids.New(), at)
 			if err != nil {
 				t.Errorf("Claim: %v", err)
@@ -34,7 +32,7 @@ func TestClaim_FirstWinsEvenUnderRace(t *testing.T) {
 			if first {
 				wins.Add(1)
 			}
-		}()
+		})
 	}
 	wg.Wait()
 	if wins.Load() != 1 {

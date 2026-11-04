@@ -1,10 +1,10 @@
 "use client";
 
 import { useMutation } from "@connectrpc/connect-query";
-import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useTranslations } from "use-intl";
 
 import { AdminService } from "@/shared/api/connect/client";
 import { BroadcastNotificationRequestSchema } from "@/shared/api/connect/generated/aedst/admin/v1/admin_pb";

@@ -20,7 +20,7 @@ Dates are 2026-11-04 unless stated. "Verified" means run on the authoring machin
 | Platform | Status | Evidence |
 |---|---|---|
 | Server | **Verified** (build, vet, unit tests, architecture test, golangci-lint) / **UNVERIFIED** (integration tests since the auth removal, migration `00004`, image CI job, cluster, `buf breaking`, govulncheck) | `CGO_ENABLED=0 go build ./... && go vet ./... && go test -short ./...` pass; `golangci-lint run ./...` reports 0 issues. First-party auth was removed (ADR-0019): the server is a pure OIDC resource server and requires `AEDST_OIDC_ISSUER` and `AEDST_OIDC_AUDIENCE`. Docker is not available on the authoring machine, so integration tests compile (`go vet -tags integration`) but did not run; they now sign in through an in-process OIDC provider (`internal/platform/auth/authtest`). River was bumped to 0.51.0 (whether it needs a new River schema migration is **UNVERIFIED**). Helm, CloudNativePG and Argo CD manifests are not verified against a cluster |
-| Web | **Verified** (typecheck, Biome, knip, unit and browser tests, `next build`, bundle budget) / **UNVERIFIED** (real IdP, Playwright e2e and Storybook after the 2026-11-04 bumps, visual baselines) | app: 481 unit and 216 browser tests; admin: 73 unit and 26 browser; landing: 38. Browser tests were flaky under load and passed on rerun. Bundle `/tasks/[id]` first load is **479.0 of 490 KB**, largest chunk 101.8 of 110 KB, total JS 854.7 of 905 KB; the budget was not raised and headroom did not improve. The web sign-in is Authorization Code + PKCE (`oauth4webapi`) and has **never been run against a real ZITADEL** |
+| Web | **Verified** (typecheck, Biome, knip, unit and browser tests, `next build`, bundle budget) / **UNVERIFIED** (real IdP, Playwright e2e and Storybook after the 2026-11-04 bumps, visual baselines) | app: 481 unit and 216 browser tests; admin (Vite SPA): 39 unit/browser tests, BFF: 96 server tests, 11 Playwright e2e against the built BFF with the mock IdP; landing: 38. Browser tests were flaky under load and passed on rerun. Bundle `/tasks/[id]` first load is **479.0 of 490 KB**, largest chunk 101.8 of 110 KB, total JS 854.7 of 905 KB; the budget was not raised and headroom did not improve. The web sign-in is Authorization Code + PKCE (`oauth4webapi`) and has **never been run against a real ZITADEL** |
 | Android | **Frozen.** Last full JVM run (ktlint, detekt, lint, unit tests, assemble) predates the 2026-11-04 changes / **UNVERIFIED** (Room 3 migration, AGP 9.5.0, KSP 2.3.13, device) | Policy scripts pass (`check-policies`, `check-feature-boundaries`, `check-room-schemas`). Gradle did not run on 2026-11-04 (a build-cache lock was held by another process). Room 2.8.5 → 3.0.3 (`androidx.room3`, `AndroidSQLiteDriver`) is written but **not compiled**; the committed schema hash may need regenerating. Admin user list removed. Never run on a device |
 | Apple | **Frozen. Not built** (UNVERIFIED) | Nothing compiled. Sign-in is browser-only (`ASWebAuthenticationSession`); password mode and the admin user list were removed without a compiler. Static scripts pass (`check-feature-boundaries`, `check-apple-swift-policy`). Snapshot reference images are not recorded. Never run on a device |
 | Desktop (`apps/desktop-rs`) | **Frozen. Windows only** | Rust 1.99.1, Slint 1.18.1: `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace` (377 passed) and `cargo deny check` pass on Windows. UI tests use `i-slint-backend-testing`. **Never built on Linux**, never run against a real server or IdP, Velopack update path and packaging unverified, no screen-reader pass, no Linux accessibility check. The Qt 6 / C++ app was deleted on 2026-11-04 (it had never been compiled) |
@@ -90,11 +90,11 @@ File-size policy counts (`task check:file-size`, hand-written source only):
 | Platform | Files | Yellow (301-400) | Orange (401-500) | Red (over 500) |
 |---|---|---|---|---|
 | server | 286 | 11 | 6 | 0 |
-| web | 672 | 6 | 0 | 0 |
+| web | 690 | 6 | 0 | 0 |
 | android | 399 | 0 | 0 | 0 |
 | apple | 297 | 3 | 0 | 0 |
 | desktop | 244 | 15 | 4 | 0 |
-| root | 61 | 2 | 0 | 0 |
+| root | 62 | 2 | 0 | 0 |
 
 <!-- metrics:end -->
 
@@ -118,6 +118,7 @@ Not done (recorded honestly, not hidden):
 - Apple and Desktop-on-Linux have never been compiled/built; no on-device run of Keystore/Tink/AppAuth/Play Integrity/App Attest/Keychain on any platform.
 - Desktop: four `zip` advisories (RUSTSEC-2026-0367/0368/0369/0429) arrive through `velopack` and are ignored in `deny.toml` with a written reason; whether Velopack reaches the affected code is UNVERIFIED. Four transitive crates behind Slint are marked unmaintained.
 - Desktop: no `aedst-feature-auth` crate (auth lives in `aedst-oidc`, declared exception); `client-identification` and `forced-upgrade-ux` have no replay test of `client-version-gate.json`; the Slint Royalty-free licence terms need the owner's confirmation before release.
+- Admin (Vite + Hono BFF): the Docker image has not been built, a real ZITADEL sign-in has not been run, multi-replica refresh behaviour is untested, `admin-ci.yml` has not run on GitHub, Trusted Types is report-only, and `dependency-cruiser` cannot read TypeScript 7 (its "no violations" proves nothing).
 - Web bundle: `/tasks/[id]` still has about 1 KB of headroom; lazy date-fns locales (about 10 KB) are the next candidate.
 - CI workflows and the server `image` job have never executed on GitHub.
 - Apple snapshot baselines and web visual-regression baselines are unrecorded.

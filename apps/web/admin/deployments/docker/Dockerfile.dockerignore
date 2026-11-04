@@ -8,6 +8,8 @@
 
 apps/web/**/node_modules
 apps/web/**/.next
+apps/web/**/dist
+apps/web/**/dist-server
 apps/web/**/coverage
 apps/web/app/storybook-static
 apps/web/app/playwright-report

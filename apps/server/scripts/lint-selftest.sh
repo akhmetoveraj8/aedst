@@ -60,6 +60,10 @@ expect 'otel-exporters-only-in-observability'       'depguard: otel exporters'
 expect 'otelpgx-only-in-database'                    'depguard: otelpgx'
 expect 'otelriver-only-in-jobs'                      'depguard: otelriver'
 expect 'no-second-logger'                           'depguard: logrus'
+expect 'errorsastype: .*\(modernize\)'                'modernize: errors.AsType'
+expect 'waitgroupgo: .*\(modernize\)'                 'modernize: WaitGroup.Go'
+expect '\(perfsprint\)'                             'perfsprint'
+expect '\(usestdlibvars\)'                          'usestdlibvars'
 
 if [ "$fail" -ne 0 ]; then
   echo "----- golangci-lint output -----" >&2

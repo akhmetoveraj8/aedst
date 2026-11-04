@@ -6,7 +6,7 @@ import {
   tableFeatures,
   useTable,
 } from "@tanstack/react-table";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "use-intl";
 
 import { Button } from "@/shared/ui/button";
 import {

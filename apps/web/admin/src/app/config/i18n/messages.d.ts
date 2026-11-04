@@ -8,7 +8,7 @@ type Messages = {
   admin: typeof admin;
 };
 
-declare module "next-intl" {
+declare module "use-intl" {
   interface AppConfig {
     Messages: Messages;
   }

@@ -1,4 +1,4 @@
-import type { Breadcrumb, ErrorEvent } from "@sentry/nextjs";
+import type { Breadcrumb, ErrorEvent } from "@sentry/react";
 
 import { clientEnv } from "@/shared/env/client";
 import { redactSensitiveParams } from "@/shared/lib/utils/sensitive-params";
@@ -64,19 +64,15 @@ export function beforeSend(event: ErrorEvent): ErrorEvent {
 }
 
 /**
- * Options shared by the browser, Node and Edge SDKs. The `release` is not
- * set here on purpose: `withSentryConfig` injects the one it created at
- * build time (next.config.ts — the commit SHA in CI), which is what ties
- * events to the uploaded source maps.
+ * Options for the browser SDK. The `release` comes from the Vite Sentry plugin
+ * (injected at build time, the commit SHA in CI), which is what ties events to
+ * the uploaded source maps.
  */
 export const sentrySharedOptions = {
   dsn: clientEnv.NEXT_PUBLIC_SENTRY_DSN,
-  environment:
-    clientEnv.NEXT_PUBLIC_SENTRY_ENVIRONMENT ??
-    process.env.VERCEL_ENV ??
-    process.env.NODE_ENV,
-  // NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE: 1 locally, 0.2 in production
-  // unless configured — size it to real traffic.
+  environment: clientEnv.NEXT_PUBLIC_SENTRY_ENVIRONMENT ?? import.meta.env.MODE,
+  // VITE_SENTRY_TRACES_SAMPLE_RATE: 1 locally, 0.2 in production unless
+  // configured: size it to real traffic.
   tracesSampleRate: clientEnv.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE,
   // No IP addresses, cookies or request bodies are attached automatically;
   // the user context is set explicitly to the id only (AuthProvider).

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@connectrpc/connect-query";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "use-intl";
 
 import { AdminService } from "@/shared/api/connect/client";
 import { formatBytes, formatNumber } from "@/shared/intl/format";

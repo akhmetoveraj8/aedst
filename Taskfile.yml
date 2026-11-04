@@ -425,13 +425,17 @@ tasks:
 
   # --- web: admin (staff panel, port 3001) ---------------------------------
   admin:dev:
-    desc: Start the admin dev server.
+    desc: Start the admin dev servers (Vite on 3001, Hono BFF on 3101; Vite proxies /api to the BFF).
     dir: apps/web/admin
     cmds: [pnpm dev]
   admin:build:
-    desc: Production build of the admin (Next.js).
+    desc: Production build of the admin (vite build to dist/, BFF bundle to dist-server/main.mjs).
     dir: apps/web/admin
-    cmds: [pnpm build]
+    cmds: [pnpm build:all]
+  admin:start:
+    desc: Run the built admin (node dist-server/main.mjs; run admin:build first, see server/.env.example).
+    dir: apps/web/admin
+    cmds: [pnpm start]
   admin:lint:
     desc: admin Biome lint and TypeScript typecheck.
     dir: apps/web/admin
@@ -441,9 +445,13 @@ tasks:
     dir: apps/web/admin
     cmds: [pnpm knip]
   admin:test:
-    desc: admin unit tests (Vitest).
+    desc: admin tests (Vitest unit + browser projects, then the BFF server tests).
     dir: apps/web/admin
     cmds: [pnpm test]
+  admin:test:e2e:
+    desc: admin Playwright e2e against the built BFF and the mock IdP/API (run admin:build first; pnpm test:browser:install once).
+    dir: apps/web/admin
+    cmds: [pnpm test:e2e]
 
   # --- web: landing (marketing site, port 3002) ----------------------------
   landing:dev:
