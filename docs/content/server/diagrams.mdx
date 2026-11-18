@@ -1,0 +1,163 @@
+---
+title: "Backend diagrams"
+description: "Interactive diagrams of the backend: the three deployment shapes, how a unit is found, how events and operator actions cross processes."
+---
+
+Click a box to dim everything it is not connected to and read what it is. Dashed arrows are asynchronous or only exist in some topologies. The text version of everything here is in [Architecture](/server/architecture) and
+[ADR-0020](../../../apps/server/docs/adr/0020-location-transparent-units.md).
+
+## One codebase, three shapes
+
+The same binary runs in all three shapes; only environment variables change. Start with the first and move to the next only for a measured reason.
+
+### Shape 1: modular monolith (default)
+
+<Flow
+  direction="LR"
+  height={300}
+  caption="Nothing configured: every unit runs in one process and calls the others as plain functions."
+  nodes={[
+    { id: "client", label: "Clients", sub: "Web, Android, Apple, Desktop", x: 0, y: 110, kind: "external", desc: "Every client talks to the same ConnectRPC endpoint." },
+    { id: "server", label: "aedst-server", sub: "one process, all units", x: 270, y: 110, kind: "process", width: 190, desc: "tasks, media, notifications, search, admin and the rest run here. They reach each other only through their api/ packages." },
+    { id: "pg", label: "PostgreSQL", sub: "one database, one schema per unit", x: 560, y: 40, kind: "store", desc: "Each unit owns its own schema; there are no joins across schemas (a test enforces it)." },
+    { id: "valkey", label: "Valkey", sub: "cache and rate limits only", x: 560, y: 190, kind: "store", desc: "Optional. Correctness never depends on it." },
+  ]}
+  edges={[
+    { from: "client", to: "server", label: "ConnectRPC" },
+    { from: "server", to: "pg", label: "SQL" },
+    { from: "server", to: "valkey", label: "limits", dashed: true },
+  ]}
+/>
+
+### Shape 2: module services
+
+<Flow
+  direction="LR"
+  height={380}
+  caption="AEDST_MODULES=media on one deployment, AEDST_MODULES=tasks on another. media asks tasks over Connect."
+  nodes={[
+    { id: "client", label: "Clients", x: 0, y: 150, kind: "external", desc: "Still one URL: the gateway routes by service prefix (Helm httpRoute)." },
+    { id: "gw", label: "Gateway", sub: "route by service name", x: 230, y: 150, kind: "external", desc: "Sends /aedst.media.v1.* to the media deployment and /aedst.tasks.v1.* to the tasks deployment." },
+    { id: "media", label: "media service", sub: "AEDST_MODULES=media", x: 480, y: 40, kind: "unit", width: 200, desc: "Hosts only the media unit. AEDST_MODULE_TASKS_URL tells it where tasks lives." },
+    { id: "tasks", label: "tasks service", sub: "AEDST_MODULES=tasks", x: 480, y: 260, kind: "unit", width: 200, desc: "Hosts only the tasks unit and mounts its Connect services." },
+    { id: "mdb", label: "media database", x: 760, y: 40, kind: "store", desc: "AEDST_DATABASE_URL_MEDIA, optional: the unit can keep its own database." },
+    { id: "tdb", label: "tasks database", x: 760, y: 260, kind: "store", desc: "Events tasks publishes live in its database, which is why a producer is moved last." },
+  ]}
+  edges={[
+    { from: "client", to: "gw" },
+    { from: "gw", to: "media" },
+    { from: "gw", to: "tasks" },
+    { from: "media", to: "tasks", label: "GetTask (Ownership)", dashed: true, animated: true },
+    { from: "media", to: "mdb" },
+    { from: "tasks", to: "tdb" },
+  ]}
+/>
+
+### Shape 3: feature services
+
+<Flow
+  direction="LR"
+  height={400}
+  caption="A module is a group of features; a feature can run on its own. social/like needs social/comment, so it gets its URL."
+  nodes={[
+    { id: "social", label: "social", sub: "module: composes its features", x: 0, y: 150, kind: "unit", desc: "Re-exports its features' api/ as its own api/. Hosting social hosts social/like and social/comment too." },
+    { id: "like", label: "social/like", sub: "AEDST_MODULES=social/like", x: 300, y: 30, kind: "feature", width: 200, desc: "Own api/, own schema social_like, own events." },
+    { id: "comment", label: "social/comment", sub: "AEDST_MODULES=social/comment", x: 300, y: 270, kind: "feature", width: 200, desc: "Own api/, own schema social_comment." },
+    { id: "ldb", label: "schema social_like", x: 620, y: 30, kind: "store" },
+    { id: "cdb", label: "schema social_comment", x: 620, y: 270, kind: "store" },
+  ]}
+  edges={[
+    { from: "social", to: "like", label: "api/" },
+    { from: "social", to: "comment", label: "api/" },
+    { from: "like", to: "comment", label: "AEDST_MODULE_SOCIAL__COMMENT_URL", dashed: true },
+    { from: "like", to: "ldb" },
+    { from: "comment", to: "cdb" },
+  ]}
+/>
+
+## How a unit is found
+
+A unit never asks where another unit is. It asks for the interface, and startup decides whether the answer is a local object or a network client.
+
+<Flow
+  direction="TB"
+  height={520}
+  caption="media's Setup calls modulekit.Require for tasksapi.Ownership; the topology picks what it gets."
+  nodes={[
+    { id: "setup", label: "media Setup", sub: "Require[tasksapi.Ownership]", x: 220, y: 0, kind: "unit", width: 210, desc: "The consumer. Its code is identical in every shape." },
+    { id: "select", label: "modulekit.Select", sub: "AEDST_MODULES + URLs", x: 220, y: 120, kind: "process", width: 210, desc: "Runs at startup. Fails fast, naming the variable to set, if a required unit is neither hosted nor reachable." },
+    { id: "local", label: "Hosted here", sub: "tasks Setup provides NewOwnership(svc)", x: 0, y: 270, kind: "feature", width: 230, desc: "A plain function call on the in-process service." },
+    { id: "remote", label: "Not hosted", sub: "tasks Remote hook provides a Connect client", x: 400, y: 270, kind: "feature", width: 230, desc: "Adds a deadline, a circuit breaker, tracing and the caller's bearer token. Errors come back as the same kinds." },
+    { id: "tasks", label: "tasks", sub: "TasksService.GetTask", x: 400, y: 420, kind: "unit", width: 230, desc: "Answers per user, from the forwarded token. Not found and not yours look the same." },
+    { id: "suite", label: "Contract suite", sub: "ownershiptest", x: 0, y: 420, kind: "external", width: 230, desc: "One set of cases run against both implementations, so they cannot drift apart." },
+  ]}
+  edges={[
+    { from: "setup", to: "select" },
+    { from: "select", to: "local", label: "hosted" },
+    { from: "select", to: "remote", label: "URL set" },
+    { from: "remote", to: "tasks", label: "Connect", dashed: true, animated: true },
+    { from: "local", to: "suite", dashed: true },
+    { from: "remote", to: "suite", dashed: true },
+  ]}
+/>
+
+## How an event reaches a consumer in another process
+
+The event is a database row first: the producer commits the state change and the delivery jobs in one transaction. Processes pick up only the queues of the units they host.
+
+<Flow
+  direction="LR"
+  height={420}
+  caption="tasks publishes TaskCompleted; notifications runs in a different deployment."
+  nodes={[
+    { id: "tx", label: "tasks transaction", sub: "state change + deliveries", x: 0, y: 150, kind: "unit", width: 200, desc: "events.Publisher inserts one River job per subscribed consumer, inside the same transaction. Committed means scheduled." },
+    { id: "catalog", label: "Subscription catalog", sub: "Module.Consumes of every unit", x: 0, y: 330, kind: "process", width: 200, desc: "A producer knows the consumers of units it does not host, so it never drops their events." },
+    { id: "q", label: "queue events_notifications", sub: "river_job", x: 300, y: 150, kind: "store", width: 220, desc: "The delivery goes to a queue named after the consumer's unit (River queue names cannot contain a dot)." },
+    { id: "api", label: "tasks deployment", sub: "does not work this queue", x: 620, y: 20, kind: "external", width: 200, desc: "Works default and its own units' event queues only." },
+    { id: "notif", label: "notifications deployment", sub: "works events_notifications", x: 620, y: 280, kind: "unit", width: 220, desc: "Hosts the handler. It is idempotent: delivery is at least once, keyed on the event id." },
+  ]}
+  edges={[
+    { from: "tx", to: "q", label: "InsertManyTx" },
+    { from: "catalog", to: "tx", label: "who to deliver to", dashed: true },
+    { from: "q", to: "notif", label: "fetch", animated: true },
+    { from: "q", to: "api", label: "never", dashed: true },
+  ]}
+/>
+
+## How an operator action crosses processes
+
+<Flow
+  direction="LR"
+  height={420}
+  caption="Same admin screen, two paths. The in-process path is the default; the audit-first path is chosen when the owning unit is not hosted."
+  nodes={[
+    { id: "op", label: "Operator", sub: "admin UI", x: 0, y: 150, kind: "external", desc: "Calls AdminService; the admin role is enforced by the role policy." },
+    { id: "admin", label: "admin", sub: "chooses a path at startup", x: 250, y: 150, kind: "unit", desc: "Decides by looking up whether the owner's api/ is hosted here." },
+    { id: "tx", label: "Local path", sub: "audit row + owner Tx method, one transaction", x: 530, y: 20, kind: "feature", width: 230, desc: "Atomic: the audit entry and the change commit together. Unchanged behaviour." },
+    { id: "pending", label: "Audit-first path", sub: "pending row + admin.apply job", x: 530, y: 160, kind: "feature", width: 230, desc: "One transaction writes a pending audit row and a River job." },
+    { id: "owner", label: "Owner operator RPC", sub: "idempotent on the audit id", x: 530, y: 310, kind: "unit", width: 230, desc: "TasksOperatorService or NotificationsOperatorService; closed by default behind the admin role." },
+  ]}
+  edges={[
+    { from: "op", to: "admin" },
+    { from: "admin", to: "tx", label: "owner hosted" },
+    { from: "admin", to: "pending", label: "owner remote" },
+    { from: "pending", to: "owner", label: "job calls", dashed: true, animated: true },
+    { from: "owner", to: "pending", label: "applied / failed", dashed: true },
+  ]}
+/>
+
+<Callout type="warn">
+  The audit-first job needs a machine identity (a client-credentials client and an `internal` role in the identity provider). Until it is configured, a mutation on a remote owner is refused before any audit row is written.
+</Callout>
+
+## Environment cheat sheet
+
+```bash
+# the whole monolith (default): nothing set
+# a module service that needs tasks elsewhere
+AEDST_MODULES=media
+AEDST_MODULE_TASKS_URL=http://tasks.internal:8080
+# a feature service ("/" is written "__" in the variable)
+AEDST_MODULES=social/like
+AEDST_MODULE_SOCIAL__COMMENT_URL=http://comment.internal:8080
+```

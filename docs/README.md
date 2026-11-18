@@ -1,12 +1,13 @@
 # aedst-docs
 
-The AEDST documentation site: a [Nextra 4](https://nextra.site) docs-theme app (Next.js App Router, TypeScript) that publishes `content/` — architecture, module boundaries, and ADRs for the whole monorepo.
+The AEDST documentation site: a [Fumadocs](https://fumadocs.dev) app (Next.js App Router, TypeScript) that publishes `content/` — architecture, module boundaries, and ADRs for the whole monorepo. It replaced Nextra; URLs did not change (`content/server/modules.md` is still `/server/modules`).
 
 ## Tech stack
 
 - **Next.js 16** (App Router, Turbopack) + **React 19**
-- **Nextra 4** (`nextra` + `nextra-theme-docs`), TypeScript throughout (`.tsx`, not `.jsx`)
-- **Pagefind** for full-text search, indexed as a `postbuild` step
+- **Fumadocs** (`fumadocs-core`, `fumadocs-mdx`, `fumadocs-ui` = the `@fumadocs/base-ui` build) on Tailwind CSS 4
+- Built-in full-text search (`/api/search`, no post-build index step)
+- **React Flow** (`@xyflow/react`) for interactive diagrams, see below
 
 ## Getting started
 
@@ -19,21 +20,37 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Adding a page
 
-Add a `.md`/`.mdx` file under `content/` (nested folders map to nested routes) and list it in that folder's `_meta.ts` for a sidebar title and explicit ordering — an unlisted page still renders, appended alphabetically. Link to other pages by absolute site path (e.g. `[modules](/server/modules)`), not by relative `.md` filename — Nextra does not guarantee `.md`-suffixed relative links resolve to the right route.
+Add a `.md`/`.mdx` file under `content/` (nested folders map to nested routes) with `title` and `description` front matter. Order and separators come from the folder's `meta.json` (`"pages": ["index", "---Section---", "page", "..."]`; `"..."` appends everything not listed, alphabetically). A folder's sidebar title is its `meta.json` `"title"`. Link to other pages by absolute site path (e.g. `[modules](/server/modules)`).
+
+Plain `.md` pages are Markdown only. A page that needs a component (a diagram, tabs, steps) must be `.mdx`.
+
+## Diagrams (React Flow)
+
+`<Flow>` draws boxes and arrows you lay out by hand; click a box to dim everything it is not connected to and read what it is. Use it where a picture explains faster than a paragraph (topologies, request and event flows). Example:
+
+```mdx
+<Flow
+  direction="LR"
+  height={260}
+  caption="One request through the monolith"
+  nodes={[
+    { id: "client", label: "Client", x: 0, y: 60, kind: "external", desc: "Web, Android, Apple or Desktop." },
+    { id: "api", label: "aedst-server", sub: "ConnectRPC", x: 260, y: 60, kind: "unit", desc: "The one deployable." },
+    { id: "db", label: "PostgreSQL", x: 520, y: 60, kind: "store" },
+  ]}
+  edges={[{ from: "client", to: "api", label: "RPC" }, { from: "api", to: "db", label: "SQL" }]}
+/>
+```
+
+Kinds: `unit` (a module), `feature`, `process`, `store`, `external`, `group`. `dashed` edges mean asynchronous or optional. The component is `src/components/flow/flow.tsx`; the diagram page for the backend is `content/server/diagrams.mdx`.
 
 ## Build
 
 ```bash
-pnpm build   # next build, then pagefind indexing (postbuild)
+pnpm build   # next build
 pnpm start   # serve the production build
 ```
 
-`pnpm build` alone does not produce a working search index — the `postbuild` script (`pagefind --site .next/server/app --output-path public/_pagefind`) must run after it; `pnpm build` runs both.
-
-## Known upstream issue: pinned `zod`
-
-`pnpm-workspace.yaml` pins `zod` to `4.3.6` via `overrides`. `nextra-theme-docs@4.6.1`'s `<Layout>` throws `Invalid input: expected nonoptional, received undefined -> at children` on `zod >=4.4.0` (upstream: [shuding/nextra#4989](https://github.com/shuding/nextra/issues/4989), [#5008](https://github.com/shuding/nextra/issues/5008), [#5036](https://github.com/shuding/nextra/issues/5036)). Drop the override once a `nextra-theme-docs` release ships the fix from [#4990](https://github.com/shuding/nextra/pull/4990).
-
 ## Machine-readable endpoints and site config
 
-`/llms.txt` (page index), `/llms-full.txt` (all pages, front matter stripped, each preceded by `Source: <url>`), `/sitemap.xml` and `/robots.txt` are static and generated from `content/` at build time (`lib/content.ts`), so new pages need no registration. Environment: `NEXT_PUBLIC_DOCS_URL` (canonical origin, sets `metadataBase`), `NEXT_PUBLIC_DOCS_REPO_BASE` (omit: no edit link), `NEXT_PUBLIC_DOCS_LICENSE` (footer; default says no licence chosen), `DOCS_LASTMOD` (sitemap fallback when git history is unavailable), `DOCS_ALLOW_AI_TRAINING=true` (default: training crawlers disallowed, answer engines allowed). Sitemap dates need `fetch-depth: 0` in CI. Smoke check after `pnpm build`: the four files exist in `.next/server/app/` (`llms.txt.body`, `llms-full.txt.body`, `sitemap.xml.body`, `robots.txt.body`); unit tests: `pnpm test`.
+`/llms.txt` (page index), `/llms-full.txt` (all pages, front matter stripped, each preceded by `Source: <url>`), `/sitemap.xml` and `/robots.txt` are static and generated from `content/` at build time (`src/lib/content.ts`), so new pages need no registration. Environment: `NEXT_PUBLIC_DOCS_URL` (canonical origin, sets `metadataBase`), `NEXT_PUBLIC_DOCS_REPO_BASE` (omit: no edit link), `NEXT_PUBLIC_DOCS_LICENSE` (footer; default says no licence chosen), `DOCS_LASTMOD` (sitemap fallback when git history is unavailable), `DOCS_ALLOW_AI_TRAINING=true` (default: training crawlers disallowed, answer engines allowed). Sitemap dates need `fetch-depth: 0` in CI. Smoke check after `pnpm build`: the four files exist in `.next/server/app/` (`llms.txt.body`, `llms-full.txt.body`, `sitemap.xml.body`, `robots.txt.body`); unit tests: `pnpm test`.

@@ -1,28 +1,35 @@
 {
   "name": "docs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind",
     "start": "next start",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\"",
-    "test": "node --test \"lib/*.test.ts\""
+    "typecheck": "next typegen && tsc --noEmit -p tsconfig.json",
+    "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});require('fs').rmSync('.source',{recursive:true,force:true})\"",
+    "test": "node --test \"src/lib/*.test.ts\""
   },
   "dependencies": {
-    "next": "16.4.3",
-    "nextra": "^4.6.1",
-    "nextra-theme-docs": "^4.6.1",
+    "@base-ui/react": "^1.9.0",
+    "@xyflow/react": "13.0.2",
+    "flexsearch": "^0.8.212",
+    "fumadocs-core": "^16.19.4",
+    "fumadocs-mdx": "^15.6.3",
+    "fumadocs-ui": "npm:@fumadocs/base-ui@^16.19.4",
+    "lucide-react": "^1.74.0",
+    "next": "16.4.6",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/mdx": "^2.0.14",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "pagefind": "^1.5.2",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2"
   }
 }

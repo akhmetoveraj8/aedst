@@ -1,0 +1,29 @@
+{
+  "title": "Decision records",
+  "pages": [
+    "cross-cutting",
+    "server",
+    "web",
+    "android",
+    "apple",
+    "desktop",
+    "---Server ADRs---",
+    "0001-modular-monolith",
+    "0002-connectrpc",
+    "0003-postgresql",
+    "0004-nats-jetstream",
+    "0005-river-for-jobs",
+    "0006-module-boundaries",
+    "0007-merge-users-into-auth",
+    "0008-realtime-and-media-extraction",
+    "0009-api-compatibility-and-client-versioning",
+    "0010-caching-and-data-partitioning",
+    "0011-outbox-relay-and-in-process-bus",
+    "0012-shared-platform-messaging-tables",
+    "0013-android-offline-and-client-security",
+    "0014-river-insert-tx-as-outbox",
+    "0015-govips-and-imgproxy-media-pipeline",
+    "0016-device-attestation",
+    "..."
+  ]
+}

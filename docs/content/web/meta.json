@@ -1,0 +1,15 @@
+{
+  "title": "Web",
+  "pages": [
+    "index",
+    "projects",
+    "architecture",
+    "stack",
+    "validation",
+    "i18n",
+    "seo-geo",
+    "microfrontends",
+    "deployment",
+    "..."
+  ]
+}
