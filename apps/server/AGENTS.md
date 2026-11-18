@@ -242,7 +242,7 @@ each `workers:` entry renders its own Deployment with its own `queues`,
 process registers every worker
 (River validates job kinds on insert). Object storage goes only through
 `internal/platform/storage`; push providers only through `internal/platform/push`, which wraps the libraries
-`webpush-go`, Firebase Admin Go (`messaging`) and `apns2` — never hand-write ECE,
+`webpush-go`, the generated FCM HTTP v1 client (`google.golang.org/api/fcm/v1`) and `apns2` — never hand-write ECE,
 VAPID/APNs JWTs or FCM OAuth.
 
 ## Images (govips + imgproxy)

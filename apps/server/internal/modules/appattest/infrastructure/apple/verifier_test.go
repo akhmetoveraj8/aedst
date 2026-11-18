@@ -394,3 +394,35 @@ func sampleKeyID(t *testing.T, obj []byte) []byte {
 func signASN1(d *appattesttest.Device, digest []byte) ([]byte, error) {
 	return ecdsa.SignASN1(rand.Reader, d.Key, digest)
 }
+
+func BenchmarkVerifyAssertion(b *testing.B) {
+	pki := appattesttest.NewPKI(b)
+	dev := pki.NewDevice(b)
+	v := apple.NewVerifier(pki.Roots, sharedtime.Fixed{At: appattesttest.Now})
+	obj := dev.Assert(b, appID, 1, "login", []byte("p"))
+	in := domain.AssertionInput{Object: obj, ClientDataHash: domain.ClientDataHash("login", []byte("p")), PublicKey: &dev.Key.PublicKey, AppID: appID}
+	if _, r := v.VerifyAssertion(in); r != domain.ReasonNone {
+		b.Fatal(r)
+	}
+	b.ReportAllocs()
+	for b.Loop() {
+		v.VerifyAssertion(in)
+	}
+}
+
+func BenchmarkVerifyAttestation(b *testing.B) {
+	pki := appattesttest.NewPKI(b)
+	dev := pki.NewDevice(b)
+	v := apple.NewVerifier(pki.Roots, sharedtime.Fixed{At: appattesttest.Now})
+	in := domain.AttestationInput{
+		Object:         dev.Attest(b, appattesttest.AttestOpts{AppID: appID, Challenge: challenge()}),
+		ClientDataHash: hash(challenge()), KeyID: dev.KeyID, AppID: appID,
+	}
+	if _, r := v.VerifyAttestation(in); r != domain.ReasonNone {
+		b.Fatal(r)
+	}
+	b.ReportAllocs()
+	for b.Loop() {
+		v.VerifyAttestation(in)
+	}
+}

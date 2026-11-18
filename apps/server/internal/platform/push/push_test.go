@@ -225,7 +225,7 @@ func TestFCM_PayloadAndErrorMapping(t *testing.T) {
 	f, err := NewFCM(context.Background(), FCMConfig{
 		ProjectID:     "demo",
 		Timeout:       5 * time.Second,
-		ClientOptions: []option.ClientOption{option.WithEndpoint(srv.URL + "/v1"), option.WithHTTPClient(srv.Client())},
+		ClientOptions: []option.ClientOption{option.WithEndpoint(srv.URL + "/"), option.WithHTTPClient(srv.Client())},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -241,7 +241,7 @@ func TestFCM_PayloadAndErrorMapping(t *testing.T) {
 	if m["token"] != "device" || data["link"] != "/x" || data["kind"] != "system" || data["title"] != "T" || data["body"] != "B" || data["notification_id"] != "n2" {
 		t.Errorf("message = %v", m)
 	}
-	if android["ttl"] != "3600s" || android["priority"] != "high" || android["collapse_key"] != "c1" || notif["title"] != "T" || notif["body"] != "B" {
+	if android["ttl"] != "3600s" || android["priority"] != "HIGH" || android["collapseKey"] != "c1" || notif["title"] != "T" || notif["body"] != "B" {
 		t.Errorf("android/notification = %v / %v", android, notif)
 	}
 
@@ -296,7 +296,7 @@ func TestFCM_ServiceAccountExchangesOAuthToken(t *testing.T) {
 
 	f, err := NewFCM(context.Background(), FCMConfig{
 		CredentialsJSON: fcmServiceAccountJSON(t, srv.URL+"/token"),
-		ClientOptions:   []option.ClientOption{option.WithEndpoint(srv.URL + "/v1")},
+		ClientOptions:   []option.ClientOption{option.WithEndpoint(srv.URL + "/")},
 	})
 	if err != nil {
 		t.Fatal(err)

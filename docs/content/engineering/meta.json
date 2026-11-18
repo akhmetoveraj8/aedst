@@ -6,6 +6,8 @@
     "api-design",
     "security",
     "performance",
+    "mutation-testing",
+    "profiling-pgo",
     "..."
   ]
 }

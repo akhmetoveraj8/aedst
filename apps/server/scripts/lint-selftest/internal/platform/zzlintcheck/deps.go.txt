@@ -2,5 +2,6 @@ package zzlintcheck
 
 import (
 	_ "github.com/exaring/otelpgx"
+	_ "github.com/grafana/pyroscope-go"
 	_ "github.com/riverqueue/rivercontrib/otelriver"
 )

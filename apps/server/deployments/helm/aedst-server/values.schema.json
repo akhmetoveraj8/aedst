@@ -24,7 +24,8 @@
         "vapidPrivateKey": {"type": "string"},
         "fcmCredentialsJson": {"type": "string"},
         "apnsPrivateKey": {"type": "string"},
-        "integrityCredentialsJson": {"type": "string"}
+        "integrityCredentialsJson": {"type": "string"},
+        "profilingBasicAuthPassword": {"type": "string"}
       }
     },
     "database": {
@@ -57,6 +58,16 @@
         "authRateLimitPerMinute": {"type": "integer", "minimum": 0},
         "authFailRateLimitPerMinute": {"type": "integer", "minimum": 0},
         "pprofEnabled": {"type": "boolean"},
+        "profiling": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "serverAddress": {"type": "string"},
+            "basicAuthUser": {"type": "string"},
+            "tenantId": {"type": "string"}
+          }
+        },
         "rolePolicy": {"type": "object"},
         "apiRateLimitPerMinute": {"type": "integer", "minimum": 0},
         "maxInFlight": {"type": "integer", "minimum": 0},

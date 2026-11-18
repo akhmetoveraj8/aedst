@@ -189,7 +189,8 @@ func ValidAction(action string) bool { return actionPattern.MatchString(action) 
 func DecodeKeyID(s string) ([]byte, error) {
 	// Strict: non-zero trailing bits would give several spellings of one key id.
 	b, err := base64.StdEncoding.Strict().DecodeString(s)
-	if err != nil || len(b) != KeyIDSize {
+	// DecodeString silently skips CR and LF, so compare the canonical spelling.
+	if err != nil || len(b) != KeyIDSize || base64.StdEncoding.EncodeToString(b) != s {
 		return nil, errors.New("appattest: key id must be the base64 of 32 bytes")
 	}
 	return b, nil

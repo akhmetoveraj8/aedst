@@ -64,7 +64,7 @@ mounted through `modulekit.Mount`, which always installs the validation intercep
 | Image ingest (validate, orient, strip EXIF/GPS) | govips (`-tags vips`, cgo) over system libvips (Debian 13 trixie `libvips42t64`, libvips 8.16.1) | govips **2.20.0** |
 | Image delivery (dynamic sizes, WebP/AVIF) | imgproxy (`darthsim/imgproxy`), signed URLs from `internal/platform/imgproxy` | **v4.0.20** (Docker Hub, 2026-10-28) |
 | Video / audio | ffmpeg / ffprobe (optional, external) | — |
-| Push (details: [Push notifications](/server/push)) | Web Push + VAPID (`webpush-go`), FCM (Firebase Admin Go `messaging`), APNs HTTP/2 token auth (`apns2`) | webpush-go **1.4.0**, firebase.google.com/go/v4 **4.22.0**, apns2 **0.25.0** |
+| Push (details: [Push notifications](/server/push)) | Web Push + VAPID (`webpush-go`), FCM (`google.golang.org/api/fcm/v1`), APNs HTTP/2 token auth (`apns2`) | webpush-go **1.4.0**, google.golang.org/api **0.310.0**, apns2 **0.25.0** |
 
 ## Observability
 

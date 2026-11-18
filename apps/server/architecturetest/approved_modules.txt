@@ -10,7 +10,6 @@ connectrpc.com/grpchealth/v2  # health
 connectrpc.com/grpcreflect/v2  # gRPC reflection (off by default)
 connectrpc.com/otelconnect  # observability: RPC tracing
 connectrpc.com/validate  # validation: protovalidate interceptor
-firebase.google.com/go/v4  # push: FCM (internal/platform/push only)
 github.com/SherClockHolmes/webpush-go  # push: Web Push (internal/platform/push only)
 github.com/alicebob/miniredis/v2  # tests only: in-memory Valkey for internal/platform/valkey rate-limit tests
 github.com/aws/aws-sdk-go-v2  # object storage (internal/platform/storage only)
@@ -21,6 +20,7 @@ github.com/aws/smithy-go  # object storage
 github.com/caarlos0/env/v11  # configuration
 github.com/davidbyttow/govips/v2  # media: images (build tag vips)
 github.com/exaring/otelpgx  # observability: pgx query tracing (internal/platform/database only)
+github.com/grafana/pyroscope-go  # observability: continuous profiling push (internal/platform/observability only)
 github.com/fxamacker/cbor/v2  # appattest only
 github.com/go-redis/redis_rate/v10  # rate limiting (internal/platform/valkey only)
 github.com/jackc/pgx/v5  # database driver
@@ -58,6 +58,6 @@ golang.org/x/mod  # architecturetest: go.mod parsing
 golang.org/x/sync  # errgroup, singleflight (OIDC discovery)
 golang.org/x/time  # rate
 golang.org/x/tools  # architecturetest: go/packages
-google.golang.org/api  # Play Integrity client, FCM options
+google.golang.org/api  # Play Integrity client, FCM HTTP v1 client (fcm/v1), client options
 google.golang.org/genproto/googleapis/rpc  # RPC error details
 google.golang.org/protobuf  # protobuf runtime

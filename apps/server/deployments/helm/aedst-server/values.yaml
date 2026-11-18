@@ -34,6 +34,7 @@ secretKeys:
   fcmCredentialsJson: "" # AEDST_PUSH_FCM_CREDENTIALS_JSON
   apnsPrivateKey: "" # AEDST_PUSH_APNS_PRIVATE_KEY
   integrityCredentialsJson: "" # AEDST_INTEGRITY_CREDENTIALS_JSON
+  profilingBasicAuthPassword: "" # AEDST_PROFILING_BASIC_AUTH_PASSWORD (Grafana Cloud access-policy token with profiles:write)
 
 database:
   # Connection budget (fails the render when exceeded; 0 = not checked). Set it to the
@@ -89,6 +90,14 @@ config:
   trustedProxyHops: 2 # Cloudflare -> ingress = 2; verify after deploy
   authRateLimitPerMinute: 30
   authFailRateLimitPerMinute: 60 # per client IP: failed authentications before 429 (0 = off)
+  # Continuous profiling: the Pyroscope SDK pushes CPU/heap profiles to Grafana Cloud
+  # Profiles or an existing Pyroscope server (no inbound port, no self-hosted backend
+  # in this chart). The password comes from secretKeys.profilingBasicAuthPassword.
+  profiling:
+    enabled: false # AEDST_PROFILING_ENABLED
+    serverAddress: "" # AEDST_PROFILING_SERVER_ADDRESS, e.g. https://profiles-prod-001.grafana.net
+    basicAuthUser: "" # AEDST_PROFILING_BASIC_AUTH_USER (Grafana Cloud: the stack's numeric user id)
+    tenantId: "" # AEDST_PROFILING_TENANT_ID (multi-tenant self-run backends only)
   pprofEnabled: false # /debug/pprof on the metrics port (needs metrics.enabled); port-forward only, never expose
   # Procedures restricted to callers holding one of the roles; validated at startup
   # (unknown or public procedures fail the deploy). Example:

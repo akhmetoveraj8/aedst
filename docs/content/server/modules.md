@@ -74,7 +74,7 @@ is checked by `architecturetest` before merge.
 - Push fan-out as River jobs: one `notifications.push` job per notification, one
   `notifications.push_device` job per device. Providers (maintained libraries
   behind `internal/platform/push`): **Web Push** (VAPID, `webpush-go`),
-  **FCM** (Firebase Admin Go messaging), **APNs** (`apns2`, token auth). An unconfigured provider is
+  **FCM** (generated `google.golang.org/api/fcm/v1` client), **APNs** (`apns2`, token auth). An unconfigured provider is
   disabled; an invalid token deactivates the device.
 - Device registration, the payload contract and VAPID rotation are described once, in [Push notifications](/server/push).
 - Desktop has no push service: it polls `GetUnreadCount` with backoff and shows

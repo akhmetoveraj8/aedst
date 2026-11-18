@@ -19,6 +19,8 @@ that remains is written.
 | [API design](/engineering/api-design) | ConnectRPC/Protobuf contracts: naming, resources, pagination, partial updates, idempotency, errors, auth, versioning, the new-RPC checklist |
 | [Security](/engineering/security) | The API security checklist, item by item, with the file or gate that enforces it |
 | [Performance](/engineering/performance) | CI budgets, frontend and backend rules, profiling, scaling order |
+| [Fuzzing and mutation testing](/engineering/mutation-testing) | Go fuzz targets for parsers, gremlins thresholds for domain packages, what runs per PR and nightly |
+| [Profiling and PGO](/engineering/profiling-pgo) | Pyroscope push profiling behind the observability port, `task pgo`, the measured PGO result |
 
 ## What "senior-level" means here
 

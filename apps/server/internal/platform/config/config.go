@@ -267,6 +267,14 @@ type ObservabilityConfig struct {
 	// the SDK reads the real values (and headers, protocol, ...) itself.
 	OTLPEndpoint       string `env:"OTEL_EXPORTER_OTLP_ENDPOINT" envDefault:""`
 	OTLPTracesEndpoint string `env:"OTEL_EXPORTER_OTLP_TRACES_ENDPOINT" envDefault:""`
+
+	// Continuous profiling (Grafana Pyroscope SDK, push to Grafana Cloud Profiles
+	// or an existing Pyroscope server). Off by default; no inbound port.
+	ProfilingEnabled           bool   `env:"AEDST_PROFILING_ENABLED" envDefault:"false"`
+	ProfilingServerAddress     string `env:"AEDST_PROFILING_SERVER_ADDRESS" envDefault:""`
+	ProfilingBasicAuthUser     string `env:"AEDST_PROFILING_BASIC_AUTH_USER" envDefault:""`
+	ProfilingBasicAuthPassword string `env:"AEDST_PROFILING_BASIC_AUTH_PASSWORD" envDefault:""`
+	ProfilingTenantID          string `env:"AEDST_PROFILING_TENANT_ID" envDefault:""`
 }
 
 // ExportEnabled reports whether any OTLP endpoint is configured.
@@ -354,6 +362,9 @@ func (c Config) Validate() error {
 	}
 	if c.HTTP.MaxRequestBytes <= 0 {
 		bad("AEDST_MAX_REQUEST_BYTES must be positive")
+	}
+	if c.Obs.ProfilingEnabled && c.Obs.ProfilingServerAddress == "" {
+		bad("AEDST_PROFILING_ENABLED=true needs AEDST_PROFILING_SERVER_ADDRESS")
 	}
 	if c.HTTP.PprofEnabled && c.HTTP.MetricsAddr == "" {
 		bad("AEDST_PPROF_ENABLED=true needs AEDST_METRICS_ADDR: profiles are served on the metrics listener, never the public port")

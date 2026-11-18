@@ -17,6 +17,7 @@ sqlc = "1.31.1"       # latest stable, verified 2026-10-28 (GitHub releases)
 "go:mvdan.cc/gofumpt" = "0.12.0"                       # tag v0.12.0 = latest, verified 2026-10-28 (GitHub releases)
 "go:golang.org/x/vuln/cmd/govulncheck" = "1.9.0"        # task vuln; tag v1.9.0 = latest, verified 2026-10-28 via git ls-remote
 "go:github.com/pressly/goose/v3/cmd/goose" = "3.29.0"   # task migrate; v3.29.0 = latest, verified 2026-10-28 (GitHub releases)
+"go:github.com/go-gremlins/gremlins/cmd/gremlins" = "0.6.0"   # task mutation; v0.6.0 = latest, verified 2026-11-18 (go list -m -versions)
 golangci-lint = "2.15.0"  # latest stable v2.15.0 verified via GitHub releases 2026-10-28
 lefthook = "2.2.2"        # latest stable verified via GitHub releases 2026-10-28
 gitleaks = "8.30.1"       # secret scanning (.gitleaks.toml); latest v8.30.1 re-verified via GitHub releases 2026-10-28

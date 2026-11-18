@@ -201,6 +201,14 @@ data:
   AEDST_VALKEY_ALLOW_PLAINTEXT: {{ .Values.config.valkey.allowPlaintext | quote }}
   AEDST_DATABASE_ALLOW_UNVERIFIED_TLS: {{ .Values.database.allowUnverifiedTls | quote }}
   AEDST_AUTH_FAIL_RATE_LIMIT_PER_MINUTE: {{ .Values.config.authFailRateLimitPerMinute | int64 | quote }}
+  {{- with .Values.config.profiling }}
+  {{- if .enabled }}
+  AEDST_PROFILING_ENABLED: "true"
+  AEDST_PROFILING_SERVER_ADDRESS: {{ required "config.profiling.serverAddress is required when config.profiling.enabled" .serverAddress | quote }}
+  AEDST_PROFILING_BASIC_AUTH_USER: {{ .basicAuthUser | quote }}
+  AEDST_PROFILING_TENANT_ID: {{ .tenantId | quote }}
+  {{- end }}
+  {{- end }}
   {{- if and .Values.config.pprofEnabled .Values.metrics.enabled }}
   AEDST_PPROF_ENABLED: "true"
   {{- end }}
