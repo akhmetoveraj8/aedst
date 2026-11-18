@@ -28,7 +28,7 @@
     { "file": "scripts/i18n-parity.allowlist", "op": "dropLines", "pattern": "(^|\\s)apps/${p}\\b|^cross-${p}\\s" },
     { "file": "scripts/file-size.config", "op": "dropLines", "pattern": "^exclude\\s+\\S*apps/${p}/" },
     { "globs": ["AGENTS.md", "docs/agent/rules.md"], "op": "dropLines", "pattern": "^\\s*[-*]\\s+\\**${P}\\**:" },
-    { "globs": ["docs/**/_meta.ts"], "op": "dropLines", "pattern": "^\\s*\"?(\\d+-)?${p}(-[\\w-]*)?\"?\\s*:" },
+    { "globs": ["docs/**/meta.json"], "op": "dropLines", "pattern": "^\\s*\"(\\d+-)?${p}(-[\\w-]*)?\",\\s*$" },
     { "globs": [".github/workflows/*.yml"], "op": "dropLines", "pattern": "^\\s*-\\s*[\"']?(\\./)?apps/${p}\\b" },
     { "globs": ["@markdown"], "op": "dropLines", "pattern": "^\\|\\s*(\\*\\*)?\\[?${P}\\]?(\\*\\*)?(\\s*\\([^|]*\\))?\\s*\\|" },
     { "file": ".github/PULL_REQUEST_TEMPLATE.md", "op": "dropMarkdownSections", "heading": "\\b${P}\\b" },

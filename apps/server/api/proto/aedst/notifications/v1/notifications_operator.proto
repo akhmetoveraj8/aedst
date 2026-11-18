@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package aedst.notifications.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/aedst/server/gen/go/aedst/notifications/v1;notificationsv1";
+
+// NotificationsOperatorService is the operator surface of notifications. The
+// admin module calls it when notifications is not hosted in its own process; in
+// a monolith the same operations run in-process through
+// notifications/api.Broadcaster. Closed to ordinary users: the module's built-in
+// role policy admits "admin" (a human operator whose token is forwarded, for
+// reads) and "internal" (the machine identity of the admin.apply job, for
+// mutations). Mutations are idempotent on idempotency_key.
+service NotificationsOperatorService {
+  // Number of active push devices across all users.
+  rpc CountAllActiveDevices(CountAllActiveDevicesRequest) returns (CountAllActiveDevicesResponse);
+  // Sends a SYSTEM notification to one user, or to every known user when user_id
+  // is empty. Replaying an idempotency_key returns the first result; reusing a
+  // key for a different message is ABORTED.
+  rpc OperatorBroadcast(OperatorBroadcastRequest) returns (OperatorBroadcastResponse);
+}
+
+message CountAllActiveDevicesRequest {}
+
+message CountAllActiveDevicesResponse {
+  int64 devices = 1;
+}
+
+message OperatorBroadcastRequest {
+  // Empty means every known user.
+  string user_id = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+  string title = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 120
+  }];
+  string body = 3 [(buf.validate.field).string.max_len = 1000];
+  // An in-app path ("/tasks/..."), or empty.
+  string link = 4 [(buf.validate.field).string = {
+    max_len: 500
+    pattern: "^(/[^/].*)?$"
+  }];
+  // 1-128 characters, unique per intended broadcast (the admin module sends the
+  // audit entry id).
+  string idempotency_key = 5 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message OperatorBroadcastResponse {
+  int64 recipients = 1;
+}

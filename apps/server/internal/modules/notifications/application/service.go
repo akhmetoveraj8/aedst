@@ -118,6 +118,18 @@ func (s *Service) BroadcastTx(ctx context.Context, tx pgx.Tx, userID *ids.ID, b 
 	return s.repo.BroadcastTx(ctx, tx, ids.New(), userID, b, s.clock.Now())
 }
 
+// BroadcastIdempotent is the network-safe BroadcastTx: its own transaction,
+// safely repeatable on key (api.Operator).
+func (s *Service) BroadcastIdempotent(ctx context.Context, key string, userID *ids.ID, b domain.Broadcast) (int64, error) {
+	if key == "" {
+		return 0, sharederrors.Validation("notifications.OperatorBroadcast", "an idempotency key is required")
+	}
+	if err := b.Validate(); err != nil {
+		return 0, err
+	}
+	return s.repo.BroadcastIdempotent(ctx, key, userID, b, s.clock.Now())
+}
+
 func (s *Service) CountActiveDevices(ctx context.Context) (int64, error) {
 	return s.repo.CountAllActiveDevices(ctx)
 }

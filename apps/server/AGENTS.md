@@ -223,6 +223,13 @@ modules": it opens the transaction, passes the `pgx.Tx` to the owning module's
 same transaction. Only admin may call `*Tx` api methods; the owning module still
 writes its own rows and publishes its own events.
 
+When the target module is **not** hosted in this process admin cannot pass it a transaction: it
+writes the audit entry as `pending` plus an `admin.apply` job, and the job calls the owner's
+network-safe operator service (`tasks/api.OperatorService`, `notifications/api.Operator`)
+idempotently on the entry id (`admin/application/audit_first.go`, `apply.go`). Never add a `*Tx`
+method to an api that another process may need to call; give the owner an idempotent operator
+method instead. `admin.audit_log` rows may leave `pending` once, through `ResolveAuditEntry` only.
+
 ## Background queues and heavy work
 
 River queues: `default` (light jobs) and `media` (image/ffmpeg processing).

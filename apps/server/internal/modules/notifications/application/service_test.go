@@ -53,6 +53,11 @@ func (f *fakeRepo) UnregisterDevice(context.Context, ids.ID, ids.ID, time.Time) 
 }
 func (f *fakeRepo) CountAllActiveDevices(context.Context) (int64, error) { return 0, nil }
 
+func (f *fakeRepo) BroadcastIdempotent(_ context.Context, _ string, userID *ids.ID, b domain.Broadcast, _ time.Time) (int64, error) {
+	f.broadcast, f.broadcastTo = &b, userID
+	return 1, nil
+}
+
 func (f *fakeRepo) GetPreferences(context.Context, ids.ID) (domain.Preferences, error) {
 	return f.prefs, nil
 }
@@ -204,5 +209,21 @@ func TestDomain_Notifications(t *testing.T) {
 	prefs.PushEnabled = false
 	if prefs.WantsPush(domain.KindSystem) {
 		t.Error("the master switch must silence every kind")
+	}
+}
+
+func TestService_BroadcastIdempotent_NeedsAKeyAndValidates(t *testing.T) {
+	repo := &fakeRepo{}
+	svc := application.NewService(repo, sharedtime.Fixed{At: time.Now()})
+
+	if _, err := svc.BroadcastIdempotent(context.Background(), "", nil, domain.Broadcast{Title: "Hi"}); sharederrors.KindOf(err) != sharederrors.KindValidation {
+		t.Errorf("no key: %v", err)
+	}
+	if _, err := svc.BroadcastIdempotent(context.Background(), "audit-1", nil, domain.Broadcast{Title: " "}); sharederrors.KindOf(err) != sharederrors.KindValidation {
+		t.Errorf("empty title: %v", err)
+	}
+	n, err := svc.BroadcastIdempotent(context.Background(), "audit-1", nil, domain.Broadcast{Title: " Maintenance ", Link: "/status"})
+	if err != nil || n != 1 || repo.broadcast == nil || repo.broadcast.Title != "Maintenance" {
+		t.Fatalf("BroadcastIdempotent() = %d, %v; repo saw %+v", n, err, repo.broadcast)
 	}
 }

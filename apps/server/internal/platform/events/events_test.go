@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"maps"
+	"strings"
 	"testing"
 	"time"
 
@@ -118,5 +120,127 @@ func TestWorker_MalformedDeliveryIsCancelled(t *testing.T) {
 	err := w.Work(context.Background(), newJob(args, 1, maxAttempts))
 	if _, ok := errors.AsType[*river.JobCancelError](err); !ok {
 		t.Fatalf("Work() = %v, want river.JobCancel (retrying can never succeed)", err)
+	}
+}
+
+func TestQueueFor(t *testing.T) {
+	for consumer, want := range map[string]string{
+		"notifications.task_completed": "events_notifications",
+		"search.task_created":          "events_search",
+		"social_like.counted":          "events_social_like",
+		"nodot":                        "events_nodot",
+	} {
+		if got := QueueFor(consumer); got != want {
+			t.Errorf("QueueFor(%q) = %q, want %q", consumer, got, want)
+		}
+	}
+	if got := QueueOfUnit("social/like"); got != "events_social_like" {
+		t.Errorf("QueueOfUnit(social/like) = %q", got)
+	}
+	// A consumer named for a feature unit lands on that unit's queue.
+	if QueueFor("social_like.x") != QueueOfUnit("social/like") {
+		t.Error("a feature's consumer and its unit disagree on the queue")
+	}
+}
+
+func TestIsQueue(t *testing.T) {
+	for name, want := range map[string]bool{
+		"events_notifications": true, "events_social_like": true, "events_a1": true,
+		"default": false, "media": false, "events_": false, "events__x": false, "events_X": false, "events_a-b": false,
+	} {
+		if got := IsQueue(name); got != want {
+			t.Errorf("IsQueue(%q) = %v, want %v", name, got, want)
+		}
+	}
+}
+
+func TestDeliveryArgs_GoToTheConsumersUnitQueue(t *testing.T) {
+	if q := (DeliveryArgs{Consumer: "notifications.task_completed"}).InsertOpts().Queue; q != "events_notifications" {
+		t.Fatalf("queue = %q, want events_notifications", q)
+	}
+}
+
+func TestWorkedQueues(t *testing.T) {
+	hosted := []string{"notifications", "social/like"}
+	t.Run("default plus every hosted unit queue", func(t *testing.T) {
+		got := WorkedQueues(map[string]int{"default": 50, "media": 2}, hosted, 10)
+		want := map[string]int{"default": 50, "media": 2, "events_notifications": 10, "events_social_like": 10}
+		if !maps.Equal(got, want) {
+			t.Fatalf("got %v, want %v", got, want)
+		}
+	})
+	t.Run("a media-only worker takes no event queue", func(t *testing.T) {
+		got := WorkedQueues(map[string]int{"media": 4}, hosted, 10)
+		if !maps.Equal(got, map[string]int{"media": 4}) {
+			t.Fatalf("got %v, want only media", got)
+		}
+	})
+	t.Run("insert-only stays insert-only", func(t *testing.T) {
+		if got := WorkedQueues(nil, hosted, 10); len(got) != 0 {
+			t.Fatalf("got %v, want none", got)
+		}
+	})
+	t.Run("an explicit count is kept", func(t *testing.T) {
+		got := WorkedQueues(map[string]int{"default": 5, "events_notifications": 3}, hosted, 10)
+		if got["events_notifications"] != 3 || got["events_social_like"] != 10 {
+			t.Fatalf("got %v", got)
+		}
+	})
+	t.Run("the configured map is not mutated", func(t *testing.T) {
+		in := map[string]int{"default": 5}
+		WorkedQueues(in, hosted, 10)
+		if len(in) != 1 {
+			t.Fatalf("input mutated: %v", in)
+		}
+	})
+}
+
+func TestRegistry_RemoteConsumersAreInTheCatalogOnly(t *testing.T) {
+	r := NewRegistry()
+	r.Subscribe("a.v1.A", "x.local", func(context.Context, Event) error { return nil })
+	r.SubscribeRemote("a.v1.A", "y.remote")
+	if got := r.Consumers("a.v1.A"); len(got) != 2 || got[1] != "y.remote" {
+		t.Fatalf("Consumers = %v, want local then remote", got)
+	}
+	err := r.Dispatch(context.Background(), Event{Type: "a.v1.A"})
+	if err == nil || !strings.Contains(err.Error(), "y.remote") {
+		t.Fatalf("Dispatch = %v, want an error naming the remote consumer, not a silent skip or a nil-handler panic", err)
+	}
+	defer func() {
+		if recover() == nil {
+			t.Fatal("a remote consumer named like a hosted one did not panic")
+		}
+	}()
+	r.SubscribeRemote("a.v1.A", "x.local")
+}
+
+// A remote consumer's delivery that reaches a process without its handler must
+// fail visibly (retried, then discarded), never complete: that would lose the event.
+func TestWorker_RemoteConsumerIsNeverCompleted(t *testing.T) {
+	r := NewRegistry()
+	r.SubscribeRemote("a.v1.A", "y.remote")
+	w, _ := newWorker(r, slog.New(slog.DiscardHandler))
+	err := w.Work(context.Background(), newJob(validArgs("y.remote"), 1, maxAttempts))
+	if err == nil {
+		t.Fatal("Work() = nil for a consumer hosted elsewhere: the event would be lost")
+	}
+	if _, ok := errors.AsType[*river.JobCancelError](err); ok {
+		t.Fatalf("remote consumer was cancelled: %v", err)
+	}
+}
+
+// Deliveries inserted before this change sit on the "default" queue. Workers are
+// registered by job kind, not by queue, so any process that works "default" still
+// delivers them: the queue of a job row is only where River looks, not which
+// worker runs it.
+func TestLegacyDefaultQueueDeliveriesStillRun(t *testing.T) {
+	r := NewRegistry()
+	var ran bool
+	r.Subscribe("a.v1.A", "m.one", func(context.Context, Event) error { ran = true; return nil })
+	w, _ := newWorker(r, slog.New(slog.DiscardHandler))
+	job := newJob(validArgs("m.one"), 1, maxAttempts)
+	job.Queue = river.QueueDefault
+	if err := w.Work(context.Background(), job); err != nil || !ran {
+		t.Fatalf("a delivery on the default queue: err = %v, ran = %v", err, ran)
 	}
 }

@@ -26,6 +26,7 @@ type Repository struct {
 	stats platformjobs.Stats
 	pool  *pgxpool.Pool
 	clock sharedtime.Clock
+	jobs  TxJobInserter // admin.apply; set by UseJobs once River exists
 }
 
 // NewRepository builds the admin repository. stats reads the River queue through the
@@ -82,7 +83,7 @@ func (r *Repository) List(ctx context.Context, limit int, after *pagination.Curs
 		entries[i] = domain.AuditEntry{
 			ID: ids.ID(row.ID.Bytes), Actor: domain.Actor{UserID: ids.ID(row.ActorID.Bytes), Subject: row.ActorSubject, Issuer: row.ActorIssuer},
 			Action: row.Action, TargetKind: row.TargetKind, TargetID: row.TargetID, Reason: row.Reason, Metadata: meta,
-			CreatedAt: row.CreatedAt.Time,
+			CreatedAt: row.CreatedAt.Time, State: domain.State(row.State), Failure: row.Failure,
 		}
 	}
 	page := pagination.NewPage(entries, limit, func(e domain.AuditEntry) pagination.Cursor {

@@ -37,6 +37,10 @@ type Repository interface {
 	// known user when userID is nil, and enqueues their pushes in the same
 	// transaction. It returns the number of recipients.
 	BroadcastTx(ctx context.Context, tx pgx.Tx, broadcastID ids.ID, userID *ids.ID, b domain.Broadcast, at time.Time) (int64, error)
+	// BroadcastIdempotent is BroadcastTx in a transaction of its own, replay-safe on
+	// key (scope "notifications.operator"): the same key and message returns the
+	// first recipient count, the same key for another message is a Conflict.
+	BroadcastIdempotent(ctx context.Context, key string, userID *ids.ID, b domain.Broadcast, at time.Time) (int64, error)
 }
 
 // ListParams selects one keyset page of a user's feed, newest first.

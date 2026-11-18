@@ -48,10 +48,28 @@ func crossModuleViolation(pkg, imp string) bool {
 // that forbiddenSiblingLayers forbids for pkg's layer.
 func siblingLayerViolation(pkg, imp string) bool {
 	module := moduleOf(pkg)
-	if module == "" || moduleOf(imp) != module {
+	if module == "" || unitOf(imp) != unitOf(pkg) {
 		return false
 	}
 	return slices.Contains(forbiddenSiblingLayers[layerOf(pkg, module)], layerOf(imp, module))
+}
+
+// unitViolation reports whether pkg imports another unit of its OWN module (a
+// module and its features, or two features) other than through the contract.
+// Units of one module meet exactly like units of different modules do: through
+// api/. Beyond that the arrow is one-way: a module composes its features, a
+// feature never reaches up into the module that groups it.
+func unitViolation(pkg, imp string) bool {
+	module := moduleOf(pkg)
+	if module == "" || moduleOf(imp) != module || unitOf(pkg) == unitOf(imp) {
+		return false
+	}
+	if unitOf(pkg) != module { // pkg is a feature
+		if unitOf(imp) == module {
+			return true // a feature importing its parent module
+		}
+	}
+	return layerOf(imp, module) != "api" // reaching into a feature other than via its api
 }
 
 func TestModulesAreDiscovered(t *testing.T) {
@@ -70,6 +88,59 @@ func TestModulesAreDiscovered(t *testing.T) {
 		if !slices.Contains(expectedModules, m) {
 			t.Errorf("module %q is new: add it to expectedModules in architecturetest/layers_test.go", m)
 		}
+	}
+}
+
+// TestUnitsOfOneModuleMeetOnlyThroughAPI applies the module rule one level down:
+// the features of a module (modules/<m>/features/<f>) are units like modules are.
+func TestUnitsOfOneModuleMeetOnlyThroughAPI(t *testing.T) {
+	for _, pkg := range loadPackages(t) {
+		for path := range pkg.Imports {
+			if unitViolation(pkg.PkgPath, path) {
+				t.Errorf("unit boundary violation: %s imports %s — units of one module (a module and its features, or two features) meet only through api/, and a feature never imports the module that groups it", pkg.PkgPath, path)
+			}
+		}
+	}
+}
+
+// TestUnitCheckers is the negative self-test of the feature-level rules.
+func TestUnitCheckers(t *testing.T) {
+	const m = modulePrefix
+	cases := []struct {
+		name         string
+		pkg, imp     string
+		unit, layers bool // unitViolation, siblingLayerViolation
+		cross        bool // crossModuleViolation
+	}{
+		{"module composes a feature through its api", m + "social/application", m + "social/features/like/api", false, false, false},
+		{"module reaching into a feature's domain", m + "social/application", m + "social/features/like/domain", true, false, false},
+		{"feature reaching into a sibling feature's infrastructure", m + "social/features/comment/application", m + "social/features/like/infrastructure/postgres", true, false, false},
+		{"feature using a sibling feature's api", m + "social/features/comment/application", m + "social/features/like/api", false, false, false},
+		{"feature importing its parent module's api", m + "social/features/like/application", m + "social/api", true, false, false},
+		{"feature importing its parent module's domain", m + "social/features/like/application", m + "social/domain", true, false, false},
+		{"feature layering is relative to the feature", m + "social/features/like/domain", m + "social/features/like/infrastructure/postgres", false, true, false},
+		{"feature application -> own domain is fine", m + "social/features/like/application", m + "social/features/like/domain", false, false, false},
+		{"other module uses a feature's api", m + "chat/application", m + "social/features/like/api", false, false, false},
+		{"other module reaching into a feature", m + "chat/application", m + "social/features/like/application", false, false, true},
+		{"cmd -> feature registration is fine", cmdPrefix + "server", m + "social/features/like/module", false, false, false},
+		{"non-cmd -> feature registration", m + "chat/application", m + "social/features/like/module", false, false, true},
+	}
+	for _, tc := range cases {
+		if got := unitViolation(tc.pkg, tc.imp); got != tc.unit {
+			t.Errorf("%s: unitViolation = %v, want %v", tc.name, got, tc.unit)
+		}
+		if got := siblingLayerViolation(tc.pkg, tc.imp); got != tc.layers {
+			t.Errorf("%s: siblingLayerViolation = %v, want %v", tc.name, got, tc.layers)
+		}
+		if got := crossModuleViolation(tc.pkg, tc.imp); got != tc.cross {
+			t.Errorf("%s: crossModuleViolation = %v, want %v", tc.name, got, tc.cross)
+		}
+	}
+	if got := unitOf(m + "social/features/like/api"); got != "social/like" {
+		t.Errorf("unitOf(feature) = %q", got)
+	}
+	if got := unitOf(m + "social/api"); got != "social" {
+		t.Errorf("unitOf(module) = %q", got)
 	}
 }
 

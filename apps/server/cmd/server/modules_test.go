@@ -80,7 +80,9 @@ func TestMountedServicesAreKnownAndAdminIsClosedByDefault(t *testing.T) {
 	if err := rpc.VerifyKnown(known); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(rpc.Services()); got != len(a.mods) {
+	// Every module mounts at least one service; a module may mount more (tasks and
+	// notifications each add an operator service for the admin module).
+	if got := len(rpc.Services()); got < len(a.mods) {
 		t.Errorf("%d services mounted for %d modules: %v", got, len(a.mods), rpc.Services())
 	}
 	if !public[capabilitiesv1connect.CapabilitiesServiceGetCapabilitiesProcedure] {

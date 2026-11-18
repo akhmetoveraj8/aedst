@@ -11,7 +11,7 @@ mkdir -p "$tmp/migrations" "$tmp/queries"
 
 cat >"$tmp/migrations/schema.sql" <<'SQL'
 CREATE SCHEMA admin;
-CREATE TABLE admin.audit_log (id UUID PRIMARY KEY, reason TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE admin.audit_log (id UUID PRIMARY KEY, reason TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL, state TEXT NOT NULL DEFAULT 'applied');
 CREATE SCHEMA integrity;
 CREATE TABLE integrity.verified_tokens (token_hash BYTEA PRIMARY KEY, verified_at TIMESTAMPTZ NOT NULL);
 SQL
@@ -24,6 +24,12 @@ DELETE FROM admin.audit_log WHERE id = $1;
 
 -- name: BumpToken :exec
 UPDATE integrity.verified_tokens SET verified_at = $2 WHERE token_hash = $1;
+
+-- name: ResolveAuditEntry :execrows
+UPDATE admin.audit_log SET state = $2 WHERE id = $1 AND state = 'pending';
+
+-- name: ResolveAnything :execrows
+UPDATE admin.audit_log SET state = $2 WHERE id = $1;
 
 -- name: PurgeAuditEntries :execrows
 DELETE FROM admin.audit_log WHERE created_at < $1;
@@ -59,6 +65,11 @@ if grep -qE '^bad.sql: PurgeAuditEntries:' <<<"$out"; then
   echo "sqlc self-test FAILED: the retention purge was flagged" >&2
   fail=1
 fi
+if grep -qE '^bad.sql: ResolveAuditEntry:' <<<"$out"; then
+  echo "sqlc self-test FAILED: the pending-row resolution was flagged" >&2
+  fail=1
+fi
+expect 'ResolveAnything' 'an UPDATE of admin.audit_log that is not the guarded pending-row resolution'
 if [ "$fail" -ne 0 ]; then
   echo "----- sqlc vet output -----" >&2
   echo "$out" >&2

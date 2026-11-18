@@ -58,7 +58,20 @@ type Broadcaster interface {
 	CountActiveDevices(ctx context.Context) (int64, error)
 }
 
+// Operator is the network-safe part of the operator surface: plain values, no
+// transaction, safe to repeat. The admin module uses it (through the
+// NotificationsOperatorService RPCs) when notifications is not hosted in its
+// process; it replaces Broadcaster.BroadcastTx across a process boundary.
+type Operator interface {
+	// BroadcastIdempotent sends a SYSTEM notification (userID nil = every known
+	// user) and returns the recipient count. A repeated call with the same key and
+	// message returns the first count and sends nothing more.
+	BroadcastIdempotent(ctx context.Context, idempotencyKey string, userID *ids.ID, b Broadcast) (recipients int64, err error)
+	CountActiveDevices(ctx context.Context) (int64, error)
+}
+
 var (
 	_ Service     = (*application.Service)(nil)
 	_ Broadcaster = (*application.Service)(nil)
+	_ Operator    = (*application.Service)(nil)
 )

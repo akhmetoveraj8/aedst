@@ -6,12 +6,19 @@ package admindb
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
+	GetAuditEntry(ctx context.Context, id pgtype.UUID) (AdminAuditLog, error)
 	InsertAuditEntry(ctx context.Context, arg InsertAuditEntryParams) error
-	ListAuditEntries(ctx context.Context, arg ListAuditEntriesParams) ([]AdminAuditLog, error)
+	// Audit-first: the entry exists before its effect. Resolved once by ResolveAuditEntry.
+	InsertPendingAuditEntry(ctx context.Context, arg InsertPendingAuditEntryParams) error
+	ListAuditEntries(ctx context.Context, arg ListAuditEntriesParams) ([]ListAuditEntriesRow, error)
 	PurgeAuditEntries(ctx context.Context, arg PurgeAuditEntriesParams) (int64, error)
+	// Only a pending row resolves, once: zero rows means it was already resolved.
+	ResolveAuditEntry(ctx context.Context, arg ResolveAuditEntryParams) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -60,6 +60,9 @@ type Config struct {
 	Tasks     TasksConfig
 	Integrity IntegrityConfig
 	AppAttest AppAttestConfig
+	// Topology selects the units this process hosts and the URLs of the others
+	// (AEDST_MODULES, AEDST_MODULE_<NAME>_URL); the default is the whole monolith.
+	Topology TopologyConfig
 }
 
 type HTTPConfig struct {
@@ -265,6 +268,7 @@ func Load() (Config, error) {
 		cfg.Jobs.Queues = nil
 	}
 	cfg.DB.Modules = moduleDatabases(os.Environ())
+	cfg.Topology.Remote = remoteUnits(os.Environ())
 	cfg.Client = cfg.Client.normalized()
 	if err := cfg.Validate(); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
@@ -284,6 +288,9 @@ func (c Config) Validate() error {
 		bad("AEDST_ENV %q must be one of development, test, staging, production", c.Env)
 	}
 
+	if err := c.Topology.Validate(); err != nil {
+		errs = append(errs, err)
+	}
 	if c.DB.MinConns > c.DB.MaxConns {
 		bad("AEDST_DATABASE_MIN_CONNS (%d) must not exceed AEDST_DATABASE_MAX_CONNS (%d)", c.DB.MinConns, c.DB.MaxConns)
 	}

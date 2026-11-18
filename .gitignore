@@ -52,14 +52,14 @@ apps/web/**/next-env.d.ts
 apps/web/**/test-results/
 apps/web/**/playwright-report/
 
-# --- docs (Next.js / Nextra) ---
+# --- docs (Next.js / Fumadocs) ---
 docs/node_modules/
 scripts/node_modules/
 docs/.next/
 docs/out/
 docs/build/
 docs/next-env.d.ts
-docs/public/_pagefind/
+docs/.source/
 
 # --- apps/android (Gradle) --- see apps/android/.gitignore for the full list
 apps/android/**/build/

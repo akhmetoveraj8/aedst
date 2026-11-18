@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	sharederrors "github.com/aedst/server/internal/shared/errors"
 	"github.com/aedst/server/internal/shared/ids"
 	"github.com/aedst/server/internal/shared/pagination"
 )
@@ -37,6 +38,10 @@ type AdminRepository interface {
 	// AdminDeleteTx deletes inside the caller's transaction, publishing
 	// TaskDeleted in it, and returns the owner.
 	AdminDeleteTx(ctx context.Context, tx pgx.Tx, id ids.ID) (ids.ID, error)
+	// AdminDeleteIdempotent is AdminDeleteTx in its own transaction, replay-safe on
+	// key (scope "tasks.operator"): a retry with the same key and task returns the
+	// first result, the same key for another task is a Conflict.
+	AdminDeleteIdempotent(ctx context.Context, key string, id ids.ID) (ids.ID, error)
 	AdminStats(ctx context.Context) (AdminStats, error)
 	CountByOwners(ctx context.Context, owners []ids.ID) (map[ids.ID]int64, error)
 }
@@ -61,6 +66,15 @@ func (s *AdminService) ListAllTasks(ctx context.Context, ownerID *ids.ID, search
 
 func (s *AdminService) DeleteTaskTx(ctx context.Context, tx pgx.Tx, id ids.ID) (ids.ID, error) {
 	return s.repo.AdminDeleteTx(ctx, tx, id)
+}
+
+// DeleteTask deletes any owner's task in its own transaction, safely repeatable
+// on key. It is the network-safe counterpart of DeleteTaskTx (api.OperatorService).
+func (s *AdminService) DeleteTask(ctx context.Context, key string, id ids.ID) (ids.ID, error) {
+	if key == "" {
+		return ids.Nil, sharederrors.Validation("tasks.OperatorDelete", "an idempotency key is required")
+	}
+	return s.repo.AdminDeleteIdempotent(ctx, key, id)
 }
 
 func (s *AdminService) Stats(ctx context.Context) (AdminStats, error) { return s.repo.AdminStats(ctx) }

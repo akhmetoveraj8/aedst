@@ -108,6 +108,7 @@ func AuthInterceptor(verifier platformauth.Verifier, publicProcedures map[string
 				Subject:   claims.Subject,
 			})
 			ctx = observability.WithUserID(ctx, claims.UserID.String())
+			ctx = platformauth.WithBearer(ctx, raw)
 
 			return next(ctx, spec, stream)
 		}

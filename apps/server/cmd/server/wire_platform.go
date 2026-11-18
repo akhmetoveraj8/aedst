@@ -32,8 +32,10 @@ type app struct {
 	clock   sharedtime.Real
 	closers []func()
 
-	env  *modulekit.Env
-	mods []modulekit.Module // registered modules, dependencies first
+	env    *modulekit.Env
+	mods   []modulekit.Module // units hosted by this process, dependencies first
+	remote []modulekit.Module // units this process reaches over the network (AEDST_MODULE_<NAME>_URL)
+	plan   modulekit.Plan     // the whole topology: its Others feed the event catalog
 
 	valkeyPing func(context.Context) error
 	verifier   *platformauth.OIDCVerifier

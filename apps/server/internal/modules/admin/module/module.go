@@ -6,8 +6,10 @@ package module
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/riverqueue/river"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	adminv1 "github.com/aedst/server/gen/go/aedst/admin/v1"
@@ -15,6 +17,8 @@ import (
 	adminapi "github.com/aedst/server/internal/modules/admin/api"
 	"github.com/aedst/server/internal/modules/admin/application"
 	"github.com/aedst/server/internal/modules/admin/infrastructure/postgres"
+	"github.com/aedst/server/internal/modules/admin/infrastructure/remote"
+	adminjobs "github.com/aedst/server/internal/modules/admin/jobs"
 	"github.com/aedst/server/internal/modules/admin/transport"
 	mediaapi "github.com/aedst/server/internal/modules/media/api"
 	notificationsapi "github.com/aedst/server/internal/modules/notifications/api"
@@ -60,28 +64,59 @@ func (m *adminModule) repo(env *modulekit.Env) *postgres.Repository {
 	return m.r
 }
 
+// setup picks, per module it composes, between the two ways of reaching it:
+//
+//   - hosted in this process (modulekit.Lookup finds its api): the in-process
+//     transactional path, unchanged: the module's *Tx method runs in the audit
+//     entry's own transaction;
+//   - hosted elsewhere (AEDST_MODULE_<NAME>_URL): the module's operator client, and
+//     the audit-first path (pending entry + admin.apply job) for mutations.
+//
+// Media is optional either way: without it the overview omits media.
 func (m *adminModule) setup(_ context.Context, env *modulekit.Env) error {
-	tasks, err := modulekit.Require[tasksapi.AdminService](env)
-	if err != nil {
-		return err
-	}
-	notifications, err := modulekit.Require[notificationsapi.Broadcaster](env)
-	if err != nil {
-		return err
-	}
-	media, err := modulekit.Require[mediaapi.Stats](env)
-	if err != nil {
-		return err
-	}
 	repo := m.repo(env)
+	repo.UseJobs(env.Jobs)
+	token := serviceToken(env)
+
+	var tasksOps tasksapi.OperatorService
+	tasks, ok := modulekit.Lookup[tasksapi.AdminService](env)
+	if !ok {
+		url := env.Config.Topology.Remote["tasks"]
+		if url == "" {
+			return errors.New("admin: tasks is neither hosted here nor reachable (set AEDST_MODULE_TASKS_URL)")
+		}
+		rt := remote.NewTasks(modulekit.RemoteTarget{Name: "tasks", BaseURL: url}, token)
+		tasks, tasksOps = rt, rt
+	}
+	var notificationsOps notificationsapi.Operator
+	notifications, ok := modulekit.Lookup[notificationsapi.Broadcaster](env)
+	if !ok {
+		url := env.Config.Topology.Remote["notifications"]
+		if url == "" {
+			return errors.New("admin: notifications is neither hosted here nor reachable (set AEDST_MODULE_NOTIFICATIONS_URL)")
+		}
+		rn := remote.NewNotifications(modulekit.RemoteTarget{Name: "notifications", BaseURL: url}, token)
+		notifications, notificationsOps = rn, rn
+	}
+	media, _ := modulekit.Lookup[mediaapi.Stats](env)
+
+	// Every process registers every worker (River validates job kinds on insert).
+	// It runs on the jobs pool, like every background worker.
+	jobsRepo := postgres.NewRepository(env.JobsPool, env.JobStats, env.Clock)
+	applier := application.NewApplier(jobsRepo, tasksOps, notificationsOps, env.Clock)
+	river.AddWorker(env.Workers, adminjobs.NewApplyWorker(applier))
+
 	m.svc = application.NewService(application.Deps{
-		Tasks:         tasks,
-		Notifications: notifications,
-		Media:         media,
-		Platform:      repo,
-		Audit:         repo,
-		Tx:            repo,
-		Clock:         env.Clock,
+		Tasks:            tasks,
+		Notifications:    notifications,
+		TasksOps:         tasksOps,
+		NotificationsOps: notificationsOps,
+		Queue:            repo,
+		Media:            media,
+		Platform:         repo,
+		Audit:            repo,
+		Tx:               repo,
+		Clock:            env.Clock,
 	})
 	return nil
 }

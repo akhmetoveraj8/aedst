@@ -19,6 +19,11 @@
 // at-least-once, every handler must be idempotent (key the effect on
 // Event.ID, or make it a version-guarded upsert).
 //
+// Each consumer's deliveries run on the queue of the unit that hosts it
+// ("events_<unit>", QueueFor), and a process that hosts only some units learns
+// the others' consumers from the static catalog (Registry.SubscribeRemote), so a
+// producer never drops an event because its consumer lives elsewhere.
+//
 // Publisher (the interface) is the seam for a real broker: the day a consumer becomes its own
 // service, a bridge consumer delivered by River forwards the event to a JetStream (or
 // Kafka) subject; the event stays a river_job committed in the producer's transaction,
@@ -33,7 +38,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 
@@ -79,7 +86,9 @@ type Registry struct {
 type consumer struct {
 	name      string
 	eventType string
-	handle    Handler
+	// handle is nil for a remote consumer: a unit hosted by another process that
+	// is only in the catalog so this process's producers still insert its delivery.
+	handle Handler
 }
 
 // NewRegistry returns an empty Registry.
@@ -105,6 +114,25 @@ func (r *Registry) Subscribe(eventType, name string, handler Handler) {
 	r.byType[eventType] = append(r.byType[eventType], name)
 }
 
+// SubscribeRemote adds a consumer hosted by another process to the catalog: a
+// producer in this process then inserts its delivery job (onto that consumer
+// unit's own queue, see QueueFor) although no handler runs here. Without it a
+// process that hosts only some units (AEDST_MODULES) would silently drop the
+// events its neighbours consume. It panics on a duplicate name, like Subscribe: a
+// unit is either hosted here or remote, never both.
+func (r *Registry) SubscribeRemote(eventType, name string) {
+	if eventType == "" || name == "" {
+		panic("events: SubscribeRemote needs an event type and a consumer name")
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if _, dup := r.consumers[name]; dup {
+		panic(fmt.Sprintf("events: duplicate consumer %q", name))
+	}
+	r.consumers[name] = consumer{name: name, eventType: eventType}
+	r.byType[eventType] = append(r.byType[eventType], name)
+}
+
 // Consumers returns the consumer names subscribed to eventType.
 func (r *Registry) Consumers(eventType string) []string {
 	r.mu.RLock()
@@ -121,6 +149,70 @@ func (r *Registry) lookup(name string) (consumer, bool) {
 
 // DeliveryKind is the River job kind of an event delivery.
 const DeliveryKind = "platform.event_delivery"
+
+// QueuePrefix starts the name of every event queue.
+const QueuePrefix = "events_"
+
+// QueueFor is the River queue that carries deliveries to consumer. Each unit has
+// its own queue, "events_<unit>", so a process works only the deliveries of the
+// units it hosts: a consumer-only worker (AEDST_MODULES=notifications) takes
+// events_notifications and never a delivery it has no handler for. The unit is
+// the part of the consumer name before the first ".", with a feature's "/"
+// written "_" (consumer "notifications.task_completed" -> "events_notifications",
+// "social_like.counted" -> "events_social_like"). River queue names allow letters,
+// digits, "_" and "-" only, hence "_" and not ".".
+func QueueFor(consumer string) string {
+	unit, _, _ := strings.Cut(consumer, ".")
+	return QueuePrefix + unit
+}
+
+// QueueOfUnit is the event queue of unit ("social/like" -> "events_social_like").
+func QueueOfUnit(unit string) string {
+	return QueuePrefix + strings.ReplaceAll(unit, "/", "_")
+}
+
+// IsQueue reports whether name is the name of an event queue.
+func IsQueue(name string) bool {
+	rest, ok := strings.CutPrefix(name, QueuePrefix)
+	if !ok || rest == "" || len(name) > 64 {
+		return false
+	}
+	for seg := range strings.SplitSeq(rest, "_") {
+		if seg == "" {
+			return false
+		}
+		for _, r := range seg {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// WorkedQueues is the queue set a process works: the configured queues plus, when
+// it works the "default" queue (where deliveries used to run, so an operator who
+// runs "default" still gets every delivery of the units it hosts), the event
+// queue of each hosted unit that has consumers, with perQueue workers each. An
+// explicitly configured queue is never overridden; an empty configuration stays
+// empty (an insert-only process works nothing). hosted lists unit names that
+// subscribe to events.
+func WorkedQueues(configured map[string]int, hosted []string, perQueue int) map[string]int {
+	if len(configured) == 0 {
+		return configured
+	}
+	out := make(map[string]int, len(configured)+len(hosted))
+	maps.Copy(out, configured)
+	if _, ok := configured[river.QueueDefault]; !ok {
+		return out
+	}
+	for _, unit := range hosted {
+		if _, set := out[QueueOfUnit(unit)]; !set {
+			out[QueueOfUnit(unit)] = perQueue
+		}
+	}
+	return out
+}
 
 // maxAttempts mirrors the old outbox relay: 10 attempts with River's default
 // backoff (attempt^4 seconds, ~ 2.5 h in total) before the job is discarded.
@@ -145,9 +237,11 @@ type DeliveryArgs struct {
 // Kind implements river.JobArgs.
 func (DeliveryArgs) Kind() string { return DeliveryKind }
 
-// InsertOpts implements river.JobArgsWithInsertOpts.
-func (DeliveryArgs) InsertOpts() river.InsertOpts {
+// InsertOpts implements river.JobArgsWithInsertOpts. The delivery goes to the
+// consumer unit's own queue (QueueFor).
+func (a DeliveryArgs) InsertOpts() river.InsertOpts {
 	return river.InsertOpts{
+		Queue:       QueueFor(a.Consumer),
 		MaxAttempts: maxAttempts,
 		UniqueOpts:  river.UniqueOpts{ByArgs: true},
 	}
@@ -247,6 +341,10 @@ func (r *Registry) Dispatch(ctx context.Context, e Event) error {
 	for _, name := range r.Consumers(e.Type) {
 		c, ok := r.lookup(name)
 		if !ok {
+			continue
+		}
+		if c.handle == nil {
+			errs = append(errs, fmt.Errorf("consumer %s: hosted by another process, not dispatchable here", name))
 			continue
 		}
 		if err := c.handle(ctx, e); err != nil {

@@ -67,6 +67,27 @@ type Module struct {
 	Setup func(ctx context.Context, env *Env) error
 	// Mount mounts the module's Connect services with Mount (never directly).
 	Mount func(env *Env, m *Mounter) error
+	// Remote binds the api/ interfaces this unit provides to Connect clients of
+	// its network address, for a process that does not host it (see Select). It
+	// runs instead of Setup, before any Setup, and calls Provide with the same
+	// interface types Setup would. Only a unit whose api/ is network-safe declares
+	// one (architecturetest checks the interfaces it provides).
+	Remote func(env *Env, target RemoteTarget) error
+	// Consumes statically declares every integration event this unit subscribes
+	// to (the same set its infrastructure/events passes to Registry.Subscribe;
+	// architecturetest compares the two). A process that does not host the unit
+	// registers them as remote consumers, so its producers still insert the
+	// deliveries the unit's own process works from its queue.
+	Consumes []Consume
+}
+
+// Consume is one event subscription of a unit.
+type Consume struct {
+	// EventType is the event's type, e.g. tasksapi.TaskCompletedEventType.
+	EventType string
+	// Consumer is the stable consumer name "<unit>.<name>" (a feature's "/" is
+	// written "_"); it is stored in job args and must never be renamed.
+	Consumer string
 }
 
 var (
@@ -106,10 +127,12 @@ func Names() []string {
 func Ordered() ([]Module, error) {
 	mu.Lock()
 	defer mu.Unlock()
-	return order(registry)
+	return order(registry, nil)
 }
 
-func order(mods map[string]Module) ([]Module, error) {
+// order sorts mods after the units they require. external are units that are
+// not in mods but are reachable (remote): a requirement on one is satisfied.
+func order(mods, external map[string]Module) ([]Module, error) {
 	names := make([]string, 0, len(mods))
 	for n := range mods {
 		names = append(names, n)
@@ -117,6 +140,9 @@ func order(mods map[string]Module) ([]Module, error) {
 	sort.Strings(names)
 	for _, n := range names {
 		for _, req := range mods[n].Requires {
+			if _, ok := external[req]; ok {
+				continue
+			}
 			if _, ok := mods[req]; !ok {
 				return nil, fmt.Errorf("modulekit: module %q requires %q, which is not registered (is its module package imported in cmd/server/modules.go?)", n, req)
 			}
@@ -127,7 +153,10 @@ func order(mods map[string]Module) ([]Module, error) {
 	for len(out) < len(names) {
 		progressed := false
 		for _, n := range names {
-			if done[n] || slices.ContainsFunc(mods[n].Requires, func(r string) bool { return !done[r] }) {
+			if done[n] || slices.ContainsFunc(mods[n].Requires, func(r string) bool {
+				_, remote := external[r]
+				return !done[r] && !remote
+			}) {
 				continue
 			}
 			done[n] = true

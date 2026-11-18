@@ -20,7 +20,7 @@ func TestOrder_DependenciesFirstThenByName(t *testing.T) {
 		"tasks":         {Name: "tasks"},
 		"auth":          {Name: "auth"},
 		"notifications": {Name: "notifications"},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +31,7 @@ func TestOrder_DependenciesFirstThenByName(t *testing.T) {
 }
 
 func TestOrder_UnknownRequirement(t *testing.T) {
-	_, err := order(map[string]Module{"media": {Name: "media", Requires: []string{"tasks"}}})
+	_, err := order(map[string]Module{"media": {Name: "media", Requires: []string{"tasks"}}}, nil)
 	if err == nil || !strings.Contains(err.Error(), `requires "tasks"`) {
 		t.Fatalf("err = %v, want a missing-requirement error", err)
 	}
@@ -41,7 +41,7 @@ func TestOrder_Cycle(t *testing.T) {
 	_, err := order(map[string]Module{
 		"a": {Name: "a", Requires: []string{"b"}},
 		"b": {Name: "b", Requires: []string{"a"}},
-	})
+	}, nil)
 	if err == nil || !strings.Contains(err.Error(), "cycle") {
 		t.Fatalf("err = %v, want a cycle error", err)
 	}

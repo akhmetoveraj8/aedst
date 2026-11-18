@@ -29,21 +29,31 @@ const requestBytes = 64 << 10
 func init() {
 	m := &tasksModule{}
 	modulekit.Register(modulekit.Module{
-		Name:  "tasks",
-		Files: []protoreflect.FileDescriptor{tasksv1.File_aedst_tasks_v1_tasks_proto},
-		Setup: m.setup,
-		Mount: m.mount,
+		Name:   "tasks",
+		Files:  []protoreflect.FileDescriptor{tasksv1.File_aedst_tasks_v1_tasks_proto, tasksv1.File_aedst_tasks_v1_tasks_operator_proto},
+		Roles:  operatorRoles(),
+		Setup:  m.setup,
+		Mount:  m.mount,
+		Remote: remote,
 	})
 }
 
-type tasksModule struct{ svc tasksapi.Service }
+type tasksModule struct {
+	svc   tasksapi.Service
+	admin tasksapi.AdminService
+	ops   tasksapi.OperatorService
+}
 
 func (m *tasksModule) setup(_ context.Context, env *modulekit.Env) error {
 	repo := postgres.NewRepository(env.Pool, env.Publisher, env.Clock,
 		postgres.WithReminders(jobsinfra.NewScheduler(env.Jobs, time.Duration(env.Config.Tasks.DueSoonLeadMinutes)*time.Minute)))
 	m.svc = application.NewService(repo, env.Clock)
 	modulekit.Provide[tasksapi.Service](env, m.svc)
-	modulekit.Provide[tasksapi.AdminService](env, application.NewAdminService(repo))
+	modulekit.Provide[tasksapi.Ownership](env, tasksapi.NewOwnership(m.svc))
+	adminSvc := application.NewAdminService(repo)
+	m.admin, m.ops = adminSvc, adminSvc
+	modulekit.Provide[tasksapi.AdminService](env, adminSvc)
+	modulekit.Provide[tasksapi.OperatorService](env, adminSvc)
 	// The reminder worker runs on the jobs pool and publishes TaskDueSoon
 	// through the same publisher.
 	river.AddWorker(env.Workers, jobs.NewDueReminderWorker(
@@ -53,5 +63,6 @@ func (m *tasksModule) setup(_ context.Context, env *modulekit.Env) error {
 
 func (m *tasksModule) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
 	modulekit.Mount(mt, tasksv1connect.RegisterTasksServiceHandler, tasksv1connect.TasksServiceHandler(transport.NewHandler(m.svc)), requestBytes)
+	modulekit.Mount(mt, tasksv1connect.RegisterTasksOperatorServiceHandler, tasksv1connect.TasksOperatorServiceHandler(transport.NewOperatorHandler(m.admin, m.ops)), requestBytes)
 	return nil
 }

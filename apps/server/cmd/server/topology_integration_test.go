@@ -50,6 +50,11 @@ func TestTopology_APIInsertsAndAnotherProcessDelivers(t *testing.T) {
 			if n := count(deliveries + " AND state = 'available'"); n != 1 {
 				t.Fatalf("available delivery jobs = %d right after CompleteTask, want 1 (committed with the state change)", n)
 			}
+			// Each consumer unit has its own queue, so a worker hosting only that unit
+			// can take exactly its deliveries (platform/events.QueueFor).
+			if n := count(deliveries + " AND queue = 'events_notifications'"); n != 1 {
+				t.Fatalf("deliveries on events_notifications = %d, want 1 (a delivery goes to its consumer unit's queue)", n)
+			}
 			time.Sleep(3 * time.Second) // an API that worked queues would have delivered by now
 			if n := count("SELECT count(*) FROM notifications.notifications"); n != 0 {
 				t.Fatalf("notifications = %d before any worker runs: the insert-only API delivered events itself", n)

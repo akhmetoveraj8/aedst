@@ -207,6 +207,53 @@ func (r *Repository) AdminDeleteTx(ctx context.Context, tx pgx.Tx, id ids.ID) (i
 	return owner, r.writeDeleted(ctx, tx, id, owner, int(row.Version))
 }
 
+// operatorScope namespaces operator idempotency keys apart from the per-user
+// keys of idempotencyScope.
+const operatorScope = "tasks.operator"
+
+// AdminDeleteIdempotent is AdminDeleteTx in a transaction of its own, replay-safe
+// on key: the key check, the delete, the TaskDeleted event and the saved result
+// commit together, so a retry after a lost response neither fails with NotFound
+// nor publishes a second event.
+func (r *Repository) AdminDeleteIdempotent(ctx context.Context, key string, id ids.ID) (ids.ID, error) {
+	payload, err := json.Marshal(struct {
+		TaskID string `json:"task_id"`
+	}{id.String()})
+	if err != nil {
+		return ids.Nil, sharederrors.Wrap("tasks.OperatorDelete", err)
+	}
+	var owner ids.ID
+	err = database.WithTx(ctx, r.pool, func(ctx context.Context, tx pgx.Tx) error {
+		if cached, replay, err := idempotency.Check(ctx, tx, r.idempotency, operatorScope, key, payload); err != nil {
+			return err
+		} else if replay {
+			var res struct {
+				OwnerID string `json:"owner_id"`
+			}
+			if err := json.Unmarshal(cached, &res); err != nil {
+				return err
+			}
+			owner, err = ids.Parse(res.OwnerID)
+			return err
+		}
+		var err error
+		if owner, err = r.AdminDeleteTx(ctx, tx, id); err != nil {
+			return err
+		}
+		result, err := json.Marshal(struct {
+			OwnerID string `json:"owner_id"`
+		}{owner.String()})
+		if err != nil {
+			return err
+		}
+		return idempotency.Save(ctx, tx, r.idempotency, operatorScope, key, payload, result)
+	})
+	if err != nil {
+		return ids.Nil, err
+	}
+	return owner, nil
+}
+
 func (r *Repository) AdminStats(ctx context.Context) (application.AdminStats, error) {
 	row, err := tasksdb.New(r.pool).AdminTaskStats(ctx, adminStatsRowCap)
 	if err != nil {

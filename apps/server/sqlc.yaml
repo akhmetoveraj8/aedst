@@ -13,8 +13,8 @@ rules:
     message: "UPDATE without WHERE rewrites every row"
     rule: query.sql.startsWith("UPDATE") && !query.sql.contains("WHERE")
   - name: audit-log-is-append-only
-    message: "admin.audit_log is append-only: no UPDATE or TRUNCATE, and DELETE only in PurgeAuditEntries (retention)"
-    rule: query.sql.contains("admin.audit_log") && (query.sql.startsWith("UPDATE") || query.sql.contains("TRUNCATE") || (query.sql.contains("DELETE FROM") && query.name != "PurgeAuditEntries"))
+    message: "admin.audit_log is append-only: no UPDATE or TRUNCATE (except ResolveAuditEntry, which only resolves a pending row), and DELETE only in PurgeAuditEntries (retention)"
+    rule: query.sql.contains("admin.audit_log") && ((query.sql.startsWith("UPDATE") && !(query.name == "ResolveAuditEntry" && query.sql.contains("state = 'pending'"))) || query.sql.contains("TRUNCATE") || (query.sql.contains("DELETE FROM") && query.name != "PurgeAuditEntries"))
   - name: verified-tokens-are-insert-only
     message: "integrity.verified_tokens is replay evidence: insert and retention purge only, never UPDATE"
     rule: query.sql.contains("integrity.verified_tokens") && query.sql.startsWith("UPDATE")

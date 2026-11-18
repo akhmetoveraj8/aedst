@@ -11,6 +11,34 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getAuditEntry = `-- name: GetAuditEntry :one
+SELECT id, actor_id, actor_subject, actor_issuer, action, target_kind, target_id, reason, metadata, created_at, state, failure, result, resolved_at
+FROM admin.audit_log
+WHERE id = $1
+`
+
+func (q *Queries) GetAuditEntry(ctx context.Context, id pgtype.UUID) (AdminAuditLog, error) {
+	row := q.db.QueryRow(ctx, getAuditEntry, id)
+	var i AdminAuditLog
+	err := row.Scan(
+		&i.ID,
+		&i.ActorID,
+		&i.ActorSubject,
+		&i.ActorIssuer,
+		&i.Action,
+		&i.TargetKind,
+		&i.TargetID,
+		&i.Reason,
+		&i.Metadata,
+		&i.CreatedAt,
+		&i.State,
+		&i.Failure,
+		&i.Result,
+		&i.ResolvedAt,
+	)
+	return i, err
+}
+
 const insertAuditEntry = `-- name: InsertAuditEntry :exec
 INSERT INTO admin.audit_log (id, actor_id, actor_subject, actor_issuer, action, target_kind, target_id, reason, metadata, created_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -45,8 +73,43 @@ func (q *Queries) InsertAuditEntry(ctx context.Context, arg InsertAuditEntryPara
 	return err
 }
 
+const insertPendingAuditEntry = `-- name: InsertPendingAuditEntry :exec
+INSERT INTO admin.audit_log (id, actor_id, actor_subject, actor_issuer, action, target_kind, target_id, reason, metadata, created_at, state)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending')
+`
+
+type InsertPendingAuditEntryParams struct {
+	ID           pgtype.UUID        `json:"id"`
+	ActorID      pgtype.UUID        `json:"actor_id"`
+	ActorSubject string             `json:"actor_subject"`
+	ActorIssuer  string             `json:"actor_issuer"`
+	Action       string             `json:"action"`
+	TargetKind   string             `json:"target_kind"`
+	TargetID     string             `json:"target_id"`
+	Reason       string             `json:"reason"`
+	Metadata     []byte             `json:"metadata"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+}
+
+// Audit-first: the entry exists before its effect. Resolved once by ResolveAuditEntry.
+func (q *Queries) InsertPendingAuditEntry(ctx context.Context, arg InsertPendingAuditEntryParams) error {
+	_, err := q.db.Exec(ctx, insertPendingAuditEntry,
+		arg.ID,
+		arg.ActorID,
+		arg.ActorSubject,
+		arg.ActorIssuer,
+		arg.Action,
+		arg.TargetKind,
+		arg.TargetID,
+		arg.Reason,
+		arg.Metadata,
+		arg.CreatedAt,
+	)
+	return err
+}
+
 const listAuditEntries = `-- name: ListAuditEntries :many
-SELECT id, actor_id, actor_subject, actor_issuer, action, target_kind, target_id, reason, metadata, created_at
+SELECT id, actor_id, actor_subject, actor_issuer, action, target_kind, target_id, reason, metadata, created_at, state, failure
 FROM admin.audit_log
 WHERE (created_at, id) < ($1::timestamptz, $2::uuid)
 ORDER BY created_at DESC, id DESC
@@ -59,15 +122,30 @@ type ListAuditEntriesParams struct {
 	PageLimit int32              `json:"page_limit"`
 }
 
-func (q *Queries) ListAuditEntries(ctx context.Context, arg ListAuditEntriesParams) ([]AdminAuditLog, error) {
+type ListAuditEntriesRow struct {
+	ID           pgtype.UUID        `json:"id"`
+	ActorID      pgtype.UUID        `json:"actor_id"`
+	ActorSubject string             `json:"actor_subject"`
+	ActorIssuer  string             `json:"actor_issuer"`
+	Action       string             `json:"action"`
+	TargetKind   string             `json:"target_kind"`
+	TargetID     string             `json:"target_id"`
+	Reason       string             `json:"reason"`
+	Metadata     []byte             `json:"metadata"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	State        string             `json:"state"`
+	Failure      string             `json:"failure"`
+}
+
+func (q *Queries) ListAuditEntries(ctx context.Context, arg ListAuditEntriesParams) ([]ListAuditEntriesRow, error) {
 	rows, err := q.db.Query(ctx, listAuditEntries, arg.CursorKey, arg.CursorID, arg.PageLimit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []AdminAuditLog
+	var items []ListAuditEntriesRow
 	for rows.Next() {
-		var i AdminAuditLog
+		var i ListAuditEntriesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ActorID,
@@ -79,6 +157,8 @@ func (q *Queries) ListAuditEntries(ctx context.Context, arg ListAuditEntriesPara
 			&i.Reason,
 			&i.Metadata,
 			&i.CreatedAt,
+			&i.State,
+			&i.Failure,
 		); err != nil {
 			return nil, err
 		}
@@ -106,6 +186,35 @@ type PurgeAuditEntriesParams struct {
 
 func (q *Queries) PurgeAuditEntries(ctx context.Context, arg PurgeAuditEntriesParams) (int64, error) {
 	result, err := q.db.Exec(ctx, purgeAuditEntries, arg.Cutoff, arg.RowLimit)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const resolveAuditEntry = `-- name: ResolveAuditEntry :execrows
+UPDATE admin.audit_log
+SET state = $1::text, failure = $2::text, result = $3::jsonb, resolved_at = $4::timestamptz
+WHERE id = $5::uuid AND state = 'pending'
+`
+
+type ResolveAuditEntryParams struct {
+	State      string             `json:"state"`
+	Failure    string             `json:"failure"`
+	Result     []byte             `json:"result"`
+	ResolvedAt pgtype.Timestamptz `json:"resolved_at"`
+	ID         pgtype.UUID        `json:"id"`
+}
+
+// Only a pending row resolves, once: zero rows means it was already resolved.
+func (q *Queries) ResolveAuditEntry(ctx context.Context, arg ResolveAuditEntryParams) (int64, error) {
+	result, err := q.db.Exec(ctx, resolveAuditEntry,
+		arg.State,
+		arg.Failure,
+		arg.Result,
+		arg.ResolvedAt,
+		arg.ID,
+	)
 	if err != nil {
 		return 0, err
 	}

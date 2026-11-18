@@ -407,8 +407,21 @@ imgproxy:
 # Known queues: default (light jobs, event deliveries) and media (image/ffmpeg).
 # Empty = insert-only. The API Deployment uses this value; worker Deployments
 # (`workers` below) set their own.
+# Event deliveries run on one queue per hosted unit (events_<unit>), worked whenever
+# `default` is worked; eventWorkers (AEDST_JOBS_EVENT_WORKERS) is the concurrency of each.
+# A queue list may also name events_<unit>=n to run exactly those units' deliveries.
 jobs:
   queues: "default=50,media=2"
+  eventWorkers: 10
+
+# Which units this release hosts (AEDST_MODULES) and where the others live
+# (AEDST_MODULE_<NAME>_URL). Empty `enabled` = the whole monolith. `remote` maps a
+# unit name to its base URL, e.g. {tasks: "http://tasks.internal:8080"}; a feature
+# name uses "/" ("social/like"), written "__" in the variable. Worker Deployments
+# may set their own `modules`.
+modules:
+  enabled: ""
+  remote: {}
 
 # Extra volumes (e.g. a Secret with push/integrity credential files, TLS files).
 extraVolumes: []

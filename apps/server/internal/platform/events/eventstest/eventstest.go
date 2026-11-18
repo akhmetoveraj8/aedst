@@ -35,11 +35,24 @@ func New(t testing.TB, pool *pgxpool.Pool, extra ...func(*river.Workers)) *Runti
 	return build(t, pool, nil, extra...)
 }
 
-// Start is New with a client that works the default queue: consumers run, and
-// the client is stopped when the test ends.
+// Start is New with a client that works the default queue and the event queues
+// of the units tests name consumers after ("test.*", "notifications.*",
+// "search.*", see events.QueueFor): consumers run, and the client is stopped when
+// the test ends. A test with consumers of another unit uses StartOn.
 func Start(t testing.TB, pool *pgxpool.Pool, extra ...func(*river.Workers)) *Runtime {
 	t.Helper()
-	rt := build(t, pool, map[string]int{river.QueueDefault: 5}, extra...)
+	return StartOn(t, pool, map[string]int{
+		river.QueueDefault:                  5,
+		events.QueueOfUnit("test"):          5,
+		events.QueueOfUnit("notifications"): 5,
+		events.QueueOfUnit("search"):        5,
+	}, extra...)
+}
+
+// StartOn is Start with an explicit set of queues to work.
+func StartOn(t testing.TB, pool *pgxpool.Pool, queues map[string]int, extra ...func(*river.Workers)) *Runtime {
+	t.Helper()
+	rt := build(t, pool, queues, extra...)
 	if err := platformjobs.Start(context.Background(), rt.Client); err != nil {
 		t.Fatalf("eventstest: start river: %v", err)
 	}
