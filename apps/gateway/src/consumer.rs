@@ -1,7 +1,7 @@
 //! The JetStream side: an ephemeral pull consumer per gateway replica (every replica sees every
 //! event and delivers to its own sockets), acknowledging each message after it was handed to the hub.
 //!
-//! Delivery to clients is a nudge, not the source of truth (ADR-0020): events for users with no
+//! Delivery to clients is a nudge, not the source of truth (ADR-0021): events for users with no
 //! socket here are acknowledged and dropped, and the consumer starts at "new" so a restart does not
 //! replay history to anyone.
 

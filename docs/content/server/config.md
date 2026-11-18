@@ -132,6 +132,7 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | Variable | Type | Default | Description |
 |---|---|---|---|
 | `AEDST_JOBS_QUEUES` | map | `default=50,media=2` | Queues maps queue -> max concurrent workers, e.g. "default=50,media=2". A dedicated media worker deployment runs "media=4" and API replicas "default=50"; an empty value makes the process insert-only. |
+| `AEDST_JOBS_EVENT_WORKERS` | int | `10` | EventWorkers is the max concurrent deliveries per event queue ("events_<unit>"): a process that works "default" also works the event queue of every unit it hosts that subscribes to events, with this many workers each. An explicit events_<unit>=n in AEDST_JOBS_QUEUES wins. 0 = the default. |
 | `AEDST_JOBS_POLL_ONLY` | bool | `false` | PollOnly runs River without LISTEN/NOTIFY (river.Config.PollOnly): jobs are picked up by polling (slightly higher latency, more idle queries). Required for the jobs pool to sit behind a transaction pooler when no AEDST_DATABASE_DIRECT_DSN is available. Prefer the direct DSN. |
 | `AEDST_JOBS_COMPLETED_RETENTION_HOURS` | int | `24` | Completed/Cancelled/DiscardedRetentionHours are how long River keeps finished jobs (River's cleaner deletes them afterwards). Event deliveries are River jobs, so this is the retention of the event log: completed ones are only kept for dedupe/inspection, discarded ones are the dead-letter list and live longest. |
 | `AEDST_JOBS_CANCELLED_RETENTION_HOURS` | int | `24` |  |
@@ -228,3 +229,9 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | `AEDST_APPATTEST_RATE_LIMIT_PER_MINUTE` | int | `10` | RateLimitPerMinute is the per-user budget for CreateChallenge + Enroll (they are rare: once per install). 0 disables. |
 | `AEDST_APPATTEST_ASSERTION_RATE_LIMIT_PER_MINUTE` | int | `120` | AssertionRateLimitPerMinute is the per-user budget for VerifyAssertion. 0 disables. |
 | `AEDST_APPATTEST_KEY_RETENTION_DAYS` | int | `365` | KeyRetentionDays purges keys not used for this long (the app re-enrolls). |
+
+## Topology
+
+| Variable | Type | Default | Description |
+|---|---|---|---|
+| `AEDST_MODULES` | list | (empty) | Enabled is AEDST_MODULES: the comma-separated units this process hosts. Empty means every registered unit (the monolith). A unit is a module ("chat") or a feature of one ("social/like"); naming a module enables its features, naming a feature enables only that feature. |

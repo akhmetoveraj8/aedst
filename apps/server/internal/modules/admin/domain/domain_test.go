@@ -28,3 +28,37 @@ func TestNormalizeReason(t *testing.T) {
 		}
 	}
 }
+
+func TestState_OnlyPendingResolvesOnce(t *testing.T) {
+	all := []domain.State{domain.StatePending, domain.StateApplied, domain.StateFailed}
+	for _, from := range all {
+		for _, to := range all {
+			want := from == domain.StatePending && to != domain.StatePending
+			if got := from.CanTransitionTo(to); got != want {
+				t.Errorf("%s -> %s = %v, want %v", from, to, got, want)
+			}
+		}
+	}
+}
+
+func TestAuditEntry_Resolve(t *testing.T) {
+	pending := domain.AuditEntry{State: domain.StatePending}
+
+	applied, err := pending.Resolve(domain.StateApplied, "ignored")
+	if err != nil || applied.State != domain.StateApplied || applied.Failure != "" {
+		t.Fatalf("Resolve(applied) = %+v, %v", applied, err)
+	}
+	failed, err := pending.Resolve(domain.StateFailed, "task not found")
+	if err != nil || failed.State != domain.StateFailed || failed.Failure != "task not found" {
+		t.Fatalf("Resolve(failed) = %+v, %v", failed, err)
+	}
+	if _, err := pending.Resolve(domain.StateFailed, "  "); err == nil {
+		t.Error("a failed entry without a reason was accepted")
+	}
+	if _, err := applied.Resolve(domain.StateFailed, "late"); err == nil {
+		t.Error("an applied entry was resolved again")
+	}
+	if _, err := (domain.AuditEntry{}).Resolve(domain.StateApplied, ""); err == nil {
+		t.Error("an entry that was never pending was resolved")
+	}
+}

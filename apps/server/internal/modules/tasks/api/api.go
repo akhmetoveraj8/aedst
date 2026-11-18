@@ -79,3 +79,15 @@ type AdminService interface {
 }
 
 var _ AdminService = (*application.AdminService)(nil)
+
+// OperatorService is the network-safe part of the operator surface: plain values,
+// no transaction, safe to repeat. The admin module uses it (through the
+// TasksOperatorService RPCs) when tasks is not hosted in its process; it is the
+// replacement for AdminService.DeleteTaskTx across a process boundary.
+type OperatorService interface {
+	// DeleteTask deletes any owner's task and returns the owner. A repeated call
+	// with the same key and task returns the first result.
+	DeleteTask(ctx context.Context, idempotencyKey string, id ids.ID) (owner ids.ID, err error)
+}
+
+var _ OperatorService = (*application.AdminService)(nil)

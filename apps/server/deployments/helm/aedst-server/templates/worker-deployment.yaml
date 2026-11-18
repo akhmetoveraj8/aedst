@@ -34,5 +34,5 @@ spec:
         {{- toYaml $selector | nindent 8 }}
         app.kubernetes.io/component: worker-{{ $name }}
     spec:
-      {{- include "aedst-server.podSpec" (dict "root" $ "selectorLabels" (toYaml $selector) "resources" ($w.resources | default $.Values.resources) "queues" (required (printf "workers[%s].queues is required" $name) $w.queues) "serviceName" (printf "%s-worker-%s" $.Values.config.serviceName $name)) | nindent 6 }}
+      {{- include "aedst-server.podSpec" (dict "root" $ "selectorLabels" (toYaml $selector) "resources" ($w.resources | default $.Values.resources) "queues" (required (printf "workers[%s].queues is required" $name) $w.queues) "modules" ($w.modules | default "") "serviceName" (printf "%s-worker-%s" $.Values.config.serviceName $name)) | nindent 6 }}
 {{- end }}

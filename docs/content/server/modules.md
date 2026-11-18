@@ -140,6 +140,15 @@ is checked by `architecturetest` before merge.
   Every RPC has an explicit entry (a test fails when one is missing), the service
   wildcard stays admin-only, and `AEDST_ROLE_POLICY` can override any entry.
   Roles are granted in the identity provider, never in this codebase.
+- Two ways to reach the modules it composes, chosen at startup by topology
+  ([extraction runbook](/server/runbook-extract-service#step-8-admin-without-a-shared-transaction)):
+  a module hosted in this process is called in-process and its mutation runs in the
+  audit entry's own transaction (`…Tx` api method); a module hosted elsewhere
+  (`AEDST_MODULE_<NAME>_URL`) is called through its operator service
+  (`TasksOperatorService`, `NotificationsOperatorService`), and a mutation is
+  **audit-first**: the entry is written as `pending` with an `admin.apply` job, and the
+  job applies it (idempotent on the entry id) and resolves it to `applied` or `failed`.
+  A broadcast then returns `recipients = 0` (the count is in the entry's result once applied).
 
 ## Module internal structure
 
@@ -161,6 +170,46 @@ internal/modules/<name>/
 `api/` re-exports just enough of `application` for other modules to call
 in-process today and over ConnectRPC tomorrow — it is the seam the
 [extraction path](/server/architecture#extraction-path) cuts along.
+
+## Features: units below a module
+
+A large module can be built from **features** (`social` from `like`, `comment`, `follow`; `shop` from `cart`,
+`checkout`). A feature is a unit with the same shape as a module, one level down:
+
+```
+internal/modules/<module>/features/<feature>/
+    domain/ application/ infrastructure/ transport/ api/ module/
+migrations/<module>_<feature>/      the feature's own Postgres schema
+sql/<module>_<feature>/             its sqlc queries
+```
+
+- The unit name is `<module>/<feature>` (`social/like`): that is what `modulekit.Register`, `Requires`,
+  `AEDST_MODULES` and `AEDST_MODULE_<NAME>_URL` use (`SOCIAL__LIKE`).
+- Features of one module meet only through each other's `api/`; the module composes them and may re-export
+  their contracts as its own `api/`; a feature never imports its module. Other modules may use a feature's
+  `api/` directly. All of it is enforced by `architecturetest`.
+- A feature owns its tables in its own schema. No foreign keys or joins to another unit's schema: a `like`
+  refers to a post by id and learns about posts through `social/post`'s `api/` or an event projection.
+- Start with the module and split a feature out when it has its own scaling or ownership need; the structure
+  costs nothing, the extra process does.
+
+Adding a feature (there is no generator for features yet; `task new:module` stamps modules only):
+
+1. Write the spec (`apps/server/specs/<module>/<feature>.md`) and the proto in
+   `api/proto/aedst/<module>_<feature>/v1/` (contract first, see the `api-design` skill).
+2. Create `internal/modules/<module>/features/<feature>/` with the layers above; copy
+   `internal/modules/tasks` as the shape, with imports under `.../<module>/features/<feature>/...`.
+3. Create `migrations/<module>_<feature>/` and `sql/<module>_<feature>/`; add the schema to the four lists
+   `architecturetest.TestMigrationModuleListsAgree` checks (Taskfile `MODULES`/`MODULES_REVERSE`,
+   `scripts/lint-migrations.sh`, Helm `migrations.modules`) and `sqlc.yaml`.
+4. `module/module.go`: `modulekit.Register(modulekit.Module{Name: "<module>/<feature>", ...})`, and one blank
+   import line in `cmd/server/modules.go`.
+5. Let the module compose it: the module's `Setup` takes the feature's `api/` with `modulekit.Require`, and
+   `Requires: []string{"<module>/<feature>"}`.
+6. `go test ./architecturetest/...` must pass: it checks the shape (`api/`, `module/`, the schema), the import
+   rules and that the unit's SQL never names another unit's schema.
+
+Choosing the level: [ADR-0020](../../../apps/server/docs/adr/0020-location-transparent-units.md).
 
 ## Reference implementations
 

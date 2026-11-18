@@ -1,7 +1,7 @@
 // Package module registers the media module with the composition root
 // (internal/platform/modulekit): presigned direct uploads; image/video
 // processing on the "media" River queue. Media reaches tasks only through
-// tasks/api (the TaskOwnership port).
+// tasks/api (the Ownership contract, hosted here or reached over Connect).
 package module
 
 import (
@@ -18,7 +18,6 @@ import (
 	"github.com/aedst/server/internal/modules/media/domain"
 	"github.com/aedst/server/internal/modules/media/infrastructure/postgres"
 	"github.com/aedst/server/internal/modules/media/infrastructure/processing"
-	mediatasks "github.com/aedst/server/internal/modules/media/infrastructure/tasks"
 	"github.com/aedst/server/internal/modules/media/transport"
 	tasksapi "github.com/aedst/server/internal/modules/tasks/api"
 	"github.com/aedst/server/internal/platform/modulekit"
@@ -56,7 +55,7 @@ type mediaModule struct {
 
 func (m *mediaModule) setup(ctx context.Context, env *modulekit.Env) error {
 	cfg := env.Config
-	tasks, err := modulekit.Require[tasksapi.Service](env)
+	tasks, err := modulekit.Require[tasksapi.Ownership](env)
 	if err != nil {
 		return err
 	}
@@ -76,7 +75,7 @@ func (m *mediaModule) setup(ctx context.Context, env *modulekit.Env) error {
 		},
 	}, env.Logger))
 	river.AddWorker(env.Workers, processing.NewDeleteWorker(d.objects))
-	svc := application.NewService(repo, d.objects, mediatasks.Ownership{Tasks: tasks}, env.Clock, application.Config{
+	svc := application.NewService(repo, d.objects, tasks, env.Clock, application.Config{
 		Limits: domain.Limits{
 			MaxImageBytes: cfg.Media.MaxImageBytes, MaxVideoBytes: cfg.Media.MaxVideoBytes,
 			MaxAudioBytes: cfg.Media.MaxAudioBytes, MaxDocumentBytes: cfg.Media.MaxDocumentBytes,

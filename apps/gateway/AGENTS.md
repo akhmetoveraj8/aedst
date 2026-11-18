@@ -1,9 +1,9 @@
 # apps/gateway - AI agent instructions
 
-The realtime gateway: Rust 1.100.0, edition 2024 (ADR-0020). Read the root [AGENTS.md](../../AGENTS.md) and
+The realtime gateway: Rust 1.100.0, edition 2024 (ADR-0021). Read the root [AGENTS.md](../../AGENTS.md) and
 [CONVENTIONS.md](../../CONVENTIONS.md) first. Spec: [specs/realtime/ws-gateway.md](../server/specs/realtime/ws-gateway.md).
 Approved crates: [library-first/gateway](../../docs/content/library-first/gateway.md). Why NATS and Rust:
-[ADR-0020](../server/docs/adr/0020-nats-jetstream-and-rust-gateway.md).
+[ADR-0021](../server/docs/adr/0021-nats-jetstream-and-rust-gateway.md).
 
 Verification status: written without a Rust toolchain on the authoring machine. `cargo fmt`, `clippy -D warnings`, `test`
 and `deny` and the Go to NATS to Rust to WebSocket test have NOT been run; crate features marked UNVERIFIED in `Cargo.toml`

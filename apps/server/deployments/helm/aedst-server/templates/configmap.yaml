@@ -68,7 +68,7 @@ data:
   # Valkey (password is a secret).
   AEDST_VALKEY_ADDR: {{ .Values.config.valkey.addr | quote }}
   AEDST_VALKEY_DB: {{ .Values.config.valkey.db | int64 | quote }}
-  # NATS JetStream bridge for the realtime gateway (ADR-0020); off when url is empty.
+  # NATS JetStream bridge for the realtime gateway (ADR-0021); off when url is empty.
   {{- if .Values.config.nats.url }}
   AEDST_NATS_URL: {{ .Values.config.nats.url | quote }}
   AEDST_NATS_STREAM: {{ .Values.config.nats.stream | quote }}
@@ -112,6 +112,13 @@ data:
   # Which River queues this process works (empty = insert-only). Worker
   # Deployments (values: workers) override it per group.
   AEDST_JOBS_QUEUES: {{ .Values.jobs.queues | quote }}
+  # Concurrent deliveries per event queue (events_<unit>) of each hosted unit.
+  AEDST_JOBS_EVENT_WORKERS: {{ .Values.jobs.eventWorkers | int64 | quote }}
+  # Which units run in this process (empty = all) and where the others are.
+  AEDST_MODULES: {{ .Values.modules.enabled | quote }}
+  {{- range $unit, $url := .Values.modules.remote }}
+  {{ printf "AEDST_MODULE_%s_URL" (upper (replace "/" "__" $unit)) }}: {{ $url | quote }}
+  {{- end }}
   AEDST_RETENTION_NOTIFICATION_DAYS: {{ .Values.config.retention.notificationDays | int64 | quote }}
   AEDST_RETENTION_AUDIT_DAYS: {{ .Values.config.retention.auditDays | int64 | quote }}
   AEDST_TASKS_DUE_SOON_LEAD_MINUTES: {{ .Values.config.tasks.dueSoonLeadMinutes | int64 | quote }}

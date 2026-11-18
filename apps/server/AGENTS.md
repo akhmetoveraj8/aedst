@@ -24,7 +24,7 @@ just fill the template by hand. A one-line bug fix doesn't need one.
 - `transport` imports only its own `api/` (plus `platform` and `shared`), never `application` or `domain`; `api/` re-exports the vocabulary transport needs. `cmd/**` imports a module only through `internal/modules/<name>/module`. Only `admin` calls another module's `*Tx` api method.
 - Every library/boundary rule is a gate with a negative self-test; the table is in `docs/content/library-first/server.md` ("Enforcement"). Time comes from `sharedtime.Clock`, SQL only from sqlc (no string literals in `Exec`/`Query`), new direct dependencies go in `architecturetest/approved_modules.txt` together with the Library-First page.
 - Banned dependencies (enforced by `architecturetest` and depguard): Kafka, RabbitMQ or any
-  other broker, NATS outside `internal/platform/natsbridge` (ADR-0020), RedSync/Redlock or any distributed lock in Valkey, competing
+  other broker, NATS outside `internal/platform/natsbridge` (ADR-0021), RedSync/Redlock or any distributed lock in Valkey, competing
   JWT libraries, ORMs. Only `internal/platform/valkey` imports the go-redis client.
 
 ## When a change touches state and another system cares
@@ -37,7 +37,7 @@ inserts one `platform.event_delivery` job per subscribed consumer with
 `InsertManyTx` on your `tx` (`river_job` is the outbox: no outbox/inbox table,
 relay or in-process bus exists). Never publish outside the transaction, never
 from a request handler on its own, and do not add Kafka or RabbitMQ. NATS JetStream
-exists for one purpose (ADR-0020): `internal/platform/natsbridge` forwards allowlisted
+exists for one purpose (ADR-0021): `internal/platform/natsbridge` forwards allowlisted
 event types (`AEDST_NATS_FORWARD_TYPES`) to the Rust realtime gateway (`apps/gateway`)
 as a River-delivered consumer (no dual write, the event id is the `Nats-Msg-Id`); only
 that package imports the NATS client, and Go consumers still use River. Deferred or scheduled work of a module's
@@ -123,7 +123,7 @@ Handlers never verify tokens: `httpserver.AuthInterceptor` does, through
 `platformauth.Verifier` (the OIDC resource-server verifier, ADR-0017 and
 ADR-0019). Read the caller with `platformauth.FromContext`. The server has no
 `auth` module and issues no tokens: do not add a second token format, password
-hashing or session storage, and do not verify JWTs anywhere else in Go (the Rust gateway `apps/gateway` is the one other resource server, ADR-0020); identity
+hashing or session storage, and do not verify JWTs anywhere else in Go (the Rust gateway `apps/gateway` is the one other resource server, ADR-0021); identity
 features (sign-in, MFA, recovery, the user directory) belong in the IdP.
 
 ## Observability
@@ -224,6 +224,13 @@ modules": it opens the transaction, passes the `pgx.Tx` to the owning module's
 `notifications/api.Broadcaster.BroadcastTx`) and writes `admin.audit_log` in the
 same transaction. Only admin may call `*Tx` api methods; the owning module still
 writes its own rows and publishes its own events.
+
+When the target module is **not** hosted in this process admin cannot pass it a transaction: it
+writes the audit entry as `pending` plus an `admin.apply` job, and the job calls the owner's
+network-safe operator service (`tasks/api.OperatorService`, `notifications/api.Operator`)
+idempotently on the entry id (`admin/application/audit_first.go`, `apply.go`). Never add a `*Tx`
+method to an api that another process may need to call; give the owner an idempotent operator
+method instead. `admin.audit_log` rows may leave `pending` once, through `ResolveAuditEntry` only.
 
 ## Background queues and heavy work
 

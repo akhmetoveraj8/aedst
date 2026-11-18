@@ -1,6 +1,6 @@
 name: gateway-ci (experimental, non-blocking until first green run)
 
-# Rust realtime gateway (ADR-0020, apps/server/docs/adr). Nothing here has run on GitHub yet.
+# Rust realtime gateway (ADR-0021, apps/server/docs/adr). Nothing here has run on GitHub yet.
 on:
   push:
     branches: [main]

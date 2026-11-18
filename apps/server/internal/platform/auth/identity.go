@@ -43,6 +43,22 @@ func FromContext(ctx context.Context) (Identity, bool) {
 	return id, ok
 }
 
+type bearerKey struct{}
+
+// WithBearer returns a context carrying the verified request's raw access token,
+// so a call to another unit over the network (modulekit.NewClient) can forward
+// it. It is set only by the auth interceptor, after verification. The token is a
+// credential: never log it, and never read it for anything but forwarding.
+func WithBearer(ctx context.Context, token string) context.Context {
+	return context.WithValue(ctx, bearerKey{}, token)
+}
+
+// BearerFromContext returns the token set by WithBearer.
+func BearerFromContext(ctx context.Context) (string, bool) {
+	token, ok := ctx.Value(bearerKey{}).(string)
+	return token, ok && token != ""
+}
+
 // HasAnyRole reports whether the identity holds at least one of roles.
 func (i Identity) HasAnyRole(roles ...string) bool {
 	return slices.ContainsFunc(roles, i.HasRole)

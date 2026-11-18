@@ -36,6 +36,11 @@ type JobsConfig struct {
 	// A dedicated media worker deployment runs "media=4" and API replicas
 	// "default=50"; an empty value makes the process insert-only.
 	Queues map[string]int `env:"AEDST_JOBS_QUEUES" envSeparator:"," envKeyValSeparator:"=" envDefault:"default=50,media=2"`
+	// EventWorkers is the max concurrent deliveries per event queue
+	// ("events_<unit>"): a process that works "default" also works the event queue
+	// of every unit it hosts that subscribes to events, with this many workers each.
+	// An explicit events_<unit>=n in AEDST_JOBS_QUEUES wins. 0 = the default.
+	EventWorkers int `env:"AEDST_JOBS_EVENT_WORKERS" envDefault:"10"`
 	// PollOnly runs River without LISTEN/NOTIFY (river.Config.PollOnly): jobs
 	// are picked up by polling (slightly higher latency, more idle queries).
 	// Required for the jobs pool to sit behind a transaction pooler when no
@@ -51,8 +56,31 @@ type JobsConfig struct {
 	DiscardedRetentionHours int `env:"AEDST_JOBS_DISCARDED_RETENTION_HOURS" envDefault:"168"`
 }
 
-// KnownQueues are the River queues the server defines.
+// KnownQueues are the fixed River queues the server defines. Event queues are
+// per unit ("events_<unit>", see platform/events.QueueFor) and are also accepted
+// in AEDST_JOBS_QUEUES, so a consumer-only worker can name exactly the units it runs.
 var KnownQueues = []string{"default", "media"}
+
+// IsEventQueue reports whether name has the shape of a unit's event queue. It is
+// the same rule as platform/events.IsQueue, which config does not import (config
+// is a leaf of the platform); a test keeps the two in step.
+func IsEventQueue(name string) bool {
+	rest, ok := strings.CutPrefix(name, "events_")
+	if !ok || rest == "" || len(name) > 64 {
+		return false
+	}
+	for seg := range strings.SplitSeq(rest, "_") {
+		if seg == "" {
+			return false
+		}
+		for _, r := range seg {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') {
+				return false
+			}
+		}
+	}
+	return true
+}
 
 // StorageConfig configures object storage (see platform/storage). Empty
 // Bucket disables media uploads (MediaService answers FAILED_PRECONDITION).
@@ -191,9 +219,12 @@ func (c Config) validateFeatures(bad func(string, ...any)) {
 			bad("AEDST_CORS_ALLOWED_ORIGINS: %q is not an origin (scheme://host[:port])", origin)
 		}
 	}
+	if c.Jobs.EventWorkers < 0 {
+		bad("AEDST_JOBS_EVENT_WORKERS (%d) must not be negative", c.Jobs.EventWorkers)
+	}
 	for queue, workers := range c.Jobs.Queues {
-		if !slices.Contains(KnownQueues, queue) {
-			bad("AEDST_JOBS_QUEUES: unknown queue %q (want one of %v)", queue, KnownQueues)
+		if !slices.Contains(KnownQueues, queue) && !IsEventQueue(queue) {
+			bad("AEDST_JOBS_QUEUES: unknown queue %q (want one of %v or events_<unit>)", queue, KnownQueues)
 		}
 		if workers <= 0 {
 			bad("AEDST_JOBS_QUEUES: queue %q needs a positive worker count", queue)

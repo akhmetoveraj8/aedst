@@ -1,0 +1,12 @@
+{
+  "title": "Android",
+  "pages": [
+    "index",
+    "architecture",
+    "stack",
+    "r8",
+    "i18n",
+    "device-verification",
+    "..."
+  ]
+}

@@ -1,7 +1,7 @@
 // Package natsbridge forwards integration events to NATS JetStream so a
 // separate service (the Rust WebSocket gateway, apps/gateway) can deliver them
 // to clients. It is the broker adapter that ADR-0014 reserved behind
-// events.Publisher and that ADR-0020 now adopts.
+// events.Publisher and that ADR-0021 now adopts.
 //
 // There is no second write. A producer still commits the event as River jobs
 // in its own transaction; the bridge is one more consumer in the events

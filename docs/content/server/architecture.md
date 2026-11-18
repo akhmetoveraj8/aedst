@@ -20,11 +20,15 @@ network RPC tomorrow) and every module owns its own data.
 ## Current phase
 
 ```
-Phase 1: Modular Monolith   <-- we are here
-Phase 2: Module Services
-Phase 3: Domain Microservices
-Phase 4: Fine-Grained Services
+Shape 1: Modular Monolith   <-- the default; nothing configured
+Shape 2: Module Services    AEDST_MODULES=chat   (one binary, one module per deployment)
+Shape 3: Feature Services   AEDST_MODULES=social/like   (a feature of a module per deployment)
 ```
+
+The three shapes are **configuration of the same binary**, not phases that need a rewrite
+([ADR-0020](../../../apps/server/docs/adr/0020-location-transparent-units.md)): see [Units and topology](#units-and-topology).
+Which shape a deployment uses is decided by measurement ([ADR-0001](/decisions/0001-modular-monolith)),
+not by the code.
 
 See [modules.md](/server/modules) for the module list and dependency graph,
 [database.md](/server/database) for data ownership, [events.md](/server/events) for the
@@ -139,8 +143,10 @@ Register/Login) and negative tests for the 401 (bad token) and 403
 
 ## Extraction path
 
-A module already respects rules 1–4 above, so promoting it to `services/<module>`
-is mechanical, not a rewrite:
+With [ADR-0020](../../../apps/server/docs/adr/0020-location-transparent-units.md) most of this is configuration (see
+[Units and topology](#units-and-topology) and the [runbook](/server/runbook-extract-service)). The list below
+is what the configuration relies on. A module already respects rules 1–4 above, so promoting it is mechanical,
+not a rewrite:
 
 1. Freeze the module's `api/` contract.
 2. Confirm it has zero direct DB access into another module's schema (rule 3
@@ -159,6 +165,41 @@ is mechanical, not a rewrite:
 No module in Phase 1 is extracted preemptively — see
 [ADR-0001](/decisions/0001-modular-monolith).
 
+## Units and topology
+
+A **unit** is a module (`chat`) or a feature of a module (`social/like`). Both have the same shape: an
+`api/` contract, an own schema, events, a `module/` registration. A module groups features:
+
+```
+internal/modules/<module>/
+    api/ application/ domain/ infrastructure/ transport/ module/    the module itself
+    features/<feature>/
+        api/ application/ domain/ infrastructure/ transport/ module/   a unit of its own
+migrations/<module>_<feature>/   sql/<module>_<feature>/              the feature's schema
+```
+
+Units of one module meet like units of different modules: through `api/`. A feature never imports the
+module that groups it (`architecturetest.TestUnitsOfOneModuleMeetOnlyThroughAPI`).
+
+**Topology** is environment, resolved by `modulekit.Select` at startup:
+
+| Variable | Meaning |
+|---|---|
+| `AEDST_MODULES` | units hosted by this process; empty = all. A module name enables its features, a feature name only itself |
+| `AEDST_MODULE_<NAME>_URL` | base URL of a required unit that is not hosted here (`social/like` is written `SOCIAL__LIKE`) |
+
+A hosted unit that `Requires` a unit that is neither hosted nor reachable fails startup and names the variable
+to set. For a remote unit the unit's own `Module.Remote` hook runs instead of `Setup` and provides the same
+`api/` interfaces as Connect clients (`modulekit.NewClient`: deadline, breaker, rate limit, tracing, bearer
+forwarding), so a consumer's `modulekit.Require[api.X]` is unchanged. Only a unit whose contract is
+network-safe declares `Remote` (values in and out, `context.Context` first, `error` last; enforced by
+`architecturetest.TestRemoteHooksProvideNetworkSafeContracts`), and each such contract has one shared suite run
+against the in-process and the Connect implementation (`tasks/api/ownershiptest`).
+
+Worked example: `media` asks `tasks` whether a task belongs to the caller (`tasksapi.Ownership`). In the
+monolith that is a function call; with `AEDST_MODULES=media` and `AEDST_MODULE_TASKS_URL=http://tasks:8080` it
+is a `TasksService.GetTask` call carrying the user's token, with identical results.
+
 ## Module registry
 
 `internal/platform/modulekit` is the seam between `cmd/server` and the modules.
@@ -171,6 +212,7 @@ A module declares itself once, from the `init()` of its `module/` package:
 | `Setup(ctx, env)` | builds services from `env` (config, pools, River client, event publisher, push dispatcher), registers River workers and event consumers, and publishes what others may use with `modulekit.Provide[api.Interface]` |
 | `Mount(env, mounter)` | mounts the Connect services with `modulekit.Mount` (the only way; `architecturetest` fails on a direct `New*ServiceHandler`) |
 | `Retention(env)` | purge policies of its append-only tables (runs before the River client exists) |
+| `Remote(env, target)` | binds the unit's network-safe `api/` interfaces to Connect clients for a process that does not host it ([ADR-0020](../../../apps/server/docs/adr/0020-location-transparent-units.md)) |
 | `Files`, `Public`, `Roles` | its protobuf files (to validate `AEDST_ROLE_POLICY` against real procedures), procedures reachable without a token, built-in role policy (`admin`: `/aedst.admin.v1.AdminService/*=admin`) |
 
 Modules obtain each other only through `api/` interfaces (`Provide` / `Require`),

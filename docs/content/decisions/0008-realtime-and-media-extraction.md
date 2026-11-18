@@ -61,9 +61,9 @@ codebase:
 
 Image renditions are served by imgproxy ([ADR-0015](/decisions/0015-govips-and-imgproxy-media-pipeline)).
 
-## Realtime: proposed design (superseded in part by ADR-0020)
+## Realtime: proposed design (superseded in part by ADR-0021)
 
-> 2026-11-18: the transport is now a Rust WebSocket gateway (`apps/gateway`) fed by NATS JetStream, see [ADR-0020](../../../apps/server/docs/adr/0020-nats-jetstream-and-rust-gateway.md). The Valkey pub-sub and ConnectRPC-streaming proposals below are not pursued.
+> 2026-11-18: the transport is now a Rust WebSocket gateway (`apps/gateway`) fed by NATS JetStream, see [ADR-0021](../../../apps/server/docs/adr/0021-nats-jetstream-and-rust-gateway.md). The Valkey pub-sub and ConnectRPC-streaming proposals below are not pursued.
 
 - The gateway is **stateless**: connection state is only the socket; the source of
   truth for messages and subscriptions is Postgres, so any gateway instance can be

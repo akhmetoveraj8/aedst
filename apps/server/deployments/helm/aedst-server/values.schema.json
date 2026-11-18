@@ -225,7 +225,29 @@
         "queues": {
           "type": "string",
           "description": "AEDST_JOBS_QUEUES: queue=maxWorkers pairs, empty = insert-only",
-          "pattern": "^(|(default|media)=[0-9]+(,(default|media)=[0-9]+)*)$"
+          "pattern": "^(|(default|media|events_[a-z0-9]+(_[a-z0-9]+)*)=[0-9]+(,(default|media|events_[a-z0-9]+(_[a-z0-9]+)*)=[0-9]+)*)$"
+        },
+        "eventWorkers": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "AEDST_JOBS_EVENT_WORKERS: concurrent deliveries per events_<unit> queue, 0 = 10"
+        }
+      }
+    },
+    "modules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "string",
+          "description": "AEDST_MODULES: comma-separated units this release hosts, empty = all",
+          "pattern": "^([a-z0-9_]+(/[a-z0-9_]+)?(,[a-z0-9_]+(/[a-z0-9_]+)?)*)?$"
+        },
+        "remote": {
+          "type": "object",
+          "description": "AEDST_MODULE_<NAME>_URL: unit name to the base URL of the unit that is not hosted here",
+          "propertyNames": {"pattern": "^[a-z0-9_]+(/[a-z0-9_]+)?$"},
+          "additionalProperties": {"type": "string", "pattern": "^https?://"}
         }
       }
     },
@@ -237,7 +259,8 @@
         "required": ["name", "queues"],
         "properties": {
           "name": {"type": "string", "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", "maxLength": 30},
-          "queues": {"type": "string", "pattern": "^(default|media)=[0-9]+(,(default|media)=[0-9]+)*$"},
+          "modules": {"type": "string", "pattern": "^([a-z0-9_]+(/[a-z0-9_]+)?(,[a-z0-9_]+(/[a-z0-9_]+)?)*)?$"},
+          "queues": {"type": "string", "pattern": "^(default|media|events_[a-z0-9]+(_[a-z0-9]+)*)=[0-9]+(,(default|media|events_[a-z0-9]+(_[a-z0-9]+)*)=[0-9]+)*$"},
           "replicas": {"type": "integer", "minimum": 0},
           "resources": {"type": "object"}
         }

@@ -331,7 +331,7 @@ tasks:
       - pnpm --dir packages/design-tokens install --frozen-lockfile
       - pnpm --dir packages/design-tokens check
 
-  # --- docs site (docs/, Nextra) ---------------------------------------------
+  # --- docs site (docs/, Fumadocs) ---------------------------------------------
   docs:dev:
     desc: Start the docs site dev server.
     cmds:
@@ -341,7 +341,7 @@ tasks:
     cmds:
       - pnpm --dir docs test
   docs:build:
-    desc: Build the docs site (Nextra + pagefind index).
+    desc: Build the docs site (Fumadocs, built-in search).
     cmds:
       - pnpm --dir docs build
 
@@ -564,7 +564,7 @@ tasks:
     dir: apps/apple
     cmds: [make format]
 
-  # --- gateway (Rust realtime WebSocket gateway, ADR-0020; needs cargo) ---
+  # --- gateway (Rust realtime WebSocket gateway, ADR-0021; needs cargo) ---
   gateway:fmt:
     desc: Format the gateway with rustfmt.
     dir: apps/gateway

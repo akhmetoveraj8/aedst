@@ -1,11 +1,11 @@
 ---
 title: "Gateway (Rust) stack"
-description: "Approved crates of apps/gateway, the Rust realtime WebSocket gateway fed by NATS JetStream (ADR-0020)."
+description: "Approved crates of apps/gateway, the Rust realtime WebSocket gateway fed by NATS JetStream (ADR-0021)."
 ---
 
 # Realtime gateway (Rust) stack
 
-`apps/gateway` (crate `aedst-gateway`) is the one Rust service next to the Go server. Decision and rationale: [ADR-0020](../../../apps/server/docs/adr/0020-nats-jetstream-and-rust-gateway.md). Versions were checked against crates.io on 2026-11-18; **none of them has been compiled together yet** (no Rust toolchain on the authoring machine), features marked UNVERIFIED are guesses from the crates' documentation.
+`apps/gateway` (crate `aedst-gateway`) is the one Rust service next to the Go server. Decision and rationale: [ADR-0021](../../../apps/server/docs/adr/0021-nats-jetstream-and-rust-gateway.md). Versions were checked against crates.io on 2026-11-18; **none of them has been compiled together yet** (no Rust toolchain on the authoring machine), features marked UNVERIFIED are guesses from the crates' documentation.
 
 | Responsibility | Tool | Notes |
 |---|---|---|

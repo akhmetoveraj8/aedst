@@ -1,0 +1,11 @@
+{
+  "title": "Desktop",
+  "pages": [
+    "index",
+    "architecture",
+    "stack",
+    "custom-code-register",
+    "i18n",
+    "..."
+  ]
+}

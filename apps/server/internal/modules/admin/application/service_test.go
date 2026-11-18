@@ -34,7 +34,10 @@ func (t *tx) Run(ctx context.Context, fn func(context.Context, pgx.Tx) error) er
 	return nil
 }
 
-type audit struct{ entries []domain.AuditEntry }
+type audit struct {
+	entries []domain.AuditEntry
+	results []map[string]any
+}
 
 func (a *audit) InsertTx(_ context.Context, _ pgx.Tx, e domain.AuditEntry) error {
 	a.entries = append(a.entries, e)

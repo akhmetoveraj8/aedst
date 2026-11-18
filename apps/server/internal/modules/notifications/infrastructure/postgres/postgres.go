@@ -5,6 +5,7 @@ package postgres
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -18,6 +19,7 @@ import (
 	"github.com/aedst/server/internal/modules/notifications/domain"
 	notificationsjobs "github.com/aedst/server/internal/modules/notifications/infrastructure/jobs"
 	"github.com/aedst/server/internal/platform/database"
+	"github.com/aedst/server/internal/platform/idempotency"
 	sharederrors "github.com/aedst/server/internal/shared/errors"
 	"github.com/aedst/server/internal/shared/ids"
 	"github.com/aedst/server/internal/shared/pagination"
@@ -105,6 +107,47 @@ func (r *Repository) BroadcastTx(ctx context.Context, tx pgx.Tx, broadcastID ids
 		return 0, err
 	}
 	return int64(len(rows)), nil
+}
+
+// operatorScope namespaces operator idempotency keys.
+const operatorScope = "notifications.operator"
+
+// BroadcastIdempotent is BroadcastTx in a transaction of its own, replay-safe on
+// key: the key check, the notifications, their push jobs and the saved result
+// commit together, so a retry after a lost response sends nothing twice.
+func (r *Repository) BroadcastIdempotent(ctx context.Context, key string, userID *ids.ID, b domain.Broadcast, at time.Time) (int64, error) {
+	target := ""
+	if userID != nil {
+		target = userID.String()
+	}
+	payload, err := json.Marshal(struct {
+		UserID, Title, Body, Link string
+	}{target, b.Title, b.Body, b.Link})
+	if err != nil {
+		return 0, sharederrors.Wrap("notifications.OperatorBroadcast", err)
+	}
+	store := idempotency.NewPostgresStore()
+	var recipients int64
+	err = database.WithTx(ctx, r.pool, func(ctx context.Context, tx pgx.Tx) error {
+		if cached, replay, err := idempotency.Check(ctx, tx, store, operatorScope, key, payload); err != nil {
+			return err
+		} else if replay {
+			return json.Unmarshal(cached, &recipients)
+		}
+		var err error
+		if recipients, err = r.BroadcastTx(ctx, tx, ids.New(), userID, b, at); err != nil {
+			return err
+		}
+		result, err := json.Marshal(recipients)
+		if err != nil {
+			return err
+		}
+		return idempotency.Save(ctx, tx, store, operatorScope, key, payload, result)
+	})
+	if err != nil {
+		return 0, err
+	}
+	return recipients, nil
 }
 
 func (r *Repository) List(ctx context.Context, params application.ListParams) (application.ListResult, error) {

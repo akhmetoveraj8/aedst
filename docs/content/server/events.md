@@ -105,7 +105,8 @@ Configuration (see `.env.example`):
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `AEDST_JOBS_QUEUES` | `default=50,media=2` | Which queues a process works. Deliveries run on `default`. Empty = insert-only (producers still publish). |
+| `AEDST_JOBS_QUEUES` | `default=50,media=2` | Which queues a process works. Empty = insert-only (producers still publish). A process that works `default` also works the event queue of every unit it hosts that subscribes to events (below); `events_<unit>=n` may be listed explicitly. |
+| `AEDST_JOBS_EVENT_WORKERS` | 10 | Concurrent deliveries per event queue that is added automatically. An explicit `events_<unit>=n` wins. |
 | `AEDST_JOBS_COMPLETED_RETENTION_HOURS` | 24 | Completed deliveries are kept this long before River's cleaner deletes them. |
 | `AEDST_JOBS_CANCELLED_RETENTION_HOURS` | 24 | Same for cancelled ones. |
 | `AEDST_JOBS_DISCARDED_RETENTION_HOURS` | 168 | Discarded deliveries (the dead-letter list) are kept this long. |
@@ -120,6 +121,29 @@ Metrics (OTLP; Prometheus `/metrics` only if enabled, off by default):
 | `aedst_events_failed_total{consumer}` | Sustained non-zero rate (`AedstEventDeliveryFailing`) — a handler is failing and being retried. |
 | `aedst_events_discarded_total{consumer}` | **Any increase** (`AedstEventDiscarded`) — a delivery was given up on. |
 | `aedst_events_delivered_total{consumer}`, `aedst_events_delivery_lag_seconds{consumer}` | Throughput and commit-to-handled latency. |
+
+### Event queues and partial hosting
+
+A delivery runs on the queue of the unit that hosts its consumer:
+`events_<unit>`, where the unit is the part of the consumer name before the first
+`.` (`notifications.task_completed` runs on `events_notifications`; a feature's
+`/` is written `_`: `social_like.counted` runs on `events_social_like`; River queue
+names allow no `.`). The monolith hosts every unit, so it works every event queue
+and behaves as before: **a process works `default` plus the event queue of each
+hosted unit that subscribes** (`events.WorkedQueues`). A media-only worker
+(`AEDST_JOBS_QUEUES=media=4`) works no event queue, and an insert-only replica works
+nothing.
+
+With `AEDST_MODULES` a process may host only some units. Its producers must still
+insert the deliveries of consumers it does not host, so each unit declares what it
+subscribes to statically (`modulekit.Module.Consumes`) and the process registers the
+declarations of every unit it does not host as **remote consumers**
+(`Registry.SubscribeRemote`: catalogued, no handler). `architecturetest` keeps
+`Consumes` equal to the `Subscribe` calls of the unit's `infrastructure/events`. A
+remote consumer's delivery that ever reaches a process without its handler fails and
+is retried, then discarded and counted; it is never completed, so no event is lost
+silently. Deliveries inserted before this scheme sit on `default` and are still
+delivered: workers are registered by job kind, not by queue.
 
 Any number of replicas may work the queue: River fetches with
 `FOR UPDATE SKIP LOCKED`, so no delivery runs on two workers at once, and a
@@ -164,7 +188,7 @@ A new event adds a row here, its type and payload to the producer's
   write beside the transaction. `events.Publisher` stays the producer-facing
   interface. See [ADR-0014](/decisions/0014-river-insert-tx-as-outbox) and the
   [extraction runbook](/server/runbook-extract-service). Since 2026-11-18 this bridge exists
-  (`internal/platform/natsbridge`, [ADR-0020](../../../apps/server/docs/adr/0020-nats-jetstream-and-rust-gateway.md)):
+  (`internal/platform/natsbridge`, [ADR-0021](../../../apps/server/docs/adr/0021-nats-jetstream-and-rust-gateway.md)):
   allowlisted event types are published to JetStream subject
   `aedst.events.user.<user id>.<type>` for the Rust gateway; the envelope is pinned by
   `natsbridge/testdata/envelope.v1.json`. Go consumers are unchanged.

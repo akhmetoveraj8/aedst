@@ -19,4 +19,8 @@ type AdminAuditLog struct {
 	Reason       string             `json:"reason"`
 	Metadata     []byte             `json:"metadata"`
 	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	State        string             `json:"state"`
+	Failure      string             `json:"failure"`
+	Result       []byte             `json:"result"`
+	ResolvedAt   pgtype.Timestamptz `json:"resolved_at"`
 }

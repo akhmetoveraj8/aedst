@@ -75,14 +75,17 @@ func run(ctx context.Context) error {
 	// pools they used.
 	defer a.close()
 	defer a.env.Close()
-	if a.mods, err = modulekit.Ordered(); err != nil {
+	plan, err := modulekit.Select(cfg.Topology.Enabled, cfg.Topology.Remote)
+	if err != nil {
 		return err
 	}
+	a.mods, a.remote, a.plan = plan.Local, plan.Remote, plan
+	logger.InfoContext(ctx, "topology", slog.Any("hosted", plan.Names()), slog.Int("remote", len(plan.Remote)))
 
 	// Order matters: each step uses what the earlier ones built.
 	for _, step := range []func(context.Context) error{
 		a.openDatabases, a.openModuleDatabases, a.openValkey, a.buildVerifier,
-		a.buildPush, a.buildJobs, a.wireModules,
+		a.buildPush, a.buildJobs, a.bindRemoteModules, a.wireModules,
 	} {
 		if err := step(ctx); err != nil {
 			return err

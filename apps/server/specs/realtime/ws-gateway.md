@@ -146,7 +146,7 @@ changed from "banned" to "only there"). It is a River worker reached through the
 
 ## Docs/gates changed in the implementation PR
 
-New ADR (server ADR-0020 "NATS JetStream and a Rust WebSocket gateway": supersedes the
+New ADR (server ADR-0021 "NATS JetStream and a Rust WebSocket gateway": supersedes the
 "not adopted" clause of ADR-0014 and the realtime transport of ADR-0008, revisit-when),
 `decisions/server.md`, `library-first/server.md` (NATS un-forbidden, scoped), new
 `library-first/gateway.md` (Rust page), `apps/server/AGENTS.md` and root `AGENTS.md`/

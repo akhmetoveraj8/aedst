@@ -1,0 +1,22 @@
+{
+  "title": "Server",
+  "pages": [
+    "index",
+    "architecture",
+    "diagrams",
+    "stack",
+    "modules",
+    "database",
+    "events",
+    "scaling",
+    "config",
+    "deployment",
+    "runbook",
+    "runbook-postgres-scaling",
+    "runbook-extract-service",
+    "push",
+    "licensing-agpl",
+    "appattest-security-review",
+    "..."
+  ]
+}

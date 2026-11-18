@@ -11,6 +11,19 @@ import (
 	"github.com/aedst/server/internal/platform/modulekit"
 )
 
+// bindRemoteModules runs the Remote hook of every unit this process does not host
+// but a hosted unit requires: it provides the unit's api/ interfaces as network
+// clients, so the Setup of the units that Require them is unchanged.
+func (a *app) bindRemoteModules(context.Context) error {
+	for _, m := range a.remote {
+		target := modulekit.RemoteTarget{Name: m.Name, BaseURL: a.cfg.Topology.Remote[m.Name]}
+		if err := m.Remote(a.env, target); err != nil {
+			return fmt.Errorf("module %s: remote %s: %w", m.Name, target.BaseURL, err)
+		}
+	}
+	return nil
+}
+
 // wireModules runs every registered module's Setup in dependency order. The
 // River client and event publisher exist by now (buildJobs), so a module can
 // insert jobs and register workers and event consumers.

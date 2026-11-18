@@ -147,7 +147,7 @@ linters:
             - pkg: github.com/minio/minio-go
               desc: "object storage goes through internal/platform/storage (aws-sdk-go-v2)"
 
-        # NATS is the broker for the realtime gateway (ADR-0020); its client stays
+        # NATS is the broker for the realtime gateway (ADR-0021); its client stays
         # inside the bridge (architecturetest.TestOnlyNATSBridgeImportsNATS is the exact check).
         nats-only-in-natsbridge:
           files:
@@ -155,7 +155,7 @@ linters:
             - "!**/internal/platform/natsbridge/**"
           deny:
             - pkg: github.com/nats-io
-              desc: "NATS goes through internal/platform/natsbridge only (ADR-0020); producers use events.Publisher"
+              desc: "NATS goes through internal/platform/natsbridge only (ADR-0021); producers use events.Publisher"
 
         # CBOR is only needed to decode Apple App Attest objects (ADR-0016); keep
         # the dependency inside that module instead of letting it spread.

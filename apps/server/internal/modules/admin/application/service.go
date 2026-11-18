@@ -23,6 +23,13 @@ import (
 // AuditStore persists the audit log.
 type AuditStore interface {
 	InsertTx(ctx context.Context, tx pgx.Tx, e domain.AuditEntry) error
+	// InsertPendingTx writes an entry in state pending (the audit-first path).
+	InsertPendingTx(ctx context.Context, tx pgx.Tx, e domain.AuditEntry) error
+	// Get reads one entry with its state; NotFound when it does not exist.
+	Get(ctx context.Context, id ids.ID) (domain.AuditEntry, error)
+	// Resolve moves a pending entry to applied or failed, once, and records the
+	// outcome. It reports false when the entry was no longer pending.
+	Resolve(ctx context.Context, id ids.ID, state domain.State, failure string, result map[string]any, at time.Time) (bool, error)
 	List(ctx context.Context, limit int, after *pagination.Cursor) ([]domain.AuditEntry, *pagination.Cursor, error)
 }
 
@@ -44,11 +51,18 @@ const AuditSortToken = "admin:audit:created_at:desc" //nolint:gosec // G101 fals
 type Deps struct {
 	Tasks         tasksapi.AdminService
 	Notifications notificationsapi.Broadcaster
-	Media         mediaapi.Stats
-	Platform      PlatformStats
-	Audit         AuditStore
-	Tx            Tx
-	Clock         sharedtime.Clock
+	// TasksOps and NotificationsOps are set only when that module is NOT hosted in
+	// this process: they are its network clients and switch the matching mutation to
+	// the audit-first path (Queue is then required). Nil keeps the in-process
+	// transactional path (the *Tx methods of Tasks / Notifications).
+	TasksOps         tasksapi.OperatorService
+	NotificationsOps notificationsapi.Operator
+	Queue            ApplyQueue
+	Media            mediaapi.Stats
+	Platform         PlatformStats
+	Audit            AuditStore
+	Tx               Tx
+	Clock            sharedtime.Clock
 }
 
 type Service struct{ d Deps }
@@ -107,6 +121,9 @@ func (s *Service) DeleteTask(ctx context.Context, actor domain.Actor, taskID ids
 	if err != nil {
 		return err
 	}
+	if s.d.TasksOps != nil {
+		return s.deleteTaskAuditFirst(ctx, actor, taskID, reason)
+	}
 	return s.d.Tx.Run(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		owner, err := s.d.Tasks.DeleteTaskTx(ctx, tx, taskID)
 		if err != nil {
@@ -123,6 +140,9 @@ func (s *Service) DeleteTask(ctx context.Context, actor domain.Actor, taskID ids
 // BroadcastNotification sends a SYSTEM notification through the
 // notifications module and audits it, atomically. userID nil = everyone.
 func (s *Service) BroadcastNotification(ctx context.Context, actor domain.Actor, userID *ids.ID, title, body, link string) (int64, error) {
+	if s.d.NotificationsOps != nil {
+		return 0, s.broadcastAuditFirst(ctx, actor, userID, notificationsapi.Broadcast{Title: title, Body: body, Link: link})
+	}
 	var recipients int64
 	err := s.d.Tx.Run(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		n, err := s.d.Notifications.BroadcastTx(ctx, tx, userID, notificationsapi.Broadcast{Title: title, Body: body, Link: link})

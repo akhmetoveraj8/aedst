@@ -5,7 +5,7 @@ edition = "2024"
 rust-version = "1.100"
 license = "Apache-2.0"
 publish = false
-description = "AEDST realtime gateway: NATS JetStream events to authenticated WebSocket clients (ADR-0020)."
+description = "AEDST realtime gateway: NATS JetStream events to authenticated WebSocket clients (ADR-0021)."
 
 # Versions verified against crates.io on 2026-11-18. NOT compiled together yet (no Rust toolchain on the
 # authoring machine): features marked UNVERIFIED must be checked by the first `cargo build`.

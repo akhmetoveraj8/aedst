@@ -60,6 +60,17 @@ func (w *Worker) Work(ctx context.Context, job *river.Job[DeliveryArgs]) error {
 		w.recordFailure(ctx, job, attrs, err)
 		return err
 	}
+	if c.handle == nil {
+		// A catalog-only consumer (SubscribeRemote): its unit runs in another
+		// process, which works that unit's queue. Seeing it here means this process
+		// works a queue it should not (AEDST_JOBS_QUEUES lists events_<unit> without
+		// hosting the unit). Never complete it: that would lose the event. Fail it
+		// visibly so retries find the right process and exhaustion is discarded and
+		// alertable.
+		err := fmt.Errorf("events: consumer %q is hosted by another process (queue %s): this process must not work it", args.Consumer, QueueFor(args.Consumer))
+		w.recordFailure(ctx, job, attrs, err)
+		return err
+	}
 	event, err := args.event()
 	if err != nil {
 		// A malformed delivery can never succeed: cancel instead of retrying.

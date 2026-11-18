@@ -109,8 +109,32 @@ becomes a separate service.
   job kind) forwards it to the broker with at-least-once retries and the event id
   as the broker's deduplication key. There is never a second write beside the
   transaction (no dual write), so `river_job` stays the outbox. Producers, event
-  contracts and handlers do not change. **NATS is not adopted now.** *(Amended 2026-11-18: [ADR-0020](../../../apps/server/docs/adr/0020-nats-jetstream-and-rust-gateway.md) adopts it for the Rust gateway, using exactly this bridge.)* See
+  contracts and handlers do not change. **NATS is not adopted now.** *(Amended 2026-11-18: [ADR-0021](../../../apps/server/docs/adr/0021-nats-jetstream-and-rust-gateway.md) adopts it for the Rust gateway, using exactly this bridge.)* See
   [ADR-0001](/decisions/0001-modular-monolith) for the extraction threshold.
+
+## Addendum: per-unit event queues and the subscription catalog
+
+A process may host only some units (`AEDST_MODULES`, ADR-0020). Two things in the
+original design assumed one process: the producer found consumers in its own
+registry, and every delivery ran on `default`. Both would lose or misroute events,
+so:
+
+- A delivery is inserted on its consumer unit's queue `events_<unit>`
+  (`events.QueueFor`; River queue names allow no `.`). A process works `default`
+  plus the event queues of the units it hosts, so the default monolith works what
+  it always did and a consumer-only worker takes exactly its own deliveries. Old
+  deliveries on `default` are still delivered (workers are by kind, not queue).
+- The producer's registry also holds **remote consumers** from each unit's static
+  `Module.Consumes` (`Registry.SubscribeRemote`), so an event is inserted for a
+  consumer hosted elsewhere. A test keeps `Consumes` equal to the real
+  subscriptions. A remote consumer's delivery that arrives where no handler exists
+  fails visibly (retry, then discard); it is never completed.
+- The River job kind `platform.event_forward` (the broker bridge) is **not built**:
+  it is still only the documented extension point above, and no broker is added.
+
+River stays the only mechanism and the outbox; the events are still committed in the
+producer's transaction. The "own River queue" mentioned under "Revisit when" is
+done; "own database" is not.
 
 ## Revisit when
 A consumer becomes its own service (add the broker adapter), or measured

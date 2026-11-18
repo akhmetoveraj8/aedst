@@ -1,4 +1,4 @@
-//! AEDST realtime gateway (ADR-0020): consumes integration events from NATS JetStream and pushes
+//! AEDST realtime gateway (ADR-0021): consumes integration events from NATS JetStream and pushes
 //! them to authenticated WebSocket clients. Server to client only; the API stays the source of truth.
 
 pub mod auth;

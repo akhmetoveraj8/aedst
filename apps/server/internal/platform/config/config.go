@@ -61,6 +61,9 @@ type Config struct {
 	Integrity IntegrityConfig
 	AppAttest AppAttestConfig
 	NATS      NATSConfig
+	// Topology selects the units this process hosts and the URLs of the others
+	// (AEDST_MODULES, AEDST_MODULE_<NAME>_URL); the default is the whole monolith.
+	Topology TopologyConfig
 }
 
 type HTTPConfig struct {
@@ -210,7 +213,7 @@ type AuthConfig struct {
 // tokens issued by any standards-compliant provider (ZITADEL by default,
 // Keycloak, Ory Hydra, Auth0, ...). Nothing here is provider-specific.
 // NATSConfig configures the optional bridge that forwards integration events to
-// NATS JetStream for the realtime gateway (ADR-0020). Empty URL disables it:
+// NATS JetStream for the realtime gateway (ADR-0021). Empty URL disables it:
 // nothing is connected and no consumer is registered.
 type NATSConfig struct {
 	URL string `env:"AEDST_NATS_URL" envDefault:""`
@@ -284,6 +287,7 @@ func Load() (Config, error) {
 		cfg.Jobs.Queues = nil
 	}
 	cfg.DB.Modules = moduleDatabases(os.Environ())
+	cfg.Topology.Remote = remoteUnits(os.Environ())
 	cfg.Client = cfg.Client.normalized()
 	if err := cfg.Validate(); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
@@ -303,6 +307,9 @@ func (c Config) Validate() error {
 		bad("AEDST_ENV %q must be one of development, test, staging, production", c.Env)
 	}
 
+	if err := c.Topology.Validate(); err != nil {
+		errs = append(errs, err)
+	}
 	if c.DB.MinConns > c.DB.MaxConns {
 		bad("AEDST_DATABASE_MIN_CONNS (%d) must not exceed AEDST_DATABASE_MAX_CONNS (%d)", c.DB.MinConns, c.DB.MaxConns)
 	}

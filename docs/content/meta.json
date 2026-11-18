@@ -1,0 +1,23 @@
+{
+  "pages": [
+    "index",
+    "---General---",
+    "stack",
+    "library-first",
+    "status",
+    "parity",
+    "client-recipe",
+    "features",
+    "ui-kit",
+    "i18n",
+    "decisions",
+    "engineering",
+    "---Platforms---",
+    "server",
+    "web",
+    "android",
+    "apple",
+    "desktop",
+    "..."
+  ]
+}

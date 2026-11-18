@@ -94,6 +94,10 @@ containers:
       - name: AEDST_JOBS_QUEUES
         value: {{ $a.queues | quote }}
       {{- end }}
+      {{- if $a.modules }}
+      - name: AEDST_MODULES
+        value: {{ $a.modules | quote }}
+      {{- end }}
       {{- $sk := $root.Values.secretKeys }}
       {{- $optional := dict "AEDST_STORAGE_ACCESS_KEY_ID" $sk.storageAccessKeyId "AEDST_STORAGE_SECRET_ACCESS_KEY" $sk.storageSecretAccessKey "AEDST_PUSH_VAPID_PRIVATE_KEY" $sk.vapidPrivateKey "AEDST_PUSH_FCM_CREDENTIALS_JSON" $sk.fcmCredentialsJson "AEDST_PUSH_APNS_PRIVATE_KEY" $sk.apnsPrivateKey "AEDST_INTEGRITY_CREDENTIALS_JSON" $sk.integrityCredentialsJson }}
       {{- range $name, $key := $optional }}

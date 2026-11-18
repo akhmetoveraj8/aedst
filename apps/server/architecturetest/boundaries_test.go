@@ -109,7 +109,7 @@ func TestOnlyValkeyPackageImportsRedisClient(t *testing.T) {
 }
 
 // TestOnlyNATSBridgeImportsNATS keeps the NATS client behind
-// internal/platform/natsbridge (ADR-0020): everything else publishes through
+// internal/platform/natsbridge (ADR-0021): everything else publishes through
 // events.Publisher. A test may import the embedded server of the same module.
 func TestOnlyNATSBridgeImportsNATS(t *testing.T) {
 	for _, pkg := range loadPackages(t) {
@@ -118,7 +118,7 @@ func TestOnlyNATSBridgeImportsNATS(t *testing.T) {
 		}
 		for path := range pkg.Imports {
 			if strings.HasPrefix(path, "github.com/nats-io/") {
-				t.Errorf("boundary violation: %s imports %s directly — only internal/platform/natsbridge may (ADR-0020)", pkg.PkgPath, path)
+				t.Errorf("boundary violation: %s imports %s directly — only internal/platform/natsbridge may (ADR-0021)", pkg.PkgPath, path)
 			}
 		}
 	}
@@ -149,16 +149,44 @@ func moduleOf(pkgPath string) string {
 	return parts[0]
 }
 
-// layerOf returns the top-level layer directory of pkgPath within module
-// (e.g. "domain", "api"), or "" if pkgPath is the module's root package.
+// layerOf returns the layer directory of pkgPath within its unit (e.g.
+// "domain", "api"), or "" if pkgPath is the unit's root package. A unit is the
+// module itself or one of its features (modules/<m>/features/<f>/...); for a
+// feature package the layer is relative to the feature directory.
 func layerOf(pkgPath, module string) string {
 	prefix := fmt.Sprintf("%s%s/", modulePrefix, module)
 	if !strings.HasPrefix(pkgPath, prefix) {
 		return ""
 	}
-	rest := strings.TrimPrefix(pkgPath, prefix)
-	parts := strings.SplitN(rest, "/", 2)
+	parts := strings.Split(strings.TrimPrefix(pkgPath, prefix), "/")
+	if parts[0] == featuresDir {
+		if len(parts) < 2 {
+			return ""
+		}
+		if len(parts) == 2 { // the feature's root package
+			return ""
+		}
+		return parts[2]
+	}
 	return parts[0]
+}
+
+// featuresDir is the directory under a module that holds its feature units.
+const featuresDir = "features"
+
+// unitOf returns the unit a package belongs to: "social" for a module package,
+// "social/like" for modules/social/features/like/..., "" outside modules.
+func unitOf(pkgPath string) string {
+	module := moduleOf(pkgPath)
+	if module == "" {
+		return ""
+	}
+	parts := strings.Split(strings.TrimPrefix(pkgPath, modulePrefix+module), "/")
+	// parts[0] is "" (the slash after the module), then "features", "<f>", ...
+	if len(parts) >= 3 && parts[1] == featuresDir {
+		return module + "/" + parts[2]
+	}
+	return module
 }
 
 // TestPlatformDoesNotImportModules keeps the dependency arrow one-way: modules

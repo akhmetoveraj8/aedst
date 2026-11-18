@@ -55,7 +55,7 @@ test("frontmatter rule: docs/content pages need title and description", () => {
     "docs/content/no-fm.md": "# T\n",
     "docs/content/no-desc.mdx": "---\ntitle: T\n---\n# T\n",
     "docs/content/empty-desc.md": "---\ntitle: T\ndescription:\n---\n# T\n",
-    "docs/content/_meta.ts": "export default {};\n",
+    "docs/content/meta.json": "{}\n",
   });
   try {
     const v = checkRepo({ root, allowText: "" }).filter((x) => x.rule === "frontmatter").map((x) => x.file);

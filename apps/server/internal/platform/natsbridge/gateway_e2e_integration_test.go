@@ -27,7 +27,7 @@ import (
 	"github.com/aedst/server/internal/shared/ids"
 )
 
-// TestEventReachesAWebSocketClientThroughTheGateway is the end-to-end path of ADR-0020:
+// TestEventReachesAWebSocketClientThroughTheGateway is the end-to-end path of ADR-0021:
 //
 //	producer transaction -> River job -> natsbridge -> NATS JetStream -> Rust gateway -> WebSocket client
 //
