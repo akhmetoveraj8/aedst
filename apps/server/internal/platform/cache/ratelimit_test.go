@@ -1,4 +1,4 @@
-package valkey_test
+package cache_test
 
 import (
 	"context"
@@ -8,15 +8,15 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/aedst/server/internal/platform/valkey"
+	"github.com/aedst/server/internal/platform/cache"
 )
 
-func newLimiter(t *testing.T) (*valkey.RateLimiter, *miniredis.Miniredis) {
+func newLimiter(t *testing.T) (*cache.RateLimiter, *miniredis.Miniredis) {
 	t.Helper()
 	mr := miniredis.RunT(t)
 	client := redis.NewClient(&redis.Options{Addr: mr.Addr(), MaxRetries: -1, DialTimeout: 200 * time.Millisecond})
 	t.Cleanup(func() { _ = client.Close() })
-	return valkey.NewRateLimiter(client), mr
+	return cache.NewRateLimiter(client), mr
 }
 
 func TestRateLimiter_AllowsUpToTheBudgetThenDenies(t *testing.T) {
@@ -47,7 +47,7 @@ func TestRateLimiter_KeysAreIndependent(t *testing.T) {
 	}
 }
 
-func TestRateLimiter_FailsOpenWhenValkeyIsDown(t *testing.T) {
+func TestRateLimiter_FailsOpenWhenDragonflyIsDown(t *testing.T) {
 	l, mr := newLimiter(t)
 	mr.Close()
 	ok, err := l.Allow(context.Background(), "rl:user:a", 1, time.Minute)

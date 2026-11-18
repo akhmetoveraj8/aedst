@@ -8,7 +8,7 @@ The default profile is **Core = Server + Web**. These two are built, tested and 
 
 | App | Stack | Status |
 |---|---|---|
-| [`apps/server`](apps/server/README.md) | Go, net/http ServeMux, ConnectRPC v2, Postgres (pgx/sqlc/Goose), River, Valkey, OpenTelemetry; OIDC resource server | **Core.** Built, vetted, unit-tested |
+| [`apps/server`](apps/server/README.md) | Go, net/http ServeMux, ConnectRPC v2, Postgres (pgx/sqlc/Goose), River, DragonflyDB, OpenTelemetry; OIDC resource server | **Core.** Built, vetted, unit-tested |
 | [`apps/web`](apps/web/README.md) (`app`, `admin`, `landing`, `shared`) | Next.js 16, React 19, TanStack Query, shadcn/ui, next-intl | **Core.** Typechecked, linted, unit- and browser-tested, built |
 | [`apps/android`](apps/android/README.md) | Kotlin, Jetpack Compose, Hilt, connect-kotlin, Room 3 | Frozen. JVM gates passed before the Room 3 migration; the migration is **not compiled**; never run on a device |
 | [`apps/apple`](apps/apple/README.md) | SwiftUI, GRDB, connect-swift, Tuist (iOS 18+, macOS 15+) | Frozen. **Never compiled** |
@@ -28,12 +28,12 @@ Start at [`docs/agent/INDEX.md`](docs/agent/INDEX.md), which routes you to only 
 
 ## Getting started
 
-Prerequisites: [mise](https://mise.jdx.dev) (pins Go, Node, pnpm, buf, sqlc, Task, golangci-lint, JDK and others in [`mise.toml`](mise.toml)) and Docker (local Postgres and Valkey). The Rust toolchain (rustup, reads `rust-toolchain.toml`), the Android SDK and Xcode are installed separately, only if you work on those apps. You also need an OIDC provider: the server refuses to start without `AEDST_OIDC_ISSUER` and `AEDST_OIDC_AUDIENCE` (dev compose profile `idp` starts ZITADEL, see [`apps/server/deployments/zitadel`](apps/server/deployments/zitadel/README.md)).
+Prerequisites: [mise](https://mise.jdx.dev) (pins Go, Node, pnpm, buf, sqlc, Task, golangci-lint, JDK and others in [`mise.toml`](mise.toml)) and Docker (local Postgres and DragonflyDB). The Rust toolchain (rustup, reads `rust-toolchain.toml`), the Android SDK and Xcode are installed separately, only if you work on those apps. You also need an OIDC provider: the server refuses to start without `AEDST_OIDC_ISSUER` and `AEDST_OIDC_AUDIENCE` (dev compose profile `idp` starts ZITADEL, see [`apps/server/deployments/zitadel`](apps/server/deployments/zitadel/README.md)).
 
 ```bash
 mise install        # pinned toolchains
 task setup          # git hooks, web + docs dependencies, code generation
-task dev            # Postgres + Valkey + server (in another shell: task web:dev)
+task dev            # Postgres + DragonflyDB + server (in another shell: task web:dev)
 ```
 
 `task` is the single entry point; run `task --list` for everything. Aggregate tasks run **Core only** by default; add `PROFILE=full` to include the frozen platforms.

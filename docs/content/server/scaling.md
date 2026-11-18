@@ -59,11 +59,11 @@ it costs operational complexity, so it needs a measured cause:
   ([database.md](/server/database#connection-pools-and-pgbouncer)).
 - **Replica sizing.** Start from the Helm chart's requests/limits and the
   HPA (CPU 70 %, memory 80 %); tune from the load test below, not from guesses.
-- **Rate limits.** Two layers, all cluster-wide through Valkey so they do not
+- **Rate limits.** Two layers, all cluster-wide through DragonflyDB so they do not
   weaken as replicas are added: per client address on the public procedures
   (`AEDST_AUTH_RATE_LIMIT_PER_MINUTE`), and per authenticated user on
   every other RPC (`AEDST_API_RATE_LIMIT_PER_MINUTE`, default 1200). All fail
-  open: a Valkey outage degrades limiting, it does not stop the API, and
+  open: a DragonflyDB outage degrades limiting, it does not stop the API, and
   `/readyz` reports `degraded` instead of failing.
 - **Load shedding.** `AEDST_MAX_IN_FLIGHT` (default 1024) caps concurrent
   requests per instance; the excess gets an immediate `429` with `Retry-After`
@@ -145,7 +145,7 @@ Run the rehearsal with `task loadtest:pgbouncer` (next section).
   prepared-statement/pool failures, zero dropped iterations.
 
 ```bash
-# Needs Docker and k6. Starts postgres+valkey+PgBouncer, migrates, runs 4 server
+# Needs Docker and k6. Starts postgres+cache+PgBouncer, migrates, runs 4 server
 # replicas behind nginx (:8088) through PgBouncer, then drives pgbouncer.js while
 # scripts/loadtest-pgbouncer-watch.sh samples SHOW POOLS / pg_stat_activity.
 task loadtest:pgbouncer REPLICAS=6 RATE=80 DURATION=5m
@@ -191,7 +191,7 @@ uncommitted working tree. Setup: Windows 11, Intel Core i5-13400 (16 logical
 cores), 32 GB RAM; one `aedst-server` process, k6 and PostgreSQL 18.6 (the
 `embedded-postgres` build, default settings, fsync on) all on the same host, so
 they compete for CPU. **Direct connection to Postgres, no pooler (no PgBouncer),
-no Valkey** (`/readyz` `degraded`, limiters fail open), `AEDST_API_RATE_LIMIT_PER_MINUTE=0`
+no DragonflyDB** (`/readyz` `degraded`, limiters fail open), `AEDST_API_RATE_LIMIT_PER_MINUTE=0`
 and the auth limits off, one OIDC access token (`TOKEN`) shared by all
 virtual users, `AEDST_MAX_IN_FLIGHT=0`. Empty database at the start of each series
 (tables hold tens of thousands of rows, not millions). Scenario:
@@ -247,7 +247,7 @@ discarded or retryable jobs.
 
 What this does **not** show: anything about PgBouncer / transaction pooling (not
 available here, `task loadtest:pgbouncer` has still never run), a production-shaped
-dataset, multiple replicas, real network latency, or Valkey-backed rate limiting.
+dataset, multiple replicas, real network latency, or DragonflyDB-backed rate limiting.
 The first signal to move under overload in the earlier (2026-09-29) series was the
 API pool (`aedst_db_pool_empty_acquire_total`); this series did not sample the
 pool metrics, so that is **not re-measured**.
@@ -296,7 +296,7 @@ Things that are deliberately not solved yet, so nobody assumes they are:
 - **The synchronous cross-module path is unproven in production code.** The
   `api/` seam and the dual-transport RPC exist and are tested in isolation, but
   no module calls another synchronously yet ([modules.md](/server/modules)).
-- **No caching layer.** Valkey is used for rate limiting only; the strategy is
+- **No caching layer.** DragonflyDB is used for rate limiting only; the strategy is
   decided in [ADR-0010](/decisions/0010-caching-and-data-partitioning) and
   implemented when a measured read path needs it.
 - **Single primary.** Writes all go to one primary. An optional read pool (`AEDST_DATABASE_READ_URL`, used by search only) exists but was never run against a real replica; partitioning and sharding are a roadmap

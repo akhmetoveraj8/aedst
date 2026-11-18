@@ -51,7 +51,7 @@ None.
 
 ## Cross-module dependencies
 
-None (only `internal/platform/*`: auth context, retention, valkey rate limiter).
+None (only `internal/platform/*`: auth context, retention, cache rate limiter).
 
 ## NFR
 

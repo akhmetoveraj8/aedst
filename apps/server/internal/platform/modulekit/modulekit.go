@@ -31,12 +31,14 @@ import (
 	"github.com/riverqueue/river"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
+	"github.com/aedst/server/internal/platform/cache"
 	"github.com/aedst/server/internal/platform/config"
 	"github.com/aedst/server/internal/platform/events"
+	"github.com/aedst/server/internal/platform/flags"
 	platformjobs "github.com/aedst/server/internal/platform/jobs"
 	"github.com/aedst/server/internal/platform/push"
 	"github.com/aedst/server/internal/platform/retention"
-	"github.com/aedst/server/internal/platform/valkey"
+	"github.com/aedst/server/internal/platform/search"
 	sharedtime "github.com/aedst/server/internal/shared/time"
 )
 
@@ -198,7 +200,16 @@ type Env struct {
 	// AEDST_DATABASE_READ_URL is set. Never use it inside a transaction that
 	// writes, or for read-your-writes.
 	ReadPool    *pgxpool.Pool
-	RateLimiter *valkey.RateLimiter
+	RateLimiter *cache.RateLimiter
+
+	// Search is the engine port (search.Disabled when unconfigured); modules
+	// register an index Source on SearchSources from Setup and enqueue syncs with
+	// Indexer.EnqueueTx (nil in Retention). Flags evaluates feature flags and
+	// returns the caller's default when none is configured.
+	Search        search.Engine
+	SearchSources *search.Registry
+	Indexer       *search.Indexer
+	Flags         flags.Flags
 
 	Dispatcher *push.Dispatcher
 	WebPushKey string

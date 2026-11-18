@@ -86,7 +86,7 @@ The project owner **deliberately decided to keep** the following. An AI agent do
 | **webpush-go + `google.golang.org/api/fcm/v1` + apns2** (Server push) | hand-written Web Push (ECE/VAPID), APNs JWT, a hand-written FCM HTTP v1 request/OAuth flow (`x/oauth2/jwt`); also `firebase.google.com/go/v4` (Firebase Admin: pulls Firestore and Storage for one `Send`) | owner decision: libraries instead of custom push code (see decisions.md "Push providers via libraries") |
 | **Vercel AI SDK is not used** (Web) | `ai` / `@ai-sdk/*` in Next.js, model calls or API keys in browser/Next code | AI logic lives in Go (one backend for all clients); revisit only if the Go backend serves the AI SDK data-stream protocol (see decisions.md) |
 | **Auth.js / next-auth is not used** (Web) | `next-auth`, `@auth/*`, a hand-written OIDC client over `fetch` | npm `latest` is v4; v5 is still `5.0.0-beta.x` (violates the "latest stable" policy), and it also duplicates our session/refresh layer (httpOnly cookie, single-flight, `proxy.ts`). `oauth4webapi` is the very certified zero-dependency layer Auth.js is built on. Revisit when Auth.js v5 is stable **and** supports Next 16 **and** covers our refresh (rotation, single-flight, reuse window) |
-| **OpenTofu** (IaC) | Terraform (BSL) alongside OpenTofu, Pulumi, CDK, a second IaC tool | open license, consistent with the stack (Valkey); one state, one lock policy; do not introduce Terraform (BSL) |
+| **OpenTofu** (IaC) | Terraform (BSL) alongside OpenTofu, Pulumi, CDK, a second IaC tool | open license, consistent with the stack (DragonflyDB); one state, one lock policy; do not introduce Terraform (BSL) |
 
 ## Monorepo tooling
 

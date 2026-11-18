@@ -1,4 +1,4 @@
-package valkey
+package cache
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 )
 
 // failOpenCounter is exported as aedst_ratelimit_fail_open_total: how often a
-// limiter decision was skipped because Valkey errored. Zero in a healthy
+// limiter decision was skipped because Dragonfly errored. Zero in a healthy
 // system; a sustained rate means rate limits are not being enforced.
 const failOpenCounter = "aedst_ratelimit_fail_open"
 
@@ -28,13 +28,13 @@ type RateLimiter struct {
 func NewRateLimiter(client *redis.Client) *RateLimiter {
 	rl := &RateLimiter{limiter: redis_rate.NewLimiter(client)}
 	// A nil counter (instrument creation failed) only loses the metric, never a decision.
-	rl.failOpen, _ = otel.Meter("github.com/aedst/server/internal/platform/valkey").Int64Counter(failOpenCounter,
-		metric.WithDescription("Rate-limit decisions skipped (allowed) because Valkey returned an error."))
+	rl.failOpen, _ = otel.Meter("github.com/aedst/server/internal/platform/cache").Int64Counter(failOpenCounter,
+		metric.WithDescription("Rate-limit decisions skipped (allowed) because Dragonfly returned an error."))
 	return rl
 }
 
 // Allow reports whether one more request is permitted for key under
-// limit-per-period. It fails open: on a Valkey error it returns true with the
+// limit-per-period. It fails open: on a Dragonfly error it returns true with the
 // error, because a limiter that takes the service down when its backing
 // store is unavailable is worse than briefly not limiting. Callers should
 // log the error.
@@ -42,7 +42,7 @@ func (l *RateLimiter) Allow(ctx context.Context, key string, limit int, period t
 	res, err := l.limiter.Allow(ctx, key, redis_rate.Limit{Rate: limit, Burst: limit, Period: period})
 	if err != nil {
 		l.recordFailOpen(ctx)
-		return true, fmt.Errorf("valkey: rate limit %s: %w", key, err)
+		return true, fmt.Errorf("cache: rate limit %s: %w", key, err)
 	}
 	return res.Allowed > 0, nil
 }
@@ -55,7 +55,7 @@ func (l *RateLimiter) Exhausted(ctx context.Context, key string, limit int, peri
 	res, err := l.limiter.AllowN(ctx, key, redis_rate.Limit{Rate: limit, Burst: limit, Period: period}, 0)
 	if err != nil {
 		l.recordFailOpen(ctx)
-		return false, fmt.Errorf("valkey: rate limit %s: %w", key, err)
+		return false, fmt.Errorf("cache: rate limit %s: %w", key, err)
 	}
 	return res.Remaining <= 0, nil
 }

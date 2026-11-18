@@ -18,7 +18,7 @@ import (
 )
 
 // These tests boot the real server — the same run() the binary uses, with real
-// wiring, real migrations on a real Postgres, and no Valkey — and drive it over
+// wiring, real migrations on a real Postgres, and no Dragonfly — and drive it over
 // HTTP. They cover what unit tests cannot: that the wiring, interceptor order,
 // readiness, retention and shutdown behave as documented.
 
@@ -58,7 +58,7 @@ func startOn(t *testing.T, dsn string, env map[string]string) *server {
 		"AEDST_HTTP_ADDR":                  addr,
 		"AEDST_OIDC_ISSUER":                idp(t).URL,
 		"AEDST_OIDC_AUDIENCE":              testAudience,
-		"AEDST_VALKEY_ADDR":                "127.0.0.1:1", // nothing listens: Valkey is optional
+		"AEDST_CACHE_ADDR":                 "127.0.0.1:1", // nothing listens: Dragonfly is optional
 		"AEDST_LOG_LEVEL":                  "error",
 		"AEDST_RETENTION_INTERVAL_MINUTES": "1",
 		"AEDST_GRPC_REFLECTION_ENABLED":    "false",
@@ -143,7 +143,7 @@ func TestServer_EndToEnd(t *testing.T) {
 	})
 	s.waitReady(t)
 
-	t.Run("readiness degrades, not fails, without Valkey", func(t *testing.T) {
+	t.Run("readiness degrades, not fails, without Dragonfly", func(t *testing.T) {
 		resp, err := http.Get(s.base + "/readyz")
 		if err != nil {
 			t.Fatal(err)

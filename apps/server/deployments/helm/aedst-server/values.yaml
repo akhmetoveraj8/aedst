@@ -1,6 +1,6 @@
 # Default values for aedst-server. Environment overlays: values-{dev,staging,prod}.yaml.
 #
-# NOTHING SECRET LIVES HERE. Database DSNs and the Valkey password are
+# NOTHING SECRET LIVES HERE. Database DSNs and the Dragonfly password are
 # read from an EXISTING Kubernetes Secret (existingSecret) that is provisioned
 # out-of-band (External Secrets Operator, sealed-secrets, SOPS, ...).
 
@@ -26,7 +26,8 @@ serviceAccount:
 existingSecret: ""
 # Keys inside that Secret. An empty key name disables the corresponding variable.
 secretKeys:
-  valkeyPassword: valkey-password # AEDST_VALKEY_PASSWORD ("" = no password)
+  cachePassword: cache-password # AEDST_CACHE_PASSWORD ("" = no password)
+  searchApiKey: "" # AEDST_SEARCH_API_KEY (required in staging/production when config.search.url is set)
   # Optional keys: empty = variable not set; non-empty renders a secretKeyRef.
   storageAccessKeyId: "" # AEDST_STORAGE_ACCESS_KEY_ID
   storageSecretAccessKey: "" # AEDST_STORAGE_SECRET_ACCESS_KEY
@@ -104,7 +105,7 @@ config:
   #   rolePolicy:
   #     /aedst.tasks.v1.TasksService/DeleteTask: [admin, support]
   rolePolicy: {}
-  apiRateLimitPerMinute: 1200 # per authenticated user, cluster-wide via Valkey (0 = off)
+  apiRateLimitPerMinute: 1200 # per authenticated user, cluster-wide via Dragonfly (0 = off)
   maxInFlight: 1024 # concurrent requests per pod before 429 load shedding (0 = off)
   grpcReflectionEnabled: false # publishes the whole API surface; enable deliberately
   retention:
@@ -196,8 +197,8 @@ config:
     replicas: 1
     maxAgeHours: 24
     duplicateWindowSeconds: 120
-  valkey:
-    addr: valkey:6379
+  cache:
+    addr: cache:6379
     # TLS is required in staging/production unless allowPlaintext (trusted network).
     # tlsCaFile is a path mounted with extraVolumes.
     tls: false
@@ -205,6 +206,17 @@ config:
     tlsCaFile: ""
     allowPlaintext: false
     db: 0
+  # Meilisearch (search engine; PostgreSQL stays the source of truth, pg_trgm serves
+  # simple lookups). Empty url = search off. Run Meilisearch with its own chart or a
+  # managed service and point url at it; the API key is a secret (secretKeys.searchApiKey).
+  search:
+    url: ""
+    timeoutMs: 5000
+  # Feature flags (OpenFeature + flagd). Empty flagdHost = flags off (code defaults),
+  # unless flagd.enabled, which points the server at the in-chart flagd Service.
+  flags:
+    flagdHost: ""
+    flagdPort: 8013
   oidc:
     issuer: ""
     audience: ""
@@ -350,7 +362,7 @@ migrations:
 # Opt-in NetworkPolicy (see templates/networkpolicy.yaml). Selectors are
 # cluster-specific, so nothing is enabled by default.
 # NOTE: with enabled=true, egress is default-deny except DNS: egressTo MUST list
-# Postgres/PgBouncer, Valkey, the OTLP collector and the OIDC provider, or the
+# Postgres/PgBouncer, Dragonfly, the OTLP collector and the OIDC provider, or the
 # pods lose them. That is why it is not switched on in values-prod.yaml.
 networkPolicy:
   enabled: false
@@ -359,7 +371,7 @@ networkPolicy:
   ingressFrom: []
   # Who may scrape the metrics port (e.g. the monitoring namespace).
   metricsFrom: []
-  # Where the pods may connect besides DNS: Postgres/PgBouncer, Valkey, the OTLP
+  # Where the pods may connect besides DNS: Postgres/PgBouncer, Dragonfly, the OTLP
   # collector, the OIDC provider (podSelector / namespaceSelector / ipBlock).
   egressTo: []
 
@@ -375,6 +387,30 @@ dashboards:
   enabled: false
   sidecarLabel: grafana_dashboard
   folder: aedst
+
+# flagd: feature-flag evaluation service (OpenFeature provider). Optional; off by
+# default. `flags` is the flagd flag definition map (https://flagd.dev/reference/flag-definitions/),
+# rendered into a ConfigMap; changing it rolls flagd. Flags gate rollout only.
+# Example:
+#   flags:
+#     search-enabled:
+#       state: ENABLED
+#       variants: {on: true, off: false}
+#       defaultVariant: off
+flagd:
+  enabled: false
+  image:
+    repository: ghcr.io/open-feature/flagd
+    tag: v0.19.0 # verified on ghcr.io 2026-11-18
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  flags: {}
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
 
 # imgproxy: on-demand image delivery (ADR-0015). Optional; off by default.
 # The API signs URLs (AEDST_IMGPROXY_*), imgproxy renders WebP/AVIF/JPEG

@@ -32,7 +32,7 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | `AEDST_TRUSTED_PROXY_HOPS` | int | `0` | TrustedProxyHops is the exact number of reverse proxies between the public internet and this server (Cloudflare -> ALB = 2). 0 means the socket peer is the client. Wrong values let clients spoof the IP used for rate limiting, so verify after deploying (see internal/platform/clientip). |
 | `AEDST_AUTH_RATE_LIMIT_PER_MINUTE` | int | `30` | AuthRateLimitPerMinute is the per-client-IP budget for the public authentication RPCs (register/login/refresh). 0 disables. |
 | `AEDST_AUTH_FAIL_RATE_LIMIT_PER_MINUTE` | int | `60` | AuthFailRateLimitPerMinute is the per-client-IP budget of failed authentications (missing or invalid bearer token) on authenticated RPCs; once spent, that address gets RESOURCE_EXHAUSTED until the window passes. Successful requests cost nothing. 0 disables. |
-| `AEDST_API_RATE_LIMIT_PER_MINUTE` | int | `1200` | APIRateLimitPerMinute is the per-user budget for authenticated RPCs, shared by every replica through Valkey. It bounds what one account (or one leaked token) can take from everyone else. 0 disables. |
+| `AEDST_API_RATE_LIMIT_PER_MINUTE` | int | `1200` | APIRateLimitPerMinute is the per-user budget for authenticated RPCs, shared by every replica through Dragonfly. It bounds what one account (or one leaked token) can take from everyone else. 0 disables. |
 | `AEDST_MAX_IN_FLIGHT` | int | `1024` | MaxInFlight caps concurrently processing requests per instance; the excess is shed with 429 + Retry-After rather than queued until latency collapses. 0 disables. |
 | `AEDST_GRPC_REFLECTION_ENABLED` | bool | `false` | GRPCReflectionEnabled serves gRPC server reflection (schema discovery for grpcurl and similar). Off by default: it publishes the whole API surface to anyone who can reach the port. |
 
@@ -54,17 +54,32 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | `AEDST_DATABASE_ALLOW_UNVERIFIED_TLS` | bool | `false` | AllowUnverifiedTLS is the explicit opt-out of the requirement that every DSN in staging and production uses sslmode=verify-full or verify-ca. |
 | `AEDST_DATABASE_POOLER` | string | `none` | Pooler declares the connection pooler in front of AEDST_DATABASE_URL: "none" (default; direct Postgres or a session-mode pooler) or "pgbouncer" (PgBouncer / CloudNativePG Pooler in transaction mode). With "pgbouncer" the API pool is forced onto pgx QueryExecModeCacheDescribe (no named prepared statements) regardless of the DSN, and Validate requires AEDST_DATABASE_DIRECT_DSN or AEDST_JOBS_POLL_ONLY=true, because River's LISTEN/NOTIFY does not work through transaction pooling. |
 
-## Valkey
+## Cache
 
 | Variable | Type | Default | Description |
 |---|---|---|---|
-| `AEDST_VALKEY_ADDR` | string | `localhost:6379` |  |
-| `AEDST_VALKEY_PASSWORD` | string | (empty) |  |
-| `AEDST_VALKEY_DB` | int | `0` |  |
-| `AEDST_VALKEY_TLS` | bool | `false` | TLS connects to Valkey over TLS (TLS 1.2+). Required in staging and production unless AllowPlaintext is set: the password and every rate-limit key would otherwise cross the network in clear. |
-| `AEDST_VALKEY_TLS_SERVER_NAME` | string | (empty) | TLSServerName is the name verified in the server certificate (default: the host of AEDST_VALKEY_ADDR). |
-| `AEDST_VALKEY_TLS_CA_FILE` | string | (empty) | TLSCAFile is a PEM bundle of the CA that signed the server certificate (default: the system roots). |
-| `AEDST_VALKEY_ALLOW_PLAINTEXT` | bool | `false` | AllowPlaintext is the explicit opt-out of the TLS requirement, for a Valkey inside a trusted network segment. |
+| `AEDST_CACHE_ADDR` | string | `localhost:6379` |  |
+| `AEDST_CACHE_PASSWORD` | string | (empty) |  |
+| `AEDST_CACHE_DB` | int | `0` |  |
+| `AEDST_CACHE_TLS` | bool | `false` | TLS connects to Dragonfly over TLS (TLS 1.2+). Required in staging and production unless AllowPlaintext is set: the password and every rate-limit key would otherwise cross the network in clear. |
+| `AEDST_CACHE_TLS_SERVER_NAME` | string | (empty) | TLSServerName is the name verified in the server certificate (default: the host of AEDST_CACHE_ADDR). |
+| `AEDST_CACHE_TLS_CA_FILE` | string | (empty) | TLSCAFile is a PEM bundle of the CA that signed the server certificate (default: the system roots). |
+| `AEDST_CACHE_ALLOW_PLAINTEXT` | bool | `false` | AllowPlaintext is the explicit opt-out of the TLS requirement, for a Dragonfly inside a trusted network segment. |
+
+## Search
+
+| Variable | Type | Default | Description |
+|---|---|---|---|
+| `AEDST_SEARCH_URL` | string | (empty) |  |
+| `AEDST_SEARCH_API_KEY` | string | (empty) | APIKey is the Meilisearch API key the server uses (a key scoped to the documents and search actions, not the master key). Required in staging and production when URL is set. |
+| `AEDST_SEARCH_TIMEOUT_MS` | int | `5000` | TimeoutMs bounds every call to the engine. |
+
+## Flags
+
+| Variable | Type | Default | Description |
+|---|---|---|---|
+| `AEDST_FLAGS_FLAGD_HOST` | string | (empty) |  |
+| `AEDST_FLAGS_FLAGD_PORT` | string | `8013` |  |
 
 ## Auth
 

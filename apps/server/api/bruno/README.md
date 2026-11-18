@@ -69,7 +69,7 @@ npx @usebruno/cli run apps/server/api/bruno --env local -r
 `-r` runs folders in their `seq` order (Auth → Tasks), so
 `Register` populates the shared variables before anything that needs them
 runs. Not wired into `.github/workflows/server-ci.yml` yet — doing so needs
-the full `docker compose` stack (Postgres/Valkey) plus a running
+the full `docker compose` stack (Postgres/DragonflyDB) plus a running
 `aedst-server` up first, the same prerequisite `task test:integration`
 already has locally but that CI doesn't run either; a natural follow-up
 once that gap is closed, not scope-crept into this collection's setup.

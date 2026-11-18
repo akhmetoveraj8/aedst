@@ -60,7 +60,7 @@ Rules for new code:
 ## Backend
 
 Already handled: stateless replicas, two connection pools plus an optional read pool, keyset pagination,
-River for background work, Valkey cache and rate limiting, Connect gzip, OpenTelemetry tracing and
+River for background work, DragonflyDB cache and rate limiting, Connect gzip, OpenTelemetry tracing and
 metrics, pprof on the private listener, container-aware `GOMAXPROCS` (Go 1.25+), the Green Tea GC
 (Go 1.26+).
 
@@ -72,7 +72,7 @@ Rules for new code:
 | Indexes | Composite, led by the owner id (`user_id`), in sort order; created `CONCURRENTLY`; partial indexes for hot subsets; `pg_trgm` for substring search |
 | Writes | One statement instead of read-modify-write; batch inserts with `CopyFrom` or multi-row inserts; bounded transactions (no network calls inside a transaction) |
 | Pools | Request code on the api pool, workers on the jobs pool, lag-tolerant reads on the read pool; keep `replicas x (MAX_CONNS + JOBS_MAX_CONNS)` under `max_connections` |
-| Caching | Cache-aside in Valkey for hot, read-heavy, tolerant data, with a TTL and explicit invalidation on write; never cache per-user authorization decisions longer than a token lives; HTTP caching (`Cache-Control`, `ETag`) for public, cacheable GETs and static assets; a cache outage only slows the system down |
+| Caching | Cache-aside in DragonflyDB for hot, read-heavy, tolerant data, with a TTL and explicit invalidation on write; never cache per-user authorization decisions longer than a token lives; HTTP caching (`Cache-Control`, `ETag`) for public, cacheable GETs and static assets; a cache outage only slows the system down |
 | Async | Anything slow, retryable or not needed for the response (email, push, media, exports, fan-out) is a River job inserted in the transaction; heavy queues run on their own worker Deployment |
 | Payloads | Bounded request sizes per service, bounded `page_size`, server streaming for large results, `update_mask` so clients send only what changed, batch RPCs where a client would otherwise call in a loop |
 | Outbound calls | Configured client with a timeout, retry with backoff and jitter only for idempotent calls, circuit breaking (`apps/server/internal/platform/resilience`), HTTP keep-alive (the shared transport) |

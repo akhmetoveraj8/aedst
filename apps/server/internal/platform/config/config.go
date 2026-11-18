@@ -45,7 +45,9 @@ type Config struct {
 
 	HTTP      HTTPConfig
 	DB        DatabaseConfig
-	Valkey    ValkeyConfig
+	Cache     CacheConfig
+	Search    SearchConfig
+	Flags     FlagsConfig
 	Auth      AuthConfig
 	OIDC      OIDCConfig
 	Obs       ObservabilityConfig
@@ -102,7 +104,7 @@ type HTTPConfig struct {
 	// Successful requests cost nothing. 0 disables.
 	AuthFailRateLimitPerMinute int `env:"AEDST_AUTH_FAIL_RATE_LIMIT_PER_MINUTE" envDefault:"60"`
 	// APIRateLimitPerMinute is the per-user budget for authenticated RPCs,
-	// shared by every replica through Valkey. It bounds what one account (or one
+	// shared by every replica through Dragonfly. It bounds what one account (or one
 	// leaked token) can take from everyone else. 0 disables.
 	APIRateLimitPerMinute int `env:"AEDST_API_RATE_LIMIT_PER_MINUTE" envDefault:"1200"`
 	// MaxInFlight caps concurrently processing requests per instance; the excess
@@ -175,27 +177,54 @@ const (
 	PoolerPgBouncer = "pgbouncer"
 )
 
-// ValkeyConfig configures the Valkey (cache + rate limiting) connection. It
-// replaces the former AEDST_REDIS_* variables; the go-redis client speaks the
-// same protocol.
-type ValkeyConfig struct {
-	Addr     string `env:"AEDST_VALKEY_ADDR" envDefault:"localhost:6379"`
-	Password string `env:"AEDST_VALKEY_PASSWORD" envDefault:""`
-	DB       int    `env:"AEDST_VALKEY_DB" envDefault:"0"`
-	// TLS connects to Valkey over TLS (TLS 1.2+). Required in staging and
+// CacheConfig configures the Dragonfly (cache + rate limiting) connection. It
+// supersedes AEDST_VALKEY_* (still read for one release, see legacy_env.go) and
+// AEDST_REDIS_*; the go-redis client speaks the Redis protocol DragonflyDB implements.
+type CacheConfig struct {
+	Addr     string `env:"AEDST_CACHE_ADDR" envDefault:"localhost:6379"`
+	Password string `env:"AEDST_CACHE_PASSWORD" envDefault:""`
+	DB       int    `env:"AEDST_CACHE_DB" envDefault:"0"`
+	// TLS connects to Dragonfly over TLS (TLS 1.2+). Required in staging and
 	// production unless AllowPlaintext is set: the password and every
 	// rate-limit key would otherwise cross the network in clear.
-	TLS bool `env:"AEDST_VALKEY_TLS" envDefault:"false"`
+	TLS bool `env:"AEDST_CACHE_TLS" envDefault:"false"`
 	// TLSServerName is the name verified in the server certificate (default:
-	// the host of AEDST_VALKEY_ADDR).
-	TLSServerName string `env:"AEDST_VALKEY_TLS_SERVER_NAME" envDefault:""`
+	// the host of AEDST_CACHE_ADDR).
+	TLSServerName string `env:"AEDST_CACHE_TLS_SERVER_NAME" envDefault:""`
 	// TLSCAFile is a PEM bundle of the CA that signed the server certificate
 	// (default: the system roots).
-	TLSCAFile string `env:"AEDST_VALKEY_TLS_CA_FILE" envDefault:""`
+	TLSCAFile string `env:"AEDST_CACHE_TLS_CA_FILE" envDefault:""`
 	// AllowPlaintext is the explicit opt-out of the TLS requirement, for a
-	// Valkey inside a trusted network segment.
-	AllowPlaintext bool `env:"AEDST_VALKEY_ALLOW_PLAINTEXT" envDefault:"false"`
+	// Dragonfly inside a trusted network segment.
+	AllowPlaintext bool `env:"AEDST_CACHE_ALLOW_PLAINTEXT" envDefault:"false"`
 }
+
+// SearchConfig configures the Meilisearch connection. Search is optional and
+// off while URL is empty: modules then serve lookups from pg_trgm and index
+// jobs are not enqueued. PostgreSQL stays the source of truth.
+type SearchConfig struct {
+	URL string `env:"AEDST_SEARCH_URL" envDefault:""`
+	// APIKey is the Meilisearch API key the server uses (a key scoped to the
+	// documents and search actions, not the master key). Required in staging and
+	// production when URL is set.
+	APIKey string `env:"AEDST_SEARCH_API_KEY" envDefault:""`
+	// TimeoutMs bounds every call to the engine.
+	TimeoutMs int `env:"AEDST_SEARCH_TIMEOUT_MS" envDefault:"5000"`
+}
+
+// Enabled reports whether a search engine is configured.
+func (c SearchConfig) Enabled() bool { return c.URL != "" }
+
+// FlagsConfig configures feature flags (OpenFeature with the flagd provider).
+// Flags are off while FlagdHost is empty: every flag evaluates to the default in
+// code. Flags gate rollout, never correctness.
+type FlagsConfig struct {
+	FlagdHost string `env:"AEDST_FLAGS_FLAGD_HOST" envDefault:""`
+	FlagdPort uint16 `env:"AEDST_FLAGS_FLAGD_PORT" envDefault:"8013"`
+}
+
+// Enabled reports whether a flag provider is configured.
+func (c FlagsConfig) Enabled() bool { return c.FlagdHost != "" }
 
 // AuthConfig holds the authorization settings that sit on top of OIDC token
 // verification (see OIDCConfig). The server issues no tokens and stores no
@@ -285,7 +314,7 @@ func (o ObservabilityConfig) ExportEnabled() bool {
 // Load parses configuration from the process environment and validates it.
 func Load() (Config, error) {
 	var cfg Config
-	if err := env.Parse(&cfg); err != nil {
+	if err := env.ParseWithOptions(&cfg, env.Options{Environment: environment(os.Environ(), warnDeprecatedEnv)}); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
 	}
 	// env.Parse applies envDefault to a variable that is set but empty. For the
@@ -369,8 +398,14 @@ func (c Config) Validate() error {
 	if c.HTTP.PprofEnabled && c.HTTP.MetricsAddr == "" {
 		bad("AEDST_PPROF_ENABLED=true needs AEDST_METRICS_ADDR: profiles are served on the metrics listener, never the public port")
 	}
-	if c.Env.IsDeployed() && !c.Valkey.TLS && !c.Valkey.AllowPlaintext {
-		bad("AEDST_VALKEY_TLS=true is required in %s (or AEDST_VALKEY_ALLOW_PLAINTEXT=true to accept plaintext inside a trusted network)", c.Env)
+	if c.Env.IsDeployed() && c.Search.Enabled() && c.Search.APIKey == "" {
+		bad("AEDST_SEARCH_API_KEY is required in %s when AEDST_SEARCH_URL is set", c.Env)
+	}
+	if c.Search.Enabled() && c.Search.TimeoutMs <= 0 {
+		bad("AEDST_SEARCH_TIMEOUT_MS must be positive")
+	}
+	if c.Env.IsDeployed() && !c.Cache.TLS && !c.Cache.AllowPlaintext {
+		bad("AEDST_CACHE_TLS=true is required in %s (or AEDST_CACHE_ALLOW_PLAINTEXT=true to accept plaintext inside a trusted network)", c.Env)
 	}
 	if c.Env.IsDeployed() && !c.DB.AllowUnverifiedTLS {
 		if bad := c.databaseTLSProblems(); len(bad) > 0 {

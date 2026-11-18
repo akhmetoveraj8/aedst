@@ -12,7 +12,7 @@ func validConfig() config.Config {
 		Env:       config.EnvDevelopment,
 		HTTP:      config.HTTPConfig{RequestTimeout: 30, MaxRequestBytes: 1 << 20, AllowedOrigins: []string{"http://localhost:3000"}},
 		DB:        config.DatabaseConfig{DSN: "postgres://x?sslmode=verify-full", MaxConns: 20, MinConns: 2, JobsMaxConns: 10},
-		Valkey:    config.ValkeyConfig{TLS: true},
+		Cache:     config.CacheConfig{TLS: true},
 		Jobs:      config.JobsConfig{CompletedRetentionHours: 24, CancelledRetentionHours: 24, DiscardedRetentionHours: 168},
 		Retention: config.RetentionConfig{IntervalMinutes: 60, IdempotencyHours: 48, TombstoneHours: 336, NotificationDays: 90, AuditDays: 365},
 		OIDC:      config.OIDCConfig{Issuer: "https://idp.example", Audience: "api", Algorithms: []string{"RS256"}},

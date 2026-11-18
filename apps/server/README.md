@@ -7,7 +7,7 @@ the module list and dependency graph).
 ## Prerequisites
 
 - Go 1.27.3
-- Docker (for local Postgres + Valkey, and Testcontainers-based integration tests)
+- Docker (for local Postgres + DragonflyDB, and Testcontainers-based integration tests)
 - [buf](https://buf.build/docs/installation), [sqlc](https://docs.sqlc.dev/en/latest/overview/install.html),
   [goose](https://github.com/pressly/goose) — only needed if you change
   `api/proto/`, `sql/`, or `migrations/`; not needed to just run the server.
@@ -16,7 +16,7 @@ the module list and dependency graph).
 
 ```bash
 cp .env.example .env   # set AEDST_OIDC_ISSUER / AEDST_OIDC_AUDIENCE (see Authentication)
-task dev                # starts Postgres + Valkey, applies migrations, runs the server
+task dev                # starts Postgres + DragonflyDB, applies migrations, runs the server
 ```
 
 The server is a pure OIDC resource server (ADR-0019): it has no sign-in of its own and
@@ -27,7 +27,7 @@ refuses to start without `AEDST_OIDC_ISSUER`. For local work start a ZITADEL
 before `task run`.
 
 The server listens on `:8080` (ConnectRPC — Connect/JSON, gRPC and gRPC-Web all
-work against it). Health: `GET /livez` (process up), `GET /readyz` (Postgres required; Valkey optional — reported as `degraded`, never 503) and standard gRPC health (`grpc.health.v1`).
+work against it). Health: `GET /livez` (process up), `GET /readyz` (Postgres required; DragonflyDB optional — reported as `degraded`, never 503) and standard gRPC health (`grpc.health.v1`).
 Draining reports 503. Telemetry is OpenTelemetry (OTLP) — see
 [Observability](#observability); a Prometheus scrape endpoint is opt-in via
 `AEDST_METRICS_ADDR`.
@@ -54,7 +54,7 @@ one, so this is a real, runnable, git-committed collection instead).
 
 | Command | What it does |
 |---|---|
-| `task up` / `task down` | start/stop local Postgres + Valkey (`task up PROFILES="--profile observability --profile idp"` adds Grafana otel-lgtm and ZITADEL) |
+| `task up` / `task down` | start/stop local Postgres + DragonflyDB (`task up PROFILES="--profile observability --profile idp"` adds Grafana otel-lgtm and ZITADEL) |
 | `task migrate` / `task migrate:down` | apply/roll back migrations for every module schema (list: `MODULES` in `Taskfile.yml`) |
 | `task gen` | regenerate proto (buf) and SQL (sqlc) code — commit the diff |
 | `task lint` | format check, vet, golangci-lint, buf lint/format, `sqlc vet`, architecture boundary tests |
@@ -92,7 +92,7 @@ relative to `api/proto/`.
 
 `go build ./...`, `go vet ./...`, `golangci-lint run ./...`, `govulncheck ./...`
 and `go test ./...` (architecture boundary tests + unit tests) all run without
-Docker. `task dev` / `task test:integration` need Docker for Postgres/Valkey.
+Docker. `task dev` / `task test:integration` need Docker for Postgres/DragonflyDB.
 
 ## Stack at a glance
 
@@ -102,7 +102,7 @@ Docker. `task dev` / `task test:integration` need Docker for Postgres/Valkey.
 | Data | PostgreSQL 18, pgx, sqlc, Goose | `sqlc vet` + squawk in the lint gate |
 | Async | **River** (jobs and events: `InsertTx` in the producer's transaction, ADR-0014) | one mechanism, no broker; `internal/platform/events.Publisher` is the seam when a consumer becomes a separate service |
 | Locks | PostgreSQL advisory locks (`internal/platform/lock`) | no Redlock/RedSync |
-| Cache / rate limits | Valkey via go-redis + redis_rate (`internal/platform/valkey`) | `AEDST_VALKEY_*` |
+| Cache / rate limits | DragonflyDB via go-redis + redis_rate (`internal/platform/cache`) | `AEDST_CACHE_*` |
 | Auth | OIDC resource server only (any IdP; ZITADEL by default), no first-party accounts | [ADR-0017](docs/adr/0017-identity-provider.md), [ADR-0019](docs/adr/0019-remove-first-party-auth.md) |
 | Observability | OpenTelemetry (traces, metrics, logs) over OTLP; optional `/metrics` | any backend |
 
@@ -156,7 +156,7 @@ Upgrading an existing dev database that was migrated with the old shared
 
 | Old | New |
 |---|---|
-| `AEDST_REDIS_ADDR/PASSWORD/DB` | `AEDST_VALKEY_ADDR/PASSWORD/DB` (same protocol) |
+| `AEDST_REDIS_ADDR/PASSWORD/DB`, then `AEDST_VALKEY_*` | `AEDST_CACHE_*` (same protocol; DragonflyDB since 2026-11-18). `AEDST_VALKEY_*` is still honoured for one release with a warning; `AEDST_REDIS_*` is not |
 | `AEDST_NATS_URL` | removed |
 | `AEDST_OTLP_ENDPOINT` (gRPC, insecure) | standard `OTEL_EXPORTER_OTLP_ENDPOINT` / `_HEADERS` / `_PROTOCOL` |
 | `AEDST_METRICS_ADDR` default `:9090` | default empty (opt-in) |

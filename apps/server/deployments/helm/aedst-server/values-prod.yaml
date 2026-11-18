@@ -6,9 +6,9 @@ config:
   shutdownDrainSeconds: 15
   shutdownTimeoutSeconds: 20
   corsAllowedOrigins: ["https://app.example.com"]
-  valkey:
+  cache:
     tls: true
-    tlsCaFile: /etc/tls/valkey/ca.crt
+    tlsCaFile: /etc/tls/cache/ca.crt
   # Identity provider: ZITADEL is the template default. issuer = your ZITADEL
   # external domain over https; audience = the ZITADEL *project id*.
   oidc:
@@ -65,12 +65,12 @@ workers:
 migrations:
   activeDeadlineSeconds: 1800
 
-# Transport security (staging/production refuse to start otherwise): Valkey over TLS, and every
+# Transport security (staging/production refuse to start otherwise): Dragonfly over TLS, and every
 # PostgreSQL DSN with sslmode=verify-full + sslrootcert=/etc/tls/pg/ca.crt (CloudNativePG's own CA
-# Secret <cluster>-ca, mounted below). Provision the Secret valkey-tls with the Valkey CA (key ca.crt).
+# Secret <cluster>-ca, mounted below). Provision the Secret cache-tls with the Dragonfly CA (key ca.crt).
 extraVolumes:
-  - {name: valkey-tls, secret: {secretName: valkey-tls}}
+  - {name: cache-tls, secret: {secretName: cache-tls}}
   - {name: pg-ca, secret: {secretName: aedst-pg-ca}}
 extraVolumeMounts:
-  - {name: valkey-tls, mountPath: /etc/tls/valkey, readOnly: true}
+  - {name: cache-tls, mountPath: /etc/tls/cache, readOnly: true}
   - {name: pg-ca, mountPath: /etc/tls/pg, readOnly: true}

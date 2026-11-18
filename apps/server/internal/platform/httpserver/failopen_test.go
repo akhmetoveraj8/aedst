@@ -18,7 +18,7 @@ import (
 func TestUserRateLimitInterceptor_FailOpenWarningIsThrottled(t *testing.T) {
 	var buf bytes.Buffer
 	logger := slog.New(slog.NewTextHandler(&buf, nil))
-	limiter := &stubLimiter{allowed: true, err: errors.New("valkey down")}
+	limiter := &stubLimiter{allowed: true, err: errors.New("cache down")}
 	call := serve(t, func(context.Context) error { return nil },
 		withIdentity(platformauth.Identity{UserID: ids.New()}),
 		httpserver.UserRateLimitInterceptor(limiter, 60, logger))

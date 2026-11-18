@@ -28,7 +28,7 @@ type ReplayStore interface {
 	Claim(ctx context.Context, tokenHash [32]byte, userID ids.ID, at time.Time) (bool, error)
 }
 
-// Limiter is a fixed-window rate limiter (satisfied by *valkey.RateLimiter).
+// Limiter is a fixed-window rate limiter (satisfied by *cache.RateLimiter).
 // It fails open by design: an error means "allow".
 type Limiter interface {
 	Allow(ctx context.Context, key string, limit int, period time.Duration) (bool, error)

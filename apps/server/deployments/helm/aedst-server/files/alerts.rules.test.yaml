@@ -42,12 +42,12 @@ tests:
         alertname: AedstHighErrorRatio
         exp_alerts: []
 
-  # Valkey errors for 15 minutes: rate limits silently stop being enforced.
+  # Dragonfly errors for 15 minutes: rate limits silently stop being enforced.
   - interval: 1m
     input_series:
       - series: 'aedst_ratelimit_fail_open_total{pod="a"}'
         values: "0+30x30"
-      - series: 'aedst_readiness_degraded{pod="a", check="valkey"}'
+      - series: 'aedst_readiness_degraded{pod="a", check="cache"}'
         values: "1+0x30"
     alert_rule_test:
       - eval_time: 5m
@@ -60,32 +60,32 @@ tests:
               severity: ticket
             exp_annotations:
               summary: Rate limits are not being enforced
-              description: Valkey errors for 10 minutes — every rate-limit decision is skipped (allowed) and the failed-authentication throttle is off. Requests are served normally.
+              description: Dragonfly errors for 10 minutes — every rate-limit decision is skipped (allowed) and the failed-authentication throttle is off. Requests are served normally.
               runbook_url: https://docs.aedst.dev/runbook#aedstratelimiterfailingopen
       - eval_time: 20m
-        alertname: AedstValkeyDegraded
+        alertname: AedstCacheDegraded
         exp_alerts:
           - exp_labels:
               severity: ticket
-              check: valkey
+              check: cache
             exp_annotations:
-              summary: "Optional dependency valkey has been failing for 10 minutes"
-              description: The instance serves in degraded mode (/readyz reports degraded, stays in rotation). For valkey that means no rate limiting; for database_read, reads fall back to the primary.
-              runbook_url: https://docs.aedst.dev/runbook#aedstvalkeydegraded
+              summary: "Optional dependency cache has been failing for 10 minutes"
+              description: The instance serves in degraded mode (/readyz reports degraded, stays in rotation). For cache that means no rate limiting; for database_read, reads fall back to the primary.
+              runbook_url: https://docs.aedst.dev/runbook#aedstcachedegraded
 
   # A healthy cache: neither fires.
   - interval: 1m
     input_series:
       - series: 'aedst_ratelimit_fail_open_total{pod="a"}'
         values: "0+0x30"
-      - series: 'aedst_readiness_degraded{pod="a", check="valkey"}'
+      - series: 'aedst_readiness_degraded{pod="a", check="cache"}'
         values: "0+0x30"
     alert_rule_test:
       - eval_time: 25m
         alertname: AedstRateLimiterFailingOpen
         exp_alerts: []
       - eval_time: 25m
-        alertname: AedstValkeyDegraded
+        alertname: AedstCacheDegraded
         exp_alerts: []
 
   # Goroutines (OpenTelemetry runtime metric name, not client_golang's go_goroutines).

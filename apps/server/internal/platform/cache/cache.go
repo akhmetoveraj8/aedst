@@ -1,18 +1,18 @@
-// Package valkey wires the shared Valkey client. Valkey is not the primary
+// Package cache wires the shared Dragonfly client. Dragonfly is not the primary
 // database: it backs cache and rate limiting only (see
 // docs/content/server/architecture.md). It is deliberately NOT used for locks
 // (use internal/platform/lock, PostgreSQL advisory locks) or for messaging
 // (use River InsertTx events, see internal/platform/events).
 //
-// The client is github.com/redis/go-redis/v9: Valkey speaks the same RESP
+// The client is github.com/redis/go-redis/v9: Dragonfly speaks the same RESP
 // protocol, so no separate client library is needed. Keep every go-redis
 // import inside this package.
 //
-// Valkey is an optional dependency by design: nothing correct depends on it,
+// Dragonfly is an optional dependency by design: nothing correct depends on it,
 // so the client neither fails process startup nor takes a replica out of
 // rotation when it is unreachable (see cmd/server and httpserver.Check's
-// Optional flag). It reconnects on its own once Valkey is back.
-package valkey
+// Optional flag). It reconnects on its own once Dragonfly is back.
+package cache
 
 import (
 	"context"
@@ -49,11 +49,11 @@ func NewClient(cfg Config) *redis.Client {
 	})
 }
 
-// Ping reports whether Valkey answers, for readiness reporting and a startup
+// Ping reports whether Dragonfly answers, for readiness reporting and a startup
 // log line.
 func Ping(ctx context.Context, client *redis.Client) error {
 	if err := client.Ping(ctx).Err(); err != nil {
-		return fmt.Errorf("valkey: ping: %w", err)
+		return fmt.Errorf("cache: ping: %w", err)
 	}
 	return nil
 }
@@ -71,13 +71,13 @@ func TLSConfig(addr, serverName, caFile string) (*tls.Config, error) {
 		cfg.ServerName = host
 	}
 	if caFile != "" {
-		pem, err := os.ReadFile(caFile) //nolint:gosec // operator-supplied path (AEDST_VALKEY_TLS_CA_FILE), not request input
+		pem, err := os.ReadFile(caFile) //nolint:gosec // operator-supplied path (AEDST_CACHE_TLS_CA_FILE), not request input
 		if err != nil {
-			return nil, fmt.Errorf("valkey: read CA file: %w", err)
+			return nil, fmt.Errorf("cache: read CA file: %w", err)
 		}
 		pool := x509.NewCertPool()
 		if !pool.AppendCertsFromPEM(pem) {
-			return nil, fmt.Errorf("valkey: CA file %s holds no PEM certificate", caFile)
+			return nil, fmt.Errorf("cache: CA file %s holds no PEM certificate", caFile)
 		}
 		cfg.RootCAs = pool
 	}

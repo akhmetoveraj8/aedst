@@ -4,9 +4,9 @@ config:
   env: staging
   trustedProxyHops: 2
   corsAllowedOrigins: ["https://staging.example.com"]
-  valkey:
+  cache:
     tls: true
-    tlsCaFile: /etc/tls/valkey/ca.crt
+    tlsCaFile: /etc/tls/cache/ca.crt
 database:
   directDsnSecretKey: database-direct-url
 autoscaling:
@@ -22,8 +22,8 @@ migrations:
 
 # Transport security, as in values-prod.yaml.
 extraVolumes:
-  - {name: valkey-tls, secret: {secretName: valkey-tls}}
+  - {name: cache-tls, secret: {secretName: cache-tls}}
   - {name: pg-ca, secret: {secretName: aedst-pg-ca}}
 extraVolumeMounts:
-  - {name: valkey-tls, mountPath: /etc/tls/valkey, readOnly: true}
+  - {name: cache-tls, mountPath: /etc/tls/cache, readOnly: true}
   - {name: pg-ca, mountPath: /etc/tls/pg, readOnly: true}

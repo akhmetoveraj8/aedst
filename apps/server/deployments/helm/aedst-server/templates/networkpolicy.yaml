@@ -1,7 +1,7 @@
 {{- if .Values.networkPolicy.enabled }}
 # Least-privilege network access for the API pods: ingress only from the ingress
 # controller (and, for scraping, the monitoring namespace); egress only to DNS,
-# Postgres, Valkey, the OTLP collector and the OIDC provider. Opt-in because the
+# Postgres, Dragonfly, the OTLP collector and the OIDC provider. Opt-in because the
 # selectors depend on how the cluster is laid out.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

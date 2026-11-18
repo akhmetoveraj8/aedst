@@ -165,7 +165,7 @@ func TestUserRateLimitInterceptor(t *testing.T) {
 		t.Fatalf("limiter keys = %v, want one key per user", limiter.keys)
 	}
 
-	limiter.err = errors.New("valkey down")
+	limiter.err = errors.New("cache down")
 	if err := call(); err != nil {
 		t.Fatalf("limiter outage must fail open, got %v", err)
 	}
@@ -241,11 +241,11 @@ func TestRouter_SecurityHeaders(t *testing.T) {
 }
 
 func TestReadiness_OptionalDependencyDegradesInsteadOfFailing(t *testing.T) {
-	valkeyUp := false
+	cacheUp := false
 	readiness := httpserver.NewReadiness(
 		httpserver.Check{Name: "database", Fn: func(context.Context) error { return nil }},
-		httpserver.Check{Name: "valkey", Optional: true, Fn: func(context.Context) error {
-			if valkeyUp {
+		httpserver.Check{Name: "cache", Optional: true, Fn: func(context.Context) error {
+			if cacheUp {
 				return nil
 			}
 			return errors.New("down")
@@ -264,7 +264,7 @@ func TestReadiness_OptionalDependencyDegradesInsteadOfFailing(t *testing.T) {
 	if code != http.StatusOK || body["status"] != "degraded" {
 		t.Fatalf("cache down: /readyz = %d %v, want 200 degraded (a cache outage must not empty the pool of replicas)", code, body)
 	}
-	valkeyUp = true
+	cacheUp = true
 	if code, body := get(); code != http.StatusOK || body["status"] != "ok" {
 		t.Fatalf("all up: /readyz = %d %v, want 200 ok", code, body)
 	}
