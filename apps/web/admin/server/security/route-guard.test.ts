@@ -115,6 +115,28 @@ describe("decideRoute", () => {
     });
   });
 
+  it("guards paths without a locale too (fail closed) and keeps the query", () => {
+    expect(decideRoute({ pathname: "/", session: "anonymous" })).toEqual({
+      type: "redirect",
+      location: "/api/auth/login?next=%2F",
+    });
+    expect(
+      decideRoute({ pathname: "/en/admin", search: "?q=1", session: "anonymous" }),
+    ).toEqual({
+      type: "redirect",
+      location: "/api/auth/login?next=%2Fen%2Fadmin%3Fq%3D1",
+    });
+    expect(
+      decideRoute({ pathname: "/", session: "active", roles: [], fallbackLocale: "ru" }),
+    ).toEqual({ type: "redirect", location: "/ru/forbidden" });
+  });
+
+  it("serves the locale-less forbidden page (auth error landing) without a session", () => {
+    expect(decideRoute({ pathname: "/forbidden", session: "anonymous" })).toEqual({
+      type: "next",
+    });
+  });
+
   it("always serves the forbidden page itself (no redirect loop)", () => {
     expect(
       decideRoute({ pathname: "/en/forbidden", session: "active", roles: [] }),
