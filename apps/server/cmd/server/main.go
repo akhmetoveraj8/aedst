@@ -1,7 +1,7 @@
 // Command server is the aedst-server entrypoint. It only wires dependencies —
 // config, platform, modules — together; it contains no business logic (see
 // docs/content/server/architecture.md). The wiring is split by concern:
-// wire_platform.go (pools, Valkey), wire_auth.go (token verifier),
+// wire_platform.go (pools, Dragonfly), wire_auth.go (token verifier),
 // wire_jobs.go (River, retention), wire_push.go, wire_modules.go (iterates the
 // module registry: setup, mounting, RPC surface), modules.go (the one import
 // line per module) and wire_http.go (router, interceptors). Modules register
@@ -81,8 +81,8 @@ func run(ctx context.Context) error {
 
 	// Order matters: each step uses what the earlier ones built.
 	for _, step := range []func(context.Context) error{
-		a.openDatabases, a.openModuleDatabases, a.openValkey, a.buildVerifier,
-		a.buildPush, a.buildJobs, a.wireModules,
+		a.openDatabases, a.openModuleDatabases, a.openCache, a.buildVerifier,
+		a.buildPush, a.buildSearch, a.buildJobs, a.wireModules,
 	} {
 		if err := step(ctx); err != nil {
 			return err

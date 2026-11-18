@@ -10,6 +10,7 @@ import (
 	"github.com/aedst/server/internal/platform/idempotency"
 	platformjobs "github.com/aedst/server/internal/platform/jobs"
 	"github.com/aedst/server/internal/platform/retention"
+	"github.com/aedst/server/internal/platform/search"
 )
 
 // buildJobs wires background jobs (River, see
@@ -43,6 +44,9 @@ func (a *app) buildJobs(ctx context.Context) error {
 	if err := events.Register(env.Workers, env.Events, a.logger); err != nil {
 		return err
 	}
+	if err := search.Register(env.Workers, env.Search, env.SearchSources); err != nil {
+		return err
+	}
 	if err := platformjobs.RegisterMetrics(env.JobsPool); err != nil {
 		return err
 	}
@@ -68,6 +72,7 @@ func (a *app) buildJobs(ctx context.Context) error {
 	// subscribed consumer inside the producer's own transaction (any pool: the
 	// insert rides the caller's pgx.Tx); consumers subscribe on the registry
 	// and are run by the events worker on the jobs pool.
+	env.Indexer = search.NewIndexer(env.Jobs, cfg.Search.Enabled())
 	env.Publisher = events.NewRiverPublisher(env.Events, env.Jobs, a.clock)
 	return nil
 }

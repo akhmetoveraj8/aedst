@@ -130,7 +130,7 @@ linters:
         # nobody remembered to add. `task arch` runs in CI on every change.
 
         # Banned libraries (NATS, RedSync/Redlock, competing JWT/router/ORM
-        # stacks) and "only internal/platform/valkey imports go-redis" are
+        # stacks) and "only internal/platform/{cache,search,flags} import their clients" are
         # enforced by architecturetest (exact, rather than glob-approximate)
         # and by the `banned-dependencies` depguard rule below (fast feedback
         # in the editor/lint step).
@@ -141,7 +141,7 @@ linters:
             - pkg: github.com/nats-io
               desc: "no external broker until a consumer becomes a separate service (ADR-0014): events go through internal/platform/events (River InsertTx)"
             - pkg: github.com/go-redsync/redsync
-              desc: "no distributed locks in Valkey: use PostgreSQL advisory locks (internal/platform/lock)"
+              desc: "no distributed locks in Dragonfly/Redis: use PostgreSQL advisory locks (internal/platform/lock)"
             - pkg: github.com/golang-jwt
               desc: "JWT/JOSE goes through lestrrat-go/jwx only"
             - pkg: gorm.io/gorm
@@ -194,6 +194,22 @@ linters:
           deny:
             - pkg: github.com/riverqueue/rivercontrib
               desc: "River middleware is installed only by internal/platform/jobs"
+
+        meilisearch-only-in-search:
+          files:
+            - "**/*.go"
+            - "!**/internal/platform/search/**"
+          deny:
+            - pkg: github.com/meilisearch/meilisearch-go
+              desc: "The Meilisearch client is imported only by internal/platform/search; modules depend on search.Engine"
+
+        openfeature-only-in-flags:
+          files:
+            - "**/*.go"
+            - "!**/internal/platform/flags/**"
+          deny:
+            - pkg: github.com/open-feature
+              desc: "OpenFeature and flagd are imported only by internal/platform/flags; modules depend on flags.Flags"
 
         miniredis-only-in-tests:
           files:

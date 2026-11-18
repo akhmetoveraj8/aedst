@@ -4,6 +4,11 @@ All notable changes to this repository are documented here. The format follows [
 
 ## [Unreleased]
 
+### Changed (server data stack, 2026-11-18)
+
+- **Server, breaking config**: DragonflyDB (BSL 1.1, owner decision) replaces Valkey. `internal/platform/valkey` is now `internal/platform/cache`; `AEDST_VALKEY_*` is `AEDST_CACHE_*` (the old names still work for one release and log a warning, see `internal/platform/config/legacy_env.go`); the readiness check and alert are `cache` / `AedstCacheDegraded`; Helm `config.valkey` is `config.cache` and `secretKeys.valkeyPassword` is `cachePassword` (default Secret key `cache-password`). Compose runs `ghcr.io/dragonflydb/dragonfly:v2.1.0`. The new integration test against the real image was written but not run (no Docker where this was authored).
+- **Server**: Meilisearch port `internal/platform/search` (River-job indexing, `Indexer.EnqueueTx`), OpenFeature + flagd port `internal/platform/flags`, both optional and off by default; Helm `config.search`, `config.flags`, `flagd`. No module uses them yet. ScyllaDB is recorded in `docs/content/decisions/server.md` only (no code, no dependency).
+
 ### Fixed (senior review, 2026-11-05)
 
 - **Server, critical**: the OIDC JWKS cache ran on the first request's context, so the key refresher stopped when that request ended and every later authenticated RPC blocked. The cache now lives on a verifier-owned context (stopped by `Close` in the ordered shutdown), is warmed at startup in the background, and discovery plus the first fetch run outside the mutex through `singleflight`. Tokens without `exp` are rejected.

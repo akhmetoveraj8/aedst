@@ -43,7 +43,7 @@ re-implement what it already does, and do not weaken it. Secure by default: a ne
 
 | Item | AEDST |
 |---|---|
-| Throttling against brute force and DoS | Per-user rate limit (`AEDST_API_RATE_LIMIT_PER_MINUTE`, Valkey, fails open), load shedding (`AEDST_MAX_IN_FLIGHT`), per-service message size caps, server timeouts (`apps/server/internal/platform/httpserver/server.go`); edge rate limits in the ingress |
+| Throttling against brute force and DoS | Per-user rate limit (`AEDST_API_RATE_LIMIT_PER_MINUTE`, DragonflyDB, fails open), load shedding (`AEDST_MAX_IN_FLIGHT`), per-service message size caps, server timeouts (`apps/server/internal/platform/httpserver/server.go`); edge rate limits in the ingress |
 | HTTPS and secure ciphers | TLS terminated at the ingress with modern ciphers only; HSTS from the server (`HSTSMaxAge` in `apps/server/internal/platform/httpserver/middleware.go`) and the web app (`apps/web/app/next.config.ts`) |
 | No directory listings | No file server in the API; static files are served by Next.js or object storage with private buckets and signed URLs |
 | Private APIs on safe-listed IPs | Metrics and pprof listen on a separate address (`AEDST_METRICS_ADDR`), never on the public port; admin RPCs are role-gated by default |

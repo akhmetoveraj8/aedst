@@ -18,7 +18,8 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "valkeyPassword": {"type": "string"},
+        "cachePassword": {"type": "string"},
+        "searchApiKey": {"type": "string"},
         "storageAccessKeyId": {"type": "string"},
         "storageSecretAccessKey": {"type": "string"},
         "vapidPrivateKey": {"type": "string"},
@@ -167,7 +168,7 @@
             "keyRetentionDays": {"type": "integer", "minimum": 1}
           }
         },
-        "valkey": {
+        "cache": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -177,6 +178,22 @@
             "tlsServerName": {"type": "string"},
             "tlsCaFile": {"type": "string"},
             "allowPlaintext": {"type": "boolean"}
+          }
+        },
+        "search": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {"type": "string"},
+            "timeoutMs": {"type": "integer", "minimum": 1}
+          }
+        },
+        "flags": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "flagdHost": {"type": "string"},
+            "flagdPort": {"type": "integer", "minimum": 1, "maximum": 65535}
           }
         },
         "oidc": {

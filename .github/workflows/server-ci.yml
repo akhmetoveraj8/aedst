@@ -402,7 +402,7 @@ jobs:
           mkdir -p "$HOME/.local/bin"
           tar -xzf "$f" -C "$HOME/.local/bin" --strip-components=1 "k6-${K6_VERSION}-linux-amd64/k6"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - run: docker compose -f deployments/docker/docker-compose.yml up -d --wait postgres valkey
+      - run: docker compose -f deployments/docker/docker-compose.yml up -d --wait postgres cache
       - run: task migrate
       - name: start server
         run: |

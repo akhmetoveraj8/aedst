@@ -162,9 +162,9 @@ func (r *Readiness) WithCacheTTL(d time.Duration) *Readiness {
 }
 
 // RegisterMetrics exports aedst_readiness_degraded{check}: 1 while an optional
-// dependency (Valkey, the read replica) fails its probe, 0 while it passes. A
+// dependency (Dragonfly, the read replica) fails its probe, 0 while it passes. A
 // degraded instance still serves (that is the point of Optional), so without
-// this gauge a Valkey outage, which switches every rate limit off, is invisible
+// this gauge a Dragonfly outage, which switches every rate limit off, is invisible
 // to alerting. The callback reads the shared evaluation, so a scrape costs no
 // extra probes.
 func (r *Readiness) RegisterMetrics() error {

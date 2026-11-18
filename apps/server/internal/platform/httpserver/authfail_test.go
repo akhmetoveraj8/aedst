@@ -28,7 +28,7 @@ func (v fakeVerifier) VerifyAccessToken(_ context.Context, token string) (platfo
 	return platformauth.Claims{}, errors.New("bad token")
 }
 
-// failLimiter counts budget per key like the Valkey limiter, in memory.
+// failLimiter counts budget per key like the Dragonfly limiter, in memory.
 type failLimiter struct {
 	mu      sync.Mutex
 	spent   map[string]int
@@ -39,7 +39,7 @@ func (l *failLimiter) Allow(_ context.Context, key string, limit int, _ time.Dur
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	if l.failing {
-		return true, errors.New("valkey down")
+		return true, errors.New("cache down")
 	}
 	l.spent[key]++
 	return l.spent[key] <= limit, nil
@@ -49,7 +49,7 @@ func (l *failLimiter) Exhausted(_ context.Context, key string, limit int, _ time
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	if l.failing {
-		return false, errors.New("valkey down")
+		return false, errors.New("cache down")
 	}
 	return l.spent[key] >= limit, nil
 }

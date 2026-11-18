@@ -43,7 +43,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 
 {{/* Name of the pre-existing Secret holding all sensitive values. */}}
 {{- define "aedst-server.secretName" -}}
-{{- required "existingSecret is required: name of an existing Secret with the database DSN (and the Valkey password)" .Values.existingSecret -}}
+{{- required "existingSecret is required: name of an existing Secret with the database DSN (and the Dragonfly password)" .Values.existingSecret -}}
 {{- end -}}
 
 {{/* image.tag is required: a floating "latest" must never reach a cluster. */}}

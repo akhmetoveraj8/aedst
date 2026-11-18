@@ -38,7 +38,7 @@ contradicts ADR-0001's "only for a measured reason" until the owner decides.
 ## Step 2 - run more instances (supported)
 
 Replicas are interchangeable: state lives in Postgres, River's leader election and
-unique jobs make periodic work single-instance, rate limits are shared through Valkey.
+unique jobs make periodic work single-instance, rate limits are shared through DragonflyDB.
 Size pools with the arithmetic in the scaling guide (`replicas x (maxConns + jobsMaxConns)`
 under `max_connections`; the chart refuses a render that exceeds
 `database.serverMaxConnections`). Telemetry identity is per pod:

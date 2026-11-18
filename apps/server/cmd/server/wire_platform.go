@@ -14,10 +14,10 @@ import (
 	platformjobs "github.com/aedst/server/internal/platform/jobs"
 
 	platformauth "github.com/aedst/server/internal/platform/auth"
+	"github.com/aedst/server/internal/platform/cache"
 	"github.com/aedst/server/internal/platform/config"
 	"github.com/aedst/server/internal/platform/database"
 	"github.com/aedst/server/internal/platform/modulekit"
-	"github.com/aedst/server/internal/platform/valkey"
 	sharedtime "github.com/aedst/server/internal/shared/time"
 )
 
@@ -35,8 +35,8 @@ type app struct {
 	env  *modulekit.Env
 	mods []modulekit.Module // registered modules, dependencies first
 
-	valkeyPing func(context.Context) error
-	verifier   *platformauth.OIDCVerifier
+	cachePing func(context.Context) error
+	verifier  *platformauth.OIDCVerifier
 }
 
 // onClose registers a cleanup; close runs them in reverse registration order,
@@ -127,30 +127,30 @@ func (a *app) openDatabases(ctx context.Context) error {
 	return database.RegisterPoolMetrics("jobs", jobsPool)
 }
 
-// openValkey builds the cache/rate-limit client. Valkey is optional: nothing
+// openCache builds the cache/rate-limit client. Dragonfly is optional: nothing
 // correct depends on it, so it neither blocks startup nor readiness. The
 // limiters fail open.
-func (a *app) openValkey(ctx context.Context) error {
-	vc := a.cfg.Valkey
+func (a *app) openCache(ctx context.Context) error {
+	vc := a.cfg.Cache
 	var tlsCfg *tls.Config
 	if vc.TLS {
 		var err error
-		if tlsCfg, err = valkey.TLSConfig(vc.Addr, vc.TLSServerName, vc.TLSCAFile); err != nil {
+		if tlsCfg, err = cache.TLSConfig(vc.Addr, vc.TLSServerName, vc.TLSCAFile); err != nil {
 			return err
 		}
 	}
-	client := valkey.NewClient(valkey.Config{
+	client := cache.NewClient(cache.Config{
 		TLS:      tlsCfg,
-		Addr:     a.cfg.Valkey.Addr,
-		Password: a.cfg.Valkey.Password,
-		DB:       a.cfg.Valkey.DB,
+		Addr:     a.cfg.Cache.Addr,
+		Password: a.cfg.Cache.Password,
+		DB:       a.cfg.Cache.DB,
 	})
 	a.onClose(func() { _ = client.Close() })
-	if err := valkey.Ping(ctx, client); err != nil {
-		a.logger.WarnContext(ctx, "valkey unreachable at startup; rate limiting will fail open until it is back", slog.Any("error", err))
+	if err := cache.Ping(ctx, client); err != nil {
+		a.logger.WarnContext(ctx, "cache unreachable at startup; rate limiting will fail open until it is back", slog.Any("error", err))
 	}
-	a.env.RateLimiter = valkey.NewRateLimiter(client)
-	a.valkeyPing = func(ctx context.Context) error { return valkey.Ping(ctx, client) }
+	a.env.RateLimiter = cache.NewRateLimiter(client)
+	a.cachePing = func(ctx context.Context) error { return cache.Ping(ctx, client) }
 	return nil
 }
 

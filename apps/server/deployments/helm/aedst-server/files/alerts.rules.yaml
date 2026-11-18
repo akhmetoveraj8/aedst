@@ -128,17 +128,17 @@ groups:
         labels: {severity: ticket}
         annotations:
           summary: Rate limits are not being enforced
-          description: Valkey errors for 10 minutes — every rate-limit decision is skipped (allowed) and the failed-authentication throttle is off. Requests are served normally.
+          description: Dragonfly errors for 10 minutes — every rate-limit decision is skipped (allowed) and the failed-authentication throttle is off. Requests are served normally.
           runbook_url: https://docs.aedst.dev/runbook#aedstratelimiterfailingopen
 
-      - alert: AedstValkeyDegraded
+      - alert: AedstCacheDegraded
         expr: max by (check) (aedst_readiness_degraded) == 1
         for: 10m
         labels: {severity: ticket}
         annotations:
           summary: "Optional dependency {{ $labels.check }} has been failing for 10 minutes"
-          description: The instance serves in degraded mode (/readyz reports degraded, stays in rotation). For valkey that means no rate limiting; for database_read, reads fall back to the primary.
-          runbook_url: https://docs.aedst.dev/runbook#aedstvalkeydegraded
+          description: The instance serves in degraded mode (/readyz reports degraded, stays in rotation). For cache that means no rate limiting; for database_read, reads fall back to the primary.
+          runbook_url: https://docs.aedst.dev/runbook#aedstcachedegraded
 
   - name: aedst-server.runtime
     rules:

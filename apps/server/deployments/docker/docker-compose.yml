@@ -3,7 +3,7 @@ name: aedst
 # Local development infrastructure.
 #
 #   docker compose -f deployments/docker/docker-compose.yml up -d --wait
-#       -> Postgres + Valkey (the only required services)
+#       -> Postgres + Dragonfly (the only required services)
 #
 #   ... --profile observability up -d
 #       -> + Grafana otel-lgtm (Grafana, Loki, Tempo, Mimir/Prometheus and an
@@ -68,17 +68,50 @@ services:
       timeout: 3s
       retries: 30
 
-  # Valkey (BSD-3, Linux Foundation) is the cache + rate-limit store. The
-  # server talks to it with the go-redis client; the wire protocol is the same.
-  valkey:
-    image: valkey/valkey:9-alpine
+  # DragonflyDB (BSL 1.1, source-available, NOT OSI open source; owner decision,
+  # docs/content/decisions/server.md) is the cache + rate-limit store. The
+  # server talks to it with the go-redis client; the wire protocol is RESP.
+  # Nothing correct lives here: the limiter fails open and the cache is rebuildable.
+  cache:
+    image: ghcr.io/dragonflydb/dragonfly:v2.1.0
     ports:
       - "6379:6379"
+    # UNVERIFIED: that the image ships /usr/local/bin/healthcheck.sh (documented
+    # by DragonflyDB for Docker; not run here, no Docker on the authoring machine).
     healthcheck:
-      test: ["CMD", "valkey-cli", "ping"]
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 2s
       timeout: 3s
       retries: 30
+
+  # Meilisearch (MIT) is the search engine; PostgreSQL stays the source of truth
+  # and pg_trgm serves simple lookups. Optional: start with `--profile search`.
+  meilisearch:
+    profiles: ["search"]
+    image: getmeili/meilisearch:v1.57.0
+    environment:
+      MEILI_ENV: development
+      MEILI_NO_ANALYTICS: "true"
+    ports:
+      - "7700:7700"
+    volumes:
+      - aedst_meili_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:7700/health"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # flagd (Apache-2.0) serves feature flags from a file (OpenFeature). Optional:
+  # `--profile flags`. Flag definitions: deployments/docker/flags.flagd.json.
+  flagd:
+    profiles: ["flags"]
+    image: ghcr.io/open-feature/flagd:v0.19.0
+    command: ["start", "--uri", "file:/etc/flagd/flags.flagd.json"]
+    volumes:
+      - ./flags.flagd.json:/etc/flagd/flags.flagd.json:ro
+    ports:
+      - "8013:8013"
 
   # --- optional: PgBouncer in transaction-pooling mode (compose only) ---
   # The server forces pgx onto CacheDescribe itself when
@@ -136,7 +169,7 @@ services:
       AEDST_DATABASE_MAX_CONNS: ${LOADTEST_API_MAX_CONNS:-8}
       AEDST_DATABASE_MIN_CONNS: "2"
       AEDST_DATABASE_JOBS_MAX_CONNS: ${LOADTEST_JOBS_MAX_CONNS:-4}
-      AEDST_VALKEY_ADDR: valkey:6379
+      AEDST_CACHE_ADDR: cache:6379
       AEDST_API_RATE_LIMIT_PER_MINUTE: "0"
       AEDST_AUTH_RATE_LIMIT_PER_MINUTE: "100000"
       # The server only verifies OIDC tokens (ADR-0019): point it at your provider
@@ -148,7 +181,7 @@ services:
     depends_on:
       pgbouncer:
         condition: service_healthy
-      valkey:
+      cache:
         condition: service_healthy
 
   # Round-robin entry point for the scaled `server` replicas (Docker DNS returns
@@ -410,6 +443,7 @@ networks:
 
 volumes:
   aedst_postgres_data:
+  aedst_meili_data:
   zitadel_postgres_data:
   zitadel_bootstrap:
   aedst_lgtm_data:

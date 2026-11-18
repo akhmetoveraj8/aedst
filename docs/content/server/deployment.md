@@ -1,13 +1,13 @@
 ---
 title: "Deployment"
-description: "apps/server/deployments/docker/docker-compose.yml runs PostgreSQL 18 and Valkey (the only services aedst-server needs). Optional compose profiles add..."
+description: "apps/server/deployments/docker/docker-compose.yml runs PostgreSQL 18 and DragonflyDB (the only services aedst-server needs). Optional compose profiles add..."
 ---
 
 # Deployment
 
 ## Local development
 
-`apps/server/deployments/docker/docker-compose.yml` runs PostgreSQL 18 and Valkey
+`apps/server/deployments/docker/docker-compose.yml` runs PostgreSQL 18 and DragonflyDB
 (the only services `aedst-server` needs). Optional compose profiles add
 observability (`observability`), a ZITADEL OIDC provider (`idp`) and PgBouncer
 (`pgbouncer`, transaction pooling on `localhost:6432`) for rehearsing the production
@@ -56,7 +56,7 @@ Related decisions: [ADR-0008 realtime and media](/decisions/0008-realtime-and-me
                      |
        +-------------+-------------+
        |                           |
-  PostgreSQL                    Valkey
+  PostgreSQL                    DragonflyDB
   (via PgBouncer,               (managed)
    + direct connection
    for jobs/locks)
@@ -96,7 +96,7 @@ helm upgrade --install aedst-server apps/server/deployments/helm/aedst-server \
   the render fails if an override is not larger than drain + timeout.
 - **Secrets are never in values.** `existingSecret` names a Secret provisioned
   elsewhere; the chart references its keys for the DSNs, the JWT signing key, the
-  Valkey password and the optional storage/push/integrity credentials
+  DragonflyDB password and the optional storage/push/integrity credentials
   (`secretKeys.*`, all listed in `deployments/secrets/secrets.example.yaml`). The shipped
   bridge is SOPS+age decrypted by **ksops** in the Argo CD repo-server
   (`deployments/k8s/secrets/overlays/<env>`, one `aedst-secrets-<env>` Application each; setup in
@@ -227,10 +227,10 @@ after every major upgrade.
 
 ### Transport security and identity
 
-- **Staging and production refuse to start** unless Valkey uses TLS (`config.valkey.tls`, with `tlsCaFile`
+- **Staging and production refuse to start** unless DragonflyDB uses TLS (`config.cache.tls`, with `tlsCaFile`
   and optionally `tlsServerName`; `allowPlaintext` is the explicit opt-out for a trusted segment) and
   every PostgreSQL DSN carries `sslmode=verify-full` (or `verify-ca`) with `sslrootcert` (`database.allowUnverifiedTls`
-  is the opt-out). The chart mounts the CloudNativePG CA Secret `<cluster>-ca` and the Valkey CA through
+  is the opt-out). The chart mounts the CloudNativePG CA Secret `<cluster>-ca` and the DragonflyDB CA through
   `extraVolumes`; the CloudNativePG cluster rejects non-TLS TCP (`pg_hba` `hostnossl ... reject`).
 - **Access tokens must look like access tokens.** The JOSE `typ` must be one of `config.oidc.tokenTypes`
   (default `at+jwt`, `JWT`); ID, refresh and logout tokens (ID-only claims `nonce`/`at_hash`/`c_hash`, or a
@@ -262,7 +262,7 @@ links to its section of the [runbook](/server/runbook). The alerts cover no-inst
 waiting, River job lag / growing backlog / failing delivery / **discarded events**
 (paged), and goroutine growth — all from the server's own OpenTelemetry metrics.
 Optional `networkPolicy` restricts ingress to the ingress controller and egress
-to DNS plus what you list (`egressTo` must name Postgres, Valkey, the OTLP
+to DNS plus what you list (`egressTo` must name Postgres, DragonflyDB, the OTLP
 collector and the OIDC provider, which is why it is opt-in).
 
 ### Verification status (read this before trusting the manifests)

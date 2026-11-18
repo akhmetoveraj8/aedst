@@ -122,7 +122,7 @@ func bearerToken(header string) string {
 	return strings.TrimSpace(token)
 }
 
-// RateLimiter is satisfied by valkey.RateLimiter.
+// RateLimiter is satisfied by cache.RateLimiter.
 type RateLimiter interface {
 	Allow(ctx context.Context, key string, limit int, period time.Duration) (bool, error)
 }
@@ -225,7 +225,7 @@ const failOpenWarnEvery = 30 * time.Second
 
 // failOpenWarner returns a logger for "the limiter is down, so requests are
 // let through" that emits at most one line per failOpenWarnEvery. During a
-// Valkey outage every request hits this path; one warning per request would
+// Dragonfly outage every request hits this path; one warning per request would
 // bury the logs (and cost more than the outage itself) while adding nothing
 // after the first.
 func failOpenWarner(logger *slog.Logger) func(ctx context.Context, err error) {

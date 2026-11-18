@@ -65,9 +65,20 @@ data:
   # Operator feature flags returned by CapabilitiesService/GetCapabilities.
   AEDST_FEATURES: {{ .Values.config.features | toJson | quote }}
   {{- end }}
-  # Valkey (password is a secret).
-  AEDST_VALKEY_ADDR: {{ .Values.config.valkey.addr | quote }}
-  AEDST_VALKEY_DB: {{ .Values.config.valkey.db | int64 | quote }}
+  # Dragonfly (password is a secret).
+  AEDST_CACHE_ADDR: {{ .Values.config.cache.addr | quote }}
+  AEDST_CACHE_DB: {{ .Values.config.cache.db | int64 | quote }}
+  {{- if .Values.config.search.url }}
+  AEDST_SEARCH_URL: {{ .Values.config.search.url | quote }}
+  AEDST_SEARCH_TIMEOUT_MS: {{ .Values.config.search.timeoutMs | int64 | quote }}
+  {{- end }}
+  {{- if .Values.flagd.enabled }}
+  AEDST_FLAGS_FLAGD_HOST: {{ printf "%s-flagd" (include "aedst-server.fullname" .) | quote }}
+  AEDST_FLAGS_FLAGD_PORT: "8013"
+  {{- else if .Values.config.flags.flagdHost }}
+  AEDST_FLAGS_FLAGD_HOST: {{ .Values.config.flags.flagdHost | quote }}
+  AEDST_FLAGS_FLAGD_PORT: {{ .Values.config.flags.flagdPort | int64 | quote }}
+  {{- end }}
   # Auth.
   {{- if .Values.config.oidc.issuer }}
   AEDST_OIDC_ISSUER: {{ .Values.config.oidc.issuer | quote }}
@@ -174,14 +185,14 @@ data:
   {{- end }}
   {{- end }}
   # Transport security and abuse limits.
-  AEDST_VALKEY_TLS: {{ .Values.config.valkey.tls | quote }}
-  {{- if .Values.config.valkey.tlsServerName }}
-  AEDST_VALKEY_TLS_SERVER_NAME: {{ .Values.config.valkey.tlsServerName | quote }}
+  AEDST_CACHE_TLS: {{ .Values.config.cache.tls | quote }}
+  {{- if .Values.config.cache.tlsServerName }}
+  AEDST_CACHE_TLS_SERVER_NAME: {{ .Values.config.cache.tlsServerName | quote }}
   {{- end }}
-  {{- if .Values.config.valkey.tlsCaFile }}
-  AEDST_VALKEY_TLS_CA_FILE: {{ .Values.config.valkey.tlsCaFile | quote }}
+  {{- if .Values.config.cache.tlsCaFile }}
+  AEDST_CACHE_TLS_CA_FILE: {{ .Values.config.cache.tlsCaFile | quote }}
   {{- end }}
-  AEDST_VALKEY_ALLOW_PLAINTEXT: {{ .Values.config.valkey.allowPlaintext | quote }}
+  AEDST_CACHE_ALLOW_PLAINTEXT: {{ .Values.config.cache.allowPlaintext | quote }}
   AEDST_DATABASE_ALLOW_UNVERIFIED_TLS: {{ .Values.database.allowUnverifiedTls | quote }}
   AEDST_AUTH_FAIL_RATE_LIMIT_PER_MINUTE: {{ .Values.config.authFailRateLimitPerMinute | int64 | quote }}
   {{- if and .Values.config.pprofEnabled .Values.metrics.enabled }}

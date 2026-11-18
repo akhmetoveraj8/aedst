@@ -62,8 +62,8 @@ func TestDomainDoesNotImportInfrastructure(t *testing.T) {
 // violation, not a style nit.
 var forbiddenDependencies = map[string]string{
 	"github.com/nats-io/":             "no external broker until a consumer becomes a separate service (ADR-0014) — events go through internal/platform/events (River InsertTx); events.Publisher is the seam for a future broker adapter",
-	"github.com/go-redsync/redsync":   "no distributed locks in Redis/Valkey — use PostgreSQL advisory locks via internal/platform/lock",
-	"github.com/bsm/redislock":        "no distributed locks in Redis/Valkey — use PostgreSQL advisory locks via internal/platform/lock",
+	"github.com/go-redsync/redsync":   "no distributed locks in Redis/Dragonfly — use PostgreSQL advisory locks via internal/platform/lock",
+	"github.com/bsm/redislock":        "no distributed locks in Redis/Dragonfly — use PostgreSQL advisory locks via internal/platform/lock",
 	"github.com/golang-jwt/jwt":       "JWT/JOSE goes through lestrrat-go/jwx only (internal/platform/auth)",
 	"github.com/dgrijalva/jwt-go":     "JWT/JOSE goes through lestrrat-go/jwx only (internal/platform/auth)",
 	"github.com/gin-gonic/gin":        "router is net/http ServeMux (internal/platform/httpserver)",
@@ -91,19 +91,34 @@ func TestNoForbiddenDependencies(t *testing.T) {
 	}
 }
 
-// TestOnlyValkeyPackageImportsRedisClient keeps the Valkey/Redis client behind
-// internal/platform/valkey, so cache and rate-limit consumers depend on
-// small interfaces and the backing store stays swappable.
-func TestOnlyValkeyPackageImportsRedisClient(t *testing.T) {
+// clientOwners pins each infrastructure client library to the one platform
+// package that wraps it, so the rest of the code depends on small ports and the
+// backing store stays swappable.
+var clientOwners = []struct {
+	owner    string   // package under internal/platform
+	prefixes []string // import path prefixes only owner may import
+}{
+	{"cache", []string{"github.com/redis/go-redis", "github.com/go-redis/redis_rate"}},
+	{"search", []string{"github.com/meilisearch/meilisearch-go"}},
+	{"flags", []string{"github.com/open-feature/"}},
+}
+
+// TestOnlyOwnerPackagesImportInfrastructureClients keeps the Dragonfly/Redis,
+// Meilisearch and OpenFeature clients behind internal/platform/{cache,search,flags}.
+func TestOnlyOwnerPackagesImportInfrastructureClients(t *testing.T) {
 	pkgs := loadPackages(t)
 
-	for _, pkg := range pkgs {
-		if strings.HasPrefix(pkg.PkgPath, platformPrefix+"valkey") {
-			continue
-		}
-		for path := range pkg.Imports {
-			if strings.HasPrefix(path, "github.com/redis/go-redis") || strings.HasPrefix(path, "github.com/go-redis/redis_rate") {
-				t.Errorf("boundary violation: %s imports %s directly — only internal/platform/valkey may", pkg.PkgPath, path)
+	for _, o := range clientOwners {
+		for _, pkg := range pkgs {
+			if strings.HasPrefix(pkg.PkgPath, platformPrefix+o.owner) {
+				continue
+			}
+			for path := range pkg.Imports {
+				for _, prefix := range o.prefixes {
+					if strings.HasPrefix(path, prefix) {
+						t.Errorf("boundary violation: %s imports %s directly — only internal/platform/%s may", pkg.PkgPath, path, o.owner)
+					}
+				}
 			}
 		}
 	}

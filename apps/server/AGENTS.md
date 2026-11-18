@@ -24,8 +24,8 @@ just fill the template by hand. A one-line bug fix doesn't need one.
 - `transport` imports only its own `api/` (plus `platform` and `shared`), never `application` or `domain`; `api/` re-exports the vocabulary transport needs. `cmd/**` imports a module only through `internal/modules/<name>/module`. Only `admin` calls another module's `*Tx` api method.
 - Every library/boundary rule is a gate with a negative self-test; the table is in `docs/content/library-first/server.md` ("Enforcement"). Time comes from `sharedtime.Clock`, SQL only from sqlc (no string literals in `Exec`/`Query`), new direct dependencies go in `architecturetest/approved_modules.txt` together with the Library-First page.
 - Banned dependencies (enforced by `architecturetest` and depguard): NATS or any
-  external broker, RedSync/Redlock or any distributed lock in Valkey, competing
-  JWT libraries, ORMs. Only `internal/platform/valkey` imports the go-redis client.
+  external broker, RedSync/Redlock or any distributed lock in DragonflyDB, competing
+  JWT libraries, ORMs. Only `internal/platform/cache` imports the go-redis client, only `internal/platform/search` the Meilisearch client and only `internal/platform/flags` OpenFeature/flagd.
 
 ## When a change touches state and another system cares
 
@@ -107,13 +107,27 @@ With `AEDST_DATABASE_POOLER=pgbouncer` the api pool is forced to pgx CacheDescri
 ## When you need mutual exclusion
 
 Use PostgreSQL advisory locks via `internal/platform/lock` (`TryXact` inside a
-transaction is preferred; `Locker` for session locks). Never a Redis/Valkey
+transaction is preferred; `Locker` for session locks). Never a Redis/DragonflyDB
 lock. For leader-only periodic work, River's own leader election/unique jobs.
 
 ## When you need cache or rate limiting
 
-Valkey through `internal/platform/valkey` (`RateLimiter`). Rate limiting fails
-open by design; never put correctness (locks, dedup, queues) in Valkey.
+DragonflyDB through `internal/platform/cache` (`RateLimiter`). Rate limiting fails
+open by design; never put correctness (locks, dedup, queues) in DragonflyDB.
+
+## When you need search or a feature flag
+
+Search: `env.Search` (`internal/platform/search`, Meilisearch). PostgreSQL stays the
+source of truth and `pg_trgm` serves simple lookups; use the engine only for ranked,
+typo-tolerant search. Never write to it from a request: register a `Source` for your
+index on `env.SearchSources` in `Setup` and call `env.Indexer.EnqueueTx(ctx, tx, index, id)`
+inside the write's transaction (a River job reloads the row and upserts or deletes).
+It is optional, so fall back to `pg_trgm` when `env.Search` is `search.Disabled`.
+
+Flags: `env.Flags.Bool(ctx, key, default, targetingKey)` (`internal/platform/flags`,
+OpenFeature + flagd). The default is what runs when flagd is down, so it must be the
+safe behaviour. Flags gate rollout only: never authorisation, limits that protect data,
+or correctness. Definitions live in Helm `flagd.flags`.
 
 ## Authentication
 
@@ -206,7 +220,7 @@ metadata (set `Retry-After` on the response header), and interceptors are
 RPC is already covered by the per-user rate limit
 (`AEDST_API_RATE_LIMIT_PER_MINUTE`) and every request by load shedding
 (`AEDST_MAX_IN_FLIGHT`); a limiter outage fails open and must stay that way.
-Valkey is optional: never add it to a required readiness check or a startup step.
+DragonflyDB is optional: never add it to a required readiness check or a startup step.
 
 ## Before opening a PR
 

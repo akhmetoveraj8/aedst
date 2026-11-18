@@ -53,12 +53,20 @@ containers:
             name: {{ include "aedst-server.secretName" $root }}
             key: {{ $root.Values.database.readDsnSecretKey }}
       {{- end }}
-      {{- if $root.Values.secretKeys.valkeyPassword }}
-      - name: AEDST_VALKEY_PASSWORD
+      {{- if $root.Values.secretKeys.cachePassword }}
+      - name: AEDST_CACHE_PASSWORD
         valueFrom:
           secretKeyRef:
             name: {{ include "aedst-server.secretName" $root }}
-            key: {{ $root.Values.secretKeys.valkeyPassword }}
+            key: {{ $root.Values.secretKeys.cachePassword }}
+            optional: true
+      {{- end }}
+      {{- if $root.Values.secretKeys.searchApiKey }}
+      - name: AEDST_SEARCH_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: {{ include "aedst-server.secretName" $root }}
+            key: {{ $root.Values.secretKeys.searchApiKey }}
             optional: true
       {{- end }}
       {{- if $root.Values.imgproxy.enabled }}

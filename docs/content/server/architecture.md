@@ -48,14 +48,14 @@ choices.
         |               |               |
      auth            config          proto (buf)
      tasks           database        events
-     ...             valkey
+     ...             cache
                       events (River InsertTx)
                       observability
                       auth (jwx)
                         |
         +---------------+---------------+
         |               |               |
-   PostgreSQL         Valkey
+   PostgreSQL         DragonflyDB
    (PgBouncer)
 ```
 
@@ -72,7 +72,7 @@ apps/server/
 │   ├── platform/          cross-cutting infrastructure, shared by every module
 │   │   ├── config/        env-driven configuration (caarlos0/env)
 │   │   ├── database/      pgx pool, tx helpers
-│   │   ├── valkey/        Valkey client (go-redis): cache + rate limiting only
+│   │   ├── cache/        DragonflyDB client (go-redis): cache + rate limiting only
 │   │   ├── events/        integration events: Publisher (River InsertTx per consumer), Registry, delivery worker (the seam for a broker)
 │   │   ├── idempotency/   Idempotency-Key replay (per-caller scope, advisory-locked)
 │   │   ├── retention/     River periodic purge jobs for append-only tables

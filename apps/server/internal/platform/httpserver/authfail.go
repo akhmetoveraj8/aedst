@@ -9,7 +9,7 @@ import (
 
 // FailureLimiter is the limiter behind the failed-authentication throttle:
 // Allow spends one unit of budget, Exhausted peeks without spending. It is
-// satisfied by valkey.RateLimiter.
+// satisfied by cache.RateLimiter.
 type FailureLimiter interface {
 	RateLimiter
 	Exhausted(ctx context.Context, key string, limit int, period time.Duration) (bool, error)

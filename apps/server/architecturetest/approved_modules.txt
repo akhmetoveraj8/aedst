@@ -12,7 +12,7 @@ connectrpc.com/otelconnect  # observability: RPC tracing
 connectrpc.com/validate  # validation: protovalidate interceptor
 firebase.google.com/go/v4  # push: FCM (internal/platform/push only)
 github.com/SherClockHolmes/webpush-go  # push: Web Push (internal/platform/push only)
-github.com/alicebob/miniredis/v2  # tests only: in-memory Valkey for internal/platform/valkey rate-limit tests
+github.com/alicebob/miniredis/v2  # tests only: in-memory Redis for internal/platform/cache rate-limit tests
 github.com/aws/aws-sdk-go-v2  # object storage (internal/platform/storage only)
 github.com/aws/aws-sdk-go-v2/config  # object storage
 github.com/aws/aws-sdk-go-v2/credentials  # object storage
@@ -22,7 +22,7 @@ github.com/caarlos0/env/v11  # configuration
 github.com/davidbyttow/govips/v2  # media: images (build tag vips)
 github.com/exaring/otelpgx  # observability: pgx query tracing (internal/platform/database only)
 github.com/fxamacker/cbor/v2  # appattest only
-github.com/go-redis/redis_rate/v10  # rate limiting (internal/platform/valkey only)
+github.com/go-redis/redis_rate/v10  # rate limiting (internal/platform/cache only)
 github.com/jackc/pgx/v5  # database driver
 github.com/jwx-go/jwkfetch/v4  # JWT/JOSE: JWKS fetch
 github.com/lestrrat-go/httprc/v3  # JWT/JOSE: jwx cache dependency
@@ -31,7 +31,10 @@ github.com/riverqueue/rivercontrib/otelriver  # observability: River job tracing
 github.com/pressly/goose/v3  # migrations
 github.com/prometheus/client_golang  # observability: optional /metrics (internal/platform/observability only)
 github.com/realclientip/realclientip-go  # client IP
-github.com/redis/go-redis/v9  # Valkey client (internal/platform/valkey only)
+github.com/redis/go-redis/v9  # DragonflyDB client over the Redis protocol (internal/platform/cache only)
+github.com/meilisearch/meilisearch-go  # search: Meilisearch client (internal/platform/search only)
+github.com/open-feature/go-sdk  # feature flags: OpenFeature SDK (internal/platform/flags only)
+github.com/open-feature/go-sdk-contrib/providers/flagd  # feature flags: flagd provider (internal/platform/flags only)
 github.com/riverqueue/river  # jobs and events
 github.com/riverqueue/river/riverdriver/riverpgxv5  # jobs and events
 github.com/riverqueue/river/rivertype  # jobs and events

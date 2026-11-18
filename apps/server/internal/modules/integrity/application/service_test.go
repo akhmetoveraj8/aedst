@@ -185,7 +185,7 @@ func TestVerify_RateLimitIsPerUserAndFailsOpen(t *testing.T) {
 	if lim.key != "integrity:verify:"+f.in.UserID.String() || f.dec.calls != 0 {
 		t.Errorf("key=%q calls=%d", lim.key, f.dec.calls)
 	}
-	lim.err = errors.New("valkey down")
+	lim.err = errors.New("cache down")
 	if res, err := f.svc.Verify(context.Background(), f.in); err != nil || !res.Verified {
 		t.Fatalf("limiter outage must fail open: %+v, %v", res, err)
 	}

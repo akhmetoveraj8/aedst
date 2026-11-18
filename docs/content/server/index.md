@@ -1,11 +1,11 @@
 ---
-description: "apps/server — a Go modular monolith (net/http ServeMux, ConnectRPC, PostgreSQL, Valkey) that is the single backend for the four clients (web, android,..."
+description: "apps/server — a Go modular monolith (net/http ServeMux, ConnectRPC, PostgreSQL, DragonflyDB) that is the single backend for the four clients (web, android,..."
 title: Server
 ---
 
 # Server
 
-`apps/server` — a Go modular monolith (net/http ServeMux, ConnectRPC, PostgreSQL, Valkey) that is the single backend for the four clients (web, android, apple, desktop). Status: **Verified** (see [Platform status](/status)).
+`apps/server` — a Go modular monolith (net/http ServeMux, ConnectRPC, PostgreSQL, DragonflyDB) that is the single backend for the four clients (web, android, apple, desktop). Status: **Verified** (see [Platform status](/status)).
 
 | Page | What it covers |
 |---|---|

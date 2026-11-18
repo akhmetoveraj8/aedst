@@ -21,8 +21,8 @@ func TestValidate_TransportSecurityInDeployedEnvironments(t *testing.T) {
 		wantErr string
 	}{
 		{"verified TLS everywhere", func(*config.Config) {}, ""},
-		{"valkey plaintext", func(c *config.Config) { c.Valkey.TLS = false }, "AEDST_VALKEY_TLS"},
-		{"valkey plaintext, explicit opt-out", func(c *config.Config) { c.Valkey.TLS = false; c.Valkey.AllowPlaintext = true }, ""},
+		{"cache plaintext", func(c *config.Config) { c.Cache.TLS = false }, "AEDST_CACHE_TLS"},
+		{"cache plaintext, explicit opt-out", func(c *config.Config) { c.Cache.TLS = false; c.Cache.AllowPlaintext = true }, ""},
 		{"sslmode=require is encrypted but unverified", func(c *config.Config) { c.DB.DSN = "postgres://x?sslmode=require" }, "AEDST_DATABASE_URL"},
 		{"no sslmode means prefer", func(c *config.Config) { c.DB.DSN = "postgres://x" }, "AEDST_DATABASE_URL"},
 		{"verify-ca is accepted", func(c *config.Config) { c.DB.DSN = "postgres://x?sslmode=verify-ca" }, ""},
@@ -49,7 +49,7 @@ func TestValidate_TransportSecurityInDeployedEnvironments(t *testing.T) {
 
 func TestValidate_DevelopmentKeepsPlainConnections(t *testing.T) {
 	c := validConfig()
-	c.Valkey.TLS = false
+	c.Cache.TLS = false
 	c.DB.DSN = "postgres://aedst:aedst@localhost:5432/aedst?sslmode=disable"
 	if err := c.Validate(); err != nil {
 		t.Fatalf("development must keep working locally: %v", err)
@@ -65,5 +65,21 @@ func TestValidate_AuditRetentionRespectsTheDatabaseFloor(t *testing.T) {
 	c.Retention.AuditDays = config.MinAuditRetentionDays
 	if err := c.Validate(); err != nil {
 		t.Fatalf("the floor itself is valid: %v", err)
+	}
+}
+
+func TestLoad_LegacyValkeyEnvIsHonoured(t *testing.T) {
+	t.Setenv("AEDST_DATABASE_URL", "postgres://x?sslmode=verify-full")
+	t.Setenv("AEDST_OIDC_ISSUER", "https://idp.example")
+	t.Setenv("AEDST_OIDC_AUDIENCE", "api")
+	t.Setenv("AEDST_VALKEY_ADDR", "old:6379")
+	t.Setenv("AEDST_CACHE_DB", "3")
+	t.Setenv("AEDST_VALKEY_DB", "9") // the new name wins
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if cfg.Cache.Addr != "old:6379" || cfg.Cache.DB != 3 {
+		t.Fatalf("Cache = %+v; want legacy addr honoured and new DB winning", cfg.Cache)
 	}
 }

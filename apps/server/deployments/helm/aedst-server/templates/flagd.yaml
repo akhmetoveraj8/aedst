@@ -1,0 +1,96 @@
+{{- if .Values.flagd.enabled }}
+# flagd serves the feature flags defined in values (flagd.flags) over its gRPC
+# evaluation API; the server reaches it as AEDST_FLAGS_FLAGD_HOST (set below in
+# configmap.yaml). Flags gate rollout only: the server runs on the defaults in
+# code when flagd is unreachable. Not rendered where this was authored (no helm,
+# no cluster): `helm template` it before first use.
+{{- $name := printf "%s-flagd" (include "aedst-server.fullname" .) }}
+{{- $labels := include "aedst-server.labels" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- $labels | nindent 4 }}
+    app.kubernetes.io/component: flagd
+data:
+  flags.flagd.json: |
+    {{- dict "$schema" "https://flagd.dev/schema/v0/flags.json" "flags" .Values.flagd.flags | toPrettyJson | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- $labels | nindent 4 }}
+    app.kubernetes.io/component: flagd
+spec:
+  replicas: {{ .Values.flagd.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "aedst-server.name" . }}-flagd
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: flagd
+  template:
+    metadata:
+      annotations:
+        checksum/flags: {{ .Values.flagd.flags | toJson | sha256sum }}
+      labels:
+        app.kubernetes.io/name: {{ include "aedst-server.name" . }}-flagd
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: flagd
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: flagd
+          image: "{{ .Values.flagd.image.repository }}:{{ .Values.flagd.image.tag }}"
+          imagePullPolicy: {{ .Values.flagd.image.pullPolicy }}
+          args: ["start", "--uri", "file:/etc/flagd/flags.flagd.json"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          ports:
+            - name: grpc
+              containerPort: 8013
+              protocol: TCP
+            - name: management
+              containerPort: 8014
+              protocol: TCP
+          # UNVERIFIED: flagd's management port serves /readyz and /healthz (per its docs); not run here.
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: management
+          volumeMounts:
+            - name: flags
+              mountPath: /etc/flagd
+              readOnly: true
+          resources:
+            {{- toYaml .Values.flagd.resources | nindent 12 }}
+      volumes:
+        - name: flags
+          configMap:
+            name: {{ $name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- $labels | nindent 4 }}
+    app.kubernetes.io/component: flagd
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "aedst-server.name" . }}-flagd
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: flagd
+  ports:
+    - name: grpc
+      port: 8013
+      targetPort: grpc
+{{- end }}

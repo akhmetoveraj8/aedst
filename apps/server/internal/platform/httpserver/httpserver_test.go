@@ -132,7 +132,7 @@ func TestRateLimitInterceptor_EndToEnd(t *testing.T) {
 		t.Fatalf("unlisted procedure was throttled: %v", err)
 	}
 
-	limiter.err = errors.New("valkey down")
+	limiter.err = errors.New("cache down")
 	if err := call(limited); err != nil {
 		t.Fatalf("limiter outage must fail open, got %v", err)
 	}

@@ -83,9 +83,13 @@ func (a *app) buildHTTP(ctx context.Context, tel *observability.Telemetry) (*htt
 
 	checks := []httpserver.Check{
 		{Name: "database", Fn: a.env.Pool.Ping},
-		// Optional: a Valkey outage degrades rate limiting (which fails open); it
+		// Optional: a Dragonfly outage degrades rate limiting (which fails open); it
 		// must not pull every replica out of rotation.
-		{Name: "valkey", Optional: true, Fn: a.valkeyPing},
+		{Name: "cache", Optional: true, Fn: a.cachePing},
+	}
+	if a.cfg.Search.Enabled() {
+		// Optional like the cache: search is a projection; lookups fall back to pg_trgm.
+		checks = append(checks, httpserver.Check{Name: "search", Optional: true, Fn: a.env.Search.Ping})
 	}
 	if a.env.ReadPool != a.env.Pool {
 		// A lagging or dead replica degrades lag-tolerant reads only; the primary

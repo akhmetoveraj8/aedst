@@ -44,7 +44,7 @@ type KeyStore interface {
 	AdvanceCounter(ctx context.Context, keyID []byte, userID ids.ID, newCounter uint32, now time.Time) (bool, error)
 }
 
-// Limiter is a fixed-window rate limiter (satisfied by *valkey.RateLimiter).
+// Limiter is a fixed-window rate limiter (satisfied by *cache.RateLimiter).
 // It fails open by design: an error means "allow".
 type Limiter interface {
 	Allow(ctx context.Context, key string, limit int, period time.Duration) (bool, error)
