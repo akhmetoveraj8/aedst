@@ -32,7 +32,7 @@ Approved stack per platform: Web (React Hook Form, Zod, date-fns, dnd-kit, shadc
 
 Full list with rationale: [docs/agent/rules.md](docs/agent/rules.md) and the platform decision pages.
 
-- Server: `golang.org/x/image`, Redis (use Valkey), Redlock, NATS/Kafka/RabbitMQ, a hand-built outbox, a second JWT library, an ORM, chi or any third-party router, self-built identity features.
+- Server: `golang.org/x/image`, Redis (use Valkey), Redlock, Kafka/RabbitMQ, NATS anywhere except `internal/platform/natsbridge` (ADR-0020), a hand-built outbox, a second JWT library, an ORM, chi or any third-party router, self-built identity features.
 - Web: RxJS, ESLint/Prettier, a new third-party origin without a CSP update.
 - Android: `security-crypto`, Retrofit, Koin, `tv-foundation` lists, a JDK other than 21.
 - Apple: XcodeGen, SwiftData, swift-perception, a hand-written image loader, SwiftFormat/Periphery (nicklockwood).

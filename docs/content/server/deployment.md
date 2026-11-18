@@ -11,8 +11,8 @@ description: "apps/server/deployments/docker/docker-compose.yml runs PostgreSQL 
 (the only services `aedst-server` needs). Optional compose profiles add
 observability (`observability`), a ZITADEL OIDC provider (`idp`) and PgBouncer
 (`pgbouncer`, transaction pooling on `localhost:6432`) for rehearsing the production
-connection path. The `observability` profile is a single `grafana/otel-lgtm` container (OTLP in). NATS is
-not used: asynchronous work (jobs and integration events) runs on River,
+connection path. The `observability` profile is a single `grafana/otel-lgtm` container (OTLP in). NATS JetStream
+is optional and only feeds the Rust realtime gateway (`AEDST_NATS_URL`, [ADR-0020](../../../apps/server/docs/adr/0020-nats-jetstream-and-rust-gateway.md)); asynchronous work (jobs and integration events) runs on River,
 with events inserted as River jobs in the producer's transaction
 (see [events](/server/events) and [ADR-0014](/decisions/0014-river-insert-tx-as-outbox)).
 `task dev` (in `apps/server`) starts the stack, applies migrations and runs the

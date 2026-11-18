@@ -129,7 +129,7 @@ linters:
         # quadratically with the number of modules and silently misses any module
         # nobody remembered to add. `task arch` runs in CI on every change.
 
-        # Banned libraries (NATS, RedSync/Redlock, competing JWT/router/ORM
+        # Banned libraries (RedSync/Redlock, competing JWT/router/ORM
         # stacks) and "only internal/platform/valkey imports go-redis" are
         # enforced by architecturetest (exact, rather than glob-approximate)
         # and by the `banned-dependencies` depguard rule below (fast feedback
@@ -138,8 +138,6 @@ linters:
           files:
             - "**/*.go"
           deny:
-            - pkg: github.com/nats-io
-              desc: "no external broker until a consumer becomes a separate service (ADR-0014): events go through internal/platform/events (River InsertTx)"
             - pkg: github.com/go-redsync/redsync
               desc: "no distributed locks in Valkey: use PostgreSQL advisory locks (internal/platform/lock)"
             - pkg: github.com/golang-jwt
@@ -148,6 +146,16 @@ linters:
               desc: "no ORM: SQL goes through sqlc"
             - pkg: github.com/minio/minio-go
               desc: "object storage goes through internal/platform/storage (aws-sdk-go-v2)"
+
+        # NATS is the broker for the realtime gateway (ADR-0020); its client stays
+        # inside the bridge (architecturetest.TestOnlyNATSBridgeImportsNATS is the exact check).
+        nats-only-in-natsbridge:
+          files:
+            - "**/*.go"
+            - "!**/internal/platform/natsbridge/**"
+          deny:
+            - pkg: github.com/nats-io
+              desc: "NATS goes through internal/platform/natsbridge only (ADR-0020); producers use events.Publisher"
 
         # CBOR is only needed to decode Apple App Attest objects (ADR-0016); keep
         # the dependency inside that module instead of letting it spread.

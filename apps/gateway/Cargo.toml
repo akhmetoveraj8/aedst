@@ -1,0 +1,53 @@
+[package]
+name = "aedst-gateway"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.100"
+license = "Apache-2.0"
+publish = false
+description = "AEDST realtime gateway: NATS JetStream events to authenticated WebSocket clients (ADR-0020)."
+
+# Versions verified against crates.io on 2026-11-18. NOT compiled together yet (no Rust toolchain on the
+# authoring machine): features marked UNVERIFIED must be checked by the first `cargo build`.
+[dependencies]
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros", "net", "signal", "time", "sync"] }
+tokio-util = "0.7.20"
+futures = "0.3.34"
+axum = { version = "0.8.9", default-features = false, features = ["ws", "http1", "tokio"] }
+async-nats = "0.53.0"
+# UNVERIFIED feature name: jsonwebtoken 10+ needs an explicit crypto backend.
+jsonwebtoken = { version = "12.0.0", default-features = false, features = ["rust_crypto"] }
+reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "json"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+sha2 = "0.11.1"
+uuid = "1.29.0"
+thiserror = "2.0.21"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
+# Telemetry: traces over OTLP/HTTP when OTEL_EXPORTER_OTLP_ENDPOINT is set. UNVERIFIED feature names.
+opentelemetry = "0.33.1"
+opentelemetry_sdk = { version = "0.33.1", features = ["rt-tokio"] }
+opentelemetry-otlp = { version = "0.33.1", default-features = false, features = ["trace", "http-proto", "reqwest-client"] }
+tracing-opentelemetry = "0.34.0"
+
+[dev-dependencies]
+ed25519-dalek = { version = "3.0.0", features = ["pkcs8", "rand_core"] }
+tokio-tungstenite = "0.30.0"
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+print_stdout = "deny"
+print_stderr = "deny"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+panic = "abort"

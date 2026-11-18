@@ -1,0 +1,46 @@
+# cargo-deny policy for the realtime gateway (task gateway:deny, CI job `deny`).
+# Adding a license or an exception needs a line in docs/content/library-first/gateway.md in the same change.
+
+[graph]
+targets = [{ triple = "x86_64-unknown-linux-gnu" }, { triple = "x86_64-pc-windows-msvc" }]
+
+[advisories]
+version = 2
+yanked = "deny"
+unmaintained = "workspace"
+ignore = []
+
+[licenses]
+version = 2
+confidence-threshold = 0.9
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "MIT",
+    "MIT-0",
+    "Unicode-3.0",
+    "Zlib",
+    "CC0-1.0",
+    "MPL-2.0",
+    "OpenSSL",
+    "0BSD",
+    "CDLA-Permissive-2.0", # webpki-roots: the Mozilla CA bundle data
+    "BSL-1.0",
+    "Unlicense",
+]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+deny = [
+    { crate = "openssl", reason = "TLS is rustls only" },
+    { crate = "native-tls", reason = "TLS is rustls only" },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

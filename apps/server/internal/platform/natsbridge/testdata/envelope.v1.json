@@ -1,0 +1,14 @@
+{
+  "id": "0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0d",
+  "type": "tasks.v1.TaskCompleted",
+  "version": 1,
+  "occurred_at": "2026-03-01T10:00:00Z",
+  "partition_key": "0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0b",
+  "payload": {
+    "task_id": "0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0b",
+    "user_id": "0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0c",
+    "title": "Write the report",
+    "completed_at": "2026-03-01T10:00:00Z",
+    "version": 2
+  }
+}

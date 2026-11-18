@@ -22,6 +22,7 @@ Read only the page you need. Decided items and their revisit conditions are in t
 | [Server stack](library-first/server.md) | Responsibility to tool table: IaC, API contract and generation, RPC, validation, database/driver/SQL/migrations, jobs, events, cache, locks, rate limiting, JWT, identity, configuration, observability, health, retention, integration testing, object storage, push, device attestation, media, HTTP hardening, static analysis, load testing |
 | [Android stack](library-first/android.md) | Responsibility to tool table: DI, local DB, settings, images, secrets, offline queue, network state, navigation, OIDC and TV sign-in, JVM/screenshot/accessibility/contract tests, performance, release build, attestation, crash reporting, analytics, push, media, static analysis |
 | [Apple stack](library-first/apple.md) | Responsibility to tool table: API client, persistence, Observation, navigation, DI, OIDC sign-in, secrets, attestation, crash reporting, analytics, push, media, tests, format/lint, signing and release, dependency updates |
+| [Gateway stack](library-first/gateway.md) | Rust realtime gateway (`apps/gateway`): runtime, WebSocket (axum), NATS JetStream client, token verification, observability, tests, rejections |
 | [Desktop stack](library-first/desktop.md) | Responsibility to tool table: API contract, validation, local DB, OIDC sign-in, TLS, secrets, network/i18n, platform services, updates, crashes, analytics, media, transport policy, tests/analysis/release |
 
 ## Rules every change must respect

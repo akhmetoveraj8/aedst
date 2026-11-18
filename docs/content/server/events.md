@@ -163,8 +163,11 @@ A new event adds a row here, its type and payload to the producer's
   deduplication key and `partition_key` as the ordering key). It is never a second
   write beside the transaction. `events.Publisher` stays the producer-facing
   interface. See [ADR-0014](/decisions/0014-river-insert-tx-as-outbox) and the
-  [extraction runbook](/server/runbook-extract-service). NATS is **not** adopted
-  before that.
+  [extraction runbook](/server/runbook-extract-service). Since 2026-11-18 this bridge exists
+  (`internal/platform/natsbridge`, [ADR-0020](../../../apps/server/docs/adr/0020-nats-jetstream-and-rust-gateway.md)):
+  allowlisted event types are published to JetStream subject
+  `aedst.events.user.<user id>.<type>` for the Rust gateway; the envelope is pinned by
+  `natsbridge/testdata/envelope.v1.json`. Go consumers are unchanged.
 - Deliveries share `river_job` with every other job: its insert/lock/update/delete
   churn is the cost of an event (one row per consumer). River's cleaner bounds the
   table; if event volume ever dominates, give deliveries their own queue and then

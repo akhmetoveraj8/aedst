@@ -22,6 +22,6 @@ Each topic page is a table with columns Decision, Status, Rationale, Revisit whe
 | [Apple](/decisions/apple) | 27 | Tuist, GRDB, SQLiteData, OS floors, connect-swift (grpc-swift-2 migration attempted and reverted 2026-10-29), Swift 6 strict concurrency, release tooling evaluation, Keychain session, `ASWebAuthenticationSession` with ID-token signature verification, fastlane + match, Nuke, Swift Testing, swift-format, App Attest (statically reviewed only) |
 | [Desktop](/decisions/desktop) | 36 (+ 6 proposals awaiting the owner) | Rust + Slint replaces Qt 6 / C++23 (Qt deleted 2026-11-04), connectrpc, openidconnect, keyring-core, rusqlite with a hand-written frozen migrator, i18n via gettext, self-update (Velopack, signed manifest), consent-gated Sentry, analytics through the server (follow-up), UI tests with `i-slint-backend-testing` (Windows only) |
 
-Architecture Decision Records 0001-0016 are listed in the sidebar under this section; server ADRs 0017-0019 live in `apps/server/docs/adr/` (indexed in its README). Platform ADRs: `apps/server/docs/adr/`, `apps/desktop/docs/adr/`.
+Architecture Decision Records 0001-0016 are listed in the sidebar under this section; server ADRs 0017-0020 live in `apps/server/docs/adr/` (indexed in its README). Platform ADRs: `apps/server/docs/adr/`, `apps/desktop/docs/adr/`.
 
 When you change a decision, update the matching topic page here and the Library-First page in the same change ([Library-First index](/library-first)).

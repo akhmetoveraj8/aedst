@@ -178,6 +178,15 @@ config:
     rateLimitPerMinute: 10
     assertionRateLimitPerMinute: 120
     keyRetentionDays: 365
+  # NATS JetStream bridge for the realtime gateway (ADR-0020). Empty url = off.
+  nats:
+    url: ""
+    stream: AEDST_EVENTS
+    forwardTypes: []
+    recipientField: user_id
+    replicas: 1
+    maxAgeHours: 24
+    duplicateWindowSeconds: 120
   valkey:
     addr: valkey:6379
     # TLS is required in staging/production unless allowPlaintext (trusted network).

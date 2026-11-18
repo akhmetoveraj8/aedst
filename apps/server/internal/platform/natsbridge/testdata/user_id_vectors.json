@@ -1,0 +1,22 @@
+[
+  {
+    "issuer": "https://idp-a",
+    "subject": "auth0|abc",
+    "user_id": "5641f8c6-118c-8771-a887-334b54419ac8"
+  },
+  {
+    "issuer": "https://idp-b",
+    "subject": "auth0|abc",
+    "user_id": "9d660eba-fc6e-808a-9569-bc8707571900"
+  },
+  {
+    "issuer": "http://localhost:8085",
+    "subject": "312345678901230000",
+    "user_id": "d99bf8ba-c91a-8c37-a228-8e7c775e86f5"
+  },
+  {
+    "issuer": "https://idp",
+    "subject": "0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0c",
+    "user_id": "0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0c"
+  }
+]

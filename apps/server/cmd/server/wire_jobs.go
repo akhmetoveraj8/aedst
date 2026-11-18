@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/riverqueue/river"
@@ -9,6 +10,7 @@ import (
 	"github.com/aedst/server/internal/platform/events"
 	"github.com/aedst/server/internal/platform/idempotency"
 	platformjobs "github.com/aedst/server/internal/platform/jobs"
+	"github.com/aedst/server/internal/platform/natsbridge"
 	"github.com/aedst/server/internal/platform/retention"
 )
 
@@ -44,6 +46,9 @@ func (a *app) buildJobs(ctx context.Context) error {
 		return err
 	}
 	if err := platformjobs.RegisterMetrics(env.JobsPool); err != nil {
+		return err
+	}
+	if err := a.buildNATSBridge(ctx); err != nil {
 		return err
 	}
 
@@ -90,4 +95,33 @@ func (a *app) retentionPolicies() []retention.Policy {
 		}
 	}
 	return policies
+}
+
+// buildNATSBridge adds the forward consumer (ADR-0020) when AEDST_NATS_URL is
+// set: one River-delivered consumer per allowlisted event type publishes the
+// event to JetStream for the realtime gateway. It is optional, never part of
+// readiness, and a broker outage only delays deliveries (River retries).
+func (a *app) buildNATSBridge(ctx context.Context) error {
+	n := a.cfg.NATS
+	if n.URL == "" {
+		return nil
+	}
+	b, err := natsbridge.Connect(natsbridge.Config{
+		URL: n.URL, Stream: n.Stream, Replicas: n.Replicas, RecipientField: n.RecipientField,
+		MaxAge:          time.Duration(n.MaxAgeHours) * time.Hour,
+		DuplicateWindow: time.Duration(n.DuplicateWindowSeconds) * time.Second,
+	})
+	if err != nil {
+		return err
+	}
+	a.onClose(b.Close)
+	// Create the stream early so a gateway that starts first finds it; if the
+	// broker is not reachable yet, the first forwarded event creates it.
+	ensureCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	if err := b.EnsureStream(ensureCtx); err != nil {
+		a.logger.WarnContext(ensureCtx, "nats: stream not ready at startup; it is created on the first event", slog.Any("error", err))
+	}
+	b.Subscribe(a.env.Events, n.ForwardTypes)
+	return nil
 }

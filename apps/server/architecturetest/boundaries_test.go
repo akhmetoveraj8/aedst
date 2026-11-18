@@ -61,7 +61,6 @@ func TestDomainDoesNotImportInfrastructure(t *testing.T) {
 // (see docs/content/library-first.md). Importing one is a build-breaking
 // violation, not a style nit.
 var forbiddenDependencies = map[string]string{
-	"github.com/nats-io/":             "no external broker until a consumer becomes a separate service (ADR-0014) — events go through internal/platform/events (River InsertTx); events.Publisher is the seam for a future broker adapter",
 	"github.com/go-redsync/redsync":   "no distributed locks in Redis/Valkey — use PostgreSQL advisory locks via internal/platform/lock",
 	"github.com/bsm/redislock":        "no distributed locks in Redis/Valkey — use PostgreSQL advisory locks via internal/platform/lock",
 	"github.com/golang-jwt/jwt":       "JWT/JOSE goes through lestrrat-go/jwx only (internal/platform/auth)",
@@ -104,6 +103,22 @@ func TestOnlyValkeyPackageImportsRedisClient(t *testing.T) {
 		for path := range pkg.Imports {
 			if strings.HasPrefix(path, "github.com/redis/go-redis") || strings.HasPrefix(path, "github.com/go-redis/redis_rate") {
 				t.Errorf("boundary violation: %s imports %s directly — only internal/platform/valkey may", pkg.PkgPath, path)
+			}
+		}
+	}
+}
+
+// TestOnlyNATSBridgeImportsNATS keeps the NATS client behind
+// internal/platform/natsbridge (ADR-0020): everything else publishes through
+// events.Publisher. A test may import the embedded server of the same module.
+func TestOnlyNATSBridgeImportsNATS(t *testing.T) {
+	for _, pkg := range loadPackages(t) {
+		if strings.HasPrefix(pkg.PkgPath, platformPrefix+"natsbridge") {
+			continue
+		}
+		for path := range pkg.Imports {
+			if strings.HasPrefix(path, "github.com/nats-io/") {
+				t.Errorf("boundary violation: %s imports %s directly — only internal/platform/natsbridge may (ADR-0020)", pkg.PkgPath, path)
 			}
 		}
 	}

@@ -109,7 +109,7 @@ becomes a separate service.
   job kind) forwards it to the broker with at-least-once retries and the event id
   as the broker's deduplication key. There is never a second write beside the
   transaction (no dual write), so `river_job` stays the outbox. Producers, event
-  contracts and handlers do not change. **NATS is not adopted now.** See
+  contracts and handlers do not change. **NATS is not adopted now.** *(Amended 2026-11-18: [ADR-0020](../../../apps/server/docs/adr/0020-nats-jetstream-and-rust-gateway.md) adopts it for the Rust gateway, using exactly this bridge.)* See
   [ADR-0001](/decisions/0001-modular-monolith) for the extraction threshold.
 
 ## Revisit when

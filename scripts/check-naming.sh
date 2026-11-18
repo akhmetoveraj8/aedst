@@ -102,6 +102,11 @@ while IFS= read -r f; do
       [[ "$name" =~ ^[A-Z][a-zA-Z0-9]*(\+[A-Z][a-zA-Z0-9]*)?$ ]] || err "$f: Swift file must be PascalCase.swift (Type+Extension.swift allowed)"
       ;;
 
+    # --- Gateway (apps/gateway, Rust) ---
+    apps/gateway/*.rs)
+      [[ "$name" =~ $snake ]] || err "$f: Rust files must be snake_case (rustfmt convention, see CONVENTIONS.md)"
+      ;;
+
     # --- Desktop (apps/desktop, Rust + Slint) ---
     apps/desktop/*.rs|apps/desktop/*.slint)
       [[ "$name" =~ $snake ]] || err "$f: Rust and Slint files must be snake_case (rustfmt convention, see CONVENTIONS.md)"

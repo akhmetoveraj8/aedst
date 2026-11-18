@@ -27,6 +27,8 @@ github.com/jackc/pgx/v5  # database driver
 github.com/jwx-go/jwkfetch/v4  # JWT/JOSE: JWKS fetch
 github.com/lestrrat-go/httprc/v3  # JWT/JOSE: jwx cache dependency
 github.com/lestrrat-go/jwx/v4  # JWT/JOSE (internal/platform/auth only)
+github.com/nats-io/nats-server/v2  # tests only: in-process JetStream for internal/platform/natsbridge tests
+github.com/nats-io/nats.go  # events to the realtime gateway (internal/platform/natsbridge only, ADR-0020)
 github.com/riverqueue/rivercontrib/otelriver  # observability: River job tracing/metrics (internal/platform/jobs only)
 github.com/pressly/goose/v3  # migrations
 github.com/prometheus/client_golang  # observability: optional /metrics (internal/platform/observability only)
@@ -51,6 +53,7 @@ go.opentelemetry.io/otel/sdk  # observability
 go.opentelemetry.io/otel/sdk/log  # observability
 go.opentelemetry.io/otel/sdk/metric  # observability
 go.opentelemetry.io/otel/trace  # observability
+golang.org/x/net  # tests only: WebSocket client of the gateway end-to-end test (internal/platform/natsbridge)
 golang.org/x/mod  # architecturetest: go.mod parsing
 golang.org/x/sync  # errgroup, singleflight (OIDC discovery)
 golang.org/x/time  # rate

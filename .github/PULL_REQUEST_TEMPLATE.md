@@ -27,7 +27,7 @@
 - [ ] A new retryable command is wrapped with `idempotency.Check`/`Save` and has a replay test
 - [ ] A new integration event is published inside the state-changing transaction (River `InsertTx`), is SQL-guarded against double publish, and has a publish test and an idempotent-redelivery test per consumer
 - [ ] Lists that can grow use keyset pagination; tables that only grow ship a retention policy
-- [ ] No banned dependency (NATS/Kafka/RabbitMQ, Redlock, second JWT library, ORM, third-party router, `golang.org/x/image`)
+- [ ] No banned dependency (Kafka/RabbitMQ, NATS outside `internal/platform/natsbridge`, Redlock, second JWT library, ORM, third-party router, `golang.org/x/image`)
 
 ## apps/web
 

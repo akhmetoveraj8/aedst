@@ -1,0 +1,72 @@
+name: gateway-ci (experimental, non-blocking until first green run)
+
+# Rust realtime gateway (ADR-0020, apps/server/docs/adr). Nothing here has run on GitHub yet.
+on:
+  push:
+    branches: [main]
+    paths: ["apps/gateway/**", "apps/server/internal/platform/natsbridge/**", ".github/workflows/gateway-ci.yml"]
+  pull_request:
+    paths: ["apps/gateway/**", "apps/server/internal/platform/natsbridge/**", ".github/workflows/gateway-ci.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gateway-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/gateway
+    shell: bash
+
+env:
+  CARGO_TERM_COLOR: always
+  # Version of cargo-deny (crates.io, verified 2026-11-01).
+  CARGO_DENY_VERSION: "0.20.2"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Toolchain comes from rust-toolchain.toml (rustup is preinstalled on the runner).
+      - run: rustup show
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: rustup show
+      - run: cargo test
+
+  # Go -> NATS -> Rust -> WebSocket client (needs Docker for Postgres, preinstalled on ubuntu-latest).
+  end-to-end:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: apps/server/go.mod
+      - run: rustup show
+      - run: cargo build
+      - name: Go -> NATS -> Rust -> WebSocket
+        working-directory: apps/server
+        env:
+          AEDST_GATEWAY_BIN: ${{ github.workspace }}/apps/gateway/target/debug/aedst-gateway
+        run: go test -tags integration -run TestEventReachesAWebSocketClientThroughTheGateway -v ./internal/platform/natsbridge/
+
+  deny:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: rustup show
+      - run: cargo install --locked cargo-deny@${CARGO_DENY_VERSION}
+      - run: cargo deny check

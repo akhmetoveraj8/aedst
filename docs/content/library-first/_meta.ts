@@ -6,6 +6,7 @@ const meta: MetaRecord = {
   server: "Server stack",
   android: "Android stack",
   apple: "Apple stack",
+  gateway: "Gateway stack",
   desktop: "Desktop stack",
 };
 

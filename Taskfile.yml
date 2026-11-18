@@ -50,6 +50,7 @@ tasks:
     desc: Lint the Core profile (server, web); PROFILE=full adds android, apple, desktop (only where the toolchain exists).
     cmds:
       - task: server:lint
+      - task: gateway:lint
       - task: web:lint
       - task: lint:frozen
 
@@ -66,6 +67,7 @@ tasks:
     desc: Unit tests of the Core profile (server, web); PROFILE=full adds android, apple, desktop.
     cmds:
       - task: server:test
+      - task: gateway:test
       - task: web:test
       - task: test:frozen
 
@@ -82,6 +84,7 @@ tasks:
     desc: Build the Core profile (server, web); PROFILE=full adds android, apple, desktop (only where the toolchain exists).
     cmds:
       - task: server:build
+      - task: gateway:build
       - task: web:build
       - task: build:frozen
 
@@ -259,6 +262,14 @@ tasks:
       - |
         echo "task apple:generate apple:lint apple:test apple:build   # macOS only; Tuist install/generate and xcodebuild"
         echo "then launch the app in a simulator"
+  verify:gateway:
+    desc: Print the commands that verify the Rust realtime gateway (cargo; the end-to-end test also needs Docker).
+    silent: true
+    cmds:
+      - |
+        echo "rustup toolchain install <version in apps/gateway/rust-toolchain.toml>"
+        echo "task gateway:lint gateway:test gateway:build gateway:deny   # rustfmt, clippy -D warnings, cargo test, cargo build, cargo-deny"
+        echo "End to end (Docker for Postgres): AEDST_GATEWAY_BIN=apps/gateway/target/debug/aedst-gateway go test -tags integration ./internal/platform/natsbridge/   (in apps/server)"
   verify:desktop:
     desc: Print the commands that verify the Rust + Slint Desktop app (cargo, Windows or Linux).
     silent: true
@@ -552,6 +563,42 @@ tasks:
     platforms: [darwin]
     dir: apps/apple
     cmds: [make format]
+
+  # --- gateway (Rust realtime WebSocket gateway, ADR-0020; needs cargo) ---
+  gateway:fmt:
+    desc: Format the gateway with rustfmt.
+    dir: apps/gateway
+    cmds:
+      - cargo fmt
+  gateway:lint:
+    desc: rustfmt --check and clippy -D warnings over the gateway; prints SKIPPED without cargo.
+    dir: apps/gateway
+    cmds:
+      - |
+        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (gateway:lint)"; exit 0; }
+        cargo fmt --check
+        cargo clippy --all-targets -- -D warnings
+  gateway:test:
+    desc: Unit and contract tests of the gateway; prints SKIPPED without cargo.
+    dir: apps/gateway
+    cmds:
+      - |
+        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (gateway:test)"; exit 0; }
+        cargo test
+  gateway:build:
+    desc: Build the gateway (debug, or RELEASE=1); prints SKIPPED without cargo.
+    dir: apps/gateway
+    cmds:
+      - |
+        command -v cargo >/dev/null 2>&1 || { echo "SKIPPED: cargo not installed (gateway:build)"; exit 0; }
+        cargo build {{if .RELEASE}}--release{{end}}
+  gateway:deny:
+    desc: cargo-deny (licenses, advisories, bans, sources) for the gateway; prints SKIPPED when cargo-deny is missing.
+    dir: apps/gateway
+    cmds:
+      - |
+        command -v cargo-deny >/dev/null 2>&1 || { echo "SKIPPED: cargo-deny not installed (cargo install --locked cargo-deny@0.20.2)"; exit 0; }
+        cargo deny check
 
   # --- desktop (Rust + Slint, ADR apps/desktop/docs/adr/0001; needs cargo) ---
   desktop:fmt:

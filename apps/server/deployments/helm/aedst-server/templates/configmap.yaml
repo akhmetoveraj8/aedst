@@ -68,6 +68,16 @@ data:
   # Valkey (password is a secret).
   AEDST_VALKEY_ADDR: {{ .Values.config.valkey.addr | quote }}
   AEDST_VALKEY_DB: {{ .Values.config.valkey.db | int64 | quote }}
+  # NATS JetStream bridge for the realtime gateway (ADR-0020); off when url is empty.
+  {{- if .Values.config.nats.url }}
+  AEDST_NATS_URL: {{ .Values.config.nats.url | quote }}
+  AEDST_NATS_STREAM: {{ .Values.config.nats.stream | quote }}
+  AEDST_NATS_FORWARD_TYPES: {{ join "," .Values.config.nats.forwardTypes | quote }}
+  AEDST_NATS_RECIPIENT_FIELD: {{ .Values.config.nats.recipientField | quote }}
+  AEDST_NATS_REPLICAS: {{ .Values.config.nats.replicas | int64 | quote }}
+  AEDST_NATS_MAX_AGE_HOURS: {{ .Values.config.nats.maxAgeHours | int64 | quote }}
+  AEDST_NATS_DUPLICATE_WINDOW_SECONDS: {{ .Values.config.nats.duplicateWindowSeconds | int64 | quote }}
+  {{- end }}
   # Auth.
   {{- if .Values.config.oidc.issuer }}
   AEDST_OIDC_ISSUER: {{ .Values.config.oidc.issuer | quote }}

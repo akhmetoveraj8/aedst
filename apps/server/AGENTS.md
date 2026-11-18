@@ -23,8 +23,8 @@ just fill the template by hand. A one-line bug fix doesn't need one.
   on platform, never the reverse.
 - `transport` imports only its own `api/` (plus `platform` and `shared`), never `application` or `domain`; `api/` re-exports the vocabulary transport needs. `cmd/**` imports a module only through `internal/modules/<name>/module`. Only `admin` calls another module's `*Tx` api method.
 - Every library/boundary rule is a gate with a negative self-test; the table is in `docs/content/library-first/server.md` ("Enforcement"). Time comes from `sharedtime.Clock`, SQL only from sqlc (no string literals in `Exec`/`Query`), new direct dependencies go in `architecturetest/approved_modules.txt` together with the Library-First page.
-- Banned dependencies (enforced by `architecturetest` and depguard): NATS or any
-  external broker, RedSync/Redlock or any distributed lock in Valkey, competing
+- Banned dependencies (enforced by `architecturetest` and depguard): Kafka, RabbitMQ or any
+  other broker, NATS outside `internal/platform/natsbridge` (ADR-0020), RedSync/Redlock or any distributed lock in Valkey, competing
   JWT libraries, ORMs. Only `internal/platform/valkey` imports the go-redis client.
 
 ## When a change touches state and another system cares
@@ -36,9 +36,11 @@ call `events.Publisher.Publish(ctx, tx, type, version, partitionKey, payload)`
 inserts one `platform.event_delivery` job per subscribed consumer with
 `InsertManyTx` on your `tx` (`river_job` is the outbox: no outbox/inbox table,
 relay or in-process bus exists). Never publish outside the transaction, never
-from a request handler on its own, and do not add NATS, Kafka or RabbitMQ — a
-broker is only for the day a consumer becomes a separate service, and
-`events.Publisher` is the seam for it. Deferred or scheduled work of a module's
+from a request handler on its own, and do not add Kafka or RabbitMQ. NATS JetStream
+exists for one purpose (ADR-0020): `internal/platform/natsbridge` forwards allowlisted
+event types (`AEDST_NATS_FORWARD_TYPES`) to the Rust realtime gateway (`apps/gateway`)
+as a River-delivered consumer (no dual write, the event id is the `Nats-Msg-Id`); only
+that package imports the NATS client, and Go consumers still use River. Deferred or scheduled work of a module's
 own is a plain River job of its own kind (`internal/platform/jobs`). See
 `internal/modules/tasks/infrastructure/postgres/postgres.go`'s `Complete`
 method for the reference implementation.
@@ -121,7 +123,7 @@ Handlers never verify tokens: `httpserver.AuthInterceptor` does, through
 `platformauth.Verifier` (the OIDC resource-server verifier, ADR-0017 and
 ADR-0019). Read the caller with `platformauth.FromContext`. The server has no
 `auth` module and issues no tokens: do not add a second token format, password
-hashing or session storage, and do not verify JWTs anywhere else; identity
+hashing or session storage, and do not verify JWTs anywhere else in Go (the Rust gateway `apps/gateway` is the one other resource server, ADR-0020); identity
 features (sign-in, MFA, recovery, the user directory) belong in the IdP.
 
 ## Observability

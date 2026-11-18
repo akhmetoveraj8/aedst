@@ -60,6 +60,7 @@ type Config struct {
 	Tasks     TasksConfig
 	Integrity IntegrityConfig
 	AppAttest AppAttestConfig
+	NATS      NATSConfig
 }
 
 type HTTPConfig struct {
@@ -208,6 +209,24 @@ type AuthConfig struct {
 // OIDCConfig makes the server an OIDC resource server: it accepts access
 // tokens issued by any standards-compliant provider (ZITADEL by default,
 // Keycloak, Ory Hydra, Auth0, ...). Nothing here is provider-specific.
+// NATSConfig configures the optional bridge that forwards integration events to
+// NATS JetStream for the realtime gateway (ADR-0020). Empty URL disables it:
+// nothing is connected and no consumer is registered.
+type NATSConfig struct {
+	URL string `env:"AEDST_NATS_URL" envDefault:""`
+	// Stream is the JetStream stream that holds forwarded events.
+	Stream string `env:"AEDST_NATS_STREAM" envDefault:"AEDST_EVENTS"`
+	// ForwardTypes lists the event types forwarded to the gateway (an
+	// allowlist: a new realtime event is an explicit entry).
+	ForwardTypes []string `env:"AEDST_NATS_FORWARD_TYPES" envSeparator:"," envDefault:""`
+	// RecipientField is the payload field that names the recipient user id.
+	RecipientField string `env:"AEDST_NATS_RECIPIENT_FIELD" envDefault:"user_id"`
+	Replicas       int    `env:"AEDST_NATS_REPLICAS" envDefault:"1"`
+	MaxAgeHours    int    `env:"AEDST_NATS_MAX_AGE_HOURS" envDefault:"24"`
+	// DuplicateWindowSeconds is JetStream's Nats-Msg-Id dedup window.
+	DuplicateWindowSeconds int `env:"AEDST_NATS_DUPLICATE_WINDOW_SECONDS" envDefault:"120"`
+}
+
 type OIDCConfig struct {
 	// Issuer is the provider's issuer URL; discovery is fetched from
 	// <issuer>/.well-known/openid-configuration.
@@ -318,6 +337,9 @@ func (c Config) Validate() error {
 	}
 	if c.HTTP.APIRateLimitPerMinute < 0 || c.HTTP.MaxInFlight < 0 {
 		bad("AEDST_API_RATE_LIMIT_PER_MINUTE and AEDST_MAX_IN_FLIGHT must not be negative")
+	}
+	if c.NATS.URL != "" && (c.NATS.Stream == "" || c.NATS.Replicas < 1 || c.NATS.MaxAgeHours <= 0 || c.NATS.DuplicateWindowSeconds <= 0) {
+		bad("AEDST_NATS_STREAM must be set and AEDST_NATS_REPLICAS, AEDST_NATS_MAX_AGE_HOURS and AEDST_NATS_DUPLICATE_WINDOW_SECONDS must be positive when AEDST_NATS_URL is set")
 	}
 	c.validateClient(bad)
 	if c.HTTP.RequestTimeout <= 0 {
