@@ -110,6 +110,14 @@ A pass of these scripts says nothing about whether Apple, Android or Desktop com
 - **Kept after review**: go-redis (with miniredis for tests), `sideshow/apns2` (FCM for iOS would need the Firebase iOS SDK; revisit conditions are in the server decisions), the `sharedtime.Clock` abstraction beside `testing/synctest`, and the hand-written SQLite migrator on Desktop (`rusqlite_migration` needs rusqlite 0.40 while the workspace is on 0.41 and it has no hash freeze).
 - **Desktop telemetry**: `posthog-rs` removed. Product analytics will go through the Go server; the server has no ingest RPC yet, so the Privacy switch is disabled and the RPC is a recorded follow-up.
 
+## Core re-run on 2026-11-18 (Windows, no Docker, no `task`)
+
+- **Server, passed:** `go build`, `go vet` (also `-tags integration`), `go test -short ./...`, `golangci-lint` (0 issues), `buf lint`, `govulncheck` (no vulnerabilities). golangci-lint warns that `exhaustive.ignore-enum-types` was replaced by `ignore-types` in `.golangci.yml` (not changed: the file has uncommitted edits from another session).
+- **Web, found and fixed:** `pnpm typecheck` and `pnpm lint` were failing in admin (`server/security/route-guard.test.ts` passed a `fallbackLocale` that `decideRoute` does not accept and expected `/ru/forbidden`; the documented behaviour is the locale-less `/forbidden`). The test was corrected; lint, typecheck and the test now pass. The "Verified" claim above was therefore not true for admin until this fix.
+- **Web, passed:** app unit 499 passed (30 skipped), admin unit 8, admin BFF 91 (earlier text said 96), landing 38, `pnpm build` for app, admin and landing.
+- **Browser tests (Chromium installed afterwards):** admin 31 passed; app 216 passed on the second run. The first app run on a cold Vite cache failed 4 suites ("Vite unexpectedly reloaded a test", `use-intl` re-optimized); the rerun was green. Cause found: `apps/web/app/vitest.config.mts` listed a bare `use-intl` in `optimizeDeps.include`, which does not resolve from `app` (pnpm hides it behind `next-intl`), so Vite skipped it and found it mid-run; `next/navigation` was also discovered late. Fixed with `next-intl > use-intl` and `next/navigation`. After the config change (which invalidates Vite's dependency cache) two runs gave 216 passed with no reload. A true cold run on a fresh clone or CI runner was NOT reproduced: deleting `node_modules/.vite` was blocked in this session, so it is UNVERIFIED.
+- **Not run:** Playwright e2e, Storybook, the bundle budget check, Docker integration tests, `task` aggregates (`task` is not installed), and everything on a clean GitHub runner.
+
 ## Open items
 
 Not done (recorded honestly, not hidden):
