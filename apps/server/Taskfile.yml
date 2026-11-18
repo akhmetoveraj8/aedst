@@ -108,6 +108,32 @@ tasks:
     cmds:
       - govulncheck ./...
 
+  # Native Go fuzzing (func FuzzX) of the parsers that take attacker-controlled bytes:
+  # App Attest CBOR/ASN.1/authData, OIDC claims and JWS header, pagination cursors.
+  # Seed corpora live in <pkg>/testdata/fuzz and are replayed by plain `go test`.
+  fuzz:
+    desc: Short fuzz run of every FuzzX target (FUZZTIME per target, default 3s); part of `task check`.
+    vars:
+      FUZZTIME: '{{.FUZZTIME | default "3s"}}'
+    cmds:
+      - bash scripts/fuzz.sh {{.FUZZTIME}}
+
+  fuzz:long:
+    desc: Long fuzz run (FUZZTIME per target, default 5m); the nightly CI job (server-nightly.yml) runs it.
+    vars:
+      FUZZTIME: '{{.FUZZTIME | default "5m"}}'
+    cmds:
+      - bash scripts/fuzz.sh {{.FUZZTIME}}
+
+  # gremlins (go-gremlins/gremlins) mutates the domain packages and fails below
+  # MUTATION_EFFICACY_MIN (default 65) / MUTATION_COVERAGE_MIN (default 60) per
+  # package. Minutes long: not part of `check`; nightly CI. See
+  # docs/content/engineering/mutation-testing.md.
+  mutation:
+    desc: Mutation testing of internal/modules/*/domain with gremlins (MUTATION_EFFICACY_MIN, MUTATION_COVERAGE_MIN, MUTATION_WORKERS).
+    cmds:
+      - bash scripts/mutation.sh
+
   alerts:test:
     desc: Check and unit-test the Prometheus alert rules with promtool (deployments/helm/aedst-server/files).
     dir: deployments/helm/aedst-server/files
@@ -262,6 +288,16 @@ tasks:
     cmds:
       - k6 inspect test/load/pgbouncer.js >/dev/null
 
+  # Profile-guided optimization: writes cmd/server/default.pgo, which `go build`
+  # (and the Dockerfile) use automatically (-pgo=auto). Source k6 profiles a running
+  # server under test/load/api.js; source bench is the offline fallback (see
+  # scripts/pgo.sh and docs/content/engineering/pgo.md; no profile is committed
+  # until a k6 one has been recorded and its gain measured).
+  pgo:
+    desc: Build cmd/server/default.pgo from a k6 load profile (PGO_SOURCE=k6, needs a running server with AEDST_PPROF_ENABLED) or from benchmarks (PGO_SOURCE=bench).
+    cmds:
+      - bash scripts/pgo.sh
+
   # --- composite gates -----------------------------------------------------
 
   check:
@@ -272,6 +308,7 @@ tasks:
       - task: arch
       - task: vuln
       - task: test
+      - task: fuzz
 
   check:full:
     desc: Everything in check, plus Docker-dependent gates.

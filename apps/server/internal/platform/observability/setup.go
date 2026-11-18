@@ -35,6 +35,8 @@ type Config struct {
 	// works without code changes. When false, telemetry is still created and
 	// propagated in-process; nothing is exported.
 	ExportEnabled bool
+	// Profiling configures continuous profiling (off by default).
+	Profiling ProfilingConfig
 }
 
 // Telemetry owns the process-wide OpenTelemetry providers and the logger.
@@ -129,6 +131,16 @@ func Setup(ctx context.Context, cfg Config) (*Telemetry, error) {
 		extra = append(extra, otelslog.NewHandler(cfg.ServiceName, otelslog.WithLoggerProvider(lp)))
 	}
 	tel.Logger = NewLogger(cfg.LogLevel, cfg.LogFormat, cfg.ServiceName, extra...)
+
+	// --- profiles (push to a Pyroscope-compatible backend) ---
+	if cfg.Profiling.ApplicationName == "" {
+		cfg.Profiling.ApplicationName = cfg.ServiceName
+	}
+	profiler, err := StartProfiling(cfg.Profiling, tel.Logger)
+	if err != nil {
+		return nil, err
+	}
+	tel.shutdowns = append(tel.shutdowns, profiler.Stop)
 
 	return tel, nil
 }

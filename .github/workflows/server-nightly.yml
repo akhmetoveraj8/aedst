@@ -1,0 +1,56 @@
+name: server-nightly
+
+# Long fuzzing and mutation testing of the Go server. Never per PR (minutes to an
+# hour): nightly plus on demand. The per-PR gate runs a 3s fuzz pass inside
+# `task check` and replays the committed corpora in `task test`.
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+    inputs:
+      fuzztime:
+        description: "Fuzz time per target (Go duration, default 5m)"
+        required: false
+        default: "5m"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: server-nightly-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/server
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task
+      - run: task fuzz:long FUZZTIME="${{ inputs.fuzztime || '5m' }}"
+      # A crash leaves its input in <pkg>/testdata/fuzz/<Target>/; commit it as a regression test.
+      - name: Upload crashing inputs
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: server-fuzz-crashers
+          path: apps/server/internal/**/testdata/fuzz/
+          retention-days: 14
+
+  mutation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task "go:github.com/go-gremlins/gremlins/cmd/gremlins"
+      - run: task mutation

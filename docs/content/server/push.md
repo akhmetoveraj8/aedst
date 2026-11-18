@@ -10,7 +10,7 @@ contract and VAPID key rotation. Other documents link here and do not repeat it.
 Code: `internal/platform/push` (transport only), `internal/modules/notifications`
 (device bookkeeping, fan-out as River jobs), `api/proto/aedst/notifications/v1/notifications.proto`.
 
-Providers are maintained libraries (`webpush-go`, Firebase Admin Go `messaging`,
+Providers are maintained libraries (`webpush-go`, the generated FCM HTTP v1 client `google.golang.org/api/fcm/v1`,
 `apns2`); never hand-write ECE, VAPID/APNs JWTs or FCM OAuth (see
 `library-first.md`). A provider whose configuration is empty is disabled and
 sending to it is skipped (`ErrDisabled`).
@@ -138,3 +138,18 @@ A compromised private key is rotated the same way but without the grace period
 FCM and APNs credentials rotate independently of this procedure: add the new
 FCM service-account key or APNs auth key (`.p8`, new key id) in the secret and
 roll out; device tokens do not change.
+
+## Dependency weight
+
+FCM used to go through Firebase Admin Go (`firebase.google.com/go/v4`), which for one `messages.send` pulled Firestore, Cloud Storage, monitoring and their gRPC stack. It is now the Google-generated client `google.golang.org/api/fcm/v1` from the module the server already depended on for Play Integrity. Measured 2026-11-18 (Go 1.27.3, windows/amd64):
+
+| Measure | Before (Firebase Admin) | After (`fcm/v1`) |
+|---|---|---|
+| `go build ./cmd/server` binary | 106,939,392 B | 82,956,800 B (-22.4%) |
+| same with `-trimpath -ldflags="-s -w"` (the Dockerfile's flags) | 75,355,648 B | 59,184,640 B (-21.5%; includes the Pyroscope SDK added in the same change) |
+| `go mod graph` lines | 2335 | 1865 (1879 with the Pyroscope SDK) |
+| modules in `go list -m all` | 364 | 347 (349 with Pyroscope) |
+| packages in `go list -deps ./cmd/server` | 1249 | 1021 (1033 with Pyroscope) |
+| Firestore / Cloud Storage / Firebase packages linked | 20 | 0 |
+
+The generated client does not retry: a 429/5xx comes back as a transient error and River's job backoff retries it. The `UNREGISTERED` detail, and a 400 that names the registration token, deactivate the device as before. Object storage keeps `aws-sdk-go-v2` with only `service/s3`, `config` and `credentials` imported by this repo; see the decisions page.

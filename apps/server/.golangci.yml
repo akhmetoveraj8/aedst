@@ -179,6 +179,14 @@ linters:
             - pkg: github.com/jwx-go
               desc: "JWT/JOSE (jwx) is imported only by internal/platform/auth"
 
+        pyroscope-only-in-observability:
+          files:
+            - "**/*.go"
+            - "!**/internal/platform/observability/**"
+          deny:
+            - pkg: github.com/grafana/pyroscope-go
+              desc: "continuous profiling goes through the observability.Profiler port; the Pyroscope SDK is imported only by internal/platform/observability"
+
         otelpgx-only-in-database:
           files:
             - "**/*.go"

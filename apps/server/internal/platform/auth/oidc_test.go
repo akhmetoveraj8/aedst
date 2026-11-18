@@ -42,7 +42,7 @@ func (i *fakeIdP) jwksFetches() int {
 
 // rotate replaces the provider's signing key with a new one under kid and
 // publishes only the new public key.
-func (i *fakeIdP) rotate(t *testing.T, kid string) {
+func (i *fakeIdP) rotate(t testing.TB, kid string) {
 	t.Helper()
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -65,7 +65,7 @@ func (i *fakeIdP) rotate(t *testing.T, kid string) {
 	i.mu.Unlock()
 }
 
-func newFakeIdP(t *testing.T) *fakeIdP {
+func newFakeIdP(t testing.TB) *fakeIdP {
 	t.Helper()
 
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
@@ -103,13 +103,13 @@ func newFakeIdP(t *testing.T) *fakeIdP {
 	return idp
 }
 
-func (i *fakeIdP) token(t *testing.T, mutate func(*jwt.Builder)) string {
+func (i *fakeIdP) token(t testing.TB, mutate func(*jwt.Builder)) string {
 	t.Helper()
 	return i.tokenTyped(t, "at+jwt", mutate)
 }
 
 // tokenTyped signs a token with the given JOSE typ header ("" = none).
-func (i *fakeIdP) tokenTyped(t *testing.T, typ string, mutate func(*jwt.Builder)) string {
+func (i *fakeIdP) tokenTyped(t testing.TB, typ string, mutate func(*jwt.Builder)) string {
 	t.Helper()
 	now := time.Now()
 	b := jwt.NewBuilder().
@@ -156,7 +156,7 @@ func (i *fakeIdP) tokenTyped(t *testing.T, typ string, mutate func(*jwt.Builder)
 	return string(signed)
 }
 
-func newVerifier(t *testing.T, idp *fakeIdP) *auth.OIDCVerifier {
+func newVerifier(t testing.TB, idp *fakeIdP) *auth.OIDCVerifier {
 	t.Helper()
 	v, err := auth.NewOIDCVerifier(auth.OIDCConfig{
 		Issuer:     idp.server.URL,

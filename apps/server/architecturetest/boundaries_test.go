@@ -197,8 +197,9 @@ func TestOnlyPlatformPackagesImportProviderSDKs(t *testing.T) {
 		"github.com/aws/aws-sdk-go-v2":          platformPrefix + "storage",
 		"github.com/aws/smithy-go":              platformPrefix + "storage",
 		"github.com/SherClockHolmes/webpush-go": platformPrefix + "push",
-		"firebase.google.com/go":                platformPrefix + "push",
+		"google.golang.org/api/fcm":             platformPrefix + "push",
 		"github.com/sideshow/apns2":             platformPrefix + "push",
+		"github.com/grafana/pyroscope-go":       platformPrefix + "observability",
 	}
 	for _, pkg := range loadPackages(t) {
 		for path := range pkg.Imports {

@@ -89,11 +89,11 @@ File-size policy counts (`task check:file-size`, hand-written source only):
 
 | Platform | Files | Yellow (301-400) | Orange (401-500) | Red (over 500) |
 |---|---|---|---|---|
-| server | 296 | 10 | 6 | 0 |
+| server | 308 | 8 | 8 | 0 |
 | web | 708 | 5 | 0 | 0 |
 | android | 399 | 0 | 0 | 0 |
 | apple | 297 | 3 | 0 | 0 |
-| desktop | 244 | 15 | 4 | 0 |
+| desktop | 239 | 15 | 4 | 0 |
 | root | 63 | 2 | 0 | 0 |
 
 <!-- metrics:end -->

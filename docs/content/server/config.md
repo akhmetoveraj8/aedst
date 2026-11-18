@@ -94,6 +94,11 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | `AEDST_SERVICE_NAME` | string | `aedst-server` |  |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | string | (empty) | OTLPEndpoint / OTLPTracesEndpoint mirror the standard OTEL_* variables only so startup can tell whether telemetry export is configured at all; the SDK reads the real values (and headers, protocol, ...) itself. |
 | `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` | string | (empty) |  |
+| `AEDST_PROFILING_ENABLED` | bool | `false` | Continuous profiling (Grafana Pyroscope SDK, push to Grafana Cloud Profiles or an existing Pyroscope server). Off by default; no inbound port. |
+| `AEDST_PROFILING_SERVER_ADDRESS` | string | (empty) |  |
+| `AEDST_PROFILING_BASIC_AUTH_USER` | string | (empty) |  |
+| `AEDST_PROFILING_BASIC_AUTH_PASSWORD` | string | (empty) |  |
+| `AEDST_PROFILING_TENANT_ID` | string | (empty) |  |
 
 ## Client
 

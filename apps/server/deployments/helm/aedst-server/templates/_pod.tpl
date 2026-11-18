@@ -95,7 +95,7 @@ containers:
         value: {{ $a.queues | quote }}
       {{- end }}
       {{- $sk := $root.Values.secretKeys }}
-      {{- $optional := dict "AEDST_STORAGE_ACCESS_KEY_ID" $sk.storageAccessKeyId "AEDST_STORAGE_SECRET_ACCESS_KEY" $sk.storageSecretAccessKey "AEDST_PUSH_VAPID_PRIVATE_KEY" $sk.vapidPrivateKey "AEDST_PUSH_FCM_CREDENTIALS_JSON" $sk.fcmCredentialsJson "AEDST_PUSH_APNS_PRIVATE_KEY" $sk.apnsPrivateKey "AEDST_INTEGRITY_CREDENTIALS_JSON" $sk.integrityCredentialsJson }}
+      {{- $optional := dict "AEDST_STORAGE_ACCESS_KEY_ID" $sk.storageAccessKeyId "AEDST_STORAGE_SECRET_ACCESS_KEY" $sk.storageSecretAccessKey "AEDST_PUSH_VAPID_PRIVATE_KEY" $sk.vapidPrivateKey "AEDST_PUSH_FCM_CREDENTIALS_JSON" $sk.fcmCredentialsJson "AEDST_PUSH_APNS_PRIVATE_KEY" $sk.apnsPrivateKey "AEDST_INTEGRITY_CREDENTIALS_JSON" $sk.integrityCredentialsJson "AEDST_PROFILING_BASIC_AUTH_PASSWORD" $sk.profilingBasicAuthPassword }}
       {{- range $name, $key := $optional }}
       {{- if $key }}
       - name: {{ $name }}

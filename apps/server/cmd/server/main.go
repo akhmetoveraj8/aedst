@@ -19,6 +19,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/aedst/server/internal/platform/buildinfo"
 	"github.com/aedst/server/internal/platform/config"
 	platformjobs "github.com/aedst/server/internal/platform/jobs"
 	"github.com/aedst/server/internal/platform/modulekit"
@@ -54,6 +55,14 @@ func run(ctx context.Context) error {
 		LogLevel:      cfg.Obs.LogLevel,
 		LogFormat:     cfg.Obs.LogFormat,
 		ExportEnabled: cfg.Obs.ExportEnabled(),
+		Profiling: observability.ProfilingConfig{
+			Enabled:           cfg.Obs.ProfilingEnabled,
+			ServerAddress:     cfg.Obs.ProfilingServerAddress,
+			BasicAuthUser:     cfg.Obs.ProfilingBasicAuthUser,
+			BasicAuthPassword: cfg.Obs.ProfilingBasicAuthPassword,
+			TenantID:          cfg.Obs.ProfilingTenantID,
+			Tags:              map[string]string{"env": string(cfg.Env), "version": buildinfo.Get()},
+		},
 	})
 	if err != nil {
 		return err

@@ -6,6 +6,8 @@ const meta: MetaRecord = {
   "api-design": "API design",
   security: "Security",
   performance: "Performance",
+  "mutation-testing": "Fuzzing and mutation testing",
+  "profiling-pgo": "Profiling and PGO",
 };
 
 export default meta;

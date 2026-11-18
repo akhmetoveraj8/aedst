@@ -182,3 +182,13 @@ func TestJudgeAttestation(t *testing.T) {
 		t.Errorf("credential id = %q", r)
 	}
 }
+
+func TestDecodeKeyID_RejectsEmbeddedNewlines(t *testing.T) {
+	// base64's decoder skips CR/LF: without the canonical-spelling check these
+	// would all name the same key id.
+	for _, s := range []string{"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n=", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\r\n"} {
+		if _, err := domain.DecodeKeyID(s); err == nil {
+			t.Errorf("DecodeKeyID(%q) accepted a non-canonical spelling", s)
+		}
+	}
+}
