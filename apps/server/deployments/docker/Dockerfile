@@ -11,7 +11,7 @@
 # libvips.so.42). govips 2.20 needs libvips 8.10+ (README: 8.14+).
 # NOT verified by a local `docker build` where this was authored (no libvips,
 # no Docker): the first CI image build is its acceptance test.
-FROM golang:1.27.3-trixie AS build
+FROM golang:1.27.4-trixie AS build
 WORKDIR /src
 
 RUN apt-get update \

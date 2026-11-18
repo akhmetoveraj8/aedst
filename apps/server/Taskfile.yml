@@ -4,7 +4,7 @@ vars:
   # platform first: the shared idempotency table (platform schema) must exist before
   # any module migration that references it. Rollback runs in reverse.
   MODULES: platform auth tasks notifications search media admin integrity appattest
-  RIVER_VERSION: v0.51.0 # == github.com/riverqueue/river in go.mod and Dockerfile.migrate (architecturetest)
+  RIVER_VERSION: v0.51.2 # == github.com/riverqueue/river in go.mod and Dockerfile.migrate (architecturetest)
   MODULES_REVERSE: appattest integrity admin media search notifications tasks auth platform
 
 tasks:

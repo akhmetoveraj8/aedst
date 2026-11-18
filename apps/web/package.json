@@ -17,5 +17,5 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:"
   },
-  "packageManager": "pnpm@12.15.0"
+  "packageManager": "pnpm@12.21.0"
 }

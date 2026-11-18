@@ -31,7 +31,9 @@ func init() {
 	modulekit.Register(modulekit.Module{
 		Name:     "media",
 		Requires: []string{"tasks"},
-		Files:    []protoreflect.FileDescriptor{mediav1.File_aedst_media_v1_media_proto},
+		Files:    []protoreflect.FileDescriptor{mediav1.File_aedst_media_v1_media_proto, mediav1.File_aedst_media_v1_media_operator_proto},
+		Roles:    operatorRoles(),
+		Remote:   remote,
 		Retention: func(env *modulekit.Env) []retention.Policy {
 			return []retention.Policy{{
 				Name:      "media.pending_uploads",
@@ -51,6 +53,7 @@ func init() {
 type mediaModule struct {
 	jobsRepo *postgres.Repository
 	svc      mediaapi.Service
+	stats    mediaapi.Stats
 }
 
 func (m *mediaModule) setup(ctx context.Context, env *modulekit.Env) error {
@@ -63,8 +66,8 @@ func (m *mediaModule) setup(ctx context.Context, env *modulekit.Env) error {
 	if err != nil {
 		return err
 	}
-	repo := postgres.NewRepository(env.Pool, env.Jobs, env.Publisher, env.Clock)
-	m.jobsRepo = postgres.NewRepository(env.JobsPool, env.Jobs, env.Publisher, env.Clock)
+	repo := postgres.NewRepository(env.PoolFor("media"), env.JobsFor("media"), env.PublisherFor("media"), env.Clock)
+	m.jobsRepo = postgres.NewRepository(env.JobsPoolFor("media"), env.JobsFor("media"), env.PublisherFor("media"), env.Clock)
 	river.AddWorker(env.Workers, processing.NewWorker(m.jobsRepo, d.objects, processing.Config{
 		MaxImagePixels: cfg.Media.MaxImagePixels,
 		MaxImageBytes:  cfg.Media.MaxImageBytes,
@@ -85,11 +88,13 @@ func (m *mediaModule) setup(ctx context.Context, env *modulekit.Env) error {
 		Delivery:       d.images,
 	}, d.enabled)
 	m.svc = svc
+	m.stats = svc
 	modulekit.Provide[mediaapi.Stats](env, svc)
 	return nil
 }
 
 func (m *mediaModule) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
 	modulekit.Mount(mt, mediav1connect.RegisterMediaServiceHandler, mediav1connect.MediaServiceHandler(transport.NewHandler(m.svc)), smallRequestBytes)
+	modulekit.Mount(mt, mediav1connect.RegisterMediaOperatorServiceHandler, mediav1connect.MediaOperatorServiceHandler(transport.NewOperatorHandler(m.stats)), smallRequestBytes)
 	return nil
 }

@@ -89,6 +89,9 @@ type consumer struct {
 	// handle is nil for a remote consumer: a unit hosted by another process that
 	// is only in the catalog so this process's producers still insert its delivery.
 	handle Handler
+	// forwardTo is the consumer's unit when it lives in another service with its own
+	// database (SubscribeForwarded): the producer inserts a forward job, not a delivery.
+	forwardTo string
 }
 
 // NewRegistry returns an empty Registry.
@@ -308,10 +311,15 @@ func (p *RiverPublisher) Publish(ctx context.Context, tx pgx.Tx, eventType strin
 	occurred := p.clock.Now().UTC()
 	params := make([]river.InsertManyParams, len(names))
 	for i, name := range names {
-		params[i] = river.InsertManyParams{Args: DeliveryArgs{
+		d := DeliveryArgs{
 			Consumer: name, EventID: id.String(), EventType: eventType, EventVersion: version,
 			OccurredAt: occurred, PartitionKey: partitionKey.String(), Traceparent: traceparent, Payload: body,
-		}}
+		}
+		if c, ok := p.registry.lookup(name); ok && c.forwardTo != "" {
+			params[i] = river.InsertManyParams{Args: forwardOf(c.forwardTo, d)}
+			continue
+		}
+		params[i] = river.InsertManyParams{Args: d}
 	}
 	if _, err := p.inserter.InsertManyTx(ctx, tx, params); err != nil {
 		return ids.Nil, fmt.Errorf("events: publish %s: %w", eventType, err)

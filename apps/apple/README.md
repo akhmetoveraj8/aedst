@@ -175,9 +175,9 @@ Dependency minimums (not re-verified against the tagged `Package.swift` files af
 | Dependency | Version used | Notes |
 |---|---|---|
 | connect-swift | 1.2.3 (latest release) | generated async methods back-deploy far below the floor |
-| swift-protobuf | >= 1.31.0 (latest 1.39.0, tools 6.2) | connect-swift 1.2.3 requires >= 1.31.0 |
+| swift-protobuf | >= 1.31.0 (latest 1.41.0, tools 6.2) | connect-swift 1.2.3 requires >= 1.31.0 |
 | GRDB.swift | >= 7.0.0 (latest 7.12.0, tools 6.1) | |
-| Nuke / NukeUI | 13.2.1 (privacy audit was done on 13.2.0 sources) | used only through `Core/AedstMedia`; ships no `PrivacyInfo.xcprivacy` |
+| Nuke / NukeUI | 13.2.3 (privacy audit was done on 13.2.0 sources) | used only through `Core/AedstMedia`; ships no `PrivacyInfo.xcprivacy` |
 | swift-snapshot-testing | >= 1.19.7 | test dependency of `Core/AedstDesignSystem` only |
 
 Platform replacements for removed libraries: `@Observable` / `@Bindable` /

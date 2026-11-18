@@ -121,18 +121,27 @@ describe("decideRoute", () => {
       location: "/api/auth/login?next=%2F",
     });
     expect(
-      decideRoute({ pathname: "/en/admin", search: "?q=1", session: "anonymous" }),
+      decideRoute({
+        pathname: "/en/admin",
+        search: "?q=1",
+        session: "anonymous",
+      }),
     ).toEqual({
       type: "redirect",
       location: "/api/auth/login?next=%2Fen%2Fadmin%3Fq%3D1",
     });
     expect(
-      decideRoute({ pathname: "/", session: "active", roles: [], fallbackLocale: "ru" }),
-    ).toEqual({ type: "redirect", location: "/ru/forbidden" });
+      decideRoute({ pathname: "/", session: "active", roles: [] }),
+    ).toEqual({
+      type: "redirect",
+      location: "/forbidden",
+    });
   });
 
   it("serves the locale-less forbidden page (auth error landing) without a session", () => {
-    expect(decideRoute({ pathname: "/forbidden", session: "anonymous" })).toEqual({
+    expect(
+      decideRoute({ pathname: "/forbidden", session: "anonymous" }),
+    ).toEqual({
       type: "next",
     });
   });

@@ -42,7 +42,7 @@ func init() {
 			return []retention.Policy{{
 				Name:      "admin.audit_log",
 				Retention: time.Duration(env.Config.Retention.AuditDays) * 24 * time.Hour,
-				Purge:     postgres.NewRepository(env.JobsPool, env.JobStats, env.Clock).Purge, // background work: jobs pool
+				Purge:     postgres.NewRepository(env.JobsPoolFor("admin"), env.JobStats, env.Clock).Purge, // background work: jobs pool
 			}}
 		},
 		Setup: m.setup,
@@ -59,7 +59,7 @@ type adminModule struct {
 // and the transaction runner. Built once; retention and Setup share it.
 func (m *adminModule) repo(env *modulekit.Env) *postgres.Repository {
 	if m.r == nil {
-		m.r = postgres.NewRepository(env.Pool, env.JobStats, env.Clock)
+		m.r = postgres.NewRepository(env.PoolFor("admin"), env.JobStats, env.Clock)
 	}
 	return m.r
 }
@@ -73,13 +73,21 @@ func (m *adminModule) repo(env *modulekit.Env) *postgres.Repository {
 //     the audit-first path (pending entry + admin.apply job) for mutations.
 //
 // Media is optional either way: without it the overview omits media.
-func (m *adminModule) setup(_ context.Context, env *modulekit.Env) error {
+func (m *adminModule) setup(ctx context.Context, env *modulekit.Env) error {
 	repo := m.repo(env)
-	repo.UseJobs(env.Jobs)
-	token := serviceToken(env)
+	repo.UseJobs(env.JobsFor("admin"))
+	token := serviceToken(ctx, env)
 
 	var tasksOps tasksapi.OperatorService
 	tasks, ok := modulekit.Lookup[tasksapi.AdminService](env)
+	if ok && env.PoolFor("tasks") != env.PoolFor("admin") {
+		// Hosted here but on another database: no transaction can span the audit row
+		// and the task, so take the audit-first path through the in-process operator API.
+		if tasksOps, ok = modulekit.Lookup[tasksapi.OperatorService](env); !ok {
+			return errors.New("admin: tasks runs on its own database but provides no operator service")
+		}
+		ok = true
+	}
 	if !ok {
 		url := env.Config.Topology.Remote["tasks"]
 		if url == "" {
@@ -90,6 +98,12 @@ func (m *adminModule) setup(_ context.Context, env *modulekit.Env) error {
 	}
 	var notificationsOps notificationsapi.Operator
 	notifications, ok := modulekit.Lookup[notificationsapi.Broadcaster](env)
+	if ok && env.PoolFor("notifications") != env.PoolFor("admin") {
+		if notificationsOps, ok = modulekit.Lookup[notificationsapi.Operator](env); !ok {
+			return errors.New("admin: notifications runs on its own database but provides no operator service")
+		}
+		ok = true
+	}
 	if !ok {
 		url := env.Config.Topology.Remote["notifications"]
 		if url == "" {
@@ -102,7 +116,7 @@ func (m *adminModule) setup(_ context.Context, env *modulekit.Env) error {
 
 	// Every process registers every worker (River validates job kinds on insert).
 	// It runs on the jobs pool, like every background worker.
-	jobsRepo := postgres.NewRepository(env.JobsPool, env.JobStats, env.Clock)
+	jobsRepo := postgres.NewRepository(env.JobsPoolFor("admin"), env.JobStats, env.Clock)
 	applier := application.NewApplier(jobsRepo, tasksOps, notificationsOps, env.Clock)
 	river.AddWorker(env.Workers, adminjobs.NewApplyWorker(applier))
 

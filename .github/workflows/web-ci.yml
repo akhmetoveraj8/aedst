@@ -44,7 +44,7 @@ defaults:
 
 env:
   NODE_VERSION: "26"
-  PNPM_VERSION: "12.15.0"
+  PNPM_VERSION: "12.21.0"
   # The e2e/Lighthouse servers listen here; NEXT_PUBLIC_* is inlined at build
   # time, so the build must already know the origin it will be served from.
   SITE_URL: http://127.0.0.1:3100

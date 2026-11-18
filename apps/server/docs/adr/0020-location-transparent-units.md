@@ -70,9 +70,9 @@ in-process and the Connect implementation (`tasks/api/ownershiptest`), so behavi
 User-scoped synchronous calls forward the caller's own access token (`platformauth.WithBearer`, set by the
 auth interceptor after verification); the receiving unit verifies it like any request. A remote adapter
 refuses to ask on behalf of a user other than the authenticated one, and a call with no user (a background job)
-is refused rather than sent unauthenticated. Service-to-service identity for work with no user (a
-client-credentials token and an `internal` role) is **not built**: build it with the first unit that needs a
-synchronous call from a job, not before.
+is refused rather than sent unauthenticated. Service-to-service identity for work with no user is a
+client-credentials token with the `internal` role: built in [ADR-0022](0022-event-forwarding-and-service-identity.md)
+(`internal/platform/serviceauth`, `AEDST_SERVICE_IDENTITY_*`).
 
 ### 6. Event delivery with a partial topology
 
@@ -91,7 +91,7 @@ not pick up deliveries it cannot handle. So:
 
 Consumers may move to their own database independently (`PoolFor`/`JobsPoolFor`; `search` does). A producer
 cannot while its events live in the shared River tables: forwarding between databases
-(`platform.event_forward`) is a documented extension point, **not built**, and no broker was added.
+(`platform.event_forward`) is built in [ADR-0022](0022-event-forwarding-and-service-identity.md) and no broker was added.
 
 ### 7. Operator actions across processes
 
@@ -100,9 +100,10 @@ admin writes an `admin.audit_log` row in state `pending` and an `admin.apply` Ri
 job calls the owner's operator RPC (`TasksOperatorService`, `NotificationsOperatorService`, closed by default,
 idempotent on the audit entry id) and resolves the row to `applied` or `failed`. The operator services live in
 the owning units' protos because `admin` serves `aedst.admin.v1` itself. The audit table stays append-only
-except for that one transition. **Blocked on a decision:** the job has no user token, so it needs a machine
-identity (client-credentials client plus an `internal` role); until then a remote mutation is refused with
-`FailedPrecondition` before any row is written, while reads forward the operator's own token.
+except for that one transition. The job has no user token, so it uses the machine
+identity of ADR-0022 (client-credentials client plus an `internal` role); without `AEDST_SERVICE_IDENTITY_*` a
+remote mutation is still refused with `FailedPrecondition` before any row is written, while reads forward the
+operator's own token.
 
 ### 8. Gates
 
@@ -120,14 +121,12 @@ boundary. Each gate has a negative self-test.
   synchronous caller needs one.
 - A call that was a function becomes a network call when a unit moves: latency, partial failure and retries
   appear. Batch methods (`GetMany`) belong in a contract before it is split, not after.
-- **Not built, by design (YAGNI until a unit needs it):** service-to-service identity for jobs, a broker, a
-  service mesh, per-unit Helm charts. The seams for each exist; none is a precondition for splitting.
+- **Not built, by design (YAGNI until a unit needs it):** a broker, a service mesh, per-unit Helm charts. The seams for each exist; none is a precondition for splitting.
 - **Do not split early.** Feature-level services multiply deployments, dashboards and failure modes. The
   structure (units, contracts, schemas) is cheap and is done up front; a process boundary is added only for a
   measured reason (ADR-0001 still holds).
 
 ## Revisit when
 
-A unit that is hosted remotely needs a synchronous call from a background job (add service identity); two
-units that must be transactionally consistent are split (add a saga, not a distributed transaction); the
+Two units that must be transactionally consistent are split (add a saga, not a distributed transaction); the
 number of remote units makes per-environment URLs unmanageable (adopt service discovery).

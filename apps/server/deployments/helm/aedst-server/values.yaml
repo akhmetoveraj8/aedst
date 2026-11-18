@@ -28,6 +28,7 @@ existingSecret: ""
 secretKeys:
   cachePassword: cache-password # AEDST_CACHE_PASSWORD ("" = no password)
   searchApiKey: "" # AEDST_SEARCH_API_KEY (required in staging/production when config.search.url is set)
+  serviceIdentityClientSecret: "" # AEDST_SERVICE_IDENTITY_CLIENT_SECRET (required when config.serviceIdentity.tokenUrl is set)
   # Optional keys: empty = variable not set; non-empty renders a secretKeyRef.
   storageAccessKeyId: "" # AEDST_STORAGE_ACCESS_KEY_ID
   storageSecretAccessKey: "" # AEDST_STORAGE_SECRET_ACCESS_KEY
@@ -188,6 +189,19 @@ config:
     rateLimitPerMinute: 10
     assertionRateLimitPerMinute: 120
     keyRetentionDays: 365
+  # Service identity: an OIDC client-credentials client for calls with no user (the admin.apply
+  # job calling a unit hosted elsewhere). Empty tokenUrl = none. The client secret is
+  # secretKeys.serviceIdentityClientSecret; the IdP grants this client the "internal" role.
+  serviceIdentity:
+    tokenUrl: ""
+    clientId: ""
+    scopes: []
+  # Event forwarding across a database boundary (ADR-0022). forward maps a consumer unit that
+  # lives in another service with its own database to that service's URL; ingestEnabled mounts
+  # the endpoint a forwarding producer calls. Both need the service identity above.
+  events:
+    forward: {}
+    ingestEnabled: false
   # NATS JetStream bridge for the realtime gateway (ADR-0021). Empty url = off.
   nats:
     url: ""

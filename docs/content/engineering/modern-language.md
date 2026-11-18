@@ -14,7 +14,7 @@ the source of truth; when one changes, update this page in the same change.
 
 | Platform | Pinned in | Version | Language level |
 |---|---|---|---|
-| Server | `apps/server/go.mod`, `mise.toml` | Go 1.27.3 | `go 1.27.3` |
+| Server | `apps/server/go.mod`, `mise.toml` | Go 1.27.4 | `go 1.27.3` |
 | Web | `apps/web/pnpm-workspace.yaml` | TypeScript 7.0, React 19.3, Next.js 16.4 | `strict: true` |
 | Android | `apps/android/gradle/libs.versions.toml` | Kotlin 2.4.21, JDK 21 | Kotlin 2.4, stable features only |
 | Apple | `apps/apple/Project.swift`, `mise.toml` (Xcode 26.6) | Swift 6.3 compiler | Swift 6 language mode, iOS 18 / macOS 15 floor |

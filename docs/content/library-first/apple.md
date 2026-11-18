@@ -14,7 +14,7 @@ Swift, SwiftUI, Swift Concurrency (async/await, actors), Swift Testing (unit) an
 | Responsibility | Tool |
 |---|---|
 | Project/build | **Tuist** (`Project.swift`, `Tuist.swift`, `Tuist/Package.swift`; `tuist install/generate/build/test`; the generated project is in `.gitignore`). XcodeGen is **not used** |
-| API client | generated Protobuf + ConnectRPC (**connect-swift 1.2.3**: `UnaryInterceptor`, `InterceptorFactory`, `ProtoCodec`); swift-protobuf `>= 1.39.0` (Package.swift floor; connect-swift 1.2.3 itself needs >= 1.31.0) |
+| API client | generated Protobuf + ConnectRPC (**connect-swift 1.2.3**: `UnaryInterceptor`, `InterceptorFactory`, `ProtoCodec`); swift-protobuf `>= 1.41.0` (Package.swift floor; connect-swift 1.2.3 itself needs >= 1.31.0) |
 | Local persistence | **GRDB 7** (`DatabasePool` + `DatabaseMigrator`) used directly (`AedstDatabase`); **not SwiftData** (explicit versioned migrations and control are required). Currently stores key-value, settings and the offline write queue (`aedstOutbox`, see [offline](../apple/offline.md)); no list in the app is fed by the local DB. **SQLiteData is approved for reactive queries in views** (Point-Free, on top of GRDB; 1.12.0, verified 2026-10-08), the lighter alternative is GRDBQuery 0.11.0. **Not added**: no view needs `ValueObservation` yet. The trigger is the first offline-first list/screen (the analogue of the Room outbox/sync on Android) |
 | Observation | platform **Observation**: `@Observable`, `@Bindable`, `@ObservationIgnored` (swift-perception was removed) |
 | Navigation | platform **`NavigationStack` + `NavigationPath`**: `Router`, `AedstNavigationStack`, `aedstDestination` (FlowStacks was removed) |

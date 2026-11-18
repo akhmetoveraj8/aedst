@@ -100,6 +100,7 @@ var clientOwners = []struct {
 	{"cache", []string{"github.com/redis/go-redis", "github.com/go-redis/redis_rate"}},
 	{"search", []string{"github.com/meilisearch/meilisearch-go"}},
 	{"flags", []string{"github.com/open-feature/"}},
+	{"serviceauth", []string{"golang.org/x/oauth2"}},
 }
 
 // TestOnlyOwnerPackagesImportInfrastructureClients keeps the Dragonfly/Redis,

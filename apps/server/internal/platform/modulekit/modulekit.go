@@ -221,10 +221,12 @@ type Env struct {
 	Jobs      *platformjobs.Client
 	Publisher events.Publisher
 
-	services        map[reflect.Type]any
-	modulePools     map[string]*pgxpool.Pool
-	moduleJobsPools map[string]*pgxpool.Pool
-	closers         []func()
+	services         map[reflect.Type]any
+	modulePools      map[string]*pgxpool.Pool
+	moduleJobsPools  map[string]*pgxpool.Pool
+	moduleJobs       map[string]*platformjobs.Client
+	modulePublishers map[string]events.Publisher
+	closers          []func()
 }
 
 // OnClose registers a cleanup for a resource a module's Setup opened (a client,
@@ -282,6 +284,38 @@ func (e *Env) JobsPoolFor(module string) *pgxpool.Pool {
 		return p
 	}
 	return e.JobsPool
+}
+
+// JobsFor is the River client of module's own database: the one a module that runs
+// on its own database (AEDST_DATABASE_URL_<MODULE>) must enqueue jobs with, because a
+// job inserted in a transaction of that database lives in that database's river_job
+// table and only a client on it works the job. It is Env.Jobs for a module on the
+// shared database. A module asks for it, never Env.Jobs, so splitting its data is
+// configuration, not code.
+func (e *Env) JobsFor(module string) *platformjobs.Client {
+	if c, ok := e.moduleJobs[module]; ok {
+		return c
+	}
+	return e.Jobs
+}
+
+// PublisherFor is the events.Publisher whose deliveries are inserted through
+// JobsFor(module): use it for a transaction opened on PoolFor(module). It is
+// Env.Publisher for a module on the shared database.
+func (e *Env) PublisherFor(module string) events.Publisher {
+	if p, ok := e.modulePublishers[module]; ok {
+		return p
+	}
+	return e.Publisher
+}
+
+// SetModuleJobs registers the River client (and its publisher) of module's own
+// database (cmd/server, once the module's jobs pool exists).
+func (e *Env) SetModuleJobs(module string, c *platformjobs.Client, p events.Publisher) {
+	if e.moduleJobs == nil {
+		e.moduleJobs, e.modulePublishers = map[string]*platformjobs.Client{}, map[string]events.Publisher{}
+	}
+	e.moduleJobs[module], e.modulePublishers[module] = c, p
 }
 
 // SetModulePools registers module's own pools (cmd/server, from the

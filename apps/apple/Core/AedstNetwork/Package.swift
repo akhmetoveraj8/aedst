@@ -30,10 +30,10 @@ let package = Package(
         .package(path: "../AedstTesting"),
         // Generated ConnectRPC stubs (see ../../buf.gen.yaml) import these two. Floors are the latest
         // stable releases, verified 2026-10-28 via git ls-remote --tags: connect-swift 1.2.3,
-        // swift-protobuf 1.39.0. CI builds protoc-gen-swift / protoc-gen-connect-swift from the SAME
+        // swift-protobuf 1.41.0. CI builds protoc-gen-swift / protoc-gen-connect-swift from the SAME
         // tags (apple-ci.yml passes them to .github/actions/apple-codegen) so generator == runtime.
         .package(url: "https://github.com/connectrpc/connect-swift", from: "1.2.3"),
-        .package(url: "https://github.com/apple/swift-protobuf", from: "1.39.0"),
+        .package(url: "https://github.com/apple/swift-protobuf", from: "1.41.0"),
     ],
     targets: [
         .target(

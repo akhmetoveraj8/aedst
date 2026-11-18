@@ -44,7 +44,7 @@ The new app lives in `apps/desktop-rs` while the C++ tree stays untouched as the
 1. **Arabic / RTL.** Slint shapes RTL text, but layout mirroring is not automatic (an open feature request asks for reversible `HorizontalLayout`, `slint-ui/slint#13504`). Arabic is a required locale. Verify in a spike before porting any screen; if unacceptable, this decision must be revisited (Tauri 2 sharing `apps/web/shared` is the fallback). `UNVERIFIED`.
 2. **Accessibility.** Slint's screen-reader support is narrower than Qt's. The old `Accessible.role/name` gate has no direct equivalent: check `accessible-role` / `accessible-label` coverage in a spike. `UNVERIFIED`.
 3. **Slint licence.** Slint is `GPL-3.0-only OR Royalty-free-2.0 OR Software-3.0`. Desktop would ship under the Royalty-free licence, which carries attribution terms (an "About Slint" notice). Owner to confirm the terms are acceptable; recorded in `compliance` at the licence phase. `UNVERIFIED` until the licence text is read.
-4. **MSRV.** Slint 1.18.1 needs Rust 1.92, `connectrpc` 0.9.1 needs 1.88. The `connectrpc` crate is pre-1.0 (0.9.x): pin exactly and re-run the conformance suite (which the old tree also never ran).
+4. **MSRV.** Slint 1.18.1 needs Rust 1.95, `connectrpc` 0.9.1 needs 1.88. The `connectrpc` crate is pre-1.0 (0.9.x): pin exactly and re-run the conformance suite (which the old tree also never ran).
 5. **Verification scope.** The toolchain is repaired and the spike builds on Windows only. Linux, packaging and everything beyond the spike remain unverified.
 6. **Scale.** ~45,000 lines are ported, not translated mechanically; behaviour is taken from the C++ tests and `docs/contract/behavior/*.json` replay fixtures.
 

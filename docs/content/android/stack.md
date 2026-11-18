@@ -10,7 +10,7 @@ Kotlin / Jetpack Compose (`apps/android`). Versions are pinned in the repository
 | Area | Tool | Version |
 |---|---|---|
 | Language | Kotlin | **2.4.21** |
-| Build | AGP / Gradle / KSP | **9.5.0** / **9.8.2** / 2.3.13 |
+| Build | AGP / Gradle / KSP | **9.5.1** / **9.9.1** / 2.3.14 |
 | JDK | Temurin | **21** |
 | UI | Jetpack Compose (BOM) | **2026.09.00** |
 | DI | Hilt | **2.60.1** (androidx.hilt 1.4.0) |
@@ -19,20 +19,20 @@ Kotlin / Jetpack Compose (`apps/android`). Versions are pinned in the repository
 | Sign-in | AppAuth-Android (Code + PKCE, Custom Tab) | 0.11.1 |
 | API client | connect-kotlin over OkHttp | **0.10.0** / **5.5.1** |
 | Protobuf | protobuf-javalite / Gradle plugin | 4.36.2 / 0.10.0 |
-| Serialization | kotlinx.serialization | 1.12.0 |
+| Serialization | kotlinx.serialization | 1.13.0 |
 | Database | Room 3 (`androidx.room3`) | **3.0.3** |
 | Preferences | DataStore + Protobuf | 1.3.0 |
 | Secrets | Android Keystore + Tink | 1.24.0 |
 | Background work | WorkManager | 2.12.0 |
 | Images | Coil 3 | **3.6.3** |
 | Video / player / compression | AndroidX Media3 (ExoPlayer, Compose UI, Transformer) | **1.11.1** |
-| Push | Firebase Cloud Messaging (Firebase BoM) | BoM **35.1.0** |
-| Errors / performance / tracing | Sentry Android + Gradle plugin | **8.62.0** / 6.25.0 |
-| Analytics + feature flags | PostHog Android | **3.75.3** |
+| Push | Firebase Cloud Messaging (Firebase BoM) | BoM **35.2.0** |
+| Errors / performance / tracing | Sentry Android + Gradle plugin | **8.65.0** / 6.27.0 |
+| Analytics + feature flags | PostHog Android | **3.77.1** |
 | Anti-abuse | Play Integrity | 1.6.0 |
 | Leak detection | LeakCanary (debug builds of `app` and `app-tv` only) | **2.14** |
 | Static analysis | detekt (`dev.detekt`, pre-release exception) / ktlint-gradle / Android Lint | 2.0.0-alpha.6 / 14.2.0 |
-| Tests | JUnit 6 Jupiter (vintage engine only in Robolectric/Compose-rule modules) / Roborazzi / MockK / Turbine | 6.1.3 / 1.77.0 / 1.14.11 / 1.2.1 |
+| Tests | JUnit 6 Jupiter (vintage engine only in Robolectric/Compose-rule modules) / Roborazzi / MockK / Turbine | 6.1.3 / 1.79.0 / 1.14.12 / 1.2.1 |
 | Adaptive layouts | androidx.compose.material3.adaptive | 1.3.0 |
 | Performance | Macrobenchmark + Baseline Profiles | 1.5.0 |
 | Dependency updates | Renovate (repo-wide) | n/a |

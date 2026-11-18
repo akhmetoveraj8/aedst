@@ -6,7 +6,10 @@ import (
 	"testing"
 
 	"github.com/aedst/server/internal/platform/events"
+	platformjobs "github.com/aedst/server/internal/platform/jobs"
 )
+
+type platformjobsClient = platformjobs.Client
 
 func consumingRegistry() map[string]Module {
 	return map[string]Module{
@@ -65,5 +68,46 @@ func TestPlan_TheMonolithHasNoRemoteConsumers(t *testing.T) {
 	}
 	if got := plan.ConsumingUnits(); !slices.Equal(got, []string{"notifications", "search"}) {
 		t.Fatalf("ConsumingUnits = %v, want both consumers (their event queues are worked)", got)
+	}
+}
+
+// A producer process on its own database forwards a unit's events over the network:
+// the unit's consumers are catalogued as forwarded, the others stay remote.
+func TestPlan_RegisterConsumersForwardsUnitsWithTheirOwnDatabase(t *testing.T) {
+	plan, err := selectUnits(consumingRegistry(), []string{"tasks"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	reg := events.NewRegistry()
+	if err := plan.RegisterConsumers(reg, map[string]string{"notifications": "https://n.internal"}); err != nil {
+		t.Fatal(err)
+	}
+	if got := reg.Consumers("tasks.v1.TaskCompleted"); !slices.Equal(got, []string{"notifications.task_completed", "search.task_completed"}) {
+		t.Fatalf("Consumers = %v", got)
+	}
+}
+
+func TestPlan_RegisterConsumersRejectsBadForwardTargets(t *testing.T) {
+	plan, err := selectUnits(consumingRegistry(), []string{"tasks", "notifications"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := plan.RegisterConsumers(events.NewRegistry(), map[string]string{"notifications": "https://n"}); err == nil {
+		t.Fatal("forwarding a unit this process hosts must fail: it is delivered locally")
+	}
+	if err := plan.RegisterConsumers(events.NewRegistry(), map[string]string{"nope": "https://n"}); err == nil {
+		t.Fatal("forwarding to an unregistered unit must fail (a typo would silently drop events)")
+	}
+}
+
+func TestEnv_JobsForAndPublisherForFallBackToTheSharedOnes(t *testing.T) {
+	e := &Env{}
+	if e.JobsFor("tasks") != e.Jobs || e.PublisherFor("tasks") != e.Publisher {
+		t.Fatal("a module with no database of its own uses the shared River client and publisher")
+	}
+	var own platformjobsClient
+	e.SetModuleJobs("tasks", &own, nil)
+	if e.JobsFor("tasks") != &own || e.JobsFor("media") != e.Jobs {
+		t.Fatal("JobsFor must return the module's own client and only for that module")
 	}
 }

@@ -17,7 +17,7 @@ Two different goals, with different costs:
 | Goal | What it needs | Status |
 |---|---|---|
 | **N instances of the same binary** (API replicas, a media worker) | steps 1-2 | supported, shipped in the Helm chart |
-| **A separate service** for one module (own deploy, own database, own team) | steps 1-9 | steps 1-4 and 6-7 are seams that exist; 5, 8, 9 are blockers (below) |
+| **A separate service** for one module (own deploy, own database, own team) | steps 1-9 | steps 1-8 are built (integration-untested, see the notes); 9 is the cut-over |
 
 ## Step 1 - run queues apart (supported)
 
@@ -66,12 +66,15 @@ Modules ask for `env.PoolFor("<module>")` / `env.JobsPoolFor("<module>")`;
 at its own database, and an unknown module name fails startup. Apply the module's migrations to
 that database (add it to a separate migration Job; the chart's list is per release),
 create `pg_trgm` or other extensions it uses, and move its tables (`pg_dump` of the
-schema, then drop it from the old database in a later release). **Blockers:** the
-other modules (`tasks`, `notifications`, `search`, `media`, `admin`, `auth`) still use
-`env.Pool` directly, so converting one means switching its constructors to `PoolFor`
-first; a module whose transaction also writes `platform.event_delivery` jobs (River's
-table) cannot move: the River tables live in the database of the *publisher*, which is
-why step 5 matters.
+schema, then drop it from the old database in a later release). **Every unit** now asks for its pools, River client and publisher by name
+(`PoolFor`, `JobsPoolFor`, `JobsFor`, `PublisherFor`), so `tasks`, `notifications`,
+`media` and `admin` move the same way. `cmd/server` builds one extra River client per
+module database (same workers and queues, no periodic jobs) and migrates or verifies the
+River schema there, so the jobs and events a module inserts in its own transactions are
+worked ([ADR-0022](../../../apps/server/docs/adr/0022-event-forwarding-and-service-identity.md)). Apply the
+module's migrations **and** the `platform` migrations (idempotency keys) to its database.
+`admin` takes the audit-first path (step 8) for a unit on another database even when that
+unit is hosted in the same process.
 
 ## Step 5 - events across the boundary (delivery routing done; wire contract open)
 
@@ -86,13 +89,16 @@ every consumer's delivery in its own transaction and the consumer's process deli
 with no broker. This is the whole story as long as the units share one Postgres (the
 River tables live in the producer's database).
 
-**Still open - crossing a database.** A consumer in another service with its own
-database needs (a) a wire contract that is not a Go type - `events.proto` per producer,
-marshalled with protojson so the JSON on the wire does not change, guarded by
-`buf breaking` - and (b) a delivery path out of the producer's database: the River job
-`platform.event_forward` (River stays the outbox; a broker adapter, if ever, is a
-River-delivered consumer, never a dual write). Neither is built. Until then `goldentest`
-fixtures (`<module>/api/testdata/*.json`) pin the wire format.
+**Done - crossing a database.** A consumer in another service with its own database is
+named in `AEDST_EVENTS_FORWARD` (`unit=https://service`). The producer inserts a
+`platform.event_forward` job, in the same transaction as the state change (River stays the
+outbox; no dual write), and its worker calls the consumer service's
+`aedst.events.v1.EventIngestService/Deliver` with the service identity's token. That service
+(`AEDST_EVENTS_INGEST_ENABLED=true`, role `internal` only) inserts the real delivery in its own
+database, unique on (consumer, event id), so retries never duplicate. The payload stays the JSON
+the producing module serialises (pinned by the golden fixtures); `buf breaking` guards the
+envelope in `events.proto`. Permanent rejections cancel the forward visibly; the rest retries.
+Alert on `aedst_events_forward_discarded_total`. No broker was added.
 
 ## Step 6 - host a subset of units (supported)
 
@@ -113,9 +119,11 @@ that calls it does not change. Today `tasks` declares one for the `Ownership` co
 to a shared contract suite against the in-process implementation (`tasks/api/ownershiptest`). To make another
 unit relocatable: narrow its contract to what callers need, keep it network-safe
 (`architecturetest.TestRemoteHooksProvideNetworkSafeContracts`), write the adapter in its `module/` package,
-and add the same contract suite. **Not built:** service identity for calls with no user (background jobs): a
-remote adapter refuses such a call instead of sending it unauthenticated; add a client-credentials token and an
-`internal` role with the first unit that needs it (ADR-0020).
+and add the same contract suite. Units with a network surface declare a hook: `tasks` (`Ownership`) and `media`
+(`Stats`, over `MediaOperatorService`). `notifications` declares a marker hook: what others ask of it (the
+operator surface) is consumed by `admin`, which builds that client itself. A call with no user uses the service
+identity (`AEDST_SERVICE_IDENTITY_*`, [ADR-0022](../../../apps/server/docs/adr/0022-event-forwarding-and-service-identity.md)); without
+it a remote adapter still refuses the call instead of sending it unauthenticated.
 
 ## Step 8 - admin without a shared transaction
 
@@ -152,20 +160,22 @@ and only with `state = 'pending'` in its WHERE (negative self-test in `scripts/s
 `OperatorBroadcast`). Reads admit `admin`/`support`/`auditor` as in admin's own policy;
 mutations admit `admin` and `internal`, the role of the service identity.
 
-**Open (owner decision, blocks the mutation path across processes):** the job has no request
-and so no token. It needs a machine identity: an OIDC client-credentials client, the
-`internal` role granted to it in the identity provider, and `AEDST_*` settings for both.
-`admin/module/identity.go` returns no token source today, so with a module hosted elsewhere
-an operator mutation is refused up front (`FailedPrecondition`, no `pending` row) and reads
-still work. Wiring the identity replaces that one function.
+**Service identity (done).** The job has no request and so no token: it uses an OIDC
+client-credentials client (`AEDST_SERVICE_IDENTITY_TOKEN_URL`, `_CLIENT_ID`, `_CLIENT_SECRET`,
+`_SCOPES`; `internal/platform/serviceauth`). Create a machine user in the identity provider, grant it
+the `internal` role and scopes that make its access token pass this server's audience and roles checks
+(ZITADEL: `openid urn:zitadel:iam:org:project:id:<project>:aud urn:zitadel:iam:org:projects:roles`).
+Without these settings an operator mutation on a module hosted elsewhere is refused up front
+(`FailedPrecondition`, no `pending` row) and reads still work. The same identity signs event forwards (step 5).
 
-**Not covered / limits.** `CountByOwners` and the media totals have no network surface
-(media is optional in admin; the overview omits it). The admin RPC and the clients do not
+**Not covered / limits.** `CountByOwners` has no network surface. The media totals do
+(`MediaOperatorService`, step 7). The admin RPC and the clients do not
 yet show `pending`/`failed` entries: `aedst.admin.v1.AuditEntry` has no `state` field, and
 adding it regenerates the web and Android clients (a separate, additive change).
-The audit-first SQL, the trigger change and the job were verified by unit tests with fakes and
-by `sqlc vet`; **no integration test has run against Postgres or River** (no Docker where this
-was written): run `task check:full` before relying on it.
+The audit-first SQL, the trigger change, the job, the service-identity token source, event forwarding
+and the per-database River clients were verified by unit tests with fakes, `architecturetest`, lint
+and `sqlc vet`; **no integration test has run against Postgres, River or a real IdP** (no Docker where
+this was written): run `task check:full` and one real client-credentials call before relying on it.
 
 ## Step 9 - deploy and cut over
 

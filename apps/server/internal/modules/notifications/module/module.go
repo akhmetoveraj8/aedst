@@ -52,7 +52,7 @@ func init() {
 }
 
 func retentionPolicies(env *modulekit.Env) []retention.Policy {
-	repo := postgres.NewRepository(env.JobsPool, nil)
+	repo := postgres.NewRepository(env.JobsPoolFor("notifications"), nil)
 	return []retention.Policy{
 		{
 			Name:      "notifications.notifications",
@@ -73,9 +73,9 @@ type notificationsModule struct {
 }
 
 func (m *notificationsModule) setup(_ context.Context, env *modulekit.Env) error {
-	repo := postgres.NewRepository(env.Pool, env.Jobs)
-	consumerRepo := postgres.NewRepository(env.JobsPool, env.Jobs)
-	events.Subscribe(env.Events, env.JobsPool, consumerRepo)
+	repo := postgres.NewRepository(env.PoolFor("notifications"), env.JobsFor("notifications"))
+	consumerRepo := postgres.NewRepository(env.JobsPoolFor("notifications"), env.JobsFor("notifications"))
+	events.Subscribe(env.Events, env.JobsPoolFor("notifications"), consumerRepo)
 	river.AddWorker(env.Workers, jobs.NewFanOutWorker(consumerRepo, env.Logger))
 	river.AddWorker(env.Workers, jobs.NewDeviceWorker(consumerRepo, env.Dispatcher, env.Logger))
 	svc := application.NewService(repo, env.Clock, application.WithWebPushPublicKey(env.WebPushKey),

@@ -37,6 +37,10 @@ type app struct {
 	remote []modulekit.Module // units this process reaches over the network (AEDST_MODULE_<NAME>_URL)
 	plan   modulekit.Plan     // the whole topology: its Others feed the event catalog
 
+	// moduleJobs are the River clients of modules that run on their own database
+	// (buildModuleJobs); started and stopped with the shared client.
+	moduleJobs []*platformjobs.Client
+
 	cachePing func(context.Context) error
 	verifier  *platformauth.OIDCVerifier
 }

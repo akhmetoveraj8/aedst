@@ -11,10 +11,10 @@
 # local `docker build` (no Docker in the authoring environment): the first
 # release run is its acceptance test. Base image tags copied from the app image.
 
-FROM node:26.12.1-trixie-slim AS build
+FROM node:26.13.1-trixie-slim AS build
 ENV NEXT_TELEMETRY_DISABLED=1 \
     CI=1
-RUN npm install --global pnpm@12.15.0
+RUN npm install --global pnpm@12.21.0
 WORKDIR /repo/apps/web
 
 # Dependency layer: workspace manifests only, so source edits keep it cached.

@@ -157,6 +157,16 @@ linters:
             - pkg: github.com/nats-io
               desc: "NATS goes through internal/platform/natsbridge only (ADR-0021); producers use events.Publisher"
 
+        # The OIDC client-credentials token source (service identity) lives in one package
+        # (architecturetest.TestOnlyOwnerPackagesImportInfrastructureClients is the exact check).
+        oauth2-only-in-serviceauth:
+          files:
+            - "**/*.go"
+            - "!**/internal/platform/serviceauth/**"
+          deny:
+            - pkg: golang.org/x/oauth2
+              desc: "tokens for calls with no user come from internal/platform/serviceauth only"
+
         # CBOR is only needed to decode Apple App Attest objects (ADR-0016); keep
         # the dependency inside that module instead of letting it spread.
         cbor-only-in-appattest:

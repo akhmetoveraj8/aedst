@@ -69,6 +69,14 @@ containers:
             key: {{ $root.Values.secretKeys.searchApiKey }}
             optional: true
       {{- end }}
+      {{- if $root.Values.secretKeys.serviceIdentityClientSecret }}
+      - name: AEDST_SERVICE_IDENTITY_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: {{ include "aedst-server.secretName" $root }}
+            key: {{ $root.Values.secretKeys.serviceIdentityClientSecret }}
+            optional: true
+      {{- end }}
       {{- if $root.Values.imgproxy.enabled }}
       - name: AEDST_IMGPROXY_KEY
         valueFrom:

@@ -29,7 +29,7 @@ let package = Package(
     dependencies: [
         .package(path: "../AedstCore"),
         .package(path: "../AedstDesignSystem"),
-        .package(url: "https://github.com/kean/Nuke", from: "13.2.1"),
+        .package(url: "https://github.com/kean/Nuke", from: "13.2.3"),
     ],
     targets: [
         .target(

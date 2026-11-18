@@ -56,6 +56,7 @@ go.opentelemetry.io/otel/sdk  # observability
 go.opentelemetry.io/otel/sdk/log  # observability
 go.opentelemetry.io/otel/sdk/metric  # observability
 go.opentelemetry.io/otel/trace  # observability
+golang.org/x/oauth2  # service identity: client-credentials token source (internal/platform/serviceauth only)
 golang.org/x/net  # tests only: WebSocket client of the gateway end-to-end test (internal/platform/natsbridge)
 golang.org/x/mod  # architecturetest: go.mod parsing
 golang.org/x/sync  # errgroup, singleflight (OIDC discovery)

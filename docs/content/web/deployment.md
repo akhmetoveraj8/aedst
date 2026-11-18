@@ -26,7 +26,7 @@ available. **UNVERIFIED**: the first `web-release` run and the first `helm templ
 - **Build context is the repository root**, not `apps/web/app`: the ConnectRPC stubs are generated during the build
   from `apps/server/api/proto` (they are not committed).
   `docker build -f apps/web/app/deployments/docker/Dockerfile --build-arg NEXT_PUBLIC_SITE_URL=https://app.example.com .`
-- Stage 1 `node:26.12.1-trixie-slim` installs pnpm 12.15.0, runs `pnpm install --frozen-lockfile`,
+- Stage 1 `node:26.13.1-trixie-slim` installs pnpm 12.21.0, runs `pnpm install --frozen-lockfile`,
   `pnpm --filter @aedst/web-app connect:generate` and `pnpm --filter @aedst/web-app build`, then fails if `app/.next/static` contains a `.map` file. Only `app` and `shared` are installed (the lockfile and catalog are workspace-wide).
 - Stage 2 `gcr.io/distroless/nodejs24-debian13:nonroot` (no shell, uid 65532) runs `node server.js` from
   `app/.next/standalone`. The lockfile lives in `apps/web` (the workspace root), so Next's tracing root is `apps/web` and the server is `app/server.js` inside the standalone output; the final `COPY` paths and `CMD` follow that. UNVERIFIED until the first image build.
@@ -117,7 +117,7 @@ helm upgrade --install aedst-web apps/web/app/deployments/helm/aedst-web \
 
 Status: authored and unit/e2e/smoke tested locally on Windows (see the verification notes in decisions/web.md); the Docker image was **not built** (no Docker available): **UNVERIFIED** until the first image build.
 
-- **Image**: `apps/web/admin/deployments/docker/Dockerfile` (repository root as context). Stage 1 (`node:26.12.1-trixie-slim`, pnpm 12.15.0) installs the admin and app projects, generates the Connect stubs and runs `pnpm --filter @aedst/web-admin build:all` (`vite build` to `dist/`, then the esbuild bundle `dist-server/main.mjs`); it fails if `dist` contains a `.map`. Stage 2 (`gcr.io/distroless/nodejs26-debian13:nonroot`, uid 65532, no shell) holds only `dist/` and `dist-server/main.mjs` (no `node_modules`) and runs `node dist-server/main.mjs` on port 3001. Same pinning policy and `HEALTHCHECK` (bundled node against `/api/healthz`) as above. There is no Helm chart or Kustomize for admin; probes are `httpGet /api/healthz` on 3001.
+- **Image**: `apps/web/admin/deployments/docker/Dockerfile` (repository root as context). Stage 1 (`node:26.13.1-trixie-slim`, pnpm 12.21.0) installs the admin and app projects, generates the Connect stubs and runs `pnpm --filter @aedst/web-admin build:all` (`vite build` to `dist/`, then the esbuild bundle `dist-server/main.mjs`); it fails if `dist` contains a `.map`. Stage 2 (`gcr.io/distroless/nodejs26-debian13:nonroot`, uid 65532, no shell) holds only `dist/` and `dist-server/main.mjs` (no `node_modules`) and runs `node dist-server/main.mjs` on port 3001. Same pinning policy and `HEALTHCHECK` (bundled node against `/api/healthz`) as above. There is no Helm chart or Kustomize for admin; probes are `httpGet /api/healthz` on 3001.
 - **Build args** (inlined into the static bundle, one image per public origin): `VITE_SITE_URL`, `VITE_APP_URL`, `VITE_SENTRY_DSN`, `VITE_SENTRY_ENVIRONMENT`, and `SENTRY_ORG`/`SENTRY_PROJECT`/`SENTRY_RELEASE` plus the BuildKit secret `sentry_auth_token` for the source-map upload done by `vite build`.
 - **Runtime variables** (validated at boot, see `apps/web/admin/server/.env.example`):
 

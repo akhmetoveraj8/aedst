@@ -68,6 +68,17 @@ data:
   # Dragonfly (password is a secret).
   AEDST_CACHE_ADDR: {{ .Values.config.cache.addr | quote }}
   AEDST_CACHE_DB: {{ .Values.config.cache.db | int64 | quote }}
+  # Service identity (client credentials) for calls with no user; off when tokenUrl is empty.
+  AEDST_SERVICE_IDENTITY_TOKEN_URL: {{ .Values.config.serviceIdentity.tokenUrl | quote }}
+  AEDST_SERVICE_IDENTITY_CLIENT_ID: {{ .Values.config.serviceIdentity.clientId | quote }}
+  AEDST_SERVICE_IDENTITY_SCOPES: {{ join "," .Values.config.serviceIdentity.scopes | quote }}
+  # Event forwarding across a database boundary (ADR-0022); both off by default.
+  {{- $forward := list }}
+  {{- range $unit, $url := .Values.config.events.forward }}
+  {{- $forward = append $forward (printf "%s=%s" $unit $url) }}
+  {{- end }}
+  AEDST_EVENTS_FORWARD: {{ join "," $forward | quote }}
+  AEDST_EVENTS_INGEST_ENABLED: {{ .Values.config.events.ingestEnabled | quote }}
   # NATS JetStream bridge for the realtime gateway (ADR-0021); off when url is empty.
   {{- if .Values.config.nats.url }}
   AEDST_NATS_URL: {{ .Values.config.nats.url | quote }}

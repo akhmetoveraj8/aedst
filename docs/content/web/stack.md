@@ -64,4 +64,4 @@ Next.js workspace (`apps/web`: app, admin, landing, shared). Versions are pinned
 | E2E | Playwright (`chromium`, `firefox`, `webkit`, `mobile-chrome`, `mobile-safari`) + axe-core | 1.63 / **4.14.0** |
 | Contract test | mock API vs. proto descriptors (`pnpm test:contract`) | in-repo |
 | Budgets | bundle-size script + Lighthouse CI | in-repo |
-| Package manager | pnpm (Node 26) | **12.15.0** |
+| Package manager | pnpm (Node 26) | **12.21.0** |

@@ -20,6 +20,7 @@
       "properties": {
         "cachePassword": {"type": "string"},
         "searchApiKey": {"type": "string"},
+        "serviceIdentityClientSecret": {"type": "string"},
         "storageAccessKeyId": {"type": "string"},
         "storageSecretAccessKey": {"type": "string"},
         "vapidPrivateKey": {"type": "string"},
@@ -197,6 +198,23 @@
           "properties": {
             "url": {"type": "string"},
             "timeoutMs": {"type": "integer", "minimum": 1}
+          }
+        },
+        "serviceIdentity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "tokenUrl": {"type": "string"},
+            "clientId": {"type": "string"},
+            "scopes": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "forward": {"type": "object", "additionalProperties": {"type": "string"}},
+            "ingestEnabled": {"type": "boolean"}
           }
         },
         "flags": {

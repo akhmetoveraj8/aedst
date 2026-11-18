@@ -45,8 +45,11 @@ type tasksModule struct {
 }
 
 func (m *tasksModule) setup(_ context.Context, env *modulekit.Env) error {
-	repo := postgres.NewRepository(env.Pool, env.Publisher, env.Clock,
-		postgres.WithReminders(jobsinfra.NewScheduler(env.Jobs, time.Duration(env.Config.Tasks.DueSoonLeadMinutes)*time.Minute)))
+	// A unit asks for its pools, River client and publisher by name, never Env.Pool /
+	// Env.Jobs: with AEDST_DATABASE_URL_TASKS they are its own database's, and the
+	// transaction a reminder or an event is inserted in is the one that holds its row.
+	repo := postgres.NewRepository(env.PoolFor("tasks"), env.PublisherFor("tasks"), env.Clock,
+		postgres.WithReminders(jobsinfra.NewScheduler(env.JobsFor("tasks"), time.Duration(env.Config.Tasks.DueSoonLeadMinutes)*time.Minute)))
 	m.svc = application.NewService(repo, env.Clock)
 	modulekit.Provide[tasksapi.Service](env, m.svc)
 	modulekit.Provide[tasksapi.Ownership](env, tasksapi.NewOwnership(m.svc))
@@ -57,7 +60,7 @@ func (m *tasksModule) setup(_ context.Context, env *modulekit.Env) error {
 	// The reminder worker runs on the jobs pool and publishes TaskDueSoon
 	// through the same publisher.
 	river.AddWorker(env.Workers, jobs.NewDueReminderWorker(
-		postgres.NewRepository(env.JobsPool, env.Publisher, env.Clock), env.Logger))
+		postgres.NewRepository(env.JobsPoolFor("tasks"), env.PublisherFor("tasks"), env.Clock), env.Logger))
 	return nil
 }
 

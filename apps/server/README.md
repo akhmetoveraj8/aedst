@@ -6,7 +6,7 @@ the module list and dependency graph).
 
 ## Prerequisites
 
-- Go 1.27.3
+- Go 1.27.4
 - Docker (for local Postgres + DragonflyDB, and Testcontainers-based integration tests)
 - [buf](https://buf.build/docs/installation), [sqlc](https://docs.sqlc.dev/en/latest/overview/install.html),
   [goose](https://github.com/pressly/goose) — only needed if you change

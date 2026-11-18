@@ -3,17 +3,21 @@ package main
 import (
 	"cmp"
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/riverqueue/river"
 
 	"github.com/aedst/server/internal/platform/events"
+	"github.com/aedst/server/internal/platform/events/ingest"
 	"github.com/aedst/server/internal/platform/idempotency"
 	platformjobs "github.com/aedst/server/internal/platform/jobs"
 	"github.com/aedst/server/internal/platform/natsbridge"
 	"github.com/aedst/server/internal/platform/retention"
 	"github.com/aedst/server/internal/platform/search"
+	"github.com/aedst/server/internal/platform/serviceauth"
 )
 
 // buildJobs wires background jobs (River, see
@@ -46,8 +50,14 @@ func (a *app) buildJobs(ctx context.Context) error {
 	env.Events = events.NewRegistry()
 	// Units hosted elsewhere subscribe to events too: catalogue their consumers so
 	// a producer here still inserts their deliveries (onto their own queues).
-	a.plan.RegisterRemoteConsumers(env.Events)
+	// A unit with its own database (AEDST_EVENTS_FORWARD) is reached by a forward job.
+	if err := a.plan.RegisterConsumers(env.Events, cfg.Events.Forward); err != nil {
+		return err
+	}
 	if err := events.Register(env.Workers, env.Events, a.logger); err != nil {
+		return err
+	}
+	if err := a.registerForwarder(ctx); err != nil {
 		return err
 	}
 	if err := search.Register(env.Workers, env.Search, env.SearchSources); err != nil {
@@ -83,6 +93,38 @@ func (a *app) buildJobs(ctx context.Context) error {
 	// and are run by the events worker on the jobs pool.
 	env.Indexer = search.NewIndexer(env.Jobs, cfg.Search.Enabled())
 	env.Publisher = events.NewRiverPublisher(env.Events, env.Jobs, a.clock)
+	return a.buildModuleJobs(ctx, prepare)
+}
+
+// buildModuleJobs gives every module that runs on its own database its own River
+// client (same workers, same worked queues, no periodic jobs: those live on the
+// shared client). A job or event delivery inserted in a transaction of that
+// database is a row in that database's river_job, and only a client connected to it
+// ever works it. The module's River schema must be migrated there (the migration Job).
+func (a *app) buildModuleJobs(ctx context.Context, prepare func(context.Context, *pgxpool.Pool) error) error {
+	cfg, env := a.cfg, a.env
+	for _, m := range a.mods {
+		pool := env.JobsPoolFor(m.Name)
+		if pool == env.JobsPool {
+			continue
+		}
+		if err := prepare(ctx, pool); err != nil {
+			return fmt.Errorf("module %s river schema: %w", m.Name, err)
+		}
+		client, err := platformjobs.NewClientWithOptions(pool, env.Workers, a.logger, platformjobs.Options{
+			Queues: a.workedQueues(), PollOnly: cfg.Jobs.PollOnly,
+			CompletedRetention:   time.Duration(cfg.Jobs.CompletedRetentionHours) * time.Hour,
+			CancelledRetention:   time.Duration(cfg.Jobs.CancelledRetentionHours) * time.Hour,
+			DiscardedRetention:   time.Duration(cfg.Jobs.DiscardedRetentionHours) * time.Hour,
+			SoftStopTimeout:      platformjobs.SoftStopFor(time.Duration(cfg.HTTP.ShutdownTimeout) * time.Second),
+			RescueStuckJobsAfter: platformjobs.RescueAfter(platformjobs.MaxJobTimeout),
+		})
+		if err != nil {
+			return fmt.Errorf("module %s river client: %w", m.Name, err)
+		}
+		env.SetModuleJobs(m.Name, client, events.NewRiverPublisher(env.Events, client, a.clock))
+		a.moduleJobs = append(a.moduleJobs, client)
+	}
 	return nil
 }
 
@@ -92,7 +134,30 @@ func (a *app) buildJobs(ctx context.Context) error {
 // replica works nothing, and the monolith works every unit's queue as it worked
 // the one shared queue before.
 func (a *app) workedQueues() map[string]int {
-	return events.WorkedQueues(a.cfg.Jobs.Queues, a.plan.ConsumingUnits(), cmp.Or(a.cfg.Jobs.EventWorkers, defaultEventWorkers))
+	queues := events.WorkedQueues(a.cfg.Jobs.Queues, a.plan.ConsumingUnits(), cmp.Or(a.cfg.Jobs.EventWorkers, defaultEventWorkers))
+	// Forward jobs are worked by the producer's process, next to the default queue.
+	if _, works := queues[river.QueueDefault]; works && len(a.cfg.Events.Forward) > 0 {
+		if _, set := queues[events.ForwardQueue]; !set {
+			queues[events.ForwardQueue] = cmp.Or(a.cfg.Jobs.EventWorkers, defaultEventWorkers)
+		}
+	}
+	return queues
+}
+
+// registerForwarder registers the platform.event_forward worker in every process
+// (River validates job kinds on insert). With AEDST_EVENTS_FORWARD set it calls the
+// consumer services with the service identity; without it the worker refuses every
+// job, so a stray forward job fails visibly instead of completing.
+func (a *app) registerForwarder(ctx context.Context) error {
+	fwd := events.NoForwarder()
+	if len(a.cfg.Events.Forward) > 0 {
+		c, err := ingest.NewClient(a.cfg.Events.Forward, ingest.TokenSource(serviceauth.New(ctx, a.cfg.ServiceIdentity, nil)))
+		if err != nil {
+			return err
+		}
+		fwd = c
+	}
+	return events.RegisterForward(a.env.Workers, fwd, a.logger)
 }
 
 // defaultEventWorkers is AEDST_JOBS_EVENT_WORKERS's default, for a zero Config.

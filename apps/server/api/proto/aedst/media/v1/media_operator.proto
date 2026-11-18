@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package aedst.media.v1;
+
+option go_package = "github.com/aedst/server/gen/go/aedst/media/v1;mediav1";
+
+// MediaOperatorService is the cross-owner (operator) surface of media. The admin
+// module calls it when media is not hosted in its own process; in a monolith the
+// same totals come in-process through media/api.Stats and this service is mounted
+// but unused. It is closed to ordinary users: the module's built-in role policy
+// admits only "admin", "support", "auditor" (a human operator whose token the
+// admin module forwards) and "internal" (the machine identity).
+service MediaOperatorService {
+  // Counts the stored media of every owner. Read-only.
+  rpc GetTotals(GetTotalsRequest) returns (GetTotalsResponse);
+}
+
+message GetTotalsRequest {}
+
+message GetTotalsResponse {
+  // Number of media items.
+  int64 count = 1;
+  // Their total size in bytes.
+  int64 bytes = 2;
+}

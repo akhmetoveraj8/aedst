@@ -15,8 +15,8 @@ let swiftSettings: [SwiftSetting] = [
 //
 // Versions: latest stable, verified 2026-10-07 via the GitHub releases API
 // (`/repos/<owner>/<repo>/releases/latest`):
-//   sentry-cocoa 9.32.0  (its own OS floor is below the app's iOS 18 / macOS 15)
-//   posthog-ios  3.93.6  (its own OS floor is below the app's iOS 18 / macOS 15)
+//   sentry-cocoa 9.35.0  (its own OS floor is below the app's iOS 18 / macOS 15)
+//   posthog-ios  3.98.0  (its own OS floor is below the app's iOS 18 / macOS 15)
 let package = Package(
     name: "AedstTelemetry",
     platforms: [
@@ -29,8 +29,8 @@ let package = Package(
     dependencies: [
         .package(path: "../AedstCore"),
         .package(path: "../AedstAnalytics"),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.32.0"),
-        .package(url: "https://github.com/PostHog/posthog-ios", from: "3.93.6"),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.35.0"),
+        .package(url: "https://github.com/PostHog/posthog-ios", from: "3.98.0"),
     ],
     targets: [
         .target(

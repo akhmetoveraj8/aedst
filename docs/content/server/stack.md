@@ -11,7 +11,7 @@ Go backend (`apps/server`). Versions are pinned in the repository (checked again
 
 | Area | Tool | Version |
 |---|---|---|
-| Language | Go | **1.27.3** |
+| Language | Go | **1.27.4** |
 | HTTP | `net/http` (h2c; TLS ≥ 1.2 via `AEDST_TLS_*` or at the ingress) | stdlib |
 | Router | `net/http` ServeMux (stdlib) + `rs/cors` + `realclientip-go` | stdlib / cors 1.11.1 / realclientip-go 1.0.0 |
 
@@ -36,7 +36,7 @@ mounted through `modulekit.Mount`, which always installs the validation intercep
 | Database | PostgreSQL | **18** (`postgres:18`) |
 | Driver | pgx v5 | **5.12.0** |
 | Queries | sqlc (`sqlc vet` in CI) | **1.31.1** |
-| Migrations | Goose (one version table per module) + squawk lint | **3.29.0** (squawk 2.70.0) |
+| Migrations | Goose (one version table per module) + squawk lint | **3.30.1** (squawk 2.73.0) |
 | Pooler | PgBouncer | CloudNativePG `Pooler` on Kubernetes; `edoburu/pgbouncer:v1.26.1-p0` in Docker Compose only |
 
 ## Cache, jobs, events
@@ -46,7 +46,7 @@ mounted through `modulekit.Mount`, which always installs the validation intercep
 | Cache / rate limit | **DragonflyDB** + go-redis client + redis_rate (never a source of correctness) | `ghcr.io/dragonflydb/dragonfly:v2.1.0`, go-redis **9.23.0**, redis_rate 10.0.1 |
 | Search | **Meilisearch** + `meilisearch-go` (PostgreSQL stays the source of truth; indexing via River jobs; optional) | `getmeili/meilisearch:v1.57.0`, meilisearch-go **0.37.0** |
 | Feature flags | **OpenFeature** SDK + **flagd** (rollout only, never correctness; optional) | `ghcr.io/open-feature/flagd:v0.19.0`, go-sdk **1.20.0**, flagd provider **0.8.1** |
-| Jobs | River (queues `default`, `media`) | **0.51.0** |
+| Jobs | River (queues `default`, `media`) | **0.51.2** |
 | Events | River `InsertTx` in the producer's transaction (one delivery job per consumer), `internal/platform/events` | River **0.50.0** (in-repo wrapper) |
 | Locks | Postgres advisory locks | in-repo |
 | Resilience | gobreaker v2 (circuit breaker) | **2.4.0** |

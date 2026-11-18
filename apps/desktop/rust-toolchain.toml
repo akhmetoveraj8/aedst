@@ -1,5 +1,5 @@
 [toolchain]
-# cargo 1.99.1 was seen on the authoring machine (rustc there is broken, so UNVERIFIED).
-# Slint 1.18.1 needs Rust >= 1.92.
-channel = "1.99.1"
+# Latest stable 1.100.0 (2026-11-09), verified via static.rust-lang.org channel manifest 2026-11-18.
+# Slint 1.19.0 needs Rust >= 1.95 (crates.io rust_version).
+channel = "1.100.0"
 components = ["clippy", "rustfmt"]

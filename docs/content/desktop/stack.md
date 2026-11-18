@@ -9,9 +9,9 @@ Rust and Slint (`apps/desktop`). All versions live once in the root `Cargo.toml`
 
 | Area | Tool | Version |
 |---|---|---|
-| Language | Rust, edition 2024 | toolchain 1.99.1 (`rust-toolchain.toml`), MSRV 1.92 (Slint) |
-| UI | Slint (`.slint`, native rendering, no WebView) | 1.18.1 |
-| UI tests | `i-slint-backend-testing` (internal Slint crate, pinned with `=`) | =1.18.1 |
+| Language | Rust, edition 2024 | toolchain 1.100.0 (`rust-toolchain.toml`), MSRV 1.95 (Slint) |
+| UI | Slint (`.slint`, native rendering, no WebView) | 1.19.0 |
+| UI tests | `i-slint-backend-testing` (internal Slint crate, pinned with `=`) | =1.19.0 |
 | Async / HTTP | tokio, reqwest (rustls) | 1.54.1, 0.13.5 |
 | API | connectrpc + connectrpc-build + buffa (pinned exactly, pre-1.0) | =0.9.1, =0.9.0, 0.9.2 |
 | Sign-in | openidconnect (Authorization Code + PKCE), webbrowser | 4.1.0, 1.2.6 |

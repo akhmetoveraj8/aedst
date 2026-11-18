@@ -12,7 +12,7 @@
 #
 # Image pinning follows apps/server/deployments/docker/Dockerfile: base images
 # are pinned by exact version tag (no floating "latest"), not by digest. The
-# tags were verified to exist (node 26.12.1-trixie-slim on Docker Hub,
+# tags were verified to exist (node 26.13.1-trixie-slim on Docker Hub,
 # gcr.io/distroless/nodejs26-debian13:nonroot) when this file was written.
 # NOT verified by a local `docker build` (no Docker in the authoring
 # environment): the first web-release run is its acceptance test.
@@ -21,10 +21,10 @@
 # they are build args; everything else (API_BASE_URL, OIDC_*, AUTH_*,
 # MEDIA_ORIGINS) is read at runtime. See docs/content/web/deployment.md.
 
-FROM node:26.12.1-trixie-slim AS build
+FROM node:26.13.1-trixie-slim AS build
 ENV NEXT_TELEMETRY_DISABLED=1 \
     CI=1
-RUN npm install --global pnpm@12.15.0
+RUN npm install --global pnpm@12.21.0
 WORKDIR /repo/apps/web
 
 # Dependency layer: only manifests, so source edits keep the install cached.

@@ -23,9 +23,9 @@
 # build args; everything the BFF needs (ADMIN_ORIGIN, API_BASE_URL, OIDC_*,
 # AUTH_*, SENTRY_DSN) is read at runtime, see server/.env.example.
 
-FROM node:26.12.1-trixie-slim AS build
+FROM node:26.13.1-trixie-slim AS build
 ENV CI=1
-RUN npm install --global pnpm@12.15.0
+RUN npm install --global pnpm@12.21.0
 WORKDIR /repo/apps/web
 
 # Dependency layer: only manifests, so source edits keep the install cached.

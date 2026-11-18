@@ -122,6 +122,11 @@ func (a *app) serve(ctx context.Context, rt *httpRuntime) error {
 		if err := platformjobs.Start(context.WithoutCancel(ctx), a.env.Jobs); err != nil {
 			return err
 		}
+		for _, c := range a.moduleJobs {
+			if err := platformjobs.Start(context.WithoutCancel(ctx), c); err != nil {
+				return err
+			}
+		}
 	}
 
 	group, groupCtx := errgroup.WithContext(ctx)
@@ -158,6 +163,9 @@ func (a *app) serve(ctx context.Context, rt *httpRuntime) error {
 		}
 		if jobsWork {
 			errs = append(errs, platformjobs.Stop(shutdownCtx, a.env.Jobs))
+			for _, c := range a.moduleJobs {
+				errs = append(errs, platformjobs.Stop(shutdownCtx, c))
+			}
 		}
 		return errors.Join(errs...)
 	})

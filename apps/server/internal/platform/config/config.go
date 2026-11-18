@@ -43,13 +43,17 @@ func (e Env) IsDeployed() bool { return e == EnvStaging || e == EnvProduction }
 type Config struct {
 	Env Env `env:"AEDST_ENV" envDefault:"development"`
 
-	HTTP      HTTPConfig
-	DB        DatabaseConfig
-	Cache     CacheConfig
-	Search    SearchConfig
-	Flags     FlagsConfig
-	Auth      AuthConfig
-	OIDC      OIDCConfig
+	HTTP   HTTPConfig
+	DB     DatabaseConfig
+	Cache  CacheConfig
+	Search SearchConfig
+	Flags  FlagsConfig
+	Auth   AuthConfig
+	OIDC   OIDCConfig
+	// ServiceIdentity is this process's own client-credentials identity (optional).
+	ServiceIdentity ServiceIdentityConfig
+	// Events configures event delivery across a database boundary (off by default).
+	Events    EventsConfig
 	Obs       ObservabilityConfig
 	Client    ClientConfig
 	Retention RetentionConfig
@@ -439,6 +443,8 @@ func (c Config) Validate() error {
 	}
 	c.validateFeatures(bad)
 	c.validateAppAttest(bad)
+	c.validateServiceIdentity(bad)
+	c.validateEvents(bad)
 
 	return errors.Join(errs...)
 }

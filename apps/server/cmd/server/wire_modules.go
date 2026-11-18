@@ -7,6 +7,9 @@ import (
 
 	"google.golang.org/protobuf/reflect/protoreflect"
 
+	eventsv1 "github.com/aedst/server/gen/go/aedst/events/v1"
+	eventsv1connect "github.com/aedst/server/gen/go/aedst/events/v1/eventsv1connect"
+	"github.com/aedst/server/internal/platform/events/ingest"
 	"github.com/aedst/server/internal/platform/httpserver"
 	"github.com/aedst/server/internal/platform/modulekit"
 )
@@ -39,6 +42,23 @@ func (a *app) wireModules(ctx context.Context) error {
 	return nil
 }
 
+// eventIngestPolicy is the role-policy key of EventIngestService (every procedure).
+const eventIngestPolicy = "/aedst.events.v1.EventIngestService/*"
+
+// ingestRequestBytes caps one forwarded event (payload up to 256 KiB plus the envelope).
+const ingestRequestBytes = 320 << 10
+
+// mountEventIngest mounts EventIngestService when AEDST_EVENTS_INGEST_ENABLED is set:
+// the endpoint a producer in another service calls to hand over a delivery. It inserts
+// into this process's own database through its own River client.
+func (a *app) mountEventIngest(rpc *modulekit.Mounter) {
+	if !a.cfg.Events.IngestEnabled {
+		return
+	}
+	modulekit.Mount(rpc, eventsv1connect.RegisterEventIngestServiceHandler,
+		eventsv1connect.EventIngestServiceHandler(ingest.NewHandler(a.env.Events, a.env.Jobs)), ingestRequestBytes)
+}
+
 // mountModules mounts every module's API services through the one sanctioned
 // mounter (modulekit.Mount).
 func (a *app) mountModules(rpc *modulekit.Mounter) error {
@@ -50,6 +70,7 @@ func (a *app) mountModules(rpc *modulekit.Mounter) error {
 			return fmt.Errorf("module %s: mount: %w", m.Name, err)
 		}
 	}
+	a.mountEventIngest(rpc)
 	return nil
 }
 
@@ -65,6 +86,11 @@ func (a *app) rpcSurface() (public map[string]bool, defaultRoles map[string][]st
 		}
 		maps.Copy(defaultRoles, m.Roles)
 		files = append(files, m.Files...)
+	}
+	if a.cfg.Events.IngestEnabled {
+		// The ingest endpoint is closed to users: only the machine identity may call it.
+		defaultRoles[eventIngestPolicy] = []string{"internal"}
+		files = append(files, eventsv1.File_aedst_events_v1_events_proto)
 	}
 	return public, defaultRoles, httpserver.ProceduresOf(files...)
 }
