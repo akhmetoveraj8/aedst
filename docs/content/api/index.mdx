@@ -1,0 +1,168 @@
+---
+title: API overview
+description: "How to call the AEDST API: the Connect protocol, headers, authentication, errors, pagination, idempotency and versioning, with curl and client examples, plus the catalog of every service."
+---
+
+# API overview
+
+The API is **ConnectRPC over HTTP**, defined in Protobuf under `apps/server/api/proto/aedst/<module>/v1/`. It is not REST: there is one `POST` per RPC. The per-service pages in this section are **generated from the `.proto` files** (`task docs:api`), so field names, bounds and comments cannot drift from the contract. Design rules: [API design](/engineering/api-design).
+
+## Service catalog
+
+| Service | Audience | Page |
+|---|---|---|
+| `aedst.tasks.v1.TasksService` | Signed-in user, own data | [Tasks](/api/tasks) |
+| `aedst.media.v1.MediaService` | Signed-in user | [Media](/api/media) |
+| `aedst.notifications.v1.NotificationsService` | Signed-in user | [Notifications](/api/notifications) |
+| `aedst.search.v1.SearchService` | Signed-in user | [Search](/api/search) |
+| `aedst.capabilities.v1.CapabilitiesService` | Public | [Capabilities](/api/capabilities) |
+| `aedst.integrity.v1.IntegrityService` | Signed-in Android app | [Play Integrity](/api/integrity) |
+| `aedst.appattest.v1.AppAttestService` | Signed-in Apple app | [App Attest](/api/appattest) |
+| `aedst.admin.v1.AdminService` | Role `admin` | [Admin](/api/admin) |
+| `*OperatorService` (tasks, media, notifications) | Staff and machine identity | Same pages as their module |
+| `aedst.events.v1.EventIngestService` | Machine identity `internal` only | [Event ingest](/api/events) |
+
+## Anatomy of a call
+
+<Flow
+  direction="LR"
+  height={260}
+  caption="Everything the server needs is in the path, three headers and a JSON (or Protobuf) body."
+  nodes={[
+    { id: "c", label: "Client", x: 0, y: 80, kind: "external" },
+    { id: "req", label: "POST /{package}.{Service}/{Rpc}", sub: "Authorization, Content-Type, Connect-Protocol-Version", x: 230, y: 80, kind: "process", width: 280, desc: "Example: POST /aedst.tasks.v1.TasksService/CreateTask" },
+    { id: "s", label: "Server", sub: "interceptor chain", x: 600, y: 80, kind: "unit" },
+  ]}
+  edges={[{ from: "c", to: "req" }, { from: "req", to: "s" }, { from: "s", to: "c", label: "200 JSON or error body", dashed: true }]}
+/>
+
+### Headers
+
+| Header | Required | Meaning |
+|---|---|---|
+| `Authorization: Bearer <access token>` | Yes, except public RPCs | OIDC access token from the identity provider |
+| `Content-Type: application/json` | Yes | Or `application/proto` for binary Protobuf |
+| `Connect-Protocol-Version: 1` | Yes | CSRF defence in depth; calls without it are rejected |
+| `Idempotency-Key: <1-128 printable ASCII>` | Recommended on writes | Makes retries safe; scoped per caller |
+| `X-Aedst-Client: <platform>/<semver>` | First-party clients | Used for the minimum-version gate and metrics, for example `android/1.4.2` |
+| `Connect-Timeout-Ms` | Optional | Per-call deadline |
+
+### JSON mapping
+
+Field names are `lowerCamelCase` (`due_date` becomes `dueDate`), enums are their names, `int64` values are strings, timestamps are RFC 3339, `bytes` are base64. Unknown enum values must be tolerated by clients.
+
+## Examples
+
+<Tabs items={["curl", "TypeScript", "Kotlin", "Swift"]}>
+  <Tab value="curl">
+```bash
+export AEDST_URL=http://localhost:8080
+export TOKEN=<access token from your identity provider>
+
+curl -sS "$AEDST_URL/aedst.tasks.v1.TasksService/CreateTask" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "Connect-Protocol-Version: 1" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d '{"title":"Write the release notes","priority":"TASK_PRIORITY_HIGH"}'
+```
+  </Tab>
+  <Tab value="TypeScript">
+```ts
+import { createClient } from "@connectrpc/connect";
+import { createConnectTransport } from "@connectrpc/connect-web";
+import { TasksService } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
+
+// In the browser the base URL is the app's own BFF route; it adds the token.
+const client = createClient(TasksService, createConnectTransport({ baseUrl: "/api/rpc" }));
+const { task } = await client.createTask({ title: "Write the release notes", priority: 3 });
+```
+  </Tab>
+  <Tab value="Kotlin">
+```kotlin
+// ProtocolClient is provided by Hilt (core/network NetworkModule.kt).
+val tasks = TasksServiceClient(protocolClient)
+val response = tasks.createTask(
+    CreateTaskRequest.newBuilder().setTitle("Write the release notes").build(),
+    headers = idempotencyHeaders(),
+)
+```
+  </Tab>
+  <Tab value="Swift">
+```swift
+let tasks = Aedst_Tasks_V1_TasksServiceClient(client: protocolClient)
+var request = Aedst_Tasks_V1_CreateTaskRequest()
+request.title = "Write the release notes"
+let response = await tasks.createTask(request: request, headers: [:])
+```
+  </Tab>
+</Tabs>
+
+The generated client names are produced by Buf; open the generated code of your platform if a name differs. Never hand-write a client: use the generated one ([Clients](/architecture/clients)).
+
+## Errors
+
+Errors use Connect codes. Over JSON the body is:
+
+```json
+{
+  "code": "invalid_argument",
+  "message": "title: value length must be at least 1 characters",
+  "details": []
+}
+```
+
+| Connect code | HTTP | Meaning and what to do |
+|---|---|---|
+| `invalid_argument` | 400 | Input violates a bound; fix the request, do not retry |
+| `unauthenticated` | 401 | Missing, expired or invalid token; refresh it once, then sign in again |
+| `permission_denied` | 403 | Role policy forbids the procedure |
+| `not_found` | 404 | Missing, or owned by another user (existence does not leak) |
+| `already_exists` | 409 | The resource already exists |
+| `aborted` | 409 | Stale `expected_version`, or an `Idempotency-Key` reused with a different body; re-read and retry |
+| `failed_precondition` | 400 | State forbids it; with reason `CLIENT_UPGRADE_REQUIRED` the app must update |
+| `resource_exhausted` | 429 | Rate limited or load shed; honour `Retry-After` |
+| `unavailable` | 503 | Transient; retry with backoff and the same `Idempotency-Key` |
+| `internal` | 500 | Generic message only; the cause is in server logs |
+
+## Pagination
+
+Lists use opaque cursors: send `page_size` (server default when 0, capped at 100) and `page_token`; read `next_page_token` (empty means last page). A token is bound to its filters and sort; reusing it with different ones is `invalid_argument`. Never parse or build a token.
+
+```bash
+# first page, then the next
+curl ... -d '{"pageSize":20}'
+curl ... -d '{"pageSize":20,"pageToken":"<next_page_token from the previous response>"}'
+```
+
+## Partial updates and concurrency
+
+Updates take an `update_mask` listing the fields to apply, so a client can change one field without resending the others, and an optional `expected_version`. If the stored version differs the call fails with `aborted`.
+
+```bash
+curl ... "$AEDST_URL/aedst.tasks.v1.TasksService/UpdateTask" \
+  -d '{"id":"<task id>","title":"New title","updateMask":"title","expectedVersion":3}'
+```
+
+## Rate limits and load shedding
+
+Authenticated RPCs are limited per user (default 1200 per minute); each instance caps in-flight requests. The server answers `resource_exhausted` with `Retry-After`; clients back off with jitter.
+
+## Versioning
+
+Within `v1` changes are additive only (new fields, RPCs, enum values). A breaking change ships as `v2` beside `v1`. Deprecated items carry `deprecated = true` and a replacement. Clients discover optional features with [`GetCapabilities`](/api/capabilities). Rules: [ADR-0009](/decisions/0009-api-compatibility-and-client-versioning).
+
+## Try it
+
+- **curl**: the examples on every service page work against a local server (`task dev` in `apps/server`).
+- **Bruno**: a committed collection with auth chaining in `apps/server/api/bruno` ([README](../../../apps/server/api/bruno/README.md)).
+- **Reflection and health**: the server exposes gRPC reflection and `/healthz`, `/readyz` for tooling.
+
+## Regenerating these pages
+
+```bash
+task docs:api          # rewrite docs/content/api/*.md from the .proto files
+task check:api-docs    # fail when a committed page is stale (CI)
+```
+
+Improve a description by editing the comment in the `.proto` file, never the generated page.

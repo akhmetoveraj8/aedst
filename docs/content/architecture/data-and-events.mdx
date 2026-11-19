@@ -1,0 +1,96 @@
+---
+title: Data and events
+description: "Who owns which data, how one transaction produces events, how consumers and the realtime gateway receive them, and what happens across process boundaries."
+---
+
+# Data and events
+
+## Data ownership
+
+<Flow
+  direction="LR"
+  height={420}
+  caption="One database, one schema per module. No joins across schemas (a test enforces it); other modules are reached through api/ or events."
+  nodes={[
+    { id: "tasks", label: "tasks", x: 0, y: 0, kind: "unit", desc: "Owns tasks.* ; the reference module." },
+    { id: "media", label: "media", x: 0, y: 100, kind: "unit", desc: "Owns media.*; bytes live in object storage." },
+    { id: "notif", label: "notifications", x: 0, y: 200, kind: "unit", desc: "Owns inbox, push devices, preferences." },
+    { id: "search", label: "search", x: 0, y: 300, kind: "unit", desc: "Owns a read-only documents projection." },
+    { id: "s1", label: "schema tasks", x: 300, y: 0, kind: "store" },
+    { id: "s2", label: "schema media", x: 300, y: 100, kind: "store" },
+    { id: "s3", label: "schema notifications", x: 300, y: 200, kind: "store" },
+    { id: "s4", label: "schema search", x: 300, y: 300, kind: "store" },
+    { id: "plat", label: "platform.*", sub: "river_job, idempotency_keys", x: 580, y: 150, kind: "group", desc: "The only shared tables: the River queue (also the event outbox) and idempotency keys (ADR-0012)." },
+  ]}
+  edges={[
+    { from: "tasks", to: "s1" }, { from: "media", to: "s2" }, { from: "notif", to: "s3" }, { from: "search", to: "s4" },
+    { from: "s1", to: "plat", dashed: true }, { from: "s2", to: "plat", dashed: true }, { from: "s3", to: "plat", dashed: true }, { from: "s4", to: "plat", dashed: true },
+  ]}
+/>
+
+Details: [Database](/server/database).
+
+## Event flow inside the monolith
+
+<Flow
+  direction="LR"
+  height={380}
+  caption="River's job table is the outbox: no relay process, no dual write."
+  nodes={[
+    { id: "w", label: "Producer", sub: "tasks.Complete", x: 0, y: 130, kind: "unit", desc: "Calls events.Publisher.Publish inside the repository transaction." },
+    { id: "tx", label: "Transaction", sub: "state + river_job rows", x: 240, y: 130, kind: "store", desc: "One platform.event_delivery job per subscribed consumer, inserted with InsertManyTx." },
+    { id: "rv", label: "River workers", sub: "queue default", x: 500, y: 130, kind: "process", desc: "At-least-once delivery, backoff retries, then discard (the dead-letter list)." },
+    { id: "c1", label: "notifications.task_completed", x: 760, y: 20, kind: "feature", width: 220, desc: "Idempotent: unique source_event_id." },
+    { id: "c2", label: "search.task_updated", x: 760, y: 130, kind: "feature", width: 220, desc: "Version-guarded upsert: newest version wins." },
+    { id: "c3", label: "platform.nats_forward", x: 760, y: 240, kind: "feature", width: 220, desc: "Optional consumer that forwards allowlisted events to NATS for the realtime gateway." },
+  ]}
+  edges={[
+    { from: "w", to: "tx", label: "1 commit" }, { from: "tx", to: "rv", label: "2 pick up", dashed: true },
+    { from: "rv", to: "c1", dashed: true }, { from: "rv", to: "c2", dashed: true }, { from: "rv", to: "c3", dashed: true },
+  ]}
+/>
+
+Rules every consumer follows: key the effect on the event id, run in its own transaction on the **jobs** pool, never call back into the producer, never rename a consumer. See [Events](/server/events) for the catalog and operating metrics.
+
+## Realtime path (optional)
+
+<Flow
+  direction="LR"
+  height={300}
+  caption="A nudge to online clients. If anything here is down, clients simply refresh through the API."
+  nodes={[
+    { id: "rv", label: "River", sub: "nats_forward job", x: 0, y: 100, kind: "process" },
+    { id: "nats", label: "NATS JetStream", sub: "aedst.events.user.<id>.<type>", x: 250, y: 100, kind: "store", width: 200, desc: "Deduplicates on Nats-Msg-Id (the event id) inside the duplicate window." },
+    { id: "gw", label: "Rust gateway", sub: "pull consumer, per-user hub", x: 530, y: 100, kind: "process", desc: "Routes by subject to the user's open sockets; drops events for offline users." },
+    { id: "cl", label: "Client", sub: "WebSocket", x: 790, y: 100, kind: "external", desc: "Dedupes on event id; resyncs through the API when it reconnects." },
+  ]}
+  edges={[
+    { from: "rv", to: "nats", label: "publish", dashed: true }, { from: "nats", to: "gw", label: "pull", dashed: true }, { from: "gw", to: "cl", label: "frame", dashed: true, animated: true },
+  ]}
+/>
+
+## Across a database boundary
+
+When a consumer lives in another service with its own database, the producer cannot insert the consumer's job in its own transaction. It inserts a `platform.event_forward` job instead; that job calls `EventIngestService.Deliver` on the consumer's service, which inserts the real delivery in **its** database. Each side keeps its own outbox and retries, and no distributed transaction exists ([ADR-0022](../../../apps/server/docs/adr/0022-event-forwarding-and-service-identity.md), [Event ingest API](/api/events)).
+
+<Flow
+  direction="LR"
+  height={260}
+  nodes={[
+    { id: "p", label: "Producer service", sub: "own database", x: 0, y: 80, kind: "unit" },
+    { id: "f", label: "event_forward job", sub: "same transaction", x: 240, y: 80, kind: "process" },
+    { id: "d", label: "Deliver (RPC)", sub: "role internal, idempotent", x: 490, y: 80, kind: "external", desc: "Idempotent on (consumer, event_id)." },
+    { id: "c", label: "Consumer service", sub: "own database + River", x: 740, y: 80, kind: "unit" },
+  ]}
+  edges={[{ from: "p", to: "f" }, { from: "f", to: "d", label: "Connect", dashed: true }, { from: "d", to: "c" }]}
+/>
+
+## Event guarantees
+
+| Property | Guarantee |
+|---|---|
+| Atomicity | Event exists if and only if the state change committed |
+| Delivery | At least once; consumers must be idempotent |
+| Ordering | Not global; per aggregate use the `version` carried in the payload |
+| Loss | Discarded deliveries stay visible for `AEDST_JOBS_DISCARDED_RETENTION_HOURS`; alert on any discard |
+| Replay | Projections (search) can be rebuilt by replaying events |

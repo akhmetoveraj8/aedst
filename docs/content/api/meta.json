@@ -1,0 +1,4 @@
+{
+  "title": "API reference",
+  "pages": ["index", "tasks", "media", "notifications", "search", "capabilities", "integrity", "appattest", "admin", "events", "..."]
+}

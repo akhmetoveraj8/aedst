@@ -1,0 +1,94 @@
+---
+title: Scalability
+description: "How AEDST grows from one pod to many services: the scaling ladder, the bottleneck map, connection budgets, rate limits and the measured triggers that justify each step."
+---
+
+# Scalability
+
+Rule: **scale in the cheapest order, and only on a measured trigger.** Operating numbers, metric names and procedures are in the [Scaling guide](/server/scaling); this page is the map.
+
+## The scaling ladder
+
+<Flow
+  direction="LR"
+  height={520}
+  caption="Each step is configuration of the same binary, not a rewrite. Move right only when the trigger fires."
+  nodes={[
+    { id: "s0", label: "1. One pod", sub: "monolith, one Postgres", x: 0, y: 200, kind: "unit", desc: "Default. Fine for a template and early product." },
+    { id: "s1", label: "2. More replicas", sub: "HPA CPU 70%, stateless", x: 230, y: 200, kind: "unit", desc: "Trigger: p95 above SLO or CPU saturated. Free because pods keep no state." },
+    { id: "s2", label: "3. Protect Postgres", sub: "PgBouncer, keyset, indexes", x: 460, y: 200, kind: "feature", desc: "Trigger: pool saturation. Transaction pooler for the api pool; jobs pool stays direct." },
+    { id: "s3", label: "4. Split workers", sub: "media queue, own Deployment", x: 690, y: 200, kind: "feature", desc: "Trigger: heavy jobs starve the default queue. Helm workers: entries." },
+    { id: "s4", label: "5. Read replica", sub: "AEDST_DATABASE_READ_URL", x: 920, y: 200, kind: "store", desc: "Trigger: reads dominate primary CPU. Only lag-tolerant reads use it." },
+    { id: "s5", label: "6. Module services", sub: "AEDST_MODULES=media", x: 1150, y: 200, kind: "process", desc: "Trigger: one module dominates CPU/memory or needs its own failure domain." },
+    { id: "s6", label: "7. Database per module", sub: "AEDST_DATABASE_URL_<UNIT>", x: 1380, y: 200, kind: "store", desc: "Trigger: one module's queries dominate pg_stat_statements. Schema-per-module already prepared it." },
+  ]}
+  edges={[
+    { from: "s0", to: "s1" }, { from: "s1", to: "s2" }, { from: "s2", to: "s3" }, { from: "s3", to: "s4" }, { from: "s4", to: "s5" }, { from: "s5", to: "s6" },
+  ]}
+/>
+
+| Step | Lever | Trigger (sustained, after tuning) | Doc |
+|---|---|---|---|
+| 2 | Replicas behind the edge | p95 above SLO for 10 min, CPU at the HPA target | [Deployment](/server/deployment) |
+| 3 | PgBouncer, keyset pagination, indexes led by `user_id` | API pool at max for over 1 min, pool wait rate above 0.1 s/s | [Database](/server/database) |
+| 4 | Dedicated worker Deployment | Media jobs delay `default` jobs | [ADR-0008](/decisions/0008-realtime-and-media-extraction) |
+| 5 | Read pool | Primary CPU above 60% from reads | [Postgres scaling runbook](/server/runbook-postgres-scaling) |
+| 6 | Extract a module | One module dominates CPU/memory, or needs failure isolation | [Extract runbook](/server/runbook-extract-service) |
+| 7 | Database per module | One module dominates `pg_stat_statements` | [Postgres scaling runbook](/server/runbook-postgres-scaling) |
+
+## Where the bottleneck is
+
+<Flow
+  direction="LR"
+  height={420}
+  caption="Compute scales by adding pods. The single Postgres primary is the shared limit, so most design effort protects it."
+  nodes={[
+    { id: "edge", label: "Edge", sub: "scales out", x: 0, y: 150, kind: "external" },
+    { id: "pods", label: "API pods", sub: "stateless, N replicas", x: 230, y: 150, kind: "unit", desc: "Add replicas freely, but each adds connections: replicas x (MAX_CONNS + JOBS_MAX_CONNS)." },
+    { id: "pool", label: "PgBouncer", sub: "limits server connections", x: 470, y: 60, kind: "feature", desc: "Many client connections multiplexed onto few server connections." },
+    { id: "direct", label: "Direct jobs pool", sub: "LISTEN/NOTIFY, locks", x: 470, y: 250, kind: "feature", desc: "Background work cannot starve the API pool." },
+    { id: "pg", label: "PostgreSQL primary", sub: "the shared bottleneck", x: 730, y: 150, kind: "store", desc: "Protected by keyset pagination, bounded tables (retention), rate limits and load shedding." },
+    { id: "ro", label: "Read replica", sub: "lag-tolerant reads", x: 990, y: 60, kind: "store" },
+    { id: "cache", label: "DragonflyDB", sub: "limits only, fails open", x: 990, y: 250, kind: "store" },
+  ]}
+  edges={[
+    { from: "edge", to: "pods" }, { from: "pods", to: "pool" }, { from: "pods", to: "direct" },
+    { from: "pool", to: "pg" }, { from: "direct", to: "pg" }, { from: "pg", to: "ro", label: "replication", dashed: true }, { from: "pods", to: "cache", dashed: true },
+  ]}
+/>
+
+## Built-in protections
+
+| Protection | Setting | Behaviour |
+|---|---|---|
+| Load shedding | `AEDST_MAX_IN_FLIGHT` (default 1024) | Excess requests get an immediate `429` with `Retry-After` instead of queueing |
+| Per-user rate limit | `AEDST_API_RATE_LIMIT_PER_MINUTE` (default 1200) | Cluster-wide through DragonflyDB; fails open |
+| Unauthenticated rate limit | `AEDST_AUTH_RATE_LIMIT_PER_MINUTE` | Per client address on public procedures |
+| Bounded pools | `AEDST_DATABASE_MAX_CONNS`, `AEDST_DATABASE_JOBS_MAX_CONNS` | Replicas multiplied by pool size must stay under Postgres capacity; the Helm chart fails the render when it does not fit |
+| Keyset pagination | `page_size` capped at 100 | Constant cost per page, no `OFFSET` |
+| Retention | One policy per growing table | Append-only tables stay bounded |
+| Graceful shutdown | `/readyz` 503, then drain | Rolling deploys drop no requests |
+
+## Connection budget (worked example from the shipped values)
+
+20 API pods x 20 pooled connections = 400 client connections (PgBouncer allows 2000). Jobs pools: (20 + 2) x 10 = 220 direct connections. Pooler server side: 3 x 40 = 120. Reserved for the identity provider: 40. Total 380, under `max_connections` 400. Source and the failure signatures: [Scaling guide](/server/scaling#pooler-sizing-replicas-vs-pgbouncer).
+
+## Three shapes of the same binary
+
+<Flow
+  direction="LR"
+  height={300}
+  caption="Chosen by environment variables; see Backend diagrams for each in detail."
+  nodes={[
+    { id: "m", label: "Shape 1: monolith", sub: "nothing configured", x: 0, y: 100, kind: "unit", desc: "All units in one process; calls are plain function calls." },
+    { id: "s", label: "Shape 2: module services", sub: "AEDST_MODULES=media", x: 300, y: 100, kind: "feature", desc: "One module per deployment; cross-module calls become Connect with a deadline, breaker and rate limit." },
+    { id: "f", label: "Shape 3: feature services", sub: "AEDST_MODULES=social/like", x: 600, y: 100, kind: "process", desc: "A feature of a module runs alone." },
+  ]}
+  edges={[{ from: "m", to: "s", label: "measured trigger" }, { from: "s", to: "f", label: "measured trigger" }]}
+/>
+
+[Backend diagrams](/server/diagrams) · [ADR-0020](../../../apps/server/docs/adr/0020-location-transparent-units.md).
+
+## Known limits
+
+Stated honestly so nobody designs around a feature that does not exist: realtime is a best-effort nudge without resume ([ADR-0021](../../../apps/server/docs/adr/0021-nats-jetstream-and-rust-gateway.md)); the load-test baselines recorded so far are development-machine figures, not capacity numbers; the PgBouncer rehearsal has not yet been run against a live pooler. The authoritative list is [Scaling guide](/server/scaling).

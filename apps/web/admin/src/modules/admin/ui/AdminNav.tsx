@@ -9,10 +9,11 @@ import { Link, usePathname } from "@/shared/i18n/navigation";
 export function AdminNav({ allowed }: { allowed: readonly string[] }) {
   const t = useTranslations("admin.nav");
   const pathname = usePathname();
+  const allowedKeys = new Set(allowed);
   return (
     <nav aria-label={t("label")}>
       <ul className="flex flex-wrap gap-1 border-b pb-2">
-        {ADMIN_SECTIONS.filter((section) => allowed.includes(section.key)).map(
+        {ADMIN_SECTIONS.filter((section) => allowedKeys.has(section.key)).map(
           (section) => {
             const active = pathname === section.href;
             return (

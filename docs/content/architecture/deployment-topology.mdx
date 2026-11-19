@@ -1,0 +1,77 @@
+---
+title: Deployment topology
+description: "Where each component runs from a laptop to Kubernetes: local compose stack, the target cluster layout, the delivery pipeline and what is implemented versus planned."
+---
+
+# Deployment topology
+
+> Read [Platform status](/status) and the verification notes in [Deployment](/server/deployment) first: the Helm chart and manifests are written but were not applied to a real cluster.
+
+## Local development
+
+<Flow
+  direction="LR"
+  height={300}
+  caption="docker compose provides the dependencies; the server and web apps run from source."
+  nodes={[
+    { id: "dev", label: "Developer", sub: "task dev / task app:dev", x: 0, y: 100, kind: "external" },
+    { id: "srv", label: "aedst-server :8080", x: 250, y: 100, kind: "process", desc: "Runs from source with air/go run." },
+    { id: "pg", label: "PostgreSQL", sub: "compose", x: 520, y: 20, kind: "store" },
+    { id: "df", label: "DragonflyDB", sub: "compose", x: 520, y: 110, kind: "store" },
+    { id: "opt", label: "Optional profiles", sub: "idp, media, pgbouncer", x: 520, y: 200, kind: "group", desc: "ZITADEL, MinIO + imgproxy, PgBouncer for rehearsal." },
+  ]}
+  edges={[{ from: "dev", to: "srv" }, { from: "srv", to: "pg" }, { from: "srv", to: "df", dashed: true }, { from: "srv", to: "opt", dashed: true }]}
+/>
+
+## Target cluster
+
+<Flow
+  direction="LR"
+  height={560}
+  caption="Kubernetes layout described by the Helm chart (apps/server/deployments/helm/aedst-server)."
+  nodes={[
+    { id: "cf", label: "Cloudflare", sub: "DNS, TLS, WAF", x: 0, y: 200, kind: "external" },
+    { id: "ing", label: "Envoy / Ingress", sub: "route by service prefix", x: 230, y: 200, kind: "external" },
+    { id: "api", label: "API Deployment", sub: "HPA, PDB, N pods", x: 480, y: 60, kind: "process", desc: "Queues: default. Rolling update with /readyz draining." },
+    { id: "wk", label: "Worker Deployment", sub: "queue media", x: 480, y: 200, kind: "process", desc: "Image and ffmpeg processing, scaled apart from the API." },
+    { id: "gw", label: "Gateway", sub: "WebSocket, optional", x: 480, y: 340, kind: "process" },
+    { id: "mig", label: "Migration Job", sub: "goose, then invalid-index check", x: 480, y: 460, kind: "feature", desc: "Runs before the new pods take traffic." },
+    { id: "pool", label: "PgBouncer", sub: "CloudNativePG Pooler", x: 760, y: 60, kind: "feature" },
+    { id: "pg", label: "PostgreSQL HA", sub: "CloudNativePG, Barman backups", x: 1000, y: 60, kind: "store", width: 190, desc: "Primary plus standbys; backups to object storage through the Barman Cloud plugin." },
+    { id: "df", label: "DragonflyDB", x: 760, y: 200, kind: "store" },
+    { id: "nats", label: "NATS JetStream", x: 760, y: 340, kind: "store" },
+    { id: "obs", label: "Observability", sub: "OTLP, Prometheus rules", x: 1000, y: 340, kind: "external", desc: "PrometheusRule alerts and a dashboard ship with the chart; runbook entries match each alert." },
+  ]}
+  edges={[
+    { from: "cf", to: "ing" }, { from: "ing", to: "api" }, { from: "ing", to: "gw", dashed: true },
+    { from: "api", to: "pool" }, { from: "pool", to: "pg" }, { from: "wk", to: "pg" }, { from: "api", to: "df", dashed: true },
+    { from: "gw", to: "nats", dashed: true }, { from: "api", to: "obs", dashed: true }, { from: "mig", to: "pg" },
+  ]}
+/>
+
+## Delivery pipeline
+
+<Flow
+  direction="LR"
+  height={260}
+  caption="Gates run in CI; the deploy stages on the right are not implemented yet."
+  nodes={[
+    { id: "pr", label: "Pull request", x: 0, y: 80, kind: "external" },
+    { id: "ci", label: "CI gates", sub: "lint, arch, test, buf breaking", x: 230, y: 80, kind: "process", desc: "task check plus platform gates; generated code and API pages must be up to date." },
+    { id: "img", label: "Image build", sub: "Dockerfile, migrate image", x: 480, y: 80, kind: "feature", desc: "Written, not yet built where authored; the CI docker-build job is the test." },
+    { id: "gitops", label: "Argo CD", sub: "planned", x: 710, y: 80, kind: "external", desc: "Not implemented." },
+    { id: "k8s", label: "Cluster", x: 930, y: 80, kind: "store" },
+  ]}
+  edges={[{ from: "pr", to: "ci" }, { from: "ci", to: "img" }, { from: "img", to: "gitops", dashed: true }, { from: "gitops", to: "k8s", dashed: true }]}
+/>
+
+## Implemented versus planned
+
+| Item | State |
+|---|---|
+| Helm chart, PgBouncer, CloudNativePG overlay, imgproxy, alerts | Written; not applied to a cluster |
+| Dockerfile and migration image | Written; CI build is the test |
+| OpenTofu modules, Argo CD, deploy pipeline | Not implemented |
+| Realtime gateway | Written; Rust gates not run on the authoring machine |
+
+Env vars for every box: [Configuration](/server/config). Procedures: [Runbook](/server/runbook).

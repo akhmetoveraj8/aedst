@@ -1,0 +1,86 @@
+---
+title: Request lifecycle
+description: "What happens to one RPC from the client call to the database commit and back: the interceptor chain, the write path with its event, and the read path."
+---
+
+# Request lifecycle
+
+Numbers on the arrows are the order of events.
+
+## One authenticated write (`CompleteTask`)
+
+<Flow
+  direction="LR"
+  height={420}
+  caption="The write and its event commit together; everything after the commit is asynchronous."
+  nodes={[
+    { id: "c", label: "Client", sub: "access token", x: 0, y: 140, kind: "external", desc: "Sends Authorization: Bearer, Connect-Protocol-Version: 1, X-Aedst-Client and an Idempotency-Key for writes it may retry." },
+    { id: "ic", label: "Interceptor chain", sub: "see the table below", x: 250, y: 140, kind: "process", width: 190, desc: "Trace, error mapping, client-version gate, auth, role policy, per-user rate limit, Protovalidate, idempotency." },
+    { id: "h", label: "tasks handler", sub: "transport, application", x: 520, y: 140, kind: "unit", desc: "Takes the caller id from the context (never from the request) and calls the application service." },
+    { id: "tx", label: "One transaction", sub: "UPDATE guarded, InsertTx", x: 790, y: 140, kind: "store", width: 190, desc: "UPDATE tasks SET status... WHERE status <> 'done' RETURNING, plus one river_job per subscribed consumer, plus the idempotency record. All commit or none." },
+    { id: "r", label: "River workers", sub: "jobs pool", x: 790, y: 330, kind: "process", desc: "Pick up the delivery jobs after the commit and run each consumer (idempotent, retried with backoff)." },
+    { id: "n", label: "notifications, search", sub: "consumers", x: 520, y: 330, kind: "unit", desc: "Project the event into their own schema: an inbox entry, a search document." },
+  ]}
+  edges={[
+    { from: "c", to: "ic", label: "1 POST /aedst.tasks.v1.TasksService/CompleteTask" },
+    { from: "ic", to: "h", label: "2 checks pass" },
+    { from: "h", to: "tx", label: "3 write + event" },
+    { from: "tx", to: "h", label: "4 commit", dashed: true },
+    { from: "h", to: "c", label: "5 200 + Task", dashed: true },
+    { from: "tx", to: "r", label: "6 after commit", dashed: true, animated: true },
+    { from: "r", to: "n", label: "7 deliver", dashed: true, animated: true },
+  ]}
+/>
+
+### The interceptor chain, in order
+
+Defined in `apps/server/cmd/server/wire_http.go`; the order is deliberate (cheapest rejection first).
+
+| # | Stage | Rejects with | Why here |
+|---|---|---|---|
+| 1 | Tracing (otelconnect) | never | Everything after is traced |
+| 2 | Error headers and error log | never | Real causes are logged server-side; clients get generic messages |
+| 3 | Client-version gate | `FAILED_PRECONDITION` + `CLIENT_UPGRADE_REQUIRED` | Cheapest check, drops unsupported builds ([ADR-0009](/decisions/0009-api-compatibility-and-client-versioning)) |
+| 4 | Unauthenticated rate limit | `RESOURCE_EXHAUSTED` | Protects the verifier from floods |
+| 5 | Authentication (OIDC) | `UNAUTHENTICATED` | Verifies the JWT, puts the caller in the context |
+| 6 | Role policy | `PERMISSION_DENIED` | `AEDST_ROLE_POLICY`, never in handlers |
+| 7 | Per-user rate limit | `RESOURCE_EXHAUSTED` + `Retry-After` | Fair share per caller |
+| 8 | Protovalidate | `INVALID_ARGUMENT` | Bounds declared in the `.proto` |
+| 9 | Idempotency header | never | Makes the key available to the handler |
+
+Panics are recovered into `INTERNAL`. Load shedding (`AEDST_MAX_IN_FLIGHT`) runs before the chain at the HTTP layer.
+
+## A read with a cursor (`ListTasks`)
+
+<Flow
+  direction="LR"
+  height={260}
+  caption="Reads use keyset pagination: cost is the same on page 1 and page 1000."
+  nodes={[
+    { id: "c", label: "Client", x: 0, y: 80, kind: "external" },
+    { id: "api", label: "tasks handler", sub: "chain, then sqlc query", x: 250, y: 80, kind: "unit", desc: "WHERE user_id = $caller AND (sort_key, id) < ($cursor) ORDER BY ... LIMIT page_size+1." },
+    { id: "pg", label: "PostgreSQL", sub: "index (user_id, sort_key, id)", x: 520, y: 80, kind: "store", desc: "One index range scan; no OFFSET, no count(*) on the paging path." },
+  ]}
+  edges={[
+    { from: "c", to: "api", label: "1 ListTasks(page_size, page_token)" },
+    { from: "api", to: "pg", label: "2 keyset query" },
+    { from: "pg", to: "api", label: "3 rows", dashed: true },
+    { from: "api", to: "c", label: "4 tasks + next_page_token", dashed: true },
+  ]}
+/>
+
+## Browser path (BFF)
+
+The browser never holds a token. Its calls go to the web app's own `/api/rpc` route, which attaches the access token from an httpOnly cookie, refreshes it when it expires and forwards to the server. This removes CORS and token storage from page JavaScript ([web projects](/web/projects)).
+
+## Retry and conflict semantics
+
+| Situation | Behaviour |
+|---|---|
+| Same `Idempotency-Key`, same body | First result is replayed; no second write, no second event |
+| Same key, different body | `ABORTED` (conflict) |
+| `expected_version` is stale | `ABORTED`; re-read and retry |
+| Transient failure (`UNAVAILABLE`) | Safe to retry with the same key and backoff |
+| Rate limited | `RESOURCE_EXHAUSTED` with `Retry-After` |
+
+Full contract rules: [API design](/engineering/api-design); how to call: [API overview](/api).

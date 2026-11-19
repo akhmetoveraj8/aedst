@@ -1,0 +1,59 @@
+---
+title: Clients
+description: "How five clients stay consistent: one contract and one design-token source feed Web, Android, Apple and Desktop, each with the same layered shape."
+---
+
+# Clients
+
+## One contract, many generators
+
+<Flow
+  direction="LR"
+  height={460}
+  caption="The .proto files are the only API definition. Nothing about the API is written by hand on any client."
+  nodes={[
+    { id: "proto", label: "api/proto", sub: "Buf: lint + breaking", x: 0, y: 170, kind: "process", desc: "The single source of truth. buf breaking (FILE mode) blocks incompatible changes." },
+    { id: "go", label: "Go server stubs", sub: "connect-go v2", x: 300, y: 0, kind: "unit" },
+    { id: "ts", label: "Web client", sub: "connect-web + connect-query", x: 300, y: 90, kind: "unit", desc: "Generated into shared/api/connect/generated (gitignored)." },
+    { id: "kt", label: "Android client", sub: "connect-kotlin", x: 300, y: 180, kind: "unit", desc: "Generated into core/network/kotlin-gen." },
+    { id: "sw", label: "Apple client", sub: "connect-swift", x: 300, y: 270, kind: "unit" },
+    { id: "rs", label: "Desktop client", sub: "connectrpc (Rust)", x: 300, y: 360, kind: "unit" },
+    { id: "docs", label: "API reference", sub: "this site", x: 300, y: 450, kind: "feature", desc: "task docs:api renders /api from the same files." },
+    { id: "tok", label: "design-tokens", sub: "Style Dictionary", x: 620, y: 170, kind: "process", desc: "Colors, spacing, type for every platform; no color literals in hand-written UI." },
+  ]}
+  edges={[
+    { from: "proto", to: "go" }, { from: "proto", to: "ts" }, { from: "proto", to: "kt" }, { from: "proto", to: "sw" }, { from: "proto", to: "rs" }, { from: "proto", to: "docs" },
+    { from: "tok", to: "ts", dashed: true }, { from: "tok", to: "kt", dashed: true }, { from: "tok", to: "sw", dashed: true }, { from: "tok", to: "rs", dashed: true },
+  ]}
+/>
+
+## The same layers on every platform
+
+<Flow
+  direction="TB"
+  height={470}
+  caption="Features never import each other. Each platform expresses the rule in its own build graph."
+  nodes={[
+    { id: "ui", label: "Presentation", sub: "screens, view models, intents", x: 100, y: 0, kind: "unit", width: 220 },
+    { id: "dom", label: "Domain", sub: "models, repository interfaces", x: 100, y: 110, kind: "feature", width: 220 },
+    { id: "data", label: "Data", sub: "generated RPC client + local cache", x: 100, y: 220, kind: "process", width: 220 },
+    { id: "out", label: "Offline outbox", sub: "queued writes, Idempotency-Key", x: 100, y: 330, kind: "store", width: 220, desc: "A write that must survive offline is queued with the same operation id and replayed safely." },
+    { id: "net", label: "Server", x: 420, y: 220, kind: "external" },
+  ]}
+  edges={[{ from: "ui", to: "dom" }, { from: "dom", to: "data" }, { from: "data", to: "out" }, { from: "data", to: "net", label: "Connect" }, { from: "out", to: "net", dashed: true }]}
+/>
+
+| Platform | UI | Module boundary | Local store | Status |
+|---|---|---|---|---|
+| [Web](/web) | Next.js 16, React 19 | pnpm workspace: `app`, `admin`, `landing`, `shared` | TanStack Query | Verified |
+| [Android](/android) | Jetpack Compose | Gradle feature modules | Room, DataStore, Keystore + Tink | JVM only, never on a device |
+| [Apple](/apple) | SwiftUI | SwiftPM / Tuist modules | GRDB, Keychain | Never compiled |
+| [Desktop](/desktop) | Rust + Slint | Cargo workspace | rusqlite | Windows checks only |
+
+## Adding a feature to all clients
+
+Follow the eight-step [client recipe](/client-recipe): declare, domain, data, presentation, navigation, i18n, wire, test. Parity rules are in [Parity](/parity); locales `en`, `ru`, `tg`, `uz`, `ar` must stay in sync ([i18n](/i18n)).
+
+## Compatibility between old clients and new servers
+
+Within `v1` only additive changes are allowed. Clients identify themselves with `X-Aedst-Client: <platform>/<semver>`; below a minimum version the server answers `FAILED_PRECONDITION` with reason `CLIENT_UPGRADE_REQUIRED` and the app shows a forced-upgrade screen. Newly available features are discovered through [`GetCapabilities`](/api/capabilities), not by guessing the server version ([ADR-0009](/decisions/0009-api-compatibility-and-client-versioning)).

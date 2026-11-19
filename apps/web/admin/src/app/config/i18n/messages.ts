@@ -35,7 +35,8 @@ export async function loadMessages(
   locale: Locale,
   namespaces: readonly string[] = i18nModules,
 ) {
-  const wanted = i18nModules.filter((module) => namespaces.includes(module));
+  const requested = new Set(namespaces);
+  const wanted = i18nModules.filter((module) => requested.has(module));
   const [common, ...moduleEntries] = await Promise.all([
     load(commonCatalogues, `/src/app/config/i18n/common/${locale}.json`),
     ...wanted.map(

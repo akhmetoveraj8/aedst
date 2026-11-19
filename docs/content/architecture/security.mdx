@@ -1,0 +1,85 @@
+---
+title: Security
+description: "Authentication, the three authorization layers, trust boundaries and where each control is enforced, with the sign-in and token flows drawn out."
+---
+
+# Security
+
+The server never stores a password or issues a token. An OIDC provider (ZITADEL by default) authenticates people; the server is a **resource server** that verifies tokens and then authorizes every action ([ADR-0017](../../../apps/server/docs/adr/0017-identity-provider.md), [ADR-0019](../../../apps/server/docs/adr/0019-remove-first-party-auth.md)). Controls and review checklists: [Security standard](/engineering/security).
+
+## Sign-in and token use
+
+<Flow
+  direction="LR"
+  height={400}
+  caption="Authorization code flow with PKCE. The server only appears at step 6."
+  nodes={[
+    { id: "u", label: "User", x: 0, y: 150, kind: "external" },
+    { id: "app", label: "Client app", sub: "web BFF or native app", x: 240, y: 150, kind: "unit", desc: "Web keeps tokens in an httpOnly __Host- cookie; native apps use Keystore / Keychain." },
+    { id: "idp", label: "Identity provider", sub: "OIDC", x: 520, y: 40, kind: "external", desc: "Hosts the login UI, MFA and passkeys; issues access and refresh tokens." },
+    { id: "api", label: "aedst-server", sub: "resource server", x: 520, y: 260, kind: "process", desc: "Verifies signature (JWKS), issuer, audience, expiry and an asymmetric-only algorithm allow-list." },
+    { id: "pg", label: "Data", sub: "WHERE user_id = caller", x: 800, y: 260, kind: "store", desc: "Every query is scoped to the caller; another user's object answers NOT_FOUND." },
+  ]}
+  edges={[
+    { from: "u", to: "app", label: "1 open app" },
+    { from: "app", to: "idp", label: "2 redirect + PKCE" },
+    { from: "u", to: "idp", label: "3 sign in", dashed: true },
+    { from: "idp", to: "app", label: "4 code, then tokens", dashed: true },
+    { from: "app", to: "api", label: "5-6 RPC + Bearer" },
+    { from: "api", to: "idp", label: "JWKS (cached)", dashed: true },
+    { from: "api", to: "pg", label: "7 scoped query" },
+  ]}
+/>
+
+## Authorization: three layers
+
+<Flow
+  direction="LR"
+  height={260}
+  caption="A request must pass all three. None of them lives in handler boilerplate."
+  nodes={[
+    { id: "r", label: "1. Role policy", sub: "AEDST_ROLE_POLICY", x: 0, y: 80, kind: "unit", desc: "Per procedure: /pkg.Service/Method=role. Admin RPCs are closed by default. A typo or a public procedure fails startup." },
+    { id: "o", label: "2. Object scope", sub: "WHERE id=$1 AND user_id=$2", x: 280, y: 80, kind: "feature", desc: "In every query. user_id comes from the token, never from the request body." },
+    { id: "d", label: "3. Domain rules", sub: "state machine, limits", x: 560, y: 80, kind: "process", desc: "Example: status only changes through CompleteTask or ReopenTask." },
+  ]}
+  edges={[{ from: "r", to: "o" }, { from: "o", to: "d" }]}
+/>
+
+| Caller | How it is identified | Typical access |
+|---|---|---|
+| End user | OIDC access token | Own data through public services |
+| Staff | Token with the `admin` role (also `support`, `auditor` for reads) | `AdminService`, operator services; every mutation is audited in the same transaction |
+| Another service | Machine identity, role `internal` | `EventIngestService`, operator mutations |
+| Unauthenticated | none | Only procedures listed as public (`GetCapabilities`) |
+
+## Trust boundaries
+
+<Flow
+  direction="LR"
+  height={360}
+  caption="Everything left of the edge is untrusted input. Validation happens at every crossing."
+  nodes={[
+    { id: "net", label: "Internet", sub: "untrusted", x: 0, y: 120, kind: "external" },
+    { id: "edge", label: "Edge", sub: "TLS, WAF, coarse limits", x: 220, y: 120, kind: "group", desc: "Terminates TLS; routes to the API." },
+    { id: "api", label: "API", sub: "auth, validate, limit", x: 440, y: 120, kind: "process", desc: "Protovalidate on every request, size caps per service, per-user rate limits." },
+    { id: "data", label: "Data tier", sub: "private network", x: 660, y: 40, kind: "store", desc: "Reachable only from the API pods (NetworkPolicy)." },
+    { id: "idp", label: "IdP", sub: "separate, unmodified", x: 660, y: 220, kind: "external", desc: "AGPL component kept unmodified and separate; checked by task check:zitadel-agpl." },
+  ]}
+  edges={[{ from: "net", to: "edge" }, { from: "edge", to: "api" }, { from: "api", to: "data" }, { from: "api", to: "idp", dashed: true }]}
+/>
+
+## Device and request integrity
+
+Optional attestation proves a request comes from a genuine app: Google Play Integrity ([Integrity API](/api/integrity)) and Apple App Attest ([App Attest API](/api/appattest)). Both use single-use challenges or hashes to prevent replay and report rejection as a normal response, not an error.
+
+## Controls at a glance
+
+| Control | Mechanism |
+|---|---|
+| Tokens out of page JavaScript | BFF with httpOnly `__Host-` cookie on web |
+| CSRF defence in depth | `Connect-Protocol-Version: 1` required on every call |
+| Injection | sqlc only; no SQL string building |
+| Abuse | Rate limits per address and per user, load shedding |
+| Data minimisation in errors | Generic `INTERNAL`; causes only in logs and traces |
+| Supply chain | Approved-library allowlists enforced by gates, version pinning, `govulncheck`, gitleaks |
+| Audit | `admin.audit_log` written in the effect's transaction |

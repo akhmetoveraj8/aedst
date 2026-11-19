@@ -1,0 +1,55 @@
+---
+title: Resilience
+description: "What happens when each dependency fails: which parts are required for readiness, which degrade, and how retries, breakers and idempotency keep data correct."
+---
+
+# Resilience
+
+Design rule: **only PostgreSQL is required.** Every other dependency is optional or fails open, so a partial outage degrades features instead of stopping the API.
+
+## Failure matrix
+
+<Flow
+  direction="LR"
+  height={440}
+  caption="Red-line dependency on the left of the API; everything else degrades. Click a box for the behaviour."
+  nodes={[
+    { id: "api", label: "aedst-server", x: 330, y: 150, kind: "process", desc: "Stays up as long as PostgreSQL answers." },
+    { id: "pg", label: "PostgreSQL", sub: "REQUIRED", x: 0, y: 150, kind: "store", desc: "Down: /readyz fails, pods leave rotation, requests return UNAVAILABLE. Clients retry with the same Idempotency-Key." },
+    { id: "cache", label: "DragonflyDB", sub: "limits only", x: 660, y: 0, kind: "store", desc: "Down: rate limiting fails open, /readyz reports degraded, API keeps serving." },
+    { id: "idp", label: "Identity provider", sub: "JWKS cached", x: 660, y: 100, kind: "external", desc: "Down: tokens keep verifying against cached keys; only sign-in and refresh at the IdP fail." },
+    { id: "s3", label: "Object storage", x: 660, y: 200, kind: "store", desc: "Down: uploads and completion fail; the rest of the API is unaffected." },
+    { id: "nats", label: "NATS / gateway", sub: "optional", x: 660, y: 300, kind: "store", desc: "Down: forward jobs retry in River; realtime nudges are delayed. Never part of readiness." },
+    { id: "push", label: "Push providers", x: 660, y: 390, kind: "external", desc: "Down: push jobs retry with backoff; an invalid token deactivates the device." },
+  ]}
+  edges={[
+    { from: "api", to: "pg", label: "required" }, { from: "api", to: "cache", dashed: true }, { from: "api", to: "idp", dashed: true },
+    { from: "api", to: "s3", dashed: true }, { from: "api", to: "nats", dashed: true }, { from: "api", to: "push", dashed: true },
+  ]}
+/>
+
+| Dependency | Failure effect | Detection | Recovery |
+|---|---|---|---|
+| PostgreSQL primary | API unavailable | `/readyz` 503, pool metrics | Failover (CloudNativePG); clients retry with the same key |
+| DragonflyDB | Limits not enforced | `/readyz` `degraded` | Restart; no data to recover |
+| Identity provider | No new sign-ins; existing tokens verify from cached JWKS | Auth error rate | Restore IdP; one forced JWKS refresh on unknown `kid` |
+| Object storage | Media upload and completion fail | Media error rate | Restore storage; abandoned uploads are cleaned by retention |
+| NATS / gateway | Realtime delayed | `aedst_events_*` lag, forward job retries | Restore; clients resync through the API |
+| Consumer bug | One consumer retries, then discards | `aedst_events_discarded_total` (any increase alerts) | Fix, then replay from the discarded list |
+
+## Patterns used
+
+| Pattern | Where | Effect |
+|---|---|---|
+| Transactional outbox | `events.Publisher` with River `InsertTx` | No lost or phantom events |
+| Idempotency keys | `platform/idempotency`, guarded SQL | Retries and offline queues are safe |
+| Optimistic concurrency | `expected_version` | Lost updates become `ABORTED` |
+| Timeouts, breaker, per-call rate limit | `platform/resilience` for cross-process calls | A slow unit cannot hold every goroutine |
+| Load shedding | `AEDST_MAX_IN_FLIGHT` | Latency does not collapse for everyone |
+| Graceful shutdown | `/readyz` 503, drain, stop | Zero-drop rollouts |
+| Backoff and discard | River | Poison events become visible, not infinite |
+| Offline outbox on clients | Android/Apple/Web queues send the item id as `Idempotency-Key` | User work survives bad networks |
+
+## Health endpoints
+
+`/healthz` says the process is alive; `/readyz` says it can serve (PostgreSQL reachable, not draining). Optional dependencies never appear as failures there. What to do when an alert fires: [Runbook](/server/runbook).

@@ -1,0 +1,88 @@
+---
+title: System design
+description: "The whole AEDST system on one page: who talks to whom, how a request and an event travel, how it scales and where each detail is documented."
+---
+
+# System design
+
+This section is the **one place to understand AEDST end to end**. Each page answers one question with a diagram first and detail second; every detail links to the deep page that owns it.
+
+| Question | Page |
+|---|---|
+| What are the parts and who talks to whom? | [Containers](/architecture/containers) |
+| What happens between a tap and a database row? | [Request lifecycle](/architecture/request-lifecycle) |
+| How does data move, and how do events cross modules and processes? | [Data and events](/architecture/data-and-events) |
+| How does it grow from one pod to many services? | [Scalability](/architecture/scalability) |
+| What fails, and what still works when it does? | [Resilience](/architecture/resilience) |
+| Who can do what, and where is it enforced? | [Security](/architecture/security) |
+| How do five clients share one contract? | [Clients](/architecture/clients) |
+| Where does it run? | [Deployment topology](/architecture/deployment-topology) |
+| How do I call it? | [API reference](/api) |
+
+## System context
+
+<Flow
+  direction="LR"
+  height={420}
+  caption="Click a box. Solid arrows are synchronous calls, dashed arrows are asynchronous or optional."
+  nodes={[
+    { id: "user", label: "End users", sub: "web, Android, iOS/macOS, desktop", x: 0, y: 40, kind: "external", desc: "Five first-party clients that all generate their API code from the same .proto files." },
+    { id: "staff", label: "Staff", sub: "admin panel", x: 0, y: 220, kind: "external", desc: "Operators using apps/web/admin; they hold the admin role." },
+    { id: "aedst", label: "AEDST", sub: "server + gateway + clients", x: 300, y: 130, kind: "process", width: 200, desc: "The system this documentation describes: a Go modular monolith (apps/server), a Rust realtime gateway (apps/gateway) and the clients." },
+    { id: "idp", label: "Identity provider", sub: "ZITADEL (any OIDC)", x: 620, y: 0, kind: "external", desc: "Issues tokens. The server only verifies them (ADR-0017, ADR-0019): it never stores passwords." },
+    { id: "push", label: "Push providers", sub: "FCM, APNs, Web Push", x: 620, y: 110, kind: "external", desc: "Delivery of notifications to devices." },
+    { id: "store", label: "Object storage", sub: "S3, MinIO, R2", x: 620, y: 220, kind: "external", desc: "Media bytes. Clients upload directly with presigned URLs." },
+    { id: "attest", label: "Device attestation", sub: "Play Integrity, App Attest", x: 620, y: 330, kind: "external", desc: "Proves a request comes from a genuine app on a genuine device (ADR-0016)." },
+  ]}
+  edges={[
+    { from: "user", to: "aedst", label: "ConnectRPC, WebSocket" },
+    { from: "staff", to: "aedst", label: "ConnectRPC" },
+    { from: "aedst", to: "idp", label: "verify tokens (JWKS)" },
+    { from: "aedst", to: "push", label: "push jobs", dashed: true },
+    { from: "aedst", to: "store", label: "presign, head" },
+    { from: "aedst", to: "attest", label: "verify", dashed: true },
+  ]}
+/>
+
+## The five ideas that explain everything
+
+1. **Monolith first, boundaries first** ([ADR-0001](/decisions/0001-modular-monolith)). One deployable, many modules with enforced borders. Any module can become a service later without a rewrite.
+2. **Contract first** ([ADR-0002](/decisions/0002-connectrpc)). Every API is a `.proto`; server stubs, five client stacks and this site's [API reference](/api) are generated from it.
+3. **Stateless compute, stateful data.** Pods keep no session, so scaling compute is adding replicas; the database is the one shared bottleneck and is protected deliberately ([Scalability](/architecture/scalability)).
+4. **Events through the database.** A state change and the events it causes commit in one transaction (River `InsertTx`), so nothing is lost and nothing is published twice ([Data and events](/architecture/data-and-events)).
+5. **Identity is rented, not built** ([ADR-0019](/server/architecture)). An OIDC provider authenticates; the server authorizes ([Security](/architecture/security)).
+
+## Documentation map
+
+<Flow
+  direction="LR"
+  height={380}
+  caption="Where to look. Start at the left, go deeper to the right."
+  nodes={[
+    { id: "start", label: "Start here", sub: "this section", x: 0, y: 150, kind: "process", desc: "System design: the picture of the whole." },
+    { id: "api", label: "API reference", sub: "/api", x: 260, y: 0, kind: "unit", desc: "Every RPC with request fields, constraints, curl and JSON. Generated from the .proto files." },
+    { id: "server", label: "Server", sub: "/server", x: 260, y: 100, kind: "unit", desc: "Modules, database, events, scaling, deployment, runbooks." },
+    { id: "clients", label: "Clients", sub: "/web /android /apple /desktop", x: 260, y: 200, kind: "unit", desc: "Per-platform architecture and stack." },
+    { id: "rules", label: "Rules", sub: "library-first, engineering", x: 260, y: 300, kind: "unit", desc: "Approved libraries, API design, security, performance, conventions." },
+    { id: "adr", label: "Decisions", sub: "/decisions", x: 560, y: 150, kind: "feature", desc: "ADRs: why each choice was made and when to revisit it." },
+    { id: "status", label: "Status", sub: "/status", x: 560, y: 260, kind: "feature", desc: "What has actually been built and run. Read before claiming anything works." },
+  ]}
+  edges={[
+    { from: "start", to: "api" }, { from: "start", to: "server" }, { from: "start", to: "clients" }, { from: "start", to: "rules" },
+    { from: "server", to: "adr" }, { from: "clients", to: "adr" }, { from: "rules", to: "adr" }, { from: "clients", to: "status", dashed: true },
+  ]}
+/>
+
+## Reading paths
+
+| You are | Read in this order |
+|---|---|
+| New to the project | [Containers](/architecture/containers), [Request lifecycle](/architecture/request-lifecycle), [Server modules](/server/modules) |
+| Building a feature | [Client recipe](/client-recipe), [API design](/engineering/api-design), [API reference](/api), the `tasks` module as the reference |
+| Operating it | [Deployment topology](/architecture/deployment-topology), [Scalability](/architecture/scalability), [Runbook](/server/runbook) |
+| Reviewing security | [Security](/architecture/security), [Security standard](/engineering/security), [Resilience](/architecture/resilience) |
+| An AI agent | [docs/agent/INDEX.md](../../agent/INDEX.md), then the platform rows only |
+
+## Honest status
+
+Server and Web are built and tested. Android ran on a JVM only, Apple and Desktop were never compiled, the Rust gateway has not been built on the authoring machine, and the Kubernetes manifests were not applied to a cluster. Diagrams show the **designed** system; [Platform status](/status) says what was run.

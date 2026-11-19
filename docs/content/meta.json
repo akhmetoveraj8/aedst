@@ -1,6 +1,9 @@
 {
   "pages": [
     "index",
+    "---System design---",
+    "architecture",
+    "api",
     "---General---",
     "stack",
     "library-first",

@@ -1,0 +1,86 @@
+---
+title: Containers
+description: "Every runnable part of AEDST (clients, edge, server, gateway, data stores, external services) and the protocol on each arrow."
+---
+
+# Containers
+
+A *container* here is anything that runs and holds state or code: a process, a database, a browser app. Click a box to see what it is.
+
+<Flow
+  direction="LR"
+  height={620}
+  caption="Production shape 1 (default). The gateway, NATS and imgproxy are optional and off by default."
+  nodes={[
+    { id: "web", label: "Web app", sub: "Next.js 16 (app, admin, landing)", x: 0, y: 0, kind: "external", desc: "The browser never calls the server directly: it calls its own /api/rpc route (a BFF) which attaches the bearer token from an httpOnly cookie." },
+    { id: "mobile", label: "Android / Apple", sub: "Compose, SwiftUI", x: 0, y: 110, kind: "external", desc: "Native apps talk Connect straight to the API with the access token from secure storage." },
+    { id: "desktop", label: "Desktop", sub: "Rust + Slint", x: 0, y: 220, kind: "external", desc: "Desktop client; no push service, so it polls GetUnreadCount." },
+    { id: "edge", label: "Edge", sub: "Cloudflare, Envoy / Ingress", x: 260, y: 110, kind: "external", desc: "TLS, WAF, coarse rate limiting, routing by service prefix when modules are split." },
+    { id: "gw", label: "Realtime gateway", sub: "Rust, axum WebSocket", x: 260, y: 300, kind: "process", desc: "Terminates WebSockets and verifies the same OIDC tokens. Server to client only; a nudge, never the source of truth (ADR-0021)." },
+    { id: "api", label: "aedst-server", sub: "Go, ConnectRPC, stateless", x: 540, y: 110, kind: "process", width: 200, desc: "The modular monolith: tasks, media, notifications, search, admin, capabilities, integrity, appattest. Any replica serves any request." },
+    { id: "idp", label: "ZITADEL", sub: "OIDC provider", x: 540, y: 0, kind: "external", desc: "Sign-in, MFA, passkeys, tokens. Separate from AEDST and unmodified (AGPL boundary)." },
+    { id: "pg", label: "PostgreSQL 18", sub: "via PgBouncer; schema per module", x: 840, y: 40, kind: "store", width: 190, desc: "System of record and the event outbox (River tables). One schema per module, no cross-schema joins." },
+    { id: "cache", label: "DragonflyDB", sub: "cache, rate limits", x: 840, y: 150, kind: "store", desc: "Optional. Correctness never depends on it." },
+    { id: "s3", label: "Object storage", sub: "S3 / MinIO / R2", x: 840, y: 250, kind: "store", desc: "Media bytes. Presigned PUT from the client." },
+    { id: "imgproxy", label: "imgproxy", sub: "on-the-fly variants", x: 840, y: 350, kind: "process", desc: "Optional. Signed URLs resize and convert images from object storage (ADR-0015)." },
+    { id: "nats", label: "NATS JetStream", sub: "event bus to non-Go services", x: 540, y: 300, kind: "store", desc: "Optional. Only the natsbridge package talks to it; the Go monolith itself keeps using River." },
+    { id: "push", label: "FCM / APNs / Web Push", x: 540, y: 430, kind: "external", desc: "Push providers; an unconfigured one is disabled." },
+    { id: "otel", label: "OpenTelemetry", sub: "traces, metrics, logs", x: 840, y: 470, kind: "external", desc: "OTLP export; optional Prometheus /metrics." },
+  ]}
+  edges={[
+    { from: "web", to: "edge", label: "/api/rpc" },
+    { from: "mobile", to: "edge", label: "Connect" },
+    { from: "desktop", to: "edge", label: "Connect" },
+    { from: "edge", to: "api", label: "HTTP/1.1+2" },
+    { from: "edge", to: "gw", label: "WebSocket", dashed: true },
+    { from: "api", to: "idp", label: "JWKS", dashed: true },
+    { from: "gw", to: "idp", label: "JWKS", dashed: true },
+    { from: "api", to: "pg", label: "SQL" },
+    { from: "api", to: "cache", label: "limits", dashed: true },
+    { from: "api", to: "s3", label: "presign" },
+    { from: "api", to: "imgproxy", label: "signed URL", dashed: true },
+    { from: "imgproxy", to: "s3" },
+    { from: "api", to: "nats", label: "natsbridge", dashed: true },
+    { from: "nats", to: "gw", label: "events", dashed: true },
+    { from: "api", to: "push", label: "jobs", dashed: true },
+    { from: "api", to: "otel", dashed: true },
+  ]}
+/>
+
+## Inside `aedst-server`
+
+<Flow
+  direction="TB"
+  height={560}
+  caption="Layers of the process. Modules depend on the platform, never the reverse, and on each other only through api/."
+  nodes={[
+    { id: "net", label: "httpserver", sub: "ServeMux, middleware, interceptors", x: 230, y: 0, kind: "process", width: 230, desc: "Request ID, logging, load shedding, auth, role policy, client-version gate, rate limit, Protovalidate." },
+    { id: "tasks", label: "tasks", x: 0, y: 130, kind: "unit", width: 130 },
+    { id: "media", label: "media", x: 150, y: 130, kind: "unit", width: 130 },
+    { id: "notif", label: "notifications", x: 300, y: 130, kind: "unit", width: 130 },
+    { id: "search", label: "search", x: 450, y: 130, kind: "unit", width: 130 },
+    { id: "admin", label: "admin", x: 600, y: 130, kind: "unit", width: 130 },
+    { id: "misc", label: "capabilities, integrity, appattest", x: 750, y: 130, kind: "unit", width: 200 },
+    { id: "plat", label: "platform", sub: "config, database, events, jobs, cache, idempotency, observability, resilience", x: 180, y: 290, kind: "group", width: 360, desc: "Cross-cutting infrastructure shared by every module." },
+    { id: "pg", label: "PostgreSQL", x: 100, y: 440, kind: "store" },
+    { id: "river", label: "River jobs", sub: "same database", x: 330, y: 440, kind: "store", desc: "Background work and event delivery, inserted in the producing transaction." },
+    { id: "ext", label: "External ports", sub: "storage, push, IdP", x: 560, y: 440, kind: "external" },
+  ]}
+  edges={[
+    { from: "net", to: "tasks" }, { from: "net", to: "media" }, { from: "net", to: "notif" }, { from: "net", to: "search" }, { from: "net", to: "admin" }, { from: "net", to: "misc" },
+    { from: "tasks", to: "plat" }, { from: "media", to: "plat" }, { from: "notif", to: "plat" }, { from: "search", to: "plat" }, { from: "admin", to: "plat" },
+    { from: "plat", to: "pg" }, { from: "plat", to: "river" }, { from: "plat", to: "ext", dashed: true },
+    { from: "admin", to: "tasks", label: "api/", dashed: true }, { from: "media", to: "tasks", label: "api/", dashed: true },
+  ]}
+/>
+
+## Ports and protocols
+
+| Port | Protocol | Purpose |
+|---|---|---|
+| `8080` | HTTP/1.1 and HTTP/2, Connect, gRPC, gRPC-Web, JSON | The API, `/healthz`, `/readyz` |
+| `9090` | HTTP | Prometheus `/metrics` (optional) |
+| `3000`, `3001`, `3002` | HTTP | Web `app`, `admin`, `landing` (dev defaults) |
+| gateway | WebSocket | Realtime nudges, authenticated with the same access token |
+
+Every environment variable that changes this shape is in [Configuration](/server/config). The three process shapes (monolith, module services, feature services) are in [Backend diagrams](/server/diagrams).

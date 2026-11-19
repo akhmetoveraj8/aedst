@@ -4,14 +4,50 @@
     {
       "name": "web-dev",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--dir", "apps/web/app", "dev", "--port", "3100"],
+      "runtimeArgs": [
+        "--dir",
+        "apps/web/app",
+        "dev",
+        "--port",
+        "3100"
+      ],
       "port": 3100
     },
     {
       "name": "docs-dev",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--dir", "docs", "dev", "--port", "3200"],
+      "runtimeArgs": [
+        "--dir",
+        "docs",
+        "dev",
+        "--port",
+        "3200"
+      ],
       "port": 3200
+    },
+    {
+      "name": "admin-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--dir",
+        "apps/web/admin",
+        "dev",
+        "--port",
+        "3101"
+      ],
+      "port": 3101
+    },
+    {
+      "name": "landing-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--dir",
+        "apps/web/landing",
+        "dev",
+        "--port",
+        "3102"
+      ],
+      "port": 3102
     }
   ]
 }

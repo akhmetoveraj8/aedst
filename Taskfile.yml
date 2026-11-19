@@ -116,6 +116,7 @@ tasks:
       - task: check:analytics
       - task: check:hooks
       - task: check:docs
+      - task: check:api-docs
       - task: check:agpl
       - task: check:gates
       - task: check:gates:frozen
@@ -336,6 +337,15 @@ tasks:
     desc: Start the docs site dev server.
     cmds:
       - pnpm --dir docs dev
+  docs:api:
+    desc: Regenerate docs/content/api/*.md (API reference with requests and responses) from apps/server/api/proto.
+    cmds:
+      - node scripts/api-docs/index.mjs
+  check:api-docs:
+    desc: The committed API reference pages match the .proto files (regenerate with `task docs:api`), plus the generator's own tests.
+    cmds:
+      - node --test scripts/api-docs/parse-proto.test.mjs
+      - node scripts/api-docs/index.mjs --check
   docs:test:
     desc: Unit tests for the docs site generators (llms.txt, llms-full.txt, front matter).
     cmds:

@@ -57,11 +57,9 @@ export function CommandPalette() {
 /** True from the first time `open` is true on, so the dialog stays mounted. */
 function useHasOpened(open: boolean): boolean {
   const [hasOpened, setHasOpened] = useState(open);
-  useEffect(() => {
-    if (open) {
-      setHasOpened(true);
-    }
-  }, [open]);
+  if (open && !hasOpened) {
+    setHasOpened(true);
+  }
   return hasOpened;
 }
 
