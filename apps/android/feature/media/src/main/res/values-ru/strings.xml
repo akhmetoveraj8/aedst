@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_title">Файлы</string>
+    <string name="media_empty">Файлов пока нет. Загрузите фото или видео.</string>
+    <string name="media_upload">Загрузить фото или видео</string>
+    <string name="media_load_more">Загрузить ещё</string>
+    <string name="media_back">Назад</string>
+    <string name="media_delete">Удалить файл</string>
+    <string name="media_processing">Файл обрабатывается…</string>
+    <string name="media_status_ready">Готово</string>
+    <string name="media_status_failed">Не удалось обработать файл</string>
+</resources>

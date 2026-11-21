@@ -21,10 +21,15 @@ option go_package = "github.com/aedst/server/gen/go/aedst/media/v1;mediav1";
 // an attachment of that task (the media module checks ownership through the
 // tasks module's api/ package).
 service MediaService {
+  // Registers a file and returns a presigned URL the client PUTs the bytes to.
   rpc CreateUpload(CreateUploadRequest) returns (CreateUploadResponse);
+  // Confirms the object was uploaded and enqueues its processing job.
   rpc CompleteUpload(CompleteUploadRequest) returns (CompleteUploadResponse);
+  // Returns one of the caller's files with its variants.
   rpc GetMedia(GetMediaRequest) returns (GetMediaResponse);
+  // Lists the caller's files (keyset).
   rpc ListMedia(ListMediaRequest) returns (ListMediaResponse);
+  // Deletes one of the caller's files and its stored objects.
   rpc DeleteMedia(DeleteMediaRequest) returns (DeleteMediaResponse);
 }
 

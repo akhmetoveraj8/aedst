@@ -104,6 +104,7 @@ func AuthInterceptor(verifier platformauth.Verifier, publicProcedures map[string
 				SessionID: claims.SessionID,
 				DeviceID:  claims.DeviceID,
 				Roles:     claims.Roles,
+				Scopes:    claims.Scopes,
 				Issuer:    claims.Issuer,
 				Subject:   claims.Subject,
 			})
@@ -146,7 +147,7 @@ func RateLimitInterceptor(limiter RateLimiter, procedures map[string]bool, perMi
 			if err != nil {
 				warnFailOpen(ctx, err)
 			} else if !allowed {
-				return connect.NewError(connect.CodeResourceExhausted, rateLimitMessage)
+				return rateLimited(ctx, rateLimitMessage, "1")
 			}
 			return next(ctx, spec, stream)
 		}
@@ -189,32 +190,7 @@ func UserRateLimitInterceptor(limiter RateLimiter, perMinute int, logger *slog.L
 			if err != nil {
 				warnFailOpen(ctx, err)
 			} else if !allowed {
-				return retryAfter(ctx, connect.NewError(connect.CodeResourceExhausted, rateLimitMessage), "1")
-			}
-			return next(ctx, spec, stream)
-		}
-	}
-}
-
-// RoleInterceptor enforces role-based access: policy maps a procedure's full
-// name (e.g. "/aedst.admin.v1.AdminService/ListTasks") to the roles of which
-// the caller must hold at least one. Procedures absent from policy need only
-// authentication. It must sit after AuthInterceptor, which is what puts the
-// caller's roles on the context; a listed procedure reached without an
-// identity is rejected as unauthenticated rather than waved through.
-func RoleInterceptor(policy map[string][]string) connect.ServerInterceptor {
-	return func(next connect.ServerFunc) connect.ServerFunc {
-		return func(ctx context.Context, spec connect.Spec, stream connect.ServerStream) error {
-			required, restricted := requiredRoles(policy, spec.Procedure)
-			if !restricted {
-				return next(ctx, spec, stream)
-			}
-			identity, ok := platformauth.FromContext(ctx)
-			if !ok {
-				return connect.NewError(connect.CodeUnauthenticated, msgNoCredential)
-			}
-			if !identity.HasAnyRole(required...) {
-				return connect.NewError(connect.CodePermissionDenied, "insufficient role")
+				return rateLimited(ctx, rateLimitMessage, "1")
 			}
 			return next(ctx, spec, stream)
 		}

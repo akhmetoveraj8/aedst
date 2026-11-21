@@ -36,7 +36,7 @@ metadata:
 spec:
   instances: 3
   # Pin the major version; upgrade deliberately (rolling, replicas first).
-  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  imageName: ghcr.io/cloudnative-pg/postgresql:19-standard-trixie
   primaryUpdateStrategy: unsupervised
   enableSuperuserAccess: false
 
@@ -76,6 +76,20 @@ spec:
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
       log_min_duration_statement: "500"
+      # Plans of slow statements in the log. Any auto_explain.* parameter makes the
+      # operator add auto_explain to shared_preload_libraries (a managed extension,
+      # like pg_stat_statements; CloudNativePG "PostgreSQL configuration" docs,
+      # checked 2026-11-21). auto_explain is a contrib module; UNVERIFIED that the
+      # 19-standard-trixie image ships it (never applied to a cluster).
+      # Keep the threshold in step with log_min_duration_statement and
+      # AEDST_DATABASE_SLOW_QUERY_MS.
+      auto_explain.log_min_duration: "500ms"
+      # log_analyze stays off: it times every plan node of EVERY statement, not
+      # only the slow ones, and that overhead is paid in production. Turn it on
+      # (with log_buffers) for a bounded investigation, then turn it off again.
+      auto_explain.log_analyze: "off"
+      auto_explain.log_format: json
+      auto_explain.log_nested_statements: "on"
       log_lock_waits: "on"
       idle_in_transaction_session_timeout: "60000"
     # TLS only: CloudNativePG serves TLS with its own CA (Secret aedst-pg-ca), so clients

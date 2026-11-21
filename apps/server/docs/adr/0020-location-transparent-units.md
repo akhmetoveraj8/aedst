@@ -5,6 +5,13 @@
   implements the "extraction path" of `docs/content/server/architecture.md` as configuration instead of a
   rewrite. Decides the open items B3 (events across processes, without protobuf event contracts), C1, C2 and C3 of `docs/proposals/owner-decisions-2026-10.md`.
 - Scope: `apps/server`.
+- Amended 2026-11-21 (owner decision "module, then feature", `docs/content/architecture/modules-and-features.md`):
+  a **feature is no longer a unit**. It is a slice inside a module
+  (`features/<f>/{application,domain,infrastructure,transport}`) that shares the module's `api/`, `domain/`,
+  schema and `module/` registration, imports no other feature and is never deployed on its own. Everything
+  below that says "feature" as a unit (its own `api/`, `module/`, `migrations/<m>_<f>`, shape 3, the first two
+  gates of section 8) is superseded; everything about modules as units stands. `modulekit` still accepts `m/f`
+  unit names, unused.
 
 ## Context
 

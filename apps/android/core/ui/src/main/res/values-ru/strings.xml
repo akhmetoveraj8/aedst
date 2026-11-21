@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Accessibility descriptions for design-system components -->
+    <string name="aedst_a11y_avatar">Аватар</string>
+    <string name="aedst_a11y_avatar_named">Аватар: %1$s</string>
+    <string name="aedst_a11y_loading">Загрузка</string>
+
+    <!-- User-facing text for each AedstError kind (see AedstError.userMessageRes) -->
+    <string name="aedst_error_offline">Нет подключения к интернету. Проверьте сеть и повторите попытку.</string>
+    <string name="aedst_error_network">Не удалось связаться с сервером. Попробуйте позже.</string>
+    <string name="aedst_error_unauthorized">Неверные данные или сессия истекла. Войдите снова.</string>
+    <string name="aedst_error_not_found">Запрошенные данные не найдены.</string>
+    <string name="aedst_error_validation">Проверьте введённые данные.</string>
+    <string name="aedst_error_unknown">Что-то пошло не так. Попробуйте ещё раз.</string>
+    <string name="aedst_error_storage">Не удалось прочитать или сохранить данные на устройстве.</string>
+    <string name="aedst_error_forbidden">У вас нет доступа к этому разделу.</string>
+    <string name="aedst_error_conflict">Данные изменились. Обновите и повторите попытку.</string>
+    <string name="aedst_error_rate_limited">Слишком много запросов. Подождите немного и повторите.</string>
+    <string name="aedst_error_upgrade_required">Обновите приложение, чтобы продолжить.</string>
+
+    <!-- Blocking screen shown when the server rejects this app version (CLIENT_UPGRADE_REQUIRED, ADR-0009) -->
+    <string name="aedst_upgrade_title">Требуется обновление</string>
+    <string name="aedst_upgrade_body">Эта версия AEDST больше не поддерживается. Обновите приложение в Google Play, чтобы продолжить.</string>
+    <string name="aedst_upgrade_action">Обновить в Google Play</string>
+
+    <string name="aedst_offline_banner">Нет подключения к интернету</string>
+
+    <!-- Shared dialog actions -->
+    <string name="aedst_action_ok">ОК</string>
+    <string name="aedst_action_cancel">Отмена</string>
+    <string name="aedst_action_confirm">Подтвердить</string>
+    <string name="aedst_action_retry">Повторить</string>
+</resources>

@@ -15,6 +15,16 @@ just fill the template by hand. A one-line bug fix doesn't need one.
 - A module (`internal/modules/<name>/`) is layered
   `domain → application (ports.go + service.go) → infrastructure`, and `transport → api → application`.
   `domain` depends on nothing but stdlib and `internal/shared/**`.
+- A module with more than one capability is split into **features**
+  (`internal/modules/<name>/features/<feature>/{application,domain,infrastructure,transport}`; reference: `tasks`
+  with `core`, `completion`, `reminders`, `operator`; rules: `docs/content/architecture/modules-and-features.md`).
+  A feature holds only those four layer directories. It imports the module's shared packages (`api/`, `domain/`,
+  a shared `infrastructure/<pkg>` or `transport/<pkg>`) under the same layer rules, never another feature;
+  shared packages import no feature; only `<name>/module` imports features and composes them; nothing outside
+  the module imports a feature. What two features both need moves to a shared package or becomes a port wired
+  in `module/` (`corepg.WithReminders`). Enforced by `architecturetest/features_test.go`. Add one with
+  `task new:feature -- MODULE=<name> NAME=<feature>`, then wire it in `<name>/module` (the gate fails until you do).
+  A feature is not a deployable unit: contract, schema, sqlc package and registration stay with the module.
 - Another module is only ever reached through its `api/` package. Direct
   imports of another module's `domain`/`application`/`infrastructure`/`transport`
   are a build-breaking violation — enforced by both `.golangci.yml`'s
@@ -42,7 +52,7 @@ event types (`AEDST_NATS_FORWARD_TYPES`) to the Rust realtime gateway (`apps/gat
 as a River-delivered consumer (no dual write, the event id is the `Nats-Msg-Id`); only
 that package imports the NATS client, and Go consumers still use River. Deferred or scheduled work of a module's
 own is a plain River job of its own kind (`internal/platform/jobs`). See
-`internal/modules/tasks/infrastructure/postgres/postgres.go`'s `Complete`
+`internal/modules/tasks/features/completion/infrastructure/postgres/postgres.go`'s `Complete`
 method for the reference implementation.
 
 A producing module's whole wiring is its `Setup` hook (`internal/modules/<name>/module`):
@@ -114,8 +124,34 @@ lock. For leader-only periodic work, River's own leader election/unique jobs.
 
 ## When you need cache or rate limiting
 
-DragonflyDB through `internal/platform/cache` (`RateLimiter`). Rate limiting fails
+DragonflyDB through `internal/platform/cache` (`RateLimiter`, `Aside`). Rate limiting fails
 open by design; never put correctness (locks, dedup, queues) in DragonflyDB.
+
+### When you need cache
+
+Cache only a read that is hot, tolerates staleness and has an obvious invalidation; measure first
+(`aedst_db_slow_queries`, traces). Then use the one helper, never go-redis directly:
+
+```go
+stats := cache.NewAside[api.Stats](env.Cache, "tasks.stats", 30*time.Second) // name = "<module>.<what>"
+v, err := stats.Get(ctx, userID.String(), func(ctx context.Context) (api.Stats, error) { return load(ctx) })
+_ = stats.Invalidate(ctx, userID.String()) // in the write path, after the write returned
+```
+
+- Reference: `internal/modules/tasks/module/stats_cache.go` (`GetTaskStats`): the read and every invalidating
+  write sit in one decorator over `api.Service`, composed in `<module>/module` because two features write.
+  A single-feature cache is a port in `application` with the adapter in `infrastructure`.
+- Every entry has a TTL and the loader is the truth: `env.Cache` may be nil and DragonflyDB may be down, the
+  helper then just loads (fail open). Never branch on whether the cache exists, never fail a write on it.
+- Invalidate explicitly after the write (`Invalidate(keys...)`, or `GetTagged` + `InvalidateTag` for a group of
+  entries such as one owner's pages). Choose the TTL as the staleness you accept when an invalidation is lost
+  or a read races a write; say in a comment what the TTL bounds.
+- Never cache an authorization decision or anything per-token longer than the token lives; never cache what a
+  transaction is about to decide on. Keys carry the owner id when the value is per owner.
+- Values are Protobuf (generated messages) or JSON (anything else), at most 1 MiB; concurrent misses share one
+  load (`singleflight`); `WithNegative` caches "not found" only where that is asked often.
+- Metrics: `aedst_cache_requests{cache,result}` and `aedst_cache_fail_open{cache,op}`. Tests:
+  `internal/platform/cache/cachetest` (in-process store, no container).
 
 ## When you need search or a feature flag
 
@@ -167,7 +203,7 @@ Wrap it with `internal/platform/idempotency`: extract the key via
 `idempotency.KeyFromContext` in the transport handler, pass it down as an
 explicit argument (never read context inside `application`/`domain`), and
 call `idempotency.Check`/`Save` inside the same transaction as the write —
-see `Repository.Create` in the same file for the reference implementation.
+see `Repository.Create` in `internal/modules/tasks/features/core/infrastructure/postgres/postgres.go` for the reference implementation.
 The **scope** you pass (`"<module>:<user id>"`) namespaces the key per caller;
 `Check` takes an advisory lock on `(scope, key)`, which is what makes two racing
 requests with one key execute once. Hash only the client-supplied fields, never

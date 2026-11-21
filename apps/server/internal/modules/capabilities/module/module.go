@@ -5,6 +5,7 @@ package module
 
 import (
 	"context"
+	"time"
 
 	"google.golang.org/protobuf/reflect/protoreflect"
 
@@ -14,10 +15,14 @@ import (
 	"github.com/aedst/server/internal/modules/capabilities/application"
 	"github.com/aedst/server/internal/modules/capabilities/transport"
 	"github.com/aedst/server/internal/platform/buildinfo"
+	"github.com/aedst/server/internal/platform/httpserver"
 	"github.com/aedst/server/internal/platform/modulekit"
 )
 
-const smallRequestBytes = 4 << 10 // the request message is empty
+const (
+	smallRequestBytes  = 4 << 10 // the request message is empty
+	capabilitiesMaxAge = 5 * time.Minute
+)
 
 func init() {
 	m := &capabilitiesModule{}
@@ -26,8 +31,16 @@ func init() {
 		Files: []protoreflect.FileDescriptor{capabilitiesv1.File_aedst_capabilities_v1_capabilities_proto},
 		// Clients must be able to learn they need an update before they can sign in.
 		Public: []string{capabilitiesv1connect.CapabilitiesServiceGetCapabilitiesProcedure},
-		Setup:  m.setup,
-		Mount:  m.mount,
+		// The reference cacheable read: public, the same for every user, varying only
+		// by the calling client's release. A cache may reuse it for five minutes and
+		// then revalidates with If-None-Match (304 while the policy is unchanged).
+		Cacheable: map[string]httpserver.CachePolicy{
+			capabilitiesv1connect.CapabilitiesServiceGetCapabilitiesProcedure: {
+				MaxAge: capabilitiesMaxAge, Shared: true, Vary: []string{httpserver.ClientHeader},
+			},
+		},
+		Setup: m.setup,
+		Mount: m.mount,
 	})
 }
 

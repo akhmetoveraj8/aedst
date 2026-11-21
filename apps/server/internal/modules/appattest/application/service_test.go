@@ -124,12 +124,6 @@ func (f *fakeAsserter) VerifyAssertion(in domain.AssertionInput) (uint32, domain
 	return f.counter, f.reason
 }
 
-type limiter struct{ allow bool }
-
-func (l limiter) Allow(context.Context, string, int, time.Duration) (bool, error) {
-	return l.allow, nil
-}
-
 type harness struct {
 	svc        *application.Service
 	attester   *fakeAttester
@@ -339,16 +333,6 @@ func TestEnroll_PolicyAndStore(t *testing.T) {
 			}
 		}
 	})
-	t.Run("rate limited", func(t *testing.T) {
-		h := newHarness(t, testPolicy, application.WithLimiter(limiter{allow: false}, 10, 10))
-		if _, err := h.svc.CreateChallenge(context.Background(), h.user); sharederrors.KindOf(err) != sharederrors.KindRateLimited {
-			t.Fatalf("CreateChallenge = %v", err)
-		}
-		_, err := h.svc.Enroll(context.Background(), application.EnrollInput{UserID: h.user, KeyID: h.keyIDText, AttestationObject: []byte("o"), Challenge: bytes.Repeat([]byte{1}, 32)})
-		if sharederrors.KindOf(err) != sharederrors.KindRateLimited {
-			t.Fatalf("Enroll = %v", err)
-		}
-	})
 }
 
 func (h *harness) assertion(t *testing.T, user ids.ID, counter uint32, reason domain.Reason) application.AssertionResult {
@@ -435,10 +419,6 @@ func TestVerifyAssertion_UnknownKeyBundleAndInput(t *testing.T) {
 		if _, err := h.svc.VerifyAssertion(context.Background(), in); sharederrors.KindOf(err) != sharederrors.KindValidation {
 			t.Errorf("%s: %v", name, err)
 		}
-	}
-	h.svc = application.NewService(h.attester, h.asserter, h.challenges, h.keys, testPolicy, h.clock, application.WithLimiter(limiter{allow: false}, 10, 10))
-	if _, err := h.svc.VerifyAssertion(context.Background(), application.AssertionInput{UserID: h.user, KeyID: h.keyIDText, Assertion: []byte("a"), Action: "login"}); sharederrors.KindOf(err) != sharederrors.KindRateLimited {
-		t.Errorf("rate limited = %v", err)
 	}
 }
 

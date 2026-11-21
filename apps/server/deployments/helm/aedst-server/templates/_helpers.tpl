@@ -85,6 +85,15 @@ finish), otherwise the kubelet SIGKILLs the pod mid-drain.
 {{- join "," $parts -}}
 {{- end }}
 
+{{/* AEDST_PROCEDURE_RATE_LIMITS: procedure=perMinute,procedure=perMinute (map keys sorted by Helm). */}}
+{{- define "aedst-server.procedureRateLimits" -}}
+{{- $parts := list -}}
+{{- range $procedure, $perMinute := .Values.config.procedureRateLimits -}}
+{{- $parts = append $parts (printf "%s=%d" $procedure (int64 $perMinute)) -}}
+{{- end -}}
+{{- join "," $parts -}}
+{{- end }}
+
 {{/*
 Postgres connection budget. Fails the render when the worst case exceeds
 database.serverMaxConnections (0 disables the check):

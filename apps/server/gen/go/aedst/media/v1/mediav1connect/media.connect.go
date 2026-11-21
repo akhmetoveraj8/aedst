@@ -77,10 +77,15 @@ var (
 
 // MediaServiceClient is a client for the aedst.media.v1.MediaService service.
 type MediaServiceClient interface {
+	// Registers a file and returns a presigned URL the client PUTs the bytes to.
 	CreateUpload(context.Context, *v1.CreateUploadRequest) (*v1.CreateUploadResponse, error)
+	// Confirms the object was uploaded and enqueues its processing job.
 	CompleteUpload(context.Context, *v1.CompleteUploadRequest) (*v1.CompleteUploadResponse, error)
+	// Returns one of the caller's files with its variants.
 	GetMedia(context.Context, *v1.GetMediaRequest) (*v1.GetMediaResponse, error)
+	// Lists the caller's files (keyset).
 	ListMedia(context.Context, *v1.ListMediaRequest) (*v1.ListMediaResponse, error)
+	// Deletes one of the caller's files and its stored objects.
 	DeleteMedia(context.Context, *v1.DeleteMediaRequest) (*v1.DeleteMediaResponse, error)
 }
 
@@ -92,10 +97,15 @@ func NewMediaServiceClient(client *connect.Client) MediaServiceClient {
 
 // MediaServiceHandler is an implementation of the aedst.media.v1.MediaService service.
 type MediaServiceHandler interface {
+	// Registers a file and returns a presigned URL the client PUTs the bytes to.
 	CreateUpload(context.Context, *v1.CreateUploadRequest) (*v1.CreateUploadResponse, error)
+	// Confirms the object was uploaded and enqueues its processing job.
 	CompleteUpload(context.Context, *v1.CompleteUploadRequest) (*v1.CompleteUploadResponse, error)
+	// Returns one of the caller's files with its variants.
 	GetMedia(context.Context, *v1.GetMediaRequest) (*v1.GetMediaResponse, error)
+	// Lists the caller's files (keyset).
 	ListMedia(context.Context, *v1.ListMediaRequest) (*v1.ListMediaResponse, error)
+	// Deletes one of the caller's files and its stored objects.
 	DeleteMedia(context.Context, *v1.DeleteMediaRequest) (*v1.DeleteMediaResponse, error)
 }
 

@@ -96,6 +96,7 @@ linters:
         - shared/errors.Forbidden(
         - shared/errors.Wrap(
         - shared/errors.FailedPrecondition(
+        - shared/errors.Error).WithReason(
         - ids.New(
         - river.JobCancel(
 
@@ -121,6 +122,24 @@ linters:
               desc: "domain must not depend on any module package, including its own application/infrastructure/transport"
             - pkg: github.com/aedst/server/internal/platform
               desc: "domain must not depend on platform infrastructure"
+
+        # A feature's domain (internal/modules/<m>/features/<f>/domain) is as pure
+        # as a module's, except that it may build on the shared domain of its own
+        # module; architecturetest.TestDomainImportsOnlyStdlibAndShared checks
+        # that exception exactly, this rule keeps platform out at lint time.
+        feature-domain-is-pure:
+          files:
+            - "**/internal/modules/*/features/*/domain/**/*.go"
+          deny:
+            - pkg: github.com/aedst/server/internal/platform
+              desc: "domain must not depend on platform infrastructure"
+
+        # Feature imports (a feature never imports another feature, a module's
+        # shared packages import no feature) are enforced by
+        # architecturetest.TestFeaturesMeetOnlyThroughTheirModule and are NOT
+        # mirrored here, for the same reason as the module pairs below: depguard
+        # has no "the other features of this module" pattern, so it would need a
+        # rule per feature that silently misses the next one.
 
         # Cross-module imports (a module may only reach another through its api/
         # package) are enforced by architecturetest.TestModuleBoundaries, which
@@ -240,6 +259,8 @@ linters:
         miniredis-only-in-tests:
           files:
             - "!**/*_test.go"
+            # the test helper that hands other packages a cache.Store
+            - "!**/internal/platform/cache/cachetest/*.go"
           deny:
             - pkg: github.com/alicebob/miniredis
               desc: "miniredis is test-only"
@@ -320,7 +341,7 @@ linters:
         path-except: 'internal/modules/'
       - linters: [forbidigo]
         text: 'context-value:'
-        path-except: 'internal/modules/[^/]+/(domain|application)/'
+        path-except: 'internal/modules/[^/]+/(features/[^/]+/)?(domain|application)/'
       - linters: [forbidigo]
         text: 'default-http:'
         path: 'internal/platform/(push|auth|resilience|storage)/'
@@ -328,7 +349,7 @@ linters:
       # proto int32 fields round-trip through int; sqlc params are int32.
       - linters: [gosec]
         text: 'G115:'
-        path: 'internal/(modules/[^/]+/(transport|infrastructure)|platform/idempotency)/'
+        path: 'internal/(modules/[^/]+/(features/[^/]+/)?(transport|infrastructure)|platform/idempotency)/'
       - path: '_test\.go$'
         linters:
           - forbidigo

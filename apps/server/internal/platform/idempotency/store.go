@@ -63,7 +63,7 @@ func Check(ctx context.Context, tx pgx.Tx, store Store, scope, key string, reque
 	}
 
 	if hash != HashRequest(requestPayload) {
-		return nil, false, sharederrors.Conflict("idempotency.Check", "idempotency key reused with a different request")
+		return nil, false, sharederrors.Conflict("idempotency.Check", "idempotency key reused with a different request").WithReason("IDEMPOTENCY_KEY_REUSED")
 	}
 	return cached, true, nil
 }

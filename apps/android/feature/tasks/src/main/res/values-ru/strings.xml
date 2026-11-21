@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tasks_title">Задачи</string>
+    <string name="tasks_empty">Задач пока нет. Создайте первую.</string>
+    <string name="tasks_select_prompt">Выберите задачу</string>
+    <string name="tasks_create">Новая задача</string>
+    <string name="tasks_back">Назад</string>
+    <string name="tasks_delete">Удалить задачу</string>
+    <string name="tasks_complete">Завершить</string>
+    <string name="tasks_reopen">Открыть снова</string>
+    <string name="tasks_due">Срок: %1$s</string>
+    <string name="tasks_attachments">Вложения</string>
+    <string name="tasks_attach">Прикрепить</string>
+    <string name="tasks_no_attachments">Вложений нет.</string>
+    <string name="tasks_field_title">Название</string>
+    <string name="tasks_field_title_required">Введите название.</string>
+    <string name="tasks_field_description">Описание</string>
+    <string name="tasks_field_priority">Приоритет</string>
+    <string name="tasks_save">Создать</string>
+    <string name="tasks_status_todo">К выполнению</string>
+    <string name="tasks_status_in_progress">В работе</string>
+    <string name="tasks_status_done">Готово</string>
+    <string name="tasks_status_unknown">Неизвестно</string>
+    <string name="tasks_priority_low">Низкий</string>
+    <string name="tasks_priority_medium">Средний</string>
+    <string name="tasks_priority_high">Высокий</string>
+    <string name="tasks_priority_urgent">Срочный</string>
+    <string name="tasks_priority_unknown">Неизвестный</string>
+    <string name="tasks_pending_sync_title">Сохранено на устройстве</string>
+    <string name="tasks_pending_sync">Изменение отправится, когда появится сеть.</string>
+</resources>

@@ -7,12 +7,10 @@ import (
 	"strings"
 
 	"connectrpc.com/connect/v2"
-	"connectrpc.com/connect/v2/connectproto"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"golang.org/x/mod/semver"
-	"google.golang.org/genproto/googleapis/rpc/errdetails"
 
 	"github.com/aedst/server/internal/platform/config"
 )
@@ -145,16 +143,9 @@ func ParseClientHeader(header string) (platform, version string, ok bool) {
 func clientUpgradeRequired(platform, version, minimum string) *connect.Error {
 	err := connect.Errorf(connect.CodeFailedPrecondition,
 		"this version of the %s app is no longer supported; update to %s or newer", platform, strings.TrimPrefix(minimum, "v"))
-	if detail, derr := connectproto.NewErrorDetail(&errdetails.ErrorInfo{
-		Reason: ClientUpgradeRequiredReason,
-		Domain: "aedst",
-		Metadata: map[string]string{
-			"platform":        platform,
-			"client_version":  strings.TrimPrefix(version, "v"),
-			"minimum_version": strings.TrimPrefix(minimum, "v"),
-		},
-	}); derr == nil {
-		err = err.WithDetail(detail)
-	}
-	return err
+	return withDetails(err, errorInfo(ClientUpgradeRequiredReason, map[string]string{
+		"platform":        platform,
+		"client_version":  strings.TrimPrefix(version, "v"),
+		"minimum_version": strings.TrimPrefix(minimum, "v"),
+	}))
 }

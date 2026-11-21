@@ -15,4 +15,5 @@ import (
 	_ "github.com/aedst/server/internal/modules/notifications/module"
 	_ "github.com/aedst/server/internal/modules/search/module"
 	_ "github.com/aedst/server/internal/modules/tasks/module"
+	_ "github.com/aedst/server/internal/modules/webhooks/module"
 )

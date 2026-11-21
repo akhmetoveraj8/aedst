@@ -10,7 +10,6 @@ import (
 	tasksv1connect "github.com/aedst/server/gen/go/aedst/tasks/v1/tasksv1connect"
 	tasksapi "github.com/aedst/server/internal/modules/tasks/api"
 	"github.com/aedst/server/internal/modules/tasks/api/ownershiptest"
-	"github.com/aedst/server/internal/modules/tasks/transport"
 	platformauth "github.com/aedst/server/internal/platform/auth"
 	"github.com/aedst/server/internal/platform/modulekit"
 	"github.com/aedst/server/internal/shared/ids"
@@ -40,7 +39,7 @@ func serveTasks(t *testing.T, svc tasksapi.Service) *httptest.Server {
 	t.Helper()
 	mux := http.NewServeMux()
 	mt := modulekit.NewMounter(mux, nil, nil, requestBytes, true)
-	modulekit.Mount(mt, tasksv1connect.RegisterTasksServiceHandler, tasksv1connect.TasksServiceHandler(transport.NewHandler(svc)), requestBytes)
+	modulekit.Mount(mt, tasksv1connect.RegisterTasksServiceHandler, newTasksHandler(svc), requestBytes)
 	srv := httptest.NewServer(authenticate(mux))
 	t.Cleanup(srv.Close)
 	return srv

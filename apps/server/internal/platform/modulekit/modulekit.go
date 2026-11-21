@@ -35,6 +35,7 @@ import (
 	"github.com/aedst/server/internal/platform/config"
 	"github.com/aedst/server/internal/platform/events"
 	"github.com/aedst/server/internal/platform/flags"
+	"github.com/aedst/server/internal/platform/httpserver"
 	platformjobs "github.com/aedst/server/internal/platform/jobs"
 	"github.com/aedst/server/internal/platform/push"
 	"github.com/aedst/server/internal/platform/retention"
@@ -59,6 +60,16 @@ type Module struct {
 	// Roles is the module's built-in role policy ("/pkg.Service/*": roles), the
 	// default overlaid by AEDST_ROLE_POLICY.
 	Roles map[string][]string
+	// Cacheable marks reads ("/pkg.Service/Method") as conditional GETs with an
+	// ETag and a Cache-Control policy (httpserver.ConditionalReadInterceptor).
+	// The RPC must be declared idempotency_level = NO_SIDE_EFFECTS; startup fails
+	// otherwise. Everything not listed stays "no-store".
+	Cacheable map[string]httpserver.CachePolicy
+	// RateLimits returns the module's built-in per-procedure limits for expensive
+	// RPCs (httpserver.ProcedureRateLimitInterceptor), usually read from its own
+	// configuration. AEDST_PROCEDURE_RATE_LIMITS overlays them. A module never
+	// rate-limits in its own code.
+	RateLimits func(cfg config.Config) map[string]httpserver.ProcedureLimit
 	// Retention returns the purge policies of the module's append-only tables. It
 	// runs before the River client exists: Env.Jobs and Env.Publisher are nil, and
 	// a Purge that needs something built in Setup must read it lazily.
@@ -201,6 +212,9 @@ type Env struct {
 	// writes, or for read-your-writes.
 	ReadPool    *pgxpool.Pool
 	RateLimiter *cache.RateLimiter
+	// Cache is the cache-aside store (cache.NewAside). Nil means no cache: the
+	// helper then always loads, which is also what a Dragonfly outage does.
+	Cache *cache.Store
 
 	// Search is the engine port (search.Disabled when unconfigured); modules
 	// register an index Source on SearchSources from Setup and enqueue syncs with

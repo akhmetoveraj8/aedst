@@ -77,13 +77,17 @@ var (
 
 // AdminServiceClient is a client for the aedst.admin.v1.AdminService service.
 type AdminServiceClient interface {
+	// Operator dashboard counters: tasks, media, push devices and the job queue.
 	GetOverview(context.Context, *v1.GetOverviewRequest) (*v1.GetOverviewResponse, error)
 	// Any user's tasks — the reference for cross-tenant admin reads.
 	ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error)
+	// Deletes any user's task; the reason is written to the audit log in the same
+	// transaction as the delete.
 	DeleteTask(context.Context, *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error)
 	// Sends a SYSTEM notification to one user (or everyone when user_id is
 	// empty) through the notifications module.
 	BroadcastNotification(context.Context, *v1.BroadcastNotificationRequest) (*v1.BroadcastNotificationResponse, error)
+	// Lists audit entries, newest first (keyset).
 	ListAuditLog(context.Context, *v1.ListAuditLogRequest) (*v1.ListAuditLogResponse, error)
 }
 
@@ -95,13 +99,17 @@ func NewAdminServiceClient(client *connect.Client) AdminServiceClient {
 
 // AdminServiceHandler is an implementation of the aedst.admin.v1.AdminService service.
 type AdminServiceHandler interface {
+	// Operator dashboard counters: tasks, media, push devices and the job queue.
 	GetOverview(context.Context, *v1.GetOverviewRequest) (*v1.GetOverviewResponse, error)
 	// Any user's tasks — the reference for cross-tenant admin reads.
 	ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error)
+	// Deletes any user's task; the reason is written to the audit log in the same
+	// transaction as the delete.
 	DeleteTask(context.Context, *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error)
 	// Sends a SYSTEM notification to one user (or everyone when user_id is
 	// empty) through the notifications module.
 	BroadcastNotification(context.Context, *v1.BroadcastNotificationRequest) (*v1.BroadcastNotificationResponse, error)
+	// Lists audit entries, newest first (keyset).
 	ListAuditLog(context.Context, *v1.ListAuditLogRequest) (*v1.ListAuditLogResponse, error)
 }
 

@@ -28,19 +28,26 @@ type httpRuntime struct {
 
 // interceptors builds the connect chain halves around protovalidate.
 //
-// Order matters: trace everything, log server-side failures with their real
+// Order matters: answer conditional GETs of the cacheable reads, trace everything, log server-side failures with their real
 // cause, count and turn away unsupported client versions (the cheapest check),
 // throttle unauthenticated RPCs before spending any CPU on them, authenticate,
-// authorize by role, throttle the authenticated caller per user, then validate
+// authorize by role, throttle the authenticated caller per user and per
+// expensive procedure, then validate
 // the request against its protovalidate constraints (added by the mounter,
 // always), then idempotency.
-func (a *app) interceptors(ctx context.Context, rolePolicy map[string][]string, public map[string]bool) (before, after []connect.ServerInterceptor, err error) {
+func (a *app) interceptors(ctx context.Context, rolePolicy map[string][]string, public, known map[string]bool) (before, after []connect.ServerInterceptor, err error) {
 	cfg := a.cfg
 	otelInterceptor, err := otelconnect.NewServerInterceptor()
 	if err != nil {
 		return nil, nil, err
 	}
+	cacheable, err := a.cachePolicies(public)
+	if err != nil {
+		return nil, nil, err
+	}
 	before = []connect.ServerInterceptor{
+		// Outermost: a 304 is decided after the whole chain (auth, limits) succeeded.
+		httpserver.ConditionalReadInterceptor(cacheable),
 		otelInterceptor,
 		httpserver.ErrorHeadersInterceptor(),
 		httpserver.ErrorLogInterceptor(a.logger),
@@ -55,6 +62,13 @@ func (a *app) interceptors(ctx context.Context, rolePolicy map[string][]string, 
 	)
 	if cfg.HTTP.APIRateLimitPerMinute > 0 {
 		before = append(before, httpserver.UserRateLimitInterceptor(a.env.RateLimiter, cfg.HTTP.APIRateLimitPerMinute, a.logger))
+	}
+	limits, err := a.procedureLimits(known, public)
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(limits) > 0 {
+		before = append(before, httpserver.ProcedureRateLimitInterceptor(a.env.RateLimiter, limits, a.logger))
 	}
 	return before, []connect.ServerInterceptor{idempotency.HeaderInterceptor()}, nil
 }
@@ -76,7 +90,7 @@ func (a *app) buildHTTP(ctx context.Context, tel *observability.Telemetry) (*htt
 	if err := httpserver.ValidateRolePolicy(rolePolicy, knownProcedures, public); err != nil {
 		return nil, err
 	}
-	before, after, err := a.interceptors(ctx, rolePolicy, public)
+	before, after, err := a.interceptors(ctx, rolePolicy, public, knownProcedures)
 	if err != nil {
 		return nil, err
 	}

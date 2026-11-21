@@ -86,7 +86,9 @@ func TestEventReachesAWebSocketClientThroughTheGateway(t *testing.T) {
 	cmd := exec.Command(bin)
 	cmd.Env = append(os.Environ(),
 		"AEDST_ENV=development", "AEDST_OIDC_ISSUER="+idp.URL, "AEDST_OIDC_AUDIENCE=aedst-api",
-		"AEDST_NATS_URL="+natsURL, "AEDST_GATEWAY_ADDR="+addr)
+		"AEDST_NATS_URL="+natsURL, "AEDST_GATEWAY_ADDR="+addr,
+		// The Go client sends an Origin; the gateway refuses browser origins that are not listed (fail closed).
+		"AEDST_GATEWAY_ALLOWED_ORIGINS=http://localhost")
 	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
 	if err := cmd.Start(); err != nil {
 		t.Fatalf("start gateway: %v", err)

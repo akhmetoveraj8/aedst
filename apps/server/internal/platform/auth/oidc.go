@@ -136,6 +136,7 @@ func (v *OIDCVerifier) VerifyAccessToken(ctx context.Context, raw string) (Claim
 		UserID:    ids.FromExternal(v.cfg.Issuer, subject),
 		SessionID: sessionID,
 		Roles:     rolesFromToken(token, v.cfg.RolesClaim, v.cfg.RolesOrg),
+		Scopes:    scopesFromToken(token),
 	}, nil
 }
 

@@ -34,7 +34,7 @@ func (PostgresStore) Acquire(ctx context.Context, tx pgx.Tx, scope, key string) 
 	if err := lock.Xact(ctx, tx, "idempotency:"+scope+":"+key); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "57014" {
-			return sharederrors.Conflict("idempotency.Acquire", "a request with this idempotency key is still being processed; retry shortly")
+			return sharederrors.Conflict("idempotency.Acquire", "a request with this idempotency key is still being processed; retry shortly").WithReason("IDEMPOTENCY_KEY_IN_PROGRESS")
 		}
 		return fmt.Errorf("lock key: %w", err)
 	}

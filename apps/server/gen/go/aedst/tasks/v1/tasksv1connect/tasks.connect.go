@@ -103,8 +103,11 @@ var (
 
 // TasksServiceClient is a client for the aedst.tasks.v1.TasksService service.
 type TasksServiceClient interface {
+	// Creates a task owned by the caller. Replay-safe with an Idempotency-Key header.
 	CreateTask(context.Context, *v1.CreateTaskRequest) (*v1.CreateTaskResponse, error)
+	// Returns one of the caller's tasks; another user's task is NOT_FOUND.
 	GetTask(context.Context, *v1.GetTaskRequest) (*v1.GetTaskResponse, error)
+	// Lists the caller's tasks with typed filters, a sort enum and keyset pagination.
 	ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error)
 	// Mutates title/description/priority/due_date only — never status. Status
 	// is a state machine (see TaskStatus), not a plain field: it only moves
@@ -113,8 +116,11 @@ type TasksServiceClient interface {
 	// explicit reopen" a single well-known no, not something every caller of
 	// UpdateTask has to remember not to do by omitting status from the mask.
 	UpdateTask(context.Context, *v1.UpdateTaskRequest) (*v1.UpdateTaskResponse, error)
+	// Deletes one of the caller's tasks and publishes TaskDeleted in the same transaction.
 	DeleteTask(context.Context, *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error)
+	// Moves a task to DONE and stamps completed_at; completing a DONE task changes nothing.
 	CompleteTask(context.Context, *v1.CompleteTaskRequest) (*v1.CompleteTaskResponse, error)
+	// Moves a task back to TODO and clears completed_at; reopening a TODO task changes nothing.
 	ReopenTask(context.Context, *v1.ReopenTaskRequest) (*v1.ReopenTaskResponse, error)
 	// GetTaskStats backs the dashboard (total/todo/in_progress/done/overdue) —
 	// one aggregate query instead of the client computing it from a full list.
@@ -129,8 +135,11 @@ func NewTasksServiceClient(client *connect.Client) TasksServiceClient {
 
 // TasksServiceHandler is an implementation of the aedst.tasks.v1.TasksService service.
 type TasksServiceHandler interface {
+	// Creates a task owned by the caller. Replay-safe with an Idempotency-Key header.
 	CreateTask(context.Context, *v1.CreateTaskRequest) (*v1.CreateTaskResponse, error)
+	// Returns one of the caller's tasks; another user's task is NOT_FOUND.
 	GetTask(context.Context, *v1.GetTaskRequest) (*v1.GetTaskResponse, error)
+	// Lists the caller's tasks with typed filters, a sort enum and keyset pagination.
 	ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error)
 	// Mutates title/description/priority/due_date only — never status. Status
 	// is a state machine (see TaskStatus), not a plain field: it only moves
@@ -139,8 +148,11 @@ type TasksServiceHandler interface {
 	// explicit reopen" a single well-known no, not something every caller of
 	// UpdateTask has to remember not to do by omitting status from the mask.
 	UpdateTask(context.Context, *v1.UpdateTaskRequest) (*v1.UpdateTaskResponse, error)
+	// Deletes one of the caller's tasks and publishes TaskDeleted in the same transaction.
 	DeleteTask(context.Context, *v1.DeleteTaskRequest) (*v1.DeleteTaskResponse, error)
+	// Moves a task to DONE and stamps completed_at; completing a DONE task changes nothing.
 	CompleteTask(context.Context, *v1.CompleteTaskRequest) (*v1.CompleteTaskResponse, error)
+	// Moves a task back to TODO and clears completed_at; reopening a TODO task changes nothing.
 	ReopenTask(context.Context, *v1.ReopenTaskRequest) (*v1.ReopenTaskResponse, error)
 	// GetTaskStats backs the dashboard (total/todo/in_progress/done/overdue) —
 	// one aggregate query instead of the client computing it from a full list.

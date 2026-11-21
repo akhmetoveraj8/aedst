@@ -32,6 +32,8 @@ type Claims struct {
 	SessionID ids.ID
 	DeviceID  string
 	Roles     []string
+	// Scopes are the OAuth scopes granted to the token ("scope" / "scp").
+	Scopes []string
 }
 
 const claimSessionID = "sid"

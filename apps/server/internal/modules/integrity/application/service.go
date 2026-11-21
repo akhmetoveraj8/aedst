@@ -6,7 +6,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"errors"
-	"time"
 
 	"github.com/aedst/server/internal/modules/integrity/domain"
 	sharederrors "github.com/aedst/server/internal/shared/errors"
@@ -37,19 +36,11 @@ type Result struct {
 
 type Option func(*Service)
 
-// WithLimiter caps verifications per user (Google's decode quota is shared by
-// all users: 10,000 per day by default).
-func WithLimiter(l Limiter, perMinute int) Option {
-	return func(s *Service) { s.limiter, s.perMinute = l, perMinute }
-}
-
 type Service struct {
-	decoder   Decoder
-	replay    ReplayStore
-	policy    domain.Policy
-	clock     sharedtime.Clock
-	limiter   Limiter
-	perMinute int
+	decoder Decoder
+	replay  ReplayStore
+	policy  domain.Policy
+	clock   sharedtime.Clock
 }
 
 // NewService builds the service. A nil decoder yields a disabled service whose
@@ -77,13 +68,6 @@ func (s *Service) Verify(ctx context.Context, in VerifyInput) (Result, error) {
 	pkg, ok := s.policy.ResolvePackage(in.PackageName)
 	if !ok {
 		return Result{Reason: domain.ReasonPackageMismatch}, nil
-	}
-
-	if s.limiter != nil && s.perMinute > 0 {
-		allowed, err := s.limiter.Allow(ctx, "integrity:verify:"+in.UserID.String(), s.perMinute, time.Minute)
-		if err == nil && !allowed {
-			return Result{}, sharederrors.RateLimited(op, "too many integrity verifications, retry later")
-		}
 	}
 
 	// Cheap local check first: no Google call (and no quota) for a client that

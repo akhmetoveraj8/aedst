@@ -99,7 +99,7 @@ Docker. `task dev` / `task test:integration` need Docker for Postgres/DragonflyD
 | Concern | Choice | Notes |
 |---|---|---|
 | Router / RPC | net/http ServeMux + ConnectRPC (Protobuf, Buf, Protovalidate) | stdlib router (chi replaced by owner decision); realclientip-go for client IP, rs/cors for CORS |
-| Data | PostgreSQL 18, pgx, sqlc, Goose | `sqlc vet` + squawk in the lint gate |
+| Data | PostgreSQL 19, pgx, sqlc, Goose | `sqlc vet` + squawk in the lint gate |
 | Async | **River** (jobs and events: `InsertTx` in the producer's transaction, ADR-0014) | one mechanism, no broker; `internal/platform/events.Publisher` is the seam when a consumer becomes a separate service |
 | Locks | PostgreSQL advisory locks (`internal/platform/lock`) | no Redlock/RedSync |
 | Cache / rate limits | DragonflyDB via go-redis + redis_rate (`internal/platform/cache`) | `AEDST_CACHE_*` |

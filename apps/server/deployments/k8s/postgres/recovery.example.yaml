@@ -21,7 +21,7 @@ metadata:
   namespace: aedst-prod # a scratch namespace for drills
 spec:
   instances: 1 # one instance is enough to verify; scale up after promotion
-  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  imageName: ghcr.io/cloudnative-pg/postgresql:19-standard-trixie
   storage:
     size: 100Gi
   walStorage:

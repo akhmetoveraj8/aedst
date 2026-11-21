@@ -53,7 +53,29 @@ name: aedst
 
 services:
   postgres:
-    image: postgres:18
+    image: postgres:19
+    # Slow-query visibility for developers, same thresholds as the CloudNativePG
+    # base (deployments/k8s/postgres/base/cluster.yaml): statements over 500 ms
+    # go to `docker compose logs postgres` with their plan (auto_explain; no
+    # ANALYZE, which would time every statement), and pg_stat_statements
+    # aggregates everything. Query it after a one-off
+    #   CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+    # Both libraries are contrib modules of the official image.
+    # UNVERIFIED: not started here (no Docker on the authoring machine).
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements,auto_explain
+      - -c
+      - pg_stat_statements.track=all
+      - -c
+      - log_min_duration_statement=500
+      - -c
+      - log_lock_waits=on
+      - -c
+      - auto_explain.log_min_duration=500ms
+      - -c
+      - auto_explain.log_analyze=off
     environment:
       POSTGRES_USER: aedst
       POSTGRES_PASSWORD: aedst
@@ -240,7 +262,7 @@ services:
   # docs.imgproxy.net (v4) but this service was NOT started where it was authored.
   imgproxy:
     profiles: ["media"]
-    image: ${AEDST_IMGPROXY_IMAGE:-darthsim/imgproxy:v4.0.20}
+    image: ${AEDST_IMGPROXY_IMAGE:-darthsim/imgproxy:v4.0.24}
     environment:
       IMGPROXY_BIND: ":8080"
       IMGPROXY_KEY: ${AEDST_IMGPROXY_KEY:-61656473742d6465762d696d6770726f78792d6b6579}
@@ -270,7 +292,7 @@ services:
   # --- optional: observability (OpenTelemetry backend in one container) ---
   otel-lgtm:
     profiles: ["observability"]
-    image: grafana/otel-lgtm:0.38.1
+    image: grafana/otel-lgtm:0.41.1
     ports:
       - "3001:3000" # Grafana (3001 to avoid clashing with apps/web on 3000)
       - "4317:4317" # OTLP gRPC
@@ -297,7 +319,7 @@ services:
   # project, roles, PKCE app and service user.
   zitadel-proxy:
     profiles: ["idp"]
-    image: traefik:v3.7.16
+    image: traefik:v3.7.19
     restart: unless-stopped
     command:
       - --providers.docker=true
@@ -320,7 +342,7 @@ services:
 
   zitadel-api:
     profiles: ["idp"]
-    image: ghcr.io/zitadel/zitadel:${AEDST_ZITADEL_VERSION:-v4.20.0}
+    image: ghcr.io/zitadel/zitadel:${AEDST_ZITADEL_VERSION:-v4.20.5}
     restart: unless-stopped
     user: "0"
     # Exactly 32 characters, immutable after first start. Dev value only.
@@ -383,7 +405,7 @@ services:
 
   zitadel-login:
     profiles: ["idp"]
-    image: ghcr.io/zitadel/zitadel-login:${AEDST_ZITADEL_VERSION:-v4.20.0}
+    image: ghcr.io/zitadel/zitadel-login:${AEDST_ZITADEL_VERSION:-v4.20.5}
     restart: unless-stopped
     user: "0"
     environment:
@@ -421,7 +443,7 @@ services:
 
   zitadel-postgres:
     profiles: ["idp"]
-    image: postgres:17.11-alpine
+    image: postgres:17.12-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres

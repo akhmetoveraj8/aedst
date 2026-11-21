@@ -11,7 +11,7 @@ connectrpc.com/grpcreflect/v2  # gRPC reflection (off by default)
 connectrpc.com/otelconnect  # observability: RPC tracing
 connectrpc.com/validate  # validation: protovalidate interceptor
 github.com/SherClockHolmes/webpush-go  # push: Web Push (internal/platform/push only)
-github.com/alicebob/miniredis/v2  # tests only: in-memory Redis for internal/platform/cache rate-limit tests
+github.com/alicebob/miniredis/v2  # tests only: in-memory Redis for internal/platform/cache rate-limit and cache-aside tests (cachetest)
 github.com/aws/aws-sdk-go-v2  # object storage (internal/platform/storage only)
 github.com/aws/aws-sdk-go-v2/config  # object storage
 github.com/aws/aws-sdk-go-v2/credentials  # object storage
@@ -65,3 +65,4 @@ golang.org/x/tools  # architecturetest: go/packages
 google.golang.org/api  # Play Integrity client, FCM HTTP v1 client (fcm/v1), client options
 google.golang.org/genproto/googleapis/rpc  # RPC error details
 google.golang.org/protobuf  # protobuf runtime
+github.com/standard-webhooks/standard-webhooks/libraries  # outbound webhooks: Standard Webhooks signing and verification (internal/platform/webhooks only)

@@ -19,6 +19,8 @@ import (
 	"github.com/aedst/server/internal/modules/integrity/infrastructure/google"
 	"github.com/aedst/server/internal/modules/integrity/infrastructure/postgres"
 	"github.com/aedst/server/internal/modules/integrity/transport"
+	"github.com/aedst/server/internal/platform/config"
+	"github.com/aedst/server/internal/platform/httpserver"
 	"github.com/aedst/server/internal/platform/modulekit"
 	"github.com/aedst/server/internal/platform/retention"
 )
@@ -28,12 +30,22 @@ const smallRequestBytes = 64 << 10
 func init() {
 	m := &integrityModule{}
 	modulekit.Register(modulekit.Module{
-		Name:      "integrity",
-		Files:     []protoreflect.FileDescriptor{integrityv1.File_aedst_integrity_v1_integrity_proto},
-		Retention: retentionPolicies,
-		Setup:     m.setup,
-		Mount:     m.mount,
+		Name:       "integrity",
+		Files:      []protoreflect.FileDescriptor{integrityv1.File_aedst_integrity_v1_integrity_proto},
+		Retention:  retentionPolicies,
+		RateLimits: rateLimits,
+		Setup:      m.setup,
+		Mount:      m.mount,
 	})
+}
+
+// rateLimits is the per-user budget of VerifyIntegrityToken (Google's decode
+// quota is shared by all users: 10,000 per day by default), enforced by the
+// platform's per-procedure limiter, not by this module.
+func rateLimits(cfg config.Config) map[string]httpserver.ProcedureLimit {
+	return map[string]httpserver.ProcedureLimit{
+		integrityv1connect.IntegrityServiceVerifyIntegrityTokenProcedure: {PerMinute: cfg.Integrity.RateLimitPerMinute, Bucket: "integrity:verify"},
+	}
 }
 
 func retentionPolicies(env *modulekit.Env) []retention.Policy {
@@ -93,9 +105,5 @@ func newService(ctx context.Context, env *modulekit.Env) (*application.Service, 
 	if err != nil {
 		return nil, err
 	}
-	var opts []application.Option
-	if in.RateLimitPerMinute > 0 {
-		opts = append(opts, application.WithLimiter(env.RateLimiter, in.RateLimitPerMinute))
-	}
-	return application.NewService(decoder, postgres.NewRepository(env.PoolFor("integrity")), policy, env.Clock, opts...), nil
+	return application.NewService(decoder, postgres.NewRepository(env.PoolFor("integrity")), policy, env.Clock), nil
 }

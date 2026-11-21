@@ -39,6 +39,17 @@ type Error struct {
 	Op      string // the operation that failed, e.g. "tasks.Update"
 	Message string
 	Err     error // wrapped cause, never exposed to clients directly
+	// Reason is an optional stable machine-readable cause in UPPER_SNAKE_CASE
+	// ("STALE_VERSION"). Transports send it as a typed error detail; empty means
+	// the default reason of the Kind.
+	Reason string
+}
+
+// WithReason sets Reason and returns e, for use at the construction site:
+// sharederrors.Conflict(op, msg).WithReason("STALE_VERSION").
+func (e *Error) WithReason(reason string) *Error {
+	e.Reason = reason
+	return e
 }
 
 func (e *Error) Error() string {
@@ -75,6 +86,14 @@ func Wrap(op string, err error) *Error {
 		return newErr(KindUnavailable, op, "service temporarily unavailable", err)
 	}
 	return newErr(KindUnknown, op, "internal error", err)
+}
+
+// ReasonOf extracts the Reason from err, walking wrapped errors ("" when none).
+func ReasonOf(err error) string {
+	if e, ok := errors.AsType[*Error](err); ok {
+		return e.Reason
+	}
+	return ""
 }
 
 // KindOf extracts the Kind from err, walking wrapped errors, defaulting to

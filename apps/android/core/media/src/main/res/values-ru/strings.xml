@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_upload_channel_name">Загрузка файлов</string>
+    <string name="media_upload_notification_title">Загрузка файла…</string>
+    <string name="media_upload_preparing">Подготовка…</string>
+    <string name="media_upload_uploading">Загрузка…</string>
+    <string name="media_upload_finishing">Завершение…</string>
+    <string name="media_upload_done">Загружено</string>
+    <string name="media_upload_failed">Не удалось загрузить</string>
+    <string name="media_upload_cancelled">Отменено</string>
+    <string name="media_upload_cancel">Отменить загрузку</string>
+    <string name="media_play">Воспроизвести</string>
+    <string name="media_pause">Пауза</string>
+</resources>

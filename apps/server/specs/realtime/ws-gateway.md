@@ -46,7 +46,7 @@ client->server messages, resume from a cursor (see Open questions).
   `AEDST_OIDC_*` as the Go server) and the gateway is subscribed to JetStream stream
   `AEDST_EVENTS`
 - When the client connects `GET /v1/ws` (WebSocket upgrade) with
-  `Authorization: Bearer <jwt>` (or subprotocol `aedst.bearer.<jwt>` for browsers)
+  `Authorization: Bearer <jwt>` (or subprotocols `aedst.v1` + `aedst.bearer.<jwt>` for browsers)
 - Then the gateway verifies the token, registers the connection under the token's `sub`,
   and every event whose `partition_key` equals that user id is sent as one text frame
   containing the unchanged event JSON envelope.
@@ -117,9 +117,30 @@ nearest shape); the envelope is defined here and frozen by the new golden file.
 
 Config (env, `AEDST_` prefix): `AEDST_OIDC_{ISSUER,AUDIENCE,JWKS_URL,ALGORITHMS,TOKEN_TYPES,CLOCK_SKEW_SECONDS}`
 (same meaning and defaults as Go), `AEDST_NATS_URL`, `AEDST_NATS_STREAM` (default
-`AEDST_EVENTS`), `AEDST_GATEWAY_ADDR`, `AEDST_GATEWAY_*` limits, `OTEL_EXPORTER_OTLP_*`.
+`AEDST_EVENTS`), `AEDST_GATEWAY_ADDR`, `AEDST_GATEWAY_*` limits (table below), `OTEL_EXPORTER_OTLP_*`.
 Go adds `AEDST_NATS_URL` (optional: empty = no forward consumer, nothing changes for
 deployments without the gateway).
+
+Gateway settings (all optional; numbers must be positive):
+
+| Variable | Default | Meaning |
+| -------- | ------- | ------- |
+| `AEDST_GATEWAY_ADDR` | `0.0.0.0:8090` | listen address |
+| `AEDST_GATEWAY_ALLOWED_ORIGINS` | (empty) | comma-separated browser origins (`scheme://host[:port]`) that may open a socket. Empty refuses every request that carries `Origin`; clients without `Origin` are authenticated by the token alone. Invalid entries stop the start |
+| `AEDST_GATEWAY_ALLOW_ANY_ORIGIN` | `false` | local development opt-out of the origin check; the gateway refuses to start with it in `staging` or `production` |
+| `AEDST_GATEWAY_MAX_CONNS` | `10000` | open sockets per replica (503 above it) |
+| `AEDST_GATEWAY_MAX_CONNS_PER_USER` | `8` | open sockets per owner id (429 above it) |
+| `AEDST_GATEWAY_MAX_HANDSHAKES` | `1024` | connections still in the HTTP phase; the listener stops accepting above it |
+| `AEDST_GATEWAY_HEADER_TIMEOUT_SECONDS` | `5` | time a client has to send its request headers |
+| `AEDST_GATEWAY_SEND_QUEUE` | `256` | frames buffered per socket before it is closed with 4429 |
+| `AEDST_GATEWAY_IDLE_TIMEOUT_SECONDS` | `60` | silence (no frame, no pong) before close 4408 |
+| `AEDST_GATEWAY_SHUTDOWN_SECONDS` | `20` | grace period after SIGTERM |
+
+Handshake contract (v1): `Authorization: Bearer <jwt>`, or, for browsers, the subprotocols
+`aedst.v1` and `aedst.bearer.<jwt>` offered together (`new WebSocket(url, ["aedst.v1", "aedst.bearer." + token])`).
+The gateway selects `aedst.v1` only; the token never appears in a response. A token subprotocol
+without `aedst.v1` is answered with 400. `/readyz` is 200 only while the consumer is attached; its body is
+`consumer=<connecting|attached|retrying|stopped> reconnects=<n> connections=<n>`.
 
 ## Events
 
@@ -176,7 +197,8 @@ appears. Android, Apple and Desktop are untouched and not claimed to build.
 - **Owner id:** the gateway maps a token's `(iss, sub)` to the owner id exactly like Go `ids.FromExternal` (a UUID `sub` as is, otherwise a version-8 UUID hashed with the issuer); shared test vectors in `natsbridge/testdata/user_id_vectors.json`.
 - **Consumer name:** the bridge is a River consumer per forwarded type named `platform.nats_forward:<type>` on the existing `platform.event_delivery` job kind (not a new job kind).
 - **Gateway consumer:** ephemeral pull consumer per replica, `DeliverPolicy::New`, explicit ack; the Go bridge owns the stream (created at startup, best effort, and on the first event).
-- **Browsers:** token via `Authorization: Bearer` or WebSocket subprotocol `aedst.bearer.<jwt>` (open question 3: subprotocol accepted).
+- **Browsers:** token via `Authorization: Bearer` or WebSocket subprotocol `aedst.bearer.<jwt>` (open question 3: subprotocol accepted). Changed 2026-11-21: the client must also offer `aedst.v1`, which is the only name the gateway selects (the first draft echoed the token subprotocol back). No client used the old handshake.
+- **Hardening pass 2026-11-21 (not compiled):** origins fail closed, header-read timeout and connection caps (`hyper-util` accept loop instead of `axum::serve`), consumer reconnect with capped backoff and jitter, consumer state in `/readyz` and two OTLP metrics.
 - **Framework:** axum 0.8.9 (open question 2).
 - **Verification:** open question 4 stands: no Rust toolchain was installed, so the Rust side is not compiled. The Go side and the shared fixtures are tested.
-- **Not done:** per-IP connection limits, metrics (traces only), resume from a cursor, load test.
+- **Not done:** per-IP connection limits, connection and delivery metrics (only the two consumer metrics exist), resume from a cursor, load test.

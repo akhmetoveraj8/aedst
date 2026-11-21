@@ -47,17 +47,6 @@ func (f *fakeStore) Claim(_ context.Context, h [32]byte, _ ids.ID, _ time.Time) 
 	return true, nil
 }
 
-type fakeLimiter struct {
-	allow bool
-	err   error
-	key   string
-}
-
-func (f *fakeLimiter) Allow(_ context.Context, key string, _ int, _ time.Duration) (bool, error) {
-	f.key = key
-	return f.allow, f.err
-}
-
 func policy() domain.Policy {
 	return domain.Policy{
 		AllowedPackages: []string{pkg}, MaxAge: 5 * time.Minute, MaxFutureSkew: 30 * time.Second,
@@ -173,20 +162,5 @@ func TestVerify_DisabledAndInvalidInput(t *testing.T) {
 	f.in.Action = "Bad Action"
 	if _, err := f.svc.Verify(context.Background(), f.in); sharederrors.KindOf(err) != sharederrors.KindValidation {
 		t.Fatalf("bad action = %v, want Validation", err)
-	}
-}
-
-func TestVerify_RateLimitIsPerUserAndFailsOpen(t *testing.T) {
-	lim := &fakeLimiter{allow: false}
-	f := newFixture(application.WithLimiter(lim, 10))
-	if _, err := f.svc.Verify(context.Background(), f.in); sharederrors.KindOf(err) != sharederrors.KindRateLimited {
-		t.Fatalf("over budget = %v, want RateLimited", err)
-	}
-	if lim.key != "integrity:verify:"+f.in.UserID.String() || f.dec.calls != 0 {
-		t.Errorf("key=%q calls=%d", lim.key, f.dec.calls)
-	}
-	lim.err = errors.New("cache down")
-	if res, err := f.svc.Verify(context.Background(), f.in); err != nil || !res.Verified {
-		t.Fatalf("limiter outage must fail open: %+v, %v", res, err)
 	}
 }

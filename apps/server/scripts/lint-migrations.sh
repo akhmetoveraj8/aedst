@@ -13,7 +13,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 SQUAWK_VERSION="${SQUAWK_VERSION:-2.73.0}"
-MODULES="${MODULES:-platform auth tasks notifications search media admin integrity appattest}"
+MODULES="${MODULES:-platform auth tasks notifications search media admin integrity appattest webhooks}"
 
 if command -v squawk >/dev/null 2>&1; then
   run_squawk() { squawk "$@"; }

@@ -144,7 +144,13 @@ func TestModuleConsumesMatchTheirSubscriptions(t *testing.T) {
 		_, mod := parseDir(t, filepath.Join(modulesDir, name, "module"))
 		declared := declaredConsumes(mod)
 		total += len(declared)
-		_, infra := parseDir(t, filepath.Join(modulesDir, name, "infrastructure", "events"))
+		// The module's own consumers and those of its features (features/<f>/infrastructure/events).
+		dirs, _ := filepath.Glob(filepath.Join(modulesDir, name, featuresDir, "*", "infrastructure", "events"))
+		var infra []*ast.File
+		for _, dir := range append([]string{filepath.Join(modulesDir, name, "infrastructure", "events")}, dirs...) {
+			_, files := parseDir(t, dir)
+			infra = append(infra, files...)
+		}
 		subscribed := subscribedConsumers(infra)
 		for _, p := range diffConsumes(declared, subscribed) {
 			t.Errorf("module %q: %s (keep internal/modules/%s/module Consumes equal to its infrastructure/events subscriptions)", name, p, name)

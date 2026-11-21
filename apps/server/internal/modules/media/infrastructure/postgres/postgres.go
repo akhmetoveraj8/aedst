@@ -157,6 +157,7 @@ func (r *Repository) MarkReady(ctx context.Context, id ids.ID, width, height int
 	return database.WithTx(ctx, r.pool, func(ctx context.Context, tx pgx.Tx) error {
 		q := mediadb.New(tx)
 		for _, v := range variants {
+			// querylint:loop-ok a media has a handful of variants (one per kind), written in a River job, not on a request path
 			if err := q.UpsertVariant(ctx, mediadb.UpsertVariantParams{
 				MediaID: toPgUUID(id), Kind: string(v.Kind), ObjectKey: v.ObjectKey, ContentType: v.ContentType,
 				Width: int32(v.Width), Height: int32(v.Height), SizeBytes: v.SizeBytes,

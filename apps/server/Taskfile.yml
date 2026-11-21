@@ -3,9 +3,9 @@ version: "3"
 vars:
   # platform first: the shared idempotency table (platform schema) must exist before
   # any module migration that references it. Rollback runs in reverse.
-  MODULES: platform auth tasks notifications search media admin integrity appattest
+  MODULES: platform auth tasks notifications search media admin integrity appattest webhooks
   RIVER_VERSION: v0.51.2 # == github.com/riverqueue/river in go.mod and Dockerfile.migrate (architecturetest)
-  MODULES_REVERSE: appattest integrity admin media search notifications tasks auth platform
+  MODULES_REVERSE: webhooks appattest integrity admin media search notifications tasks auth platform
 
 tasks:
   default:
@@ -53,6 +53,16 @@ tasks:
     # uncommitted but already-regenerated output on a dirty tree); see the script.
     cmds:
       - bash scripts/gen-check.sh
+
+  gen:openapi:
+    desc: Regenerate docs/public/openapi/<package>.yaml (OpenAPI 3.1 per proto package, protoc-gen-connect-openapi).
+    cmds:
+      - bash scripts/gen-openapi.sh
+
+  gen:openapi:check:
+    desc: Fail if the committed OpenAPI documents are out of date with the .proto files.
+    cmds:
+      - bash scripts/gen-openapi.sh --check
 
   # --- quality gates -------------------------------------------------------
 
@@ -201,7 +211,8 @@ tasks:
   # k6 load tests (test/load). Not part of check/check:full: they need a
   # running server with migrated infra (task dev). Uses a local k6 when
   # installed, else the grafana/k6 image. Each scenario has pass/fail
-  # thresholds, so a run exits non-zero on an SLO breach.
+  # thresholds, so a run exits non-zero on an SLO breach. TOKEN may also come
+  # from the environment (k6 reads it), which keeps it off the command line.
   #   task load                       # smoke (1 VU, 30s)
   #   task load SCENARIO=load         # sustained arrival rate
   #   task load SCENARIO=stress       # ramp until thresholds break
@@ -220,7 +231,7 @@ tasks:
     cmds:
       - |
         if command -v k6 >/dev/null 2>&1; then
-          k6 run {{.K6_ARGS}} -e SCENARIO={{.SCENARIO}} -e BASE_URL={{.BASE_URL}} -e RATE={{.RATE}} -e DURATION={{.DURATION}} -e TOKEN={{.TOKEN}} test/load/api.js
+          k6 run {{.K6_ARGS}} -e SCENARIO={{.SCENARIO}} -e BASE_URL={{.BASE_URL}} -e RATE={{.RATE}} -e DURATION={{.DURATION}} {{if .TOKEN}}-e TOKEN={{.TOKEN}}{{end}} test/load/api.js
         else
           docker run --rm -v "{{.REPO_ROOT}}/test/load:/scripts:ro" --network host grafana/k6:2.3.0 run \
             -e SCENARIO={{.SCENARIO}} -e BASE_URL={{.BASE_URL}} -e RATE={{.RATE}} -e DURATION={{.DURATION}} -e TOKEN={{.TOKEN}} /scripts/api.js
@@ -288,6 +299,24 @@ tasks:
     cmds:
       - k6 inspect test/load/pgbouncer.js >/dev/null
 
+  # Benchmarks of the hot paths that need no infrastructure (the package list is
+  # in scripts/bench.sh). bench:check is the regression gate CI runs on a PR:
+  # it fails on more allocs/op than the base (benchstat-significant and over
+  # BENCH_MAX_ALLOC_REGRESSION_PCT, default 5%); ns/op is printed, never gated.
+  #   task bench                              # -> bench.txt
+  #   task bench OUT=base.txt                 # on the base commit
+  #   task bench:check BASE=base.txt HEAD=bench.txt
+  bench:
+    desc: Run the gated benchmarks (testing.B.Loop, -benchmem) into OUT (default bench.txt); BENCH_COUNT, BENCH_TIME.
+    cmds:
+      - bash scripts/bench.sh {{.OUT | default "bench.txt"}}
+
+  bench:check:
+    desc: Benchmark regression gate - benchstat BASE against HEAD, fail on an allocs/op regression; runs its negative self-test first.
+    cmds:
+      - bash scripts/bench-check.sh --selftest
+      - bash scripts/bench-check.sh {{.BASE | default "base.txt"}} {{.HEAD | default "bench.txt"}}
+
   # Profile-guided optimization: writes cmd/server/default.pgo, which `go build`
   # (and the Dockerfile) use automatically (-pgo=auto). Source k6 profiles a running
   # server under test/load/api.js; source bench is the offline fallback (see
@@ -304,6 +333,7 @@ tasks:
     desc: The fast, no-Docker-required gate CI runs on every job (mirrors server-ci.yml).
     cmds:
       - task: gen:check
+      - task: gen:openapi:check
       - task: lint
       - task: arch
       - task: vuln

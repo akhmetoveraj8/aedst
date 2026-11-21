@@ -18,6 +18,8 @@ option go_package = "github.com/aedst/server/gen/go/aedst/integrity/v1;integrity
 // an RPC error: the call succeeds with verified=false and a reason, so the
 // client can decide what to do (block, degrade, ask for a retry).
 service IntegrityService {
+  // Decodes a Play Integrity token with Google and applies the server policy.
+  // A token that fails the policy answers verified=false with a reason, not an error.
   rpc VerifyIntegrityToken(VerifyIntegrityTokenRequest) returns (VerifyIntegrityTokenResponse);
 }
 

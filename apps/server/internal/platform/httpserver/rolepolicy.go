@@ -10,8 +10,12 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-// ParseRolePolicy turns the configured form of a role policy — procedure ->
-// "role|role|…" (AEDST_ROLE_POLICY) — into the map RoleInterceptor enforces.
+// ParseRolePolicy turns the configured form of the access policy — procedure ->
+// "alternative|alternative|…" (AEDST_ROLE_POLICY) — into the map RoleInterceptor
+// enforces. An alternative is a role name ("admin"), an OAuth scope
+// ("scope:tasks.operator") or a conjunction joined with "+"
+// ("internal+scope:events.ingest"); the caller must satisfy one alternative.
+// A malformed alternative is an error, so a typo fails the deploy.
 func ParseRolePolicy(raw map[string]string) (map[string][]string, error) {
 	policy := make(map[string][]string, len(raw))
 	var errs []error
@@ -19,6 +23,10 @@ func ParseRolePolicy(raw map[string]string) (map[string][]string, error) {
 		var roles []string
 		for role := range strings.SplitSeq(spec, "|") {
 			if role = strings.TrimSpace(role); role != "" {
+				if _, err := parseAlternative(role); err != nil {
+					errs = append(errs, fmt.Errorf("role policy for %q: %w", procedure, err))
+					continue
+				}
 				roles = append(roles, role)
 			}
 		}
@@ -58,7 +66,12 @@ func ProceduresOf(files ...protoreflect.FileDescriptor) map[string]bool {
 // failing open in production.
 func ValidateRolePolicy(policy map[string][]string, known, public map[string]bool) error {
 	var errs []error
-	for procedure := range policy {
+	for procedure, specs := range policy {
+		for _, spec := range specs {
+			if _, err := parseAlternative(spec); err != nil {
+				errs = append(errs, fmt.Errorf("role policy for %q: %w", procedure, err))
+			}
+		}
 		if prefix, ok := strings.CutSuffix(procedure, "/*"); ok {
 			matched := false
 			for p := range known {
@@ -93,17 +106,4 @@ func MergeRolePolicy(defaults, configured map[string][]string) map[string][]stri
 	maps.Copy(out, defaults)
 	maps.Copy(out, configured)
 	return out
-}
-
-// requiredRoles resolves the roles for procedure: an exact entry wins over the
-// service wildcard.
-func requiredRoles(policy map[string][]string, procedure string) ([]string, bool) {
-	if roles, ok := policy[procedure]; ok {
-		return roles, true
-	}
-	if i := strings.LastIndexByte(procedure, '/'); i > 0 {
-		roles, ok := policy[procedure[:i]+"/*"]
-		return roles, ok
-	}
-	return nil, false
 }

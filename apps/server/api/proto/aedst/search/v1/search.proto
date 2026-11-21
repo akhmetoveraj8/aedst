@@ -16,6 +16,7 @@ option go_package = "github.com/aedst/server/gen/go/aedst/search/v1;searchv1";
 //
 // Results are always filtered to documents owned by the authenticated caller.
 service SearchService {
+  // Ranked full-text search over the caller's own documents.
   rpc Search(SearchRequest) returns (SearchResponse);
   // Prefix suggestions for a search box (title-only, cheap).
   rpc Suggest(SuggestRequest) returns (SuggestResponse);

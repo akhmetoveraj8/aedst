@@ -3,8 +3,6 @@ package httpserver
 import (
 	"context"
 	"time"
-
-	"connectrpc.com/connect/v2"
 )
 
 // FailureLimiter is the limiter behind the failed-authentication throttle:
@@ -63,7 +61,7 @@ func (t failureThrottle) refuse(ctx context.Context) error {
 	if !exhausted {
 		return nil
 	}
-	return retryAfter(ctx, connect.NewError(connect.CodeResourceExhausted, "too many failed authentication attempts, try again later"), "60")
+	return rateLimited(ctx, "too many failed authentication attempts, try again later", "60")
 }
 
 // record spends one unit of the address's failure budget.
