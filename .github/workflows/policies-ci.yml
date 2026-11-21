@@ -115,8 +115,11 @@ jobs:
         working-directory: scripts
       - run: node --test scripts/test/check-features-shape.test.mjs scripts/test/check-backlog.test.mjs
       - run: node scripts/check-features.mjs
-      - run: node --test scripts/test/check-ui-kit.test.mjs
+      - run: node --test scripts/test/check-ui-kit.test.mjs scripts/test/component-docs.test.mjs scripts/test/component-page.test.mjs
       - run: node scripts/check-ui-kit.mjs
+      # The component reference (docs/content/ui-kit/components) must match ui-kit.yaml and the kit
+      # sources (`task docs:ui-kit`).
+      - run: node scripts/ui-kit/component-docs.mjs --check
       # The committed API reference (docs/content/modules/<module>/api.md) must match the .proto
       # files (`task docs:api`). The generator reads buf's descriptor output, so buf is installed
       # from the repo-root mise.toml.

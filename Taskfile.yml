@@ -200,10 +200,11 @@ tasks:
       - node scripts/check-features.mjs {{.CLI_ARGS}}
 
   check:ui-kit:
-    desc: ui-kit.yaml (component x platform x status, canonical variants and sizes) matches the kit trees on all four platforms, with variants and sizes checked against the web cva definitions and the Kotlin, Swift and Slint enums; prints the parity report. Pass --write-docs to regenerate the matrix in docs/content/ui-kit.md.
+    desc: ui-kit.yaml (component x platform x status, canonical variants and sizes) matches the kit trees on all four platforms, with variants and sizes checked against the web cva definitions and the Kotlin, Swift and Slint enums; prints the parity report. Pass --write-docs to regenerate the matrix in docs/content/ui-kit.md. Also fails when the component reference (docs/content/ui-kit/components) is stale; regenerate it with `task docs:ui-kit`.
     cmds:
-      - node --test scripts/test/check-ui-kit.test.mjs
+      - node --test scripts/test/check-ui-kit.test.mjs scripts/test/component-docs.test.mjs scripts/test/component-page.test.mjs
       - node scripts/check-ui-kit.mjs {{.CLI_ARGS}}
+      - node scripts/ui-kit/component-docs.mjs --check
 
   check:behavior:
     desc: Shared behaviour fixtures (docs/contract/behavior) agree with the reference model.
@@ -358,6 +359,11 @@ tasks:
     desc: Regenerate docs/content/modules/<module>/api.md (API reference with requests and responses) from buf's descriptor of apps/server/api/proto (needs buf).
     cmds:
       - node scripts/api-docs/index.mjs
+  docs:ui-kit:
+    desc: Regenerate the component reference, docs/content/ui-kit/components/<name>.mdx (one page per ui-kit.yaml entry, with the public API and a usage example per platform, read from the kit sources), and the matrix in docs/content/ui-kit.md.
+    cmds:
+      - node scripts/check-ui-kit.mjs --write-docs
+      - node scripts/ui-kit/component-docs.mjs
   check:api-docs:
     desc: The committed API reference pages match the .proto files (regenerate with `task docs:api`; needs buf), plus the generator's own tests.
     cmds:

@@ -6,6 +6,8 @@ export const DOC_PATH = 'docs/content/ui-kit.md';
 export const START = '<!-- ui-kit:matrix:start (generated from ui-kit.yaml by `node scripts/check-ui-kit.mjs --write-docs`; do not edit) -->';
 export const END = '<!-- ui-kit:matrix:end -->';
 
+// Each row links to the component's page of the reference (scripts/ui-kit/component-docs.mjs).
+const page = (name) => `[\`${name}\`](/ui-kit/components/${name})`;
 const list = (values) => (values?.length ? values.map((v) => `\`${v}\``).join(', ') : '-');
 
 function cell(entry) {
@@ -30,10 +32,10 @@ export function renderMatrix(doc, report) {
   ];
   for (const [name, c] of Object.entries(doc.components)) {
     if (c.alias) {
-      lines.push(`| \`${name}\` | alias of \`${c.alias}\` | - | ${platforms.map(() => `see \`${c.alias}\``).join(' | ')} |`);
+      lines.push(`| ${page(name)} | alias of \`${c.alias}\` | - | ${platforms.map(() => `see \`${c.alias}\``).join(' | ')} |`);
       continue;
     }
-    lines.push(`| \`${name}\` | ${list(c.variants)} | ${list(c.sizes)} | ${platforms.map((p) => cell(c[p])).join(' | ')} |`);
+    lines.push(`| ${page(name)} | ${list(c.variants)} | ${list(c.sizes)} | ${platforms.map((p) => cell(c[p])).join(' | ')} |`);
   }
   lines.push('', '| Platform | Extensions (outside the canonical set) |', '|---|---|');
   for (const p of platforms) lines.push(`| ${title(p)} | ${list((doc.extensions?.[p] ?? []).map((f) => f.replace(/\.\w+$/, '')))} |`);

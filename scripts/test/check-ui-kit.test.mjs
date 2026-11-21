@@ -58,8 +58,8 @@ test('renderMatrix prints counts, statuses, aliases and extensions', () => {
   const report = { web: { implemented: 1, native: 0, missing: 0 }, apple: { implemented: 0, native: 0, missing: 1 } };
   const out = renderMatrix(doc, report);
   assert.match(out, /\| Apple \| 0 \| 0 \| 1 \| 2 \|/);
-  assert.match(out, /\| `button` \| `default` \| - \| yes \(`button`\) \| missing \|/);
-  assert.match(out, /\| `toast` \| alias of `sonner` \|/);
+  assert.match(out, /\| \[`button`\]\(\/ui-kit\/components\/button\) \| `default` \| - \| yes \(`button`\) \| missing \|/);
+  assert.match(out, /\| \[`toast`\]\(\/ui-kit\/components\/toast\) \| alias of `sonner` \|/);
   assert.match(out, /\| Web \| `marker` \|/);
 });
 
