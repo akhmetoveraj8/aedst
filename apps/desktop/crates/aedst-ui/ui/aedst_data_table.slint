@@ -1,0 +1,191 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+export struct AedstDataTableColumn {
+    title: string,
+    // Share of the table width (0: an equal share). The shares should add up to 1.
+    share: float,
+    sortable: bool,
+}
+
+// A table with sortable headers and a selectable, scrollable body. Sorting and paging are done
+// by the caller (Rust): `sort-requested(column)` asks for it and `sort-column` / `sort-ascending`
+// show the result. Keyboard: Tab reaches each sortable header and the body; in the body Up/Down,
+// Home/End move the selection and Enter activates the row.
+export component AedstDataTable inherits Rectangle {
+    in property <[AedstDataTableColumn]> columns;
+    in property <[[string]]> rows;
+    in property <string> label;
+    in property <string> empty-text;
+    // Announced with the sorted column (for example "ascending" / "descending", translated by the caller).
+    in property <string> ascending-text;
+    in property <string> descending-text;
+    in property <int> sort-column: -1;
+    in property <bool> sort-ascending: true;
+    in-out property <int> current-row: -1;
+    callback sort-requested(int);
+    callback row-selected(int);
+    callback row-activated(int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> row-height: 36px;
+
+    // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored column.
+    pure function at(slot: int) -> int {
+        return root.rtl ? root.columns.length - 1 - slot : slot;
+    }
+    pure function column-width(index: int) -> length {
+        return root.columns[index].share > 0 ? root.width * root.columns[index].share : root.width / Math.max(1, root.columns.length);
+    }
+    function choose(index: int) {
+        if (index >= 0 && index < root.rows.length) {
+            root.current-row = index;
+            root.row-selected(index);
+            // Keep the selected row in view.
+            if (index * root.row-height < -body.content-y) {
+                body.content-y = -index * root.row-height;
+            } else if ((index + 1) * root.row-height > body.height - body.content-y) {
+                body.content-y = body.height - (index + 1) * root.row-height;
+            }
+        }
+    }
+
+    min-height: 2 * root.row-height;
+    border-radius: AedstTokens.radius-lg;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+    clip: true;
+    accessible-role: table;
+    accessible-label: root.label;
+
+    VerticalLayout {
+        HorizontalLayout {
+            height: root.row-height;
+            for slot in root.columns.length: head := Rectangle {
+                property <int> index: root.at(slot);
+                property <bool> sorted: root.sort-column == self.index;
+                width: root.column-width(self.index);
+                background: head-touch.has-hover && root.columns[self.index].sortable ? AedstTokens.muted : transparent;
+                border-width: head-focus.has-focus ? 2px : 0px;
+                border-color: AedstTokens.ring;
+                accessible-role: root.columns[self.index].sortable ? AccessibleRole.button : AccessibleRole.text;
+                accessible-label: root.columns[self.index].title;
+                accessible-description: !self.sorted ? "" : root.sort-ascending ? root.ascending-text : root.descending-text;
+                accessible-action-default => {
+                    if (root.columns[self.index].sortable) {
+                        root.sort-requested(self.index);
+                    }
+                }
+
+                head-focus := FocusScope {
+                    enabled: root.columns[head.index].sortable;
+                    key-pressed(event) => {
+                        if (event.text == " " || event.text == "\n") {
+                            root.sort-requested(head.index);
+                            return accept;
+                        }
+                        return reject;
+                    }
+                }
+                Text {
+                    x: AedstTokens.spacing-sm;
+                    width: parent.width - 2 * AedstTokens.spacing-sm;
+                    // The arrow shows the sort direction of the sorted column.
+                    text: !head.sorted ? root.columns[head.index].title
+                        : root.columns[head.index].title + (root.sort-ascending ? " \u{2191}" : " \u{2193}");
+                    color: AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-label-large-font-size;
+                    font-weight: AedstTokens.typography-label-large-font-weight;
+                    horizontal-alignment: root.rtl ? right : left;
+                    vertical-alignment: center;
+                    overflow: elide;
+                    accessible-role: AccessibleRole.none;
+                }
+                head-touch := TouchArea {
+                    enabled: root.columns[head.index].sortable;
+                    clicked => { root.sort-requested(head.index); }
+                }
+            }
+        }
+        Rectangle {
+            height: 1px;
+            background: AedstTokens.border;
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            body-focus := FocusScope {
+                key-pressed(event) => {
+                    if (event.text == Key.DownArrow) {
+                        root.choose(Math.min(root.current-row + 1, root.rows.length - 1));
+                        return accept;
+                    }
+                    if (event.text == Key.UpArrow) {
+                        root.choose(Math.max(root.current-row - 1, 0));
+                        return accept;
+                    }
+                    if (event.text == Key.Home) {
+                        root.choose(0);
+                        return accept;
+                    }
+                    if (event.text == Key.End) {
+                        root.choose(root.rows.length - 1);
+                        return accept;
+                    }
+                    if (event.text == "\n" && root.current-row >= 0) {
+                        root.row-activated(root.current-row);
+                        return accept;
+                    }
+                    return reject;
+                }
+            }
+            body := Flickable {
+                content-height: root.rows.length * root.row-height;
+                for cells[index] in root.rows: line := Rectangle {
+                    y: index * root.row-height;
+                    width: body.width;
+                    height: root.row-height;
+                    background: root.current-row == index ? AedstTokens.accent : line-touch.has-hover ? AedstTokens.muted : transparent;
+                    border-width: (body-focus.has-focus && root.current-row == index) ? 2px : 0px;
+                    border-color: AedstTokens.ring;
+                    accessible-role: list-item;
+                    accessible-label: cells[0];
+                    accessible-item-selectable: true;
+                    accessible-item-selected: root.current-row == index;
+                    accessible-item-index: index;
+                    accessible-item-count: root.rows.length;
+                    accessible-action-default => { root.choose(index); }
+
+                    line-touch := TouchArea {
+                        clicked => {
+                            body-focus.focus();
+                            root.choose(index);
+                        }
+                        double-clicked => { root.row-activated(index); }
+                    }
+                    HorizontalLayout {
+                        for slot in root.columns.length: Rectangle {
+                            width: root.column-width(root.at(slot));
+                            Text {
+                                x: AedstTokens.spacing-sm;
+                                width: parent.width - 2 * AedstTokens.spacing-sm;
+                                text: cells[root.at(slot)];
+                                color: AedstTokens.foreground;
+                                font-size: AedstTokens.typography-body-medium-font-size;
+                                horizontal-alignment: root.rtl ? right : left;
+                                vertical-alignment: center;
+                                overflow: elide;
+                            }
+                        }
+                    }
+                }
+            }
+            if root.rows.length == 0: Text {
+                text: root.empty-text;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+}

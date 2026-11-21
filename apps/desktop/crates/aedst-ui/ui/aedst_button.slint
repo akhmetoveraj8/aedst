@@ -1,26 +1,56 @@
 import { AedstTokens } from "aedst_tokens.slint";
 
+// Variants and sizes are the ones of ui-kit.yaml (web `buttonVariants`). Always write the enum
+// value qualified (`AedstButtonSize.icon`): a bare `icon` would resolve to the `icon` property.
+export enum AedstButtonVariant { default, outline, secondary, ghost, destructive, link }
+export enum AedstButtonSize { default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg }
+
 export component AedstButton inherits Rectangle {
     in property <string> text;
-    in property <bool> primary: true;
+    // What a screen reader announces; set it for icon-only buttons.
+    in property <string> label: root.text;
+    in property <image> icon;
+    in property <AedstButtonVariant> variant: AedstButtonVariant.default;
+    in property <AedstButtonSize> size: AedstButtonSize.default;
     in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
+    out property <bool> pressed: touch.pressed;
     callback clicked();
 
-    min-height: 40px;
-    preferred-height: 40px;
-    max-height: 40px;
-    min-width: 64px;
+    private property <bool> square: root.size == AedstButtonSize.icon || root.size == AedstButtonSize.icon-xs
+        || root.size == AedstButtonSize.icon-sm || root.size == AedstButtonSize.icon-lg;
+    private property <length> side: (root.size == AedstButtonSize.xs || root.size == AedstButtonSize.icon-xs) ? 24px
+        : (root.size == AedstButtonSize.sm || root.size == AedstButtonSize.icon-sm) ? 28px
+        : (root.size == AedstButtonSize.lg || root.size == AedstButtonSize.icon-lg) ? 36px
+        : 32px;
+    private property <bool> hot: root.enabled && (touch.has-hover || touch.pressed);
+    private property <color> fill: root.variant == AedstButtonVariant.default ? (root.hot ? AedstTokens.primary.transparentize(0.2) : AedstTokens.primary)
+        : root.variant == AedstButtonVariant.outline ? (root.hot ? AedstTokens.muted : AedstTokens.background)
+        : root.variant == AedstButtonVariant.secondary ? (root.hot ? AedstTokens.secondary.darker(0.05) : AedstTokens.secondary)
+        : root.variant == AedstButtonVariant.ghost ? (root.hot ? AedstTokens.muted : AedstTokens.muted.transparentize(1.0))
+        : root.variant == AedstButtonVariant.destructive ? AedstTokens.destructive.transparentize(root.hot ? 0.8 : 0.9)
+        : AedstTokens.muted.transparentize(1.0);
+    private property <color> ink: root.variant == AedstButtonVariant.default ? AedstTokens.primary-foreground
+        : root.variant == AedstButtonVariant.secondary ? AedstTokens.secondary-foreground
+        : root.variant == AedstButtonVariant.destructive ? AedstTokens.destructive
+        : root.variant == AedstButtonVariant.link ? AedstTokens.primary
+        : AedstTokens.foreground;
+
+    min-height: root.side;
+    preferred-height: root.side;
+    max-height: root.side;
+    min-width: root.square ? root.side : 2 * root.side;
+    max-width: root.square ? root.side : 100000px;
     border-radius: AedstTokens.radius-md;
-    background: !root.enabled ? AedstTokens.muted
-        : root.primary ? (touch.pressed ? AedstTokens.ring : AedstTokens.primary)
-        : AedstTokens.secondary;
-    border-width: root.primary ? 0px : 1px;
+    background: root.fill;
+    border-width: root.variant == AedstButtonVariant.outline ? 1px : 0px;
     border-color: AedstTokens.border;
+    opacity: root.enabled ? 1.0 : 0.5;
     forward-focus: focus;
     accessible-role: button;
-    accessible-label: root.text;
+    accessible-label: root.label;
     accessible-enabled: root.enabled;
-    accessible-action-default => { root.clicked(); }
+    accessible-action-default => { if (root.enabled) { root.clicked(); } }
 
     focus := FocusScope {
         enabled: root.enabled;
@@ -35,17 +65,36 @@ export component AedstButton inherits Rectangle {
 
     // The padding makes the button as wide as its text (translations differ a lot in length).
     HorizontalLayout {
-        padding-left: AedstTokens.spacing-lg;
-        padding-right: AedstTokens.spacing-lg;
-        Text {
+        padding-left: root.square ? 0px : AedstTokens.spacing-md;
+        padding-right: root.square ? 0px : AedstTokens.spacing-md;
+        spacing: AedstTokens.spacing-xs;
+        alignment: center;
+        if root.icon.width > 0: VerticalLayout {
+            alignment: center;
+            Image {
+                source: root.icon;
+                colorize: root.ink;
+                width: root.side / 2;
+                height: root.side / 2;
+            }
+        }
+        if root.text != "": Text {
             text: root.text;
-            color: !root.enabled ? AedstTokens.muted-foreground
-                : root.primary ? AedstTokens.primary-foreground : AedstTokens.secondary-foreground;
-            font-size: AedstTokens.typography-label-large-font-size;
+            color: root.ink;
+            font-size: root.side < 32px ? AedstTokens.typography-label-medium-font-size : AedstTokens.typography-label-large-font-size;
             font-weight: AedstTokens.typography-label-large-font-weight;
             horizontal-alignment: center;
             vertical-alignment: center;
         }
+    }
+
+    // `link` shows an underline while hovered or focused (Slint text has no underline).
+    if root.variant == AedstButtonVariant.link && (root.hot || focus.has-focus): Rectangle {
+        x: AedstTokens.spacing-md;
+        y: parent.height - 6px;
+        width: parent.width - 2 * AedstTokens.spacing-md;
+        height: 1px;
+        background: root.ink;
     }
 
     // Visible keyboard focus ring.

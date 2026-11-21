@@ -1,0 +1,103 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+// A one-time-code input of up to eight characters, one box per character. Typing fills the
+// boxes, Backspace removes the last character; `completed` fires when every box is filled.
+// The boxes always run left to right (codes are not mirrored). Paste is not supported: Slint
+// strings cannot be split into characters, so the component keeps one string per box.
+export component AedstInputOtp inherits Rectangle {
+    in property <int> digits: 6;
+    in property <string> label;
+    in property <bool> numeric-only: true;
+    in property <bool> invalid: false;
+    in property <bool> enabled: true;
+    out property <string> value: root.cells[0] + root.cells[1] + root.cells[2] + root.cells[3]
+        + root.cells[4] + root.cells[5] + root.cells[6] + root.cells[7];
+    out property <bool> has-focus: focus.has-focus;
+    callback value-changed(string);
+    callback completed(string);
+
+    private property <[string]> cells: ["", "", "", "", "", "", "", ""];
+    private property <int> cursor: 0;
+    private property <int> count: Math.max(1, Math.min(8, root.digits));
+
+    public function clear() {
+        root.cells[0] = "";
+        root.cells[1] = "";
+        root.cells[2] = "";
+        root.cells[3] = "";
+        root.cells[4] = "";
+        root.cells[5] = "";
+        root.cells[6] = "";
+        root.cells[7] = "";
+        root.cursor = 0;
+        root.value-changed(root.value);
+    }
+
+    pure function accepts(key: string) -> bool {
+        // A digit parses as a number; a letter differs between upper and lower case. Everything
+        // else (Tab, arrows, punctuation) is left to the default handling.
+        return key.character-count == 1 && (key.is-float() || (!root.numeric-only && key.to-lowercase() != key.to-uppercase()));
+    }
+
+    min-height: 36px;
+    max-height: 36px;
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: text-input;
+    accessible-label: root.label;
+    accessible-value: root.value;
+    accessible-enabled: root.enabled;
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == Key.Backspace) {
+                if (root.cursor > 0) {
+                    root.cursor -= 1;
+                    root.cells[root.cursor] = "";
+                    root.value-changed(root.value);
+                }
+                return accept;
+            }
+            if (event.modifiers.control || event.modifiers.alt || event.modifiers.meta) {
+                return reject;
+            }
+            if (root.cursor < root.count && root.accepts(event.text)) {
+                root.cells[root.cursor] = event.text;
+                root.cursor += 1;
+                root.value-changed(root.value);
+                if (root.cursor == root.count) {
+                    root.completed(root.value);
+                }
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    HorizontalLayout {
+        spacing: AedstTokens.spacing-xs;
+        alignment: start;
+        for slot in root.count: Rectangle {
+            property <bool> current: focus.has-focus && (slot == root.cursor || (root.cursor == root.count && slot == root.count - 1));
+            width: 32px;
+            border-radius: AedstTokens.radius-md;
+            background: AedstTokens.background;
+            border-width: self.current ? 2px : 1px;
+            border-color: root.invalid ? AedstTokens.destructive : self.current ? AedstTokens.ring : AedstTokens.input;
+            Text {
+                text: root.cells[slot];
+                color: AedstTokens.foreground;
+                font-size: AedstTokens.typography-title-small-font-size;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                accessible-role: AccessibleRole.none;
+            }
+        }
+    }
+
+    TouchArea {
+        enabled: root.enabled;
+        clicked => { focus.focus(); }
+    }
+}

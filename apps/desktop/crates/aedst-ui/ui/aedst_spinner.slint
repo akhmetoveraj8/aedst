@@ -1,0 +1,38 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+// An indeterminate activity indicator: a three-quarter arc that turns once per second.
+// `label` is announced by screen readers (for example "Loading").
+export component AedstSpinner inherits Rectangle {
+    in property <string> label;
+    in property <length> diameter: 16px;
+    in property <bool> animated: true;
+    in property <color> tint: AedstTokens.muted-foreground;
+
+    private property <angle> turn: root.animated ? 360deg * (Math.mod(animation-tick() / 1ms, 1000) / 1000) : 0deg;
+
+    width: root.diameter;
+    height: root.diameter;
+    accessible-role: progress-indicator;
+    accessible-label: root.label;
+
+    Path {
+        width: root.diameter;
+        height: root.diameter;
+        viewbox-width: 24;
+        viewbox-height: 24;
+        stroke: root.tint;
+        stroke-width: 2px;
+        MoveTo {
+            x: 12 + 9 * Math.cos(root.turn);
+            y: 12 + 9 * Math.sin(root.turn);
+        }
+        ArcTo {
+            x: 12 + 9 * Math.cos(root.turn + 270deg);
+            y: 12 + 9 * Math.sin(root.turn + 270deg);
+            radius-x: 9;
+            radius-y: 9;
+            large-arc: true;
+            sweep: true;
+        }
+    }
+}

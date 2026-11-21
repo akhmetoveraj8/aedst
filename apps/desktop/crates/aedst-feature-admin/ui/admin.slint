@@ -1,6 +1,6 @@
 // The Admin screen. Stateless: it renders `AdminStore` and calls its callbacks; Rust
 // (`ui_glue.rs`) owns the state. Only `aedst-ui` components are used.
-import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstTextField } from "@aedst-ui";
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstInput, AedstButtonVariant } from "@aedst-ui";
 import { AdminStore } from "admin_store.slint";
 import { AdminTexts } from "admin_texts.slint";
 import { OverviewRow, TaskRow, AuditRow, DeleteConfirm, BroadcastForm } from "admin_parts.slint";
@@ -10,7 +10,7 @@ export { AdminTexts } from "admin_texts.slint";
 
 component TabButton inherits AedstButton {
     in property <string> key;
-    primary: AdminStore.tab == root.key;
+    variant: AdminStore.tab == root.key ? AedstButtonVariant.default : AedstButtonVariant.secondary;
     min-width: 72px;
     clicked => { AdminStore.select-tab(root.key); }
 }
@@ -38,7 +38,7 @@ component TabStrip inherits HorizontalLayout {
 component OwnerFilter inherits HorizontalLayout {
     spacing: AedstTokens.spacing-sm;
     vertical-stretch: 0;
-    field := AedstTextField {
+    field := AedstInput {
         label: @tr("" => "Owner id");
         placeholder: @tr("" => "Show only the tasks of one owner (id)");
         invalid: AdminStore.filter-invalid;
@@ -47,7 +47,7 @@ component OwnerFilter inherits HorizontalLayout {
     }
     AedstButton {
         text: @tr("" => "Apply");
-        primary: false;
+        variant: AedstButtonVariant.secondary;
         clicked => { AdminStore.filter-owner(field.text); }
     }
 }
@@ -100,7 +100,7 @@ export component AdminListView inherits Rectangle {
                 vertical-stretch: 0;
                 AedstLabel { text: @tr("" => "Could not load"); font-weight: 600; }
                 AedstLabel { text: AdminTexts.kind-text(AdminStore.error-kind); color: AedstTokens.destructive; }
-                AedstButton { text: @tr("" => "Try again"); primary: false; clicked => { AdminStore.reload(); } }
+                AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { AdminStore.reload(); } }
             }
             if AdminStore.tab != "broadcast" && AdminStore.phase == "ready" && AdminStore.error-kind != "": AedstLabel {
                 text: AdminTexts.kind-text(AdminStore.error-kind);
@@ -139,7 +139,7 @@ export component AdminListView inherits Rectangle {
 
             if AdminStore.has-more && AdminStore.tab != "overview" && AdminStore.tab != "broadcast": AedstButton {
                 text: AdminStore.loading-more ? @tr("" => "Loading...") : @tr("" => "Load more");
-                primary: false;
+                variant: AedstButtonVariant.secondary;
                 vertical-stretch: 0;
                 clicked => { AdminStore.load-more(); }
             }

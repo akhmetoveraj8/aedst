@@ -1,0 +1,48 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstToggle, AedstToggleVariant, AedstToggleSize } from "aedst_toggle.slint";
+
+// A row of toggles. Single selection keeps `current-index` (-1: none); with `multiple` the state
+// of every item lives in `checked-items` (one bool per item). The first item sits at the reading start.
+export component AedstToggleGroup inherits Rectangle {
+    in property <[string]> items;
+    in property <string> label;
+    in property <bool> multiple: false;
+    in-out property <int> current-index: -1;
+    in-out property <[bool]> checked-items;
+    in property <AedstToggleVariant> variant: AedstToggleVariant.default;
+    in property <AedstToggleSize> size: AedstToggleSize.default;
+    in property <bool> enabled: true;
+    // The index of the item that was toggled.
+    callback selected(int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored item.
+    pure function at(slot: int) -> int {
+        return root.rtl ? root.items.length - 1 - slot : slot;
+    }
+
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    HorizontalLayout {
+        spacing: AedstTokens.spacing-xxs;
+        alignment: root.rtl ? end : start;
+        for slot in root.items.length: AedstToggle {
+            text: root.items[root.at(slot)];
+            checked: root.multiple ? root.checked-items[root.at(slot)] : root.current-index == root.at(slot);
+            variant: root.variant;
+            size: root.size;
+            enabled: root.enabled;
+            toggled(value) => {
+                if (root.multiple) {
+                    root.checked-items[root.at(slot)] = value;
+                } else {
+                    root.current-index = value ? root.at(slot) : -1;
+                }
+                root.selected(root.at(slot));
+            }
+        }
+    }
+}

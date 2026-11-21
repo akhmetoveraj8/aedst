@@ -1,0 +1,26 @@
+// The platform's own select: a thin wrapper over the std-widgets `ComboBox`, which is drawn in
+// the native widget style (like `<select>` on web). It is the one place the kit accepts native
+// styling instead of tokens; use AedstSelect for the token-styled control. Features import this
+// wrapper, never `std-widgets.slint`.
+import { ComboBox } from "std-widgets.slint";
+
+export component AedstNativeSelect inherits Rectangle {
+    in property <[string]> options;
+    in-out property <int> current-index <=> box.current-index;
+    out property <string> current-value: box.current-value;
+    in property <string> label;
+    in property <bool> enabled: true;
+    out property <bool> has-focus: box.has-focus;
+    callback selected(string);
+
+    forward-focus: box;
+
+    VerticalLayout {
+        box := ComboBox {
+            model: root.options;
+            enabled: root.enabled;
+            accessible-label: root.label;
+            selected(value) => { root.selected(value); }
+        }
+    }
+}

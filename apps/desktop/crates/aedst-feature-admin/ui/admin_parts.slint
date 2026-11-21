@@ -1,6 +1,6 @@
 // Row and panel components of the Admin screen. Slint cannot reverse a layout, so every
 // side-by-side pair spells out both orders with `if AedstLayout.rtl`.
-import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstTextField, AedstBadge, AedstActionRow } from "@aedst-ui";
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstInput, AedstBadge, AedstActionRow, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
 import { AdminStore, AdminTaskRowData, AuditRowData, OverviewItemData } from "admin_store.slint";
 import { AdminTexts } from "admin_texts.slint";
 
@@ -20,16 +20,16 @@ component Muted inherits AedstLabel {
 component HeaderLine inherits HorizontalLayout {
     in property <string> title;
     in property <string> badge;
-    in property <string> tone: "neutral";
+    in property <AedstBadgeVariant> tone: AedstBadgeVariant.secondary;
     spacing: AedstTokens.spacing-sm;
     if !AedstLayout.rtl: HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
         AedstLabel { text: root.title; font-weight: 600; horizontal-stretch: 1; vertical-alignment: center; }
-        if root.badge != "": AedstBadge { text: root.badge; tone: root.tone; }
+        if root.badge != "": AedstBadge { text: root.badge; variant: root.tone; }
     }
     if AedstLayout.rtl: HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
-        if root.badge != "": AedstBadge { text: root.badge; tone: root.tone; }
+        if root.badge != "": AedstBadge { text: root.badge; variant: root.tone; }
         AedstLabel { text: root.title; font-weight: 600; horizontal-stretch: 1; vertical-alignment: center; }
     }
 }
@@ -58,7 +58,7 @@ export component TaskRow inherits Card {
         HeaderLine {
             title: root.data.title;
             badge: AdminTexts.status-text(root.data.status);
-            tone: root.data.status == "done" ? "success" : "neutral";
+            tone: root.data.status == "done" ? AedstBadgeVariant.success : AedstBadgeVariant.secondary;
         }
         Muted { text: @tr("" => "Owner: {}", root.data.owner); }
         Muted { text: root.data.created; }
@@ -66,7 +66,7 @@ export component TaskRow inherits Card {
             alignment: AedstLayout.rtl ? end : start;
             AedstButton {
                 text: @tr("" => "Delete");
-                primary: false;
+                variant: AedstButtonVariant.secondary;
                 clicked => { AdminStore.request-delete(root.data.id); }
             }
         }
@@ -95,7 +95,7 @@ export component DeleteConfirm inherits Card {
         spacing: AedstTokens.spacing-sm;
         AedstLabel { text: @tr("" => "Delete task \"{}\"?", AdminStore.delete-title); font-weight: 600; }
         Muted { text: @tr("" => "The reason is recorded in the audit log (3 to 500 characters)."); }
-        reason := AedstTextField {
+        reason := AedstInput {
             label: @tr("" => "Reason for deleting");
             placeholder: @tr("" => "Reason");
             invalid: AdminStore.delete-state == "invalid";
@@ -132,25 +132,25 @@ export component BroadcastForm inherits VerticalLayout {
             link.text = "";
         }
     }
-    user := AedstTextField {
+    user := AedstInput {
         label: @tr("" => "Recipient id");
         placeholder: @tr("" => "Recipient id (empty: everyone)");
         invalid: AdminStore.broadcast-state == "invalid" && AdminStore.broadcast-error == "idInvalid";
         edited => { AdminStore.broadcast-edited(); }
     }
-    title := AedstTextField {
+    title := AedstInput {
         label: @tr("" => "Title");
         placeholder: @tr("" => "Title");
         invalid: AdminStore.broadcast-state == "invalid" && (AdminStore.broadcast-error == "titleRequired" || AdminStore.broadcast-error == "titleTooLong");
         edited => { AdminStore.broadcast-edited(); }
     }
-    body := AedstTextField {
+    body := AedstInput {
         label: @tr("" => "Message");
         placeholder: @tr("" => "Message");
         invalid: AdminStore.broadcast-state == "invalid" && AdminStore.broadcast-error == "bodyTooLong";
         edited => { AdminStore.broadcast-edited(); }
     }
-    link := AedstTextField {
+    link := AedstInput {
         label: @tr("" => "Link");
         placeholder: @tr("" => "Link (optional, for example /tasks)");
         invalid: AdminStore.broadcast-state == "invalid" && AdminStore.broadcast-error == "linkInvalid";

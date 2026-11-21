@@ -1,0 +1,46 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstCollapsibleTrigger } from "aedst_collapsible.slint";
+
+export struct AedstAccordionItem {
+    title: string,
+    content: string,
+}
+
+// Stacked sections of which one is open at a time (`open-index`, -1: all closed). Each header is
+// a tab stop; Enter and Space open or close it.
+export component AedstAccordion inherits Rectangle {
+    in property <[AedstAccordionItem]> items;
+    in-out property <int> open-index: -1;
+    // The index of the section that was opened or closed.
+    callback toggled(int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    VerticalLayout {
+        for section[index] in root.items: VerticalLayout {
+            AedstCollapsibleTrigger {
+                title: section.title;
+                open: root.open-index == index;
+                toggled => {
+                    root.open-index = root.open-index == index ? -1 : index;
+                    root.toggled(index);
+                }
+            }
+            if root.open-index == index: HorizontalLayout {
+                padding: AedstTokens.spacing-sm;
+                Text {
+                    text: section.content;
+                    color: AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-body-medium-font-size;
+                    horizontal-alignment: root.rtl ? right : left;
+                    wrap: word-wrap;
+                }
+            }
+            Rectangle {
+                height: 1px;
+                background: AedstTokens.border;
+            }
+        }
+    }
+}

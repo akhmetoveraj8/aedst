@@ -1,0 +1,28 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+// A keyboard key or shortcut ("Ctrl", "K"). Key names are not mirrored in RTL.
+export component AedstKbd inherits Rectangle {
+    in property <string> text;
+
+    background: AedstTokens.muted;
+    border-radius: AedstTokens.radius-xs;
+    min-width: 20px;
+    min-height: 20px;
+    max-height: 20px;
+    horizontal-stretch: 0;
+    accessible-role: AccessibleRole.text;
+    accessible-label: root.text;
+
+    HorizontalLayout {
+        padding-left: AedstTokens.spacing-xs;
+        padding-right: AedstTokens.spacing-xs;
+        Text {
+            text: root.text;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-label-medium-font-size;
+            font-weight: AedstTokens.typography-label-medium-font-weight;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+}

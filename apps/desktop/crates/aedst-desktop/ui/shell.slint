@@ -2,7 +2,7 @@
 // Every feature view is compiled in THIS compilation (see build.rs); the Rust glue of each feature is
 // compiled against the types generated here, so every store, row struct and text global the glue uses
 // is re-exported below.
-import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstBadge, AedstCheckbox } from "@aedst-ui";
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstBadge, AedstCheckbox, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
 import { TasksListView } from "../../aedst-feature-tasks/ui/tasks.slint";
 import { SearchListView } from "../../aedst-feature-search/ui/search.slint";
 import { NotificationsListView, NotificationPreferencesView } from "../../aedst-feature-notifications/ui/notifications.slint";
@@ -63,33 +63,33 @@ component Sidebar inherits Rectangle {
         }
         AedstButton {
             text: @tr("" => "Tasks");
-            primary: ShellState.section == "tasks";
+            variant: ShellState.section == "tasks" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { ShellState.select("tasks"); }
         }
         AedstButton {
             text: @tr("" => "Search");
-            primary: ShellState.section == "search";
+            variant: ShellState.section == "search" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { ShellState.select("search"); }
         }
         AedstButton {
             text: @tr("" => "Notifications");
-            primary: ShellState.section == "notifications";
+            variant: ShellState.section == "notifications" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { ShellState.select("notifications"); }
         }
-        if ShellState.unread > 0: AedstBadge { text: "\{ShellState.unread}"; tone: "danger"; }
+        if ShellState.unread > 0: AedstBadge { text: "\{ShellState.unread}"; variant: AedstBadgeVariant.destructive; }
         AedstButton {
             text: @tr("" => "Files");
-            primary: ShellState.section == "media";
+            variant: ShellState.section == "media" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { ShellState.select("media"); }
         }
         if ShellState.show-admin: AedstButton {
             text: @tr("" => "Admin");
-            primary: ShellState.section == "admin";
+            variant: ShellState.section == "admin" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { ShellState.select("admin"); }
         }
         AedstButton {
             text: @tr("" => "Privacy");
-            primary: ShellState.section == "privacy";
+            variant: ShellState.section == "privacy" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { ShellState.select("privacy"); }
         }
         Rectangle { vertical-stretch: 1; }
@@ -107,7 +107,7 @@ component Sidebar inherits Rectangle {
         }
         AedstButton {
             text: @tr("" => "Sign out");
-            primary: false;
+            variant: AedstButtonVariant.secondary;
             clicked => { ShellState.sign-out(); }
         }
     }
@@ -191,12 +191,12 @@ component Content inherits Rectangle {
             vertical-stretch: 0;
             AedstButton {
                 text: @tr("" => "Inbox");
-                primary: root.inbox-screen == "inbox";
+                variant: root.inbox-screen == "inbox" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
                 clicked => { root.inbox-screen = "inbox"; }
             }
             AedstButton {
                 text: @tr("" => "Preferences");
-                primary: root.inbox-screen == "preferences";
+                variant: root.inbox-screen == "preferences" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
                 clicked => { root.inbox-screen = "preferences"; }
             }
         }
@@ -250,7 +250,7 @@ export component AppWindow inherits Window {
         }
         if ShellState.busy: AedstButton {
             text: @tr("" => "Cancel");
-            primary: false;
+            variant: AedstButtonVariant.secondary;
             clicked => { ShellState.cancel-sign-in(); }
         }
     }

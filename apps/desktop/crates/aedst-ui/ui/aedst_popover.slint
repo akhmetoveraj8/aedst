@@ -1,0 +1,30 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+// A floating panel with free content (the children). It is a `PopupWindow`: declare it next to
+// its anchor, position it with `x` / `y` (relative to the parent element), give it a `width`,
+// and open it with `show()` from the anchor's `clicked`. A click outside or Escape closes it;
+// `close()` closes it from inside. Mirroring of `x` for RTL is the caller's anchor arithmetic:
+// use AedstDropdownMenu, AedstSelect or AedstDatePicker when one of them fits, they do it.
+export component AedstPopover inherits PopupWindow {
+    in property <string> label;
+
+    close-policy: PopupClosePolicy.close-on-click-outside;
+
+    Rectangle {
+        background: AedstTokens.popover;
+        border-radius: AedstTokens.radius-lg;
+        border-width: 1px;
+        border-color: AedstTokens.border;
+        drop-shadow-blur: AedstTokens.elevation-level-4;
+        drop-shadow-offset-y: AedstTokens.elevation-level-1;
+        drop-shadow-color: AedstTokens.foreground.transparentize(0.85);
+        accessible-role: groupbox;
+        accessible-label: root.label;
+
+        VerticalLayout {
+            padding: AedstTokens.spacing-md;
+            spacing: AedstTokens.spacing-sm;
+            @children
+        }
+    }
+}

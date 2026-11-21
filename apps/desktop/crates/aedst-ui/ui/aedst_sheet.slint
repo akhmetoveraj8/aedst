@@ -1,0 +1,121 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// The edge the panel is attached to (web `side`). The sides are physical, as on web.
+export enum AedstSheetSide { top, right, bottom, left }
+
+// A panel that slides over the view from one edge, with a scrim. Place it as the LAST child of
+// the view's root element (not inside a layout). Escape and a click on the scrim close it.
+// Slint has no focus trap: Tab can still reach controls under the scrim (known gap).
+export component AedstSheet inherits Rectangle {
+    in-out property <bool> open;
+    in property <string> title;
+    in property <string> description;
+    // Accessible name of the close button; the button is hidden without it.
+    in property <string> close-label;
+    in property <AedstSheetSide> side: AedstSheetSide.right;
+    // Width of a left/right sheet, height of a top/bottom sheet.
+    in property <length> extent: 320px;
+    // A grab handle at the top of the panel (the drawer look).
+    in property <bool> show-handle: false;
+    callback closed();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> upright: root.side == AedstSheetSide.left || root.side == AedstSheetSide.right;
+
+    public function close() {
+        if (root.open) {
+            root.open = false;
+            root.closed();
+        }
+    }
+
+    visible: root.open;
+    changed open => {
+        if (root.open) {
+            focus.focus();
+        }
+    }
+
+    // Scrim: dark in both themes.
+    Rectangle {
+        background: (AedstTokens.dark ? AedstTokens.background : AedstTokens.foreground).transparentize(0.5);
+        TouchArea {
+            enabled: root.open;
+            clicked => { root.close(); }
+        }
+    }
+
+    // Keys bubble from the focused control inside the panel up to this scope.
+    focus := FocusScope {
+        enabled: root.open;
+        key-pressed(event) => {
+            if (event.text == Key.Escape) {
+                root.close();
+                return accept;
+            }
+            return reject;
+        }
+
+        Rectangle {
+            x: root.side == AedstSheetSide.right ? parent.width - self.width : 0px;
+            y: root.side == AedstSheetSide.bottom ? parent.height - self.height : 0px;
+            width: root.upright ? Math.min(root.extent, parent.width) : parent.width;
+            height: root.upright ? parent.height : Math.min(root.extent, parent.height);
+            background: AedstTokens.popover;
+            border-width: 1px;
+            border-color: AedstTokens.border;
+            border-top-left-radius: root.side == AedstSheetSide.bottom ? AedstTokens.radius-xl : 0px;
+            border-top-right-radius: root.side == AedstSheetSide.bottom ? AedstTokens.radius-xl : 0px;
+            accessible-role: groupbox;
+            accessible-label: root.title;
+            accessible-description: root.description;
+
+            // Clicks on the panel must not reach the scrim.
+            TouchArea { }
+
+            VerticalLayout {
+                padding: AedstTokens.spacing-lg;
+                spacing: AedstTokens.spacing-md;
+                alignment: start;
+                if root.show-handle: HorizontalLayout {
+                    alignment: center;
+                    Rectangle {
+                        width: 48px;
+                        height: 4px;
+                        border-radius: 2px;
+                        background: AedstTokens.muted;
+                    }
+                }
+                if root.title != "": Text {
+                    text: root.title;
+                    color: AedstTokens.popover-foreground;
+                    font-size: AedstTokens.typography-title-small-font-size;
+                    font-weight: AedstTokens.typography-title-small-font-weight;
+                    horizontal-alignment: root.rtl ? right : left;
+                    wrap: word-wrap;
+                }
+                if root.description != "": Text {
+                    text: root.description;
+                    color: AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-body-medium-font-size;
+                    horizontal-alignment: root.rtl ? right : left;
+                    wrap: word-wrap;
+                }
+                @children
+            }
+
+            // The close button sits at the reading end of the header.
+            if root.close-label != "": AedstButton {
+                x: root.rtl ? AedstTokens.spacing-sm : parent.width - self.width - AedstTokens.spacing-sm;
+                y: AedstTokens.spacing-sm;
+                text: "\u{00D7}";
+                label: root.close-label;
+                variant: AedstButtonVariant.ghost;
+                size: AedstButtonSize.icon-sm;
+                clicked => { root.close(); }
+            }
+        }
+    }
+}

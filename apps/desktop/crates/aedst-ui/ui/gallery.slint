@@ -1,16 +1,26 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
 import { AedstLabel } from "aedst_label.slint";
-import { AedstButton } from "aedst_button.slint";
 import { AedstActionRow } from "aedst_action_row.slint";
-import { AedstTextField } from "aedst_text_field.slint";
-import { AedstBadge } from "aedst_badge.slint";
+import { AedstInput } from "aedst_input.slint";
+import { AedstBadge, AedstBadgeVariant } from "aedst_badge.slint";
 import { AedstCheckbox } from "aedst_checkbox.slint";
+import { GalleryForms } from "gallery/gallery_forms.slint";
+import { GalleryDisplay } from "gallery/gallery_display.slint";
+import { GalleryNavigation } from "gallery/gallery_navigation.slint";
+import { GalleryOverlays } from "gallery/gallery_overlays.slint";
+import { GalleryState } from "gallery/gallery_state.slint";
 
-// Every component in one window: compiled by `cargo build`, and used to look at LTR/RTL and light/dark.
+export { GalleryState }
+
+// Every component in one window: compiled by `cargo build`, and used to look at LTR/RTL and
+// light/dark. Page 0 is the original basics page (its focus order is what tests/ui.rs walks);
+// pages 1 to 4 live in gallery/*.slint and are driven by tests/components.rs.
 export component Gallery inherits Window {
     in-out property <bool> rtl <=> AedstLayout.rtl;
     in-out property <bool> dark <=> AedstTokens.dark;
+    // 0 basics, 1 forms, 2 display, 3 navigation, 4 overlays.
+    in-out property <int> page: 0;
     // Counters let the UI tests (tests/ui.rs) observe which action ran.
     out property <int> primary-count;
     out property <int> secondary-count;
@@ -19,17 +29,25 @@ export component Gallery inherits Window {
     preferred-width: 480px;
     preferred-height: 300px;
 
+    // Moves the keyboard focus to a named control of a page (tests cannot click).
+    public function focus-control(name: string) {
+        forms.focus-control(name);
+        display.focus-control(name);
+        navigation.focus-control(name);
+    }
+
     VerticalLayout {
+        visible: root.page == 0;
         padding: AedstTokens.spacing-lg;
         spacing: AedstTokens.spacing-md;
         AedstLabel { text: root.rtl ? "مرحبا بالعالم، هذه مهمة جديدة 123" : "Hello world, this is a new task 123"; }
-        AedstTextField { label: "Task title"; placeholder: root.rtl ? "اكتب هنا" : "Type here"; }
+        AedstInput { label: "Task title"; placeholder: root.rtl ? "اكتب هنا" : "Type here"; }
         HorizontalLayout {
             spacing: AedstTokens.spacing-sm;
             AedstCheckbox { checked: true; label: "Done"; }
-            AedstBadge { text: root.rtl ? "قيد الانتظار" : "Pending sync"; tone: "danger"; }
-            AedstBadge { text: root.rtl ? "منجز" : "Done"; tone: "success"; }
-            AedstBadge { text: "Todo"; }
+            AedstBadge { text: root.rtl ? "قيد الانتظار" : "Pending sync"; variant: AedstBadgeVariant.destructive; }
+            AedstBadge { text: root.rtl ? "منجز" : "Done"; variant: AedstBadgeVariant.success; }
+            AedstBadge { text: "Todo"; variant: AedstBadgeVariant.secondary; }
         }
         AedstActionRow {
             primary-text: root.rtl ? "حفظ" : "Save";
@@ -38,4 +56,9 @@ export component Gallery inherits Window {
             secondary-clicked => { root.secondary-count += 1; }
         }
     }
+
+    forms := GalleryForms { visible: root.page == 1; }
+    display := GalleryDisplay { visible: root.page == 2; }
+    navigation := GalleryNavigation { visible: root.page == 3; }
+    GalleryOverlays { visible: root.page == 4; }
 }

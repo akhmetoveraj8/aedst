@@ -1,0 +1,110 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstMenuItem } from "aedst_dropdown_menu.slint";
+import { AedstCommand } from "aedst_command.slint";
+
+// A select with a search field: the trigger shows `text` (the label of the chosen option, kept
+// by the caller) and opens a popup with an AedstCommand. The CALLER filters `options` in
+// `query-edited` (Slint has no string search) and stores the choice reported by `selected(id)`.
+export component AedstCombobox inherits Rectangle {
+    in property <[AedstMenuItem]> options;
+    in property <string> text;
+    in property <string> placeholder;
+    in property <string> search-placeholder;
+    in property <string> empty-text;
+    in property <string> label;
+    in property <bool> invalid: false;
+    in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
+    callback query-edited(string);
+    // The `id` of the chosen option.
+    callback selected(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    public function show() {
+        if (root.enabled) {
+            popup.show();
+        }
+    }
+
+    min-height: 32px;
+    max-height: 32px;
+    min-width: 120px;
+    border-radius: AedstTokens.radius-md;
+    background: AedstTokens.background;
+    border-width: focus.has-focus ? 2px : 1px;
+    border-color: root.invalid ? AedstTokens.destructive : (focus.has-focus ? AedstTokens.ring : AedstTokens.input);
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: combobox;
+    accessible-label: root.label;
+    accessible-value: root.text;
+    accessible-enabled: root.enabled;
+    accessible-expandable: true;
+    accessible-action-default => { root.show(); }
+    accessible-action-expand => { root.show(); }
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n" || event.text == Key.DownArrow) {
+                root.show();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    Text {
+        x: root.rtl ? 28px : AedstTokens.spacing-sm;
+        width: parent.width - 28px - AedstTokens.spacing-sm;
+        text: root.text == "" ? root.placeholder : root.text;
+        color: root.text == "" ? AedstTokens.muted-foreground : AedstTokens.foreground;
+        font-size: AedstTokens.typography-body-medium-font-size;
+        horizontal-alignment: root.rtl ? right : left;
+        vertical-alignment: center;
+        overflow: elide;
+        accessible-role: AccessibleRole.none;
+    }
+    // Up/down chevrons at the reading end.
+    Path {
+        x: root.rtl ? AedstTokens.spacing-sm : parent.width - self.width - AedstTokens.spacing-sm;
+        y: (parent.height - self.height) / 2;
+        width: 12px;
+        height: 12px;
+        viewbox-width: 12;
+        viewbox-height: 12;
+        stroke: AedstTokens.muted-foreground;
+        stroke-width: 1.5px;
+        commands: "M 3.5 4.5 L 6 2 L 8.5 4.5 M 3.5 7.5 L 6 10 L 8.5 7.5";
+    }
+
+    TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            focus.focus();
+            root.show();
+        }
+    }
+
+    popup := PopupWindow {
+        x: 0px;
+        y: root.height + AedstTokens.spacing-xs;
+        width: Math.max(root.width, 200px);
+        close-policy: PopupClosePolicy.close-on-click-outside;
+        AedstCommand {
+            items: root.options;
+            placeholder: root.search-placeholder;
+            label: root.label;
+            empty-text: root.empty-text;
+            autofocus: true;
+            query-edited(query) => { root.query-edited(query); }
+            activated(id) => {
+                popup.close();
+                root.selected(id);
+            }
+            dismissed => { popup.close(); }
+        }
+    }
+}

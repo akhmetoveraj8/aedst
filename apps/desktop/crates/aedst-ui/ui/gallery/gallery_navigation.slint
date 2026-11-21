@@ -1,0 +1,150 @@
+import {
+    AedstTokens, AedstLabel, AedstTabs, AedstTabsVariant, AedstBreadcrumb, AedstPagination, AedstAccordion,
+    AedstCollapsible, AedstMenubar, AedstNavigationMenu, AedstDropdownMenu, AedstContextMenu, AedstCommand,
+    AedstSidebar, AedstSidebarVariant, AedstTooltip, AedstHoverCard, AedstPopover, AedstButton,
+    AedstButtonVariant, AedstMenuItem
+} from "../lib.slint";
+import { GalleryState } from "gallery_state.slint";
+
+// Gallery page 3: navigation, menus and popups.
+export component GalleryNavigation inherits Rectangle {
+    private property <[AedstMenuItem]> file-menu: [
+        { id: "new", label: "New task", shortcut: "Ctrl+N" },
+        { id: "archive", label: "Archive", disabled: true },
+        { id: "delete", label: "Delete", destructive: true, separator: true },
+    ];
+    private property <string> section: "tasks";
+    private property <bool> rail: false;
+
+    public function focus-control(name: string) {
+        if (name == "tabs") { views.focus(); }
+        if (name == "collapsible") { details.focus(); }
+        if (name == "context-menu") { row-menu.focus(); }
+        if (name == "command") { palette.focus(); }
+    }
+
+    HorizontalLayout {
+        AedstSidebar {
+            label: "Sections";
+            title: "Workspace";
+            toggle-label: "Collapse sidebar";
+            variant: AedstSidebarVariant.outline;
+            collapsed <=> root.rail;
+            current-id: root.section;
+            items: [{ id: "tasks", title: "Tasks", badge: "3" }, { id: "media", title: "Media" }];
+            selected(id) => {
+                root.section = id;
+                GalleryState.log("sidebar:" + id);
+            }
+        }
+
+        VerticalLayout {
+            padding: AedstTokens.spacing-lg;
+            spacing: AedstTokens.spacing-md;
+            alignment: start;
+
+            AedstMenubar {
+                label: "Main menu";
+                menus: [{ title: "File", items: root.file-menu }, { title: "Edit", items: [{ id: "undo", label: "Undo" }] }];
+                activated(id) => { GalleryState.log("menubar:" + id); }
+            }
+            AedstNavigationMenu {
+                label: "Site";
+                current-id: "home";
+                items: [
+                    { id: "home", title: "Home" },
+                    { id: "docs", title: "Docs", links: [{ id: "guide", label: "Guide", description: "Start here" }] },
+                ];
+                navigate(id) => { GalleryState.log("navigate:" + id); }
+            }
+            AedstBreadcrumb {
+                label: "Location";
+                items: ["Projects", "Desktop", "Kit"];
+                navigate(index) => { GalleryState.log("breadcrumb:\{index}"); }
+            }
+
+            views := AedstTabs {
+                label: "Views";
+                items: ["Overview", "Activity", "Settings"];
+                variant: AedstTabsVariant.line;
+                current-index <=> GalleryState.tab-index;
+                selected(index) => { GalleryState.log("tabs:\{index}"); }
+                if GalleryState.tab-index == 0: AedstLabel { text: "Overview panel"; }
+                if GalleryState.tab-index == 1: AedstLabel { text: "Activity panel"; }
+                if GalleryState.tab-index == 2: AedstLabel { text: "Settings panel"; }
+            }
+
+            AedstAccordion {
+                items: [{ title: "Shipping", content: "Ships in two days." }, { title: "Returns", content: "Thirty days." }];
+                open-index <=> GalleryState.accordion-index;
+                toggled(index) => { GalleryState.log("accordion:\{index}"); }
+            }
+            details := AedstCollapsible {
+                title: "Advanced";
+                open <=> GalleryState.collapsible-open;
+                toggled(open) => { GalleryState.log(open ? "collapsible:open" : "collapsible:closed"); }
+                AedstLabel { text: "Advanced options"; }
+            }
+
+            HorizontalLayout {
+                spacing: AedstTokens.spacing-sm;
+                alignment: start;
+                AedstDropdownMenu {
+                    text: "Actions";
+                    items: root.file-menu;
+                    activated(id) => { GalleryState.log("dropdown:" + id); }
+                }
+                row-menu := AedstContextMenu {
+                    label: "Row actions";
+                    items: root.file-menu;
+                    activated(id) => { GalleryState.log("context:" + id); }
+                    AedstLabel { text: "Right-click this row"; }
+                }
+                AedstTooltip {
+                    text: "Creates an empty task";
+                    AedstButton { text: "Quick add"; variant: AedstButtonVariant.outline; }
+                }
+                AedstHoverCard {
+                    title: "Ada Lovelace";
+                    description: "Joined in 2026";
+                    AedstLabel { text: "@ada"; }
+                }
+                Rectangle {
+                    min-width: about.min-width;
+                    min-height: about.min-height;
+                    about := AedstButton {
+                        text: "About";
+                        variant: AedstButtonVariant.ghost;
+                        clicked => { about-popover.show(); }
+                    }
+                    about-popover := AedstPopover {
+                        label: "About this page";
+                        x: 0px;
+                        y: parent.height + AedstTokens.spacing-xs;
+                        width: 220px;
+                        AedstLabel { text: "The gallery shows every kit component."; }
+                    }
+                }
+            }
+
+            palette := AedstCommand {
+                label: "Command palette";
+                placeholder: "Type a command";
+                empty-text: "No commands";
+                items: root.file-menu;
+                query-edited(query) => { GalleryState.log("query:" + query); }
+                activated(id) => { GalleryState.log("command:" + id); }
+            }
+
+            AedstPagination {
+                label: "Pages";
+                previous-text: "Previous";
+                next-text: "Next";
+                page-label: "Page";
+                page-count: 9;
+                page <=> GalleryState.page-number;
+                page-changed(page) => { GalleryState.log("page:\{page}"); }
+            }
+        }
+    }
+}

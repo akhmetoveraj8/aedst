@@ -1,0 +1,106 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstMenuItem, AedstMenuList } from "aedst_dropdown_menu.slint";
+
+// A token-styled select: a trigger that shows the chosen option and a popup list with a check
+// mark on it. Enter, Space or Down open the list; inside it Up/Down, Home/End, Enter and Escape
+// work (AedstMenuList). `current-index` is the chosen option (-1: none, the placeholder shows).
+export component AedstSelect inherits Rectangle {
+    in property <[AedstMenuItem]> options;
+    in-out property <int> current-index: -1;
+    out property <string> value: root.current-index < 0 ? "" : root.options[root.current-index].id;
+    in property <string> placeholder;
+    in property <string> label;
+    in property <bool> invalid: false;
+    in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
+    // The `id` of the chosen option.
+    callback selected(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <string> shown: root.current-index < 0 ? "" : root.options[root.current-index].label;
+
+    public function show() {
+        if (root.enabled) {
+            popup.show();
+        }
+    }
+
+    min-height: 32px;
+    max-height: 32px;
+    min-width: 96px;
+    border-radius: AedstTokens.radius-md;
+    background: AedstTokens.background;
+    border-width: focus.has-focus ? 2px : 1px;
+    border-color: root.invalid ? AedstTokens.destructive : (focus.has-focus ? AedstTokens.ring : AedstTokens.input);
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: combobox;
+    accessible-label: root.label;
+    accessible-value: root.shown;
+    accessible-enabled: root.enabled;
+    accessible-expandable: true;
+    accessible-action-default => { root.show(); }
+    accessible-action-expand => { root.show(); }
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n" || event.text == Key.DownArrow) {
+                root.show();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    Text {
+        x: root.rtl ? 28px : AedstTokens.spacing-sm;
+        width: parent.width - 28px - AedstTokens.spacing-sm;
+        text: root.shown == "" ? root.placeholder : root.shown;
+        color: root.shown == "" ? AedstTokens.muted-foreground : AedstTokens.foreground;
+        font-size: AedstTokens.typography-body-medium-font-size;
+        horizontal-alignment: root.rtl ? right : left;
+        vertical-alignment: center;
+        overflow: elide;
+        accessible-role: AccessibleRole.none;
+    }
+    // Chevron at the reading end.
+    Path {
+        x: root.rtl ? AedstTokens.spacing-sm : parent.width - self.width - AedstTokens.spacing-sm;
+        y: (parent.height - self.height) / 2;
+        width: 12px;
+        height: 12px;
+        viewbox-width: 12;
+        viewbox-height: 12;
+        stroke: AedstTokens.muted-foreground;
+        stroke-width: 1.5px;
+        commands: "M 3 4.5 L 6 7.5 L 9 4.5";
+    }
+
+    TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            focus.focus();
+            root.show();
+        }
+    }
+
+    popup := PopupWindow {
+        x: 0px;
+        y: root.height + AedstTokens.spacing-xs;
+        width: root.width;
+        close-policy: PopupClosePolicy.close-on-click-outside;
+        AedstMenuList {
+            items: root.options;
+            label: root.label;
+            checked-index: root.current-index;
+            activated(index) => {
+                popup.close();
+                root.current-index = index;
+                root.selected(root.options[index].id);
+            }
+            dismissed => { popup.close(); }
+        }
+    }
+}

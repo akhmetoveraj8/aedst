@@ -1,0 +1,14 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+// A one-pixel divider. Decorative: it has no accessible role.
+export component AedstSeparator inherits Rectangle {
+    in property <Orientation> orientation: Orientation.horizontal;
+
+    background: AedstTokens.border;
+    min-width: 1px;
+    min-height: 1px;
+    max-height: root.orientation == Orientation.horizontal ? 1px : 100000px;
+    max-width: root.orientation == Orientation.vertical ? 1px : 100000px;
+    horizontal-stretch: root.orientation == Orientation.horizontal ? 1 : 0;
+    vertical-stretch: root.orientation == Orientation.vertical ? 1 : 0;
+}

@@ -1,0 +1,41 @@
+import { AedstButtonVariant } from "aedst_button.slint";
+import { AedstActionRow } from "aedst_action_row.slint";
+import { AedstDialog } from "aedst_dialog.slint";
+
+// A confirmation dialog: the user must choose. Escape and the secondary button cancel; a click
+// outside does nothing. Place it as the LAST child of the view's root element (see AedstDialog).
+export component AedstAlertDialog inherits Rectangle {
+    in-out property <bool> open;
+    in property <string> title;
+    in property <string> description;
+    in property <string> confirm-text;
+    in property <string> cancel-text;
+    // The confirm button uses the destructive variant (delete, sign out everywhere).
+    in property <bool> destructive: false;
+    callback confirmed();
+    callback cancelled();
+
+    visible: root.open;
+
+    AedstDialog {
+        open <=> root.open;
+        title: root.title;
+        description: root.description;
+        close-on-outside-click: false;
+        closed => { root.cancelled(); }
+
+        AedstActionRow {
+            primary-text: root.confirm-text;
+            secondary-text: root.cancel-text;
+            primary-variant: root.destructive ? AedstButtonVariant.destructive : AedstButtonVariant.default;
+            primary-clicked => {
+                root.open = false;
+                root.confirmed();
+            }
+            secondary-clicked => {
+                root.open = false;
+                root.cancelled();
+            }
+        }
+    }
+}

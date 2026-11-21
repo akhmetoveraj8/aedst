@@ -1,0 +1,103 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// A row of slides (the children) of which one is visible. Set `count` to the number of
+// children: every slide gets the full width of the carousel. Previous/next buttons, dots, and a
+// tab stop where the arrow keys change the slide (Left/Right follow the reading direction).
+// Slint cannot reverse a layout: the slides keep their physical left-to-right order in RTL; the
+// buttons, the dots and the arrow keys are mirrored.
+export component AedstCarousel inherits Rectangle {
+    in property <int> count;
+    in-out property <int> current-index: 0;
+    in property <string> label;
+    in property <string> previous-label;
+    in property <string> next-label;
+    out property <bool> has-focus: focus.has-focus;
+    callback index-changed(int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> bar: 36px;
+
+    function go(target: int) {
+        if (target >= 0 && target < root.count && target != root.current-index) {
+            root.current-index = target;
+            root.index-changed(target);
+        }
+    }
+
+    min-height: 96px + root.bar;
+    forward-focus: focus;
+    accessible-role: groupbox;
+    accessible-label: root.label;
+    accessible-value: "\{root.current-index + 1} / \{root.count}";
+
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == (root.rtl ? Key.LeftArrow : Key.RightArrow)) {
+                root.go(root.current-index + 1);
+                return accept;
+            }
+            if (event.text == (root.rtl ? Key.RightArrow : Key.LeftArrow)) {
+                root.go(root.current-index - 1);
+                return accept;
+            }
+            return reject;
+        }
+
+        Rectangle {
+            x: 0px;
+            y: 0px;
+            height: parent.height - root.bar;
+            clip: true;
+            border-radius: AedstTokens.radius-lg;
+            border-width: focus.has-focus ? 2px : 0px;
+            border-color: AedstTokens.ring;
+            HorizontalLayout {
+                x: -root.current-index * parent.width;
+                width: Math.max(1, root.count) * parent.width;
+                animate x { duration: AedstTokens.motion-duration-slow; easing: ease-in-out; }
+                @children
+            }
+        }
+    }
+
+    HorizontalLayout {
+        y: parent.height - root.bar;
+        height: root.bar;
+        spacing: AedstTokens.spacing-sm;
+        alignment: center;
+        // "Previous" sits at the reading start: the first button is "next" in RTL.
+        VerticalLayout {
+            alignment: center;
+            AedstButton {
+                text: "‹";
+                label: root.rtl ? root.next-label : root.previous-label;
+                variant: AedstButtonVariant.outline;
+                size: AedstButtonSize.icon-sm;
+                enabled: root.rtl ? root.current-index < root.count - 1 : root.current-index > 0;
+                clicked => { root.go(root.current-index + (root.rtl ? 1 : -1)); }
+            }
+        }
+        for slot in root.count: VerticalLayout {
+            alignment: center;
+            Rectangle {
+                width: 6px;
+                height: 6px;
+                border-radius: 3px;
+                background: (root.rtl ? root.count - 1 - slot : slot) == root.current-index ? AedstTokens.foreground : AedstTokens.border;
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            AedstButton {
+                text: "›";
+                label: root.rtl ? root.previous-label : root.next-label;
+                variant: AedstButtonVariant.outline;
+                size: AedstButtonSize.icon-sm;
+                enabled: root.rtl ? root.current-index > 0 : root.current-index < root.count - 1;
+                clicked => { root.go(root.current-index + (root.rtl ? -1 : 1)); }
+            }
+        }
+    }
+}

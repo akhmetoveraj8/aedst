@@ -1,0 +1,69 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstMenuItem, AedstMenuList } from "aedst_dropdown_menu.slint";
+
+export struct AedstMenubarMenu {
+    title: string,
+    items: [AedstMenuItem],
+}
+
+// A row of menus. Each title is a button (a tab stop; Enter and Space open its menu); the menu
+// itself is an AedstMenuList. The first menu sits at the reading start (the right in RTL).
+export component AedstMenubar inherits Rectangle {
+    in property <[AedstMenubarMenu]> menus;
+    in property <string> label;
+    in property <length> menu-width: 192px;
+    // The `id` of the activated entry.
+    callback activated(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <int> open-menu: 0;
+    private property <length> open-x;
+
+    // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored menu.
+    pure function at(slot: int) -> int {
+        return root.rtl ? root.menus.length - 1 - slot : slot;
+    }
+
+    min-height: 36px;
+    max-height: 36px;
+    background: AedstTokens.background;
+    border-radius: AedstTokens.radius-lg;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    HorizontalLayout {
+        padding: AedstTokens.spacing-xxs;
+        spacing: AedstTokens.spacing-xxs;
+        alignment: root.rtl ? end : start;
+        for slot in root.menus.length: head := AedstButton {
+            text: root.menus[root.at(slot)].title;
+            variant: AedstButtonVariant.ghost;
+            size: AedstButtonSize.sm;
+            clicked => {
+                root.open-menu = root.at(slot);
+                root.open-x = root.rtl ? head.x + head.width - root.menu-width : head.x;
+                popup.show();
+            }
+        }
+    }
+
+    popup := PopupWindow {
+        x: root.open-x;
+        y: root.height + AedstTokens.spacing-xs;
+        width: root.menu-width;
+        close-policy: PopupClosePolicy.close-on-click-outside;
+        AedstMenuList {
+            items: root.menus[root.open-menu].items;
+            label: root.menus[root.open-menu].title;
+            activated(index) => {
+                popup.close();
+                root.activated(root.menus[root.open-menu].items[index].id);
+            }
+            dismissed => { popup.close(); }
+        }
+    }
+}

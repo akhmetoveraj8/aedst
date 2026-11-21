@@ -1,0 +1,144 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// Variants and sizes are the ones of ui-kit.yaml (web `sidebarMenuButtonVariants`): they style
+// the menu entries.
+export enum AedstSidebarVariant { default, outline }
+export enum AedstSidebarSize { default, sm, lg }
+
+export struct AedstSidebarItem {
+    id: string,
+    title: string,
+    icon: image,
+    // Short text at the reading end (a count).
+    badge: string,
+}
+
+// The application sidebar: a header, a menu of destinations and a footer (the children). It
+// collapses to an icon rail. `current-id` marks the active destination. Every entry is a tab
+// stop; Enter and Space activate it. Put the sidebar at the reading start of the window layout:
+// its border is on the reading-end edge (the left in RTL).
+export component AedstSidebar inherits Rectangle {
+    in property <[AedstSidebarItem]> items;
+    in property <string> current-id;
+    in property <string> title;
+    in property <string> label;
+    in-out property <bool> collapsed: false;
+    // Text of the collapse button; the button is hidden without it.
+    in property <string> toggle-label;
+    in property <AedstSidebarVariant> variant: AedstSidebarVariant.default;
+    in property <AedstSidebarSize> size: AedstSidebarSize.default;
+    // The `id` of the chosen destination.
+    callback selected(string);
+    callback collapse-toggled(bool);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> pad: AedstTokens.spacing-sm;
+    private property <length> entry-height: root.size == AedstSidebarSize.sm ? 28px : root.size == AedstSidebarSize.lg ? 48px : 32px;
+
+    min-width: root.collapsed ? 48px : 240px;
+    max-width: root.collapsed ? 48px : 240px;
+    horizontal-stretch: 0;
+    background: AedstTokens.sidebar;
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    VerticalLayout {
+        padding: root.pad;
+        spacing: AedstTokens.spacing-xs;
+        if root.title != "" && !root.collapsed: Text {
+            text: root.title;
+            color: AedstTokens.sidebar-foreground;
+            font-size: AedstTokens.typography-label-large-font-size;
+            font-weight: AedstTokens.typography-headline-large-font-weight;
+            horizontal-alignment: root.rtl ? right : left;
+            overflow: elide;
+            height: 32px;
+            vertical-alignment: center;
+        }
+        for entry in root.items: line := Rectangle {
+            property <bool> current: entry.id == root.current-id;
+            height: root.entry-height;
+            border-radius: AedstTokens.radius-md;
+            background: (self.current || line-touch.has-hover) ? AedstTokens.sidebar-accent
+                : root.variant == AedstSidebarVariant.outline ? AedstTokens.background : transparent;
+            border-width: line-focus.has-focus ? 2px : root.variant == AedstSidebarVariant.outline ? 1px : 0px;
+            border-color: line-focus.has-focus ? AedstTokens.sidebar-ring : AedstTokens.sidebar-border;
+            accessible-role: button;
+            accessible-label: entry.title;
+            accessible-description: entry.badge;
+            accessible-item-selectable: true;
+            accessible-item-selected: self.current;
+            accessible-action-default => { root.selected(entry.id); }
+
+            line-focus := FocusScope {
+                key-pressed(event) => {
+                    if (event.text == " " || event.text == "\n") {
+                        root.selected(entry.id);
+                        return accept;
+                    }
+                    return reject;
+                }
+            }
+            if entry.icon.width > 0: Image {
+                x: root.collapsed ? (parent.width - self.width) / 2 : root.rtl ? parent.width - root.pad - self.width : root.pad;
+                y: (parent.height - self.height) / 2;
+                width: 16px;
+                height: 16px;
+                source: entry.icon;
+                colorize: line.current ? AedstTokens.sidebar-accent-foreground : AedstTokens.sidebar-foreground;
+                accessible-role: AccessibleRole.none;
+            }
+            if !root.collapsed: Text {
+                x: root.pad + (root.rtl ? (entry.badge == "" ? 0px : 32px) : (entry.icon.width > 0 ? 24px : 0px));
+                width: parent.width - 2 * root.pad - (entry.icon.width > 0 ? 24px : 0px) - (entry.badge == "" ? 0px : 32px);
+                text: entry.title;
+                color: line.current ? AedstTokens.sidebar-accent-foreground : AedstTokens.sidebar-foreground;
+                font-size: root.size == AedstSidebarSize.sm ? AedstTokens.typography-body-small-font-size : AedstTokens.typography-body-medium-font-size;
+                font-weight: line.current ? AedstTokens.typography-label-large-font-weight : AedstTokens.typography-body-medium-font-weight;
+                horizontal-alignment: root.rtl ? right : left;
+                vertical-alignment: center;
+                overflow: elide;
+                accessible-role: AccessibleRole.none;
+            }
+            if !root.collapsed && entry.badge != "": Text {
+                x: root.rtl ? root.pad : parent.width - root.pad - self.width;
+                width: 28px;
+                text: entry.badge;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-label-medium-font-size;
+                horizontal-alignment: root.rtl ? left : right;
+                vertical-alignment: center;
+                accessible-role: AccessibleRole.none;
+            }
+            line-touch := TouchArea {
+                clicked => {
+                    line-focus.focus();
+                    root.selected(entry.id);
+                }
+            }
+        }
+        Rectangle {
+            vertical-stretch: 1;
+        }
+        @children
+        if root.toggle-label != "": AedstButton {
+            text: root.collapsed ? (root.rtl ? "\u{2039}" : "\u{203A}") : root.toggle-label;
+            label: root.toggle-label;
+            variant: AedstButtonVariant.ghost;
+            size: root.collapsed ? AedstButtonSize.icon : AedstButtonSize.default;
+            clicked => {
+                root.collapsed = !root.collapsed;
+                root.collapse-toggled(root.collapsed);
+            }
+        }
+    }
+
+    // Border on the reading-end edge.
+    Rectangle {
+        x: root.rtl ? 0px : parent.width - 1px;
+        width: 1px;
+        background: AedstTokens.sidebar-border;
+    }
+}

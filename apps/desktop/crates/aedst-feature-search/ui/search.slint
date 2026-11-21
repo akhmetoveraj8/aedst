@@ -1,6 +1,6 @@
 // The Search screen. Stateless: it renders `SearchStore` and calls its callbacks; Rust
 // (`ui_glue.rs`) owns the state. Only `aedst-ui` components are used; no raw std-widgets control.
-import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstTextField, AedstBadge } from "@aedst-ui";
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstInput, AedstBadge, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
 
 export struct HitRowData {
     kind: string,    // task | media | unknown
@@ -92,13 +92,13 @@ component HitRow inherits Rectangle {
         spacing: AedstTokens.spacing-xs;
         if !AedstLayout.rtl: HorizontalLayout {
             spacing: AedstTokens.spacing-sm;
-            AedstBadge { text: SearchTexts.document-kind-text(root.data.kind); vertical-stretch: 0; }
+            AedstBadge { variant: AedstBadgeVariant.secondary; text: SearchTexts.document-kind-text(root.data.kind); vertical-stretch: 0; }
             AedstLabel { text: root.data.title; font-weight: 600; horizontal-stretch: 1; }
         }
         if AedstLayout.rtl: HorizontalLayout {
             spacing: AedstTokens.spacing-sm;
             AedstLabel { text: root.data.title; font-weight: 600; horizontal-stretch: 1; }
-            AedstBadge { text: SearchTexts.document-kind-text(root.data.kind); vertical-stretch: 0; }
+            AedstBadge { variant: AedstBadgeVariant.secondary; text: SearchTexts.document-kind-text(root.data.kind); vertical-stretch: 0; }
         }
         if root.data.snippet != "": AedstLabel {
             text: root.data.snippet;
@@ -133,12 +133,14 @@ export component SearchListView inherits Rectangle {
                 }
                 if SearchStore.phase == "ready" && SearchStore.total > 0: AedstBadge {
                     text: @tr("" => "About {} results", SearchStore.total);
+                    variant: AedstBadgeVariant.secondary;
                 }
             }
             if AedstLayout.rtl: HorizontalLayout {
                 spacing: AedstTokens.spacing-sm;
                 if SearchStore.phase == "ready" && SearchStore.total > 0: AedstBadge {
                     text: @tr("" => "About {} results", SearchStore.total);
+                    variant: AedstBadgeVariant.secondary;
                 }
                 AedstLabel {
                     text: @tr("" => "Search");
@@ -148,7 +150,7 @@ export component SearchListView inherits Rectangle {
             }
         }
 
-        AedstTextField {
+        AedstInput {
             text <=> SearchStore.query;
             label: @tr("" => "Search");
             placeholder: @tr("" => "Search tasks and files");
@@ -186,7 +188,7 @@ export component SearchListView inherits Rectangle {
             vertical-stretch: 0;
             AedstLabel { text: @tr("" => "Could not search"); font-weight: 600; }
             AedstLabel { text: SearchTexts.kind-text(SearchStore.error-kind); color: AedstTokens.destructive; }
-            AedstButton { text: @tr("" => "Try again"); primary: false; clicked => { SearchStore.submit(); } }
+            AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { SearchStore.submit(); } }
         }
         if SearchStore.phase == "ready" && SearchStore.rows.length == 0: VerticalLayout {
             alignment: start;
@@ -213,7 +215,7 @@ export component SearchListView inherits Rectangle {
         if SearchStore.has-more: AedstButton {
             text: SearchStore.loading-more ? @tr("" => "Loading...") : @tr("" => "Load more");
             enabled: !SearchStore.loading-more;
-            primary: false;
+            variant: AedstButtonVariant.secondary;
             vertical-stretch: 0;
             clicked => { SearchStore.load-more(); }
         }

@@ -1,0 +1,66 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// An on/off switch. Controlled, like AedstCheckbox: `toggled(value)` asks for the new state; the caller sets `checked`.
+// The thumb rests at the reading start when off (the right in RTL).
+export component AedstSwitch inherits Rectangle {
+    in property <bool> checked;
+    in property <string> label;
+    in property <bool> enabled: true;
+    callback toggled(bool);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> thumb-at-right: root.checked != root.rtl;
+
+    function flip() {
+        if (root.enabled) {
+            root.toggled(!root.checked);
+        }
+    }
+
+    width: 32px;
+    height: 18px;
+    border-radius: 9px;
+    background: root.checked ? AedstTokens.primary : AedstTokens.input;
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: switch;
+    accessible-label: root.label;
+    accessible-checkable: true;
+    accessible-checked: root.checked;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { root.flip(); }
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n") {
+                root.flip();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    Rectangle {
+        x: root.thumb-at-right ? parent.width - self.width - 2px : 2px;
+        y: 2px;
+        width: 14px;
+        height: 14px;
+        border-radius: 7px;
+        background: AedstTokens.background;
+        animate x { duration: AedstTokens.motion-duration-fast; easing: ease-out; }
+    }
+
+    // Visible keyboard focus ring.
+    Rectangle {
+        border-width: focus.has-focus ? 2px : 0px;
+        border-color: AedstTokens.ring;
+        border-radius: 9px;
+    }
+
+    TouchArea {
+        enabled: root.enabled;
+        clicked => { root.flip(); }
+    }
+}

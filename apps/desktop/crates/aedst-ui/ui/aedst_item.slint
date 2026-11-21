@@ -1,0 +1,111 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// ui-kit.yaml lists `default, outline, muted, icon, image` for `item`: on web these are two cva
+// definitions, the item itself (`itemVariants`) and its media (`itemMediaVariants`).
+export enum AedstItemVariant { default, outline, muted }
+export enum AedstItemMediaVariant { default, icon, image }
+export enum AedstItemSize { default, sm, xs }
+
+// A list row: media, title and description, then actions (the children) at the reading end.
+// With `interactive` the whole row is a button (Enter and Space activate it).
+export component AedstItem inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <image> media;
+    in property <AedstItemVariant> variant: AedstItemVariant.default;
+    in property <AedstItemMediaVariant> media-variant: AedstItemMediaVariant.default;
+    in property <AedstItemSize> size: AedstItemSize.default;
+    in property <bool> interactive: false;
+    out property <bool> has-focus: focus.has-focus;
+    callback clicked();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> pad: root.size == AedstItemSize.xs ? AedstTokens.spacing-sm : AedstTokens.spacing-md;
+    private property <length> gap: AedstTokens.spacing-sm;
+    private property <length> media-side: root.media.width == 0 ? 0px
+        : root.media-variant != AedstItemMediaVariant.image ? 16px
+        : root.size == AedstItemSize.xs ? 24px : root.size == AedstItemSize.sm ? 32px : 40px;
+    private property <length> media-space: root.media-side > 0 ? root.media-side + root.gap : 0px;
+    private property <length> actions-space: actions.preferred-width > 0 ? actions.preferred-width + root.gap : 0px;
+
+    min-height: Math.max(texts.preferred-height, Math.max(actions.preferred-height, root.media-side)) + 2 * root.pad;
+    min-width: 2 * root.pad + root.media-space + root.actions-space + 64px;
+    border-radius: AedstTokens.radius-lg;
+    border-width: root.variant == AedstItemVariant.outline ? 1px : 0px;
+    border-color: AedstTokens.border;
+    background: (root.interactive && touch.has-hover) ? AedstTokens.muted
+        : root.variant == AedstItemVariant.muted ? AedstTokens.muted.transparentize(0.5) : transparent;
+    forward-focus: focus;
+    accessible-role: root.interactive ? AccessibleRole.button : AccessibleRole.list-item;
+    accessible-label: root.title;
+    accessible-description: root.description;
+    accessible-action-default => { if (root.interactive) { root.clicked(); } }
+
+    focus := FocusScope {
+        enabled: root.interactive;
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n") {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+    touch := TouchArea {
+        enabled: root.interactive;
+        clicked => { root.clicked(); }
+    }
+
+    if root.media-side > 0: Image {
+        x: root.rtl ? parent.width - root.pad - self.width : root.pad;
+        y: (parent.height - self.height) / 2;
+        width: root.media-side;
+        height: root.media-side;
+        source: root.media;
+        image-fit: cover;
+        colorize: root.media-variant == AedstItemMediaVariant.icon ? AedstTokens.foreground : transparent;
+        accessible-role: AccessibleRole.none;
+    }
+
+    texts := VerticalLayout {
+        x: root.pad + (root.rtl ? root.actions-space : root.media-space);
+        y: (parent.height - self.height) / 2;
+        width: parent.width - 2 * root.pad - root.media-space - root.actions-space;
+        height: self.preferred-height;
+        spacing: AedstTokens.spacing-xxs;
+        Text {
+            text: root.title;
+            color: AedstTokens.foreground;
+            font-size: AedstTokens.typography-label-large-font-size;
+            font-weight: AedstTokens.typography-label-large-font-weight;
+            horizontal-alignment: root.rtl ? right : left;
+            overflow: elide;
+            accessible-role: AccessibleRole.none;
+        }
+        if root.description != "": Text {
+            text: root.description;
+            color: AedstTokens.muted-foreground;
+            font-size: root.size == AedstItemSize.default ? AedstTokens.typography-body-medium-font-size : AedstTokens.typography-body-small-font-size;
+            horizontal-alignment: root.rtl ? right : left;
+            wrap: word-wrap;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+
+    actions := HorizontalLayout {
+        x: root.rtl ? root.pad : parent.width - root.pad - self.width;
+        y: (parent.height - self.height) / 2;
+        width: self.preferred-width;
+        height: self.preferred-height;
+        spacing: AedstTokens.spacing-xs;
+        @children
+    }
+
+    // Visible keyboard focus ring.
+    Rectangle {
+        border-width: focus.has-focus ? 2px : 0px;
+        border-color: AedstTokens.ring;
+        border-radius: AedstTokens.radius-lg;
+    }
+}

@@ -1,0 +1,21 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstAlert, AedstAlertVariant } from "aedst_alert.slint";
+
+// A group of fields (the children, usually AedstField) with a form-level error above them.
+// Validation lives in the feature's presentation code: it sets `error` here and on each field.
+export component AedstForm inherits Rectangle {
+    in property <string> label;
+    in property <string> error;
+
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    VerticalLayout {
+        spacing: AedstTokens.spacing-lg;
+        if root.error != "": AedstAlert {
+            title: root.error;
+            variant: AedstAlertVariant.destructive;
+        }
+        @children
+    }
+}

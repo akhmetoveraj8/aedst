@@ -1,30 +1,46 @@
 import { AedstTokens } from "aedst_tokens.slint";
 
-// A small status label. `tone`: neutral, success, danger.
+// Variants are the ones of ui-kit.yaml (web `badgeVariants`).
+export enum AedstBadgeVariant { default, secondary, destructive, success, warning, info, outline, ghost, link }
+
+// A small status label. The text carries the meaning; colour only supports it.
 export component AedstBadge inherits Rectangle {
     in property <string> text;
-    in property <string> tone: "neutral";
+    in property <AedstBadgeVariant> variant: AedstBadgeVariant.default;
 
-    background: root.tone == "success" ? AedstTokens.success
-        : root.tone == "danger" ? AedstTokens.destructive
-        : AedstTokens.secondary;
-    border-radius: AedstTokens.radius-sm;
-    max-height: 24px;
+    private property <color> ink: root.variant == AedstBadgeVariant.default ? AedstTokens.primary-foreground
+        : root.variant == AedstBadgeVariant.secondary ? AedstTokens.secondary-foreground
+        : root.variant == AedstBadgeVariant.destructive ? AedstTokens.destructive
+        : root.variant == AedstBadgeVariant.success ? AedstTokens.success-foreground
+        : root.variant == AedstBadgeVariant.warning ? AedstTokens.warning-foreground
+        : root.variant == AedstBadgeVariant.info ? AedstTokens.info-foreground
+        : root.variant == AedstBadgeVariant.link ? AedstTokens.primary
+        : AedstTokens.foreground;
+
+    background: root.variant == AedstBadgeVariant.default ? AedstTokens.primary
+        : root.variant == AedstBadgeVariant.secondary ? AedstTokens.secondary
+        : root.variant == AedstBadgeVariant.destructive ? AedstTokens.destructive.transparentize(0.9)
+        : root.variant == AedstBadgeVariant.success ? AedstTokens.success
+        : root.variant == AedstBadgeVariant.warning ? AedstTokens.warning
+        : root.variant == AedstBadgeVariant.info ? AedstTokens.info
+        : AedstTokens.muted.transparentize(1.0);
+    border-width: root.variant == AedstBadgeVariant.outline ? 1px : 0px;
+    border-color: AedstTokens.border;
+    border-radius: self.height / 2;
+    max-height: 22px;
     accessible-role: AccessibleRole.text;
     accessible-label: root.text;
 
     HorizontalLayout {
-        padding-left: AedstTokens.spacing-xs + 2px;
-        padding-right: AedstTokens.spacing-xs + 2px;
-        padding-top: 2px;
-        padding-bottom: 2px;
+        padding-left: AedstTokens.spacing-sm;
+        padding-right: AedstTokens.spacing-sm;
+        padding-top: AedstTokens.spacing-xxs;
+        padding-bottom: AedstTokens.spacing-xxs;
         Text {
             text: root.text;
-            color: root.tone == "success" ? AedstTokens.success-foreground
-                : root.tone == "danger" ? AedstTokens.destructive-foreground
-                : AedstTokens.secondary-foreground;
-            font-size: AedstTokens.typography-label-small-font-size;
-            font-weight: AedstTokens.typography-label-small-font-weight;
+            color: root.ink;
+            font-size: AedstTokens.typography-label-medium-font-size;
+            font-weight: AedstTokens.typography-label-medium-font-weight;
             vertical-alignment: center;
         }
     }

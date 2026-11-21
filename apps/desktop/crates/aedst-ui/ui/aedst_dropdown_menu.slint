@@ -1,0 +1,248 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// One entry of a menu, a select, a combobox or a command list.
+export struct AedstMenuItem {
+    id: string,
+    label: string,
+    // Second line under the label (navigation menus).
+    description: string,
+    // Shown at the reading end, for example "Ctrl+K". Informational: the feature binds the key.
+    shortcut: string,
+    disabled: bool,
+    destructive: bool,
+    // Draws a separator line above this entry.
+    separator: bool,
+}
+
+// One row of a menu list (shared by AedstMenuList and AedstCommand). The check mark column
+// appears with `show-check`; the label sits at the reading start, the shortcut at the reading end.
+export component AedstMenuRow inherits Rectangle {
+    in property <AedstMenuItem> data;
+    in property <bool> active;
+    in property <bool> checked;
+    in property <bool> show-check;
+    in property <int> index;
+    in property <int> count;
+    callback clicked();
+    callback hovered();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> pad: AedstTokens.spacing-sm;
+    private property <length> lead: root.show-check ? 20px : 0px;
+    private property <color> ink: root.data.destructive ? AedstTokens.destructive : AedstTokens.popover-foreground;
+
+    min-height: Math.max(28px, texts.preferred-height + AedstTokens.spacing-sm);
+    min-width: 2 * root.pad + root.lead + texts.preferred-width + (root.data.shortcut == "" ? 0px : keys.preferred-width + AedstTokens.spacing-lg);
+    border-radius: AedstTokens.radius-sm;
+    background: (root.active && !root.data.disabled) ? AedstTokens.accent : transparent;
+    opacity: root.data.disabled ? 0.5 : 1.0;
+    accessible-role: list-item;
+    accessible-label: root.data.label;
+    accessible-description: root.data.description;
+    accessible-enabled: !root.data.disabled;
+    accessible-item-selectable: true;
+    accessible-item-selected: root.checked;
+    accessible-item-index: root.index;
+    accessible-item-count: root.count;
+    accessible-action-default => { if (!root.data.disabled) { root.clicked(); } }
+
+    if root.checked: Text {
+        x: root.rtl ? parent.width - root.pad - self.width : root.pad;
+        width: 16px;
+        text: "\u{2713}";
+        color: root.ink;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        accessible-role: AccessibleRole.none;
+    }
+    texts := VerticalLayout {
+        x: root.rtl ? parent.width - root.pad - root.lead - self.width : root.pad + root.lead;
+        y: (parent.height - self.height) / 2;
+        width: self.preferred-width;
+        height: self.preferred-height;
+        Text {
+            text: root.data.label;
+            color: root.ink;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: root.rtl ? right : left;
+            accessible-role: AccessibleRole.none;
+        }
+        if root.data.description != "": Text {
+            text: root.data.description;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-body-small-font-size;
+            horizontal-alignment: root.rtl ? right : left;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+    keys := Text {
+        x: root.rtl ? root.pad : parent.width - root.pad - self.width;
+        width: self.preferred-width;
+        text: root.data.shortcut;
+        color: AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-body-small-font-size;
+        vertical-alignment: center;
+        accessible-role: AccessibleRole.none;
+    }
+    touch := TouchArea {
+        enabled: !root.data.disabled;
+        clicked => { root.clicked(); }
+        changed has-hover => {
+            if (self.has-hover) {
+                root.hovered();
+            }
+        }
+    }
+}
+
+// The content of a menu popup. It takes the keyboard focus when it appears: Up/Down, Home/End
+// move the active entry, Enter and Space activate it, Escape asks the owner to close.
+export component AedstMenuList inherits Rectangle {
+    in property <[AedstMenuItem]> items;
+    in property <string> label;
+    // Index of the entry that carries the check mark (-1: no check column), used by AedstSelect.
+    in property <int> checked-index: -1;
+    in property <bool> autofocus: true;
+    // The index of the activated entry in `items`.
+    callback activated(int);
+    callback dismissed();
+
+    private property <int> active: -1;
+
+    // One step in `direction`; a disabled entry is skipped once (two disabled neighbours stop the move).
+    pure function step(from: int, direction: int) -> int {
+        return root.items[root.wrap(from + direction)].disabled ? root.wrap(from + 2 * direction) : root.wrap(from + direction);
+    }
+    pure function wrap(index: int) -> int {
+        return root.items.length == 0 ? -1 : Math.mod(index + root.items.length, root.items.length);
+    }
+    function activate(index: int) {
+        if (index >= 0 && index < root.items.length && !root.items[index].disabled) {
+            root.activated(index);
+        }
+    }
+
+    init => {
+        if (root.autofocus) {
+            focus.focus();
+        }
+    }
+
+    min-width: Math.max(160px, rows.min-width);
+    min-height: rows.min-height;
+    preferred-height: rows.preferred-height;
+    background: AedstTokens.popover;
+    border-radius: AedstTokens.radius-lg;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+    drop-shadow-blur: AedstTokens.elevation-level-4;
+    drop-shadow-offset-y: AedstTokens.elevation-level-1;
+    drop-shadow-color: AedstTokens.foreground.transparentize(0.85);
+    forward-focus: focus;
+    accessible-role: list;
+    accessible-label: root.label;
+
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.DownArrow) {
+                root.active = root.step(root.active, 1);
+                return accept;
+            }
+            if (event.text == Key.UpArrow) {
+                root.active = root.step(root.active < 0 ? 0 : root.active, -1);
+                return accept;
+            }
+            if (event.text == Key.Home) {
+                root.active = root.step(-1, 1);
+                return accept;
+            }
+            if (event.text == Key.End) {
+                root.active = root.step(root.items.length, -1);
+                return accept;
+            }
+            if (event.text == " " || event.text == "\n") {
+                root.activate(root.active);
+                return accept;
+            }
+            if (event.text == Key.Escape) {
+                root.dismissed();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    rows := VerticalLayout {
+        padding: AedstTokens.spacing-xs;
+        for entry[position] in root.items: VerticalLayout {
+            if entry.separator: VerticalLayout {
+                padding-top: AedstTokens.spacing-xs;
+                padding-bottom: AedstTokens.spacing-xs;
+                Rectangle {
+                    height: 1px;
+                    background: AedstTokens.border;
+                }
+            }
+            AedstMenuRow {
+                data: entry;
+                active: root.active == position;
+                checked: root.checked-index == position;
+                show-check: root.checked-index >= 0;
+                index: position;
+                count: root.items.length;
+                clicked => { root.activate(position); }
+                hovered => { root.active = position; }
+            }
+        }
+    }
+}
+
+// A button that opens a menu under itself. The menu aligns with the reading start edge of the button.
+export component AedstDropdownMenu inherits Rectangle {
+    in property <string> text;
+    in property <string> label: root.text;
+    in property <[AedstMenuItem]> items;
+    in property <AedstButtonVariant> variant: AedstButtonVariant.outline;
+    in property <AedstButtonSize> size: AedstButtonSize.default;
+    in property <bool> enabled: true;
+    in property <length> menu-width: 192px;
+    // The `id` of the activated entry.
+    callback activated(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    public function show() { popup.show(); }
+
+    min-width: trigger.min-width;
+    min-height: trigger.min-height;
+    max-height: trigger.max-height;
+    preferred-width: trigger.preferred-width;
+    forward-focus: trigger;
+
+    trigger := AedstButton {
+        text: root.text;
+        label: root.label;
+        variant: root.variant;
+        size: root.size;
+        enabled: root.enabled;
+        clicked => { popup.show(); }
+    }
+
+    popup := PopupWindow {
+        x: root.rtl ? root.width - root.menu-width : 0px;
+        y: root.height + AedstTokens.spacing-xs;
+        width: root.menu-width;
+        close-policy: PopupClosePolicy.close-on-click-outside;
+        AedstMenuList {
+            items: root.items;
+            label: root.label;
+            activated(index) => {
+                popup.close();
+                root.activated(root.items[index].id);
+            }
+            dismissed => { popup.close(); }
+        }
+    }
+}

@@ -1,0 +1,96 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// How the series is drawn (a desktop property, not a manifest variant: the web chart is a
+// Recharts container).
+export enum AedstChartKind { bar, line }
+
+// A single-series chart drawn with built-in elements (`Rectangle` bars, `Path` segments), in the
+// chart tokens. `maximum` is the top of the value axis and must be set by the caller (Slint
+// cannot fold an array). The first value sits at the reading start (the right in RTL).
+// `label` and `description` (a one-sentence summary of the data) are what a screen reader gets.
+export component AedstChart inherits Rectangle {
+    in property <[float]> values;
+    in property <[string]> labels;
+    in property <float> maximum: 100;
+    in property <string> label;
+    in property <string> description;
+    in property <AedstChartKind> kind: AedstChartKind.bar;
+    // Which chart token colours the series: 1 to 5.
+    in property <int> series: 2;
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <color> ink: root.series == 1 ? AedstTokens.chart-1 : root.series == 3 ? AedstTokens.chart-3
+        : root.series == 4 ? AedstTokens.chart-4 : root.series == 5 ? AedstTokens.chart-5 : AedstTokens.chart-2;
+    private property <int> segments: Math.max(0, root.values.length - 1);
+    private property <length> axis: 20px;
+    private property <length> plot-height: root.height - root.axis;
+    private property <length> band: root.values.length > 0 ? root.width / root.values.length : root.width;
+
+    // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored value.
+    pure function at(slot: int) -> int {
+        return root.rtl ? root.values.length - 1 - slot : slot;
+    }
+    pure function level(index: int) -> length {
+        return root.plot-height * (1 - Math.max(0, Math.min(1, root.maximum <= 0 ? 0 : root.values[index] / root.maximum)));
+    }
+
+    min-height: 96px;
+    min-width: 96px;
+    accessible-role: AccessibleRole.image;
+    accessible-label: root.label;
+    accessible-description: root.description;
+
+    // Baseline.
+    Rectangle {
+        y: root.plot-height;
+        height: 1px;
+        background: AedstTokens.border;
+    }
+
+    if root.kind == AedstChartKind.bar: Rectangle {
+        for slot in root.values.length: Rectangle {
+            x: slot * root.band + root.band * 0.15;
+            y: root.level(root.at(slot));
+            width: root.band * 0.7;
+            height: root.plot-height - self.y;
+            border-top-left-radius: AedstTokens.radius-xs;
+            border-top-right-radius: AedstTokens.radius-xs;
+            background: root.ink;
+        }
+    }
+
+    if root.kind == AedstChartKind.line: Rectangle {
+        for slot in root.segments: Path {
+            width: root.width;
+            height: root.height;
+            viewbox-width: root.width / 1px;
+            viewbox-height: root.height / 1px;
+            stroke: root.ink;
+            stroke-width: 2px;
+            MoveTo {
+                x: (slot + 0.5) * root.band / 1px;
+                y: root.level(root.at(slot)) / 1px;
+            }
+            LineTo {
+                x: (slot + 1.5) * root.band / 1px;
+                y: root.level(root.at(slot + 1)) / 1px;
+            }
+        }
+    }
+
+    for slot in root.values.length: Text {
+        x: slot * root.band;
+        y: root.plot-height + 2px;
+        width: root.band;
+        height: root.axis - 2px;
+        text: root.labels[root.at(slot)];
+        color: AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-label-small-font-size;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        overflow: elide;
+        accessible-role: AccessibleRole.text;
+        accessible-label: root.labels[root.at(slot)] + ": \{root.values[root.at(slot)]}";
+    }
+}

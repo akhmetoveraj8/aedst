@@ -1,0 +1,77 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+// Variants and sizes are the ones of ui-kit.yaml (web `toggleVariants`).
+export enum AedstToggleVariant { default, outline }
+export enum AedstToggleSize { default, sm, lg }
+
+// A two-state button. Controlled, like AedstCheckbox: `toggled(value)` asks for the new state; the caller sets `checked`.
+export component AedstToggle inherits Rectangle {
+    in property <string> text;
+    in property <string> label: root.text;
+    in property <bool> checked;
+    in property <AedstToggleVariant> variant: AedstToggleVariant.default;
+    in property <AedstToggleSize> size: AedstToggleSize.default;
+    in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
+    callback toggled(bool);
+
+    private property <length> side: root.size == AedstToggleSize.sm ? 28px : root.size == AedstToggleSize.lg ? 36px : 32px;
+
+    function flip() {
+        if (root.enabled) {
+            root.toggled(!root.checked);
+        }
+    }
+
+    min-height: root.side;
+    max-height: root.side;
+    min-width: root.side;
+    border-radius: AedstTokens.radius-md;
+    background: (root.checked || touch.has-hover) ? AedstTokens.muted : transparent;
+    border-width: root.variant == AedstToggleVariant.outline ? 1px : 0px;
+    border-color: AedstTokens.input;
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-checkable: true;
+    accessible-checked: root.checked;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { root.flip(); }
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n") {
+                root.flip();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    HorizontalLayout {
+        padding-left: AedstTokens.spacing-sm + AedstTokens.spacing-xxs;
+        padding-right: AedstTokens.spacing-sm + AedstTokens.spacing-xxs;
+        Text {
+            text: root.text;
+            color: root.checked ? AedstTokens.foreground : AedstTokens.muted-foreground;
+            font-size: root.size == AedstToggleSize.sm ? AedstTokens.typography-label-medium-font-size : AedstTokens.typography-label-large-font-size;
+            font-weight: AedstTokens.typography-label-large-font-weight;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    // Visible keyboard focus ring.
+    Rectangle {
+        border-width: focus.has-focus ? 2px : 0px;
+        border-color: AedstTokens.ring;
+        border-radius: AedstTokens.radius-md;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => { root.flip(); }
+    }
+}

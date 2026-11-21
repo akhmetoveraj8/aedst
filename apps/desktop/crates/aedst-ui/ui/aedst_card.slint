@@ -1,0 +1,39 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// A bordered surface with an optional header (title, description) above its content.
+export component AedstCard inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    background: AedstTokens.card;
+    border-radius: AedstTokens.radius-xl;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+
+    VerticalLayout {
+        padding: AedstTokens.spacing-lg;
+        spacing: AedstTokens.spacing-md;
+        if root.title != "" || root.description != "": VerticalLayout {
+            spacing: AedstTokens.spacing-xs;
+            if root.title != "": Text {
+                text: root.title;
+                color: AedstTokens.card-foreground;
+                font-size: AedstTokens.typography-title-small-font-size;
+                font-weight: AedstTokens.typography-title-small-font-weight;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+            }
+            if root.description != "": Text {
+                text: root.description;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+            }
+        }
+        @children
+    }
+}

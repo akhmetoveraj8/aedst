@@ -1,7 +1,7 @@
-//! AEDST Slint design system.
+//! AEDST Slint design system: the 60 components of the kit manifest (`ui-kit.yaml`) plus `AedstActionRow`.
 //!
 //! The components live in `ui/*.slint`; features import them with a library path that points
-//! at [`UI_DIR`]. [`gallery`] shows every component in LTR/RTL and light/dark.
+//! at [`UI_DIR`]. [`gallery`] shows every component in LTR/RTL and light/dark. Component list: `README.md`.
 
 /// Directory that holds the `.slint` sources of the design system (for other crates' build scripts).
 pub const UI_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/ui");

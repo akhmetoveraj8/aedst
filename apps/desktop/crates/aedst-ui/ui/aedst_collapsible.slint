@@ -1,0 +1,107 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// The header that opens and closes a section (also used by AedstAccordion). Controlled:
+// `toggled()` asks for the change. Enter and Space activate it; the chevron sits at the reading end.
+export component AedstCollapsibleTrigger inherits Rectangle {
+    in property <string> title;
+    in property <bool> open;
+    in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
+    callback toggled();
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    min-height: 36px;
+    border-radius: AedstTokens.radius-md;
+    background: touch.has-hover ? AedstTokens.muted : transparent;
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: button;
+    accessible-label: root.title;
+    accessible-expandable: true;
+    accessible-expanded: root.open;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { if (root.enabled) { root.toggled(); } }
+    accessible-action-expand => { if (root.enabled) { root.toggled(); } }
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n") {
+                root.toggled();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    Text {
+        x: root.rtl ? 28px : AedstTokens.spacing-sm;
+        width: parent.width - 28px - AedstTokens.spacing-sm;
+        text: root.title;
+        color: AedstTokens.foreground;
+        font-size: AedstTokens.typography-label-large-font-size;
+        font-weight: AedstTokens.typography-label-large-font-weight;
+        horizontal-alignment: root.rtl ? right : left;
+        vertical-alignment: center;
+        overflow: elide;
+        accessible-role: AccessibleRole.none;
+    }
+    // Chevron: down when open, pointing to the reading end when closed.
+    Path {
+        x: root.rtl ? AedstTokens.spacing-sm : parent.width - self.width - AedstTokens.spacing-sm;
+        y: (parent.height - self.height) / 2;
+        width: 12px;
+        height: 12px;
+        viewbox-width: 12;
+        viewbox-height: 12;
+        stroke: AedstTokens.muted-foreground;
+        stroke-width: 1.5px;
+        commands: root.open ? "M 3 4.5 L 6 7.5 L 9 4.5" : root.rtl ? "M 7.5 3 L 4.5 6 L 7.5 9" : "M 4.5 3 L 7.5 6 L 4.5 9";
+    }
+
+    // Visible keyboard focus ring.
+    Rectangle {
+        border-width: focus.has-focus ? 2px : 0px;
+        border-color: AedstTokens.ring;
+        border-radius: AedstTokens.radius-md;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => { root.toggled(); }
+    }
+}
+
+// A section that opens and closes itself; the children are the content. Bind `open` two-way
+// (`<=>`) to keep the state outside.
+export component AedstCollapsible inherits Rectangle {
+    in property <string> title;
+    in-out property <bool> open;
+    in property <bool> enabled: true;
+    callback toggled(bool);
+
+    forward-focus: trigger;
+
+    VerticalLayout {
+        trigger := AedstCollapsibleTrigger {
+            title: root.title;
+            open: root.open;
+            enabled: root.enabled;
+            toggled => {
+                root.open = !root.open;
+                root.toggled(root.open);
+            }
+        }
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := VerticalLayout {
+                padding: AedstTokens.spacing-sm;
+                @children
+            }
+        }
+    }
+}

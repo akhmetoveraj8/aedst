@@ -1,0 +1,107 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// A panel the user resizes by dragging the handle on its edge. Put it in a layout next to the
+// other panel: this one takes `extent`, the neighbour takes the rest. With a horizontal
+// orientation the panels sit side by side and the handle is on the reading-end edge (the left
+// in RTL); with a vertical one the handle is on the bottom edge. The handle is a tab stop:
+// arrow keys change the size by 16px, Home/End jump to the limits.
+export component AedstResizable inherits Rectangle {
+    in-out property <length> extent: 240px;
+    in property <length> minimum: 120px;
+    in property <length> maximum: 480px;
+    in property <Orientation> orientation: Orientation.horizontal;
+    // Accessible name of the handle ("Resize sidebar").
+    in property <string> label;
+    out property <bool> has-focus: focus.has-focus;
+    callback resized(length);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> sideways: root.orientation == Orientation.horizontal;
+    private property <length> grip: 8px;
+
+    function resize(next: length) {
+        root.extent = Math.max(root.minimum, Math.min(root.maximum, next));
+        root.resized(root.extent);
+    }
+
+    min-width: root.sideways ? root.extent : 0px;
+    max-width: root.sideways ? root.extent : 100000px;
+    min-height: root.sideways ? 0px : root.extent;
+    max-height: root.sideways ? 100000px : root.extent;
+    horizontal-stretch: root.sideways ? 0 : 1;
+    vertical-stretch: root.sideways ? 1 : 0;
+
+    Rectangle {
+        x: (root.sideways && root.rtl) ? root.grip : 0px;
+        y: 0px;
+        width: root.sideways ? parent.width - root.grip : parent.width;
+        height: root.sideways ? parent.height : parent.height - root.grip;
+        clip: true;
+        VerticalLayout {
+            @children
+        }
+    }
+
+    Rectangle {
+        x: !root.sideways ? 0px : root.rtl ? 0px : parent.width - root.grip;
+        y: root.sideways ? 0px : parent.height - root.grip;
+        width: root.sideways ? root.grip : parent.width;
+        height: root.sideways ? parent.height : root.grip;
+        accessible-role: slider;
+        accessible-label: root.label;
+        accessible-value: "\{Math.round(root.extent / 1px)}";
+        accessible-value-minimum: root.minimum / 1px;
+        accessible-value-maximum: root.maximum / 1px;
+        accessible-value-step: 16;
+        accessible-action-increment => { root.resize(root.extent + 16px); }
+        accessible-action-decrement => { root.resize(root.extent - 16px); }
+
+        focus := FocusScope {
+            key-pressed(event) => {
+                if (event.text == Key.Home) {
+                    root.resize(root.minimum);
+                    return accept;
+                }
+                if (event.text == Key.End) {
+                    root.resize(root.maximum);
+                    return accept;
+                }
+                if (root.sideways && (event.text == Key.LeftArrow || event.text == Key.RightArrow)) {
+                    // The arrow that points away from the panel grows it.
+                    root.resize(root.extent + ((event.text == Key.RightArrow) != root.rtl ? 16px : -16px));
+                    return accept;
+                }
+                if (!root.sideways && (event.text == Key.UpArrow || event.text == Key.DownArrow)) {
+                    root.resize(root.extent + (event.text == Key.DownArrow ? 16px : -16px));
+                    return accept;
+                }
+                return reject;
+            }
+        }
+
+        // The visible line: wider and ring-coloured while focused or dragged.
+        Rectangle {
+            width: root.sideways ? ((focus.has-focus || touch.pressed) ? 2px : 1px) : parent.width;
+            height: root.sideways ? parent.height : ((focus.has-focus || touch.pressed) ? 2px : 1px);
+            background: (focus.has-focus || touch.pressed) ? AedstTokens.ring : AedstTokens.border;
+        }
+
+        touch := TouchArea {
+            mouse-cursor: root.sideways ? MouseCursor.col-resize : MouseCursor.row-resize;
+            pointer-event(event) => {
+                if (event.kind == PointerEventKind.down) {
+                    focus.focus();
+                }
+            }
+            moved => {
+                if (self.pressed) {
+                    // The handle follows the edge, so the offset from the press point is the change.
+                    root.resize(root.extent + (root.sideways
+                        ? (root.rtl ? self.pressed-x - self.mouse-x : self.mouse-x - self.pressed-x)
+                        : self.mouse-y - self.pressed-y));
+                }
+            }
+        }
+    }
+}

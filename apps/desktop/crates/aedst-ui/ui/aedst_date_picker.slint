@@ -1,0 +1,126 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstCalendar } from "aedst_calendar.slint";
+
+// A trigger that shows the chosen date and opens an AedstCalendar in a popup. `text` is the
+// date formatted by the caller for the active locale (Slint has no date formatting); while it is
+// empty the placeholder shows. Enter, Space or Down open the calendar; choosing a day closes it.
+export component AedstDatePicker inherits Rectangle {
+    in property <string> text;
+    in property <string> placeholder;
+    in property <string> label;
+    in-out property <int> year: 2026;
+    in-out property <int> month: 1;
+    in-out property <int> selected-year;
+    in-out property <int> selected-month;
+    in-out property <int> selected-day;
+    in property <int> today-year;
+    in property <int> today-month;
+    in property <int> today-day;
+    in property <int> first-weekday: 1;
+    in property <[string]> month-names;
+    in property <[string]> weekday-names;
+    in property <string> previous-label;
+    in property <string> next-label;
+    in property <bool> invalid: false;
+    in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
+    // Year, month (1 to 12), day.
+    callback selected(int, int, int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> panel-width: 7 * 36px + 2 * AedstTokens.spacing-sm;
+
+    public function show() {
+        if (root.enabled) {
+            popup.show();
+        }
+    }
+
+    min-height: 32px;
+    max-height: 32px;
+    min-width: 140px;
+    border-radius: AedstTokens.radius-md;
+    background: AedstTokens.background;
+    border-width: focus.has-focus ? 2px : 1px;
+    border-color: root.invalid ? AedstTokens.destructive : (focus.has-focus ? AedstTokens.ring : AedstTokens.input);
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: combobox;
+    accessible-label: root.label;
+    accessible-value: root.text;
+    accessible-enabled: root.enabled;
+    accessible-expandable: true;
+    accessible-action-default => { root.show(); }
+    accessible-action-expand => { root.show(); }
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n" || event.text == Key.DownArrow) {
+                root.show();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    Text {
+        x: AedstTokens.spacing-sm;
+        width: parent.width - 2 * AedstTokens.spacing-sm;
+        text: root.text == "" ? root.placeholder : root.text;
+        color: root.text == "" ? AedstTokens.muted-foreground : AedstTokens.foreground;
+        font-size: AedstTokens.typography-body-medium-font-size;
+        horizontal-alignment: root.rtl ? right : left;
+        vertical-alignment: center;
+        overflow: elide;
+        accessible-role: AccessibleRole.none;
+    }
+
+    TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            focus.focus();
+            root.show();
+        }
+    }
+
+    popup := PopupWindow {
+        x: root.rtl ? root.width - root.panel-width : 0px;
+        y: root.height + AedstTokens.spacing-xs;
+        width: root.panel-width;
+        close-policy: PopupClosePolicy.close-on-click-outside;
+        Rectangle {
+            background: AedstTokens.popover;
+            border-radius: AedstTokens.radius-lg;
+            border-width: 1px;
+            border-color: AedstTokens.border;
+            drop-shadow-blur: AedstTokens.elevation-level-4;
+            drop-shadow-offset-y: AedstTokens.elevation-level-1;
+            drop-shadow-color: AedstTokens.foreground.transparentize(0.85);
+            VerticalLayout {
+                AedstCalendar {
+                    year <=> root.year;
+                    month <=> root.month;
+                    selected-year <=> root.selected-year;
+                    selected-month <=> root.selected-month;
+                    selected-day <=> root.selected-day;
+                    today-year: root.today-year;
+                    today-month: root.today-month;
+                    today-day: root.today-day;
+                    first-weekday: root.first-weekday;
+                    month-names: root.month-names;
+                    weekday-names: root.weekday-names;
+                    label: root.label;
+                    previous-label: root.previous-label;
+                    next-label: root.next-label;
+                    autofocus: true;
+                    selected(chosen-year, chosen-month, chosen-day) => {
+                        popup.close();
+                        root.selected(chosen-year, chosen-month, chosen-day);
+                    }
+                }
+            }
+        }
+    }
+}

@@ -32,6 +32,9 @@ allow = [
     "Unlicense",
 ]
 
+# The approved list of DIRECT dependencies is approved-crates.txt, enforced without cargo by
+# apps/desktop/scripts/check-approved-crates.sh. cargo-deny 0.20.2 has no allow-list for direct dependencies only
+# (`[bans] allow` covers transitive crates too), so it is not used for that.
 [bans]
 multiple-versions = "warn"
 wildcards = "deny"

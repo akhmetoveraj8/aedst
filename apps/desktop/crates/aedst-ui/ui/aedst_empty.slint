@@ -1,0 +1,54 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+// Variants are the ones of ui-kit.yaml (web `emptyMediaVariants`): how the media image is framed.
+export enum AedstEmptyVariant { default, icon }
+
+// An empty state: optional media, a title, a description and actions (the children), centred.
+export component AedstEmpty inherits Rectangle {
+    in property <image> media;
+    in property <string> title;
+    in property <string> description;
+    in property <AedstEmptyVariant> variant: AedstEmptyVariant.default;
+
+    VerticalLayout {
+        padding: AedstTokens.spacing-xxl;
+        spacing: AedstTokens.spacing-sm;
+        alignment: center;
+        if root.media.width > 0: HorizontalLayout {
+            alignment: center;
+            Rectangle {
+                width: root.variant == AedstEmptyVariant.icon ? 32px : 48px;
+                height: self.width;
+                border-radius: AedstTokens.radius-lg;
+                background: root.variant == AedstEmptyVariant.icon ? AedstTokens.muted : transparent;
+                Image {
+                    source: root.media;
+                    width: root.variant == AedstEmptyVariant.icon ? 16px : parent.width;
+                    height: self.width;
+                    colorize: root.variant == AedstEmptyVariant.icon ? AedstTokens.foreground : transparent;
+                    accessible-role: AccessibleRole.none;
+                }
+            }
+        }
+        if root.title != "": Text {
+            text: root.title;
+            color: AedstTokens.foreground;
+            font-size: AedstTokens.typography-title-small-font-size;
+            font-weight: AedstTokens.typography-title-small-font-weight;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+        if root.description != "": Text {
+            text: root.description;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+        HorizontalLayout {
+            alignment: center;
+            spacing: AedstTokens.spacing-sm;
+            @children
+        }
+    }
+}

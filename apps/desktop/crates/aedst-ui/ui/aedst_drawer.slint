@@ -1,0 +1,9 @@
+import { AedstSheet, AedstSheetSide } from "aedst_sheet.slint";
+
+// A sheet attached to the bottom edge, with a grab handle. Everything else (title, description,
+// `open`, `close()`, Escape, the scrim) is AedstSheet. Dragging the handle is not implemented.
+export component AedstDrawer inherits AedstSheet {
+    side: AedstSheetSide.bottom;
+    show-handle: true;
+    extent: 360px;
+}

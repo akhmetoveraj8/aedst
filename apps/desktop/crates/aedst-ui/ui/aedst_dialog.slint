@@ -1,0 +1,110 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// A modal dialog drawn inside the window: a scrim over the view and a centred panel with a
+// title, a description and the children. Place it as the LAST child of the view's root element
+// (not inside a layout) so it covers the view. Escape closes it; focus moves to the dialog when
+// it opens. Slint has no focus trap: Tab can still reach controls under the scrim (known gap).
+export component AedstDialog inherits Rectangle {
+    in-out property <bool> open;
+    in property <string> title;
+    in property <string> description;
+    // Accessible name of the close button; the button is hidden without it.
+    in property <string> close-label;
+    in property <bool> close-on-escape: true;
+    in property <bool> close-on-outside-click: true;
+    in property <length> panel-width: 420px;
+    callback closed();
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    public function close() {
+        if (root.open) {
+            root.open = false;
+            root.closed();
+        }
+    }
+
+    visible: root.open;
+    changed open => {
+        if (root.open) {
+            focus.focus();
+        }
+    }
+
+    // Scrim: dark in both themes.
+    Rectangle {
+        background: (AedstTokens.dark ? AedstTokens.background : AedstTokens.foreground).transparentize(0.5);
+        TouchArea {
+            enabled: root.open;
+            clicked => {
+                if (root.close-on-outside-click) {
+                    root.close();
+                }
+            }
+        }
+    }
+
+    // Keys bubble from the focused control inside the panel up to this scope.
+    focus := FocusScope {
+        enabled: root.open;
+        key-pressed(event) => {
+            if (event.text == Key.Escape && root.close-on-escape) {
+                root.close();
+                return accept;
+            }
+            return reject;
+        }
+
+        Rectangle {
+            width: Math.min(root.panel-width, parent.width - 2 * AedstTokens.spacing-lg);
+            height: Math.min(body.preferred-height, parent.height - 2 * AedstTokens.spacing-lg);
+            background: AedstTokens.popover;
+            border-radius: AedstTokens.radius-xl;
+            border-width: 1px;
+            border-color: AedstTokens.border;
+            drop-shadow-blur: AedstTokens.elevation-level-5;
+            drop-shadow-offset-y: AedstTokens.elevation-level-2;
+            drop-shadow-color: AedstTokens.foreground.transparentize(0.8);
+            accessible-role: groupbox;
+            accessible-label: root.title;
+            accessible-description: root.description;
+
+            // Clicks on the panel must not reach the scrim.
+            TouchArea { }
+
+            body := VerticalLayout {
+                padding: AedstTokens.spacing-lg;
+                spacing: AedstTokens.spacing-md;
+                if root.title != "": Text {
+                    text: root.title;
+                    color: AedstTokens.popover-foreground;
+                    font-size: AedstTokens.typography-title-small-font-size;
+                    font-weight: AedstTokens.typography-title-small-font-weight;
+                    horizontal-alignment: root.rtl ? right : left;
+                    wrap: word-wrap;
+                }
+                if root.description != "": Text {
+                    text: root.description;
+                    color: AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-body-medium-font-size;
+                    horizontal-alignment: root.rtl ? right : left;
+                    wrap: word-wrap;
+                }
+                @children
+            }
+
+            // The close button sits at the reading end of the header.
+            if root.close-label != "": AedstButton {
+                x: root.rtl ? AedstTokens.spacing-sm : parent.width - self.width - AedstTokens.spacing-sm;
+                y: AedstTokens.spacing-sm;
+                text: "\u{00D7}";
+                label: root.close-label;
+                variant: AedstButtonVariant.ghost;
+                size: AedstButtonSize.icon-sm;
+                clicked => { root.close(); }
+            }
+        }
+    }
+}

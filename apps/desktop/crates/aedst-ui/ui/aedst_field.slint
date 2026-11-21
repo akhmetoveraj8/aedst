@@ -1,0 +1,62 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// The `orientation` axis of ui-kit.yaml (web `fieldVariants`). `responsive` puts the label beside
+// the control when the field is at least `breakpoint-sm` wide.
+export enum AedstFieldOrientation { vertical, horizontal, responsive }
+
+// A labelled form control: label, the control (the children), then the error or the description.
+// Give the control the same text as its own `label`, so a screen reader announces it on focus.
+// One slot cannot sit in two layouts, so the parts are positioned by hand; the label is at the
+// reading start (the right in RTL).
+export component AedstField inherits Rectangle {
+    in property <string> label;
+    in property <string> description;
+    in property <string> error;
+    in property <AedstFieldOrientation> orientation: AedstFieldOrientation.vertical;
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> beside: root.orientation == AedstFieldOrientation.horizontal
+        || (root.orientation == AedstFieldOrientation.responsive && root.width >= AedstTokens.breakpoint-sm);
+    private property <length> gap: AedstTokens.spacing-sm;
+    private property <length> label-width: !root.beside ? root.width : Math.min(caption.preferred-width, root.width * 0.4);
+    private property <length> control-width: root.beside ? root.width - root.label-width - root.gap : root.width;
+    private property <length> control-x: (root.beside && !root.rtl) ? root.label-width + root.gap : 0px;
+
+    min-width: 96px;
+    min-height: note.y + note.height;
+    preferred-height: note.y + note.height;
+
+    caption := Text {
+        x: root.rtl ? root.width - self.width : 0px;
+        y: root.beside ? Math.max(0px, (control.height - self.height) / 2) : 0px;
+        width: root.label-width;
+        height: root.label == "" ? 0px : self.preferred-height;
+        text: root.label;
+        color: root.error != "" ? AedstTokens.destructive : AedstTokens.foreground;
+        font-size: AedstTokens.typography-label-large-font-size;
+        font-weight: AedstTokens.typography-label-large-font-weight;
+        horizontal-alignment: root.rtl ? right : left;
+        overflow: elide;
+    }
+
+    control := VerticalLayout {
+        x: root.control-x;
+        y: (root.beside || root.label == "") ? 0px : caption.height + root.gap;
+        width: root.control-width;
+        height: self.preferred-height;
+        @children
+    }
+
+    note := Text {
+        x: root.control-x;
+        y: control.y + control.height + (self.text == "" ? 0px : root.gap / 2);
+        width: root.control-width;
+        height: self.text == "" ? 0px : self.preferred-height;
+        text: root.error != "" ? root.error : root.description;
+        color: root.error != "" ? AedstTokens.destructive : AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-body-small-font-size;
+        horizontal-alignment: root.rtl ? right : left;
+        wrap: word-wrap;
+    }
+}

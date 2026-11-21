@@ -1,7 +1,7 @@
 // The Notifications views: the inbox (`NotificationsListView`) and the preferences
 // (`NotificationPreferencesView`). Stateless: they render `NotificationsStore` and call its
 // callbacks; Rust (`ui_glue.rs`) owns the state. Only `aedst-ui` components are used.
-import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstBadge, AedstCheckbox } from "@aedst-ui";
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstBadge, AedstCheckbox, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
 
 export struct NotificationRowData {
     id: string,
@@ -113,7 +113,7 @@ component NotificationRow inherits Rectangle {
         NotificationTexts { data: root.data; horizontal-stretch: 1; }
         VerticalLayout {
             alignment: center;
-            AedstBadge { text: NotificationsTexts.kind-text(root.data.kind); }
+            AedstBadge { variant: AedstBadgeVariant.secondary; text: NotificationsTexts.kind-text(root.data.kind); }
         }
     }
     if AedstLayout.rtl: HorizontalLayout {
@@ -121,7 +121,7 @@ component NotificationRow inherits Rectangle {
         spacing: AedstTokens.spacing-sm;
         VerticalLayout {
             alignment: center;
-            AedstBadge { text: NotificationsTexts.kind-text(root.data.kind); }
+            AedstBadge { variant: AedstBadgeVariant.secondary; text: NotificationsTexts.kind-text(root.data.kind); }
         }
         NotificationTexts { data: root.data; horizontal-stretch: 1; }
         VerticalLayout {
@@ -158,13 +158,13 @@ component InboxHeader inherits HorizontalLayout {
             alignment: center;
             if NotificationsStore.unread-count > 0: AedstBadge {
                 text: @tr("" => "{} unread", NotificationsStore.unread-count);
-                tone: "danger";
+                variant: AedstBadgeVariant.destructive;
             }
         }
         Rectangle { horizontal-stretch: 1; }
         AedstButton {
             text: NotificationsStore.marking-all ? @tr("" => "Marking...") : @tr("" => "Mark all as read");
-            primary: false;
+            variant: AedstButtonVariant.secondary;
             enabled: !NotificationsStore.marking-all && NotificationsStore.unread-count > 0;
             clicked => { NotificationsStore.mark-all-read(); }
         }
@@ -174,7 +174,7 @@ component InboxHeader inherits HorizontalLayout {
         horizontal-stretch: 1;
         AedstButton {
             text: NotificationsStore.marking-all ? @tr("" => "Marking...") : @tr("" => "Mark all as read");
-            primary: false;
+            variant: AedstButtonVariant.secondary;
             enabled: !NotificationsStore.marking-all && NotificationsStore.unread-count > 0;
             clicked => { NotificationsStore.mark-all-read(); }
         }
@@ -183,7 +183,7 @@ component InboxHeader inherits HorizontalLayout {
             alignment: center;
             if NotificationsStore.unread-count > 0: AedstBadge {
                 text: @tr("" => "{} unread", NotificationsStore.unread-count);
-                tone: "danger";
+                variant: AedstBadgeVariant.destructive;
             }
         }
         VerticalLayout {
@@ -206,12 +206,12 @@ component FilterBar inherits HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
         AedstButton {
             text: @tr("" => "All");
-            primary: !NotificationsStore.unread-only;
+            variant: !NotificationsStore.unread-only ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { NotificationsStore.set-unread-only(false); }
         }
         AedstButton {
             text: @tr("" => "Unread");
-            primary: NotificationsStore.unread-only;
+            variant: NotificationsStore.unread-only ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { NotificationsStore.set-unread-only(true); }
         }
     }
@@ -219,12 +219,12 @@ component FilterBar inherits HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
         AedstButton {
             text: @tr("" => "Unread");
-            primary: NotificationsStore.unread-only;
+            variant: NotificationsStore.unread-only ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { NotificationsStore.set-unread-only(true); }
         }
         AedstButton {
             text: @tr("" => "All");
-            primary: !NotificationsStore.unread-only;
+            variant: !NotificationsStore.unread-only ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { NotificationsStore.set-unread-only(false); }
         }
     }
@@ -251,7 +251,7 @@ export component NotificationsListView inherits Rectangle {
             vertical-stretch: 0;
             AedstLabel { text: @tr("" => "Could not load notifications"); font-weight: 600; }
             AedstLabel { text: NotificationsTexts.error-text(NotificationsStore.error-kind); color: AedstTokens.destructive; }
-            AedstButton { text: @tr("" => "Try again"); primary: false; clicked => { NotificationsStore.reload(); } }
+            AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { NotificationsStore.reload(); } }
         }
         if NotificationsStore.phase == "ready" && NotificationsStore.rows.length == 0: VerticalLayout {
             alignment: start;
@@ -280,7 +280,7 @@ export component NotificationsListView inherits Rectangle {
 
         if NotificationsStore.has-more: AedstButton {
             text: @tr("" => "Load more");
-            primary: false;
+            variant: AedstButtonVariant.secondary;
             vertical-stretch: 0;
             clicked => { NotificationsStore.load-more(); }
         }
@@ -355,7 +355,7 @@ export component NotificationPreferencesView inherits Rectangle {
             spacing: AedstTokens.spacing-sm;
             AedstLabel { text: @tr("" => "Could not load preferences"); font-weight: 600; }
             AedstLabel { text: NotificationsTexts.error-text(NotificationsStore.prefs-error-kind); color: AedstTokens.destructive; }
-            AedstButton { text: @tr("" => "Try again"); primary: false; clicked => { NotificationsStore.reload-preferences(); } }
+            AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { NotificationsStore.reload-preferences(); } }
         }
         if NotificationsStore.prefs-phase == "ready": VerticalLayout {
             spacing: AedstTokens.spacing-sm;

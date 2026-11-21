@@ -1,0 +1,113 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// The `align` axis and the sizes of ui-kit.yaml (web `inputGroupAddonVariants` and
+// `inputGroupButtonVariants`).
+export enum AedstInputGroupAlign { inline-start, inline-end, block-start, block-end }
+export enum AedstInputGroupButtonSize { xs, sm, icon-xs, icon-sm }
+
+// A text input with a text addon (a prefix, a unit) and an optional button inside one border.
+// `inline-start` / `inline-end` follow the reading direction; the button sits at the reading end.
+export component AedstInputGroup inherits Rectangle {
+    in-out property <string> text <=> input.text;
+    in property <string> placeholder;
+    in property <string> label;
+    in property <bool> invalid: false;
+    in property <bool> enabled: true;
+    in property <string> addon-text;
+    in property <AedstInputGroupAlign> addon-align: AedstInputGroupAlign.inline-start;
+    in property <string> button-text;
+    in property <string> button-label: root.button-text;
+    in property <AedstInputGroupButtonSize> button-size: AedstInputGroupButtonSize.xs;
+    out property <bool> has-focus: input.has-focus;
+    callback accepted();
+    callback edited(string);
+    callback button-clicked();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> pad: AedstTokens.spacing-sm;
+    private property <bool> block: root.addon-align == AedstInputGroupAlign.block-start || root.addon-align == AedstInputGroupAlign.block-end;
+    private property <length> band: (root.block && root.addon-text != "") ? 24px : 0px;
+    private property <length> line-y: root.addon-align == AedstInputGroupAlign.block-start ? root.band : 0px;
+    private property <length> addon-space: (root.block || root.addon-text == "") ? 0px : addon.preferred-width + root.pad;
+    // Physical side of an inline addon: the reading start is the left in LTR and the right in RTL.
+    private property <bool> addon-left: (root.addon-align == AedstInputGroupAlign.inline-start) != root.rtl;
+    private property <length> button-space: root.button-text == "" ? 0px : action.width + root.pad;
+    private property <length> inset-left: root.pad + (root.addon-left ? root.addon-space : 0px) + (root.rtl ? root.button-space : 0px);
+    private property <length> inset-right: root.pad + (root.addon-left ? 0px : root.addon-space) + (root.rtl ? 0px : root.button-space);
+
+    min-height: 32px + root.band;
+    max-height: 32px + root.band;
+    min-width: 96px + root.addon-space + root.button-space;
+    border-radius: AedstTokens.radius-md;
+    background: AedstTokens.background;
+    border-width: input.has-focus ? 2px : 1px;
+    border-color: root.invalid ? AedstTokens.destructive : (input.has-focus ? AedstTokens.ring : AedstTokens.input);
+    opacity: root.enabled ? 1.0 : 0.5;
+    accessible-role: text-input;
+    accessible-label: root.label;
+    accessible-value: root.text;
+    accessible-description: root.addon-text;
+    accessible-placeholder-text: root.placeholder;
+    accessible-enabled: root.enabled;
+    forward-focus: input;
+
+    addon := Text {
+        x: root.block ? root.pad : root.addon-left ? root.pad : parent.width - root.pad - self.width - (root.rtl ? 0px : root.button-space);
+        y: root.addon-align == AedstInputGroupAlign.block-end ? 32px : root.block ? 0px : root.line-y;
+        width: root.block ? parent.width - 2 * root.pad : self.preferred-width;
+        height: root.block ? root.band : 32px;
+        text: root.addon-text;
+        color: AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-body-medium-font-size;
+        horizontal-alignment: root.rtl ? right : left;
+        vertical-alignment: center;
+        accessible-role: AccessibleRole.none;
+    }
+
+    input := TextInput {
+        x: root.inset-left;
+        y: root.line-y;
+        width: parent.width - root.inset-left - root.inset-right;
+        height: 32px;
+        vertical-alignment: center;
+        horizontal-alignment: root.rtl ? right : left;
+        color: AedstTokens.foreground;
+        font-size: AedstTokens.typography-body-medium-font-size;
+        single-line: true;
+        enabled: root.enabled;
+        accepted => { root.accepted(); }
+        edited => { root.edited(self.text); }
+    }
+
+    if input.text == "": Text {
+        x: root.inset-left;
+        y: root.line-y;
+        width: parent.width - root.inset-left - root.inset-right;
+        height: 32px;
+        text: root.placeholder;
+        color: AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-body-medium-font-size;
+        vertical-alignment: center;
+        horizontal-alignment: root.rtl ? right : left;
+        overflow: elide;
+        accessible-role: AccessibleRole.none;
+    }
+
+    action := AedstButton {
+        visible: root.button-text != "";
+        x: root.rtl ? root.pad / 2 : parent.width - self.width - root.pad / 2;
+        y: root.line-y + (32px - self.height) / 2;
+        width: root.button-text == "" ? 0px : self.preferred-width;
+        text: root.button-text;
+        label: root.button-label;
+        enabled: root.enabled && root.button-text != "";
+        variant: AedstButtonVariant.ghost;
+        size: root.button-size == AedstInputGroupButtonSize.sm ? AedstButtonSize.sm
+            : root.button-size == AedstInputGroupButtonSize.icon-xs ? AedstButtonSize.icon-xs
+            : root.button-size == AedstInputGroupButtonSize.icon-sm ? AedstButtonSize.icon-sm
+            : AedstButtonSize.xs;
+        clicked => { root.button-clicked(); }
+    }
+}
