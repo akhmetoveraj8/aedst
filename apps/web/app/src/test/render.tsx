@@ -11,9 +11,9 @@ import mediaMessages from "@/modules/media/i18n/en.json";
 import notificationsMessages from "@/modules/notifications/i18n/en.json";
 import searchMessages from "@/modules/search/i18n/en.json";
 import tasksMessages from "@/modules/tasks/i18n/en.json";
-import { AuthProvider } from "@/shared/lib/auth/AuthProvider";
-import { OutboxContext } from "@/shared/lib/outbox/OutboxProvider";
+import { AuthProvider } from "@/shared/lib/auth/auth-provider";
 import type { Outbox } from "@/shared/lib/outbox/outbox";
+import { OutboxContext } from "@/shared/lib/outbox/outbox-provider";
 import {
   makeQueryClient,
   type QueryClientCallbacks,

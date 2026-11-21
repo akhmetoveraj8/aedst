@@ -3,8 +3,8 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { fallbackMessages } from "@/app/config/i18n/fallback-messages";
-import { RootError } from "@/app/shell/RootError";
-import { RootNotFound } from "@/app/shell/RootNotFound";
+import { RootError } from "@/app/shell/root-error";
+import { RootNotFound } from "@/app/shell/root-not-found";
 
 // The kit imports "@sentry/nextjs" (aliased to @sentry/react); mock that specifier.
 vi.mock("@sentry/nextjs", () => ({

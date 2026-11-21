@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { AuthGate } from "@/modules/auth/ui/AuthGate";
+import { AuthGate } from "@/modules/auth/ui/auth-gate";
 import { messages, renderWithProviders } from "@/test/render";
 
 describe("AuthGate", () => {

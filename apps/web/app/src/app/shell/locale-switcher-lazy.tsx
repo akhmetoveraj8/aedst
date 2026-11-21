@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
  * so the header does not shift when it arrives.
  */
 export const LocaleSwitcherLazy = dynamic(
-  () => import("@/app/shell/LocaleSwitcher").then((m) => m.LocaleSwitcher),
+  () => import("@/app/shell/locale-switcher").then((m) => m.LocaleSwitcher),
   {
     ssr: false,
     loading: () => <div aria-hidden className="h-7 w-28" />,

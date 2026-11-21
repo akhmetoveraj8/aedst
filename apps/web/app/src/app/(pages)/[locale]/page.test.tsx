@@ -9,8 +9,8 @@ import LocaleRootPage from "./page";
 vi.mock("@/modules/auth/lib/auth-actions", () => ({ logoutAction: vi.fn() }));
 
 // The consent provider lives in the locale layout, which this test does not
-// render; the button is covered by ConsentLayer.test.tsx.
-vi.mock("@/app/providers/PrivacySettingsButton", () => ({
+// render; the button is covered by consent-layer.test.tsx.
+vi.mock("@/app/providers/privacy-settings-button", () => ({
   PrivacySettingsButton: () => null,
 }));
 
@@ -112,7 +112,7 @@ describe("LocaleRootPage", () => {
 
   it("escapes markup in JSON-LD so it cannot close its script tag", () => {
     // Guards the XSS vector directly through the component the page uses.
-    return import("@/app/config/JsonLd").then(({ JsonLd }) => {
+    return import("@/app/config/json-ld").then(({ JsonLd }) => {
       const { container } = render(
         <JsonLd data={{ name: "</script><script>alert(1)</script>" }} />,
       );

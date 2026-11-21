@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { toast } from "sonner";
 
-import { PushOptIn } from "@/modules/notifications/ui/PushOptIn";
+import { PushOptIn } from "@/modules/notifications/ui/push-opt-in";
 import { NotificationsService } from "@/shared/api/connect/client";
 import {
   GetPreferencesResponseSchema,

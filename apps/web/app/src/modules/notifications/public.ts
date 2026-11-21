@@ -9,6 +9,6 @@
  * every re-export; see docs/content/web/architecture.md).
  */
 
-export { NotificationBellSection } from "@/modules/notifications/ui/NotificationBellSection";
-export { NotificationPreferences } from "@/modules/notifications/ui/NotificationPreferences";
-export { NotificationsInbox } from "@/modules/notifications/ui/NotificationsInbox";
+export { NotificationBellSection } from "@/modules/notifications/ui/notification-bell-section";
+export { NotificationPreferences } from "@/modules/notifications/ui/notification-preferences";
+export { NotificationsInbox } from "@/modules/notifications/ui/notifications-inbox";

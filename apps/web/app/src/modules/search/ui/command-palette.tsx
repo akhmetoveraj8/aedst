@@ -13,7 +13,7 @@ import { Kbd } from "@/shared/ui/kbd";
 // cmdk and the dialog load on first open, keeping them out of every page's
 // first-load JS (this component is mounted in the signed-in layout).
 const CommandPaletteDialog = dynamic(
-  () => import("@/modules/search/ui/CommandPaletteDialog"),
+  () => import("@/modules/search/ui/command-palette-dialog"),
   { ssr: false },
 );
 

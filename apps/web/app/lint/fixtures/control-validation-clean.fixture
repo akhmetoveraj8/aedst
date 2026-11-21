@@ -1,6 +1,6 @@
 //// run: biome
 //// expect: pass
-//// file: src/modules/tasks/ui/OkRegister.tsx
+//// file: src/modules/tasks/ui/ok-register.tsx
 import { useForm } from "react-hook-form";
 
 export function OkRegister() {

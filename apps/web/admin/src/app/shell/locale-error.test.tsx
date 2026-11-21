@@ -4,7 +4,7 @@ import { IntlProvider } from "use-intl";
 import { describe, expect, it, vi } from "vitest";
 
 import commonMessages from "@/app/config/i18n/common/en.json";
-import { LocaleError } from "@/app/shell/LocaleError";
+import { LocaleError } from "@/app/shell/locale-error";
 
 // The kit imports "@sentry/nextjs" (aliased to @sentry/react); mock that specifier.
 vi.mock("@sentry/nextjs", () => ({

@@ -2,7 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { AdminTasks } from "@/modules/admin/ui/AdminTasks";
+import { AdminTasks } from "@/modules/admin/ui/admin-tasks";
 import { AdminService } from "@/shared/api/connect/generated/aedst/admin/v1/admin_pb";
 import { backend, rpc } from "@/test/mocks/transport";
 import { messages, renderWithProviders } from "@/test/render";

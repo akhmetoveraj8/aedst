@@ -11,8 +11,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
-import { Thumbnail } from "@/modules/media/thumbnail/Thumbnail";
-import { Uploader } from "@/modules/media/uploader/Uploader";
+import { Thumbnail } from "@/modules/media/thumbnail/thumbnail";
+import { Uploader } from "@/modules/media/uploader/uploader";
 import { MediaService } from "@/shared/api/connect/client";
 import {
   type Media,
@@ -27,7 +27,7 @@ const PROCESSING_POLL_MS = 3_000;
 // are needed only after a click, so they load as one chunk on demand. Once
 // requested they stay mounted, which keeps the closing animation.
 const AttachmentDialogs = dynamic(() =>
-  import("@/modules/media/ui/AttachmentDialogs").then(
+  import("@/modules/media/ui/attachment-dialogs").then(
     (m) => m.AttachmentDialogs,
   ),
 );

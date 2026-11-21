@@ -7,8 +7,8 @@ import {
 } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { makeTask } from "@/test/fixtures";
 import { Code, rpc, rpcError } from "@/test/mocks/transport";
-import { withAppProviders } from "../../../../.storybook/with-app-providers";
-import { TaskList } from "./TaskList";
+import { withAppProviders } from "../../../../../../.storybook/with-app-providers";
+import { TaskList } from "./task-list";
 
 const meta = {
   title: "Modules/Tasks/TaskList",

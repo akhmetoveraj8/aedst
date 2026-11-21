@@ -12,12 +12,12 @@ import {
   useQueuedTasks,
   useUpdateTask,
 } from "@/modules/tasks/lib/use-task-writes";
-import { PriorityBadge } from "@/modules/tasks/ui/PriorityBadge";
-import { StatusBadge } from "@/modules/tasks/ui/StatusBadge";
+import { PriorityBadge } from "@/modules/tasks/ui/priority-badge";
+import { StatusBadge } from "@/modules/tasks/ui/status-badge";
 import type {
   SettablePriority,
   TaskFormValues,
-} from "@/modules/tasks/ui/TaskForm";
+} from "@/modules/tasks/ui/task-form";
 import { TasksService } from "@/shared/api/connect/client";
 import { TaskStatus } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { mutationKeyFor } from "@/shared/api/connect/mutation-key";
@@ -45,11 +45,13 @@ import { Skeleton } from "@/shared/ui/skeleton";
 // The edit form (and the Select stack it needs) is only used after "Edit", so
 // it stays out of the details route's first load.
 const DeleteTaskDialog = dynamic(() =>
-  import("@/modules/tasks/ui/DeleteTaskDialog").then((m) => m.DeleteTaskDialog),
+  import("@/modules/tasks/features/details/ui/delete-task-dialog").then(
+    (m) => m.DeleteTaskDialog,
+  ),
 );
 
 const TaskForm = dynamic(
-  () => import("@/modules/tasks/ui/TaskForm").then((m) => m.TaskForm),
+  () => import("@/modules/tasks/ui/task-form").then((m) => m.TaskForm),
   { loading: () => <Skeleton className="h-64 w-full" /> },
 );
 

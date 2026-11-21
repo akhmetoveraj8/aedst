@@ -1,0 +1,16 @@
+//// run: boundaries
+//// expect: never imports another project
+//// file: src/modules/demo/manifest.ts
+export const manifest = {
+  id: "demo",
+};
+//// file: src/app/config/modules/registry.ts
+import { manifest } from "@/modules/demo/manifest";
+
+export const registry = [manifest];
+//// file: src/modules/demo/public.ts
+export const demo = 1;
+//// file: src/app/page.ts
+import { thing } from "../../../admin/src/modules/admin/public";
+
+export const page = thing;

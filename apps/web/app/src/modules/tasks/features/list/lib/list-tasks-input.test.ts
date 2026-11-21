@@ -4,11 +4,11 @@ import {
   buildListTasksInput,
   SORT_OPTIONS,
   TASKS_PAGE_SIZE,
-} from "@/modules/tasks/lib/list-tasks-input";
+} from "@/modules/tasks/features/list/lib/list-tasks-input";
 import {
   loadTaskSearchParams,
   SORT_VALUES,
-} from "@/modules/tasks/lib/task-search-params";
+} from "@/modules/tasks/features/list/lib/task-search-params";
 import {
   SortDirection,
   TaskPriority,

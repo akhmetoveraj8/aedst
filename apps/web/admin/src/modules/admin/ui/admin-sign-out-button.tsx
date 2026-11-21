@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useTranslations } from "use-intl";
 import { useRouter } from "@/shared/i18n/navigation";
-import { useAuth } from "@/shared/lib/auth/AuthProvider";
+import { useAuth } from "@/shared/lib/auth/auth-provider";
 import { requestLogout } from "@/shared/lib/auth/logout";
 import { Button } from "@/shared/ui/button";
 

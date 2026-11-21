@@ -2,7 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { CreateTaskPage } from "@/modules/tasks/ui/CreateTaskPage";
+import { CreateTaskPage } from "@/modules/tasks/features/create/ui/create-task-page";
 import { TasksService } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { makeTask } from "@/test/fixtures";
 import { routerMock } from "@/test/mocks/navigation";

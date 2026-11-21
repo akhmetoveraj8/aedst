@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useCommandPalette } from "@/modules/search/lib/command-palette-store";
 import { normalizeQuery } from "@/modules/search/lib/search-params";
-import { HighlightedText } from "@/modules/search/ui/HighlightedText";
+import { HighlightedText } from "@/modules/search/ui/highlighted-text";
 import { SearchService } from "@/shared/api/connect/client";
 import { useRouter } from "@/shared/i18n/navigation";
 import { safeInAppPath } from "@/shared/lib/auth/safe-redirect";
@@ -31,7 +31,7 @@ const ACTIONS = [
 
 /**
  * The palette dialog (cmdk + live SearchService results). Split from
- * CommandPalette.tsx so the cmdk chunk loads on first open, not with every
+ * command-palette.tsx so the cmdk chunk loads on first open, not with every
  * signed-in page. Filtering is the server's job, so cmdk's own fuzzy filter
  * is off (`shouldFilter={false}`).
  */

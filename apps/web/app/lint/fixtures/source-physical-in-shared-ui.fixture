@@ -1,0 +1,4 @@
+//// run: source
+//// expect: md:text-left
+//// file: src/shared/ui/bad-align.tsx
+export const BadAlign = () => <p className="md:text-left">x</p>;

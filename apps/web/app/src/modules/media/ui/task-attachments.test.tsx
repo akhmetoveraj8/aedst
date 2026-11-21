@@ -2,7 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { TaskAttachments } from "@/modules/media/ui/TaskAttachments";
+import { TaskAttachments } from "@/modules/media/ui/task-attachments";
 import {
   MediaKind,
   MediaService,

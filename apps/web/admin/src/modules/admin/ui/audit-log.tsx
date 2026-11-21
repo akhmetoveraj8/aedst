@@ -6,7 +6,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "use-intl";
 import { useCursorPages } from "@/modules/admin/lib/use-cursor-pages";
-import { type AdminColumn, DataTable } from "@/modules/admin/ui/DataTable";
+import { type AdminColumn, DataTable } from "@/modules/admin/ui/data-table";
 import { AdminService } from "@/shared/api/connect/client";
 import type { AuditEntry } from "@/shared/api/connect/generated/aedst/admin/v1/admin_pb";
 import { formatDateTime, useDateLocale } from "@/shared/date/format-date";

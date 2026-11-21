@@ -6,7 +6,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { lazy, Suspense, useId, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "use-intl";
 import { useCursorPages } from "@/modules/admin/lib/use-cursor-pages";
-import { type AdminColumn, DataTable } from "@/modules/admin/ui/DataTable";
+import { type AdminColumn, DataTable } from "@/modules/admin/ui/data-table";
 import { AdminService } from "@/shared/api/connect/client";
 import type { AdminTask } from "@/shared/api/connect/generated/aedst/admin/v1/admin_pb";
 import { TaskStatus } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
@@ -21,7 +21,7 @@ const PAGE_SIZE = 25;
 // The dialog (Dialog stack, React Hook Form, Protovalidate) is needed only after
 // "Delete" is clicked, so it loads on demand and then stays mounted.
 const AdminDeleteTaskDialog = lazy(() =>
-  import("@/modules/admin/ui/AdminDeleteTaskDialog").then((m) => ({
+  import("@/modules/admin/ui/admin-delete-task-dialog").then((m) => ({
     default: m.AdminDeleteTaskDialog,
   })),
 );

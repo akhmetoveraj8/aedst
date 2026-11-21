@@ -4,9 +4,9 @@ import { NextIntlClientProvider } from "next-intl";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { QueryProvider } from "@/app/providers/QueryProvider";
+import { QueryProvider } from "@/app/providers/query-provider";
 import { TasksService } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
-import { AuthProvider, useAuth } from "@/shared/lib/auth/AuthProvider";
+import { AuthProvider, useAuth } from "@/shared/lib/auth/auth-provider";
 import { routerMock } from "@/test/mocks/navigation";
 import { backend, Code, rpcError } from "@/test/mocks/transport";
 import { messages } from "@/test/render";

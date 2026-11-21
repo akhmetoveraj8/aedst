@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { loadMessages } from "@/app/config/i18n/messages";
 import { i18nNamespacesForRoutes } from "@/app/config/modules/registry";
-import { ExtendMessages } from "@/app/providers/ExtendMessages";
+import { ExtendMessages } from "@/app/providers/extend-messages";
 import type { Locale } from "@/shared/i18n/locales";
 
 type RouteMessagesProps = {

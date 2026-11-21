@@ -1,1 +1,1 @@
-export { SignOutButton } from "@/modules/auth/ui/SignOutButton";
+export { SignOutButton } from "@/modules/auth/ui/sign-out-button";

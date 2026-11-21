@@ -11,6 +11,7 @@ import {
   clearSessionCookies,
   ID_COOKIE,
   REFRESH_COOKIE,
+  readSessionCookie,
 } from "@/shared/lib/auth/session-cookies";
 
 /**
@@ -30,10 +31,11 @@ export type LogoutResult = {
 
 export async function logoutAction(): Promise<LogoutResult> {
   const jar = await cookies();
-  const refreshToken = jar.get(REFRESH_COOKIE)?.value;
-  const idToken = jar.get(ID_COOKIE)?.value;
+  const read = (name: string) => jar.get(name)?.value;
+  const refreshToken = readSessionCookie(read, REFRESH_COOKIE);
+  const idToken = readSessionCookie(read, ID_COOKIE);
   // Always first: whatever happens at the IdP, this browser is signed out.
-  clearSessionCookies(jar);
+  clearSessionCookies(jar, read);
 
   try {
     const config = getOidcConfig();

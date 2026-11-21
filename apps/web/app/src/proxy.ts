@@ -27,7 +27,10 @@ import {
   clearSessionCookies,
   isSecureSite,
   REFRESH_COOKIE,
+  readSessionCookie,
   type SessionTokens,
+  sessionCookieNames,
+  sessionCookieParts,
   writeSessionCookies,
 } from "@/shared/lib/auth/session-cookies";
 import { getServerCapabilities } from "@/shared/lib/capabilities/server";
@@ -81,22 +84,28 @@ export default async function proxy(request: NextRequest) {
     reportUri: cspReportUri,
   });
 
+  // A snapshot: the request cookies are rewritten below when a token rotates,
+  // and the response must still expire what the browser really holds.
+  const held = new Map(
+    request.cookies.getAll().map((cookie) => [cookie.name, cookie.value]),
+  );
+  const readCookie = (name: string) => held.get(name);
   let session: SessionState = classifySession({
-    accessToken: request.cookies.get(ACCESS_COOKIE)?.value,
-    refreshToken: request.cookies.get(REFRESH_COOKIE)?.value,
+    accessToken: readSessionCookie(readCookie, ACCESS_COOKIE),
+    refreshToken: readSessionCookie(readCookie, REFRESH_COOKIE),
   });
   let rotated: SessionTokens | null = null;
   let ended = false;
 
   if (session === "refreshable") {
-    const refreshToken = request.cookies.get(REFRESH_COOKIE)?.value ?? "";
+    const refreshToken = readSessionCookie(readCookie, REFRESH_COOKIE) ?? "";
     const result = await refreshSession(refreshToken);
     if (result.status === "ok") {
       rotated = result.tokens;
       session = "active";
       // Make the fresh token visible to this same request's Server Components.
-      request.cookies.set(ACCESS_COOKIE, result.tokens.accessToken);
-      request.cookies.set(REFRESH_COOKIE, result.tokens.refreshToken);
+      forwardSessionValue(request, ACCESS_COOKIE, result.tokens.accessToken);
+      forwardSessionValue(request, REFRESH_COOKIE, result.tokens.refreshToken);
     } else if (result.status === "rejected") {
       ended = true;
       session = "anonymous";
@@ -108,7 +117,9 @@ export default async function proxy(request: NextRequest) {
     // "unavailable": apps/server is down — do not sign the user out for it.
   }
 
-  const accessToken = request.cookies.get(ACCESS_COOKIE)?.value;
+  const accessToken = rotated
+    ? rotated.accessToken
+    : readSessionCookie(readCookie, ACCESS_COOKIE);
   // Cached per process (TTL), so this is not a network call per request.
   const disabledPrefixes = disabledRoutePrefixes(await getServerCapabilities());
   const decision = decideRoute({
@@ -146,9 +157,9 @@ export default async function proxy(request: NextRequest) {
     );
   }
   if (rotated) {
-    writeSessionCookies(response.cookies, rotated);
+    writeSessionCookies(response.cookies, rotated, readCookie);
   } else if (ended) {
-    clearSessionCookies(response.cookies);
+    clearSessionCookies(response.cookies, readCookie);
   }
   return response;
 }
@@ -173,3 +184,20 @@ export const config = {
     },
   ],
 };
+
+/**
+ * Makes a rotated token visible to this same request's Server Components, in
+ * the same shape the response cookies will have (whole or chunked).
+ */
+function forwardSessionValue(
+  request: NextRequest,
+  name: string,
+  value: string,
+): void {
+  for (const stale of sessionCookieNames(name)) {
+    request.cookies.delete(stale);
+  }
+  for (const part of sessionCookieParts(name, value) ?? []) {
+    request.cookies.set(part.name, part.value);
+  }
+}

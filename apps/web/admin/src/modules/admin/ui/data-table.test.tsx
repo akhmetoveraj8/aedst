@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { type AdminColumn, DataTable } from "@/modules/admin/ui/DataTable";
+import { type AdminColumn, DataTable } from "@/modules/admin/ui/data-table";
 import { renderWithProviders } from "@/test/render";
 
 type Row = { id: string; name: string; count: number };

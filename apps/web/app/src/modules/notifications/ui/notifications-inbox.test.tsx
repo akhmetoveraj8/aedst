@@ -3,7 +3,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { NotificationsInbox } from "@/modules/notifications/ui/NotificationsInbox";
+import { NotificationsInbox } from "@/modules/notifications/ui/notifications-inbox";
 import {
   NotificationKind,
   NotificationsService,

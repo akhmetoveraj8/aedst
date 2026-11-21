@@ -1,9 +1,9 @@
 import { HydrationBoundary } from "@tanstack/react-query";
 
-import { buildListTasksInput } from "@/modules/tasks/lib/list-tasks-input";
-import type { TaskSearchParams } from "@/modules/tasks/lib/task-search-params";
-import { PendingTasks } from "@/modules/tasks/ui/PendingTasks";
-import { TaskList } from "@/modules/tasks/ui/TaskList";
+import { buildListTasksInput } from "@/modules/tasks/features/list/lib/list-tasks-input";
+import type { TaskSearchParams } from "@/modules/tasks/features/list/lib/task-search-params";
+import { PendingTasks } from "@/modules/tasks/features/list/ui/pending-tasks";
+import { TaskList } from "@/modules/tasks/features/list/ui/task-list";
 import { TasksService } from "@/shared/api/connect/client";
 import { createRpcPrefetcher } from "@/shared/api/connect/prefetch";
 

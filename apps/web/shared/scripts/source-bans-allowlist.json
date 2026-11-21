@@ -1,0 +1,4 @@
+{
+  "$comment": "Justified exceptions to check-source-bans.mjs (physical Tailwind direction utilities, Base64 images). One entry per file and matched text: { \"file\": path relative to apps/web, \"match\": the exact text the check reports, \"reason\": why a logical utility or a real file cannot be used }. Keep it short; an entry without a reason is ignored.",
+  "allow": []
+}

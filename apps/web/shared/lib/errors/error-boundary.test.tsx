@@ -38,7 +38,7 @@ vi.mock("@sentry/nextjs", () => ({
   },
 }));
 
-import { ErrorBoundary } from "@/shared/lib/errors/ErrorBoundary";
+import { ErrorBoundary } from "@/shared/lib/errors/error-boundary";
 import { messages } from "@/test/render";
 
 let shouldThrow: unknown = null;

@@ -1,5 +1,5 @@
 import { useTranslations } from "use-intl";
-import { PageMain } from "@/app/shell/PageMain";
+import { PageMain } from "@/app/shell/page-main";
 import { Link } from "@/shared/i18n/navigation";
 import { buttonVariants } from "@/shared/ui/button";
 

@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 /**
  * Adds `messages` to the catalogs the parent provider already sent, so a
  * route segment ships only its own module's strings on top of what the layout
- * above provides (see `RouteMessages.tsx`).
+ * above provides (see `route-messages.tsx`).
  */
 export function ExtendMessages({
   messages,

@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { SearchPage } from "@/modules/search/ui/SearchPage";
+import { SearchPage } from "@/modules/search/ui/search-page";
 import {
   DocumentKind,
   SearchService,

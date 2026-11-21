@@ -4,7 +4,7 @@ import { useInfiniteQuery } from "@connectrpc/connect-query";
 import { useTranslations } from "next-intl";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { useMarkNotifications } from "@/modules/notifications/lib/use-notifications";
-import { NotificationsList } from "@/modules/notifications/ui/NotificationsList";
+import { NotificationsList } from "@/modules/notifications/ui/notifications-list";
 import { NotificationsService } from "@/shared/api/connect/client";
 import {
   type Notification,

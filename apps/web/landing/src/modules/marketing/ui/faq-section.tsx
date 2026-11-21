@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/shared/i18n/locales";
 import { faqKeys } from "../lib/content-keys";
-import { FaqAccordion } from "./FaqAccordion";
+import { FaqAccordion } from "./faq-accordion";
 
 /** FAQ entries, shared by the section and the FAQPage JSON-LD on the home page. */
 export async function getFaqEntries(locale: Locale) {

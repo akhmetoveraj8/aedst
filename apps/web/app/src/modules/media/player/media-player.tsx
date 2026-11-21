@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 
-import { ImageViewer } from "@/modules/media/image/ImageViewer";
-import { VideoPlayer } from "@/modules/media/video/VideoPlayer";
+import { ImageViewer } from "@/modules/media/image/image-viewer";
+import { VideoPlayer } from "@/modules/media/video/video-player";
 import {
   type Media,
   MediaKind,

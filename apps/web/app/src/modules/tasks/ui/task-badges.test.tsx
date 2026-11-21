@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { PriorityBadge } from "@/modules/tasks/ui/PriorityBadge";
-import { StatusBadge } from "@/modules/tasks/ui/StatusBadge";
+import { PriorityBadge } from "@/modules/tasks/ui/priority-badge";
+import { StatusBadge } from "@/modules/tasks/ui/status-badge";
 import {
   TaskPriority,
   TaskStatus,

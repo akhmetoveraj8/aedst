@@ -1,13 +1,13 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { legalSectionKeys } from "@/modules/legal/lib/section-keys";
+import { legalSectionKeys } from "@/modules/legal/entries/section-keys";
 import {
   faqKeys,
   featureKeys,
   stepKeys,
   tierKeys,
-} from "@/modules/marketing/lib/content-keys";
+} from "@/modules/marketing/entries/content-keys";
 import { locales } from "@/shared/i18n/locales";
 
 const srcRoot = path.resolve(import.meta.dirname, "../../..");

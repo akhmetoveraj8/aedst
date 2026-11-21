@@ -1,17 +1,17 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { SORT_OPTIONS } from "@/modules/tasks/features/list/lib/list-tasks-input";
+import {
+  PRIORITY_FILTERS,
+  STATUS_FILTERS,
+} from "@/modules/tasks/features/list/lib/task-search-params";
 import {
   ALL_PRIORITIES,
   ALL_STATUSES,
   PRIORITY_KEYS,
   STATUS_KEYS,
 } from "@/modules/tasks/lib/labels";
-import { SORT_OPTIONS } from "@/modules/tasks/lib/list-tasks-input";
-import {
-  PRIORITY_FILTERS,
-  STATUS_FILTERS,
-} from "@/modules/tasks/lib/task-search-params";
 import {
   type TaskPriority,
   TaskStatus,

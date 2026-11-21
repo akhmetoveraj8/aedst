@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { PrivacySettingsButton } from "@/app/providers/PrivacySettingsButton";
-import { RouteMessages } from "@/app/providers/RouteMessages";
-import { AppNav } from "@/app/shell/AppNav";
-import { InstallPrompt } from "@/app/shell/InstallPrompt";
-import { LocaleSwitcherLazy } from "@/app/shell/LocaleSwitcherLazy";
-import { PageMain } from "@/app/shell/PageMain";
-import { SyncStatus } from "@/app/shell/SyncStatus";
+import { PrivacySettingsButton } from "@/app/providers/privacy-settings-button";
+import { RouteMessages } from "@/app/providers/route-messages";
+import { SignedInProviders } from "@/app/providers/signed-in-providers";
+import { AppNav } from "@/app/shell/app-nav";
+import { InstallPrompt } from "@/app/shell/install-prompt";
+import { LocaleSwitcherLazy } from "@/app/shell/locale-switcher-lazy";
+import { PageMain } from "@/app/shell/page-main";
+import { SyncStatus } from "@/app/shell/sync-status";
 import { CurrentUser } from "@/modules/auth/entries/current-user";
 import { SignOutButton } from "@/modules/auth/entries/sign-out-button";
 import { NotificationBellSection } from "@/modules/notifications/entries/notification-bell-section";
@@ -15,9 +16,9 @@ import {
   CommandPaletteTrigger,
 } from "@/modules/search/entries/command-palette";
 import { requireLocale } from "@/shared/i18n/require-locale";
-import { CapabilitiesProvider } from "@/shared/lib/capabilities/CapabilitiesProvider";
+import { CapabilitiesProvider } from "@/shared/lib/capabilities/capabilities-provider";
 import { getServerCapabilities } from "@/shared/lib/capabilities/server";
-import { ErrorBoundary } from "@/shared/lib/errors/ErrorBoundary";
+import { ErrorBoundary } from "@/shared/lib/errors/error-boundary";
 
 /** Routes whose modules own the shell widgets (the sign-in landing `/` ships with every page). */
 const SHELL_ROUTES = ["/search", "/notifications"];
@@ -43,37 +44,39 @@ export default async function AppLayout({
     // The shell widgets (identity, search, bell) are client components: send
     // their catalogs here; each module segment adds its own on top.
     <RouteMessages locale={locale} routes={SHELL_ROUTES}>
-      <CapabilitiesProvider initial={capabilities}>
-        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-4 sm:p-6">
-          <header className="flex flex-col gap-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <Suspense fallback={<span />}>
-                <CurrentUser />
-              </Suspense>
-              <div className="flex flex-wrap items-center gap-2">
-                <ErrorBoundary feature="search" fallback={null}>
-                  <CommandPaletteTrigger />
-                  <CommandPalette />
-                </ErrorBoundary>
-                <ErrorBoundary feature="notifications" fallback={null}>
-                  <Suspense fallback={<span className="size-9" />}>
-                    <NotificationBellSection />
-                  </Suspense>
-                </ErrorBoundary>
-                <LocaleSwitcherLazy />
-                <SignOutButton />
+      <SignedInProviders>
+        <CapabilitiesProvider initial={capabilities}>
+          <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-4 sm:p-6">
+            <header className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <Suspense fallback={<span />}>
+                  <CurrentUser />
+                </Suspense>
+                <div className="flex flex-wrap items-center gap-2">
+                  <ErrorBoundary feature="search" fallback={null}>
+                    <CommandPaletteTrigger />
+                    <CommandPalette />
+                  </ErrorBoundary>
+                  <ErrorBoundary feature="notifications" fallback={null}>
+                    <Suspense fallback={<span className="size-9" />}>
+                      <NotificationBellSection />
+                    </Suspense>
+                  </ErrorBoundary>
+                  <LocaleSwitcherLazy />
+                  <SignOutButton />
+                </div>
               </div>
-            </div>
-            <AppNav />
-            <SyncStatus />
-            <InstallPrompt />
-          </header>
-          <PageMain>{children}</PageMain>
-          <footer className="flex justify-start">
-            <PrivacySettingsButton className="text-muted-foreground" />
-          </footer>
-        </div>
-      </CapabilitiesProvider>
+              <AppNav />
+              <SyncStatus />
+              <InstallPrompt />
+            </header>
+            <PageMain>{children}</PageMain>
+            <footer className="flex justify-start">
+              <PrivacySettingsButton className="text-muted-foreground" />
+            </footer>
+          </div>
+        </CapabilitiesProvider>
+      </SignedInProviders>
     </RouteMessages>
   );
 }

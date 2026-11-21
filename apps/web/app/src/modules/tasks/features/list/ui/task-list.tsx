@@ -5,10 +5,10 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useQueryStates } from "nuqs";
 import { useEffect, useId, useState } from "react";
-import { buildListTasksInput } from "@/modules/tasks/lib/list-tasks-input";
-import { taskSearchParsers } from "@/modules/tasks/lib/task-search-params";
-import { TaskListPagination } from "@/modules/tasks/ui/TaskListPagination";
-import { TaskListRow } from "@/modules/tasks/ui/TaskListRow";
+import { buildListTasksInput } from "@/modules/tasks/features/list/lib/list-tasks-input";
+import { taskSearchParsers } from "@/modules/tasks/features/list/lib/task-search-params";
+import { TaskListPagination } from "@/modules/tasks/features/list/ui/task-list-pagination";
+import { TaskListRow } from "@/modules/tasks/features/list/ui/task-list-row";
 import { TasksService } from "@/shared/api/connect/client";
 import { Link } from "@/shared/i18n/navigation";
 import { useDebouncedValue } from "@/shared/lib/hooks/use-debounced-value";
@@ -32,7 +32,9 @@ const SEARCH_DEBOUNCE_MS = 300;
 // triggers' exact size (h-8, w-40/w-40/w-48), so nothing shifts when they arrive.
 const TaskListFilters = dynamic(
   () =>
-    import("@/modules/tasks/ui/TaskListFilters").then((m) => m.TaskListFilters),
+    import("@/modules/tasks/features/list/ui/task-list-filters").then(
+      (m) => m.TaskListFilters,
+    ),
   {
     ssr: false,
     loading: () => (

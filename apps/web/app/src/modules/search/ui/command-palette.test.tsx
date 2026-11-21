@@ -6,7 +6,7 @@ import { useCommandPalette } from "@/modules/search/lib/command-palette-store";
 import {
   CommandPalette,
   CommandPaletteTrigger,
-} from "@/modules/search/ui/CommandPalette";
+} from "@/modules/search/ui/command-palette";
 import {
   DocumentKind,
   SearchService,

@@ -1,6 +1,6 @@
 import { HydrationBoundary } from "@tanstack/react-query";
 
-import { NotificationBell } from "@/modules/notifications/ui/NotificationBell";
+import { NotificationBell } from "@/modules/notifications/ui/notification-bell";
 import { NotificationsService } from "@/shared/api/connect/client";
 import { createRpcPrefetcher } from "@/shared/api/connect/prefetch";
 

@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import tasksMessages from "@/modules/tasks/i18n/en.json";
 import { TaskPriority } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { messages } from "@/test/render";
-import { TaskForm } from "./TaskForm";
+import { TaskForm } from "./task-form";
 
 function renderForm(onSubmit = vi.fn()) {
   render(

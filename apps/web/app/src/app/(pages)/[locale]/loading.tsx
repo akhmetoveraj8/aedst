@@ -1,4 +1,4 @@
-import { PageMain } from "@/app/shell/PageMain";
+import { PageMain } from "@/app/shell/page-main";
 import { Spinner } from "@/shared/ui/spinner";
 
 export default function LocaleLoading() {

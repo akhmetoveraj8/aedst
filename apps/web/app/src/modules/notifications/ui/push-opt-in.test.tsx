@@ -10,7 +10,7 @@ import {
   rememberedDeviceId,
   subscribeToPush,
 } from "@/modules/notifications/lib/web-push";
-import { PushOptIn } from "@/modules/notifications/ui/PushOptIn";
+import { PushOptIn } from "@/modules/notifications/ui/push-opt-in";
 import {
   NotificationsService,
   PushPlatform,

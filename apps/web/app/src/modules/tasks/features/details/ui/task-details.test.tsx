@@ -1,9 +1,8 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-
+import { TaskDetails } from "@/modules/tasks/features/details/ui/task-details";
 import { tasksQueryKey } from "@/modules/tasks/lib/task-query-keys";
-import { TaskDetails } from "@/modules/tasks/ui/TaskDetails";
 import {
   TaskPriority,
   TaskStatus,

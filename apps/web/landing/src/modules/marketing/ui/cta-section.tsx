@@ -14,7 +14,8 @@ export async function CtaSection({ locale }: { locale: Locale }) {
       <h2 id="cta-title" className="font-semibold text-3xl tracking-tight">
         {t("title")}
       </h2>
-      <p className="max-w-xl text-muted-foreground">{t("subtitle")}</p>
+      {/* On `bg-muted` the muted foreground is 4.34:1, under WCAG AA. */}
+      <p className="max-w-xl text-foreground/80">{t("subtitle")}</p>
       <a href={registerUrl()} className={buttonVariants({ size: "lg" })}>
         {t("button")}
       </a>

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import { useOutboxItems } from "@/shared/lib/outbox/OutboxProvider";
+import { useOutboxItems } from "@/shared/lib/outbox/outbox-provider";
 import { Badge } from "@/shared/ui/badge";
 
 /**

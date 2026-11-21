@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
-# Feature-module boundaries for apps/web (microfrontend-ready layout, see
-# docs/content/web/microfrontends.md). Fails when:
+# Module and feature boundaries for one web project (app, admin or landing;
+# layout: docs/content/architecture/modules-and-features.md and
+# docs/content/web/microfrontends.md). Hosted by the app project and run for
+# every project: `check-feature-boundaries.sh [project-dir]` (default: the app
+# project; each project's `pnpm check:feature-boundaries` passes its own
+# directory, scripts/check-boundaries.sh runs all three). This script is the
+# authoritative boundary gate; dependency-cruiser repeats the import-graph
+# rules but cannot load TypeScript 7.0 (docs/content/decisions/web.md).
+# Fails when:
 #
 #  1. a file under src/modules/<a>/** imports src/modules/<b>/** (modules talk
 #     only through src/shared/**, the registry in src/app, or the network);
@@ -20,8 +27,23 @@
 #     `@app/` or a relative path into app/): the dependency direction is
 #     app -> modules -> shared, never upwards (shared i18n routing lives in
 #     src/shared/i18n).
+#  6. a file under src/modules/<m>/features/<a>/** imports
+#     src/modules/<m>/features/<b>/** (a feature never imports another
+#     feature; shared code moves to the module's own lib/ or ui/);
+#  7. a module's shared code (any folder of the module except features/ and
+#     entries/, e.g. lib/, ui/) imports one of its features. Only the
+#     composition level may: entries/*, public.ts, outbox.ts and tests that
+#     sit in the module root;
+#  8. a feature folder holds anything but `ui/` and `lib/`
+#     (src/modules/<m>/features/<feature>/{ui,lib}), or a file sits directly
+#     under features/;
+#  9. a project file imports another web project by path (../app, ../admin,
+#     ../landing): projects meet only in ../shared and over the network.
 #
-# AEDST_WEB_ROOT points the checks at another tree: `pnpm check:selftest`
+# Rules 6 and 7 (and rule 1 for relative specifiers) resolve `./` and `../`
+# imports, so a relative path cannot bypass them.
+#
+# AEDST_WEB_ROOT (or the first argument) points the checks at another tree: `pnpm check:selftest`
 # runs them against deliberately broken fixtures and requires a failure.
 #
 # Mirrors the feature-boundary checks on Android/Apple/Desktop:
@@ -30,7 +52,7 @@
 #   a desktop boundaries script (not written yet)
 set -euo pipefail
 
-cd "${AEDST_WEB_ROOT:-$(dirname "$0")/..}"
+cd "${1:-${AEDST_WEB_ROOT:-$(dirname "$0")/..}}"
 
 status=0
 fail() { # file line message
@@ -90,7 +112,7 @@ while IFS= read -r hit; do
       ;;
     *) fail "$file" "$line_no" "import a module only through its public.ts or manifest.ts, not: $target" ;;
   esac
-done < <(module_imports src e2e)
+done < <(module_imports src e2e server ../shared)
 
 # --- 5. modules/shared -> app (upward import) ------------------------------
 # `import "..."`, `from "..."`, `import("...")` and `vi.mock("...")` of @/app/,
@@ -102,6 +124,97 @@ while IFS= read -r hit; do
   rest="${hit#*:}"
   fail "$file" "${rest%%:*}" "src/modules and src/shared must not import src/app (${rest#*:}); move the shared code into src/shared"
 done < <(grep -rnoE "$app_import_re" --include="*.ts" --include="*.tsx" src/modules ../shared 2>/dev/null || true)
+
+# --- 6, 7. features: no feature -> feature, no module shared -> feature ----
+# Collapses "." and ".." segments of a path (pure bash, no realpath -m).
+normalize_path() {
+  local IFS=/ part out=() last
+  for part in $1; do
+    case "$part" in
+      "" | .) ;;
+      ..)
+        last=$((${#out[@]} - 1))
+        if [ "$last" -ge 0 ] && [ "${out[$last]}" != ".." ]; then
+          unset "out[$last]"
+          out=("${out[@]}")
+        else
+          out+=(..)
+        fi
+        ;;
+      *) out+=("$part") ;;
+    esac
+  done
+  echo "${out[*]}"
+}
+
+import_re='(from[[:space:]]+|import[[:space:]]*\(?[[:space:]]*|vi\.mock\()["'"'"']'
+while IFS= read -r hit; do
+  [ -z "$hit" ] && continue
+  file="${hit%%:*}"
+  rest="${hit#*:}"
+  line_no="${rest%%:*}"
+  spec="${rest#*:}"
+  case "$spec" in
+    @/modules/*) target="src/modules/${spec#@/modules/}" ;;
+    *) target=$(normalize_path "$(dirname "$file")/$spec") ;;
+  esac
+  case "$target" in src/modules/*/*) ;; *) continue ;; esac
+  from="${file#src/modules/}" # <module>/features/<feature>/ui/x.tsx
+  to="${target#src/modules/}"
+  from_module="${from%%/*}"
+  to_module="${to%%/*}"
+  if [ "$from_module" != "$to_module" ]; then
+    # Alias imports are reported by rule 1; this catches the relative form.
+    case "$spec" in
+      .*) fail "$file" "$line_no" "src/modules/$from_module imports from another feature module by a relative path: $spec" ;;
+    esac
+    continue
+  fi
+  from_in="${from#*/}" # features/<feature>/ui/x.tsx | lib/x.ts | public.ts
+  to_in="${to#*/}"
+  case "$to_in" in features/*/*) ;; *) continue ;; esac
+  to_feature="${to_in#features/}"
+  to_feature="${to_feature%%/*}"
+  case "$from_in" in
+    features/*/*)
+      from_feature="${from_in#features/}"
+      from_feature="${from_feature%%/*}"
+      if [ "$from_feature" != "$to_feature" ]; then
+        fail "$file" "$line_no" "feature $from_module/$from_feature imports another feature ($from_module/$to_feature): $spec (move the shared code to src/modules/$from_module/lib or ui)"
+      fi
+      ;;
+    entries/*) ;;
+    */*) fail "$file" "$line_no" "module shared code must not import a feature: $spec (only entries/, public.ts, outbox.ts and module-root tests compose features)" ;;
+  esac
+done < <(grep -rnoE "$import_re"'(@/modules/|\.\.?/)[^"'"'"']+' \
+  --include="*.ts" --include="*.tsx" src/modules 2>/dev/null \
+  | sed -E "s#^([^:]+):([0-9]+):$import_re#\1:\2:#" \
+  || true)
+
+# --- 8. feature folder shape: features/<feature>/{ui,lib} ------------------
+for entry in src/modules/*/features/*; do
+  [ -e "$entry" ] || continue
+  if [ ! -d "$entry" ]; then
+    fail "$entry" 1 "features/ holds only feature folders; move this file into features/<feature>/{ui,lib} or the module's lib/ or ui/"
+    continue
+  fi
+  for child in "$entry"/*; do
+    [ -e "$child" ] || continue
+    case "$(basename "$child")" in
+      ui | lib) [ -d "$child" ] || fail "$child" 1 "a feature holds only the folders ui/ and lib/" ;;
+      *) fail "$child" 1 "a feature holds only the folders ui/ and lib/ (src/modules/<module>/features/<feature>/{ui,lib})" ;;
+    esac
+  done
+done
+
+# --- 9. project -> other web project ---------------------------------------
+while IFS= read -r hit; do
+  [ -z "$hit" ] && continue
+  file="${hit%%:*}"
+  rest="${hit#*:}"
+  fail "$file" "${rest%%:*}" "a web project never imports another project (${rest#*:}); share code through ../shared"
+done < <(grep -rnoE "$import_re"'(\.\./)+(app|admin|landing)/(src|server)/[^"'"'"']*' \
+  --include="*.ts" --include="*.tsx" src server 2>/dev/null || true)
 
 # --- 3. manifest + public + registry --------------------------------------
 registry=src/app/config/modules/registry.ts
@@ -151,7 +264,7 @@ done < <(grep -rnoE "useFeatureFlag\(\"[^\"]+\"" --include="*.ts" --include="*.t
   | sed -E 's#^([^:]+):([0-9]+):useFeatureFlag\("(.*)"#\1:\2:\3#' || true)
 
 if [ "$status" -eq 0 ]; then
-  echo "OK: module boundaries hold (no cross-module imports; outside code uses public.ts/manifest.ts only; manifests valid and registered)."
+  echo "OK: module boundaries hold in $(basename "$PWD") (no cross-module or cross-feature imports; module shared code imports no feature; outside code uses public.ts, manifest.ts and entries only; manifests valid and registered)."
 fi
 
 exit "$status"

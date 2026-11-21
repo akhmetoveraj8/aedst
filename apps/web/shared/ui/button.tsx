@@ -17,7 +17,8 @@ const buttonVariants = cva(
         destructive:
           // `text-destructive` on its own 10% tint is ~4:1 — under WCAG AA (4.5:1) for
           // small text — so light mode uses a darker red; dark mode keeps the token.
-          "bg-destructive/10 text-red-700 hover:bg-destructive/20 dark:text-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+          // The hover tint stays at 15%: red-700 on 20% is 4.29:1 (axe, admin e2e).
+          "bg-destructive/10 text-red-700 hover:bg-destructive/15 dark:text-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

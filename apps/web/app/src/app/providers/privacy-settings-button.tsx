@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import { useConsent } from "@/shared/lib/consent/ConsentProvider";
+import { useConsent } from "@/shared/lib/consent/consent-provider";
 import { Button } from "@/shared/ui/button";
 
 /**

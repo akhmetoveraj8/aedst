@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, use, useEffect, useRef, useState } from "react";
-import { useAuth } from "@/shared/lib/auth/AuthProvider";
+import { useAuth } from "@/shared/lib/auth/auth-provider";
 import { registerBeforeSignOut } from "@/shared/lib/auth/sign-out-hooks";
 import { reportError } from "@/shared/lib/errors/report-error";
 import { startDelivery } from "@/shared/lib/outbox/delivery";

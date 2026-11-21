@@ -1,4 +1,13 @@
 //// run: deps
 //// expect: no-orphans
-//// file: src/shared/lib/unused.ts
+//// file: src/modules/a/manifest.ts
+export const manifest = { id: "a" };
+//// file: src/modules/a/public.ts
+export const a = 1;
+//// file: src/modules/a/lib/unused.ts
 export const unused = 1;
+//// file: src/app/page.ts
+import { manifest } from "@/modules/a/manifest";
+import { a } from "@/modules/a/public";
+
+export const page = [manifest, a];

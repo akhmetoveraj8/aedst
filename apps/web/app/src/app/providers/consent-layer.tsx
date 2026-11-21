@@ -6,12 +6,12 @@ import {
   disableSessionReplay,
   enableSessionReplay,
 } from "@/app/config/sentry/loader";
-import { ConsentBanner } from "@/app/providers/ConsentBanner";
+import { ConsentBanner } from "@/app/providers/consent-banner";
 import {
   disableAnalytics,
   enableAnalytics,
 } from "@/shared/lib/analytics/analytics";
-import { useConsent } from "@/shared/lib/consent/ConsentProvider";
+import { useConsent } from "@/shared/lib/consent/consent-provider";
 
 /**
  * Measurement is opt-in: PostHog (product analytics + feature flags) and

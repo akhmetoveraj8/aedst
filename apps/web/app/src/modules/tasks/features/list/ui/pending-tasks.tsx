@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { PRIORITY_KEYS } from "@/modules/tasks/lib/labels";
 import { useQueuedTasks } from "@/modules/tasks/lib/use-task-writes";
 import type { TaskPriority } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
-import { useOutbox } from "@/shared/lib/outbox/OutboxProvider";
+import { useOutbox } from "@/shared/lib/outbox/outbox-provider";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 

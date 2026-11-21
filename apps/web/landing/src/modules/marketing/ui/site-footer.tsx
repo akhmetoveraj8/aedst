@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/shared/i18n/locales";
-import { Link } from "@/shared/i18n/navigation";
 
 export async function SiteFooter({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: "common" });
@@ -15,14 +14,14 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
         <nav aria-label={t("footer.legal")}>
           <ul className="flex gap-5">
             <li>
-              <Link href="/privacy" className="hover:text-foreground">
+              <a href={`/${locale}/privacy`} className="hover:text-foreground">
                 {t("footer.privacy")}
-              </Link>
+              </a>
             </li>
             <li>
-              <Link href="/terms" className="hover:text-foreground">
+              <a href={`/${locale}/terms`} className="hover:text-foreground">
                 {t("footer.terms")}
-              </Link>
+              </a>
             </li>
           </ul>
         </nav>

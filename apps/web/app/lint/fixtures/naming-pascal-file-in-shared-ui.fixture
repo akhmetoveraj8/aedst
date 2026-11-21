@@ -1,4 +1,4 @@
 //// run: naming
-//// expect: React file must be PascalCase
-//// file: apps/web/app/src/app/providers/some-provider.tsx
-export const SomeProvider = () => null;
+//// expect: web source file must be kebab-case
+//// file: apps/web/shared/ui/SomeKitPart.tsx
+export const SomeKitPart = () => null;

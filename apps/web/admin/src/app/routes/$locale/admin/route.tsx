@@ -2,8 +2,8 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useTranslations } from "use-intl";
 
 import { assertOperator } from "@/app/auth/guards";
-import { LocaleSwitcher } from "@/app/shell/LocaleSwitcher";
-import { PageMain } from "@/app/shell/PageMain";
+import { LocaleSwitcher } from "@/app/shell/locale-switcher";
+import { PageMain } from "@/app/shell/page-main";
 import { AdminNav } from "@/modules/admin/entries/admin-nav";
 import { ADMIN_SECTIONS } from "@/modules/admin/entries/admin-sections";
 import { AdminSignOutButton } from "@/modules/admin/entries/admin-sign-out";
@@ -32,6 +32,7 @@ function SegmentLoading() {
 function AdminLayout() {
   const { session } = Route.useRouteContext();
   const t = useTranslations("admin");
+  const tTheme = useTranslations("common.theme");
   const roles = session?.roles ?? [];
   const allowed = ADMIN_SECTIONS.filter((section) =>
     can(roles, section.permission),
@@ -42,7 +43,14 @@ function AdminLayout() {
         <h1 className="font-semibold text-2xl">{t("title")}</h1>
         <div className="flex items-center gap-2">
           <LocaleSwitcher />
-          <ModeToggle />
+          <ModeToggle
+            labels={{
+              toggle: tTheme("toggle"),
+              light: tTheme("light"),
+              dark: tTheme("dark"),
+              system: tTheme("system"),
+            }}
+          />
           <AdminSignOutButton />
         </div>
       </header>

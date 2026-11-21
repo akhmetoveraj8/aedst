@@ -26,3 +26,22 @@ export const STATUS_LABEL = { ok: "ok  ", warn: "WARN", fail: "FAIL" };
 export function containsReplayRecorder(source) {
   return source.includes("recordingMode") && source.includes("rrweb");
 }
+
+/**
+ * URLs of the scripts a built Vite `index.html` makes every visit download:
+ * the module entry plus its `modulepreload` links.
+ * @param {string} html
+ * @returns {string[]}
+ */
+export function entryScripts(html) {
+  const urls = [];
+  for (const tag of html.match(/<(?:script|link)\b[^>]*>/g) ?? []) {
+    const isEntry = /^<script\b/.test(tag) && /\bsrc=/.test(tag);
+    const isPreload = /^<link\b/.test(tag) && /rel="modulepreload"/.test(tag);
+    const url = /\b(?:src|href)="([^"]+)"/.exec(tag)?.[1];
+    if ((isEntry || isPreload) && url) {
+      urls.push(url);
+    }
+  }
+  return urls;
+}

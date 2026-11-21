@@ -1,7 +1,7 @@
 "use client";
 
-import { DeleteAttachmentDialog } from "@/modules/media/ui/DeleteAttachmentDialog";
-import { MediaViewerDialog } from "@/modules/media/ui/MediaViewerDialog";
+import { DeleteAttachmentDialog } from "@/modules/media/ui/delete-attachment-dialog";
+import { MediaViewerDialog } from "@/modules/media/ui/media-viewer-dialog";
 import type { Media } from "@/shared/api/connect/generated/aedst/media/v1/media_pb";
 
 type DialogTarget = { media: Media; open: boolean };

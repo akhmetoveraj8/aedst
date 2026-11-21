@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { transport as browserTransport } from "@/shared/api/connect/client";
 import { isDevelopment } from "@/shared/env/client";
 import { useRouter } from "@/shared/i18n/navigation";
-import { useAuth } from "@/shared/lib/auth/AuthProvider";
+import { useAuth } from "@/shared/lib/auth/auth-provider";
 import { type AppError, errorMessageKey } from "@/shared/lib/errors/app-error";
 import { makeQueryClient } from "@/shared/lib/query-client";
 

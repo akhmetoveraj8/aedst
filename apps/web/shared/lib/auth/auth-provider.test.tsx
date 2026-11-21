@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { AuthProvider, useAuth } from "@/shared/lib/auth/AuthProvider";
+import { AuthProvider, useAuth } from "@/shared/lib/auth/auth-provider";
 
 vi.mock("@sentry/nextjs", () => ({
   setUser: vi.fn(),

@@ -18,7 +18,12 @@ import {
   writeSessionCookies,
 } from "@/shared/lib/auth/session-cookies";
 import { errorFields } from "../logger";
-import { cookieJar, resolveSession } from "../session";
+import {
+  cookieJar,
+  readCookie,
+  requestCookies,
+  resolveSession,
+} from "../session";
 import type { AppBindings, AppDeps } from "../types";
 
 const AUTH_TIMEOUT_MS = 30_000;
@@ -100,8 +105,15 @@ export function authRoutes(deps: AppDeps) {
         deps: { fetch: deps.fetch },
       });
       if (result.ok) {
-        location = new URL(result.next, env.ADMIN_ORIGIN).href;
-        writeSessionCookies(cookieJar(c), result.tokens);
+        // `false`: the tokens do not fit the session cookies (logged there);
+        // refuse the sign-in instead of looping between the panel and the IdP.
+        location = writeSessionCookies(
+          cookieJar(c),
+          result.tokens,
+          requestCookies(c),
+        )
+          ? new URL(result.next, env.ADMIN_ORIGIN).href
+          : failure("config");
       } else {
         location = failure(result.reason);
       }
@@ -160,10 +172,10 @@ export function authRoutes(deps: AppDeps) {
         403,
       );
     }
-    const refreshToken = getCookie(c, REFRESH_COOKIE);
-    const idToken = getCookie(c, ID_COOKIE);
+    const refreshToken = readCookie(c, REFRESH_COOKIE);
+    const idToken = readCookie(c, ID_COOKIE);
     // Always first: whatever happens at the IdP, this browser is signed out.
-    clearSessionCookies(cookieJar(c));
+    clearSessionCookies(cookieJar(c), requestCookies(c));
     try {
       const config = auth.getOidcConfig();
       if (refreshToken) {

@@ -3,7 +3,6 @@ import { cookies, headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
 import { requireLocale } from "@/shared/i18n/require-locale";
 
@@ -11,27 +10,25 @@ import "@app/styles/globals.css";
 import { fontArabic, fontMono, fontSans } from "@/app/config/fonts";
 import { loadMessages } from "@/app/config/i18n/messages";
 import { appIcons } from "@/app/config/icons";
-import { JsonLd } from "@/app/config/JsonLd";
+import { JsonLd } from "@/app/config/json-ld";
 import { publicI18nNamespaces } from "@/app/config/modules/registry";
 import { buildVerification, siteConfig } from "@/app/config/seo";
 import { graph, organization, webSite } from "@/app/config/structured-data";
-import { AppOutboxProvider } from "@/app/providers/AppOutboxProvider";
-import { ConsentLayer } from "@/app/providers/ConsentLayer";
-import { PwaProvider } from "@/app/providers/PwaProvider";
-import { QueryProvider } from "@/app/providers/QueryProvider";
-import { ThemeProvider } from "@/app/providers/ThemeProvider";
-import { WebVitals } from "@/app/providers/WebVitals";
-import { OfflineBanner } from "@/app/shell/OfflineBanner";
+import { ConsentLayer } from "@/app/providers/consent-layer";
+import { PwaProvider } from "@/app/providers/pwa-provider";
+import { ThemeProvider } from "@/app/providers/theme-provider";
+import { WebVitals } from "@/app/providers/web-vitals";
+import { OfflineBanner } from "@/app/shell/offline-banner";
 import { getLocaleDirection, toLanguageTag } from "@/shared/i18n/locales";
 import { routing } from "@/shared/i18n/routing";
-import { AuthProvider } from "@/shared/lib/auth/AuthProvider";
+import { AuthProvider } from "@/shared/lib/auth/auth-provider";
 import { getSessionRoles, getSessionUserId } from "@/shared/lib/auth/session";
-import { ConsentProvider } from "@/shared/lib/consent/ConsentProvider";
 import {
   CONSENT_COOKIE,
   isGlobalPrivacyControl,
   parseConsent,
 } from "@/shared/lib/consent/consent-cookie";
+import { ConsentProvider } from "@/shared/lib/consent/consent-provider";
 import { DirectionProvider } from "@/shared/ui/direction";
 
 export async function generateMetadata({
@@ -134,13 +131,11 @@ export default async function RootLayout({
               <ConsentProvider initial={consent} privacySignal={privacySignal}>
                 <PwaProvider>
                   <OfflineBanner />
-                  <NuqsAdapter>
-                    <AuthProvider initialUserId={userId} initialRoles={roles}>
-                      <QueryProvider>
-                        <AppOutboxProvider>{children}</AppOutboxProvider>
-                      </QueryProvider>
-                    </AuthProvider>
-                  </NuqsAdapter>
+                  {/* Query, URL-state and outbox providers live in the
+                      (app) layout: the anonymous pages do not load them. */}
+                  <AuthProvider initialUserId={userId} initialRoles={roles}>
+                    {children}
+                  </AuthProvider>
                 </PwaProvider>
 
                 <Toaster

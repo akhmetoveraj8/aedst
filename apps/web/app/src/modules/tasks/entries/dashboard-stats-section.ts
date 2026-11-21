@@ -1,1 +1,1 @@
-export { DashboardStatsSection } from "@/modules/tasks/ui/DashboardStatsSection";
+export { DashboardStatsSection } from "@/modules/tasks/features/dashboard/ui/dashboard-stats-section";

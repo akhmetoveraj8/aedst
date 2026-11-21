@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { fontArabic, fontSans } from "@/app/config/fonts";
-import { loadMessages } from "@/app/config/i18n/messages";
 import { appIcons } from "@/app/config/icons";
-import { JsonLd } from "@/app/config/JsonLd";
+import { JsonLd } from "@/app/config/json-ld";
 import { buildVerification, siteConfig } from "@/app/config/seo";
 import { graph, organization, webSite } from "@/app/config/structured-data";
-import { ThemeProvider } from "@/app/providers/ThemeProvider";
-import { SiteFooter } from "@/modules/marketing/ui/SiteFooter";
-import { SiteHeader } from "@/modules/marketing/ui/SiteHeader";
+import { ErrorMessagesProvider } from "@/app/providers/error-messages";
+import { ThemeScript } from "@/app/providers/theme-script";
+import { SiteFooter } from "@/modules/marketing/entries/site-footer";
+import { SiteHeader } from "@/modules/marketing/entries/site-header";
 import { getLocaleDirection, toLanguageTag } from "@/shared/i18n/locales";
 import { requireLocale } from "@/shared/i18n/require-locale";
 import { routing } from "@/shared/i18n/routing";
@@ -63,13 +62,11 @@ export default async function RootLayout({
 
   const t = await getTranslations({ locale, namespace: "common" });
   const direction = getLocaleDirection(locale);
-  // Only the strings the client error boundary (error.tsx) needs.
-  const { common } = await loadMessages(locale);
-  const clientMessages = {
-    common: {
-      errors: common.errors,
-      actions: { tryAgain: common.actions.tryAgain },
-    },
+  // The only strings a client component needs: the error boundary (error.tsx).
+  const errorMessages = {
+    title: t("errors.title"),
+    description: t("errors.generic"),
+    tryAgain: t("actions.tryAgain"),
   };
 
   // No headers()/cookies() here: reading request data would make every page
@@ -82,6 +79,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
+        <ThemeScript />
         <JsonLd
           data={graph(
             organization(),
@@ -94,21 +92,14 @@ export default async function RootLayout({
         >
           {t("a11y.skipToContent")}
         </a>
-        {/* Client islands get their strings as props; only error.tsx reads messages. */}
-        <NextIntlClientProvider messages={clientMessages}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <SiteHeader locale={locale} />
-            <main id="main-content" className="flex-1">
-              {children}
-            </main>
-            <SiteFooter locale={locale} />
-          </ThemeProvider>
-        </NextIntlClientProvider>
+        <SiteHeader locale={locale} />
+        <main id="main-content" className="flex-1">
+          {/* Client islands get their strings as props or through this context. */}
+          <ErrorMessagesProvider messages={errorMessages}>
+            {children}
+          </ErrorMessagesProvider>
+        </main>
+        <SiteFooter locale={locale} />
       </body>
     </html>
   );

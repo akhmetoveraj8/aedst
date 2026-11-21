@@ -1,6 +1,6 @@
 import { HydrationBoundary } from "@tanstack/react-query";
 
-import { TaskDetails } from "@/modules/tasks/ui/TaskDetails";
+import { TaskDetails } from "@/modules/tasks/features/details/ui/task-details";
 import { TasksService } from "@/shared/api/connect/client";
 import { createRpcPrefetcher } from "@/shared/api/connect/prefetch";
 

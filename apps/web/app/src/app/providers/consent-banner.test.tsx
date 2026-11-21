@@ -3,12 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
-import { ConsentBanner } from "@/app/providers/ConsentBanner";
+import { ConsentBanner } from "@/app/providers/consent-banner";
+import { saveConsentAction } from "@/shared/lib/consent/consent-action";
 import {
   ConsentProvider,
   useConsent,
-} from "@/shared/lib/consent/ConsentProvider";
-import { saveConsentAction } from "@/shared/lib/consent/consent-action";
+} from "@/shared/lib/consent/consent-provider";
 import { messages } from "@/test/render";
 
 const env = vi.hoisted(() => ({

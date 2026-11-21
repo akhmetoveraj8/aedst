@@ -7,7 +7,7 @@ import { IntlProvider } from "use-intl";
 
 import commonMessages from "@/app/config/i18n/common/en.json";
 import adminMessages from "@/modules/admin/i18n/en.json";
-import { AuthProvider } from "@/shared/lib/auth/AuthProvider";
+import { AuthProvider } from "@/shared/lib/auth/auth-provider";
 import {
   makeQueryClient,
   type QueryClientCallbacks,

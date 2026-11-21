@@ -2,11 +2,10 @@ import { ConnectError } from "@connectrpc/connect";
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-
+import { CreateTaskPage } from "@/modules/tasks/features/create/ui/create-task-page";
+import { TaskDetails } from "@/modules/tasks/features/details/ui/task-details";
+import { PendingTasks } from "@/modules/tasks/features/list/ui/pending-tasks";
 import { createTaskOutboxHandlers } from "@/modules/tasks/lib/outbox-handlers";
-import { CreateTaskPage } from "@/modules/tasks/ui/CreateTaskPage";
-import { PendingTasks } from "@/modules/tasks/ui/PendingTasks";
-import { TaskDetails } from "@/modules/tasks/ui/TaskDetails";
 import { TasksService } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { createIdbOutboxStore } from "@/shared/lib/outbox/idb-store";
 import { createOutbox } from "@/shared/lib/outbox/outbox";

@@ -1,0 +1,10 @@
+{
+  "$comment": "Admin is a Vite SPA behind the Hono BFF. Gzip KB over every emitted client chunk in dist/assets, checked by ../shared/scripts/check-bundle-size.mjs (`pnpm check:bundle`, after `pnpm build`). Limits are ~3% above the first measured build (2026-11-21): total JS 475.9, largest chunk 133.0 (the entry index-*.js), CSS 30.4, entry first load 212.0 (the entry script plus the modulepreloads index.html references: what every visit downloads before a route chunk), fonts 533.2 KB on disk in 20 files. The fonts are the 10 @fontsource subsets of src/app/styles/globals.css, each as WOFF2 plus a legacy WOFF copy that no supported browser requests; a page downloads only the WOFF2 subsets its text needs (English: 3 files, 40 KB). All ten subsets are in use (latin: en/uz, cyrillic: ru/tj, arabic: ar, latin-ext 400: names with diacritics), so none was trimmed. Budgets are ratchets: never raise them to make CI pass.",
+  "staticDir": "dist/assets",
+  "entryHtml": "dist/index.html",
+  "totalJsGzipKB": 490,
+  "largestJsChunkGzipKB": 137,
+  "totalCssGzipKB": 31.5,
+  "totalFontKB": 549,
+  "entryJsGzipKB": 218
+}

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useCreateTask } from "@/modules/tasks/lib/use-task-writes";
-import { TaskForm, type TaskFormValues } from "@/modules/tasks/ui/TaskForm";
+import { TaskForm, type TaskFormValues } from "@/modules/tasks/ui/task-form";
 import { TaskPriority } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { Link, useRouter } from "@/shared/i18n/navigation";
 import { track } from "@/shared/lib/analytics/analytics";

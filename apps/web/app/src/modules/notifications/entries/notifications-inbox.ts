@@ -1,1 +1,1 @@
-export { NotificationsInbox } from "@/modules/notifications/ui/NotificationsInbox";
+export { NotificationsInbox } from "@/modules/notifications/ui/notifications-inbox";

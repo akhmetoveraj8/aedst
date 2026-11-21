@@ -2,7 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { BroadcastForm } from "@/modules/admin/ui/BroadcastForm";
+import { BroadcastForm } from "@/modules/admin/ui/broadcast-form";
 import { messages, renderWithProviders } from "@/test/render";
 
 const t = messages.admin.broadcast;

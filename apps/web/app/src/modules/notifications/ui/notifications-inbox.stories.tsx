@@ -7,7 +7,7 @@ import {
 } from "@/shared/api/connect/generated/aedst/notifications/v1/notifications_pb";
 import { rpc } from "@/test/mocks/transport";
 import { withAppProviders } from "../../../../.storybook/with-app-providers";
-import { NotificationsInbox } from "./NotificationsInbox";
+import { NotificationsInbox } from "./notifications-inbox";
 
 const meta = {
   title: "Modules/Notifications/NotificationsInbox",

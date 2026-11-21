@@ -2,8 +2,8 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { NotificationBell } from "@/modules/notifications/ui/NotificationBell";
-import { NotificationPreferences } from "@/modules/notifications/ui/NotificationPreferences";
+import { NotificationBell } from "@/modules/notifications/ui/notification-bell";
+import { NotificationPreferences } from "@/modules/notifications/ui/notification-preferences";
 import {
   NotificationsService,
   PushPlatform,

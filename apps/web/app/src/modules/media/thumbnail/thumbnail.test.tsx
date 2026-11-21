@@ -1,8 +1,8 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { ImageViewer } from "@/modules/media/image/ImageViewer";
-import { Thumbnail } from "@/modules/media/thumbnail/Thumbnail";
+import { ImageViewer } from "@/modules/media/image/image-viewer";
+import { Thumbnail } from "@/modules/media/thumbnail/thumbnail";
 import { MediaKind } from "@/shared/api/connect/generated/aedst/media/v1/media_pb";
 import { messages, renderWithProviders } from "@/test/render";
 

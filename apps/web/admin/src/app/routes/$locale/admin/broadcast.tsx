@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslations } from "use-intl";
 
 import { assertPermission } from "@/app/auth/guards";
-import { PageTitle } from "@/app/shell/PageTitle";
+import { PageTitle } from "@/app/shell/page-title";
 import { BroadcastForm } from "@/modules/admin/public";
 
 export const Route = createFileRoute("/$locale/admin/broadcast")({

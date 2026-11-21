@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { CurrentUser } from "@/modules/auth/ui/CurrentUser";
+import { CurrentUser } from "@/modules/auth/ui/current-user";
 import { getSessionIdentity } from "@/shared/lib/auth/session";
 import { messages } from "@/test/render";
 

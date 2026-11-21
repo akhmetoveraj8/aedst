@@ -2,7 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { AdminSignOutButton } from "@/modules/admin/ui/AdminSignOutButton";
+import { AdminSignOutButton } from "@/modules/admin/ui/admin-sign-out-button";
 import { requestLogout } from "@/shared/lib/auth/logout";
 import { routerMock } from "@/test/mocks/navigation";
 import { messages, renderWithProviders } from "@/test/render";

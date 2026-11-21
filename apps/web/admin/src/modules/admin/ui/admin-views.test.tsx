@@ -3,10 +3,10 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { AdminNav } from "@/modules/admin/ui/AdminNav";
-import { AdminOverview } from "@/modules/admin/ui/AdminOverview";
-import { AuditLog } from "@/modules/admin/ui/AuditLog";
-import { BroadcastForm } from "@/modules/admin/ui/BroadcastForm";
+import { AdminNav } from "@/modules/admin/ui/admin-nav";
+import { AdminOverview } from "@/modules/admin/ui/admin-overview";
+import { AuditLog } from "@/modules/admin/ui/audit-log";
+import { BroadcastForm } from "@/modules/admin/ui/broadcast-form";
 import { AdminService } from "@/shared/api/connect/generated/aedst/admin/v1/admin_pb";
 import { backend, Code, rpc, rpcError } from "@/test/mocks/transport";
 import { messages, renderWithProviders } from "@/test/render";

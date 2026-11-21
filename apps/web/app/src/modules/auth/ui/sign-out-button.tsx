@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { logoutAction } from "@/modules/auth/lib/auth-actions";
 import { useRouter } from "@/shared/i18n/navigation";
-import { useAuth } from "@/shared/lib/auth/AuthProvider";
+import { useAuth } from "@/shared/lib/auth/auth-provider";
 import { runBeforeSignOut } from "@/shared/lib/auth/sign-out-hooks";
 import { Button } from "@/shared/ui/button";
 

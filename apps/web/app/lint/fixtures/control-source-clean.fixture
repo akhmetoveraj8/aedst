@@ -1,0 +1,10 @@
+//// run: source
+//// expect: pass
+//// file: src/modules/tasks/ui/ok-direction.tsx
+// Logical utilities, an explicit per-side variant, an explicit per-direction
+// variant, and prose that merely mentions right-to-left or the top-left corner.
+export const OkDirection = () => (
+  <p className="ms-4 pe-2 start-0 text-start data-[side=left]:left-0 rtl:mr-2 slide-in-from-left-2">
+    right-to-left
+  </p>
+);

@@ -1,4 +1,4 @@
-import { RouteMessages } from "@/app/providers/RouteMessages";
+import { RouteMessages } from "@/app/providers/route-messages";
 import { requireLocale } from "@/shared/i18n/require-locale";
 
 export default async function TasksLayout({

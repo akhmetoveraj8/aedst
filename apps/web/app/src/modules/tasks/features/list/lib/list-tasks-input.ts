@@ -1,6 +1,6 @@
 import type { MessageInitShape } from "@bufbuild/protobuf";
 
-import type { TaskSearchParams } from "@/modules/tasks/lib/task-search-params";
+import type { TaskSearchParams } from "@/modules/tasks/features/list/lib/task-search-params";
 import {
   type ListTasksRequestSchema,
   SortDirection,

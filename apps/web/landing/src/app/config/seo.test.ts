@@ -2,9 +2,21 @@ import { describe, expect, it } from "vitest";
 import {
   buildAlternates,
   buildLanguageAlternates,
+  buildOpenGraph,
   siteConfig,
 } from "@/app/config/seo";
 import { locales, toLanguageTag } from "@/shared/i18n/locales";
+
+describe("buildOpenGraph", () => {
+  it("points og:url at the page's own canonical, not the locale root", () => {
+    const text = { siteName: "S", title: "T", description: "D" };
+    const openGraph = buildOpenGraph("privacy", "tj", text);
+    expect(openGraph.url).toBe(buildAlternates("privacy", "tj").canonical);
+    expect(openGraph.url).toBe("http://localhost:3002/tj/privacy");
+    expect(openGraph.locale).toBe("tg");
+    expect(openGraph).toMatchObject({ siteName: "S", title: "T" });
+  });
+});
 
 describe("buildLanguageAlternates", () => {
   it("emits an absolute hreflang URL for every locale plus x-default", () => {

@@ -1,0 +1,18 @@
+//// run: boundaries
+//// expect: imports another feature (demo/list)
+//// file: src/modules/demo/manifest.ts
+export const manifest = {
+  id: "demo",
+};
+//// file: src/app/config/modules/registry.ts
+import { manifest } from "@/modules/demo/manifest";
+
+export const registry = [manifest];
+//// file: src/modules/demo/public.ts
+export { DemoDetails } from "@/modules/demo/features/details/ui/demo-details";
+//// file: src/modules/demo/features/list/ui/demo-list.ts
+export const DemoList = 1;
+//// file: src/modules/demo/features/details/ui/demo-details.ts
+import { DemoList } from "../../list/ui/demo-list";
+
+export const DemoDetails = DemoList;

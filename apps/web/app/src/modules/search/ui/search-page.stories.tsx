@@ -6,7 +6,7 @@ import {
 } from "@/shared/api/connect/generated/aedst/search/v1/search_pb";
 import { rpc } from "@/test/mocks/transport";
 import { withAppProviders } from "../../../../.storybook/with-app-providers";
-import { SearchPage } from "./SearchPage";
+import { SearchPage } from "./search-page";
 
 const meta = {
   title: "Modules/Search/SearchPage",

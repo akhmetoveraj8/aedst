@@ -9,8 +9,8 @@
  * every re-export; see docs/content/web/architecture.md).
  */
 
-export { AdminNav } from "@/modules/admin/ui/AdminNav";
-export { AdminOverview } from "@/modules/admin/ui/AdminOverview";
-export { AdminTasks } from "@/modules/admin/ui/AdminTasks";
-export { AuditLog } from "@/modules/admin/ui/AuditLog";
-export { BroadcastForm } from "@/modules/admin/ui/BroadcastForm";
+export { AdminNav } from "@/modules/admin/ui/admin-nav";
+export { AdminOverview } from "@/modules/admin/ui/admin-overview";
+export { AdminTasks } from "@/modules/admin/ui/admin-tasks";
+export { AuditLog } from "@/modules/admin/ui/audit-log";
+export { BroadcastForm } from "@/modules/admin/ui/broadcast-form";

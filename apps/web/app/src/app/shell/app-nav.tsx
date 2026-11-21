@@ -4,8 +4,8 @@ import { cn } from "cn";
 import { useTranslations } from "next-intl";
 import { navEntriesFor } from "@/app/config/modules/registry";
 import { Link, usePathname } from "@/shared/i18n/navigation";
-import { useAuth } from "@/shared/lib/auth/AuthProvider";
-import { useCapabilities } from "@/shared/lib/capabilities/CapabilitiesProvider";
+import { useAuth } from "@/shared/lib/auth/auth-provider";
+import { useCapabilities } from "@/shared/lib/capabilities/capabilities-provider";
 
 /**
  * Primary navigation, built from the module manifests (`nav`) via the

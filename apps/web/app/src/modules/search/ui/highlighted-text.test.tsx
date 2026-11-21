@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { HighlightedText } from "@/modules/search/ui/HighlightedText";
+import { HighlightedText } from "@/modules/search/ui/highlighted-text";
 
 // apps/server wraps matched terms in these Private Use Area characters.
 const START = "";

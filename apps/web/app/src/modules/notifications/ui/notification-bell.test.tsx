@@ -1,7 +1,7 @@
 import { waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { NotificationBell } from "@/modules/notifications/ui/NotificationBell";
+import { NotificationBell } from "@/modules/notifications/ui/notification-bell";
 import { NotificationsService } from "@/shared/api/connect/generated/aedst/notifications/v1/notifications_pb";
 import { backend, rpc } from "@/test/mocks/transport";
 import { renderWithProviders } from "@/test/render";

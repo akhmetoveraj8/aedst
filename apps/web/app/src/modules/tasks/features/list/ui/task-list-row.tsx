@@ -3,8 +3,8 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useLocale, useTranslations } from "next-intl";
 
-import { PriorityBadge } from "@/modules/tasks/ui/PriorityBadge";
-import { StatusBadge } from "@/modules/tasks/ui/StatusBadge";
+import { PriorityBadge } from "@/modules/tasks/ui/priority-badge";
+import { StatusBadge } from "@/modules/tasks/ui/status-badge";
 import type { Task } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { formatDate, useDateLocale } from "@/shared/date/format-date";
 import { Link } from "@/shared/i18n/navigation";

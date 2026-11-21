@@ -1,6 +1,6 @@
 "use client";
 
-import { MediaPlayer } from "@/modules/media/player/MediaPlayer";
+import { MediaPlayer } from "@/modules/media/player/media-player";
 import type { Media } from "@/shared/api/connect/generated/aedst/media/v1/media_pb";
 import {
   Dialog,

@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { LocaleSwitcher } from "@/app/shell/LocaleSwitcher";
+import { LocaleSwitcher } from "@/app/shell/locale-switcher";
 import { routerMock } from "@/test/mocks/navigation";
 import { messages, renderWithProviders } from "@/test/render";
 

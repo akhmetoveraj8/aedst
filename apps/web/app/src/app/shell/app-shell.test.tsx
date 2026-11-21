@@ -2,9 +2,9 @@ import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { AppNav } from "@/app/shell/AppNav";
-import { InstallPrompt } from "@/app/shell/InstallPrompt";
-import { OfflineBanner } from "@/app/shell/OfflineBanner";
+import { AppNav } from "@/app/shell/app-nav";
+import { InstallPrompt } from "@/app/shell/install-prompt";
+import { OfflineBanner } from "@/app/shell/offline-banner";
 import { useUiPreferences } from "@/shared/lib/stores/ui-preferences-store";
 import { messages, renderWithProviders } from "@/test/render";
 

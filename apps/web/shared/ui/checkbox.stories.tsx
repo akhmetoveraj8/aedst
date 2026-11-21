@@ -21,6 +21,7 @@ export const Invalid: Story = { args: { "aria-invalid": true } };
 
 export const WithLabel: Story = {
   render: (args) => (
+    // biome-ignore lint/a11y/noLabelWithoutControl: the nested Checkbox is the control (a Base UI button with a hidden input the rule cannot see)
     <label className="flex items-center gap-2 text-sm">
       <Checkbox {...args} aria-label={undefined} />
       Subscribe to updates

@@ -5,10 +5,10 @@ import { IntlProvider } from "use-intl";
 
 import type { Session } from "@/app/auth/session";
 import { signInUrl } from "@/app/config/env";
-import { QueryProvider } from "@/app/providers/QueryProvider";
-import { ThemeProvider } from "@/app/providers/ThemeProvider";
+import { QueryProvider } from "@/app/providers/query-provider";
+import { ThemeProvider } from "@/app/providers/theme-provider";
 import { getLocaleDirection, type Locale } from "@/shared/i18n/locales";
-import { AuthProvider } from "@/shared/lib/auth/AuthProvider";
+import { AuthProvider } from "@/shared/lib/auth/auth-provider";
 import { DirectionProvider } from "@/shared/ui/direction";
 
 /**

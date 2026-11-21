@@ -1,0 +1,14 @@
+//// run: boundaries
+//// expect: a feature holds only the folders ui/ and lib/
+//// file: src/modules/demo/manifest.ts
+export const manifest = {
+  id: "demo",
+};
+//// file: src/app/config/modules/registry.ts
+import { manifest } from "@/modules/demo/manifest";
+
+export const registry = [manifest];
+//// file: src/modules/demo/public.ts
+export { DemoList } from "@/modules/demo/features/list/components/demo-list";
+//// file: src/modules/demo/features/list/components/demo-list.ts
+export const DemoList = 1;

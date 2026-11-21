@@ -1,1 +1,1 @@
-export { TaskListFallback } from "@/modules/tasks/ui/TaskListFallback";
+export { TaskListFallback } from "@/modules/tasks/features/list/ui/task-list-fallback";

@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { logoutAction } from "@/modules/auth/lib/auth-actions";
-import { SignOutButton } from "@/modules/auth/ui/SignOutButton";
+import { SignOutButton } from "@/modules/auth/ui/sign-out-button";
 import { routerMock } from "@/test/mocks/navigation";
 import { messages, renderWithProviders } from "@/test/render";
 

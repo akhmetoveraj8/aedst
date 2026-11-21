@@ -1,10 +1,10 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { loadMessages } from "@/app/config/i18n/messages";
-import { LocaleProviders } from "@/app/providers/LocaleProviders";
-import { LocaleError } from "@/app/shell/LocaleError";
-import { LocaleNotFound } from "@/app/shell/LocaleNotFound";
-import { SkipLink } from "@/app/shell/SkipLink";
+import { LocaleProviders } from "@/app/providers/locale-providers";
+import { LocaleError } from "@/app/shell/locale-error";
+import { LocaleNotFound } from "@/app/shell/locale-not-found";
+import { SkipLink } from "@/app/shell/skip-link";
 import { getLocaleDirection, toLanguageTag } from "@/shared/i18n/locales";
 
 export const Route = createFileRoute("/$locale")({

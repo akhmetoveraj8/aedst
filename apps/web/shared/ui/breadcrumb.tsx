@@ -64,6 +64,7 @@ function BreadcrumbLink({
 
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
   return (
+    // biome-ignore lint/a11y/useFocusableInteractive: the current page is announced as a disabled link (WAI-ARIA breadcrumb pattern) and must not take focus
     <span
       data-slot="breadcrumb-page"
       role="link"

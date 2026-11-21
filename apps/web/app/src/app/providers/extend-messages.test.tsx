@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
 import { describe, expect, it } from "vitest";
-import { ExtendMessages } from "@/app/providers/ExtendMessages";
+import { ExtendMessages } from "@/app/providers/extend-messages";
 
 function Probe() {
   const common = useTranslations("common.locale");

@@ -8,7 +8,9 @@
     // Loaded by path from next.config.ts (next-intl plugin), not imported.
     "src/app/config/i18n/request.ts",
     // next-intl `AppConfig` augmentation, picked up by tsc, never imported.
-    "src/app/config/i18n/messages-types.ts"
+    "src/app/config/i18n/messages-types.ts",
+    // A module's full public surface; pages import the single-export entries/ files.
+    "src/modules/*/public.ts"
   ],
   "project": ["src/**/*.{ts,tsx}"],
   // ../shared is a source-only kit consumed through the `@/shared/*` alias:
@@ -26,7 +28,6 @@
     "tw-animate-css",
     "tailwindcss",
     // Provided by the shared kit; the landing keeps them for its own tooling.
-    "@playwright/test",
     "@testing-library/react",
     "@testing-library/jest-dom",
     "@testing-library/dom",

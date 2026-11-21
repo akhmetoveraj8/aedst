@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { TaskPriority } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { withAppProviders } from "../../../../.storybook/with-app-providers";
-import { TaskForm } from "./TaskForm";
+import { TaskForm } from "./task-form";
 
 const meta = {
   title: "Modules/Tasks/TaskForm",

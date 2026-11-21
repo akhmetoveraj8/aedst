@@ -7,14 +7,14 @@ import {
   disableSessionReplay,
   enableSessionReplay,
 } from "@/app/config/sentry/loader";
-import { ConsentLayer } from "@/app/providers/ConsentLayer";
-import { PrivacySettingsButton } from "@/app/providers/PrivacySettingsButton";
+import { ConsentLayer } from "@/app/providers/consent-layer";
+import { PrivacySettingsButton } from "@/app/providers/privacy-settings-button";
 import {
   disableAnalytics,
   enableAnalytics,
 } from "@/shared/lib/analytics/analytics";
-import { ConsentProvider } from "@/shared/lib/consent/ConsentProvider";
 import type { ConsentState } from "@/shared/lib/consent/consent-cookie";
+import { ConsentProvider } from "@/shared/lib/consent/consent-provider";
 import { messages } from "@/test/render";
 
 vi.mock("@/app/config/sentry/loader", () => ({

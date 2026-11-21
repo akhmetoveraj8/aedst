@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "use-intl";
 import { transport as browserTransport } from "@/shared/api/connect/client";
-import { useAuth } from "@/shared/lib/auth/AuthProvider";
+import { useAuth } from "@/shared/lib/auth/auth-provider";
 import { type AppError, errorMessageKey } from "@/shared/lib/errors/app-error";
 import { makeQueryClient } from "@/shared/lib/query-client";
 

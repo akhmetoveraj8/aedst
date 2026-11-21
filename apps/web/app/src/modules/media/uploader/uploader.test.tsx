@@ -2,7 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useUploadQueue } from "@/modules/media/lib/upload-queue-store";
-import { Uploader } from "@/modules/media/uploader/Uploader";
+import { Uploader } from "@/modules/media/uploader/uploader";
 import {
   MediaKind,
   MediaService,

@@ -1,34 +1,31 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { useEffect } from "react";
-import { reportError } from "@/shared/lib/errors/report-error";
-import { Button } from "@/shared/ui/button";
+import { usePathname } from "next/navigation";
+import { useErrorMessages } from "@/app/providers/error-messages";
 
-type LocaleErrorProps = {
-  error: Error & { digest?: string };
-  reset: () => void;
-};
-
-export default function LocaleError({ error, reset }: LocaleErrorProps) {
-  const t = useTranslations("common");
-
-  useEffect(() => {
-    // Sentry is not initialised on the landing site, so this is a no-op until
-    // an instrumentation-client.ts is added; kept so the path is one line away.
-    reportError(error, {
-      source: "route",
-      extra: error.digest ? { digest: error.digest } : undefined,
-    });
-  }, [error]);
+/**
+ * Route error boundary (a client component by Next's contract). Strings come
+ * from the layout through `ErrorMessagesProvider`. "Try again" is a link that
+ * reloads the page: on a static site a fresh document is the retry, and a
+ * link needs no event handler; it is a text link so the kit button (and
+ * base-ui with it) stays out of every first load. No error reporting SDK here.
+ */
+export default function LocaleError() {
+  const messages = useErrorMessages();
+  const pathname = usePathname();
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 px-4 py-24 text-center">
-      <h1 className="font-semibold text-2xl">{t("errors.title")}</h1>
+      <h1 className="font-semibold text-2xl">{messages?.title}</h1>
       <p className="max-w-md text-muted-foreground text-sm">
-        {t("errors.generic")}
+        {messages?.description}
       </p>
-      <Button onClick={reset}>{t("actions.tryAgain")}</Button>
+      <a
+        href={pathname}
+        className="font-medium text-sm underline underline-offset-4"
+      >
+        {messages?.tryAgain}
+      </a>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { create } from "@bufbuild/protobuf";
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { MediaPlayer } from "@/modules/media/player/MediaPlayer";
+import { MediaPlayer } from "@/modules/media/player/media-player";
 import {
   MediaKind,
   MediaSchema,

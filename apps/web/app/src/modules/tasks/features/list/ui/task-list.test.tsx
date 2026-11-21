@@ -2,7 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { TaskList } from "@/modules/tasks/ui/TaskList";
+import { TaskList } from "@/modules/tasks/features/list/ui/task-list";
 import {
   SortDirection,
   TaskPriority,

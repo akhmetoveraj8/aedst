@@ -2,7 +2,7 @@ import type { ErrorComponentProps } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useTranslations } from "use-intl";
 
-import { PageMain } from "@/app/shell/PageMain";
+import { PageMain } from "@/app/shell/page-main";
 import { reportError } from "@/shared/lib/errors/report-error";
 import { Button } from "@/shared/ui/button";
 

@@ -1,6 +1,6 @@
 //// run: biome
 //// expect: No inline validation rules in register()
-//// file: src/modules/tasks/ui/BadRegister.tsx
+//// file: src/modules/tasks/ui/bad-register.tsx
 import { useForm } from "react-hook-form";
 
 export function BadRegister() {

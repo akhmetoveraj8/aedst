@@ -87,6 +87,14 @@ export function createApp(deps: AppDeps) {
     c.json({ code: "not_found", message: "unknown route" }, 404),
   );
 
+  // Third noindex layer (header and meta tag are the other two): compliant
+  // crawlers stop here, before the guard redirects them to the login page.
+  app.get("/robots.txt", (c) =>
+    c.text("User-agent: *\nDisallow: /\n", 200, {
+      "cache-control": "public, max-age=3600",
+    }),
+  );
+
   app.use("*", staticFiles(deps.staticDir));
   app.get("*", htmlHandler(deps));
   app.all("*", (c) => c.text("Method not allowed", 405));

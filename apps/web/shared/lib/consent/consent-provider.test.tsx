@@ -1,12 +1,11 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-
+import { saveConsentAction } from "@/shared/lib/consent/consent-action";
+import { parseConsent } from "@/shared/lib/consent/consent-cookie";
 import {
   ConsentProvider,
   useConsent,
-} from "@/shared/lib/consent/ConsentProvider";
-import { saveConsentAction } from "@/shared/lib/consent/consent-action";
-import { parseConsent } from "@/shared/lib/consent/consent-cookie";
+} from "@/shared/lib/consent/consent-provider";
 
 vi.mock("@/shared/lib/consent/consent-action", () => ({
   saveConsentAction: vi.fn(),

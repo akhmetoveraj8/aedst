@@ -7,7 +7,7 @@ import {
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { DashboardStats } from "@/modules/tasks/ui/DashboardStats";
+import { DashboardStats } from "@/modules/tasks/features/dashboard/ui/dashboard-stats";
 import { TasksService } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { backend, Code, rpc, rpcError } from "@/test/mocks/transport";
 import { messages, renderWithProviders } from "@/test/render";

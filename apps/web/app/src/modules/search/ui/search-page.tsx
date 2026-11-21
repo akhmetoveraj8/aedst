@@ -13,7 +13,7 @@ import {
   normalizeQuery,
   searchParsers,
 } from "@/modules/search/lib/search-params";
-import { HighlightedText } from "@/modules/search/ui/HighlightedText";
+import { HighlightedText } from "@/modules/search/ui/highlighted-text";
 import { SearchService } from "@/shared/api/connect/client";
 import { DocumentKind } from "@/shared/api/connect/generated/aedst/search/v1/search_pb";
 import { formatDateTime, useDateLocale } from "@/shared/date/format-date";
