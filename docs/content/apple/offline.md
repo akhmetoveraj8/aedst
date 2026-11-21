@@ -61,8 +61,8 @@ Replayed against `AuthorizedRequestExecutor` and the real `KeychainTokenStore`. 
 | `AedstNetworkTests/ClientVersionGateReplayTests`, `ClientVersionTests` | header format, `client-version-gate.json`, ErrorInfo parsing, distinct error |
 | `AedstNetworkTests/CapabilitiesReplayTests`, `CapabilitiesMappingTests` | every `capabilities.json` case, minimum-version reporting, version order, proto-to-domain mapping |
 | `AedstPersistenceTests/CapabilitiesCacheStoreTests` | last-known round trip, corrupt row |
-| `AedstAppSharedTests/SessionRefreshReplayTests` | every `session-refresh.json` case (single flight, sign-out, keep-session) |
-| `AedstAppSharedTests/UpgradeAndOutboxWiringTests` | upgrade routing, sign-out clears the queue, handlers match the fixture's `knownTypes` |
+| `AedstAppCoreTests/SessionRefreshReplayTests` | every `session-refresh.json` case (single flight, sign-out, keep-session) |
+| `AedstAppCoreTests/UpgradeAndOutboxWiringTests` | upgrade routing, sign-out clears the queue, handlers match the fixture's `knownTypes` |
 | `TasksTests/TaskOutboxTests` | payload round trip, offline create queued, validation never queued |
 
 Fixtures are read from the repository by `AedstTesting.BehaviorFixture` (walks up from the test file to `docs/contract/behavior`), so the repo file is the single source and nothing is copied into a test bundle. This works for `swift test` and `xcodebuild test` on a checkout, not for a test bundle run elsewhere.

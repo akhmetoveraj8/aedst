@@ -1,0 +1,504 @@
+openapi: 3.1.0
+info:
+  title: AEDST admin API (aedst.admin.v1)
+  description: Generated from apps/server/api/proto/aedst/admin/v1. ConnectRPC over HTTP, one POST per RPC (GET where the RPC has no side effects). Do not edit by hand.
+  version: v1
+paths:
+  /aedst.admin.v1.AdminService/BroadcastNotification:
+    post:
+      tags:
+        - aedst.admin.v1.AdminService
+      summary: BroadcastNotification
+      description: |-
+        Sends a SYSTEM notification to one user (or everyone when user_id is
+         empty) through the notifications module.
+      operationId: aedst.admin.v1.AdminService.BroadcastNotification
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.admin.v1.BroadcastNotificationRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.admin.v1.BroadcastNotificationResponse'
+  /aedst.admin.v1.AdminService/DeleteTask:
+    post:
+      tags:
+        - aedst.admin.v1.AdminService
+      summary: DeleteTask
+      description: |-
+        Deletes any user's task; the reason is written to the audit log in the same
+         transaction as the delete.
+      operationId: aedst.admin.v1.AdminService.DeleteTask
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.admin.v1.DeleteTaskRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.admin.v1.DeleteTaskResponse'
+  /aedst.admin.v1.AdminService/GetOverview:
+    post:
+      tags:
+        - aedst.admin.v1.AdminService
+      summary: GetOverview
+      description: 'Operator dashboard counters: tasks, media, push devices and the job queue.'
+      operationId: aedst.admin.v1.AdminService.GetOverview
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.admin.v1.GetOverviewRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.admin.v1.GetOverviewResponse'
+  /aedst.admin.v1.AdminService/ListAuditLog:
+    post:
+      tags:
+        - aedst.admin.v1.AdminService
+      summary: ListAuditLog
+      description: Lists audit entries, newest first (keyset).
+      operationId: aedst.admin.v1.AdminService.ListAuditLog
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.admin.v1.ListAuditLogRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.admin.v1.ListAuditLogResponse'
+  /aedst.admin.v1.AdminService/ListTasks:
+    post:
+      tags:
+        - aedst.admin.v1.AdminService
+      summary: ListTasks
+      description: Any user's tasks — the reference for cross-tenant admin reads.
+      operationId: aedst.admin.v1.AdminService.ListTasks
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.admin.v1.ListTasksRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.admin.v1.ListTasksResponse'
+components:
+  schemas:
+    aedst.admin.v1.AdminTask:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        ownerId:
+          type: string
+          title: owner_id
+        title:
+          type: string
+          title: title
+        status:
+          type: integer
+          title: status
+          format: int32
+          description: |-
+            aedst.tasks.v1.TaskStatus number; kept as int to avoid a cross-package
+             proto import in an admin-only contract.
+        createdAt:
+          title: created_at
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        dueDate:
+          title: due_date
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: AdminTask
+      additionalProperties: false
+    aedst.admin.v1.AuditEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        actorId:
+          type: string
+          title: actor_id
+        action:
+          type: string
+          title: action
+        targetKind:
+          type: string
+          title: target_kind
+        targetId:
+          type: string
+          title: target_id
+        reason:
+          type: string
+          title: reason
+        createdAt:
+          title: created_at
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: AuditEntry
+      additionalProperties: false
+    aedst.admin.v1.BroadcastNotificationRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          title: user_id
+          format: uuid
+        title:
+          type: string
+          title: title
+          maxLength: 120
+          minLength: 1
+        body:
+          type: string
+          title: body
+          maxLength: 1000
+        link:
+          type: string
+          title: link
+          maxLength: 500
+          pattern: ^(/[^/].*)?$
+      title: BroadcastNotificationRequest
+      additionalProperties: false
+    aedst.admin.v1.BroadcastNotificationResponse:
+      type: object
+      properties:
+        recipients:
+          type: string
+          title: recipients
+          format: int64
+      title: BroadcastNotificationResponse
+      additionalProperties: false
+    aedst.admin.v1.DeleteTaskRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+        reason:
+          type: string
+          title: reason
+          maxLength: 500
+          minLength: 3
+          description: Recorded in the audit log.
+      title: DeleteTaskRequest
+      additionalProperties: false
+    aedst.admin.v1.DeleteTaskResponse:
+      type: object
+      title: DeleteTaskResponse
+      additionalProperties: false
+    aedst.admin.v1.GetOverviewRequest:
+      type: object
+      title: GetOverviewRequest
+      additionalProperties: false
+    aedst.admin.v1.GetOverviewResponse:
+      type: object
+      properties:
+        tasksTotal:
+          type: string
+          title: tasks_total
+          format: int64
+          description: tasks_* count at most 1,000,000 tasks (lower bounds beyond that).
+        tasksDone:
+          type: string
+          title: tasks_done
+          format: int64
+        tasksOverdue:
+          type: string
+          title: tasks_overdue
+          format: int64
+        mediaTotal:
+          type: string
+          title: media_total
+          format: int64
+        mediaBytes:
+          type: string
+          title: media_bytes
+          format: int64
+        pushDevices:
+          type: string
+          title: push_devices
+          format: int64
+        outboxLagSeconds:
+          type: string
+          title: outbox_lag_seconds
+          format: int64
+          description: Age of the oldest ready River job (event deliveries included), seconds (0 when none waits). Field name kept for wire compatibility; it was the outbox lag before ADR-0014.
+        jobsPending:
+          type: string
+          title: jobs_pending
+          format: int64
+          description: Queued + retrying River jobs.
+      title: GetOverviewResponse
+      additionalProperties: false
+    aedst.admin.v1.ListAuditLogRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 100
+          minimum: 0
+          format: int32
+        pageToken:
+          type: string
+          title: page_token
+          maxLength: 512
+      title: ListAuditLogRequest
+      additionalProperties: false
+    aedst.admin.v1.ListAuditLogResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.admin.v1.AuditEntry'
+          title: entries
+        nextPageToken:
+          type: string
+          title: next_page_token
+      title: ListAuditLogResponse
+      additionalProperties: false
+    aedst.admin.v1.ListTasksRequest:
+      type: object
+      properties:
+        ownerId:
+          type: string
+          title: owner_id
+          format: uuid
+          description: Empty means every user.
+        query:
+          type: string
+          title: query
+          maxLength: 200
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 100
+          minimum: 0
+          format: int32
+        pageToken:
+          type: string
+          title: page_token
+          maxLength: 512
+      title: ListTasksRequest
+      additionalProperties: false
+    aedst.admin.v1.ListTasksResponse:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.admin.v1.AdminTask'
+          title: tasks
+        nextPageToken:
+          type: string
+          title: next_page_token
+      title: ListTasksResponse
+      additionalProperties: false
+    connect-protocol-version:
+      type: number
+      examples:
+        - 1
+      title: Connect-Protocol-Version
+      description: Define the version of the Connect protocol
+      const: 1
+    connect-timeout-header:
+      type: number
+      examples:
+        - 1000
+      title: Connect-Timeout-Ms
+      description: Define the timeout, in ms
+    connect.error:
+      type: object
+      properties:
+        code:
+          type: string
+          examples:
+            - not_found
+          enum:
+            - canceled
+            - unknown
+            - invalid_argument
+            - deadline_exceeded
+            - not_found
+            - already_exists
+            - permission_denied
+            - resource_exhausted
+            - failed_precondition
+            - aborted
+            - out_of_range
+            - unimplemented
+            - internal
+            - unavailable
+            - data_loss
+            - unauthenticated
+          description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+        message:
+          type: string
+          description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/connect.error_details.Any'
+          description: A list of messages that carry the error details. There is no limit on the number of messages.
+      title: Connect Error
+      additionalProperties: true
+      description: 'Error type returned by Connect: https://connectrpc.com/docs/go/errors/#http-representation'
+    connect.error_details.Any:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'A URL that acts as a globally unique identifier for the type of the serialized message. For example: `type.googleapis.com/google.rpc.ErrorInfo`.'
+        value:
+          type: string
+          format: byte
+          description: The Protobuf message, serialized as bytes and base64-encoded. The specific message type is identified by the `type` field.
+        debug:
+          type: object
+          title: Debug
+          additionalProperties: true
+          description: Deserialized error detail payload. The 'type' field indicates the schema. This field is for easier debugging and should not be relied upon for application logic.
+      additionalProperties: true
+      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message, with an additional debug field for ConnectRPC error details.
+    google.protobuf.Timestamp:
+      type: string
+      examples:
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
+      format: date-time
+      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+security: []
+tags:
+  - name: aedst.admin.v1.AdminService
+    description: |-
+      AdminService is a composition layer for operators. It owns no tables of
+       its own except the audit log; every read goes through other modules' api/
+       packages (tasks, media, notifications). Every RPC requires the
+       "admin" role — enforced by httpserver.RoleInterceptor through
+       AEDST_ROLE_POLICY (default `/aedst.admin.v1.AdminService/*=admin`), never
+       in handler code — and every mutating RPC writes an audit entry in the same
+       transaction as its effect.

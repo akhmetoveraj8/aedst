@@ -201,6 +201,17 @@
       "respectLatest": false
     },
     {
+      "description": "Intentional exception to the stable-only policy (owner decision, 2026-11-21): apps/android is on Kotlin 2.5.0-RC, so Renovate may propose newer Kotlin 2.5 pre-releases and the final release. Remove this rule once 2.5.0 final is pinned. See docs/content/decisions/android.md.",
+      "matchFileNames": [
+        "apps/android/**"
+      ],
+      "matchPackageNames": [
+        "org.jetbrains.kotlin{/,}**"
+      ],
+      "ignoreUnstable": false,
+      "respectLatest": false
+    },
+    {
       "matchFileNames": [
         "apps/apple/**"
       ],

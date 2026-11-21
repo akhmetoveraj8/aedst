@@ -1,0 +1,17 @@
+#if os(iOS)
+import AedstNavigation
+import SwiftUI
+import {{Name}}Presentation
+
+extension View {
+    /// Registers the {{name}} destination on the root stack (called by the iOS app target).
+    public func {{name}}Destinations(@ViewBuilder make{{Name}}: @escaping () -> some View) -> some View {
+        aedstDestination(for: {{Name}}Route.self) { route in
+            switch route {
+            case .list:
+                make{{Name}}()
+            }
+        }
+    }
+}
+#endif

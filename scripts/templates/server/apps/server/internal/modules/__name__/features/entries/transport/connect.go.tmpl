@@ -1,12 +1,12 @@
-// Package transport implements the {{name}} module's ConnectRPC handlers. It
-// depends only on modules/{{name}}/api, and derives the owner from the
-// authenticated context, never from a request field.
+// Package transport implements the ConnectRPC handlers of the {{name}} module's
+// entries feature. It depends only on modules/{{name}}/api, and derives the
+// owner from the authenticated context, never from a request field.
 package transport
 
 import (
 	"context"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	{{name}}v1 "github.com/aedst/server/gen/go/aedst/{{name}}/v1"
@@ -23,32 +23,32 @@ type Handler struct {
 
 func NewHandler(service api.Service) *Handler { return &Handler{service: service} }
 
-func (h *Handler) CreateEntry(ctx context.Context, req *connect.Request[{{name}}v1.CreateEntryRequest]) (*connect.Response[{{name}}v1.CreateEntryResponse], error) {
+func (h *Handler) CreateEntry(ctx context.Context, req *{{name}}v1.CreateEntryRequest) (*{{name}}v1.CreateEntryResponse, error) {
 	ownerID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	entry, svcErr := h.service.CreateEntry(ctx, ownerID, req.Msg.GetTitle())
+	entry, svcErr := h.service.CreateEntry(ctx, ownerID, req.GetTitle())
 	if svcErr != nil {
 		return nil, httpserver.ToConnectError(svcErr)
 	}
-	return connect.NewResponse(&{{name}}v1.CreateEntryResponse{Entry: toProto(entry)}), nil
+	return &{{name}}v1.CreateEntryResponse{Entry: toProto(entry)}, nil
 }
 
-func (h *Handler) GetEntry(ctx context.Context, req *connect.Request[{{name}}v1.GetEntryRequest]) (*connect.Response[{{name}}v1.GetEntryResponse], error) {
+func (h *Handler) GetEntry(ctx context.Context, req *{{name}}v1.GetEntryRequest) (*{{name}}v1.GetEntryResponse, error) {
 	ownerID, err := requireIdentity(ctx)
 	if err != nil {
 		return nil, err
 	}
-	id, parseErr := ids.Parse(req.Msg.GetId())
+	id, parseErr := ids.Parse(req.GetId())
 	if parseErr != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, parseErr)
+		return nil, connect.NewError(connect.CodeInvalidArgument, parseErr.Error()).WithCause(parseErr)
 	}
 	entry, svcErr := h.service.GetEntry(ctx, ownerID, id)
 	if svcErr != nil {
 		return nil, httpserver.ToConnectError(svcErr)
 	}
-	return connect.NewResponse(&{{name}}v1.GetEntryResponse{Entry: toProto(entry)}), nil
+	return &{{name}}v1.GetEntryResponse{Entry: toProto(entry)}, nil
 }
 
 func requireIdentity(ctx context.Context) (ids.ID, error) {

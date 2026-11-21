@@ -1,0 +1,399 @@
+openapi: 3.1.0
+info:
+  title: AEDST appattest API (aedst.appattest.v1)
+  description: Generated from apps/server/api/proto/aedst/appattest/v1. ConnectRPC over HTTP, one POST per RPC (GET where the RPC has no side effects). Do not edit by hand.
+  version: v1
+paths:
+  /aedst.appattest.v1.AppAttestService/CreateChallenge:
+    post:
+      tags:
+        - aedst.appattest.v1.AppAttestService
+      summary: CreateChallenge
+      description: |-
+        Returns a fresh 32-byte random challenge bound to the calling user.
+         Single use, valid for 5 minutes, rate limited per user.
+      operationId: aedst.appattest.v1.AppAttestService.CreateChallenge
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.appattest.v1.CreateChallengeRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.appattest.v1.CreateChallengeResponse'
+  /aedst.appattest.v1.AppAttestService/Enroll:
+    post:
+      tags:
+        - aedst.appattest.v1.AppAttestService
+      summary: Enroll
+      description: Validates an attestation object and registers the attested key.
+      operationId: aedst.appattest.v1.AppAttestService.Enroll
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.appattest.v1.EnrollRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.appattest.v1.EnrollResponse'
+  /aedst.appattest.v1.AppAttestService/VerifyAssertion:
+    post:
+      tags:
+        - aedst.appattest.v1.AppAttestService
+      summary: VerifyAssertion
+      description: Verifies an assertion made with an enrolled key.
+      operationId: aedst.appattest.v1.AppAttestService.VerifyAssertion
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.appattest.v1.VerifyAssertionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.appattest.v1.VerifyAssertionResponse'
+components:
+  schemas:
+    aedst.appattest.v1.CreateChallengeRequest:
+      type: object
+      title: CreateChallengeRequest
+      additionalProperties: false
+    aedst.appattest.v1.CreateChallengeResponse:
+      type: object
+      properties:
+        challenge:
+          type: string
+          title: challenge
+          format: byte
+          description: |-
+            32 random bytes. Use it for exactly one Enroll call: the client computes
+             clientDataHash = SHA-256(challenge) and passes that hash to attestKey.
+             Consumed by the first Enroll that presents it, whether that Enroll
+             succeeds or not; ask for a new one after any failure.
+        expiresAt:
+          title: expires_at
+          description: The challenge is rejected from this instant on (5 minutes after issue).
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: CreateChallengeResponse
+      additionalProperties: false
+    aedst.appattest.v1.EnrollRequest:
+      type: object
+      properties:
+        keyId:
+          type: string
+          title: key_id
+          maxLength: 44
+          minLength: 44
+          pattern: ^[A-Za-z0-9+/]{43}=$
+          description: |-
+            The key identifier returned by generateKey(): standard base64 (with
+             padding, 44 characters) of SHA-256 over the uncompressed X9.62 public key.
+        attestationObject:
+          type: string
+          title: attestation_object
+          format: byte
+          description: |
+            The raw bytes returned by attestKey() (a CBOR object, fmt "apple-appattest").
+             Never logged.
+            bytes.max_len = 32768
+            bytes.min_len = 1
+        challenge:
+          type: string
+          title: challenge
+          format: byte
+          description: |
+            The challenge from CreateChallenge that attestKey() was bound to
+             (clientDataHash = SHA-256 of exactly these 32 bytes).
+            bytes.len = 32
+        bundleId:
+          type: string
+          title: bundle_id
+          maxLength: 155
+          pattern: ^([A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*)?$
+          description: |-
+            The app's bundle identifier. The server validates the attestation against
+             the App ID "<AEDST_APPATTEST_TEAM_ID>.<bundle_id>", so it must be one of
+             AEDST_APPATTEST_ALLOWED_BUNDLE_IDS. Empty means "the only allowed bundle
+             id" and is rejected (BUNDLE_NOT_ALLOWED) when several are configured.
+      title: EnrollRequest
+      additionalProperties: false
+    aedst.appattest.v1.EnrollResponse:
+      type: object
+      properties:
+        verified:
+          type: boolean
+          title: verified
+        reason:
+          title: reason
+          $ref: '#/components/schemas/aedst.appattest.v1.FailureReason'
+        environment:
+          title: environment
+          description: Present when verified is true.
+          $ref: '#/components/schemas/aedst.appattest.v1.Environment'
+      title: EnrollResponse
+      additionalProperties: false
+    aedst.appattest.v1.Environment:
+      type: string
+      title: Environment
+      enum:
+        - ENVIRONMENT_UNSPECIFIED
+        - ENVIRONMENT_PRODUCTION
+        - ENVIRONMENT_DEVELOPMENT
+    aedst.appattest.v1.FailureReason:
+      type: string
+      title: FailureReason
+      enum:
+        - FAILURE_REASON_UNSPECIFIED
+        - FAILURE_REASON_CHALLENGE_INVALID
+        - FAILURE_REASON_BUNDLE_NOT_ALLOWED
+        - FAILURE_REASON_ATTESTATION_MALFORMED
+        - FAILURE_REASON_CERTIFICATE_CHAIN_INVALID
+        - FAILURE_REASON_NONCE_MISMATCH
+        - FAILURE_REASON_KEY_ID_MISMATCH
+        - FAILURE_REASON_APP_ID_MISMATCH
+        - FAILURE_REASON_COUNTER_NOT_ZERO
+        - FAILURE_REASON_AAGUID_INVALID
+        - FAILURE_REASON_ENVIRONMENT_NOT_ALLOWED
+        - FAILURE_REASON_KEY_ALREADY_ENROLLED
+        - FAILURE_REASON_KEY_UNKNOWN
+        - FAILURE_REASON_ASSERTION_MALFORMED
+        - FAILURE_REASON_SIGNATURE_INVALID
+        - FAILURE_REASON_COUNTER_NOT_INCREASING
+      description: |-
+        Why verified is false. UNSPECIFIED when verified is true. Only coarse
+         categories are exposed on purpose: the detail is in the server log (reason
+         code only, never the evidence).
+    aedst.appattest.v1.VerifyAssertionRequest:
+      type: object
+      properties:
+        keyId:
+          type: string
+          title: key_id
+          maxLength: 44
+          minLength: 44
+          pattern: ^[A-Za-z0-9+/]{43}=$
+          description: The key id used for generateAssertion (same format as in EnrollRequest).
+        assertion:
+          type: string
+          title: assertion
+          format: byte
+          description: |
+            The raw bytes returned by generateAssertion() (a CBOR object). Never logged.
+            bytes.max_len = 4096
+            bytes.min_len = 1
+        action:
+          type: string
+          title: action
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9._-]*$
+          description: What the assertion authorises, e.g. "login" or "purchase". Part of clientData.
+        payload:
+          type: string
+          title: payload
+          format: byte
+          description: |
+            Caller-chosen bytes the assertion is bound to. Part of clientData; never stored.
+            bytes.max_len = 4096
+      title: VerifyAssertionRequest
+      additionalProperties: false
+      description: |-
+        Client data convention (client and server must agree):
+
+           clientData     = "aedst.appattest.v1\n" + action + "\n" + payload     (UTF-8 / raw bytes, LF = 0x0A)
+           clientDataHash = SHA-256(clientData)
+
+         The client passes clientDataHash to generateAssertion(keyId, clientDataHash)
+         and sends the resulting assertion together with action + payload; the server
+         rebuilds clientData from them. The assertion therefore authorises exactly
+         that action and payload. Replay protection is the strictly increasing App
+         Attest counter, enforced by an atomic compare-and-set in the database, so
+         payload does not need a server challenge; include a fresh random nonce or a
+         request digest in it if the signed statement must be unique to a request.
+    aedst.appattest.v1.VerifyAssertionResponse:
+      type: object
+      properties:
+        verified:
+          type: boolean
+          title: verified
+        reason:
+          title: reason
+          $ref: '#/components/schemas/aedst.appattest.v1.FailureReason'
+        action:
+          type: string
+          title: action
+          description: Echo of the verified action (empty when not verified).
+      title: VerifyAssertionResponse
+      additionalProperties: false
+    connect-protocol-version:
+      type: number
+      examples:
+        - 1
+      title: Connect-Protocol-Version
+      description: Define the version of the Connect protocol
+      const: 1
+    connect-timeout-header:
+      type: number
+      examples:
+        - 1000
+      title: Connect-Timeout-Ms
+      description: Define the timeout, in ms
+    connect.error:
+      type: object
+      properties:
+        code:
+          type: string
+          examples:
+            - not_found
+          enum:
+            - canceled
+            - unknown
+            - invalid_argument
+            - deadline_exceeded
+            - not_found
+            - already_exists
+            - permission_denied
+            - resource_exhausted
+            - failed_precondition
+            - aborted
+            - out_of_range
+            - unimplemented
+            - internal
+            - unavailable
+            - data_loss
+            - unauthenticated
+          description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+        message:
+          type: string
+          description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/connect.error_details.Any'
+          description: A list of messages that carry the error details. There is no limit on the number of messages.
+      title: Connect Error
+      additionalProperties: true
+      description: 'Error type returned by Connect: https://connectrpc.com/docs/go/errors/#http-representation'
+    connect.error_details.Any:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'A URL that acts as a globally unique identifier for the type of the serialized message. For example: `type.googleapis.com/google.rpc.ErrorInfo`.'
+        value:
+          type: string
+          format: byte
+          description: The Protobuf message, serialized as bytes and base64-encoded. The specific message type is identified by the `type` field.
+        debug:
+          type: object
+          title: Debug
+          additionalProperties: true
+          description: Deserialized error detail payload. The 'type' field indicates the schema. This field is for easier debugging and should not be relied upon for application logic.
+      additionalProperties: true
+      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message, with an additional debug field for ConnectRPC error details.
+    google.protobuf.Timestamp:
+      type: string
+      examples:
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
+      format: date-time
+      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+security: []
+tags:
+  - name: aedst.appattest.v1.AppAttestService
+    description: |-
+      AppAttestService verifies Apple App Attest (DeviceCheck) evidence produced by
+       the Apple apps (iOS/iPadOS; Apple's validation guide: "Validating apps that
+       connect to your server"). It is the Apple counterpart of IntegrityService.
+
+       Flow:
+         1. CreateChallenge  -> a single-use server challenge.
+         2. (client) DCAppAttestService.generateKey() once per install, then
+            attestKey(keyId, clientDataHash = SHA-256(challenge)).
+         3. Enroll           -> the server validates the attestation object and
+            stores the key. Done once per key.
+         4. (client) generateAssertion(keyId, clientDataHash) for each request it
+            wants to vouch for.
+         5. VerifyAssertion  -> the server verifies the signature and the counter.
+
+       Authenticated callers only. Disabled until AEDST_APPATTEST_ENABLED=true
+       (FAILED_PRECONDITION while disabled). A bad attestation or assertion is NOT
+       an RPC error: the call succeeds with verified=false and a reason, so the
+       client can decide what to do (re-enroll, retry, degrade). RPC errors mean
+       the request itself is wrong (INVALID_ARGUMENT, UNAUTHENTICATED), the caller
+       is rate limited (RESOURCE_EXHAUSTED) or the server failed (INTERNAL).
+
+       Not covered: Apple's receipt / fraud-risk metric (the receipt inside the
+       attestation is ignored), and per-RPC enforcement (verification is a separate
+       call, no other RPC requires an assertion yet).

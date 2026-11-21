@@ -1,0 +1,32 @@
+#if os(macOS)
+import AedstDesignSystem
+import SwiftUI
+import {{Name}}Domain
+import {{Name}}Presentation
+
+/// The {{name}} screen of the macOS build. Adapt it to the platform here; shared state belongs in `{{Name}}ViewModel`.
+public struct {{Name}}View: View {
+    @State private var viewModel: {{Name}}ViewModel
+
+    public init(viewModel: {{Name}}ViewModel) {
+        self._viewModel = State(wrappedValue: viewModel)
+    }
+
+    public var body: some View {
+        @Bindable var viewModel = viewModel
+
+        List {
+            if viewModel.entries.isEmpty, !viewModel.isLoading {
+                Text(String(localized: "{{name}}Empty", bundle: {{Name}}Strings.bundle))
+                    .foregroundStyle(AedstColor.mutedForeground)
+            }
+            ForEach(viewModel.entries) { entry in
+                Text(entry.title)
+            }
+        }
+        .navigationTitle(String(localized: "{{name}}Title", bundle: {{Name}}Strings.bundle))
+        .task { await viewModel.load() }
+        .aedstErrorPresenter($viewModel.error)
+    }
+}
+#endif

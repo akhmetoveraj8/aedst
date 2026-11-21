@@ -40,7 +40,7 @@ Paths in the other web pages without a prefix (`src/app/...`, `src/modules/...`,
 - A project imports only itself and `shared` (`@/shared/*`). Projects never import each other's `src`. They meet in `shared/` and over the network.
 - `shared` never imports a project (`@/app/*`, `@/modules/*`). Shared tests may use `@/test/*` of the host project `app`; Storybook of `shared/ui` and the
   Vitest run of `shared/**` tests are hosted by `app`.
-- Inside a project: `app -> modules -> shared`, modules never import each other (`apps/web/app/scripts/check-feature-boundaries.sh`, dependency-cruiser).
+- Inside a project: `app -> modules -> shared`, modules never import each other; inside a module a feature never imports another feature and the module's shared `lib/` and `ui/` import no feature (`apps/web/app/scripts/check-feature-boundaries.sh`, run for `app`, `admin` and `landing`; dependency-cruiser repeats the graph rules in each project).
 - A change in `shared/` can break any project: CI for all three triggers on `apps/web/shared/**`.
 
 ## Why shared is source-only

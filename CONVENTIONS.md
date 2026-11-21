@@ -22,19 +22,20 @@ Single source of truth for naming and file-size limits across the 5 AEDST platfo
 | Server (`apps/server`) | [docs/agent/conventions/server.md](docs/agent/conventions/server.md) | golangci-lint, `architecturetest`, `scripts/check-naming.sh` |
 | Android (`apps/android`) | [docs/agent/conventions/android.md](docs/agent/conventions/android.md) | ktlint + detekt, `scripts/check-naming.sh` |
 | Apple (`apps/apple`) | [docs/agent/conventions/apple.md](docs/agent/conventions/apple.md) | SwiftLint + swift-format, `scripts/check-naming.sh` |
-| Desktop (`apps/desktop`) | [docs/agent/conventions/desktop.md](docs/agent/conventions/desktop.md) | clang-tidy, `scripts/check-naming.sh` |
+| Desktop (`apps/desktop`) | [docs/agent/conventions/desktop.md](docs/agent/conventions/desktop.md) | rustfmt + clippy, `scripts/check-naming.sh`, `apps/desktop/scripts/check-feature-boundaries.sh` |
+| Gateway (`apps/gateway`) | [docs/agent/conventions/gateway.md](docs/agent/conventions/gateway.md) | rustfmt + clippy, `scripts/check-naming.sh`, `apps/desktop/scripts/check-approved-crates.sh` |
 | Linter config shapes, wiring | [docs/agent/conventions/tooling.md](docs/agent/conventions/tooling.md) | |
 
 Cross-platform summary (details and rationale in the per-platform files):
 
 | Thing | Web | Server | Android | Apple | Desktop |
 |---|---|---|---|---|---|
-| File | `kebab-case.ts`, components `PascalCase.tsx` | `snake_case.go` | `PascalCase.kt` | `PascalCase.swift` | `snake_case.cpp/.hpp` |
+| File | `kebab-case.ts` / `kebab-case.tsx` (components too) | `snake_case.go` | `PascalCase.kt` | `PascalCase.swift` | `snake_case.rs` / `snake_case.slint` |
 | Type | `PascalCase` | `PascalCase` (exported) | `PascalCase` | `PascalCase` | `PascalCase` |
 | Function / variable | `camelCase` | `camelCase` / exported `PascalCase` | `camelCase` | `camelCase` | `camelCase` |
-| Constant | `SCREAMING_SNAKE_CASE` (module config) | `PascalCase` | `SCREAMING_SNAKE_CASE` | `camelCase` | `kPascalCase` |
+| Constant | `SCREAMING_SNAKE_CASE` (module config) | `PascalCase` | `SCREAMING_SNAKE_CASE` | `camelCase` | `SCREAMING_SNAKE_CASE` |
 | Enum value | n/a (union types) | `PascalCase` consts | `SCREAMING_SNAKE_CASE` | `camelCase` | not specified (see desktop.md) |
-| Test file | `x.test.ts(x)` | `x_test.go` | `XTest.kt` | `XTests.swift` | `x_test.cpp` |
+| Test file | `x.test.ts(x)` | `x_test.go` | `XTest.kt` | `XTests.swift` | `tests/<subject>.rs` |
 
 ## Language policy (Must, repo-wide)
 
@@ -64,7 +65,7 @@ Measured in physical lines of **hand-written** source. Generated, vendored, lock
 | File size | `task check:file-size` | The table above |
 | Color literals | `task check:colors` | No hex/rgb/hsl/oklch literals in hand-written UI code; use design tokens |
 | i18n parity | `task check:i18n` | Same keys and placeholders in en/ru/tg/uz/ar on each platform |
-| Module boundaries | `task check:boundaries` | No feature-to-feature imports, on all five platforms |
+| Module boundaries | `task check:boundaries` | No feature-to-feature imports on Server, Web, Android, Apple and Desktop (Desktop: `apps/desktop/scripts/check-feature-boundaries.sh`, bash + node, no cargo: crate boundaries, feature layout and the approved-crate list, with negative self-tests; per-crate `tests/layers.rs` checks the layers when cargo runs) |
 | Web import graph | `pnpm --dir apps/web/app check:deps` | dependency-cruiser: app -> modules -> shared, public entry only, no cycles/orphans/devDependency leaks (app project; negative fixtures in `apps/web/app/lint/fixtures/deps-*`) |
 | Audit backlog | `task audit:status` | Every item of `docs/audit/2026-10-08-backlog.md` has a valid status, none `skipped` (`scripts/check-backlog.mjs`) |
 | Library-First gates | `task check:gates` (+ platform lint) | Mandatory library per concern; each gate has a negative self-test. Per-platform list: `docs/agent/conventions/tooling.md` |
@@ -72,10 +73,10 @@ Measured in physical lines of **hand-written** source. Generated, vendored, lock
 ## Review checklist
 
 1. Does the file name match the table of its platform (or a framework exception documented there)?
-2. Is the component/class/type name `PascalCase`, and does the file carry the same name where required (Web components, Kotlin, Swift)?
+2. Is the component/class/type name `PascalCase`, and does the file carry the same name where required (Kotlin, Swift; a Web component file is the kebab-case form of the component name)?
 3. Are functions/variables `camelCase`, with no Hungarian notation (`IFoo`, `m_foo` outside the agreed style)?
 4. Are role suffixes in place: `ViewModel`/`UseCase` (Android/Apple), `<Transport><Name>Repository` for implementations (`ConnectTaskRepository`, `OidcAuthRepository`; never `*Impl`) with the bare `<Name>Repository` for the interface, `deliver` for the outbox handler method, `<Behavior>ReplayTest(s)` plus a `BehaviorFixture` loader for contract replays, `*Page`/`*Layout` (Web), `Err*` (Go)?
-5. Are constants in the platform's style (`SCREAMING_SNAKE_CASE` / `kPascalCase` / `camelCase` for Swift)?
+5. Are constants in the platform's style (`SCREAMING_SNAKE_CASE`; `PascalCase` in Go; `camelCase` in Swift)?
 6. Does Go export visibility match the intent (external access means `PascalCase`)?
 7. Do enum values follow the platform standard (Kotlin `SCREAMING_SNAKE_CASE` vs Swift `camelCase` is deliberate)?
 8. Are JSON/protobuf fields `camelCase` at the API boundary (except `.proto` sources, which use `snake_case`)?

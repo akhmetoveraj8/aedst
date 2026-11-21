@@ -1,0 +1,16 @@
+{{clientDirective}}import { useTranslations } from "{{intlPackage}}";
+
+/**
+ * Scaffolded by `task new:feature -- MODULE={{module}} NAME={{feature}}`: the
+ * `{{feature}}` capability of the `{{module}}` module. A feature imports the
+ * module's shared `lib/` and `ui/` and `@/shared/*`, never another feature.
+ */
+export function {{Feature}}View() {
+  const t = useTranslations("{{module}}.{{featureKey}}");
+
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="font-semibold text-xl">{t("title")}</h2>
+    </section>
+  );
+}

@@ -62,8 +62,8 @@ jobs:
         working-directory: scripts
       # Removing a platform must leave a tree that still passes the repo-wide checks (core and mobile profiles).
       - run: bash scripts/check-template-profiles.sh
-      # The generators' own tests: template-new on copies of the repo per profile, new-module in a temp copy.
-      - run: node --test scripts/test/template-new.test.mjs scripts/new-module.test.mjs
+      # The generators' own tests: template-new on copies of the repo per profile, new-module in a temp copy, new-feature in a throwaway tree.
+      - run: node --test scripts/test/template-new.test.mjs scripts/new-module.test.mjs scripts/test/new-feature.test.mjs
 
   color-literals:
     runs-on: ubuntu-latest
@@ -94,6 +94,10 @@ jobs:
         with:
           go-version-file: apps/server/go.mod
           cache-dependency-path: apps/server/go.sum
+      # The desktop gate (crate boundaries, approved Rust crates, their self-tests) is bash + node, no cargo.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - run: bash scripts/check-boundaries.sh
 
   parity:
@@ -111,6 +115,17 @@ jobs:
         working-directory: scripts
       - run: node --test scripts/test/check-features-shape.test.mjs scripts/test/check-backlog.test.mjs
       - run: node scripts/check-features.mjs
+      - run: node --test scripts/test/check-ui-kit.test.mjs
+      - run: node scripts/check-ui-kit.mjs
+      # The committed API reference (docs/content/modules/<module>/api.md) must match the .proto
+      # files (`task docs:api`). The generator reads buf's descriptor output, so buf is installed
+      # from the repo-root mise.toml.
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: buf
+          cache: true
+      - run: node --test scripts/api-docs/descriptor.test.mjs
+      - run: node scripts/api-docs/index.mjs --check
       - run: node scripts/check-behavior-fixtures.mjs
 
   docs-links:

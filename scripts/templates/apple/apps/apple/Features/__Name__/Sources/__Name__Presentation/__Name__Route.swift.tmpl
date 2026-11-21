@@ -1,19 +1,7 @@
 import AedstNavigation
-import SwiftUI
 
-/// Route to the {{name}} screen.
+/// Route to the {{name}} screen. Move it to `Core/AedstNavigation/.../AedstRoutes.swift` once another feature or the
+/// app shell needs to push it (conventions/apple.md, "Route").
 public enum {{Name}}Route: AedstRoute {
     case list
-}
-
-extension View {
-    /// Registers the {{name}} destination on the root stack.
-    public func {{name}}Destinations(@ViewBuilder make{{Name}}: @escaping () -> some View) -> some View {
-        aedstDestination(for: {{Name}}Route.self) { route in
-            switch route {
-            case .list:
-                make{{Name}}()
-            }
-        }
-    }
 }

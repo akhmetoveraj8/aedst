@@ -70,7 +70,7 @@ re-implement what it already does, and do not weaken it. Secure by default: a ne
 | Mass assignment | Separate request messages per RPC plus `update_mask`; server-owned fields (`id`, `version`, timestamps, owner) are never read from a request |
 | No blocking on large data | Streams and River jobs (queue `media`) for heavy work; bounded page sizes |
 | Debug off in production | pprof off by default (`AEDST_PPROF_ENABLED=false`); no reflection service on the public port; errors redacted by `httpserver.ToConnectError` |
-| SSRF | Outbound HTTP only through configured clients (`http.DefaultClient` is forbidden by lint) to allowlisted hosts; never fetch a URL taken from a request without an allowlist |
+| SSRF | Outbound HTTP only through configured clients (`http.DefaultClient` is forbidden by lint) to allowlisted hosts; never fetch a URL taken from a request without an allowlist. A URL a customer registers (webhook endpoint) goes only through `webhooks.NewHTTPClient`: `https` only, the connected address must be public unicast (checked after DNS resolution, so re-binding to loopback, private, link-local or metadata addresses is refused), no redirects, no environment proxy |
 | Non-executable stacks, hardened images | Minimal `debian:trixie-slim` runtime as UID 65532 (`apps/server/deployments/docker/Dockerfile`), `runAsNonRoot` and `readOnlyRootFilesystem` in `apps/server/deployments/helm/aedst-server/values.yaml` |
 
 ## Output

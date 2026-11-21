@@ -1,6 +1,11 @@
 // Package module registers the {{name}} module with the composition root
 // (internal/platform/modulekit). Scaffolded by `task new:module`; the single
 // blank-import line lives in cmd/server/modules.go.
+//
+// It is the only package that imports the module's features
+// (features/<feature>): features never import each other, so whatever needs
+// two of them is wired here. Add the next one with
+// `task new:feature -- MODULE={{name}} NAME=<feature>`.
 package module
 
 import (
@@ -11,11 +16,15 @@ import (
 	{{name}}v1 "github.com/aedst/server/gen/go/aedst/{{name}}/v1"
 	{{name}}v1connect "github.com/aedst/server/gen/go/aedst/{{name}}/v1/{{name}}v1connect"
 	{{name}}api "github.com/aedst/server/internal/modules/{{name}}/api"
-	"github.com/aedst/server/internal/modules/{{name}}/application"
-	"github.com/aedst/server/internal/modules/{{name}}/infrastructure/postgres"
-	"github.com/aedst/server/internal/modules/{{name}}/transport"
+	entriesapp "github.com/aedst/server/internal/modules/{{name}}/features/entries/application"
+	entriespg "github.com/aedst/server/internal/modules/{{name}}/features/entries/infrastructure/postgres"
+	entriestransport "github.com/aedst/server/internal/modules/{{name}}/features/entries/transport"
 	"github.com/aedst/server/internal/platform/modulekit"
 )
+
+// The contract lives in api/, the implementation in a feature; this package
+// sees both, so the conformance check is here.
+var _ {{name}}api.Service = (*entriesapp.Service)(nil)
 
 func init() {
 	m := &{{name}}Module{}
@@ -30,12 +39,12 @@ func init() {
 type {{name}}Module struct{ svc {{name}}api.Service }
 
 func (m *{{name}}Module) setup(_ context.Context, env *modulekit.Env) error {
-	m.svc = application.NewService(postgres.NewRepository(env.Pool), env.Clock)
+	m.svc = entriesapp.NewService(entriespg.NewRepository(env.PoolFor("{{name}}")), env.Clock)
 	modulekit.Provide[{{name}}api.Service](env, m.svc)
 	return nil
 }
 
 func (m *{{name}}Module) mount(_ *modulekit.Env, mt *modulekit.Mounter) error {
-	modulekit.Mount(mt, {{name}}v1connect.New{{Name}}ServiceHandler, {{name}}v1connect.{{Name}}ServiceHandler(transport.NewHandler(m.svc)), 0)
+	modulekit.Mount(mt, {{name}}v1connect.Register{{Name}}ServiceHandler, {{name}}v1connect.{{Name}}ServiceHandler(entriestransport.NewHandler(m.svc)), 0)
 	return nil
 }

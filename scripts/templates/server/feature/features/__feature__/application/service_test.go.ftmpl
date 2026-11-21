@@ -1,0 +1,36 @@
+package application_test
+
+import (
+	"context"
+	"testing"
+	"time"
+
+	"github.com/aedst/server/internal/modules/{{module}}/features/{{feature}}/application"
+	"github.com/aedst/server/internal/shared/ids"
+	sharedtime "github.com/aedst/server/internal/shared/time"
+)
+
+// fakeRepository is an in-memory double: use cases are testable without a database.
+type fakeRepository struct {
+	owner ids.ID
+	at    time.Time
+}
+
+func (f *fakeRepository) Touch(_ context.Context, ownerID ids.ID, at time.Time) error {
+	f.owner, f.at = ownerID, at
+	return nil
+}
+
+func TestTouchPassesTheOwnerAndTheClock(t *testing.T) {
+	now := time.Date(2026, 1, 1, 12, 0, 0, 0, time.UTC)
+	repo := &fakeRepository{}
+	svc := application.NewService(repo, sharedtime.Fixed{At: now})
+	owner := ids.New()
+
+	if err := svc.Touch(context.Background(), owner); err != nil {
+		t.Fatal(err)
+	}
+	if repo.owner != owner || !repo.at.Equal(now) {
+		t.Fatalf("repository saw %v at %v, want %v at %v", repo.owner, repo.at, owner, now)
+	}
+}

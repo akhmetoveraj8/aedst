@@ -5,6 +5,6 @@ import com.aedst.feature.{{name}}.domain.{{Name}}Entry
 import com.aedst.feature.{{name}}.domain.{{Name}}Repository
 import javax.inject.Inject
 
-class InMemory{{Name}}Repository @Inject constructor() : {{Name}}Repository {
+internal class InMemory{{Name}}Repository @Inject constructor() : {{Name}}Repository {
     override suspend fun entries(): Outcome<List<{{Name}}Entry>> = Outcome.Success(emptyList())
 }

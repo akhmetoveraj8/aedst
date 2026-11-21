@@ -1,12 +1,13 @@
 // Package api is the {{name}} module's public boundary: the only package of
 // modules/{{name}} that cmd/server and other modules may import (enforced by
-// architecturetest).
+// architecturetest). The module's features (features/<feature>) implement
+// these interfaces and import this package, never the reverse;
+// modules/{{name}}/module composes them.
 package api
 
 import (
 	"context"
 
-	"github.com/aedst/server/internal/modules/{{name}}/application"
 	"github.com/aedst/server/internal/modules/{{name}}/domain"
 	"github.com/aedst/server/internal/shared/ids"
 )
@@ -19,5 +20,3 @@ type Service interface {
 	CreateEntry(ctx context.Context, ownerID ids.ID, title string) (Entry, error)
 	GetEntry(ctx context.Context, ownerID, id ids.ID) (Entry, error)
 }
-
-var _ Service = (*application.Service)(nil)

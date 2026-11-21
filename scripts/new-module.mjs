@@ -2,6 +2,8 @@
 // `task new:module -- NAME=<id>`: stamps a minimal, gate-passing feature module on every platform
 // (server, web, android, apple; desktop crates are scaffolded by hand, the platform is frozen) from scripts/templates/<platform>/** and registers it in the
 // shared registries (scripts/new-module-registries.mjs). Docs: docs/agent/new-module.md.
+// A module is stamped with one first feature (server: features/entries, web: features/overview);
+// `task new:feature` (scripts/new-feature.mjs) adds the next one to an existing module.
 //
 // Usage: node scripts/new-module.mjs NAME=<id> [--platforms=server,web,android,apple]
 //                                   [--dry-run] [--no-codegen] [--remove [--force]]
@@ -24,7 +26,7 @@ const RESERVED = new Set([
   'platform', 'shared', 'core', 'common', 'app', 'api', 'internal', 'test', 'tests', 'build', 'main', 'gen',
   'module', 'modules', 'config', 'public', 'private', 'default', 'template', 'new', 'go', 'func', 'type', 'var',
   'package', 'import', 'class', 'object', 'interface', 'fun', 'val', 'domain', 'application', 'infrastructure',
-  'transport', 'jobs', 'ui', 'lib', 'i18n', 'v1', 'sample_', 'aedst', 'buf', 'google', 'connect', 'proto',
+  'transport', 'jobs', 'features', 'ui', 'lib', 'i18n', 'v1', 'sample_', 'aedst', 'buf', 'google', 'connect', 'proto',
 ]);
 
 export function forms(name) {

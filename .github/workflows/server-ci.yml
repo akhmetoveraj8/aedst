@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "apps/server/**"
+      - "docs/public/openapi/**"
       - "mise.toml"
       - ".github/actions/server-setup/**"
       - ".github/workflows/server-ci.yml"
@@ -13,6 +14,7 @@ on:
   pull_request:
     paths:
       - "apps/server/**"
+      - "docs/public/openapi/**"
       - "mise.toml"
       - ".github/actions/server-setup/**"
       - ".github/workflows/server-ci.yml"
@@ -53,6 +55,8 @@ jobs:
         with:
           tools: go task buf sqlc "go:mvdan.cc/gofumpt"
       - run: task gen:check
+      # OpenAPI 3.1 per proto package (docs/public/openapi) must match the .proto files.
+      - run: task gen:openapi:check
 
   lint:
     if: github.event_name != 'schedule'
@@ -103,6 +107,54 @@ jobs:
       # uses the images_novips.go stub (ADR-0015). unit-vips covers the real path.
       - run: CGO_ENABLED=0 go build ./... && CGO_ENABLED=0 go vet ./...
       - run: task test:race
+
+  # Benchmark regression gate (docs/content/engineering/performance.md). The
+  # hot-path benchmarks run on this commit and on its base (the PR base, or the
+  # previous commit on main) in the SAME job, so both sides see the same
+  # machine. Only allocs/op gates (deterministic); ns/op is in the log for the
+  # reader. The base is measured with this commit's script, so a package the
+  # base does not have yet is skipped, not a failure.
+  bench:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/server-setup
+        with:
+          tools: go task
+      - name: benchmarks on this commit
+        run: task bench OUT=bench.txt
+      - name: benchmarks on the base commit
+        id: base
+        run: |
+          set -euo pipefail
+          # No base: a new branch, a tag, a manual run or a force-push.
+          if [ -z "${BASE_SHA}" ] || [ "${BASE_SHA}" = "0000000000000000000000000000000000000000" ] ||
+            ! git fetch --no-tags --depth=1 origin "${BASE_SHA}"; then
+            echo "::notice::no base commit to compare with; only the gate self-test runs"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git worktree add --detach "${RUNNER_TEMP}/base" "${BASE_SHA}"
+          BENCH_DIR="${RUNNER_TEMP}/base/apps/server" bash scripts/bench.sh base.txt
+          echo "found=true" >> "$GITHUB_OUTPUT"
+      - name: gate self-test (the gate can fail)
+        run: bash scripts/bench-check.sh --selftest
+      - name: allocation regression gate
+        if: steps.base.outputs.found == 'true'
+        run: task bench:check BASE=base.txt HEAD=bench.txt
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: bench
+          path: |
+            apps/server/bench.txt
+            apps/server/base.txt
+          if-no-files-found: warn
+          retention-days: 14
 
   unit-vips:
     # The real image path (govips + libvips, cgo, build tag "vips"): the only
@@ -374,21 +426,45 @@ jobs:
           cosign sign --yes "${REF}"
           cosign attest --yes --type cyclonedx --predicate "${SBOM}" "${REF}"
 
-  # Not part of the `ci` gate's needs: a trend to watch, not a merge blocker
-  # — a slow query shouldn't block an unrelated PR the way a correctness
-  # regression should. Only runs on push to main / manual dispatch, so PRs
-  # aren't waiting on a k6 run every time.
+  # Not part of the `ci` gate's needs (it runs after the merge, on main and on
+  # manual dispatch), but it is a gate of its own: a threshold miss of the SMOKE
+  # scenario fails this job (the thresholds are in test/load/api.js, k6 exits 99
+  # and `task load` passes that on). The heavier `load` scenario stays
+  # informational (continue-on-error): tail latency under an arrival rate on a
+  # shared runner is noise.
+  #
+  # The server is a pure OIDC resource server (ADR-0019), so the job needs an
+  # identity provider it can reach: repository variables LOAD_OIDC_ISSUER,
+  # LOAD_OIDC_AUDIENCE, LOAD_OIDC_TOKEN_URL, LOAD_OIDC_CLIENT_ID and the secret
+  # LOAD_OIDC_CLIENT_SECRET (a machine user; the token is fetched with the
+  # client-credentials grant). Without them the job reports that it did not run
+  # instead of pretending. UNVERIFIED: never run with a provider configured.
   load:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    # A k6 threshold miss never fails the run (continue-on-error on the k6 steps
-    # only); a server that does not start, or a broken harness, does.
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
       K6_VERSION: v2.3.0 # == grafana/k6 image tag in Taskfile.yml
       K6_SHA256: 39c3117b6af817592dcd0ce4242105c0a7af10948c2a425306f0be8f7a8a8ab1
+      LOAD_OIDC_ISSUER: ${{ vars.LOAD_OIDC_ISSUER }}
+      LOAD_OIDC_AUDIENCE: ${{ vars.LOAD_OIDC_AUDIENCE }}
+      LOAD_OIDC_TOKEN_URL: ${{ vars.LOAD_OIDC_TOKEN_URL }}
+      LOAD_OIDC_CLIENT_ID: ${{ vars.LOAD_OIDC_CLIENT_ID }}
+      LOAD_OIDC_SCOPE: ${{ vars.LOAD_OIDC_SCOPE }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: is an identity provider configured?
+        id: idp
+        working-directory: .
+        run: |
+          if [ -n "${LOAD_OIDC_ISSUER}" ] && [ -n "${LOAD_OIDC_AUDIENCE}" ] && [ -n "${LOAD_OIDC_TOKEN_URL}" ] && [ -n "${LOAD_OIDC_CLIENT_ID}" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::k6 did not run: set the LOAD_OIDC_* repository variables and the LOAD_OIDC_CLIENT_SECRET secret (see the comment on this job)"
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+      # Always: a script that no longer parses, or lost its thresholds, fails here
+      # even when no provider is configured.
       - uses: ./.github/actions/server-setup
         with:
           tools: go task "go:github.com/pressly/goose/v3/cmd/goose"
@@ -402,26 +478,54 @@ jobs:
           mkdir -p "$HOME/.local/bin"
           tar -xzf "$f" -C "$HOME/.local/bin" --strip-components=1 "k6-${K6_VERSION}-linux-amd64/k6"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - run: docker compose -f deployments/docker/docker-compose.yml up -d --wait postgres cache
-      - run: task migrate
+      - name: k6 scripts parse and the smoke thresholds exist
+        run: |
+          set -euo pipefail
+          for s in smoke load stress; do k6 inspect -e SCENARIO="$s" test/load/api.js > "inspect-$s.json"; done
+          k6 inspect test/load/pgbouncer.js > /dev/null
+          k6 inspect test/load/scenario_tasks.js > /dev/null
+          for t in http_req_failed checks iterations 'http_req_duration{rpc:ListTasks}'; do
+            jq -e --arg t "$t" '.thresholds[$t] | length > 0' inspect-smoke.json > /dev/null ||
+              { echo "::error::test/load/api.js: the smoke scenario lost its $t threshold"; exit 1; }
+          done
+      - if: steps.idp.outputs.configured == 'true'
+        run: docker compose -f deployments/docker/docker-compose.yml up -d --wait postgres cache
+      - if: steps.idp.outputs.configured == 'true'
+        run: task migrate
       - name: start server
+        if: steps.idp.outputs.configured == 'true'
         run: |
           set -a; . ./.env.example; set +a
-          # The load scenario registers users through the first-party auth
-          # endpoints, which .env.example turns off.
-          export AEDST_AUTH_FIRST_PARTY_ENABLED=true
+          export AEDST_OIDC_ISSUER="${LOAD_OIDC_ISSUER}" AEDST_OIDC_AUDIENCE="${LOAD_OIDC_AUDIENCE}"
           # The scenario drives every request as one user; the per-user limit
           # exists to stop exactly that, so the limits are off for the load test.
-          export AEDST_API_RATE_LIMIT_PER_MINUTE=0 AEDST_AUTH_RATE_LIMIT_PER_MINUTE=0 AEDST_LOGIN_RATE_LIMIT_PER_MINUTE=0
+          export AEDST_API_RATE_LIMIT_PER_MINUTE=0 AEDST_AUTH_RATE_LIMIT_PER_MINUTE=0
           nohup go run ./cmd/server > server.log 2>&1 &
           for i in $(seq 1 60); do
             if curl -sf http://localhost:8080/livez >/dev/null; then echo "server up after ${i}s"; exit 0; fi
             sleep 1
           done
           echo "::error::server did not become live within 60s"; tail -n 50 server.log; exit 1
-      - run: task load SCENARIO=smoke K6_ARGS=--summary-export=k6-smoke.json
-        continue-on-error: true
-      - run: task load SCENARIO=load RATE=10 DURATION=1m K6_ARGS=--summary-export=k6-load.json
+      - name: access token (client credentials)
+        if: steps.idp.outputs.configured == 'true'
+        env:
+          LOAD_OIDC_CLIENT_SECRET: ${{ secrets.LOAD_OIDC_CLIENT_SECRET }}
+        run: |
+          set -euo pipefail
+          token="$(curl -fsS -u "${LOAD_OIDC_CLIENT_ID}:${LOAD_OIDC_CLIENT_SECRET}" \
+            --data-urlencode grant_type=client_credentials --data-urlencode "scope=${LOAD_OIDC_SCOPE}" \
+            "${LOAD_OIDC_TOKEN_URL}" | jq -er .access_token)"
+          echo "::add-mask::${token}"
+          # k6 reads TOKEN from the environment; it never appears on a command line.
+          echo "TOKEN=${token}" >> "$GITHUB_ENV"
+      # GATE: no continue-on-error. A breached smoke threshold fails the job.
+      - name: k6 smoke (thresholds fail the job)
+        if: steps.idp.outputs.configured == 'true'
+        run: task load SCENARIO=smoke K6_ARGS=--summary-export=k6-smoke.json
+      # Informational: reported in the summary artifact, never fails the job.
+      - name: k6 load (informational)
+        if: steps.idp.outputs.configured == 'true'
+        run: task load SCENARIO=load RATE=10 DURATION=1m K6_ARGS=--summary-export=k6-load.json
         continue-on-error: true
       - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -432,7 +536,7 @@ jobs:
             apps/server/server.log
           if-no-files-found: warn
           retention-days: 14
-      - if: always()
+      - if: always() && steps.idp.outputs.configured == 'true'
         run: docker compose -f deployments/docker/docker-compose.yml down -v
 
   ci:
@@ -444,6 +548,7 @@ jobs:
         arch,
         vuln,
         unit,
+        bench,
         unit-vips,
         lint-migrations,
         breaking,

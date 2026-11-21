@@ -9,6 +9,8 @@ description: "EventIngestService is the wire contract for an integration event t
 
 Package `aedst.events.v1` · source `apps/server/api/proto/aedst/events/v1/` · conventions, authentication and errors: [API overview](/api).
 
+Machine-readable contract: [OpenAPI 3.1 (YAML)](/openapi/aedst.events.v1.yaml), generated from the same `.proto` files. Try the calls on the [interactive OpenAPI page](/api/events-openapi).
+
 ## EventIngestService
 
 EventIngestService is the wire contract for an integration event that crosses a

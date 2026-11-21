@@ -1,6 +1,10 @@
+#if os(iOS)
 import AedstDesignSystem
 import SwiftUI
+import {{Name}}Domain
+import {{Name}}Presentation
 
+/// The {{name}} screen of the iOS build. Adapt it to the platform here; shared state belongs in `{{Name}}ViewModel`.
 public struct {{Name}}View: View {
     @State private var viewModel: {{Name}}ViewModel
 
@@ -13,15 +17,16 @@ public struct {{Name}}View: View {
 
         List {
             if viewModel.entries.isEmpty, !viewModel.isLoading {
-                Text(String(localized: "{{name}}Empty", bundle: .module))
+                Text(String(localized: "{{name}}Empty", bundle: {{Name}}Strings.bundle))
                     .foregroundStyle(AedstColor.mutedForeground)
             }
             ForEach(viewModel.entries) { entry in
                 Text(entry.title)
             }
         }
-        .navigationTitle(String(localized: "{{name}}Title", bundle: .module))
+        .navigationTitle(String(localized: "{{name}}Title", bundle: {{Name}}Strings.bundle))
         .task { await viewModel.load() }
         .aedstErrorPresenter($viewModel.error)
     }
 }
+#endif

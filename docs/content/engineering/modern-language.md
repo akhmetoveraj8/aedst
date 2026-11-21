@@ -16,7 +16,7 @@ the source of truth; when one changes, update this page in the same change.
 |---|---|---|---|
 | Server | `apps/server/go.mod`, `mise.toml` | Go 1.27.4 | `go 1.27.3` |
 | Web | `apps/web/pnpm-workspace.yaml` | TypeScript 7.0, React 19.3, Next.js 16.4 | `strict: true` |
-| Android | `apps/android/gradle/libs.versions.toml` | Kotlin 2.4.21, JDK 21 | Kotlin 2.4, stable features only |
+| Android | `apps/android/gradle/libs.versions.toml` | Kotlin 2.5.0-RC (owner exception; latest stable 2.4.21), JDK 21 | Kotlin 2.4 stable feature set until 2.5.0 final |
 | Apple | `apps/apple/Project.swift`, `mise.toml` (Xcode 26.6) | Swift 6.3 compiler | Swift 6 language mode, iOS 18 / macOS 15 floor |
 | Desktop | `apps/desktop/rust-toolchain.toml`, `apps/desktop/Cargo.toml` | Rust 1.99.1 toolchain | Edition 2024, **MSRV 1.92** |
 
@@ -89,7 +89,10 @@ Not used: experimental Next flags (`turbopackRustReactCompiler`, `turbopackGc`),
 code, `any` (Biome `noExplicitAny` is an error), non-null `!` without a comment. Naming and export
 shapes follow [conventions/web](../../agent/conventions/web.md).
 
-## Kotlin 2.4 (Android, frozen)
+## Kotlin 2.5.0-RC (Android, frozen)
+
+The compiler is 2.5.0-RC by owner decision (2026-11-21). Until 2.5.0 final ships and its release notes are
+reviewed, the allowed feature set is the Kotlin 2.4 stable set below; a 2.5 feature needs a recorded decision.
 
 Use (stable): context parameters (explicit context arguments are still experimental), explicit backing
 fields (`val state: StateFlow<UiState> field = MutableStateFlow(UiState())` instead of the

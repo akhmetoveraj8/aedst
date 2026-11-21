@@ -1,0 +1,501 @@
+# Machine-readable UI kit manifest: component x platform x status, with the canonical variants and sizes.
+# Checked by `task check:ui-kit` (scripts/check-ui-kit.mjs) in CI. Docs: docs/content/ui-kit.md (the matrix
+# there is generated from this file: `node scripts/check-ui-kit.mjs --write-docs`).
+#
+# The kit is the shadcn/ui component set (59 names) plus two AEDST components, `trace` and `code-block`:
+# 61 entries. Names follow shadcn on every platform; `variants` and `sizes` are canonical for every platform
+# and are taken from the web implementation, the reference (checked against its `cva` definitions, both ways).
+# The native kits are checked the same way against the enums of the component file (Kotlin enum constants,
+# Swift enum cases, Slint enums): an enum whose name ends with the axis name (`...Variant`, `...Size`,
+# `...Orientation`) supplies that axis; names compare case-insensitively with separators ignored
+# (`icon-sm` == `ICON_SM` == `iconSm`). A new component lands here first.
+#
+# Status vocabulary:
+#   implemented  the component file exists (`file`, relative to the platform `root`; a directory on web)
+#   missing      not implemented on that platform; fails the check on every platform (the kit is complete)
+#   native       the platform SDK provides it and the kit adds nothing; must carry `note:`
+# `alias: <name>` means the entry is served by another entry on every platform and counts with it.
+# `axes` lists further `cva` axes of the web component (checked like variants when declared).
+# `deviations: { <platform>: { <axis>: { values: [...], reason: "..." } } }` records a native platform whose
+# enum for an axis differs from the canonical list on purpose: `values` is that platform's own list (checked
+# against its file), `reason` is mandatory. Without it a difference fails the check. Not allowed on web.
+# "implemented" is about the file tree only; it does not claim the platform compiles (docs/content/status.md).
+version: 1
+
+platforms:
+  web:     { root: apps/web/shared/ui, reference: true }
+  android: { root: apps/android/core/ui/src/main/kotlin/com/aedst/core/ui/components }
+  apple:   { root: apps/apple/Core/AedstDesignSystem/Sources/AedstDesignSystem/Components }
+  desktop: { root: apps/desktop/crates/aedst-ui/ui }
+
+# Which entries of a platform root are kit components. Everything that matches must be listed under
+# `components` or `extensions` (no undeclared kit files). Web also counts directories (sidebar/) and
+# requires a story next to every component. Desktop: the gallery (gallery.slint, ui/gallery/) is not a component.
+kit_files:
+  web:     { ext: .tsx, exclude_suffix: [.stories.tsx, .test.tsx], directories: true, require_story: true }
+  android: { ext: .kt }
+  apple:   { ext: .swift }
+  desktop: { ext: .slint, not_components: [aedst_layout.slint, aedst_tokens.slint, gallery.slint, lib.slint] }
+
+components:
+  accordion:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: accordion.tsx }
+    android: { status: implemented, file: AedstAccordion.kt }
+    apple:   { status: implemented, file: AedstAccordion.swift }
+    desktop: { status: implemented, file: aedst_accordion.slint }
+  alert:
+    variants: [default, destructive]
+    sizes: []
+    # Android adds the enum AedstAlertAccent (none, warning), a documented extension outside the canonical axes.
+    web:     { status: implemented, file: alert.tsx }
+    android: { status: implemented, file: AedstAlert.kt }
+    apple:   { status: implemented, file: AedstAlert.swift }
+    desktop: { status: implemented, file: aedst_alert.slint }
+  alert-dialog:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: alert-dialog.tsx }
+    android: { status: implemented, file: AedstAlertDialog.kt }
+    apple:   { status: implemented, file: AedstAlertDialog.swift }
+    desktop: { status: implemented, file: aedst_alert_dialog.slint }
+  aspect-ratio:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: aspect-ratio.tsx }
+    android: { status: native, note: "Modifier.aspectRatio" }
+    apple:   { status: implemented, file: AedstAspectRatio.swift }
+    desktop: { status: implemented, file: aedst_aspect_ratio.slint }
+  avatar:
+    variants: []
+    sizes: []
+    # Web sizes the avatar with a `size` prop (default, sm, lg) written as `data-size`, not a `cva` axis, so
+    # there is no canonical list to compare with. Android and Apple expose the sizes as an enum.
+    deviations:
+      android: { size: { values: [sm, md, lg], reason: "web has no cva size axis (data-size prop: default, sm, lg); the Compose kit exposes it as AedstAvatarSize and names the default size md" } }
+      apple:   { size: { values: [sm, md, lg], reason: "web has no cva size axis (data-size prop: default, sm, lg); the SwiftUI kit exposes it as AedstAvatarSize and names the default size md" } }
+    web:     { status: implemented, file: avatar.tsx }
+    android: { status: implemented, file: AedstAvatar.kt }
+    apple:   { status: implemented, file: AedstAvatar.swift }
+    desktop: { status: implemented, file: aedst_avatar.slint }
+  badge:
+    variants: [default, secondary, destructive, success, warning, info, outline, ghost, link]
+    sizes: []
+    web:     { status: implemented, file: badge.tsx }
+    android: { status: implemented, file: AedstBadge.kt }
+    apple:   { status: implemented, file: AedstBadge.swift }
+    desktop: { status: implemented, file: aedst_badge.slint }
+  breadcrumb:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: breadcrumb.tsx }
+    android: { status: implemented, file: AedstBreadcrumb.kt }
+    apple:   { status: implemented, file: AedstBreadcrumb.swift }
+    desktop: { status: implemented, file: aedst_breadcrumb.slint }
+  button:
+    variants: [default, outline, secondary, ghost, destructive, link]
+    sizes: [default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg]
+    web:     { status: implemented, file: button.tsx }
+    android: { status: implemented, file: AedstButton.kt }
+    apple:   { status: implemented, file: AedstButton.swift }
+    desktop: { status: implemented, file: aedst_button.slint }
+  button-group:
+    variants: []
+    sizes: []
+    axes: { orientation: [horizontal, vertical] }
+    web:     { status: implemented, file: button-group.tsx }
+    android: { status: implemented, file: AedstButtonGroup.kt }
+    apple:   { status: implemented, file: AedstButtonGroup.swift }
+    desktop: { status: implemented, file: aedst_button_group.slint }
+  calendar:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: calendar.tsx }
+    android: { status: implemented, file: AedstCalendar.kt }
+    apple:   { status: implemented, file: AedstCalendar.swift }
+    desktop: { status: implemented, file: aedst_calendar.slint }
+  card:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: card.tsx }
+    android: { status: implemented, file: AedstCard.kt }
+    apple:   { status: implemented, file: AedstCard.swift }
+    desktop: { status: implemented, file: aedst_card.slint }
+  carousel:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: carousel.tsx }
+    android: { status: implemented, file: AedstCarousel.kt }
+    apple:   { status: implemented, file: AedstCarousel.swift }
+    desktop: { status: implemented, file: aedst_carousel.slint }
+  chart:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: chart.tsx }
+    android: { status: implemented, file: AedstChart.kt }
+    apple:   { status: implemented, file: AedstChart.swift }
+    desktop: { status: implemented, file: aedst_chart.slint }
+  checkbox:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: checkbox.tsx }
+    android: { status: implemented, file: AedstCheckbox.kt }
+    apple:   { status: implemented, file: AedstCheckbox.swift }
+    desktop: { status: implemented, file: aedst_checkbox.slint }
+  collapsible:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: collapsible.tsx }
+    android: { status: implemented, file: AedstCollapsible.kt }
+    apple:   { status: implemented, file: AedstCollapsible.swift }
+    desktop: { status: implemented, file: aedst_collapsible.slint }
+  combobox:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: combobox.tsx }
+    android: { status: implemented, file: AedstCombobox.kt }
+    apple:   { status: implemented, file: AedstCombobox.swift }
+    desktop: { status: implemented, file: aedst_combobox.slint }
+  command:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: command.tsx }
+    android: { status: implemented, file: AedstCommand.kt }
+    apple:   { status: implemented, file: AedstCommand.swift }
+    desktop: { status: implemented, file: aedst_command.slint }
+  context-menu:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: context-menu.tsx }
+    android: { status: implemented, file: AedstContextMenu.kt }
+    apple:   { status: implemented, file: AedstContextMenu.swift }
+    desktop: { status: implemented, file: aedst_context_menu.slint }
+  data-table:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: data-table.tsx }
+    android: { status: implemented, file: AedstDataTable.kt }
+    apple:   { status: implemented, file: AedstDataTable.swift }
+    desktop: { status: implemented, file: aedst_data_table.slint }
+  date-picker:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: date-picker.tsx }
+    android: { status: implemented, file: AedstDatePicker.kt }
+    apple:   { status: implemented, file: AedstDatePicker.swift }
+    desktop: { status: implemented, file: aedst_date_picker.slint }
+  dialog:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: dialog.tsx }
+    android: { status: implemented, file: AedstDialog.kt }
+    apple:   { status: implemented, file: AedstDialog.swift }
+    desktop: { status: implemented, file: aedst_dialog.slint }
+  drawer:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: drawer.tsx }
+    android: { status: implemented, file: AedstBottomSheet.kt }
+    apple:   { status: implemented, file: AedstDrawer.swift }
+    desktop: { status: implemented, file: aedst_drawer.slint }
+  dropdown-menu:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: dropdown-menu.tsx }
+    android: { status: implemented, file: AedstDropdownMenu.kt }
+    apple:   { status: implemented, file: AedstDropdownMenu.swift }
+    desktop: { status: implemented, file: aedst_dropdown_menu.slint }
+  empty:
+    variants: [default, icon]
+    sizes: []
+    web:     { status: implemented, file: empty.tsx }
+    android: { status: implemented, file: AedstEmpty.kt }
+    apple:   { status: implemented, file: AedstEmpty.swift }
+    desktop: { status: implemented, file: aedst_empty.slint }
+  field:
+    variants: []
+    sizes: []
+    axes: { orientation: [vertical, horizontal, responsive] }
+    web:     { status: implemented, file: field.tsx }
+    android: { status: implemented, file: AedstField.kt }
+    apple:   { status: implemented, file: AedstField.swift }
+    desktop: { status: implemented, file: aedst_field.slint }
+  form:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: form.tsx }
+    android: { status: implemented, file: AedstForm.kt }
+    apple:   { status: implemented, file: AedstForm.swift }
+    desktop: { status: implemented, file: aedst_form.slint }
+  hover-card:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: hover-card.tsx }
+    android: { status: implemented, file: AedstHoverCard.kt }
+    apple:   { status: implemented, file: AedstHoverCard.swift }
+    desktop: { status: implemented, file: aedst_hover_card.slint }
+  input:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: input.tsx }
+    android: { status: implemented, file: AedstTextField.kt }
+    apple:   { status: implemented, file: AedstTextField.swift }
+    desktop: { status: implemented, file: aedst_input.slint }
+  input-group:
+    variants: []
+    sizes: [xs, sm, icon-xs, icon-sm]
+    axes: { align: [inline-start, inline-end, block-start, block-end] }
+    web:     { status: implemented, file: input-group.tsx }
+    android: { status: implemented, file: AedstInputGroup.kt }
+    apple:   { status: implemented, file: AedstInputGroup.swift }
+    desktop: { status: implemented, file: aedst_input_group.slint }
+  input-otp:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: input-otp.tsx }
+    android: { status: implemented, file: AedstInputOtp.kt }
+    apple:   { status: implemented, file: AedstInputOTP.swift }
+    desktop: { status: implemented, file: aedst_input_otp.slint }
+  item:
+    variants: [default, outline, muted, icon, image]
+    sizes: [default, sm, xs]
+    web:     { status: implemented, file: item.tsx }
+    android: { status: implemented, file: AedstItem.kt }
+    apple:   { status: implemented, file: AedstItem.swift }
+    desktop: { status: implemented, file: aedst_item.slint }
+  kbd:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: kbd.tsx }
+    android: { status: implemented, file: AedstKbd.kt }
+    apple:   { status: implemented, file: AedstKbd.swift }
+    desktop: { status: implemented, file: aedst_kbd.slint }
+  label:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: label.tsx }
+    android: { status: implemented, file: AedstLabel.kt }
+    apple:   { status: implemented, file: AedstLabel.swift }
+    desktop: { status: implemented, file: aedst_label.slint }
+  menubar:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: menubar.tsx }
+    android: { status: implemented, file: AedstMenubar.kt }
+    apple:   { status: implemented, file: AedstMenubar.swift }
+    desktop: { status: implemented, file: aedst_menubar.slint }
+  native-select:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: native-select.tsx }
+    android: { status: implemented, file: AedstNativeSelect.kt }
+    apple:   { status: implemented, file: AedstNativeSelect.swift }
+    desktop: { status: implemented, file: aedst_native_select.slint }
+  navigation-menu:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: navigation-menu.tsx }
+    android: { status: implemented, file: AedstNavigationMenu.kt }
+    apple:   { status: implemented, file: AedstNavigationMenu.swift }
+    desktop: { status: implemented, file: aedst_navigation_menu.slint }
+  pagination:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: pagination.tsx }
+    android: { status: implemented, file: AedstPagination.kt }
+    apple:   { status: implemented, file: AedstPagination.swift }
+    desktop: { status: implemented, file: aedst_pagination.slint }
+  popover:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: popover.tsx }
+    android: { status: implemented, file: AedstPopover.kt }
+    apple:   { status: implemented, file: AedstPopover.swift }
+    desktop: { status: implemented, file: aedst_popover.slint }
+  progress:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: progress.tsx }
+    android: { status: implemented, file: AedstProgressIndicator.kt }
+    apple:   { status: implemented, file: AedstProgressView.swift }
+    desktop: { status: implemented, file: aedst_progress.slint }
+  radio-group:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: radio-group.tsx }
+    android: { status: implemented, file: AedstRadioGroup.kt }
+    apple:   { status: implemented, file: AedstRadioGroup.swift }
+    desktop: { status: implemented, file: aedst_radio_group.slint }
+  resizable:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: resizable.tsx }
+    android: { status: implemented, file: AedstResizable.kt }
+    apple:   { status: implemented, file: AedstResizable.swift }
+    desktop: { status: implemented, file: aedst_resizable.slint }
+  scroll-area:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: scroll-area.tsx }
+    android: { status: native, note: "Compose scroll modifiers and lazy lists" }
+    apple:   { status: implemented, file: AedstScrollArea.swift }
+    desktop: { status: implemented, file: aedst_scroll_area.slint }
+  select:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: select.tsx }
+    android: { status: implemented, file: AedstSelect.kt }
+    apple:   { status: implemented, file: AedstSelect.swift }
+    desktop: { status: implemented, file: aedst_select.slint }
+  separator:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: separator.tsx }
+    android: { status: implemented, file: AedstDivider.kt }
+    apple:   { status: implemented, file: AedstSeparator.swift }
+    desktop: { status: implemented, file: aedst_separator.slint }
+  sheet:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: sheet.tsx }
+    android: { status: implemented, file: AedstSheet.kt }
+    apple:   { status: implemented, file: AedstSheet.swift }
+    desktop: { status: implemented, file: aedst_sheet.slint }
+  sidebar:
+    variants: [default, outline]
+    sizes: [default, sm, lg]
+    web:     { status: implemented, file: sidebar }
+    android: { status: implemented, file: AedstSidebar.kt }
+    apple:   { status: implemented, file: AedstSidebar.swift }
+    desktop: { status: implemented, file: aedst_sidebar.slint }
+  skeleton:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: skeleton.tsx }
+    android: { status: implemented, file: AedstSkeleton.kt }
+    apple:   { status: implemented, file: AedstSkeleton.swift }
+    desktop: { status: implemented, file: aedst_skeleton.slint }
+  slider:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: slider.tsx }
+    android: { status: implemented, file: AedstSlider.kt }
+    apple:   { status: implemented, file: AedstSlider.swift }
+    desktop: { status: implemented, file: aedst_slider.slint }
+  sonner:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: sonner.tsx }
+    android: { status: implemented, file: AedstSnackbar.kt }
+    apple:   { status: implemented, file: AedstToast.swift }
+    desktop: { status: implemented, file: aedst_sonner.slint }
+  spinner:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: spinner.tsx }
+    android: { status: implemented, file: AedstSpinner.kt }
+    apple:   { status: implemented, file: AedstSpinner.swift }
+    desktop: { status: implemented, file: aedst_spinner.slint }
+  switch:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: switch.tsx }
+    android: { status: implemented, file: AedstSwitch.kt }
+    apple:   { status: implemented, file: AedstSwitch.swift }
+    desktop: { status: implemented, file: aedst_switch.slint }
+  table:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: table.tsx }
+    android: { status: implemented, file: AedstTable.kt }
+    apple:   { status: implemented, file: AedstTable.swift }
+    desktop: { status: implemented, file: aedst_table.slint }
+  tabs:
+    variants: [default, line]
+    sizes: []
+    web:     { status: implemented, file: tabs.tsx }
+    android: { status: implemented, file: AedstTabs.kt }
+    apple:   { status: implemented, file: AedstTabs.swift }
+    desktop: { status: implemented, file: aedst_tabs.slint }
+  textarea:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: textarea.tsx }
+    android: { status: implemented, file: AedstTextArea.kt }
+    apple:   { status: implemented, file: AedstTextarea.swift }
+    desktop: { status: implemented, file: aedst_textarea.slint }
+  toast:
+    alias: sonner   # Sonner is the only toast on web (Biome bans @/shared/ui/toast; docs/content/library-first/web.md)
+  toggle:
+    variants: [default, outline]
+    sizes: [default, sm, lg]
+    web:     { status: implemented, file: toggle.tsx }
+    android: { status: implemented, file: AedstToggle.kt }
+    apple:   { status: implemented, file: AedstToggle.swift }
+    desktop: { status: implemented, file: aedst_toggle.slint }
+  toggle-group:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: toggle-group.tsx }
+    android: { status: implemented, file: AedstToggleGroup.kt }
+    apple:   { status: implemented, file: AedstToggleGroup.swift }
+    desktop: { status: implemented, file: aedst_toggle_group.slint }
+  tooltip:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: tooltip.tsx }
+    android: { status: implemented, file: AedstTooltip.kt }
+    apple:   { status: implemented, file: AedstTooltip.swift }
+    desktop: { status: implemented, file: aedst_tooltip.slint }
+  typography:
+    variants: [h1, h2, h3, h4, p, blockquote, list, inline-code, lead, large, small, muted]
+    sizes: []
+    web:     { status: implemented, file: typography.tsx }
+    android: { status: implemented, file: AedstTypography.kt }
+    apple:   { status: implemented, file: AedstText.swift }
+    desktop: { status: implemented, file: aedst_typography.slint }
+  trace:
+    variants: []
+    sizes: []
+    axes: { status: [pending, running, success, error, skipped] }
+    web:     { status: implemented, file: trace.tsx }
+    android: { status: implemented, file: AedstTrace.kt }
+    apple:   { status: implemented, file: AedstTrace.swift }
+    desktop: { status: implemented, file: aedst_trace.slint }
+  code-block:
+    variants: []
+    sizes: []
+    web:     { status: implemented, file: code-block.tsx }
+    android: { status: implemented, file: AedstCodeBlock.kt }
+    apple:   { status: implemented, file: AedstCodeBlock.swift }
+    desktop: { status: implemented, file: aedst_code_block.slint }
+
+# Kit files outside the canonical set, per platform (file names relative to the platform root). They are
+# not part of the parity count. An extension that gets a shadcn name moves to `components`.
+extensions:
+  web:
+    - attachment.tsx
+    - bubble.tsx
+    - direction.tsx
+    - loading-skeleton.tsx
+    - locale-select.tsx
+    - marker.tsx
+    - message.tsx
+    - message-scroller.tsx
+    - mode-toggle.tsx
+    - questionnaire.tsx
+  android:
+    - AedstCountBadge.kt
+    - AedstFab.kt
+    - AedstFilterChip.kt
+    - AedstIconButton.kt       # the canonical form is `button` with size `icon`
+    - AedstOfflineBanner.kt
+    - AedstTopAppBar.kt
+    - ErrorMessages.kt
+    - LoadingIndicator.kt
+  apple:
+    - AedstErrorPresenter.swift
+    - AedstIconButton.swift    # the canonical form is `button` with size `icon`
+  desktop:
+    - aedst_action_row.slint

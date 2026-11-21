@@ -1,5 +1,6 @@
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
 import { createRelativeLink } from "fumadocs-ui/mdx";
+import type { TOCItemType } from "fumadocs-core/toc";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getMDXComponents } from "@/components/mdx";
@@ -23,9 +24,11 @@ export default async function Page(props: PageProps) {
   const MDX = page.data.body;
   // Unset NEXT_PUBLIC_DOCS_REPO_BASE: no edit link is rendered.
   const repoBase = docsRepositoryBase();
+  // Generated OpenAPI pages carry their table of contents (one entry per operation) in front matter.
+  const openapiToc = page.data._openapi?.toc as TOCItemType[] | undefined;
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage toc={openapiToc ?? page.data.toc} full={page.data.full}>
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>

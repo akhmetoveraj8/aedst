@@ -120,7 +120,7 @@ if [[ "$win_root" == *\\* ]]; then
     | CLAUDE_PROJECT_DIR="$win_root" bash "$guard" >"$out" 2>/dev/null
   if json_ok "$out" 'j.hookSpecificOutput.permissionDecision==="deny"'; then ok "guard denies a backslash path"; else bad "guard did not deny a backslash path"; fi
 fi
-for p in "apps/server/internal/modules/tasks/domain/task.go" "apps/web/app/src/modules/tasks/ui/TaskForm.tsx" "apps/web/shared/api/connect/client.ts" "docs/content/status.md" "apps/web/app/src/types/messages.d.ts" "apps/server/.env.example" "apps/web/app/.env.local.example" ".claude/skills/write-spec/SKILL.md"; do
+for p in "apps/server/internal/modules/tasks/domain/task.go" "apps/web/app/src/modules/tasks/ui/task-form.tsx" "apps/web/shared/api/connect/client.ts" "docs/content/status.md" "apps/web/app/src/types/messages.d.ts" "apps/server/.env.example" "apps/web/app/.env.local.example" ".claude/skills/write-spec/SKILL.md"; do
   expect_allow "$p"
 done
 

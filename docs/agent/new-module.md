@@ -21,12 +21,45 @@ stays red until you declare the module by hand.
 
 | Platform | Stamped | Registered in |
 |---|---|---|
-| Server | proto + `<Name>Service` (Create/Get entry, owner from the token), `api/`, `domain/`, `application/` (ports + service + test), `infrastructure/postgres` (sqlc), `transport/`, `module/module.go` (`modulekit.Register`), `migrations/<name>/00001`, `sql/<name>/queries.sql`, `specs/<name>/` | `cmd/server/modules.go`, `sqlc.yaml`, `MODULES` and `MODULES_REVERSE` in `apps/server/Taskfile.yml`, `scripts/lint-migrations.sh`, Helm `values.yaml`, `expectedModules` in `architecturetest/layers_test.go`; runs `buf generate --path` and `sqlc generate` |
-| Web | `manifest.ts`, `public.ts`, `i18n/{en,ru,tj,uz,ar}.json`, `ui/<Name>Page` + test, the `(app)/<name>/page.tsx` route | `registry.ts`, `messages.d.ts`, `test/render.tsx`, `bundle-budget.json` |
+| Server | proto + `<Name>Service` (Create/Get entry, owner from the token), `api/`, `domain/`, one feature `features/entries/{application (ports + service + test),infrastructure/postgres (sqlc),transport}`, `module/module.go` (`modulekit.Register`, composes the feature), `migrations/<name>/00001`, `sql/<name>/queries.sql`, `specs/<name>/` | `cmd/server/modules.go`, `sqlc.yaml`, `MODULES` and `MODULES_REVERSE` in `apps/server/Taskfile.yml`, `scripts/lint-migrations.sh`, Helm `values.yaml`, `expectedModules` in `architecturetest/layers_test.go`; runs `buf generate --path` and `sqlc generate` |
+| Web | `manifest.ts`, `public.ts`, `entries/<name>-page.ts`, `i18n/{en,ru,tj,uz,ar}.json`, one feature `features/overview/ui/<name>-page.tsx` (`<Name>Page`) + test, the `(app)/<name>/page.tsx` route (imports the entry) | `registry.ts`, `messages.d.ts`, `test/render.tsx`, `bundle-budget.json` |
 | Android | `feature/<name>` (`domain`, `data` with a Hilt binding, `presentation`, `navigation`), `strings.xml` in 5 locales, a ViewModel test | `settings.gradle.kts`, `app/build.gradle.kts`, `AppNavHost.kt` (`featureGraphs`), `<Name>Key` in `core/navigation/AedstKey.kt` |
-| Apple | `Features/<Name>` Swift package (Domain, Data, Presentation, Navigation, `Localizable.xcstrings`, Swift Testing test) | `App/Shared/Package.swift` |
+| Apple | `Features/<Name>` Swift package with five targets (`<Name>Domain`, `<Name>Data`, `<Name>Presentation` with `Localizable.xcstrings`, `<Name>UIiOS`, `<Name>UIMac`) and a Swift Testing test | `App/Shared/Package.swift` (the three shared products), `Tuist/Package.swift`. By hand: `featureNames` in `Project.swift` and the destinations in `App/iOS/Sources/FeatureDestinations.swift` and `App/macOS/Sources/FeatureDestinations.swift` |
 | Desktop | `Modules/Features/<Name>` (Domain, Data, Presentation, Navigation, `i18n/*.ts`, GoogleTest) | `CMakeLists.txt`, `App/CMakeLists.txt` |
 | All | | `features.yaml` |
+
+## Adding a feature to an existing module
+
+`task new:feature -- MODULE=<module> NAME=<feature> [--platforms=server,web] [--project=app|admin] [--dry-run] [--remove]`
+runs [`scripts/new-feature.mjs`](../../scripts/new-feature.mjs), the shared CLI. The default platform is `server`; a
+platform is stamped only when it is listed, and each platform is a hook in that file (`PLATFORM_HOOKS`; the frozen
+platforms have none). `NAME` is lowercase words joined by `-` (`archive`, `bulk-edit`). Test:
+`node --test scripts/test/new-feature.test.mjs`. Rules the result must keep:
+[modules and features](../content/architecture/modules-and-features.md).
+
+### Server
+
+Stamps `apps/server/internal/modules/<m>/features/<f>/application/{service.go,service_test.go}` from
+`scripts/templates/server/feature/**/*.ftmpl` (a sample use case behind a port, with a fake-repository test). The
+folder is a Go package path element, so hyphens are dropped (`bulk-edit` becomes `bulkedit`). It edits no file:
+
+- wire the feature in `<m>/module` yourself; `architecturetest` (`TestEveryFeatureIsComposedByItsModule`) fails until
+  that package imports it;
+- add `domain/`, `infrastructure/postgres` and `transport/` when the feature needs them (the only directories a
+  feature may hold); SQL goes in `sql/<m>/queries.sql`, RPCs in the module's proto, contracts in `<m>/api`;
+- in a module that was flat, move the existing capability into a feature in the same change (the generator prints
+  this; a module-level `application/` beside `features/` fails the layout gate).
+
+`--remove` deletes an untouched stamp only; it refuses when the folder holds files it did not create.
+
+### Web
+
+`node scripts/new-feature-web.mjs MODULE=<module> NAME=<feature> [--project=app|admin] [--dry-run] [--remove]` is the web part of
+`task new:feature -- MODULE=<m> NAME=<f> --platforms=web` (same flag names; the shared CLI calls its exported `scaffoldWebFeature`). It stamps
+`src/modules/<m>/features/<f>/ui/<f>-view.tsx` and its test from `scripts/templates/web/feature/**/*.ftmpl`, adds one export line to
+`public.ts` in Biome's sort order and the key `<featureKey>.title` to the five catalogues (English text everywhere: translate it).
+`NAME` is kebab-case (`bulk-edit`). Landing is not supported (Server Components, no component-test harness). Test:
+`node --test scripts/test/new-feature-web.test.mjs`. Rules the result must keep: [modules and features](../content/architecture/modules-and-features.md).
 
 ## What it deliberately does not do
 

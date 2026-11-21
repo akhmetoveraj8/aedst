@@ -5,3 +5,8 @@ plugins {
 android {
     namespace = "com.aedst.feature.{{name}}"
 }
+
+dependencies {
+    // The feature's pure domain (Kotlin Multiplatform, commonMain): entities, repository ports, use cases.
+    implementation(project(":feature:{{name}}:domain"))
+}

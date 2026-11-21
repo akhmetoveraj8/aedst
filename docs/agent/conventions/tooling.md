@@ -4,7 +4,7 @@ Part of [CONVENTIONS.md](../../../CONVENTIONS.md). The snippets below are the in
 
 | Platform | Linter | What it covers automatically | What needs a CI script |
 |---|---|---|---|
-| Web | **Biome** (`biome.json`) | Formatting, `camelCase`/`PascalCase` for variables/types via `useNamingConvention`, import order | File names (`kebab-case.tsx` vs `PascalCase.tsx`), component name matching file name |
+| Web | **Biome** (`biome.json`) | Formatting, `camelCase`/`PascalCase` for variables/types via `useNamingConvention`, import order | File names outside Biome's reach (framework route files, `.sh`-checked paths); Biome `useFilenamingConvention` already requires kebab-case for every `.ts`/`.tsx` |
 | Server | **golangci-lint** (`revive`, `stylecheck`, `gofumpt`) | Export case, package names, `Err*` convention, formatting | `snake_case.go` file names (`revive` checks identifiers only, not files) |
 | Android | **ktlint** + **detekt** | `camelCase`/`PascalCase` for functions/classes/properties, import order, line length | `ViewModel`/`Repository`/`UseCase` suffixes, file name = class name, `snake_case` resources (`detekt` partially via `MatchingDeclarationName`) |
 | Apple | **SwiftLint** (+ swift-format) | `identifier_name`, `type_name`, modifier order | `View`/`ViewModel`/`Repository` suffixes, SPM module name, file name = type name |
@@ -32,8 +32,8 @@ Bottom line: **linters cover what is visible inside one file's AST** (identifier
           }
         },
         "useFilenamingConvention": {
-          "level": "warn",
-          "options": { "filenameCases": ["kebab-case", "PascalCase"] }
+          "level": "error",
+          "options": { "filenameCases": ["kebab-case"] }
         }
       }
     }
@@ -133,7 +133,8 @@ Run together by `task check:gates`; each has a negative self-test. Per-platform 
 | Server | `architecturetest` (approved modules, layers, `*Tx` callers, Protovalidate conventions, event golden fixtures, raw SQL literals, migration module lists), golangci-lint (depguard, forbidigo, sloglint, exhaustive, spancheck, gosec, nilerr, nolintlint), `task server:lint:selftest` |
 | Android | detekt `ForbiddenImport` (+ `/MainThreadAndLogging`, `/OkHttpOutsideNetwork`, `/Material3Raw`), `ForbiddenMethodCall`, coroutines rules, compose-rules, type-resolved `detektDebug`, `lintDebug` with warningsAsErrors, `check-policies.sh`, `check-catalog-allowlist.sh`, `check-ui-tokens.sh`, `check-rpc-contract.sh`, `check-feature-boundaries.sh`, `koverVerifyDebug`, `scripts/test-gates.sh [--full]` |
 | Apple | SwiftLint `custom_rules` + static mirror, `check-dependencies.sh`, `check-apple-sensitive-apis.sh`, `i18n-apple-checks.mjs` |
-| Desktop | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo deny check` (`apps/desktop/deny.toml`), workspace lints (no `unwrap()`, no `unsafe`), `scripts/check-naming.sh`; frozen until its first green CI run |
+| Desktop | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo deny check` (`apps/desktop/deny.toml`), workspace lints (no `unwrap()`, no `unsafe`), `scripts/check-naming.sh`; without cargo: `apps/desktop/scripts/check-feature-boundaries.sh` (crate boundaries D1-D6, feature layout) and `check-approved-crates.sh` (approved direct dependencies, versions shared with the gateway), each with a negative self-test; frozen until its first green CI run |
+| Gateway | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, `cargo deny check` (`apps/gateway/deny.toml`; none has run yet), `scripts/check-naming.sh`; without cargo: `apps/desktop/scripts/check-approved-crates.sh` |
 
 ## Wiring `scripts/check-naming.sh`
 

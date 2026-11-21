@@ -1,4 +1,4 @@
-// Package postgres implements the {{name}} module's Repository against the
+// Package postgres implements the entries feature's Repository against the
 // sqlc-generated queries in gen/db/{{name}}. Not imported outside this module.
 package postgres
 
@@ -11,8 +11,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	{{name}}db "github.com/aedst/server/gen/db/{{name}}"
-	"github.com/aedst/server/internal/modules/{{name}}/application"
 	"github.com/aedst/server/internal/modules/{{name}}/domain"
+	"github.com/aedst/server/internal/modules/{{name}}/features/entries/application"
 	sharederrors "github.com/aedst/server/internal/shared/errors"
 	"github.com/aedst/server/internal/shared/ids"
 )

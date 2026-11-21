@@ -1,0 +1,615 @@
+openapi: 3.1.0
+info:
+  title: AEDST media API (aedst.media.v1)
+  description: Generated from apps/server/api/proto/aedst/media/v1. ConnectRPC over HTTP, one POST per RPC (GET where the RPC has no side effects). Do not edit by hand.
+  version: v1
+paths:
+  /aedst.media.v1.MediaOperatorService/GetTotals:
+    post:
+      tags:
+        - aedst.media.v1.MediaOperatorService
+      summary: GetTotals
+      description: Counts the stored media of every owner. Read-only.
+      operationId: aedst.media.v1.MediaOperatorService.GetTotals
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.media.v1.GetTotalsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.media.v1.GetTotalsResponse'
+  /aedst.media.v1.MediaService/CompleteUpload:
+    post:
+      tags:
+        - aedst.media.v1.MediaService
+      summary: CompleteUpload
+      description: Confirms the object was uploaded and enqueues its processing job.
+      operationId: aedst.media.v1.MediaService.CompleteUpload
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.media.v1.CompleteUploadRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.media.v1.CompleteUploadResponse'
+  /aedst.media.v1.MediaService/CreateUpload:
+    post:
+      tags:
+        - aedst.media.v1.MediaService
+      summary: CreateUpload
+      description: Registers a file and returns a presigned URL the client PUTs the bytes to.
+      operationId: aedst.media.v1.MediaService.CreateUpload
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.media.v1.CreateUploadRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.media.v1.CreateUploadResponse'
+  /aedst.media.v1.MediaService/DeleteMedia:
+    post:
+      tags:
+        - aedst.media.v1.MediaService
+      summary: DeleteMedia
+      description: Deletes one of the caller's files and its stored objects.
+      operationId: aedst.media.v1.MediaService.DeleteMedia
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.media.v1.DeleteMediaRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.media.v1.DeleteMediaResponse'
+  /aedst.media.v1.MediaService/GetMedia:
+    post:
+      tags:
+        - aedst.media.v1.MediaService
+      summary: GetMedia
+      description: Returns one of the caller's files with its variants.
+      operationId: aedst.media.v1.MediaService.GetMedia
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.media.v1.GetMediaRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.media.v1.GetMediaResponse'
+  /aedst.media.v1.MediaService/ListMedia:
+    post:
+      tags:
+        - aedst.media.v1.MediaService
+      summary: ListMedia
+      description: Lists the caller's files (keyset).
+      operationId: aedst.media.v1.MediaService.ListMedia
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.media.v1.ListMediaRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.media.v1.ListMediaResponse'
+components:
+  schemas:
+    aedst.media.v1.CompleteUploadRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+      title: CompleteUploadRequest
+      additionalProperties: false
+    aedst.media.v1.CompleteUploadResponse:
+      type: object
+      properties:
+        media:
+          title: media
+          $ref: '#/components/schemas/aedst.media.v1.Media'
+      title: CompleteUploadResponse
+      additionalProperties: false
+    aedst.media.v1.CreateUploadRequest:
+      type: object
+      properties:
+        filename:
+          type: string
+          title: filename
+          maxLength: 255
+          minLength: 1
+        contentType:
+          type: string
+          title: content_type
+          maxLength: 127
+          minLength: 3
+        sizeBytes:
+          type: string
+          title: size_bytes
+          format: int64
+          description: |
+            Server enforces a per-kind maximum (AEDST_MEDIA_MAX_*_BYTES).
+            int64.gt = 0
+        taskId:
+          type: string
+          title: task_id
+          format: uuid
+          description: Optional attachment target.
+        sha256:
+          type: string
+          title: sha256
+          maxLength: 64
+          minLength: 64
+          description: Optional hex SHA-256 of the file; when set, object storage verifies it.
+      title: CreateUploadRequest
+      additionalProperties: false
+    aedst.media.v1.CreateUploadResponse:
+      type: object
+      properties:
+        media:
+          title: media
+          $ref: '#/components/schemas/aedst.media.v1.Media'
+        uploadUrl:
+          type: string
+          title: upload_url
+        method:
+          type: string
+          title: method
+          description: HTTP method for upload_url (always "PUT" today).
+        headers:
+          type: object
+          title: headers
+          additionalProperties:
+            type: string
+            title: value
+          description: Headers the client must send verbatim with the upload request.
+        expiresAt:
+          title: expires_at
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: CreateUploadResponse
+      additionalProperties: false
+    aedst.media.v1.DeleteMediaRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+      title: DeleteMediaRequest
+      additionalProperties: false
+    aedst.media.v1.DeleteMediaResponse:
+      type: object
+      title: DeleteMediaResponse
+      additionalProperties: false
+    aedst.media.v1.GetMediaRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+      title: GetMediaRequest
+      additionalProperties: false
+    aedst.media.v1.GetMediaResponse:
+      type: object
+      properties:
+        media:
+          title: media
+          $ref: '#/components/schemas/aedst.media.v1.Media'
+      title: GetMediaResponse
+      additionalProperties: false
+    aedst.media.v1.GetTotalsRequest:
+      type: object
+      title: GetTotalsRequest
+      additionalProperties: false
+    aedst.media.v1.GetTotalsResponse:
+      type: object
+      properties:
+        count:
+          type: string
+          title: count
+          format: int64
+          description: Number of media items.
+        bytes:
+          type: string
+          title: bytes
+          format: int64
+          description: Their total size in bytes.
+      title: GetTotalsResponse
+      additionalProperties: false
+    aedst.media.v1.ListMediaRequest:
+      type: object
+      properties:
+        taskId:
+          type: string
+          title: task_id
+          format: uuid
+          description: Filter to one task's attachments.
+        kinds:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.media.v1.MediaKind'
+          title: kinds
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 100
+          minimum: 0
+          format: int32
+        pageToken:
+          type: string
+          title: page_token
+          maxLength: 512
+      title: ListMediaRequest
+      additionalProperties: false
+    aedst.media.v1.ListMediaResponse:
+      type: object
+      properties:
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.media.v1.Media'
+          title: media
+        nextPageToken:
+          type: string
+          title: next_page_token
+      title: ListMediaResponse
+      additionalProperties: false
+    aedst.media.v1.Media:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        kind:
+          title: kind
+          $ref: '#/components/schemas/aedst.media.v1.MediaKind'
+        status:
+          title: status
+          $ref: '#/components/schemas/aedst.media.v1.MediaStatus'
+        filename:
+          type: string
+          title: filename
+        contentType:
+          type: string
+          title: content_type
+        sizeBytes:
+          type: string
+          title: size_bytes
+          format: int64
+        width:
+          type: integer
+          title: width
+          format: int32
+        height:
+          type: integer
+          title: height
+          format: int32
+        durationMs:
+          type: string
+          title: duration_ms
+          format: int64
+          description: Video/audio only.
+        url:
+          type: string
+          title: url
+          description: Short-lived presigned GET URL of the original; empty until READY.
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.media.v1.Variant'
+          title: variants
+        taskId:
+          type: string
+          title: task_id
+          description: Set when the file is attached to a task.
+        createdAt:
+          title: created_at
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        failureReason:
+          type: string
+          title: failure_reason
+          description: Set when status is FAILED.
+      title: Media
+      additionalProperties: false
+    aedst.media.v1.MediaKind:
+      type: string
+      title: MediaKind
+      enum:
+        - MEDIA_KIND_UNSPECIFIED
+        - MEDIA_KIND_IMAGE
+        - MEDIA_KIND_VIDEO
+        - MEDIA_KIND_AUDIO
+        - MEDIA_KIND_DOCUMENT
+    aedst.media.v1.MediaStatus:
+      type: string
+      title: MediaStatus
+      enum:
+        - MEDIA_STATUS_UNSPECIFIED
+        - MEDIA_STATUS_PENDING_UPLOAD
+        - MEDIA_STATUS_PROCESSING
+        - MEDIA_STATUS_READY
+        - MEDIA_STATUS_FAILED
+    aedst.media.v1.Variant:
+      type: object
+      properties:
+        kind:
+          title: kind
+          $ref: '#/components/schemas/aedst.media.v1.VariantKind'
+        url:
+          type: string
+          title: url
+          description: Short-lived presigned GET URL.
+        contentType:
+          type: string
+          title: content_type
+        width:
+          type: integer
+          title: width
+          format: int32
+        height:
+          type: integer
+          title: height
+          format: int32
+        sizeBytes:
+          type: string
+          title: size_bytes
+          format: int64
+      title: Variant
+      additionalProperties: false
+    aedst.media.v1.VariantKind:
+      type: string
+      title: VariantKind
+      enum:
+        - VARIANT_KIND_UNSPECIFIED
+        - VARIANT_KIND_POSTER
+        - VARIANT_KIND_THUMB_64
+        - VARIANT_KIND_AVATAR_256
+        - VARIANT_KIND_CARD_400
+        - VARIANT_KIND_FEED_800X600
+        - VARIANT_KIND_STORY_1080X1350
+    connect-protocol-version:
+      type: number
+      examples:
+        - 1
+      title: Connect-Protocol-Version
+      description: Define the version of the Connect protocol
+      const: 1
+    connect-timeout-header:
+      type: number
+      examples:
+        - 1000
+      title: Connect-Timeout-Ms
+      description: Define the timeout, in ms
+    connect.error:
+      type: object
+      properties:
+        code:
+          type: string
+          examples:
+            - not_found
+          enum:
+            - canceled
+            - unknown
+            - invalid_argument
+            - deadline_exceeded
+            - not_found
+            - already_exists
+            - permission_denied
+            - resource_exhausted
+            - failed_precondition
+            - aborted
+            - out_of_range
+            - unimplemented
+            - internal
+            - unavailable
+            - data_loss
+            - unauthenticated
+          description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+        message:
+          type: string
+          description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/connect.error_details.Any'
+          description: A list of messages that carry the error details. There is no limit on the number of messages.
+      title: Connect Error
+      additionalProperties: true
+      description: 'Error type returned by Connect: https://connectrpc.com/docs/go/errors/#http-representation'
+    connect.error_details.Any:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'A URL that acts as a globally unique identifier for the type of the serialized message. For example: `type.googleapis.com/google.rpc.ErrorInfo`.'
+        value:
+          type: string
+          format: byte
+          description: The Protobuf message, serialized as bytes and base64-encoded. The specific message type is identified by the `type` field.
+        debug:
+          type: object
+          title: Debug
+          additionalProperties: true
+          description: Deserialized error detail payload. The 'type' field indicates the schema. This field is for easier debugging and should not be relied upon for application logic.
+      additionalProperties: true
+      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message, with an additional debug field for ConnectRPC error details.
+    google.protobuf.Timestamp:
+      type: string
+      examples:
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
+      format: date-time
+      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+security: []
+tags:
+  - name: aedst.media.v1.MediaService
+    description: |-
+      MediaService manages uploaded files. Bytes never pass through the API
+       server: the client asks for a presigned upload URL (S3 / MinIO /
+       Cloudflare R2 behind the ObjectStorage interface), PUTs the file directly
+       to object storage, then calls CompleteUpload. Completion enqueues a River
+       job that verifies the object (size, sniffed content type), extracts
+       metadata, sanitizes images (EXIF/GPS stripped, auto-oriented; delivery sizes
+       are rendered on demand by imgproxy) and extracts
+       video poster frames. When processing finishes the module publishes
+       media.v1.MediaReady through the outbox.
+
+       Tasks is the reference consumer: a file uploaded with task_id set becomes
+       an attachment of that task (the media module checks ownership through the
+       tasks module's api/ package).
+  - name: aedst.media.v1.MediaOperatorService
+    description: |-
+      MediaOperatorService is the cross-owner (operator) surface of media. The admin
+       module calls it when media is not hosted in its own process; in a monolith the
+       same totals come in-process through media/api.Stats and this service is mounted
+       but unused. It is closed to ordinary users: the module's built-in role policy
+       admits only "admin", "support", "auditor" (a human operator whose token the
+       admin module forwards) and "internal" (the machine identity).

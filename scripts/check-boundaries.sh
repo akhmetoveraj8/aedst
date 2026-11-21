@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Runs every platform's module-boundary check and reports one result per platform.
-#   web      apps/web/app/scripts/check-feature-boundaries.sh
+#   web      apps/web/app/scripts/check-feature-boundaries.sh, once per project (app, admin, landing)
 #   android  apps/android/scripts/check-feature-boundaries.sh
 #   apple    apps/apple/scripts/check-feature-boundaries.sh
-#   desktop  the desktop boundaries script (skipped with a notice until it exists)
+#   desktop  apps/desktop/scripts/check-feature-boundaries.sh (bash + node, no cargo; also the Rust
+#            dependency policy of apps/desktop and apps/gateway, each with its negative self-test)
 #   server   go test ./architecturetest/...   (needs Go; skipped with a notice when absent)
 # Usage: scripts/check-boundaries.sh [platform ...]   (default: all five). Exit 1 if any check fails.
 set -uo pipefail
@@ -38,7 +39,17 @@ for p in "${want[@]}"; do
       if [[ -d "$dir" ]]; then
         script="$dir/scripts/check-feature-boundaries.sh"
         [[ "$p" == web ]] && script="apps/web/app/scripts/check-feature-boundaries.sh" # web hosts its gate in the app project
-        if [[ -f "$script" ]]; then
+        if [[ "$p" == web && -f "$script" ]]; then
+          # One run per web project; a project removed by a template profile is skipped.
+          for project in app admin landing; do
+            if [[ -d "apps/web/$project/src" ]]; then
+              run "web/$project" bash "$script" "apps/web/$project"
+            else
+              printf '%sSKIP%s web/%s (apps/web/%s is not part of this repository profile)\n' "$y" "$z" "$project" "$project"
+              skipped=$((skipped + 1))
+            fi
+          done
+        elif [[ -f "$script" ]]; then
           run "$p" bash "$script"
         else
           printf '%sSKIP%s %s (%s does not exist yet)\n' "$y" "$z" "$p" "$script"

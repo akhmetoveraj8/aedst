@@ -32,7 +32,7 @@ table.
 ## Producing and consuming
 
 Producer, in the module's repository, inside the transaction that changes state
-(`internal/modules/tasks/infrastructure/postgres` is the reference):
+(`internal/modules/tasks/features/completion/infrastructure/postgres` is the reference):
 
 ```go
 err := database.WithTx(ctx, r.pool, func(ctx context.Context, tx pgx.Tx) error {

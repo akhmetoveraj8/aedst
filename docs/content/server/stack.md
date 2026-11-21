@@ -33,7 +33,7 @@ mounted through `modulekit.Mount`, which always installs the validation intercep
 
 | Area | Tool | Version |
 |---|---|---|
-| Database | PostgreSQL | **18** (`postgres:18`) |
+| Database | PostgreSQL | **19** (`postgres:19`; 19.0 GA 2026-11-19, verified on postgresql.org; integration tests on 19 are UNVERIFIED, no Docker on the authoring machine) |
 | Driver | pgx v5 | **5.12.0** |
 | Queries | sqlc (`sqlc vet` in CI) | **1.31.1** |
 | Migrations | Goose (one version table per module) + squawk lint | **3.30.1** (squawk 2.73.0) |

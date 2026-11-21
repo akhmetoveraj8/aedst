@@ -16,6 +16,9 @@ on:
         "apps/web/biome.json",
         "apps/web/pnpm-*.yaml",
         "apps/server/api/proto/**",
+        "apps/web/app/scripts/check-feature-boundaries.sh",
+        "apps/web/app/e2e/mock-api/**",
+        "apps/web/app/e2e/support/**",
         ".github/workflows/admin-ci.yml",
       ]
   pull_request:
@@ -27,6 +30,9 @@ on:
         "apps/web/biome.json",
         "apps/web/pnpm-*.yaml",
         "apps/server/api/proto/**",
+        "apps/web/app/scripts/check-feature-boundaries.sh",
+        "apps/web/app/e2e/mock-api/**",
+        "apps/web/app/e2e/support/**",
         ".github/workflows/admin-ci.yml",
       ]
   workflow_dispatch:
@@ -50,7 +56,7 @@ env:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -83,6 +89,19 @@ jobs:
       - name: knip (unused files/exports/deps)
         run: pnpm knip
 
+      # The bash gate is the authoritative one: dependency-cruiser cannot load
+      # TypeScript 7.0 (docs/content/decisions/web.md), so its graph may be incomplete.
+      - name: Module and feature boundaries (authoritative)
+        run: pnpm check:feature-boundaries
+
+      - name: Import graph (dependency-cruiser)
+        run: pnpm check:deps
+
+      # Right-to-left: no physical Tailwind utilities (ml-, left-, text-left);
+      # no Base64 images. Negative fixtures: apps/web/app `pnpm check:selftest`.
+      - name: Source bans (RTL utilities, Base64 images)
+        run: pnpm check:source
+
       - name: Install Chromium for the browser test project
         run: pnpm test:browser:install
 
@@ -93,6 +112,11 @@ jobs:
         env:
           VITE_SITE_URL: ${{ env.SITE_URL }}
         run: pnpm build:all
+
+      # Performance budget (bundle-budget.json): entry first load, largest
+      # chunk, total JS, CSS and font files. Fails the PR that adds the weight.
+      - name: Client bundle and font budget
+        run: pnpm check:bundle
 
       - name: Bundle size report
         run: |
@@ -129,3 +153,22 @@ jobs:
           # script-src must not allow inline code or eval.
           script_src=$(grep -i '^content-security-policy:' headers.txt | tr ';' '\n' | grep -i "script-src")
           if echo "$script_src" | grep -Eq "unsafe-inline|unsafe-eval"; then echo "script-src is not strict: $script_src"; exit 1; fi
+
+      # The flows and axe (WCAG 2.2 AA, including right-to-left) against the
+      # build above: Playwright starts the BFF and the shared mock API, which
+      # is also the mock identity provider (playwright.config.ts).
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Playwright e2e (flows and accessibility)
+        env:
+          CI: "1"
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: admin-playwright-report
+          path: apps/web/admin/playwright-report/
+          retention-days: 7

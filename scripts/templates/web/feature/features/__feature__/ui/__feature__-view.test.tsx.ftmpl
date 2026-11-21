@@ -1,0 +1,17 @@
+import { screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { {{Feature}}View } from "@/modules/{{module}}/features/{{feature}}/ui/{{feature}}-view";
+import { messages, renderWithProviders } from "@/test/render";
+
+describe("{{Feature}}View", () => {
+  it("renders the feature title", () => {
+    renderWithProviders(<{{Feature}}View />);
+
+    expect(
+      screen.getByRole("heading", {
+        name: messages.{{module}}.{{featureKey}}.title,
+      }),
+    ).toBeInTheDocument();
+  });
+});

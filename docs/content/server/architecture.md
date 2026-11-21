@@ -22,10 +22,11 @@ network RPC tomorrow) and every module owns its own data.
 ```
 Shape 1: Modular Monolith   <-- the default; nothing configured
 Shape 2: Module Services    AEDST_MODULES=chat   (one binary, one module per deployment)
-Shape 3: Feature Services   AEDST_MODULES=social/like   (a feature of a module per deployment)
 ```
 
-The three shapes are **configuration of the same binary**, not phases that need a rewrite
+The module is the unit of extraction. A feature (below) is a slice inside a module and is never deployed on
+its own (owner decision of 2026-11-21, [modules and features](/architecture/modules-and-features); it
+supersedes the "feature services" shape of ADR-0020). The shapes are **configuration of the same binary**, not phases that need a rewrite
 ([ADR-0020](../../../apps/server/docs/adr/0020-location-transparent-units.md)): see [Units and topology](#units-and-topology).
 Which shape a deployment uses is decided by measurement ([ADR-0001](/decisions/0001-modular-monolith)),
 not by the code.
@@ -167,26 +168,43 @@ No module in Phase 1 is extracted preemptively — see
 
 ## Units and topology
 
-A **unit** is a module (`chat`) or a feature of a module (`social/like`). Both have the same shape: an
-`api/` contract, an own schema, events, a `module/` registration. A module groups features:
+A **unit** is what `modulekit.Register` registers and what a process hosts or reaches over the network: a
+module. It has an `api/` contract, its own schema, events and a `module/` registration.
+
+A module with more than one capability is split into **features**, which are vertical slices inside the
+unit, not units ([modules and features](/architecture/modules-and-features)):
 
 ```
 internal/modules/<module>/
-    api/ application/ domain/ infrastructure/ transport/ module/    the module itself
+    api/                          the contract (Go interfaces, events); shared by the features
+    domain/                       entities and vocabulary two or more features use
+    infrastructure/<pkg>/         shared persistence helpers (tasks: store)
+    transport/<pkg>/              shared proto mapping (tasks: taskproto)
+    module/                       registration; the ONLY package that imports features and composes them
     features/<feature>/
-        api/ application/ domain/ infrastructure/ transport/ module/   a unit of its own
-migrations/<module>_<feature>/   sql/<module>_<feature>/              the feature's schema
+        application/ domain/ infrastructure/ transport/     only these four, any subset
+migrations/<module>/   sql/<module>/                         one schema and one sqlc package per module
 ```
 
-Units of one module meet like units of different modules: through `api/`. A feature never imports the
-module that groups it (`architecturetest.TestUnitsOfOneModuleMeetOnlyThroughAPI`).
+| Rule | Gate (`architecturetest`) |
+|---|---|
+| A feature never imports another feature; a shared package imports no feature; nothing outside the module imports a feature | `TestFeaturesMeetOnlyThroughTheirModule` |
+| Layer rules hold inside a feature and from a feature to the module's shared packages (a feature's `transport` sees only `api/` and shared `transport/`, its `domain` only the shared `domain/`) | `TestLayersOnlyImportInward`, `TestDomainImportsOnlyStdlibAndShared` |
+| A feature directory holds only the four layers; a module with `features/` has no module-level `application/` | `TestEveryFeatureHoldsOnlyTheKnownLayers` |
+| Every feature is wired by `<module>/module` | `TestEveryFeatureIsComposedByItsModule` |
+
+Reference: `internal/modules/tasks` (`core`, `completion`, `reminders`, `operator`). One proto service can
+span features: `TasksService` is served by `core` and `completion` handlers that `module/compose.go` embeds in
+one struct, and `api.Service` is the same composition of their use cases. A feature that needs another one
+gets a port, wired in `module/` (`core` enqueues the reminder through `ReminderEnqueuer`, implemented by
+`reminders`). Add a feature with `task new:feature -- MODULE=<module> NAME=<feature>`.
 
 **Topology** is environment, resolved by `modulekit.Select` at startup:
 
 | Variable | Meaning |
 |---|---|
-| `AEDST_MODULES` | units hosted by this process; empty = all. A module name enables its features, a feature name only itself |
-| `AEDST_MODULE_<NAME>_URL` | base URL of a required unit that is not hosted here (`social/like` is written `SOCIAL__LIKE`) |
+| `AEDST_MODULES` | units (modules) hosted by this process; empty = all |
+| `AEDST_MODULE_<NAME>_URL` | base URL of a required unit that is not hosted here |
 
 A hosted unit that `Requires` a unit that is neither hosted nor reachable fails startup and names the variable
 to set. For a remote unit the unit's own `Module.Remote` hook runs instead of `Setup` and provides the same
@@ -198,7 +216,14 @@ against the in-process and the Connect implementation (`tasks/api/ownershiptest`
 
 Worked example: `media` asks `tasks` whether a task belongs to the caller (`tasksapi.Ownership`). In the
 monolith that is a function call; with `AEDST_MODULES=media` and `AEDST_MODULE_TASKS_URL=http://tasks:8080` it
-is a `TasksService.GetTask` call carrying the user's token, with identical results.
+is a `TasksService.GetTask` call carrying the user's token, with identical results. Two tests pin it:
+`internal/modules/tasks/module/extraction_test.go` (no database: both topologies resolved from the environment,
+the real transport and `Remote` hook, the call observed on the wire) and the `integration`-tagged
+`cmd/server/extraction_integration_test.go` (the binary started twice on Postgres).
+
+`Remote` hooks today: `tasks` (`Ownership`), `media` (`Stats`), `notifications` (a marker; `admin` builds its
+operator client). `search`, `integrity`, `appattest`, `capabilities` and `admin` have none: no other unit calls
+them synchronously, and a hook is added together with a narrow network-safe contract when one does.
 
 ## Module registry
 

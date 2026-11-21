@@ -9,8 +9,8 @@ Kotlin / Jetpack Compose (`apps/android`). Versions are pinned in the repository
 
 | Area | Tool | Version |
 |---|---|---|
-| Language | Kotlin | **2.4.21** |
-| Build | AGP / Gradle / KSP | **9.5.1** / **9.9.1** / 2.3.14 |
+| Language | Kotlin | **2.5.0-RC** (owner exception to stable-only, 2026-11-21; latest stable is 2.4.21; not compiled) |
+| Build | AGP / Gradle / KSP | **9.5.2** / **9.9.2** / 2.3.14 |
 | JDK | Temurin | **21** |
 | UI | Jetpack Compose (BOM) | **2026.09.00** |
 | DI | Hilt | **2.60.1** (androidx.hilt 1.4.0) |

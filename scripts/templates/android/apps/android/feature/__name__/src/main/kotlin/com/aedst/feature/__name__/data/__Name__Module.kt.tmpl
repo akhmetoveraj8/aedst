@@ -8,7 +8,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class {{Name}}Module {
+internal abstract class {{Name}}Module {
 
     @Binds
     abstract fun bind{{Name}}Repository(impl: InMemory{{Name}}Repository): {{Name}}Repository
