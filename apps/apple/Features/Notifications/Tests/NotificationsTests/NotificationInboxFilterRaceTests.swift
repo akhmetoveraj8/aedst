@@ -1,7 +1,9 @@
 import AedstCore
 import Foundation
 import Testing
-@testable import Notifications
+@testable import NotificationsData
+@testable import NotificationsDomain
+@testable import NotificationsPresentation
 
 /// Forwards to `FakeNotificationsRepository`, but holds the first `list` call until `release()` so a test can
 /// finish it after a later one. (UNVERIFIED: never compiled or run.)

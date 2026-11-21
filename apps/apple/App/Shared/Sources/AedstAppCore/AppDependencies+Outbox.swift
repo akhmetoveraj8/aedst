@@ -3,8 +3,12 @@ import AedstCore
 import AedstNetwork
 import AedstPersistence
 import Foundation
-import Media
-import Tasks
+import MediaData
+import MediaDomain
+import MediaPresentation
+import TasksData
+import TasksDomain
+import TasksPresentation
 
 /// Offline-write wiring for the composition root (behaviour `offline-outbox`, ADR-0013): which feature handlers
 /// the drainer knows, and which signals drain it. Kept out of `AppDependencies.swift` to keep that file small.

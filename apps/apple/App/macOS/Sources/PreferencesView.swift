@@ -1,38 +1,34 @@
 import AedstAnalytics
+import AedstAppCore
 import AedstDesignSystem
 import SwiftUI
 
-/// Content of the macOS Settings scene: the same switches as the home list's settings section, over the same
-/// `PreferencesViewModel`, so changing one here is visible in the main window at once. Lives in the shared package
-/// (not in the `App_macOS` target) so the strings resolve from this package's `Localizable.xcstrings`; an app target
-/// has no `Bundle.module`.
-public struct PreferencesView: View {
-    private let dependencies: AppDependencies
+/// Content of the macOS Settings scene (Command-comma): the switches the iOS build shows in its home list, over the
+/// same `PreferencesViewModel` (`AedstAppCore`). Part of the `App_macOS` target; strings come from the app-shell
+/// catalog through `AppStrings.bundle`.
+struct PreferencesView: View {
+    let dependencies: AppDependencies
 
-    public init(dependencies: AppDependencies) {
-        self.dependencies = dependencies
-    }
-
-    public var body: some View {
+    var body: some View {
         let preferences = dependencies.preferences
         let analyticsEnabled = preferences.analyticsConsent == .granted
         let appLockEnabled = preferences.isAppLockEnabled
         Form {
-            Section(String(localized: "appPreferencesTitle", bundle: .module)) {
+            Section(String(localized: "appPreferencesTitle", bundle: AppStrings.bundle)) {
                 Toggle(
-                    String(localized: "appShareAnalytics", bundle: .module),
+                    String(localized: "appShareAnalytics", bundle: AppStrings.bundle),
                     isOn: Binding(get: { analyticsEnabled }, set: { preferences.setAnalytics(enabled: $0) })
                 )
                 if preferences.canOfferAppLock {
                     Toggle(
-                        String(localized: "appRequireBiometrics", bundle: .module),
+                        String(localized: "appRequireBiometrics", bundle: AppStrings.bundle),
                         isOn: Binding(
                             get: { appLockEnabled },
                             set: { enabled in Task { await preferences.setAppLock(enabled: enabled) } }
                         )
                     )
                 }
-                Button(String(localized: "appEnableNotifications", bundle: .module)) {
+                Button(String(localized: "appEnableNotifications", bundle: AppStrings.bundle)) {
                     Task { await dependencies.push.enablePush() }
                 }
             }

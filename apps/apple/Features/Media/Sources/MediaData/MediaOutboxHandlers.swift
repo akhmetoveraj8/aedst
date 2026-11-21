@@ -1,6 +1,7 @@
 import AedstCore
 import AedstNetwork
 import Foundation
+import MediaDomain
 
 /// The Media feature's contribution to the outbox (see `TaskOutboxHandlers`): delivers a queued `CompleteUpload`
 /// with the row id as `Idempotency-Key`.

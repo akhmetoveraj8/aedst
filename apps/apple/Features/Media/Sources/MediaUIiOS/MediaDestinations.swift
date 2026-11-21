@@ -1,4 +1,7 @@
+#if os(iOS)
 import AedstNavigation
+import MediaDomain
+import MediaPresentation
 import SwiftUI
 
 extension View {
@@ -17,3 +20,4 @@ extension View {
         }
     }
 }
+#endif

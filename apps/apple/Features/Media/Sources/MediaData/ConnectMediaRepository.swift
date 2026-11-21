@@ -1,6 +1,7 @@
 import AedstCore
 import AedstNetwork
 import Foundation
+import MediaDomain
 
 /// `MediaRepository` over the generated `MediaService` client (the only file
 /// naming `Aedst_Media_V1_*` types).

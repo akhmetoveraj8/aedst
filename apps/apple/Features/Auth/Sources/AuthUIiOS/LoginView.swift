@@ -1,4 +1,7 @@
+#if os(iOS)
 import AedstDesignSystem
+import AuthDomain
+import AuthPresentation
 import Foundation
 import SwiftUI
 
@@ -15,21 +18,21 @@ public struct LoginView: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: AedstSpacing.lg) {
-            Text(String(localized: "authLoginTitle", bundle: .module))
+            Text(String(localized: "authLoginTitle", bundle: AuthStrings.bundle))
                 .aedstFont(AedstTypography.largeTitle)
                 .foregroundStyle(AedstColor.foreground)
                 .accessibilityAddTraits(.isHeader)
 
-            Text(String(localized: "authLoginContinueHint", bundle: .module))
+            Text(String(localized: "authLoginContinueHint", bundle: AuthStrings.bundle))
                 .aedstFont(AedstTypography.caption)
                 .foregroundStyle(AedstColor.mutedForeground)
 
             errorText
 
-            AedstButton(String(localized: "authLoginContinue", bundle: .module), isLoading: viewModel.isLoading) {
+            AedstButton(String(localized: "authLoginContinue", bundle: AuthStrings.bundle), isLoading: viewModel.isLoading) {
                 signIn()
             }
-            .accessibilityHint(Text(String(localized: "authLoginContinueHint", bundle: .module)))
+            .accessibilityHint(Text(String(localized: "authLoginContinueHint", bundle: AuthStrings.bundle)))
             .accessibilityIdentifier("login.continue")
 
             Spacer()
@@ -62,3 +65,4 @@ public struct LoginView: View {
         }
     }
 }
+#endif

@@ -29,16 +29,17 @@ Core/AedstTelemetry       the only SDK importer: Sentry Cocoa (errors, breadcrum
 Core/AedstMedia           media kit: Nuke-based remote images (AedstRemoteImage, AedstImagePipeline), AVKit player, thumbnails, ImageIO/AVFoundation compression, PHPicker, background uploader
 Core/AedstTesting         ManualClock, StubTokenProvider — shared test doubles
 
-Features/Auth             complete worked example: Domain/Data/Presentation/Navigation
+Features/<X>              five targets each: <X>Domain, <X>Data, <X>Presentation (shared logic, String Catalog), <X>UIiOS, <X>UIMac (views, one per platform)
+Features/Auth             complete worked example of the five targets
 Features/Tasks            task list/detail (complete/reopen/delete), media attachments slot on detail
 Features/Search           .searchable + debounced SearchService, U+E000/U+E001 snippet highlighting
 Features/Notifications    inbox, unread badge, mark read, preferences, APNs PushCoordinator
 Features/Media            library, viewer, TaskAttachmentsView, CreateUpload → presigned PUT → CompleteUpload
 Features/Admin            dashboard/users/tasks/broadcast/audit log (entry shown only for the admin role)
 
-App/Shared                AedstAppShared package: AppDependencies (composition root), RootView, AedstAppDelegate (APNs, taps, background uploads), AppLink
-App/iOS                   App_iOS Xcode target: @main entry point, Info.plist, Assets.xcassets
-App/macOS                 App_macOS Xcode target: @main entry point, entitlements, Info.plist, Assets.xcassets
+App/Shared                AedstAppCore package: AppDependencies (composition root), RootViewModel, PreferencesViewModel, AppLink, DeepLink, app-shell strings; no views
+App/iOS                   App_iOS Xcode target: @main entry point, RootView / HomeView / FeatureDestinations, AedstAppDelegate (APNs, taps, background uploads), Info.plist, Assets.xcassets
+App/macOS                 App_macOS Xcode target: @main entry point, sidebar RootView, AppCommands (menu), PreferencesView (Settings scene), AedstAppDelegate, entitlements, Info.plist, Assets.xcassets
 
 Project.swift              Tuist project manifest — generates AEDST.xcodeproj (gitignored)
 Workspace.swift, Tuist.swift  Tuist workspace / configuration manifests
@@ -146,8 +147,8 @@ chosen so third-party versions stay declared once, in the packages themselves.
 If a package quirk shows up on first generate (resource bundles in
 `Features/Auth`, Swift 6 language mode per target), the
 fallback is Xcode-native integration: declare `packages: [.package(path: "App/Shared")]`
-in `Project.swift` and `.package(product: "AedstAppShared")` as the target
-dependency, and drop `Tuist/Package.swift`.
+in `Project.swift` and `.package(product: "AedstAppCore")` (plus the feature UI products) as the target
+dependencies, and drop `Tuist/Package.swift`.
 
 ## Minimum OS versions
 

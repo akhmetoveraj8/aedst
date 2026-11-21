@@ -120,7 +120,7 @@ custom_rules:
 
   sdk_connect_only_in_network:
     name: "Connect only in AedstNetwork, App/Shared and feature Data layers"
-    message: "Import Connect only in Core/AedstNetwork, App/Shared (composition root) or Features/*/Data."
+    message: "Import Connect only in Core/AedstNetwork, App/Shared (composition root) or a feature Data target (Features/*/Sources/*Data)."
     regex: '^import Connect\b'
     severity: error
     included:
@@ -128,7 +128,7 @@ custom_rules:
     excluded:
       - '/apps/apple/Core/AedstNetwork/'
       - '/apps/apple/App/Shared/'
-      - '/apps/apple/Features/[^/]+/Sources/[^/]+/Data/'
+      - '/apps/apple/Features/[^/]+/Sources/[^/]+Data/'
       - '/Tests/'
 
   sdk_grdb_only_in_persistence:
@@ -143,7 +143,7 @@ custom_rules:
 
   generated_types_only_in_data:
     name: "Generated proto types only in Data / AedstNetwork"
-    message: "Aedst_*_V1_* types stay behind a repository protocol: Features/*/Data or Core/AedstNetwork."
+    message: "Aedst_*_V1_* types stay behind a repository protocol: a feature Data target (Features/*/Sources/*Data) or Core/AedstNetwork."
     regex: '\bAedst_[A-Za-z]+_V1_'
     severity: error
     excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
@@ -152,7 +152,7 @@ custom_rules:
     excluded:
       - '/Generated/'
       - '/apps/apple/Core/AedstNetwork/'
-      - '/apps/apple/Features/[^/]+/Sources/[^/]+/Data/'
+      - '/apps/apple/Features/[^/]+/Sources/[^/]+Data/'
       - '/Tests/'
 
   no_user_defaults:
@@ -208,7 +208,7 @@ custom_rules:
     severity: error
     excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field]
     included:
-      - '/Presentation/'
+      - '/apps/apple/Features/[^/]+/Sources/[^/]+(Presentation|UIiOS|UIMac)/'
       - '/apps/apple/App/'
     excluded:
       - '/Tests/'

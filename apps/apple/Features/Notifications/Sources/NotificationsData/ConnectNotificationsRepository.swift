@@ -1,6 +1,7 @@
 import AedstCore
 import AedstNetwork
 import Foundation
+import NotificationsDomain
 
 /// `NotificationsRepository` over the generated `NotificationsService` client
 /// (the only file naming `Aedst_Notifications_V1_*` types).

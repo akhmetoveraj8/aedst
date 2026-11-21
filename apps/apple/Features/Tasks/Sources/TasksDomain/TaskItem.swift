@@ -104,7 +104,7 @@ public struct TaskUpdate: Sendable, Equatable {
 
 extension TaskItem.Priority {
     /// Stable wire name used in outbox payloads (never renamed: queued rows outlive app versions).
-    var wireName: String {
+    package var wireName: String {
         switch self {
         case .low: "low"
         case .medium: "medium"
@@ -113,7 +113,7 @@ extension TaskItem.Priority {
         }
     }
 
-    init?(wireName: String) {
+    package init?(wireName: String) {
         guard let match = Self.allCases.first(where: { $0.wireName == wireName }) else { return nil }
         self = match
     }

@@ -1,4 +1,5 @@
 import AedstCore
+import AuthDomain
 import Foundation
 
 /// Turns the provider's answer to `grant_type=refresh_token` into the tri-state the session

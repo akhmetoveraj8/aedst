@@ -1,9 +1,11 @@
 import AedstCore
 import AedstTesting
-import Auth
+import AuthData
+import AuthDomain
+import AuthPresentation
 import Foundation
 import Testing
-@testable import AedstAppShared
+@testable import AedstAppCore
 
 @Suite("AppDependencies")
 @MainActor

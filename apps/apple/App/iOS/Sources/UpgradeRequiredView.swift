@@ -1,3 +1,4 @@
+import AedstAppCore
 import AedstDesignSystem
 import SwiftUI
 
@@ -13,15 +14,15 @@ struct UpgradeRequiredView: View {
             Image(systemName: "arrow.down.app.fill")
                 .font(.largeTitle)
                 .accessibilityHidden(true)
-            Text(String(localized: "appUpgradeTitle", bundle: .module))
+            Text(String(localized: "appUpgradeTitle", bundle: AppStrings.bundle))
                 .aedstFont(AedstTypography.title)
                 .accessibilityAddTraits(.isHeader)
-            Text(String(localized: "appUpgradeMessage", bundle: .module))
+            Text(String(localized: "appUpgradeMessage", bundle: AppStrings.bundle))
                 .aedstFont(AedstTypography.body)
                 .foregroundStyle(AedstColor.mutedForeground)
                 .multilineTextAlignment(.center)
             if let appStoreURL {
-                AedstButton(String(localized: "appUpgradeButton", bundle: .module)) {
+                AedstButton(String(localized: "appUpgradeButton", bundle: AppStrings.bundle)) {
                     openURL(appStoreURL)
                 }
                 .frame(maxWidth: 320)

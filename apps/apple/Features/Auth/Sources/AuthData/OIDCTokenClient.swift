@@ -1,4 +1,5 @@
 import AedstCore
+import AuthDomain
 import Foundation
 
 /// What the token endpoint returned (RFC 6749 section 5.1), reduced to what the app uses.

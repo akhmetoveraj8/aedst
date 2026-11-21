@@ -1,3 +1,4 @@
+import AuthDomain
 import AuthenticationServices
 import Foundation
 #if canImport(UIKit)

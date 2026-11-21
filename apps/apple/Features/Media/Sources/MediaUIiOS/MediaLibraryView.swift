@@ -1,5 +1,8 @@
+#if os(iOS)
 import AedstDesignSystem
 import AedstMedia
+import MediaDomain
+import MediaPresentation
 import SwiftUI
 
 /// All of the user's files as a grid, with upload.
@@ -21,7 +24,7 @@ public struct MediaLibraryView: View {
             VStack(alignment: .leading, spacing: AedstSpacing.md) {
                 UploadProgressList(uploads: viewModel.uploads)
                 if viewModel.hasLoaded, viewModel.items.isEmpty, viewModel.uploads.isEmpty {
-                    Text(String(localized: "mediaEmpty", bundle: .module))
+                    Text(String(localized: "mediaEmpty", bundle: MediaStrings.bundle))
                         .foregroundStyle(AedstColor.mutedForeground)
                 }
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: AedstSpacing.sm)], spacing: AedstSpacing.sm) {
@@ -39,13 +42,13 @@ public struct MediaLibraryView: View {
             .padding(AedstSpacing.lg)
         }
         .refreshable { await viewModel.refresh() }
-        .navigationTitle(String(localized: "mediaTitle", bundle: .module))
+        .navigationTitle(String(localized: "mediaTitle", bundle: MediaStrings.bundle))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     isPickerPresented = true
                 } label: {
-                    Label(String(localized: "mediaUpload", bundle: .module), systemImage: "square.and.arrow.up")
+                    Label(String(localized: "mediaUpload", bundle: MediaStrings.bundle), systemImage: "square.and.arrow.up")
                 }
             }
         }
@@ -60,7 +63,7 @@ public struct MediaLibraryView: View {
 }
 
 /// Task-detail slot: the task's attachments plus an "Attach" button. Built by
-/// `App/Shared` and handed to `Tasks.TaskDetailView` (features never import each other).
+/// the app target and handed to the Tasks detail view (features never import each other).
 public struct TaskAttachmentsView: View {
     @State private var viewModel: MediaCollectionViewModel
     @State private var isPickerPresented = false
@@ -78,7 +81,7 @@ public struct TaskAttachmentsView: View {
         VStack(alignment: .leading, spacing: AedstSpacing.sm) {
             UploadProgressList(uploads: viewModel.uploads)
             if viewModel.hasLoaded, viewModel.items.isEmpty, viewModel.uploads.isEmpty {
-                Text(String(localized: "mediaNoAttachments", bundle: .module))
+                Text(String(localized: "mediaNoAttachments", bundle: MediaStrings.bundle))
                     .aedstFont(AedstTypography.caption)
                     .foregroundStyle(AedstColor.mutedForeground)
             }
@@ -94,7 +97,7 @@ public struct TaskAttachmentsView: View {
                     }
                 }
             }
-            AedstButton(String(localized: "mediaAttach", bundle: .module), systemImage: "paperclip", variant: .outline, size: .sm) {
+            AedstButton(String(localized: "mediaAttach", bundle: MediaStrings.bundle), systemImage: "paperclip", variant: .outline, size: .sm) {
                 isPickerPresented = true
             }
         }
@@ -120,13 +123,14 @@ private struct UploadProgressList: View {
                     .aedstSensitive()
                 switch upload.phase {
                 case .preparing:
-                    AedstProgressView(label: String(localized: "mediaPreparing", bundle: .module))
+                    AedstProgressView(label: String(localized: "mediaPreparing", bundle: MediaStrings.bundle))
                 case .uploading(let fraction):
-                    AedstProgressView(value: fraction, label: String(localized: "mediaUploading", bundle: .module))
+                    AedstProgressView(value: fraction, label: String(localized: "mediaUploading", bundle: MediaStrings.bundle))
                 case .finishing:
-                    AedstProgressView(label: String(localized: "mediaFinishing", bundle: .module))
+                    AedstProgressView(label: String(localized: "mediaFinishing", bundle: MediaStrings.bundle))
                 }
             }
         }
     }
 }
+#endif

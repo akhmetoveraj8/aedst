@@ -1,5 +1,6 @@
 import AedstCore
 import Foundation
+import NotificationsDomain
 import Observation
 
 /// The unread count shown on the home screen's inbox entry and mirrored on

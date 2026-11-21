@@ -3,7 +3,7 @@ import AedstTesting
 import Foundation
 import SwiftUI
 import Testing
-@testable import AedstAppShared
+@testable import AedstAppCore
 
 @Suite("RootViewModel")
 @MainActor

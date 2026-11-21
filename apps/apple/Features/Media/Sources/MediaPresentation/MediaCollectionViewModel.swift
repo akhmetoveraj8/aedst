@@ -2,6 +2,7 @@ import AedstAnalytics
 import AedstCore
 import AedstMedia
 import Foundation
+import MediaDomain
 import Observation
 
 /// A list of media plus in-flight uploads. The same model backs the media

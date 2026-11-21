@@ -1,5 +1,8 @@
+#if os(iOS)
 import AedstDesignSystem
 import SwiftUI
+import TasksDomain
+import TasksPresentation
 
 /// Task detail. `attachments` is a slot the composition root fills with the
 /// Media feature's attachments view — this feature never imports Media.
@@ -34,17 +37,17 @@ public struct TaskDetailView<Attachments: View>: View {
                     }
                     AedstButton(
                         task.status == .done
-                            ? String(localized: "tasksReopen", bundle: .module)
-                            : String(localized: "tasksComplete", bundle: .module),
+                            ? String(localized: "tasksReopen", bundle: TasksStrings.bundle)
+                            : String(localized: "tasksComplete", bundle: TasksStrings.bundle),
                         systemImage: task.status == .done ? "arrow.uturn.backward" : "checkmark",
-                        variant: task.status == .done ? .outline : .primary,
+                        variant: task.status == .done ? .outline : .default,
                         isLoading: viewModel.isWorking
                     ) {
                         Task { await viewModel.toggleCompletion() }
                     }
 
                     AedstSeparator()
-                    Text(String(localized: "tasksAttachments", bundle: .module))
+                    Text(String(localized: "tasksAttachments", bundle: TasksStrings.bundle))
                         .aedstFont(AedstTypography.headline)
                         .accessibilityAddTraits(.isHeader)
                     attachments(task.id)
@@ -56,22 +59,22 @@ public struct TaskDetailView<Attachments: View>: View {
             .padding(AedstSpacing.lg)
             .frame(maxWidth: 720, alignment: .leading)
         }
-        .navigationTitle(String(localized: "tasksDetailTitle", bundle: .module))
+        .navigationTitle(String(localized: "tasksDetailTitle", bundle: TasksStrings.bundle))
         .toolbar {
             ToolbarItem(placement: .destructiveAction) {
                 Button(role: .destructive) {
                     isConfirmingDelete = true
                 } label: {
-                    Label(String(localized: "tasksDelete", bundle: .module), systemImage: "trash")
+                    Label(String(localized: "tasksDelete", bundle: TasksStrings.bundle), systemImage: "trash")
                 }
             }
         }
         .confirmationDialog(
-            String(localized: "tasksDeleteConfirm", bundle: .module),
+            String(localized: "tasksDeleteConfirm", bundle: TasksStrings.bundle),
             isPresented: $isConfirmingDelete,
             titleVisibility: .visible
         ) {
-            Button(String(localized: "tasksDelete", bundle: .module), role: .destructive) {
+            Button(String(localized: "tasksDelete", bundle: TasksStrings.bundle), role: .destructive) {
                 Task {
                     if await viewModel.delete() { onDeleted() }
                 }
@@ -100,3 +103,4 @@ public struct TaskDetailView<Attachments: View>: View {
         }
     }
 }
+#endif

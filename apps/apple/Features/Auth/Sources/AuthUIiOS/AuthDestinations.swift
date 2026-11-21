@@ -1,7 +1,10 @@
+#if os(iOS)
 import AedstNavigation
+import AuthDomain
+import AuthPresentation
 import SwiftUI
 
-/// `App/Shared`'s composition root attaches this to the root `AedstNavigationStack`
+/// The app target (`FeatureDestinations`) attaches this to the root `AedstNavigationStack`
 /// alongside every other feature's `*Destinations` modifier — the one place
 /// that is allowed to know every feature exists (see `docs/architecture-apple.md`).
 public struct AuthDestinations: ViewModifier {
@@ -26,3 +29,4 @@ extension View {
         modifier(AuthDestinations(makeLoginView: makeLoginView))
     }
 }
+#endif

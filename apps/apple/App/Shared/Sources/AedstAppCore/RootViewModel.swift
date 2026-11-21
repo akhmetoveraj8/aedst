@@ -1,7 +1,9 @@
 import AedstAnalytics
 import AedstCore
 import AedstPersistence
-import Auth
+import AuthData
+import AuthDomain
+import AuthPresentation
 import Foundation
 import Observation
 import SwiftUI
@@ -202,7 +204,7 @@ public final class RootViewModel {
     }
 
     public func unlock() async {
-        let reason = String(localized: "appUnlockReason", bundle: .module)
+        let reason = String(localized: "appUnlockReason", bundle: AppStrings.bundle)
         if await dependencies.biometrics.authenticate(reason: reason) {
             isLocked = false
             isObscured = false

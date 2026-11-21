@@ -1,5 +1,8 @@
+#if os(iOS)
 #if DEBUG
 import AedstCore
+import AuthDomain
+import AuthPresentation
 import SwiftUI
 
 /// Repository for Xcode Previews: sign-in is never reached, the screen only renders. Debug builds only.
@@ -17,4 +20,5 @@ private struct PreviewAuthRepository: AuthRepository {
         )
     ) { _ in }
 }
+#endif
 #endif

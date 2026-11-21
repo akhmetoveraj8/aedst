@@ -1,4 +1,7 @@
+#if os(iOS)
 import AedstNavigation
+import SearchDomain
+import SearchPresentation
 import SwiftUI
 
 extension View {
@@ -12,3 +15,4 @@ extension View {
         }
     }
 }
+#endif

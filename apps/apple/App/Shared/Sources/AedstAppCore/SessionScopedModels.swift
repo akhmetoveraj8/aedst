@@ -1,4 +1,6 @@
-import Tasks
+import TasksData
+import TasksDomain
+import TasksPresentation
 
 /// View models that must outlive one screen, so that screens showing the same data share it: the task list is
 /// the source for the detail screen's `onChange`/`onDelete`, and a list that was rebuilt on every navigation

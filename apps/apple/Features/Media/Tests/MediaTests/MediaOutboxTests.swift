@@ -1,7 +1,9 @@
 import AedstCore
 import Foundation
 import Testing
-@testable import Media
+@testable import MediaData
+@testable import MediaDomain
+@testable import MediaPresentation
 
 private actor RecordingOutbox: OutboxEnqueuing {
     private(set) var rows: [(type: String, payload: String, id: String)] = []

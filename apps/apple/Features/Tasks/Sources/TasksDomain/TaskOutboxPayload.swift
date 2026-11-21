@@ -2,14 +2,14 @@ import Foundation
 
 /// JSON stored in the outbox for the two Tasks write types. Field names are a persisted format: add optional
 /// fields, never rename or repurpose one (rows queued by an older app version must still decode).
-enum TaskOutboxPayload {
-    struct Create: Codable, Equatable {
-        var title: String
-        var details: String
-        var priority: String
-        var dueDate: Date?
+package enum TaskOutboxPayload {
+    package struct Create: Codable, Equatable {
+        package var title: String
+        package var details: String
+        package var priority: String
+        package var dueDate: Date?
 
-        init(_ task: NewTask) {
+        package init(_ task: NewTask) {
             title = task.title
             details = task.details
             priority = task.priority.wireName
@@ -17,14 +17,14 @@ enum TaskOutboxPayload {
         }
     }
 
-    struct Update: Codable, Equatable {
-        var id: String
-        var title: String?
-        var details: String?
-        var priority: String?
-        var expectedVersion: Int32?
+    package struct Update: Codable, Equatable {
+        package var id: String
+        package var title: String?
+        package var details: String?
+        package var priority: String?
+        package var expectedVersion: Int32?
 
-        init(_ update: TaskUpdate) {
+        package init(_ update: TaskUpdate) {
             id = update.id
             title = update.title
             details = update.details
@@ -40,7 +40,7 @@ enum TaskOutboxPayload {
         return String(decoding: try encoder.encode(payload), as: UTF8.self)
     }
 
-    static func decode<Payload: Decodable>(_ type: Payload.Type, from json: String) -> Payload? {
+    package static func decode<Payload: Decodable>(_ type: Payload.Type, from json: String) -> Payload? {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return try? decoder.decode(type, from: Data(json.utf8))

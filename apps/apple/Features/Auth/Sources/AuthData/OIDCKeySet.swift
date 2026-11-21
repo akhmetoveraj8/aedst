@@ -1,4 +1,5 @@
 import AedstCore
+import AuthDomain
 import Foundation
 
 /// The provider's signing keys (the document behind discovery's `jwks_uri`), cached.

@@ -37,7 +37,7 @@ public struct MediaOutboxQueue: Sendable {
     }
 
     /// JSON stored in the outbox row. A persisted format: only add optional fields.
-    struct Payload: Codable, Equatable {
-        var mediaID: String
+    package struct Payload: Codable, Equatable {
+        package var mediaID: String
     }
 }

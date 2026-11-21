@@ -1,6 +1,9 @@
+#if os(iOS)
 #if DEBUG
 import AedstCore
 import SwiftUI
+import TasksDomain
+import TasksPresentation
 
 /// In-memory repository for Xcode Previews: a few fixed rows, every write succeeds. Debug builds only.
 struct PreviewTaskRepository: TaskRepository {
@@ -44,4 +47,5 @@ struct PreviewTaskRepository: TaskRepository {
         }
     }
 }
+#endif
 #endif

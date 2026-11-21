@@ -3,7 +3,7 @@
 Pixel snapshots of the core components (`AedstButton`, `AedstBadge`, `AedstAlert`,
 `AedstTextField`, `AedstCard`, `AedstSkeleton`). Library: Point-Free
 [swift-snapshot-testing](https://github.com/pointfreeco/swift-snapshot-testing) (test target only).
-The tests are in `ComponentSnapshotTests.swift`; the variants and the per-OS helper
+The tests are in `ComponentSnapshotTests.swift` and, for the components added on 2026-11-21, in `FormSnapshotTests.swift`, `OverlaySnapshotTests.swift` and `DataSnapshotTests.swift` (each suite is gated on its own `__Snapshots__/<suite>` directory, so an unrecorded suite is skipped, not red); the variants and the per-OS helper
 (`assertComponent`) are in `SnapshotSupport.swift`.
 
 ## Variants (reference images per component group)

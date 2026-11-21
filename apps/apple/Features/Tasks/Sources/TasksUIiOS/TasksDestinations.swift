@@ -1,7 +1,8 @@
+#if os(iOS)
 import AedstNavigation
 import SwiftUI
 
-/// Registers the task destinations on the root stack (composed in `App/Shared`).
+/// Registers the task destinations on the root stack (composed by the app target).
 public struct TasksDestinations<ListView: View, DetailView: View>: ViewModifier {
     private let makeList: () -> ListView
     private let makeDetail: (String) -> DetailView
@@ -36,3 +37,4 @@ extension View {
         modifier(TasksDestinations(makeList: makeList, makeDetail: makeDetail))
     }
 }
+#endif

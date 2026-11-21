@@ -1,4 +1,3 @@
-#if os(iOS)
 import AedstCore
 import AedstPersistence
 import BackgroundTasks
@@ -10,7 +9,8 @@ import Foundation
 /// Requirements (already in `App/iOS/Info.plist`): `BGTaskSchedulerPermittedIdentifiers` contains `identifier`
 /// and `UIBackgroundModes` contains `fetch`. The system decides when the task really runs (`earliestBeginDate` is
 /// only a lower bound), so foreground, reconnect and enqueue triggers remain the fast paths.
-/// macOS has no `BackgroundTasks`; there the outbox drains on enqueue, reconnect and foreground only.
+/// This file is part of the `App_iOS` target only: macOS has no `BackgroundTasks`; there the outbox drains on
+/// enqueue, reconnect and foreground only.
 ///
 /// UNVERIFIED: never compiled or run (no Xcode here); needs a device (`e -l objc -- (void)[[BGTaskScheduler
 /// sharedScheduler] _simulateLaunchForTaskWithIdentifier:...]` in the debugger) to exercise.
@@ -51,4 +51,3 @@ enum OutboxBackgroundTask {
 private struct UncheckedTask: @unchecked Sendable {
     let task: BGTask
 }
-#endif

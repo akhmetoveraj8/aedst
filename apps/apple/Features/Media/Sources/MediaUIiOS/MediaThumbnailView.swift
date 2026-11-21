@@ -1,5 +1,8 @@
+#if os(iOS)
 import AedstDesignSystem
 import AedstMedia
+import MediaDomain
+import MediaPresentation
 import SwiftUI
 
 /// Square thumbnail for a media item. Source order:
@@ -82,3 +85,4 @@ public struct MediaThumbnailView: View {
         }
     }
 }
+#endif

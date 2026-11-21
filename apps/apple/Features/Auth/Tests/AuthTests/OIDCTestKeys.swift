@@ -2,7 +2,9 @@ import AedstCore
 import CryptoKit
 import Foundation
 import Security
-@testable import Auth
+@testable import AuthData
+@testable import AuthDomain
+@testable import AuthPresentation
 
 /// A throw-away signing key generated per test run (no key material is committed), able to
 /// sign JWTs and to publish its public half as a JWK. UNVERIFIED: written without a Swift

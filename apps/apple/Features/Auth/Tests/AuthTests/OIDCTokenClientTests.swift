@@ -2,7 +2,9 @@ import AedstCore
 import AedstTesting
 import Foundation
 import Testing
-@testable import Auth
+@testable import AuthData
+@testable import AuthDomain
+@testable import AuthPresentation
 
 @Suite("URLSessionOIDCTokenClient")
 struct OIDCTokenClientTests {

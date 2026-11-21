@@ -2,7 +2,9 @@ import AedstAnalytics
 import AedstCore
 import Foundation
 import Testing
-@testable import Auth
+@testable import AuthData
+@testable import AuthDomain
+@testable import AuthPresentation
 
 @Suite("LoginViewModel (browser sign-in)")
 @MainActor

@@ -1,4 +1,5 @@
-import Admin
+import AdminData
+import AdminDomain
 import AedstAnalytics
 import AedstCore
 import AedstDesignSystem
@@ -6,18 +7,24 @@ import AedstMedia
 import AedstNetwork
 import AedstPersistence
 import AedstTelemetry
-import Auth
+import AuthData
+import AuthDomain
 import Connect
 import Foundation
-import Media
-import Notifications
-import Search
-import Tasks
+import MediaData
+import MediaDomain
+import NotificationsData
+import NotificationsDomain
+import NotificationsPresentation
+import SearchData
+import SearchDomain
+import TasksData
+import TasksDomain
 
 /// The app's single composition root — every concrete implementation is
 /// constructed exactly once, here, and only protocol types cross into
 /// `Presentation`. `App/iOS`'s and `App/macOS`'s app delegates both build one
-/// `AppDependencies` and hand it to the same `RootView`; nothing
+/// `AppDependencies` and hand it to their own `RootView`; nothing
 /// platform-specific belongs in this type except what the delegate injects
 /// (APNs registration, the icon badge, the device name).
 ///

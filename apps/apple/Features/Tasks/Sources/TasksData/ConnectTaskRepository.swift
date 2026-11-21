@@ -1,6 +1,7 @@
 import AedstCore
 import AedstNetwork
 import Foundation
+import TasksDomain
 
 /// `TaskRepository` over the generated `TasksService` Connect client — the only
 /// file in this feature that names a generated `Aedst_Tasks_V1_*` type. Every

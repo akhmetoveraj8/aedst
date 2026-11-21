@@ -2,7 +2,9 @@ import AedstAnalytics
 import AedstCore
 import Foundation
 import Testing
-@testable import Admin
+@testable import AdminData
+@testable import AdminDomain
+@testable import AdminPresentation
 
 /// Scripted `AdminRepository`: every call is recorded, results are set per test.
 actor FakeAdminRepository: AdminRepository {

@@ -57,7 +57,7 @@ public final class PreferencesViewModel {
     /// with a biometric that does not work.
     public func setAppLock(enabled: Bool) async {
         if enabled {
-            let reason = String(localized: "appUnlockReason", bundle: .module)
+            let reason = String(localized: "appUnlockReason", bundle: AppStrings.bundle)
             guard await biometrics.authenticate(reason: reason) else { return }
         }
         do {

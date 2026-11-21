@@ -1,46 +1,10 @@
+#if os(iOS)
 import AedstCore
 import AedstDesignSystem
 import AedstMedia
+import MediaDomain
+import MediaPresentation
 import SwiftUI
-
-/// One media item: always re-fetched on open, so presigned URLs are fresh.
-@MainActor
-@Observable
-public final class MediaDetailViewModel {
-    public let mediaID: String
-    public private(set) var item: MediaItem?
-    /// Bound to `aedstErrorPresenter`.
-    public var error: AedstError?
-
-    private let repository: any MediaRepository
-
-    /// Loads `mediaID` from `repository`.
-    public init(mediaID: String, repository: any MediaRepository) {
-        self.mediaID = mediaID
-        self.repository = repository
-    }
-
-    /// Fetches the item (fresh presigned URLs).
-    public func load() async {
-        switch await repository.get(id: mediaID) {
-        case .success(let item):
-            self.item = item
-        case .failure(let failure):
-            error = failure
-        }
-    }
-
-    /// Deletes the item; `true` on success.
-    public func delete() async -> Bool {
-        switch await repository.delete(id: mediaID) {
-        case .success:
-            return true
-        case .failure(let failure):
-            error = failure
-            return false
-        }
-    }
-}
 
 /// Full-size image or the system video player.
 public struct MediaDetailView: View {
@@ -72,22 +36,22 @@ public struct MediaDetailView: View {
             }
         }
         .padding(AedstSpacing.lg)
-        .navigationTitle(viewModel.item?.filename ?? String(localized: "mediaTitle", bundle: .module))
+        .navigationTitle(viewModel.item?.filename ?? String(localized: "mediaTitle", bundle: MediaStrings.bundle))
         .toolbar {
             ToolbarItem(placement: .destructiveAction) {
                 Button(role: .destructive) {
                     isConfirmingDelete = true
                 } label: {
-                    Label(String(localized: "mediaDelete", bundle: .module), systemImage: "trash")
+                    Label(String(localized: "mediaDelete", bundle: MediaStrings.bundle), systemImage: "trash")
                 }
             }
         }
         .confirmationDialog(
-            String(localized: "mediaDeleteConfirm", bundle: .module),
+            String(localized: "mediaDeleteConfirm", bundle: MediaStrings.bundle),
             isPresented: $isConfirmingDelete,
             titleVisibility: .visible
         ) {
-            Button(String(localized: "mediaDelete", bundle: .module), role: .destructive) {
+            Button(String(localized: "mediaDelete", bundle: MediaStrings.bundle), role: .destructive) {
                 Task {
                     if await viewModel.delete() { onDeleted() }
                 }
@@ -121,12 +85,13 @@ public struct MediaDetailView: View {
             }
         case .failed:
             AedstAlert(
-                String(localized: "mediaFailed", bundle: .module),
+                String(localized: "mediaFailed", bundle: MediaStrings.bundle),
                 message: item.failureReason,
-                severity: .destructive
+                variant: .destructive
             )
         case .pendingUpload, .processing, .unknown:
-            AedstAlert(String(localized: "mediaProcessing", bundle: .module), severity: .info)
+            AedstAlert(String(localized: "mediaProcessing", bundle: MediaStrings.bundle))
         }
     }
 }
+#endif

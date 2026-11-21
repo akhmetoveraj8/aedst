@@ -1,5 +1,6 @@
 import AedstAnalytics
 import AedstCore
+import AuthDomain
 import Foundation
 import Observation
 

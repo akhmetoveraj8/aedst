@@ -1,4 +1,5 @@
 import AedstCore
+import AuthDomain
 import Foundation
 
 /// The single HTTP seam of the OIDC client: tests inject a closure, production

@@ -1,8 +1,11 @@
+#if os(iOS)
 import AedstDesignSystem
+import NotificationsDomain
+import NotificationsPresentation
 import SwiftUI
 
 /// Inbox screen. Tapping an entry marks it read and opens its link through
-/// `onOpenLink` (resolved by `App/Shared`).
+/// `onOpenLink` (resolved by the app target).
 public struct NotificationInboxView: View {
     @State private var viewModel: NotificationInboxViewModel
     private let onOpenLink: (String) -> Void
@@ -23,14 +26,14 @@ public struct NotificationInboxView: View {
         @Bindable var viewModel = viewModel
 
         List {
-            Picker(String(localized: "notificationsFilter", bundle: .module), selection: $viewModel.unreadOnly) {
-                Text(String(localized: "notificationsFilterAll", bundle: .module)).tag(false)
-                Text(String(localized: "notificationsFilterUnread", bundle: .module)).tag(true)
+            Picker(String(localized: "notificationsFilter", bundle: NotificationsStrings.bundle), selection: $viewModel.unreadOnly) {
+                Text(String(localized: "notificationsFilterAll", bundle: NotificationsStrings.bundle)).tag(false)
+                Text(String(localized: "notificationsFilterUnread", bundle: NotificationsStrings.bundle)).tag(true)
             }
             .pickerStyle(.segmented)
 
             if viewModel.hasLoaded, viewModel.notifications.isEmpty {
-                Text(String(localized: "notificationsEmpty", bundle: .module))
+                Text(String(localized: "notificationsEmpty", bundle: NotificationsStrings.bundle))
                     .foregroundStyle(AedstColor.mutedForeground)
             }
             ForEach(viewModel.notifications) { notification in
@@ -49,16 +52,16 @@ public struct NotificationInboxView: View {
             }
         }
         .refreshable { await viewModel.refresh() }
-        .navigationTitle(String(localized: "notificationsTitle", bundle: .module))
+        .navigationTitle(String(localized: "notificationsTitle", bundle: NotificationsStrings.bundle))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button(String(localized: "notificationsMarkAllRead", bundle: .module)) {
+                    Button(String(localized: "notificationsMarkAllRead", bundle: NotificationsStrings.bundle)) {
                         Task { await viewModel.markAllRead() }
                     }
-                    Button(String(localized: "notificationsPreferences", bundle: .module), action: onOpenPreferences)
+                    Button(String(localized: "notificationsPreferences", bundle: NotificationsStrings.bundle), action: onOpenPreferences)
                 } label: {
-                    Label(String(localized: "notificationsMore", bundle: .module), systemImage: "ellipsis.circle")
+                    Label(String(localized: "notificationsMore", bundle: NotificationsStrings.bundle), systemImage: "ellipsis.circle")
                 }
             }
         }
@@ -98,8 +101,9 @@ private struct NotificationRow: View {
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityValue(
-            Text(notification.isRead ? "" : String(localized: "notificationsUnread", bundle: .module))
+            Text(notification.isRead ? "" : String(localized: "notificationsUnread", bundle: NotificationsStrings.bundle))
         )
         .aedstSensitive()
     }
 }
+#endif

@@ -1,3 +1,6 @@
+#if os(iOS)
+import AdminDomain
+import AdminPresentation
 import AedstNavigation
 import SwiftUI
 
@@ -9,3 +12,4 @@ extension View {
         }
     }
 }
+#endif

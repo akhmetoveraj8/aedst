@@ -1,6 +1,7 @@
 import AedstCore
 import AedstNetwork
 import Foundation
+import TasksDomain
 
 /// The Tasks feature's contribution to the outbox: one handler per queued write type. The composition root
 /// passes `make(...)` to the drainer (Android: `@Binds @IntoSet OutboxHandler`). Handlers send the outbox row id

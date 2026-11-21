@@ -2,6 +2,7 @@ import AedstAnalytics
 import AedstCore
 import Foundation
 import Observation
+import SearchDomain
 
 /// Search-as-you-type. Every keystroke cancels the pending request and starts
 /// a new debounce (`Task` + the injected `AedstClock.sleep`, so tests control

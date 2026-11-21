@@ -1,4 +1,5 @@
 import AedstCore
+import AuthDomain
 import Foundation
 
 /// One authorization request (RFC 6749 section 4.1.1 + RFC 7636 + OIDC Core): the URL to

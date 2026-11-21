@@ -3,7 +3,7 @@ import AedstNetwork
 import AedstPersistence
 import AedstTesting
 import Foundation
-@testable import AedstAppShared
+@testable import AedstAppCore
 
 /// Biometric double: availability and the result of `authenticate` are scripted.
 final class StubBiometrics: BiometricAuthenticating, @unchecked Sendable {

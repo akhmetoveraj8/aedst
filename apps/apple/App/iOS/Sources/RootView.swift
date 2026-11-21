@@ -1,21 +1,19 @@
+import AedstAppCore
 import AedstDesignSystem
 import AedstNavigation
-import Auth
-import Media
-import Notifications
-import Search
+import AuthUIiOS
+import NotificationsPresentation
 import SwiftUI
-import Tasks
 
-/// The one navigation shell shared by iOS and macOS — each app target's `@main` scene wraps this in its own
-/// platform chrome but the destinations and the `Router` are identical, same as `AppNavHost.kt` composing every
-/// Android `feature/*`'s navigation entry point. This is the only place that knows every feature: cross-feature
-/// wiring (task detail → media attachments, search/notification links → routes) happens here.
+/// The navigation shell of the iOS build (iPhone and iPad); `App/macOS/Sources/RootView.swift` is the Mac one. Same
+/// role as `AppNavHost.kt` composing every Android `feature/*`'s navigation entry point: this and
+/// `FeatureDestinations` are the only places that know every feature's UI, and cross-feature wiring (task detail →
+/// media attachments, search/notification links → routes) happens here. State and rules come from `AedstAppCore`.
 ///
 /// Layout adapts to the width: compact (iPhone, iPad in split view) is one `NavigationStack` rooted at the home
-/// list; regular width (iPad full screen) and macOS use a `NavigationSplitView` with the home list as the sidebar
+/// list; regular width (iPad full screen) uses a `NavigationSplitView` with the home list as the sidebar
 /// and the same `Router`'s stack as the detail column. Signed-out always shows the single stack.
-public struct RootView: View {
+struct RootView: View {
     @State private var router = Router()
     @State private var model: RootViewModel
     @Environment(\.scenePhase) private var scenePhase
@@ -25,12 +23,12 @@ public struct RootView: View {
     private let dependencies: AppDependencies
 
     @MainActor
-    public init(dependencies: AppDependencies) {
+    init(dependencies: AppDependencies) {
         self.dependencies = dependencies
         self._model = State(wrappedValue: RootViewModel(dependencies: dependencies))
     }
 
-    public var body: some View {
+    var body: some View {
         ZStack {
             navigation
 
@@ -80,17 +78,12 @@ public struct RootView: View {
 
     // MARK: Layout
 
-    /// Regular width, or macOS (always): the split layout; only while signed in.
+    /// Regular width (iPad full screen): the split layout; only while signed in.
     private var usesSplitView: Bool {
-        #if os(macOS)
-        let isMac = true
-        #else
-        let isMac = false
-        #endif
-        return RootLayout.usesSplitView(
+        RootLayout.usesSplitView(
             isSignedIn: model.isSignedIn,
             horizontalSizeClass: horizontalSizeClass,
-            isMac: isMac
+            isMac: false
         )
     }
 
@@ -185,7 +178,7 @@ private struct StartView: View {
                 Text(verbatim: "AEDST") // brand name, not translated
                     .aedstFont(AedstTypography.largeTitle)
                     .accessibilityAddTraits(.isHeader)
-                AedstButton(String(localized: "appSignIn", bundle: .module)) {
+                AedstButton(String(localized: "appSignIn", bundle: AppStrings.bundle)) {
                     router.push(AuthRoute.login)
                 }
                 .accessibilityIdentifier("start.signIn")

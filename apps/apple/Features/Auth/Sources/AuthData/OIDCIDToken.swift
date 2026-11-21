@@ -1,4 +1,5 @@
 import AedstCore
+import AuthDomain
 import CryptoKit
 import Foundation
 

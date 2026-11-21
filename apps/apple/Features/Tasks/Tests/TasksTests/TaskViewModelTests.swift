@@ -1,7 +1,9 @@
 import AedstCore
 import Foundation
 import Testing
-@testable import Tasks
+@testable import TasksData
+@testable import TasksDomain
+@testable import TasksPresentation
 
 /// Scripted repository double.
 actor FakeTaskRepository: TaskRepository {

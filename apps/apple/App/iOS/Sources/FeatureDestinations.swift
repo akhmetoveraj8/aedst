@@ -1,12 +1,13 @@
-import Admin
+import AdminUIiOS
+import AedstAppCore
 import AedstNavigation
-import Media
-import Notifications
-import Search
+import MediaUIiOS
+import NotificationsUIiOS
+import SearchUIiOS
 import SwiftUI
-import Tasks
+import TasksUIiOS
 
-/// Every signed-in feature's destinations, composed in one place. Attached to the root of both layouts (the compact
+/// Every signed-in feature's destinations for the iOS build (the `*UIiOS` targets), composed in one place. Attached to the root of both layouts (the compact
 /// stack and the split view's detail stack), so a route renders the same screen in either.
 struct FeatureDestinations: ViewModifier {
     let dependencies: AppDependencies

@@ -10,6 +10,13 @@ let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("InferIsolatedConformances"),
 ]
 
+// One business logic, two UI builds (decisions/apple.md): `AdminDomain`, `AdminData` and `AdminPresentation` are shared;
+// `AdminUIiOS` is linked by App_iOS only and `AdminUIMac` by App_macOS only. A UI target's dependencies carry a platform
+// condition and every file in it is wrapped in one `#if os(...)` guard, so the other platform compiles it to nothing
+// (`swift build` on a Mac host still builds the whole package). scripts/check-feature-boundaries.sh enforces the rest.
+let iOSOnly: TargetDependencyCondition? = .when(platforms: [.iOS])
+let macOnly: TargetDependencyCondition? = .when(platforms: [.macOS])
+
 let package = Package(
     name: "Admin",
     defaultLocalization: "en",
@@ -19,7 +26,11 @@ let package = Package(
         .macOS(.v15),
     ],
     products: [
-        .library(name: "Admin", targets: ["Admin"]),
+        .library(name: "AdminDomain", targets: ["AdminDomain"]),
+        .library(name: "AdminData", targets: ["AdminData"]),
+        .library(name: "AdminPresentation", targets: ["AdminPresentation"]),
+        .library(name: "AdminUIiOS", targets: ["AdminUIiOS"]),
+        .library(name: "AdminUIMac", targets: ["AdminUIMac"]),
     ],
     dependencies: [
         .package(path: "../../Core/AedstCore"),
@@ -30,21 +41,53 @@ let package = Package(
         .package(path: "../../Core/AedstTesting"),
     ],
     targets: [
+        // Models, repository protocols, use cases. No UI, network or persistence import.
         .target(
-            name: "Admin",
-            dependencies: [
-                "AedstCore",
-                "AedstNetwork",
-                "AedstDesignSystem",
-                "AedstNavigation",
-                "AedstAnalytics",
-            ],
+            name: "AdminDomain",
+            dependencies: ["AedstCore"],
+            swiftSettings: swiftSettings
+        ),
+        // Repository implementations.
+        .target(
+            name: "AdminData",
+            dependencies: ["AdminDomain", "AedstCore", "AedstNetwork"],
+            swiftSettings: swiftSettings
+        ),
+        // Platform-neutral `@Observable` view models and the String Catalog both UI builds read.
+        .target(
+            name: "AdminPresentation",
+            dependencies: ["AdminDomain", "AedstCore", "AedstAnalytics"],
             resources: [.process("Resources")],
             swiftSettings: swiftSettings
         ),
+        // SwiftUI views for iPhone and iPad.
+        .target(
+            name: "AdminUIiOS",
+            dependencies: [
+                .target(name: "AdminDomain", condition: iOSOnly),
+                .target(name: "AdminPresentation", condition: iOSOnly),
+                .product(name: "AedstCore", package: "AedstCore", condition: iOSOnly),
+                .product(name: "AedstDesignSystem", package: "AedstDesignSystem", condition: iOSOnly),
+                .product(name: "AedstNavigation", package: "AedstNavigation", condition: iOSOnly),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        // SwiftUI views for the Mac.
+        .target(
+            name: "AdminUIMac",
+            dependencies: [
+                .target(name: "AdminDomain", condition: macOnly),
+                .target(name: "AdminPresentation", condition: macOnly),
+                .product(name: "AedstCore", package: "AedstCore", condition: macOnly),
+                .product(name: "AedstDesignSystem", package: "AedstDesignSystem", condition: macOnly),
+                .product(name: "AedstNavigation", package: "AedstNavigation", condition: macOnly),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        // Logic tests (domain, data, view models); they run on the Mac host and import no UI target.
         .testTarget(
             name: "AdminTests",
-            dependencies: ["Admin", "AedstCore", "AedstAnalytics", "AedstTesting"],
+            dependencies: ["AdminDomain", "AdminData", "AdminPresentation", "AedstCore", "AedstAnalytics", "AedstTesting"],
             swiftSettings: swiftSettings
         ),
     ],

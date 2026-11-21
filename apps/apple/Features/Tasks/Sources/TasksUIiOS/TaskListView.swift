@@ -1,5 +1,8 @@
+#if os(iOS)
 import AedstDesignSystem
 import SwiftUI
+import TasksDomain
+import TasksPresentation
 
 /// The task list. Selecting a row calls `onSelect` with the task id; the
 /// composition root turns that into `TaskRoute.detail`.
@@ -18,12 +21,12 @@ public struct TaskListView: View {
 
         List {
             if viewModel.hasLoaded, viewModel.tasks.isEmpty {
-                Text(String(localized: "tasksEmpty", bundle: .module))
+                Text(String(localized: "tasksEmpty", bundle: TasksStrings.bundle))
                     .aedstFont(AedstTypography.body)
                     .foregroundStyle(AedstColor.mutedForeground)
             }
             if viewModel.unsyncedCount > 0 {
-                Text(String(localized: "tasksUnsynced \(viewModel.unsyncedCount)", bundle: .module))
+                Text(String(localized: "tasksUnsynced \(viewModel.unsyncedCount)", bundle: TasksStrings.bundle))
                     .aedstFont(AedstTypography.caption)
                     .foregroundStyle(AedstColor.destructive)
                     .accessibilityIdentifier("tasks.unsynced")
@@ -46,13 +49,13 @@ public struct TaskListView: View {
             }
         }
         .refreshable { await viewModel.refresh() }
-        .navigationTitle(String(localized: "tasksTitle", bundle: .module))
+        .navigationTitle(String(localized: "tasksTitle", bundle: TasksStrings.bundle))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     viewModel.isComposerPresented = true
                 } label: {
-                    Label(String(localized: "tasksNew", bundle: .module), systemImage: "plus")
+                    Label(String(localized: "tasksNew", bundle: TasksStrings.bundle), systemImage: "plus")
                 }
                 .keyboardShortcut("n", modifiers: .command)
             }
@@ -60,7 +63,7 @@ public struct TaskListView: View {
                 Button {
                     Task { await viewModel.refresh() }
                 } label: {
-                    Label(String(localized: "tasksRefresh", bundle: .module), systemImage: "arrow.clockwise")
+                    Label(String(localized: "tasksRefresh", bundle: TasksStrings.bundle), systemImage: "arrow.clockwise")
                 }
                 .keyboardShortcut("r", modifiers: .command)
             }
@@ -94,7 +97,7 @@ struct TaskRowView: View {
                     .aedstFont(AedstTypography.body)
                     .strikethrough(task.status == .done)
                 if isPending {
-                    Text(String(localized: "tasksPendingSync", bundle: .module))
+                    Text(String(localized: "tasksPendingSync", bundle: TasksStrings.bundle))
                         .aedstFont(AedstTypography.caption)
                         .foregroundStyle(AedstColor.mutedForeground)
                 }
@@ -117,26 +120,27 @@ struct TaskRowView: View {
 private struct TaskComposerView: View {
     let viewModel: TaskListViewModel
     @Environment(\.dismiss) private var dismiss
+    @FocusState private var titleFocused: Bool
 
     var body: some View {
         @Bindable var viewModel = viewModel
         VStack(alignment: .leading, spacing: AedstSpacing.lg) {
-            Text(String(localized: "tasksNew", bundle: .module))
+            Text(String(localized: "tasksNew", bundle: TasksStrings.bundle))
                 .aedstFont(AedstTypography.title)
                 .accessibilityAddTraits(.isHeader)
-            AedstTextField(String(localized: "tasksTitleField", bundle: .module), text: $viewModel.draftTitle)
+            AedstTextField(String(localized: "tasksTitleField", bundle: TasksStrings.bundle), text: $viewModel.draftTitle)
                 .focused($titleFocused)
                 .aedstSensitive()
-            Picker(String(localized: "tasksPriority", bundle: .module), selection: $viewModel.draftPriority) {
+            Picker(String(localized: "tasksPriority", bundle: TasksStrings.bundle), selection: $viewModel.draftPriority) {
                 ForEach(TaskItem.Priority.allCases, id: \.self) { priority in
                     Text(TaskFormatting.priority(priority)).tag(priority)
                 }
             }
             .pickerStyle(.segmented)
             HStack {
-                AedstButton(String(localized: "tasksCancel", bundle: .module), variant: .ghost) { dismiss() }
+                AedstButton(String(localized: "tasksCancel", bundle: TasksStrings.bundle), variant: .ghost) { dismiss() }
                 AedstButton(
-                    String(localized: "tasksCreate", bundle: .module),
+                    String(localized: "tasksCreate", bundle: TasksStrings.bundle),
                     isLoading: viewModel.isSaving,
                     isDisabled: !viewModel.canSaveDraft
                 ) {
@@ -151,28 +155,4 @@ private struct TaskComposerView: View {
         .defaultFocus($titleFocused, true)
     }
 }
-
-/// Localized display strings shared by the task screens.
-enum TaskFormatting {
-    static func priority(_ priority: TaskItem.Priority) -> String {
-        switch priority {
-        case .low: String(localized: "tasksPriorityLow", bundle: .module)
-        case .medium: String(localized: "tasksPriorityMedium", bundle: .module)
-        case .high: String(localized: "tasksPriorityHigh", bundle: .module)
-        case .urgent: String(localized: "tasksPriorityUrgent", bundle: .module)
-        }
-    }
-
-    static func status(_ status: TaskItem.Status) -> String {
-        switch status {
-        case .todo: String(localized: "tasksStatusTodo", bundle: .module)
-        case .inProgress: String(localized: "tasksStatusInProgress", bundle: .module)
-        case .done: String(localized: "tasksStatusDone", bundle: .module)
-        }
-    }
-
-    static func due(_ date: Date) -> String {
-        let formatted = date.formatted(date: .abbreviated, time: .omitted)
-        return String(localized: "tasksDue \(formatted)", bundle: .module)
-    }
-}
+#endif

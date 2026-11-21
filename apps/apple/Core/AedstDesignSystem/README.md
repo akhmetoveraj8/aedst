@@ -1,7 +1,7 @@
 # AedstDesignSystem
 
-SwiftUI design system for `apps/apple`: tokens shared with the other platforms plus a small
-component kit. Everything lives under `Sources/AedstDesignSystem/`.
+SwiftUI design system for `apps/apple`: tokens shared with the other platforms plus the full
+component kit of `ui-kit.yaml`. Everything lives under `Sources/AedstDesignSystem/`.
 
 ## Tokens
 
@@ -20,35 +20,40 @@ Design tokens are **generated** from `packages/design-tokens/tokens` (single sou
 
 ## Components (`Components/`)
 
-The kit is deliberately small: what the app and the feature packages use, plus the few
-primitives any feature of the template needs. The other shadcn/ui-parity components
-(accordion, aspect ratio, breadcrumb, carousel, chart, collapsible, combobox, command palette,
-context menu, date picker, dialog, drawer, dropdown menu, hover card, menu bar, navigation
-container, OTP input, pagination, popover, scroll area, select, slider, tab bar, table, tabs,
-text editor, toggle button, toggle group, tooltip) were removed because nothing used them.
-Bring one back from git history together with its first real use, not ahead of it.
+The kit carries the full manifest set (`ui-kit.yaml`: the 59 shadcn/ui names plus `trace` and `code-block`),
+one component per file, named `Aedst<ShadcnName>.swift`. Variants and sizes are the manifest's, as lowerCamelCase
+enum cases (`.default`, `.iconSm`). Every `.swift` file in `Components/` must be a kit component (the manifest
+checker counts them); shared helpers live one level up (`AedstHitTarget.swift`).
 
-**Layout** — `AedstCard`, `AedstSeparator`
-
-**Actions** — `AedstButton` (variants `primary/secondary/destructive/outline/ghost/link`, sizes `sm/md/lg/icon`, loading + disabled states), `AedstIconButton`
-
-**Forms** — `AedstTextField` (placeholder, helper/error text, disabled), `AedstLabel`, `AedstCheckbox`, `AedstSwitch`, `AedstRadioGroup`
-
-**Feedback** — `AedstAlert`, `AedstAlertDialogModifier` (`.aedstAlertDialog()`), `AedstToastModifier` (`.aedstToast()`), `AedstProgressView`, `AedstSkeleton`, `AedstBadge`, `AedstErrorPresenter` (`.aedstErrorPresenter()`)
-
-**Overlay** — `AedstSheetModifier` / `AedstItemSheetModifier` (`.aedstSheet(isPresented:)` and `.aedstSheet(item:)`, native `.sheet()` wrappers; Features must use these, never a raw `.sheet`)
-
-**Data display** — `AedstAvatar` now lives in `Core/AedstMedia` (remote images go through Nuke only there)
+| Group | Components |
+|---|---|
+| Layout | `AedstCard`, `AedstSeparator`, `AedstAspectRatio`, `AedstScrollArea`, `AedstResizable`, `AedstSidebar`, `AedstCarousel` |
+| Actions | `AedstButton` (variants `default/outline/secondary/ghost/destructive/link`, sizes `default/xs/sm/lg/icon/iconXs/iconSm/iconLg`), `AedstButtonGroup`, `AedstToggle`, `AedstToggleGroup`, `AedstIconButton` (extension) |
+| Forms | `AedstTextField` (`input`), `AedstTextarea`, `AedstLabel`, `AedstField`, `AedstForm`, `AedstInputGroup`, `AedstInputOTP`, `AedstCheckbox`, `AedstSwitch`, `AedstRadioGroup`, `AedstSlider`, `AedstSelect`, `AedstNativeSelect`, `AedstCombobox`, `AedstCalendar`, `AedstDatePicker` |
+| Feedback | `AedstAlert` (variants `default/destructive`), `.aedstAlertDialog()`, `.aedstToast()` (`sonner`; `AedstToastSeverity`), `AedstProgressView`, `AedstSpinner`, `AedstSkeleton`, `AedstBadge` (9 variants), `AedstEmpty`, `.aedstErrorPresenter()` (extension) |
+| Overlay | `.aedstSheet()`, `.aedstDialog()`, `.aedstDrawer()`, `.aedstPopover()`, `AedstHoverCard`, `.aedstTooltip()`, `AedstDropdownMenu`, `.aedstContextMenu()`, `AedstMenubar`, `AedstNavigationMenu`, `AedstCommand` |
+| Navigation | `AedstTabs`, `AedstBreadcrumb`, `AedstPagination`, `AedstAccordion`, `AedstCollapsible` |
+| Data display | `AedstAvatar` (image slot + monogram; the remote-image version is `AedstRemoteAvatar` in `Core/AedstMedia`), `AedstItem`, `AedstTable`, `AedstDataTable`, `AedstChart` (Swift Charts), `AedstText` (`typography`; `AedstTypography` is the font token scale), `AedstKbd`, `AedstTrace`, `AedstCodeBlock` |
 
 Every component has a `#Preview` and accessibility labels/hints/values on interactive
 elements. Typography always goes through `AedstTypography`/`.font()` on top of
 Dynamic-Type-aware `Font.system(...)` text styles, with no hardcoded point sizes. Colors come
-only from `AedstColor`.
+only from `AedstColor`. Controls whose drawn shape is under 44 pt use `aedstHitTarget()` on touch platforms.
+
+Platforms: the components added on 2026-11-21 are compiled for iOS, macOS and visionOS only
+(`#if os(iOS) || os(macOS) || os(visionOS)` around the file); tvOS and watchOS are scaffolded package platforms
+without app targets. Differences between iOS and macOS (hover, menus, sheets against popovers, the sidebar) are
+the smallest `#if os(...)` inside the component: the package stays one shared library for both app targets.
 
 ## Deliberate adaptations (web concept → SwiftUI/HIG equivalent)
 
-- **Sheet** → native `.sheet()` wrapper (`AedstSheetModifier`), not a custom overlay.
+- **Sheet** / **Dialog** / **Drawer** → native `.sheet()` wrappers, not custom overlays.
 - **AlertDialog** → wraps the native `.alert()` (`AedstAlertDialogModifier`).
+- **DropdownMenu**, **ContextMenu**, **Menubar**, **Select**, **NativeSelect** → native `Menu`, `contextMenu`, `Picker`. `AedstMenubar` is an in-window row of menus; the real macOS menu bar stays `commands` in the app target.
+- **Tooltip** / **HoverCard** → `.help` and `onHover` on macOS, a long press on touch platforms.
+- **Calendar**, **DatePicker**, **ScrollArea**, **AspectRatio**, **Slider**, **Spinner** → thin wrappers over the system control so the kit name exists on every platform.
+- **Table** → `Grid`-based primitives (SwiftUI `Table` collapses to one column on iPhone).
+- **Form** → a tokenized stack with `.onSubmit`; validation stays in the view model (React Hook Form has no counterpart).
 - **Checkbox** / **RadioGroup** → hand-built (`RoundedRectangle`+checkmark / `Circle`+dot), since neither has a native SwiftUI control on iOS.
 - **Skeleton** → hand-built shimmer (`LinearGradient` sweep over a muted block), since SwiftUI has no native placeholder-loading view.
 - **Toast** → hand-built overlay + auto-dismiss `ViewModifier`, since SwiftUI has no native toast/snackbar.
@@ -56,6 +61,7 @@ only from `AedstColor`.
 ## Tests
 
 - `AedstStringsTests`, `AedstSpacingTests`: catalog and token sanity.
+- `Aedst<Component>Tests`: pure logic of components (pagination window, OTP sanitising, trace diffing, filtering, ...).
 - `Snapshots/`: pixel snapshots on iPhone, iPad, macOS, light/dark, large Dynamic Type and RTL.
   **No reference images exist yet**, see `Tests/AedstDesignSystemTests/Snapshots/README.md`.
 

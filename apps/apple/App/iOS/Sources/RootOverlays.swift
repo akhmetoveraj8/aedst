@@ -1,3 +1,4 @@
+import AedstAppCore
 import AedstDesignSystem
 import SwiftUI
 
@@ -6,7 +7,7 @@ struct OfflineBanner: View {
     var body: some View {
         HStack(spacing: AedstSpacing.xs) {
             Image(systemName: "wifi.slash")
-            Text(String(localized: "appOffline", bundle: .module))
+            Text(String(localized: "appOffline", bundle: AppStrings.bundle))
                 .aedstFont(AedstTypography.caption)
             Spacer(minLength: 0)
         }
@@ -27,11 +28,11 @@ struct LockView: View {
             Image(systemName: "lock.fill")
                 .font(.largeTitle)
                 .accessibilityHidden(true)
-            Text(String(localized: "appLocked", bundle: .module))
+            Text(String(localized: "appLocked", bundle: AppStrings.bundle))
                 .aedstFont(AedstTypography.title)
                 .accessibilityAddTraits(.isHeader)
             if model.isLocked {
-                AedstButton(String(localized: "appUnlock", bundle: .module)) {
+                AedstButton(String(localized: "appUnlock", bundle: AppStrings.bundle)) {
                     Task { await model.unlock() }
                 }
                 .frame(maxWidth: 320)
@@ -56,7 +57,7 @@ struct SelectSectionPlaceholder: View {
                 .font(.largeTitle)
                 .foregroundStyle(AedstColor.mutedForeground)
                 .accessibilityHidden(true)
-            Text(String(localized: "appSelectSection", bundle: .module))
+            Text(String(localized: "appSelectSection", bundle: AppStrings.bundle))
                 .aedstFont(AedstTypography.body)
                 .foregroundStyle(AedstColor.mutedForeground)
         }

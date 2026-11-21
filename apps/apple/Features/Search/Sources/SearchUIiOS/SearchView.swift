@@ -1,8 +1,11 @@
+#if os(iOS)
 import AedstDesignSystem
+import SearchDomain
+import SearchPresentation
 import SwiftUI
 
 /// Global search (`.searchable`). Selecting a hit calls `onOpenLink`
-/// with its relative in-app route; `App/Shared` resolves it to a route value.
+/// with its relative in-app route; the app target resolves it to a route value.
 public struct SearchView: View {
     @State private var viewModel: SearchViewModel
     private let onOpenLink: (String) -> Void
@@ -18,10 +21,10 @@ public struct SearchView: View {
 
         List {
             if viewModel.hasResults, viewModel.hits.isEmpty {
-                Text(String(localized: "searchNoResults", bundle: .module))
+                Text(String(localized: "searchNoResults", bundle: SearchStrings.bundle))
                     .foregroundStyle(AedstColor.mutedForeground)
             } else if viewModel.query.isEmpty {
-                Text(String(localized: "searchHint", bundle: .module))
+                Text(String(localized: "searchHint", bundle: SearchStrings.bundle))
                     .foregroundStyle(AedstColor.mutedForeground)
             }
             ForEach(viewModel.hits) { hit in
@@ -39,9 +42,9 @@ public struct SearchView: View {
                     .accessibilityLabel(Text(AedstCommonStrings.loading))
             }
         }
-        .searchable(text: $viewModel.query, prompt: Text(String(localized: "searchPrompt", bundle: .module)))
+        .searchable(text: $viewModel.query, prompt: Text(String(localized: "searchPrompt", bundle: SearchStrings.bundle)))
         .disableAutocorrection(true)
-        .navigationTitle(String(localized: "searchTitle", bundle: .module))
+        .navigationTitle(String(localized: "searchTitle", bundle: SearchStrings.bundle))
         .aedstErrorPresenter($viewModel.error)
     }
 }
@@ -80,3 +83,4 @@ private struct SearchHitRow: View {
         }
     }
 }
+#endif

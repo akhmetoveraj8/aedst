@@ -1,6 +1,7 @@
 import AedstAnalytics
 import AedstCore
 import Foundation
+import NotificationsDomain
 import Observation
 
 /// The in-app inbox: paged list, unread filter, mark one/all read.

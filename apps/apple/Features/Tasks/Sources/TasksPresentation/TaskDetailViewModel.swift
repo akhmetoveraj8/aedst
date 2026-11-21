@@ -2,6 +2,7 @@ import AedstAnalytics
 import AedstCore
 import Foundation
 import Observation
+import TasksDomain
 
 /// One task: load, complete/reopen (the status state machine), delete.
 @MainActor

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import AedstAppShared
+@testable import AedstAppCore
 
 @Suite("ForegroundRefreshThrottle")
 struct ForegroundRefreshThrottleTests {

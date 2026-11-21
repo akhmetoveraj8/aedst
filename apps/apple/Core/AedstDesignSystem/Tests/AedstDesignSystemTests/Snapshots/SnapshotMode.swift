@@ -36,23 +36,27 @@ enum SnapshotMode: String {
         #endif
     }
 
-    /// `true` when at least one recorded reference for this OS family sits next to the tests
-    /// (`__Snapshots__/ComponentSnapshotTests/*.png`).
-    static func hasReferences(file: String = #filePath) -> Bool {
+    /// `true` when at least one recorded reference of `suite` for this OS family sits next to the tests
+    /// (`__Snapshots__/<suite>/*.png`; the library names the directory after the test file).
+    static func hasReferences(suite: String = "ComponentSnapshotTests", file: String = #filePath) -> Bool {
         let directory = URL(fileURLWithPath: file)
             .deletingLastPathComponent()
-            .appendingPathComponent("__Snapshots__/ComponentSnapshotTests", isDirectory: true)
+            .appendingPathComponent("__Snapshots__/\(suite)", isDirectory: true)
         let names = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
         return names.contains { name in
             name.hasSuffix(".png") && variantMarkers.contains { name.contains($0) }
         }
     }
 
-    static var shouldRun: Bool {
+    static var shouldRun: Bool { shouldRun(suite: "ComponentSnapshotTests") }
+
+    /// Per-suite switch: in `auto` a suite runs only once its own references are recorded, so adding a suite
+    /// never turns a checkout with older references red.
+    static func shouldRun(suite: String) -> Bool {
         switch current {
         case .skip: false
         case .verify, .record: true
-        case .auto: hasReferences()
+        case .auto: hasReferences(suite: suite)
         }
     }
 }

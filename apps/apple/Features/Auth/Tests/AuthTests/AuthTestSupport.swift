@@ -1,6 +1,8 @@
 import AedstCore
 import Foundation
-@testable import Auth
+@testable import AuthData
+@testable import AuthDomain
+@testable import AuthPresentation
 
 extension Session {
     static let stub = Session(

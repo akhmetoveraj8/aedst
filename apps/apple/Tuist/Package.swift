@@ -9,7 +9,8 @@ import ProjectDescription
 // targets, referenced from Project.swift
 // with `.external(name:)`. Third-party versions are declared once, in the
 // local packages' own Package.swift files (Core/*, Features/*); this manifest
-// only lists the single package the app targets consume.
+// lists the composition-root package and every feature package, because the app targets link feature products
+// directly (`<Feature>UIiOS` for App_iOS, `<Feature>UIMac` for App_macOS; see Project.swift).
 let packageSettings = PackageSettings(
     // Tuist's default for external packages is `.staticFramework`. Keep it:
     // it avoids embedding dozens of dynamic frameworks in the app bundle.
@@ -20,8 +21,15 @@ let packageSettings = PackageSettings(
 let package = Package(
     name: "AedstDependencies",
     dependencies: [
-        // Composition-root package; pulls in every Core/* and Features/* package transitively.
+        // Composition-root package (AedstAppCore); pulls in every Core/* package transitively.
         .package(path: "../App/Shared"),
+        // Feature packages: named here so their UI products are part of the graph the app targets pick from.
+        .package(path: "../Features/Auth"),
+        .package(path: "../Features/Tasks"),
+        .package(path: "../Features/Search"),
+        .package(path: "../Features/Notifications"),
+        .package(path: "../Features/Media"),
+        .package(path: "../Features/Admin"),
     ],
     swiftLanguageModes: [.v6]
 )

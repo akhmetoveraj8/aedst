@@ -10,17 +10,27 @@ let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("InferIsolatedConformances"),
 ]
 
+// One business logic, two UI builds (decisions/apple.md): `NotificationsDomain`, `NotificationsData` and `NotificationsPresentation` are shared;
+// `NotificationsUIiOS` is linked by App_iOS only and `NotificationsUIMac` by App_macOS only. A UI target's dependencies carry a platform
+// condition and every file in it is wrapped in one `#if os(...)` guard, so the other platform compiles it to nothing
+// (`swift build` on a Mac host still builds the whole package). scripts/check-feature-boundaries.sh enforces the rest.
+let iOSOnly: TargetDependencyCondition? = .when(platforms: [.iOS])
+let macOnly: TargetDependencyCondition? = .when(platforms: [.macOS])
+
 let package = Package(
     name: "Notifications",
     defaultLocalization: "en",
-    // Push (APNs) plumbing lives here too: UserNotifications is a system framework.
     // Kept iOS/macOS-only: those are the only app targets; widen deliberately.
     platforms: [
         .iOS(.v18),
         .macOS(.v15),
     ],
     products: [
-        .library(name: "Notifications", targets: ["Notifications"]),
+        .library(name: "NotificationsDomain", targets: ["NotificationsDomain"]),
+        .library(name: "NotificationsData", targets: ["NotificationsData"]),
+        .library(name: "NotificationsPresentation", targets: ["NotificationsPresentation"]),
+        .library(name: "NotificationsUIiOS", targets: ["NotificationsUIiOS"]),
+        .library(name: "NotificationsUIMac", targets: ["NotificationsUIMac"]),
     ],
     dependencies: [
         .package(path: "../../Core/AedstCore"),
@@ -31,21 +41,53 @@ let package = Package(
         .package(path: "../../Core/AedstTesting"),
     ],
     targets: [
+        // Models, repository protocols, use cases. No UI, network or persistence import.
         .target(
-            name: "Notifications",
-            dependencies: [
-                "AedstCore",
-                "AedstNetwork",
-                "AedstDesignSystem",
-                "AedstNavigation",
-                "AedstAnalytics",
-            ],
+            name: "NotificationsDomain",
+            dependencies: ["AedstCore"],
+            swiftSettings: swiftSettings
+        ),
+        // Repository implementations.
+        .target(
+            name: "NotificationsData",
+            dependencies: ["NotificationsDomain", "AedstCore", "AedstNetwork"],
+            swiftSettings: swiftSettings
+        ),
+        // Platform-neutral `@Observable` view models and the String Catalog both UI builds read.
+        .target(
+            name: "NotificationsPresentation",
+            dependencies: ["NotificationsDomain", "AedstCore", "AedstAnalytics"],
             resources: [.process("Resources")],
             swiftSettings: swiftSettings
         ),
+        // SwiftUI views for iPhone and iPad.
+        .target(
+            name: "NotificationsUIiOS",
+            dependencies: [
+                .target(name: "NotificationsDomain", condition: iOSOnly),
+                .target(name: "NotificationsPresentation", condition: iOSOnly),
+                .product(name: "AedstCore", package: "AedstCore", condition: iOSOnly),
+                .product(name: "AedstDesignSystem", package: "AedstDesignSystem", condition: iOSOnly),
+                .product(name: "AedstNavigation", package: "AedstNavigation", condition: iOSOnly),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        // SwiftUI views for the Mac.
+        .target(
+            name: "NotificationsUIMac",
+            dependencies: [
+                .target(name: "NotificationsDomain", condition: macOnly),
+                .target(name: "NotificationsPresentation", condition: macOnly),
+                .product(name: "AedstCore", package: "AedstCore", condition: macOnly),
+                .product(name: "AedstDesignSystem", package: "AedstDesignSystem", condition: macOnly),
+                .product(name: "AedstNavigation", package: "AedstNavigation", condition: macOnly),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        // Logic tests (domain, data, view models); they run on the Mac host and import no UI target.
         .testTarget(
             name: "NotificationsTests",
-            dependencies: ["Notifications", "AedstCore", "AedstAnalytics", "AedstTesting"],
+            dependencies: ["NotificationsDomain", "NotificationsData", "NotificationsPresentation", "AedstCore", "AedstAnalytics", "AedstTesting"],
             swiftSettings: swiftSettings
         ),
     ],

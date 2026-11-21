@@ -1,9 +1,12 @@
+#if os(iOS)
+import AdminDomain
+import AdminPresentation
 import AedstDesignSystem
 import AedstNavigation
 import SwiftUI
 
 /// Operator dashboard. Only reachable when the access token carries the
-/// `admin` role (checked in `App/Shared`); the server enforces it regardless.
+/// `admin` role (checked by the app target); the server enforces it regardless.
 public struct AdminDashboardView: View {
     @State private var viewModel: AdminDashboardViewModel
     private let onNavigate: (AdminRoute) -> Void
@@ -17,7 +20,7 @@ public struct AdminDashboardView: View {
     public var body: some View {
         @Bindable var viewModel = viewModel
         List {
-            Section(String(localized: "adminOverview", bundle: .module)) {
+            Section(String(localized: "adminOverview", bundle: AdminStrings.bundle)) {
                 if let overview = viewModel.overview {
                     stat("adminTasksTotal", "\(overview.tasksTotal)")
                     stat("adminTasksDone", "\(overview.tasksDone)")
@@ -37,7 +40,7 @@ public struct AdminDashboardView: View {
             }
         }
         .refreshable { await viewModel.load() }
-        .navigationTitle(String(localized: "adminTitle", bundle: .module))
+        .navigationTitle(String(localized: "adminTitle", bundle: AdminStrings.bundle))
         .aedstErrorPresenter($viewModel.error)
         .task { await viewModel.load() }
     }
@@ -49,7 +52,7 @@ public struct AdminDashboardView: View {
 
     private func stat(_ key: String.LocalizationValue, _ value: String) -> some View {
         HStack {
-            Text(String(localized: key, bundle: .module))
+            Text(String(localized: key, bundle: AdminStrings.bundle))
             Spacer()
             Text(value).foregroundStyle(AedstColor.mutedForeground).monospacedDigit()
         }
@@ -60,7 +63,7 @@ public struct AdminDashboardView: View {
         Button {
             onNavigate(route)
         } label: {
-            Label(String(localized: key, bundle: .module), systemImage: icon)
+            Label(String(localized: key, bundle: AdminStrings.bundle), systemImage: icon)
         }
     }
 }
@@ -85,7 +88,7 @@ public struct AdminTasksView: View {
                 Button(role: .destructive) {
                     viewModel.pendingDeletion = task
                 } label: {
-                    Label(String(localized: "adminDeleteTask", bundle: .module), systemImage: "trash")
+                    Label(String(localized: "adminDeleteTask", bundle: AdminStrings.bundle), systemImage: "trash")
                         .labelStyle(.iconOnly)
                 }
                 .buttonStyle(.borderless)
@@ -94,7 +97,7 @@ public struct AdminTasksView: View {
         }
         .searchable(text: $viewModel.query)
         .onSubmit(of: .search) { Task { await viewModel.search() } }
-        .navigationTitle(String(localized: "adminTasks", bundle: .module))
+        .navigationTitle(String(localized: "adminTasks", bundle: AdminStrings.bundle))
         .aedstSheet(item: $viewModel.pendingDeletion) { task in
             DeletionReasonSheet(viewModel: viewModel, title: task.title)
         }
@@ -111,18 +114,18 @@ private struct DeletionReasonSheet: View {
     var body: some View {
         @Bindable var viewModel = viewModel
         VStack(alignment: .leading, spacing: AedstSpacing.lg) {
-            Text(String(localized: "adminDeleteTaskTitle \(title)", bundle: .module))
+            Text(String(localized: "adminDeleteTaskTitle \(title)", bundle: AdminStrings.bundle))
                 .aedstFont(AedstTypography.title)
                 .aedstSensitive()
-            AedstTextField(String(localized: "adminDeleteReason", bundle: .module), text: $viewModel.deletionReason)
+            AedstTextField(String(localized: "adminDeleteReason", bundle: AdminStrings.bundle), text: $viewModel.deletionReason)
                 .focused($reasonFocused)
                 .aedstSensitive()
             HStack {
-                AedstButton(String(localized: "adminCancel", bundle: .module), variant: .ghost) {
+                AedstButton(String(localized: "adminCancel", bundle: AdminStrings.bundle), variant: .ghost) {
                     viewModel.pendingDeletion = nil
                 }
                 AedstButton(
-                    String(localized: "adminDeleteTask", bundle: .module),
+                    String(localized: "adminDeleteTask", bundle: AdminStrings.bundle),
                     variant: .destructive,
                     isDisabled: !viewModel.isReasonValid
                 ) {
@@ -167,7 +170,7 @@ public struct AdminAuditLogView: View {
             .task { await viewModel.loadMoreIfNeeded(after: entry) }
         }
         .refreshable { await viewModel.refresh() }
-        .navigationTitle(String(localized: "adminAuditLog", bundle: .module))
+        .navigationTitle(String(localized: "adminAuditLog", bundle: AdminStrings.bundle))
         .aedstErrorPresenter($viewModel.error)
         .task { if !viewModel.list.hasLoaded { await viewModel.refresh() } }
     }
@@ -188,16 +191,16 @@ public struct AdminBroadcastView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: AedstSpacing.lg) {
                 VStack(alignment: .leading, spacing: AedstSpacing.lg) {
-                    AedstTextField(String(localized: "adminBroadcastUser", bundle: .module), text: $viewModel.draft.userID,
-                                   helperText: String(localized: "adminBroadcastUserHelp", bundle: .module))
-                    AedstTextField(String(localized: "adminBroadcastTitleField", bundle: .module), text: $viewModel.draft.title)
-                    AedstTextField(String(localized: "adminBroadcastBody", bundle: .module), text: $viewModel.draft.body)
-                    AedstTextField(String(localized: "adminBroadcastLink", bundle: .module), text: $viewModel.draft.link,
+                    AedstTextField(String(localized: "adminBroadcastUser", bundle: AdminStrings.bundle), text: $viewModel.draft.userID,
+                                   helperText: String(localized: "adminBroadcastUserHelp", bundle: AdminStrings.bundle))
+                    AedstTextField(String(localized: "adminBroadcastTitleField", bundle: AdminStrings.bundle), text: $viewModel.draft.title)
+                    AedstTextField(String(localized: "adminBroadcastBody", bundle: AdminStrings.bundle), text: $viewModel.draft.body)
+                    AedstTextField(String(localized: "adminBroadcastLink", bundle: AdminStrings.bundle), text: $viewModel.draft.link,
                                    placeholder: "/tasks")
                 }
                 .aedstSensitive()
                 AedstButton(
-                    String(localized: "adminBroadcastSend", bundle: .module),
+                    String(localized: "adminBroadcastSend", bundle: AdminStrings.bundle),
                     systemImage: "paperplane",
                     isLoading: viewModel.isSending,
                     isDisabled: !viewModel.draft.isValid
@@ -206,7 +209,7 @@ public struct AdminBroadcastView: View {
                         await viewModel.send()
                         if let recipients = viewModel.lastRecipients, viewModel.error == nil {
                             toast = AedstToastData(
-                                title: String(localized: "adminBroadcastSent \(recipients)", bundle: .module),
+                                title: String(localized: "adminBroadcastSent \(recipients)", bundle: AdminStrings.bundle),
                                 severity: .success
                             )
                         }
@@ -216,8 +219,9 @@ public struct AdminBroadcastView: View {
             .padding(AedstSpacing.lg)
             .frame(maxWidth: 640, alignment: .leading)
         }
-        .navigationTitle(String(localized: "adminBroadcast", bundle: .module))
+        .navigationTitle(String(localized: "adminBroadcast", bundle: AdminStrings.bundle))
         .aedstToast($toast)
         .aedstErrorPresenter($viewModel.error)
     }
 }
+#endif

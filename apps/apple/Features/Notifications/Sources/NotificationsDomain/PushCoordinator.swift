@@ -14,7 +14,7 @@ import UserNotifications
 ///    the RPC is authenticated) so the server stops pushing to this device.
 ///
 /// Notification taps are resolved by the app delegate (it reads the `link`
-/// key of the payload) and routed by `App/Shared`.
+/// key of the payload) and routed by the app target's `RootView`.
 @MainActor
 public final class PushCoordinator {
     /// Static facts about this build.

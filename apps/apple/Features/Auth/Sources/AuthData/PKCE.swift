@@ -1,3 +1,4 @@
+import AuthDomain
 import CryptoKit
 import Foundation
 import Security

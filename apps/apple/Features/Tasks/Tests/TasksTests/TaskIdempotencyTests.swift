@@ -1,7 +1,9 @@
 import AedstCore
 import Foundation
 import Testing
-@testable import Tasks
+@testable import TasksData
+@testable import TasksDomain
+@testable import TasksPresentation
 
 /// Offline repository that remembers the key of each create attempt.
 actor KeyRecordingOfflineRepository: TaskRepository {

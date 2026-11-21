@@ -1,5 +1,6 @@
+import AedstAppCore
 import AedstDesignSystem
-import Notifications
+import NotificationsPresentation
 import SwiftUI
 
 /// One entry of the signed-in home list.
@@ -7,8 +8,9 @@ enum HomeEntry {
     case tasks, search, notifications, media, admin
 }
 
-/// Signed-in home: one entry per feature, plus account settings. The root screen of the compact layout and the
-/// sidebar of the split layout (iPad regular width, macOS); `select` decides whether an entry pushes or replaces.
+/// Signed-in home of the iOS build: one entry per feature, plus account settings. The root screen of the compact
+/// layout and the sidebar of the split layout (iPad regular width); `select` decides whether an entry pushes or
+/// replaces. The Mac has `SidebarView` and a Settings window instead.
 struct HomeView: View {
     let model: RootViewModel
     let badge: UnreadBadgeModel
@@ -31,12 +33,12 @@ struct HomeView: View {
                         select(.notifications)
                     } label: {
                         HStack {
-                            Label(String(localized: "appHomeNotifications", bundle: .module), systemImage: "bell")
+                            Label(String(localized: "appHomeNotifications", bundle: AppStrings.bundle), systemImage: "bell")
                             Spacer()
                             if badge.unread > 0 {
                                 AedstBadge("\(badge.unread)")
                                     .accessibilityLabel(
-                                        Text(String(localized: "appUnreadCount \(badge.unread)", bundle: .module))
+                                        Text(String(localized: "appUnreadCount \(badge.unread)", bundle: AppStrings.bundle))
                                     )
                             }
                         }
@@ -52,24 +54,24 @@ struct HomeView: View {
                 }
             }
 
-            Section(String(localized: "appSettings", bundle: .module)) {
-                Button(String(localized: "appEnableNotifications", bundle: .module)) {
+            Section(String(localized: "appSettings", bundle: AppStrings.bundle)) {
+                Button(String(localized: "appEnableNotifications", bundle: AppStrings.bundle)) {
                     Task { await model.enablePushNotifications() }
                 }
                 Toggle(
-                    String(localized: "appShareAnalytics", bundle: .module),
+                    String(localized: "appShareAnalytics", bundle: AppStrings.bundle),
                     isOn: Binding(get: { analyticsEnabled }, set: { model.setAnalytics(enabled: $0) })
                 )
                 if model.canOfferAppLock {
                     Toggle(
-                        String(localized: "appRequireBiometrics", bundle: .module),
+                        String(localized: "appRequireBiometrics", bundle: AppStrings.bundle),
                         isOn: Binding(
                             get: { isAppLockEnabled },
                             set: { enabled in Task { await model.setAppLock(enabled: enabled) } }
                         )
                     )
                 }
-                Button(String(localized: "appSignOut", bundle: .module), role: .destructive) {
+                Button(String(localized: "appSignOut", bundle: AppStrings.bundle), role: .destructive) {
                     Task { await model.signOut() }
                 }
             }
@@ -84,7 +86,7 @@ struct HomeView: View {
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            Label(String(localized: key, bundle: .module), systemImage: icon)
+            Label(String(localized: key, bundle: AppStrings.bundle), systemImage: icon)
         }
         .keyboardShortcut(shortcut, modifiers: .command)
     }

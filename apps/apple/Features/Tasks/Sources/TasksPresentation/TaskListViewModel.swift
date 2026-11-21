@@ -2,6 +2,7 @@ import AedstAnalytics
 import AedstCore
 import Foundation
 import Observation
+import TasksDomain
 
 /// The signed-in user's tasks: first page on appear, keyset pagination on
 /// scroll, pull-to-refresh, and a minimal "new task" form.

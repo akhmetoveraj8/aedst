@@ -1,7 +1,9 @@
 import AedstCore
 import Foundation
 import Testing
-@testable import Tasks
+@testable import TasksData
+@testable import TasksDomain
+@testable import TasksPresentation
 
 /// Records what a feature enqueues; ignores a repeated id like the real outbox.
 actor RecordingOutbox: OutboxEnqueuing {

@@ -1,10 +1,12 @@
-import Admin
+import AdminData
+import AdminDomain
+import AdminPresentation
 import AedstAnalytics
 import AedstCore
 import AedstTesting
 import Foundation
 import Testing
-@testable import AedstAppShared
+@testable import AedstAppCore
 
 @Suite("Composition root: session-scoped wiring")
 @MainActor

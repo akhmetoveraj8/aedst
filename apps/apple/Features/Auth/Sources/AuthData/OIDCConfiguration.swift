@@ -1,3 +1,4 @@
+import AuthDomain
 import Foundation
 
 /// Identity-provider settings for browser sign-in (Authorization Code + PKCE),

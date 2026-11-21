@@ -19,8 +19,9 @@ extension AedstError {
     /// The presentation the shared presenter uses for this error.
     public var presentation: AedstErrorPresentation {
         switch self {
-        case .unavailable, .rateLimited, .conflict: .toast
-        case .unauthenticated, .forbidden, .notFound, .invalidInput, .decoding, .storage, .unsupported, .upgradeRequired, .cancelled, .unknown: .alert
+        case .unavailable, .offline, .timeout, .rateLimited, .conflict: .toast
+        case .cancelled: .silent
+        case .unauthenticated, .forbidden, .notFound, .invalidInput, .decoding, .storage, .unsupported, .upgradeRequired, .unknown: .alert
         }
     }
 }

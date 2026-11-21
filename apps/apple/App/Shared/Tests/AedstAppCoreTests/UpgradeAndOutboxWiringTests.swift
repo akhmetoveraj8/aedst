@@ -3,9 +3,11 @@ import AedstNetwork
 import AedstPersistence
 import AedstTesting
 import Foundation
-import Tasks
+import TasksData
+import TasksDomain
+import TasksPresentation
 import Testing
-@testable import AedstAppShared
+@testable import AedstAppCore
 
 @Suite("Forced-upgrade routing")
 @MainActor

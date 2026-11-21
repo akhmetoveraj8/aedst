@@ -3,7 +3,7 @@
 #   1. Keychain item APIs (SecItem*, kSecClass/kSecValue*/kSecReturn*/kSecMatch*, kSecAttr* other than the SecKey
 #      key-material attributes kSecAttrKey*) appear only in Core/AedstPersistence/.../Keychain.swift;
 #   2. AuthenticationServices / ASWebAuthenticationSession / WebKit / WKWebView / SFSafariViewController appear only in
-#      Features/Auth/.../Data/WebAuthenticator.swift (the one OIDC browser seam);
+#      Features/Auth/Sources/AuthData/WebAuthenticator.swift (the one OIDC browser seam);
 #   3. kSecAttrSynchronizable may never be true / Any in app code (no iCloud Keychain sync of tokens).
 # Test sources (Tests/) and Generated/ are exempt (the Keychain integration test queries the real store).
 # Comment-only lines never count. Usage:
@@ -41,7 +41,7 @@ run_checks() {
     '^Core/AedstPersistence/Sources/AedstPersistence/Keychain\.swift$' '^kSecAttrKey' || status=1
   scan_rule web-auth-only-in-web-authenticator \
     '^[[:space:]]*(@_exported )?import (AuthenticationServices|WebKit|SafariServices)\b|\bWKWebView\b|\bSFSafariViewController\b|\bASWebAuthenticationSession\b' \
-    '^Features/Auth/Sources/Auth/Data/WebAuthenticator\.swift$' '' || status=1
+    '^Features/Auth/Sources/AuthData/WebAuthenticator\.swift$' '' || status=1
   scan_rule no-icloud-keychain-sync \
     'kSecAttrSynchronizable[A-Za-z ]*:[[:space:]]*(true|kCFBooleanTrue|kSecAttrSynchronizableAny)' '' '' || status=1
   return "$status"

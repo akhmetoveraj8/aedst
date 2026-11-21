@@ -1,5 +1,5 @@
 import Testing
-@testable import AedstAppShared
+@testable import AedstAppCore
 
 @Suite("AppLink")
 struct AppLinkTests {

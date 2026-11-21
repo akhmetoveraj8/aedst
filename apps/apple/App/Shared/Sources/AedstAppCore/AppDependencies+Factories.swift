@@ -1,12 +1,24 @@
-import Admin
+import AdminData
+import AdminDomain
+import AdminPresentation
 import AedstCore
 import AedstMedia
-import Auth
+import AuthData
+import AuthDomain
+import AuthPresentation
 import Foundation
-import Media
-import Notifications
-import Search
-import Tasks
+import MediaData
+import MediaDomain
+import MediaPresentation
+import NotificationsData
+import NotificationsDomain
+import NotificationsPresentation
+import SearchData
+import SearchDomain
+import SearchPresentation
+import TasksData
+import TasksDomain
+import TasksPresentation
 
 /// One fresh view model per screen, built from the composition root's long-lived pieces.
 extension AppDependencies {

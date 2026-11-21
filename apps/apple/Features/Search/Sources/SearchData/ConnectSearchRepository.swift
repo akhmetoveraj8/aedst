@@ -1,6 +1,7 @@
 import AedstCore
 import AedstNetwork
 import Foundation
+import SearchDomain
 
 /// `SearchRepository` over the generated `SearchService` client (the only file
 /// naming `Aedst_Search_V1_*` types).
