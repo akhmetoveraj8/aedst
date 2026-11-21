@@ -1,6 +1,6 @@
 //// run: biome
 //// expect: Do not import @hookform/resolvers
-//// file: src/modules/tasks/ui/BadResolver.tsx
+//// file: src/modules/tasks/ui/bad-resolver.tsx
 import { zodResolver } from "@hookform/resolvers/zod";
 
 export const resolver = zodResolver;

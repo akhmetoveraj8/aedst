@@ -127,7 +127,7 @@ export function checkRepo({ root, files = listFiles(root), allowText = "" }) {
           let found;
           if (t.startsWith("/")) {
             const base = t.slice(1).replace(/\/$/, "");
-            found = [base, `docs/content/${base}`, `docs/content/${base}.md`, `docs/content/${base}.mdx`, `docs/content/${base}/index.md`, `docs/content/${base}/index.mdx`].some(exists);
+            found = [base, `docs/content/${base}`, `docs/content/${base}.md`, `docs/content/${base}.mdx`, `docs/content/${base}/index.md`, `docs/content/${base}/index.mdx`, `docs/public/${base}`].some(exists);
           } else {
             found = exists(posix.normalize(posix.join(posix.dirname(f), t)));
           }

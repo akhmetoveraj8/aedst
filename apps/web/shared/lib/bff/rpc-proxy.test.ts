@@ -149,13 +149,15 @@ describe("proxyRpc", () => {
 describe("applySessionCookieAction", () => {
   it("writes, clears or leaves the session cookies", () => {
     const set = vi.fn<CookieWriter["set"]>();
-    applySessionCookieAction({ set }, { kind: "keep" });
+    // The request cookies: the browser holds no chunked value.
+    const noChunks = () => undefined;
+    applySessionCookieAction({ set }, { kind: "keep" }, noChunks);
     expect(set).not.toHaveBeenCalled();
-    applySessionCookieAction({ set }, { kind: "clear-access" });
+    applySessionCookieAction({ set }, { kind: "clear-access" }, noChunks);
     expect(set).toHaveBeenCalledTimes(1);
-    applySessionCookieAction({ set }, { kind: "write", tokens });
+    applySessionCookieAction({ set }, { kind: "write", tokens }, noChunks);
     expect(set).toHaveBeenCalledTimes(3);
-    applySessionCookieAction({ set }, { kind: "clear" });
+    applySessionCookieAction({ set }, { kind: "clear" }, noChunks);
     expect(set).toHaveBeenCalledTimes(6);
   });
 });

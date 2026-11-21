@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { getCookie } from "hono/cookie";
 
 import {
   ACCESS_COOKIE,
@@ -7,7 +6,7 @@ import {
 } from "@/shared/lib/auth/session-cookies";
 import { applySessionCookieAction, proxyRpc } from "@/shared/lib/bff/rpc-proxy";
 import { errorFields } from "../logger";
-import { cookieJar } from "../session";
+import { cookieJar, readCookie, requestCookies } from "../session";
 import type { AppBindings, AppDeps } from "../types";
 
 /**
@@ -48,11 +47,11 @@ export function rpcRoutes({ env, auth, logger, fetch: doFetch }: AppDeps) {
       {
         request: c.req.raw,
         procedure: c.req.path.slice(PREFIX.length),
-        accessToken: getCookie(c, ACCESS_COOKIE),
-        refreshToken: getCookie(c, REFRESH_COOKIE),
+        accessToken: readCookie(c, ACCESS_COOKIE),
+        refreshToken: readCookie(c, REFRESH_COOKIE),
       },
     );
-    applySessionCookieAction(cookieJar(c), cookies);
+    applySessionCookieAction(cookieJar(c), cookies, requestCookies(c));
     return c.newResponse(response.body, {
       status: response.status as 200,
       headers: response.headers,

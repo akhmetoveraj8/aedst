@@ -8,6 +8,7 @@ import com.aedst.core.outbox.OutboxHandler
 import com.aedst.core.outbox.OutboxItem
 import com.aedst.core.outbox.OutboxRepository
 import com.aedst.feature.tasks.domain.NewTask
+import com.aedst.feature.tasks.domain.TaskId
 import com.aedst.feature.tasks.domain.TaskWriteQueue
 import com.aedst.tasks.v1.CompleteTaskRequest
 import com.aedst.tasks.v1.CreateTaskRequest
@@ -42,8 +43,8 @@ internal class OutboxTaskWriteQueue @Inject constructor(private val outbox: Outb
         outbox.enqueue(TaskOutboxTypes.CREATE, task.toRequest().toOutboxPayload(), operationId)
     }
 
-    override suspend fun queueComplete(taskId: String, operationId: String) {
-        val request = completeTaskRequest { id = taskId }
+    override suspend fun queueComplete(taskId: TaskId, operationId: String) {
+        val request = completeTaskRequest { id = taskId.value }
         outbox.enqueue(TaskOutboxTypes.COMPLETE, request.toOutboxPayload(), operationId)
     }
 }

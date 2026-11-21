@@ -69,7 +69,7 @@ func NewDatabase(t *testing.T) string {
 	if server := os.Getenv(ExistingServerEnv); server != "" {
 		return createDatabase(t, ctx, server)
 	}
-	container, err := tcpostgres.Run(ctx, "postgres:18",
+	container, err := tcpostgres.Run(ctx, "postgres:19",
 		tcpostgres.WithDatabase("aedst_test"),
 		tcpostgres.WithUsername("aedst"),
 		tcpostgres.WithPassword("aedst"),

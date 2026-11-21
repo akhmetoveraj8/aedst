@@ -19,6 +19,11 @@ type Identity struct {
 	SessionID ids.ID
 	DeviceID  string
 	Roles     []string
+	// Scopes are the OAuth scopes of the access token ("scope" / "scp" claims).
+	// They say what the token may be used for; a machine caller (OIDC client
+	// credentials) is usually authorised by scope, a person by role. Enforced
+	// declaratively by the access policy (AEDST_ROLE_POLICY, "scope:<name>").
+	Scopes []string
 	// Issuer and Subject are the token's iss/sub as issued, for audit logs
 	// and for linking to an external identity.
 	Issuer  string
@@ -27,6 +32,11 @@ type Identity struct {
 
 func (i Identity) HasRole(role string) bool {
 	return slices.Contains(i.Roles, role)
+}
+
+// HasScope reports whether the token was granted scope.
+func (i Identity) HasScope(scope string) bool {
+	return slices.Contains(i.Scopes, scope)
 }
 
 type identityKey struct{}

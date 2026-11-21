@@ -105,6 +105,11 @@ jobs:
       - name: No color literals or Tailwind palette classes
         run: pnpm check:colors
 
+      # Right-to-left: no physical Tailwind utilities (ml-, left-, text-left);
+      # no Base64 images.
+      - name: Source bans (RTL utilities, Base64 images)
+        run: pnpm check:source
+
       # Negative self-test: every gate above must FAIL on its broken fixture
       # (apps/web/app/lint/fixtures), so a gate that silently stopped working is caught.
       - name: Gate self-test

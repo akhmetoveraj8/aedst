@@ -47,6 +47,12 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
+      # The interactive OpenAPI pages must match docs/public/openapi/*.yaml (regenerate with
+      # `node docs/scripts/openapi-pages.mjs`). fumadocs-openapi resolves from docs/node_modules.
+      - name: OpenAPI pages are up to date
+        working-directory: ${{ github.workspace }}
+        run: node docs/scripts/openapi-pages.mjs --check
+
   build:
     runs-on: ubuntu-latest
     needs: [typecheck]

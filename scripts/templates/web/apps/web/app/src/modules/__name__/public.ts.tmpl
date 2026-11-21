@@ -1,8 +1,15 @@
 /**
  * Public surface of the module: the only code outside `src/modules/{{name}}`
- * may import (besides `manifest.ts`). Keep it to what pages and the app
- * shell compose; everything else is internal (enforced by
- * scripts/check-feature-boundaries.sh).
+ * may import (besides `manifest.ts` and the single-export `entries/*`). Keep
+ * it to what pages and the app shell compose; everything else is internal
+ * (enforced by scripts/check-feature-boundaries.sh). Pages import the files in
+ * `entries/` instead: a Server Component importing this barrel pulls the
+ * client chunks of every re-export into its route.
+ *
+ * Layout (docs/content/architecture/modules-and-features.md): one folder per
+ * capability under `features/<feature>/{ui,lib}`; code two features share
+ * lives in the module's own `lib/` or `ui/`. A feature never imports another
+ * feature.
  */
 
-export { {{Name}}Page } from "@/modules/{{name}}/ui/{{Name}}Page";
+export { {{Name}}Page } from "@/modules/{{name}}/features/overview/ui/{{name}}-page";

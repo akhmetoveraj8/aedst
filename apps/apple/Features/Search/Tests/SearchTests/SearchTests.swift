@@ -2,7 +2,9 @@ import AedstCore
 import AedstTesting
 import Foundation
 import Testing
-@testable import Search
+@testable import SearchData
+@testable import SearchDomain
+@testable import SearchPresentation
 
 actor RecordingSearchRepository: SearchRepository {
     private(set) var queries: [String] = []

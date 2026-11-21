@@ -1,0 +1,115 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// A horizontal slider. The minimum sits at the reading start (the right in RTL); the arrow key
+// that points to the reading end increases the value. Home/End jump to the ends.
+export component AedstSlider inherits Rectangle {
+    in-out property <float> value: 0;
+    in property <float> minimum: 0;
+    in property <float> maximum: 100;
+    in property <float> step: 1;
+    in property <string> label;
+    in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
+    callback value-changed(float);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <float> span: Math.max(root.maximum - root.minimum, 0.000001);
+    private property <float> fraction: Math.max(0, Math.min(1, (root.value - root.minimum) / root.span));
+    private property <length> thumb: 16px;
+    private property <length> travel: root.width - root.thumb;
+
+    function commit(next: float) {
+        if (!root.enabled) {
+            return;
+        }
+        root.value = Math.max(root.minimum, Math.min(root.maximum, root.step > 0 ? root.minimum + Math.round((next - root.minimum) / root.step) * root.step : next));
+        root.value-changed(root.value);
+    }
+
+    function track(pointer: length) {
+        root.commit(root.minimum + root.span * (root.rtl
+            ? 1 - (pointer - root.thumb / 2) / root.travel
+            : (pointer - root.thumb / 2) / root.travel));
+    }
+
+    min-height: 20px;
+    max-height: 20px;
+    min-width: 64px;
+    horizontal-stretch: 1;
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: slider;
+    accessible-label: root.label;
+    accessible-value: "\{root.value}";
+    accessible-value-minimum: root.minimum;
+    accessible-value-maximum: root.maximum;
+    accessible-value-step: root.step;
+    accessible-enabled: root.enabled;
+    accessible-action-increment => { root.commit(root.value + root.step); }
+    accessible-action-decrement => { root.commit(root.value - root.step); }
+    accessible-action-set-value(text) => { root.commit(text.to-float()); }
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == (root.rtl ? Key.LeftArrow : Key.RightArrow) || event.text == Key.UpArrow) {
+                root.commit(root.value + root.step);
+                return accept;
+            }
+            if (event.text == (root.rtl ? Key.RightArrow : Key.LeftArrow) || event.text == Key.DownArrow) {
+                root.commit(root.value - root.step);
+                return accept;
+            }
+            if (event.text == Key.Home) {
+                root.commit(root.minimum);
+                return accept;
+            }
+            if (event.text == Key.End) {
+                root.commit(root.maximum);
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    // Track and filled range.
+    Rectangle {
+        y: (parent.height - self.height) / 2;
+        height: 4px;
+        border-radius: 2px;
+        background: AedstTokens.muted;
+        Rectangle {
+            x: root.rtl ? parent.width - self.width : 0px;
+            width: root.thumb / 2 + root.travel * root.fraction;
+            border-radius: 2px;
+            background: AedstTokens.primary;
+        }
+    }
+
+    Rectangle {
+        x: root.travel * (root.rtl ? 1 - root.fraction : root.fraction);
+        y: (parent.height - self.height) / 2;
+        width: root.thumb;
+        height: root.thumb;
+        border-radius: root.thumb / 2;
+        background: AedstTokens.background;
+        border-width: focus.has-focus ? 2px : 1px;
+        border-color: focus.has-focus ? AedstTokens.ring : AedstTokens.primary;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        pointer-event(event) => {
+            if (event.kind == PointerEventKind.down && event.button == PointerEventButton.left) {
+                focus.focus();
+                root.track(self.mouse-x);
+            }
+        }
+        moved => {
+            if (self.pressed) {
+                root.track(self.mouse-x);
+            }
+        }
+    }
+}

@@ -1,8 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { ImageViewer } from "@/modules/media/image/ImageViewer";
-import { Thumbnail } from "@/modules/media/thumbnail/Thumbnail";
+import { ImageViewer } from "@/modules/media/image/image-viewer";
+import { Thumbnail } from "@/modules/media/thumbnail/thumbnail";
 import {
   pickAvatarUrl,
   pickFeedUrl,

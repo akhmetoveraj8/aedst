@@ -1,9 +1,9 @@
 package com.aedst.feature.auth.testing
 
-import com.aedst.feature.auth.domain.model.AuthorizationCallback
-import com.aedst.feature.auth.domain.model.AuthorizationLaunch
-import com.aedst.feature.auth.domain.model.OidcTokens
-import com.aedst.feature.auth.domain.repository.OidcAuthorizer
+import com.aedst.feature.auth.domain.AuthorizationCallback
+import com.aedst.feature.auth.domain.AuthorizationLaunch
+import com.aedst.feature.auth.domain.OidcAuthorizer
+import com.aedst.feature.auth.domain.OidcTokens
 import java.util.Base64
 import java.util.concurrent.atomic.AtomicInteger
 

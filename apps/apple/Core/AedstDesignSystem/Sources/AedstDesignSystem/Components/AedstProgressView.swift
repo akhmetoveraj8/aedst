@@ -34,10 +34,12 @@ public struct AedstProgressView: View {
                         ProgressView()
                     }
                 case .circular:
-                    if let value {
-                        ProgressView(value: value, total: 1)
-                    } else {
-                        ProgressView()
+                    Group {
+                        if let value {
+                            ProgressView(value: value, total: 1)
+                        } else {
+                            ProgressView()
+                        }
                     }
                     .progressViewStyle(.circular)
                 }

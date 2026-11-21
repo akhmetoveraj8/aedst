@@ -1,0 +1,40 @@
+import { AedstToast, AedstTraceStep, AedstTraceStatus } from "../lib.slint";
+
+// State of the gallery pages. The UI tests (tests/components.rs) read it to observe what a
+// component reported: `last-event` is "<callback>:<value>" of the most recent callback.
+export global GalleryState {
+    in-out property <string> last-event;
+    in-out property <int> events;
+    in-out property <bool> switch-on: false;
+    in-out property <bool> toggle-on: false;
+    in-out property <int> group-index: -1;
+    in-out property <int> radio-index: 0;
+    in-out property <int> select-index: -1;
+    in-out property <float> slider-value: 40;
+    in-out property <string> combobox-text;
+    in-out property <int> tab-index: 0;
+    in-out property <int> page-number: 2;
+    in-out property <int> accordion-index: -1;
+    in-out property <bool> collapsible-open: false;
+    in-out property <int> carousel-index: 0;
+    in-out property <int> table-row: -1;
+    in-out property <bool> dialog-open: false;
+    in-out property <bool> alert-open: false;
+    in-out property <bool> sheet-open: false;
+    in-out property <bool> drawer-open: false;
+    in-out property <[AedstToast]> toasts: [
+        { id: "saved", title: "Changes saved", description: "Synced a moment ago", action-text: "Undo" },
+    ];
+    in-out property <[AedstTraceStep]> steps: [
+        { id: "plan", title: "Plan", status: AedstTraceStatus.success, status-text: "Succeeded", duration: "0.4 s", detail: "3 steps planned", depth: 0, open: false },
+        { id: "fetch", title: "Fetch tasks", status: AedstTraceStatus.running, status-text: "Running", depth: 1 },
+        { id: "write", title: "Write summary", status: AedstTraceStatus.pending, status-text: "Waiting", depth: 1 },
+        { id: "notify", title: "Notify", status: AedstTraceStatus.error, status-text: "Failed", duration: "2.0 s", depth: 0 },
+        { id: "archive", title: "Archive", status: AedstTraceStatus.skipped, status-text: "Skipped", depth: 0 },
+    ];
+
+    public function log(event: string) {
+        last-event = event;
+        events += 1;
+    }
+}

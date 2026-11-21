@@ -3,7 +3,9 @@ import AedstMedia
 import Foundation
 import Testing
 import UniformTypeIdentifiers
-@testable import Media
+@testable import MediaData
+@testable import MediaDomain
+@testable import MediaPresentation
 
 actor FakeMediaRepository: MediaRepository {
     private(set) var calls: [String] = []

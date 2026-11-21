@@ -64,7 +64,7 @@ ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} \
     SENTRY_RELEASE=${SENTRY_RELEASE}
 
 # A release build refuses placeholder SEO copy and a localhost site URL
-# (scripts/check-seo-placeholders.mjs, run by `prebuild`). Pass 0 only for a
+# (../shared/scripts/check-seo-placeholders.mjs, run by `prebuild`). Pass 0 only for a
 # deliberate staging image.
 ARG AEDST_REQUIRE_REAL_SEO=1
 ENV AEDST_REQUIRE_REAL_SEO=${AEDST_REQUIRE_REAL_SEO}

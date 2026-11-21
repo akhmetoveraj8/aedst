@@ -1,0 +1,964 @@
+openapi: 3.1.0
+info:
+  title: AEDST tasks API (aedst.tasks.v1)
+  description: Generated from apps/server/api/proto/aedst/tasks/v1. ConnectRPC over HTTP, one POST per RPC (GET where the RPC has no side effects). Do not edit by hand.
+  version: v1
+paths:
+  /aedst.tasks.v1.TasksOperatorService/GetAllTaskStats:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksOperatorService
+      summary: GetAllTaskStats
+      description: Counts over every owner's tasks (capped, see the fields).
+      operationId: aedst.tasks.v1.TasksOperatorService.GetAllTaskStats
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.GetAllTaskStatsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.GetAllTaskStatsResponse'
+  /aedst.tasks.v1.TasksOperatorService/ListAllTasks:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksOperatorService
+      summary: ListAllTasks
+      description: Lists tasks across owners, newest first (keyset).
+      operationId: aedst.tasks.v1.TasksOperatorService.ListAllTasks
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.ListAllTasksRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.ListAllTasksResponse'
+  /aedst.tasks.v1.TasksOperatorService/OperatorDeleteTask:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksOperatorService
+      summary: OperatorDeleteTask
+      description: |-
+        Deletes any user's task and publishes TaskDeleted in the same transaction.
+         Replaying an idempotency_key returns the first result; reusing a key for a
+         different task_id is ABORTED. An unknown task is NOT_FOUND.
+      operationId: aedst.tasks.v1.TasksOperatorService.OperatorDeleteTask
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.OperatorDeleteTaskRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.OperatorDeleteTaskResponse'
+  /aedst.tasks.v1.TasksService/CompleteTask:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksService
+      summary: CompleteTask
+      description: Moves a task to DONE and stamps completed_at; completing a DONE task changes nothing.
+      operationId: aedst.tasks.v1.TasksService.CompleteTask
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.CompleteTaskRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.CompleteTaskResponse'
+  /aedst.tasks.v1.TasksService/CreateTask:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksService
+      summary: CreateTask
+      description: Creates a task owned by the caller. Replay-safe with an Idempotency-Key header.
+      operationId: aedst.tasks.v1.TasksService.CreateTask
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.CreateTaskRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.CreateTaskResponse'
+  /aedst.tasks.v1.TasksService/DeleteTask:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksService
+      summary: DeleteTask
+      description: Deletes one of the caller's tasks and publishes TaskDeleted in the same transaction.
+      operationId: aedst.tasks.v1.TasksService.DeleteTask
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.DeleteTaskRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.DeleteTaskResponse'
+  /aedst.tasks.v1.TasksService/GetTask:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksService
+      summary: GetTask
+      description: Returns one of the caller's tasks; another user's task is NOT_FOUND.
+      operationId: aedst.tasks.v1.TasksService.GetTask
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.GetTaskRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.GetTaskResponse'
+  /aedst.tasks.v1.TasksService/GetTaskStats:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksService
+      summary: GetTaskStats
+      description: |-
+        GetTaskStats backs the dashboard (total/todo/in_progress/done/overdue) —
+         one aggregate query instead of the client computing it from a full list.
+      operationId: aedst.tasks.v1.TasksService.GetTaskStats
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.GetTaskStatsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.GetTaskStatsResponse'
+  /aedst.tasks.v1.TasksService/ListTasks:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksService
+      summary: ListTasks
+      description: Lists the caller's tasks with typed filters, a sort enum and keyset pagination.
+      operationId: aedst.tasks.v1.TasksService.ListTasks
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.ListTasksRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.ListTasksResponse'
+  /aedst.tasks.v1.TasksService/ReopenTask:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksService
+      summary: ReopenTask
+      description: Moves a task back to TODO and clears completed_at; reopening a TODO task changes nothing.
+      operationId: aedst.tasks.v1.TasksService.ReopenTask
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.ReopenTaskRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.ReopenTaskResponse'
+  /aedst.tasks.v1.TasksService/UpdateTask:
+    post:
+      tags:
+        - aedst.tasks.v1.TasksService
+      summary: UpdateTask
+      description: |-
+        Mutates title/description/priority/due_date only — never status. Status
+         is a state machine (see TaskStatus), not a plain field: it only moves
+         through CompleteTask/ReopenTask, which is also where completed_at is
+         stamped/cleared. This keeps "can DONE go back to IN_PROGRESS without an
+         explicit reopen" a single well-known no, not something every caller of
+         UpdateTask has to remember not to do by omitting status from the mask.
+      operationId: aedst.tasks.v1.TasksService.UpdateTask
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.tasks.v1.UpdateTaskRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.tasks.v1.UpdateTaskResponse'
+components:
+  schemas:
+    aedst.tasks.v1.CompleteTaskRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+      title: CompleteTaskRequest
+      additionalProperties: false
+    aedst.tasks.v1.CompleteTaskResponse:
+      type: object
+      properties:
+        task:
+          title: task
+          $ref: '#/components/schemas/aedst.tasks.v1.Task'
+      title: CompleteTaskResponse
+      additionalProperties: false
+    aedst.tasks.v1.CreateTaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          title: title
+          maxLength: 200
+          minLength: 1
+        description:
+          type: string
+          title: description
+          maxLength: 4000
+        priority:
+          not:
+            enum:
+              - TASK_PRIORITY_UNSPECIFIED
+          title: priority
+          $ref: '#/components/schemas/aedst.tasks.v1.TaskPriority'
+        dueDate:
+          title: due_date
+          description: Optional.
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: CreateTaskRequest
+      additionalProperties: false
+    aedst.tasks.v1.CreateTaskResponse:
+      type: object
+      properties:
+        task:
+          title: task
+          $ref: '#/components/schemas/aedst.tasks.v1.Task'
+      title: CreateTaskResponse
+      additionalProperties: false
+    aedst.tasks.v1.DeleteTaskRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+      title: DeleteTaskRequest
+      additionalProperties: false
+    aedst.tasks.v1.DeleteTaskResponse:
+      type: object
+      title: DeleteTaskResponse
+      additionalProperties: false
+    aedst.tasks.v1.GetAllTaskStatsRequest:
+      type: object
+      title: GetAllTaskStatsRequest
+      additionalProperties: false
+    aedst.tasks.v1.GetAllTaskStatsResponse:
+      type: object
+      properties:
+        total:
+          type: string
+          title: total
+          format: int64
+          description: Counted over at most 1,000,000 tasks (lower bounds beyond that).
+        done:
+          type: string
+          title: done
+          format: int64
+        overdue:
+          type: string
+          title: overdue
+          format: int64
+          description: status != DONE and due_date is in the past.
+      title: GetAllTaskStatsResponse
+      additionalProperties: false
+    aedst.tasks.v1.GetTaskRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+      title: GetTaskRequest
+      additionalProperties: false
+    aedst.tasks.v1.GetTaskResponse:
+      type: object
+      properties:
+        task:
+          title: task
+          $ref: '#/components/schemas/aedst.tasks.v1.Task'
+      title: GetTaskResponse
+      additionalProperties: false
+    aedst.tasks.v1.GetTaskStatsRequest:
+      type: object
+      title: GetTaskStatsRequest
+      additionalProperties: false
+    aedst.tasks.v1.GetTaskStatsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          title: total
+          format: int32
+        todo:
+          type: integer
+          title: todo
+          format: int32
+        inProgress:
+          type: integer
+          title: in_progress
+          format: int32
+        done:
+          type: integer
+          title: done
+          format: int32
+        overdue:
+          type: integer
+          title: overdue
+          format: int32
+          description: status != DONE and due_date is in the past.
+      title: GetTaskStatsResponse
+      additionalProperties: false
+    aedst.tasks.v1.ListAllTasksRequest:
+      type: object
+      properties:
+        ownerId:
+          type: string
+          title: owner_id
+          format: uuid
+          description: Empty means every owner.
+        query:
+          type: string
+          title: query
+          maxLength: 200
+          description: Case-insensitive substring of the title.
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 100
+          minimum: 0
+          format: int32
+          description: 0 selects the server default.
+        pageToken:
+          type: string
+          title: page_token
+          maxLength: 512
+          description: Opaque token from a previous response, bound to this ordering.
+      title: ListAllTasksRequest
+      additionalProperties: false
+    aedst.tasks.v1.ListAllTasksResponse:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.tasks.v1.Task'
+          title: tasks
+          description: created_by of each task is its owner.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Empty means there is no next page.
+      title: ListAllTasksResponse
+      additionalProperties: false
+    aedst.tasks.v1.ListTasksRequest:
+      type: object
+      properties:
+        statuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.tasks.v1.TaskStatus'
+          title: statuses
+          description: Empty means "any status"; same for priorities below.
+        priorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.tasks.v1.TaskPriority'
+          title: priorities
+        search:
+          type: string
+          title: search
+          maxLength: 200
+          description: |-
+            Case-insensitive substring match against title + description (LIKE
+             wildcards in the input match literally).
+        sortBy:
+          title: sort_by
+          description: Defaults to CREATED_AT if unspecified.
+          $ref: '#/components/schemas/aedst.tasks.v1.TaskSortField'
+        sortDirection:
+          title: sort_direction
+          description: Defaults to DESC if unspecified.
+          $ref: '#/components/schemas/aedst.tasks.v1.SortDirection'
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 100
+          minimum: 0
+          format: int32
+          description: Defaults to 20, clamped to 100, if unspecified.
+        pageToken:
+          type: string
+          title: page_token
+          maxLength: 512
+          description: |-
+            Opaque keyset cursor — echo back exactly what a previous response returned
+             in next_page_token, with the same filters and sort. Empty means "first
+             page". A token issued for a different sort order is rejected with
+             INVALID_ARGUMENT. Never parse or construct one: the format may change.
+      title: ListTasksRequest
+      additionalProperties: false
+    aedst.tasks.v1.ListTasksResponse:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.tasks.v1.Task'
+          title: tasks
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Empty means there is no next page.
+        totalCount:
+          type: integer
+          title: total_count
+          format: int32
+          description: |-
+            Count of tasks matching the filter (statuses/priorities/search), not
+             just this page — what the UI shows next to "Tasks". Populated on the
+             FIRST page only (request page_token empty) and 0 on every later page:
+             counting the matching set is O(rows) and would otherwise be paid on every
+             page. Clients should keep the value from the first response. Capped at
+             10,000: a larger match set reports 10000, meaning "at least 10000".
+      title: ListTasksResponse
+      additionalProperties: false
+    aedst.tasks.v1.OperatorDeleteTaskRequest:
+      type: object
+      properties:
+        taskId:
+          type: string
+          title: task_id
+          format: uuid
+        idempotencyKey:
+          type: string
+          title: idempotency_key
+          maxLength: 128
+          minLength: 1
+          description: |-
+            Makes the call safe to retry: 1-128 characters, unique per intended deletion
+             (the admin module sends the audit entry id).
+      title: OperatorDeleteTaskRequest
+      additionalProperties: false
+    aedst.tasks.v1.OperatorDeleteTaskResponse:
+      type: object
+      properties:
+        ownerId:
+          type: string
+          title: owner_id
+          description: The deleted task's owner.
+      title: OperatorDeleteTaskResponse
+      additionalProperties: false
+    aedst.tasks.v1.ReopenTaskRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+      title: ReopenTaskRequest
+      additionalProperties: false
+    aedst.tasks.v1.ReopenTaskResponse:
+      type: object
+      properties:
+        task:
+          title: task
+          $ref: '#/components/schemas/aedst.tasks.v1.Task'
+      title: ReopenTaskResponse
+      additionalProperties: false
+    aedst.tasks.v1.SortDirection:
+      type: string
+      title: SortDirection
+      enum:
+        - SORT_DIRECTION_UNSPECIFIED
+        - SORT_DIRECTION_ASC
+        - SORT_DIRECTION_DESC
+    aedst.tasks.v1.Task:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        title:
+          type: string
+          title: title
+        description:
+          type: string
+          title: description
+        status:
+          title: status
+          $ref: '#/components/schemas/aedst.tasks.v1.TaskStatus'
+        priority:
+          title: priority
+          $ref: '#/components/schemas/aedst.tasks.v1.TaskPriority'
+        dueDate:
+          title: due_date
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        createdAt:
+          title: created_at
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        updatedAt:
+          title: updated_at
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        completedAt:
+          title: completed_at
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        createdBy:
+          type: string
+          title: created_by
+        version:
+          type: integer
+          title: version
+          format: int32
+          description: |-
+            Bumped on every mutation. Send it back as UpdateTaskRequest.expected_version
+             to detect that someone else changed the task since you read it.
+      title: Task
+      additionalProperties: false
+    aedst.tasks.v1.TaskPriority:
+      type: string
+      title: TaskPriority
+      enum:
+        - TASK_PRIORITY_UNSPECIFIED
+        - TASK_PRIORITY_LOW
+        - TASK_PRIORITY_MEDIUM
+        - TASK_PRIORITY_HIGH
+        - TASK_PRIORITY_URGENT
+    aedst.tasks.v1.TaskSortField:
+      type: string
+      title: TaskSortField
+      enum:
+        - TASK_SORT_FIELD_UNSPECIFIED
+        - TASK_SORT_FIELD_CREATED_AT
+        - TASK_SORT_FIELD_DUE_DATE
+    aedst.tasks.v1.TaskStatus:
+      type: string
+      title: TaskStatus
+      enum:
+        - TASK_STATUS_UNSPECIFIED
+        - TASK_STATUS_TODO
+        - TASK_STATUS_IN_PROGRESS
+        - TASK_STATUS_DONE
+    aedst.tasks.v1.UpdateTaskRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+        title:
+          type: string
+          title: title
+          maxLength: 200
+          description: |-
+            title and priority are validated by the domain only when named in
+             update_mask (or when there is no mask), so a client that updates just
+             due_date need not resend them.
+        description:
+          type: string
+          title: description
+          maxLength: 4000
+        priority:
+          title: priority
+          $ref: '#/components/schemas/aedst.tasks.v1.TaskPriority'
+        dueDate:
+          title: due_date
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        updateMask:
+          title: update_mask
+          description: |-
+            Which of title/description/priority/due_date to apply — lets a client
+             clear due_date (present in the mask, absent as a value) without also
+             having to resend the current title/description/priority verbatim.
+          $ref: '#/components/schemas/google.protobuf.FieldMask'
+        expectedVersion:
+          type:
+            - integer
+            - "null"
+          title: expected_version
+          minimum: 1
+          format: int32
+          description: |-
+            Optimistic concurrency: when set, the update applies only if the task is
+             still at this version; otherwise the RPC fails with ABORTED and the client
+             should re-read and retry. Omit for last-write-wins.
+      title: UpdateTaskRequest
+      additionalProperties: false
+    aedst.tasks.v1.UpdateTaskResponse:
+      type: object
+      properties:
+        task:
+          title: task
+          $ref: '#/components/schemas/aedst.tasks.v1.Task'
+      title: UpdateTaskResponse
+      additionalProperties: false
+    connect-protocol-version:
+      type: number
+      examples:
+        - 1
+      title: Connect-Protocol-Version
+      description: Define the version of the Connect protocol
+      const: 1
+    connect-timeout-header:
+      type: number
+      examples:
+        - 1000
+      title: Connect-Timeout-Ms
+      description: Define the timeout, in ms
+    connect.error:
+      type: object
+      properties:
+        code:
+          type: string
+          examples:
+            - not_found
+          enum:
+            - canceled
+            - unknown
+            - invalid_argument
+            - deadline_exceeded
+            - not_found
+            - already_exists
+            - permission_denied
+            - resource_exhausted
+            - failed_precondition
+            - aborted
+            - out_of_range
+            - unimplemented
+            - internal
+            - unavailable
+            - data_loss
+            - unauthenticated
+          description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+        message:
+          type: string
+          description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/connect.error_details.Any'
+          description: A list of messages that carry the error details. There is no limit on the number of messages.
+      title: Connect Error
+      additionalProperties: true
+      description: 'Error type returned by Connect: https://connectrpc.com/docs/go/errors/#http-representation'
+    connect.error_details.Any:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'A URL that acts as a globally unique identifier for the type of the serialized message. For example: `type.googleapis.com/google.rpc.ErrorInfo`.'
+        value:
+          type: string
+          format: byte
+          description: The Protobuf message, serialized as bytes and base64-encoded. The specific message type is identified by the `type` field.
+        debug:
+          type: object
+          title: Debug
+          additionalProperties: true
+          description: Deserialized error detail payload. The 'type' field indicates the schema. This field is for easier debugging and should not be relied upon for application logic.
+      additionalProperties: true
+      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message, with an additional debug field for ConnectRPC error details.
+    google.protobuf.FieldMask:
+      type: string
+      description: Comma-separated field paths in lowerCamelCase (for example, `user.displayName,photo`).
+    google.protobuf.Timestamp:
+      type: string
+      examples:
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
+      format: date-time
+      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+security: []
+tags:
+  - name: aedst.tasks.v1.TasksService
+    description: |-
+      TasksService is the tasks module's public API boundary (see
+       docs/content/server/modules.md). It is the reference module for the AEDST pattern: every
+       RPC here demonstrates the same module shape (domain/application/
+       infrastructure/transport/api) any future module should follow.
+
+       Every RPC operates on the caller's own tasks only. `user_id` is never a
+       request field — it is derived from the authenticated context
+       (internal/platform/httpserver's AuthInterceptor), never trusted from the
+       client. Trusting a client-supplied user id here would be a textbook IDOR
+       vulnerability; TasksService is deliberately designed so that mistake is
+       not representable in the request shape at all.
+  - name: aedst.tasks.v1.TasksOperatorService
+    description: |-
+      TasksOperatorService is the cross-owner (operator) surface of tasks. The admin
+       module calls it when tasks is not hosted in its own process; in a monolith the
+       same operations run in-process through tasks/api.AdminService and this service
+       is mounted but unused. It is closed to ordinary users: the module's built-in
+       role policy admits only "admin" (a human operator whose token the admin module
+       forwards, for reads), "support"/"auditor" (reads they already have in admin)
+       and "internal" (the machine identity of the admin.apply job, for mutations).
+       Mutations are idempotent on idempotency_key.

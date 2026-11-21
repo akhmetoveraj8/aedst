@@ -41,6 +41,8 @@ var (
 
 // IntegrityServiceClient is a client for the aedst.integrity.v1.IntegrityService service.
 type IntegrityServiceClient interface {
+	// Decodes a Play Integrity token with Google and applies the server policy.
+	// A token that fails the policy answers verified=false with a reason, not an error.
 	VerifyIntegrityToken(context.Context, *v1.VerifyIntegrityTokenRequest) (*v1.VerifyIntegrityTokenResponse, error)
 }
 
@@ -52,6 +54,8 @@ func NewIntegrityServiceClient(client *connect.Client) IntegrityServiceClient {
 
 // IntegrityServiceHandler is an implementation of the aedst.integrity.v1.IntegrityService service.
 type IntegrityServiceHandler interface {
+	// Decodes a Play Integrity token with Google and applies the server policy.
+	// A token that fails the policy answers verified=false with a reason, not an error.
 	VerifyIntegrityToken(context.Context, *v1.VerifyIntegrityTokenRequest) (*v1.VerifyIntegrityTokenResponse, error)
 }
 

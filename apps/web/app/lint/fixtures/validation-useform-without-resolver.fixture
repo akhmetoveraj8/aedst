@@ -1,6 +1,6 @@
 //// run: validation
 //// expect: useForm() without resolver
-//// file: src/modules/tasks/ui/NoResolverForm.tsx
+//// file: src/modules/tasks/ui/no-resolver-form.tsx
 import { useForm } from "react-hook-form";
 
 export function NoResolverForm() {

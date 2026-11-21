@@ -3,9 +3,9 @@ package com.aedst.feature.auth.data.oidc
 import com.aedst.core.common.AedstError
 import com.aedst.core.network.ExternalHttpClient
 import com.aedst.core.network.toAedstError
-import com.aedst.feature.auth.domain.model.DeviceAuthorization
-import com.aedst.feature.auth.domain.model.DeviceTokenResult
-import com.aedst.feature.auth.domain.repository.DeviceAuthorizer
+import com.aedst.feature.auth.domain.DeviceAuthorization
+import com.aedst.feature.auth.domain.DeviceAuthorizer
+import com.aedst.feature.auth.domain.DeviceTokenResult
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -17,8 +17,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.coroutines.executeAsync
 import java.io.IOException
-import java.time.Clock
 import javax.inject.Inject
+import kotlin.time.Clock
 
 /**
  * [DeviceAuthorizer] on OkHttp (core/network's [ExternalHttpClient]: no bearer token, no API pinning) — RFC 8628 for a
@@ -132,7 +132,8 @@ class OkHttpDeviceAuthorizer @Inject constructor(
                 accessToken = json?.string("access_token"),
                 idToken = json?.string("id_token"),
                 refreshToken = json?.string("refresh_token"),
-                accessExpirationMillis = json?.long("expires_in")?.let { clock.millis() + it * MILLIS_PER_SECOND },
+                accessExpirationMillis = json?.long("expires_in")
+                    ?.let { clock.now().toEpochMilliseconds() + it * MILLIS_PER_SECOND },
                 clock = clock,
             )
             return Attempt.Done(DeviceTokenResult.Tokens(tokens))

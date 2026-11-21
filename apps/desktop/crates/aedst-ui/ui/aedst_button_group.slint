@@ -1,0 +1,51 @@
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// The `orientation` axis of ui-kit.yaml (web `buttonGroupVariants`).
+export enum AedstButtonGroupOrientation { horizontal, vertical }
+
+// Related buttons shown as one block. In a horizontal group the first button sits at the
+// reading start (the right in RTL).
+export component AedstButtonGroup inherits Rectangle {
+    in property <[string]> items;
+    in property <string> label;
+    in property <AedstButtonGroupOrientation> orientation: AedstButtonGroupOrientation.horizontal;
+    in property <AedstButtonVariant> variant: AedstButtonVariant.outline;
+    in property <AedstButtonSize> size: AedstButtonSize.default;
+    in property <bool> enabled: true;
+    // The index of the button that was activated.
+    callback clicked(int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored item.
+    pure function at(slot: int) -> int {
+        return root.rtl ? root.items.length - 1 - slot : slot;
+    }
+
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    VerticalLayout {
+        if root.orientation == AedstButtonGroupOrientation.horizontal: HorizontalLayout {
+            alignment: root.rtl ? end : start;
+            for slot in root.items.length: AedstButton {
+                text: root.items[root.at(slot)];
+                variant: root.variant;
+                size: root.size;
+                enabled: root.enabled;
+                clicked => { root.clicked(root.at(slot)); }
+            }
+        }
+        if root.orientation == AedstButtonGroupOrientation.vertical: VerticalLayout {
+            alignment: start;
+            for entry[index] in root.items: AedstButton {
+                text: entry;
+                variant: root.variant;
+                size: root.size;
+                enabled: root.enabled;
+                clicked => { root.clicked(index); }
+            }
+        }
+    }
+}

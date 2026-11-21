@@ -12,7 +12,7 @@ identity provider ([status](../../docs/content/status.md)). Do not claim Linux o
 | When you add | Use |
 |---|---|
 | A crate | `crates/aedst-<name>`; `[lints] workspace = true`; dependencies as `{ workspace = true }` only |
-| A dependency | `add-dependency` skill: registry-verified version in the root `Cargo.toml` `[workspace.dependencies]` and the Library-First page in the same change |
+| A dependency | `add-dependency` skill: registry-verified version in the root `Cargo.toml` `[workspace.dependencies]`, a line in `approved-crates.txt` and the Library-First page in the same change (`scripts/check-approved-crates.sh` fails otherwise; a crate shared with `apps/gateway` keeps the same version there) |
 | A screen | A `.slint` view in the feature crate, stateless; logic in a presentation module exposed through Slint properties/callbacks. Components from `aedst-ui` first, never a raw `std-widgets` control in a feature |
 | An RPC call | The generated `aedst_contract::proto::aedst::<service>::v1::*ServiceClient` behind a trait in the feature's `domain`; implementation in `data`. A new RPC needs no hand-written entry (it follows the server proto). Retry only idempotent methods. Needs `buf` on PATH |
 | A write that must survive offline | Try the call first with a fresh key; on a network failure `SqliteOutbox::enqueue(id, kind, payload)` with the SAME id and register an `OutboxHandler` for `kind` (return `Delivery::Retryable`/`Permanent`/`Blocked`); `OutboxService::trigger()` after enqueue, at session start and when the network returns; sign-out calls `purge()` |
@@ -41,5 +41,6 @@ identity provider ([status](../../docs/content/status.md)). Do not claim Linux o
 ## Gates (run before saying done)
 
 1. `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace` (or `cargo nextest run`), `cargo deny check` from `apps/desktop`.
-2. `task check` from the repo root.
-3. If step 1 did not run, say that nothing was compiled or tested.
+2. `bash scripts/check-feature-boundaries.sh` (no cargo; also in `task check:boundaries`): crate boundaries D1-D6 (features use only `aedst-api`, `aedst-common`, `aedst-contract`, `aedst-outbox`; only `aedst-desktop` composes features; no `std-widgets` in a feature), the feature layout (a second capability means `src/<feature>/` + `ui/<feature>/`, never mixed with the flat shape) and the approved-crate list (`approved-crates.txt`, versions shared with `apps/gateway`). Rules: [desktop/boundaries](../../docs/content/desktop/boundaries.md).
+3. `task check` from the repo root.
+4. If step 1 did not run, say that nothing was compiled or tested; a pass of step 2 does not mean it compiles.

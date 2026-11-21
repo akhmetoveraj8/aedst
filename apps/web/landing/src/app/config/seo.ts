@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { clientEnv } from "@/env";
-import { defaultLocale, locales, toLanguageTag } from "@/shared/i18n/locales";
+import {
+  defaultLocale,
+  type Locale,
+  locales,
+  toLanguageTag,
+} from "@/shared/i18n/locales";
 import type { AiCrawlerConfig } from "./ai-crawlers";
 
 /**
@@ -55,6 +60,26 @@ export function buildAlternates(pathname: string, locale: string) {
   return {
     canonical: localizedUrl(locale, pathname),
     languages: buildLanguageAlternates(pathname),
+  };
+}
+
+/**
+ * Open Graph block for one page. A page that sets `openGraph` replaces the
+ * layout's block as a whole, so every public page calls this: `og:url` must be
+ * the page's own canonical, never the locale root.
+ */
+export function buildOpenGraph(
+  pathname: string,
+  locale: Locale,
+  text: { siteName: string; title: string; description: string },
+): NonNullable<Metadata["openGraph"]> {
+  return {
+    type: "website",
+    siteName: text.siteName,
+    title: text.title,
+    description: text.description,
+    locale: toLanguageTag(locale),
+    url: localizedUrl(locale, pathname),
   };
 }
 

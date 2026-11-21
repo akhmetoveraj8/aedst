@@ -4,9 +4,9 @@
 # Commands live in the Makefile; the tasks below only wrap its targets.
 
 [tools]
-# Tuist CLI 4.218.1 = latest stable, verified 2026-11-18 (git ls-remote --tags, excluding canaries).
+# Tuist CLI 4.218.2 = latest stable, verified 2026-11-21 (git ls-remote --tags, excluding canaries).
 # Registry backend (prebuilt binary). Overrides the repo-root mise.toml ("latest").
-tuist = "4.218.1"
+tuist = "4.218.2"
 # SwiftLint 0.65.1 = latest stable, verified 2026-10-07 (same as apple-ci SWIFTLINT_VERSION).
 "aqua:realm/SwiftLint" = "0.65.1"
 # Ruby for fastlane (Gemfile). 3.4.12 = latest 3.4 patch, verified 2026-10-28 against
@@ -14,7 +14,7 @@ tuist = "4.218.1"
 # gemspec already lists Ruby 4.x stdlib-gem workarounds), so 3.4 is allowed; 4.0.x also exists
 # but 3.4 is kept for the lower-risk, longest-tested fastlane dependency set.
 # ruby/setup-ruby in the workflows also reads this file when `ruby-version` is omitted.
-ruby = "3.4.12"
+ruby = "3.4.13"
 
 [tasks.generate]
 description = "Generate Connect-Swift stubs from apps/server/api/proto (needs buf + protoc plugins)."

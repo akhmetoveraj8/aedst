@@ -1,12 +1,14 @@
 import { AedstLayout } from "aedst_layout.slint";
 import { AedstTokens } from "aedst_tokens.slint";
-import { AedstButton } from "aedst_button.slint";
+import { AedstButton, AedstButtonVariant } from "aedst_button.slint";
 
 // Primary and secondary action. The primary action sits at the end edge of the reading
 // direction (right in LTR, left in RTL). Slint cannot reverse a layout, so both orders are spelled out.
 export component AedstActionRow inherits HorizontalLayout {
     in property <string> primary-text;
     in property <string> secondary-text;
+    in property <AedstButtonVariant> primary-variant: AedstButtonVariant.default;
+    in property <bool> primary-enabled: true;
     callback primary-clicked();
     callback secondary-clicked();
 
@@ -17,12 +19,12 @@ export component AedstActionRow inherits HorizontalLayout {
 
     if !AedstLayout.rtl: HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
-        AedstButton { text: root.secondary-text; primary: false; clicked => { root.secondary-clicked(); } }
-        AedstButton { text: root.primary-text; clicked => { root.primary-clicked(); } }
+        AedstButton { text: root.secondary-text; variant: AedstButtonVariant.outline; clicked => { root.secondary-clicked(); } }
+        AedstButton { text: root.primary-text; variant: root.primary-variant; enabled: root.primary-enabled; clicked => { root.primary-clicked(); } }
     }
     if AedstLayout.rtl: HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
-        AedstButton { text: root.primary-text; clicked => { root.primary-clicked(); } }
-        AedstButton { text: root.secondary-text; primary: false; clicked => { root.secondary-clicked(); } }
+        AedstButton { text: root.primary-text; variant: root.primary-variant; enabled: root.primary-enabled; clicked => { root.primary-clicked(); } }
+        AedstButton { text: root.secondary-text; variant: AedstButtonVariant.outline; clicked => { root.secondary-clicked(); } }
     }
 }

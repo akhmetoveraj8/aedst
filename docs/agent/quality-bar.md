@@ -6,7 +6,7 @@ rule and the decisions; it never overrides them. Open the full page only for the
 ## Modern language ([full](../content/engineering/modern-language.md))
 
 - Write for the **pinned** toolchain: Go 1.27 (`apps/server/go.mod`), TypeScript 7 / React 19.3 /
-  Next 16.4 (`apps/web/pnpm-workspace.yaml`), Kotlin 2.4, Swift 6 mode on the 6.3 compiler, Rust edition
+  Next 16.4 (`apps/web/pnpm-workspace.yaml`), Kotlin 2.5.0-RC (2.4 stable feature set), Swift 6 mode on the 6.3 compiler, Rust edition
   2024 capped at MSRV 1.92. If your training predates the pin, read the release notes first.
 - Use the newer idiom when one exists (Go: `errors.AsType`, `new(expr)`, `WaitGroup.Go`, iterators,
   `min`/`max`, `slices`/`maps`, `synctest`; React: Compiler instead of manual memo, Actions, `use`,
@@ -37,6 +37,17 @@ rule and the decisions; it never overrides them. Open the full page only for the
   `next/image` / `next/font` only, virtualize long lists, no inline scripts.
 - Server: indexed keyset queries, only needed columns, no N+1, slow work in River jobs, bounded payloads,
   cache-aside with TTL and invalidation, nothing network-bound inside a transaction.
+
+## Structure, accessibility, SEO
+
+- Code goes into a module, then a feature; modules meet only through public contracts, features never
+  import each other ([modules and features](../content/architecture/modules-and-features.md)).
+- UI meets WCAG 2.2 AA: kit components only, named controls, keyboard access, no colour-only state,
+  logical (right-to-left safe) properties ([accessibility](../content/engineering/accessibility.md)).
+- Web: `landing` pages ship canonical, hreflang, JSON-LD and stay static; `admin` is never indexed
+  ([SEO by project](../content/web/seo-by-project.md)).
+- Every roadmap.sh item is a rule for new code even where no gate exists yet; close a gap, update its
+  status ([roadmap coverage](../content/engineering/checklists.md)).
 
 ## Before you say "done"
 

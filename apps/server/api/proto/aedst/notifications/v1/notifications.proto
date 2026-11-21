@@ -17,20 +17,27 @@ option go_package = "github.com/aedst/server/gen/go/aedst/notifications/v1;notif
 // that module's integration events (reference: tasks.v1.TaskCompleted) inside
 // an inbox transaction and delivers push messages from a River job.
 service NotificationsService {
+  // Lists the caller's inbox, newest first (keyset).
   rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  // Counts the caller's unread notifications.
   rpc GetUnreadCount(GetUnreadCountRequest) returns (GetUnreadCountResponse);
+  // Marks the given notifications of the caller as read.
   rpc MarkRead(MarkReadRequest) returns (MarkReadResponse);
+  // Marks every unread notification of the caller as read and returns how many.
   rpc MarkAllRead(MarkAllReadRequest) returns (MarkAllReadResponse);
 
   // Push channels. A device registers once per install (or per browser push
   // subscription) and re-registers when the platform rotates its token.
   rpc RegisterPushDevice(RegisterPushDeviceRequest) returns (RegisterPushDeviceResponse);
+  // Removes a push registration of the caller, for example on sign-out.
   rpc UnregisterPushDevice(UnregisterPushDeviceRequest) returns (UnregisterPushDeviceResponse);
   // Public VAPID key the browser needs for PushManager.subscribe. Empty when
   // Web Push is not configured on this deployment.
   rpc GetWebPushConfig(GetWebPushConfigRequest) returns (GetWebPushConfigResponse);
 
+  // Returns the caller's notification preferences.
   rpc GetPreferences(GetPreferencesRequest) returns (GetPreferencesResponse);
+  // Changes the caller's notification preferences.
   rpc UpdatePreferences(UpdatePreferencesRequest) returns (UpdatePreferencesResponse);
 }
 

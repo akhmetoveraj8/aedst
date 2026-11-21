@@ -7,6 +7,7 @@ import { refreshSession } from "@/shared/lib/auth/refresh-session";
 import {
   ACCESS_COOKIE,
   REFRESH_COOKIE,
+  readSessionCookie,
 } from "@/shared/lib/auth/session-cookies";
 import { applySessionCookieAction, proxyRpc } from "@/shared/lib/bff/rpc-proxy";
 import { reportError } from "@/shared/lib/errors/report-error";
@@ -30,6 +31,7 @@ export async function POST(
   { params }: RouteContext<"/api/rpc/[...path]">,
 ): Promise<Response> {
   const jar = await cookies();
+  const read = (name: string) => jar.get(name)?.value;
   const { response, cookies: action } = await proxyRpc(
     {
       origin: siteConfig.url.origin,
@@ -42,14 +44,14 @@ export async function POST(
     {
       request,
       procedure: (await params).path.join("/"),
-      accessToken: jar.get(ACCESS_COOKIE)?.value,
-      refreshToken: jar.get(REFRESH_COOKIE)?.value,
+      accessToken: readSessionCookie(read, ACCESS_COOKIE),
+      refreshToken: readSessionCookie(read, REFRESH_COOKIE),
     },
   );
   const out = new NextResponse(response.body, {
     status: response.status,
     headers: response.headers,
   });
-  applySessionCookieAction(out.cookies, action);
+  applySessionCookieAction(out.cookies, action, read);
   return out;
 }

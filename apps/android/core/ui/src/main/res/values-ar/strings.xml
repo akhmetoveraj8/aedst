@@ -4,6 +4,22 @@
     <string name="aedst_a11y_avatar">الصورة الرمزية</string>
     <string name="aedst_a11y_avatar_named">الصورة الرمزية: %1$s</string>
     <string name="aedst_a11y_loading">جارٍ التحميل</string>
+    <string name="aedst_a11y_expanded">موسّع</string>
+    <string name="aedst_a11y_collapsed">مطوي</string>
+    <string name="aedst_a11y_previous">السابق</string>
+    <string name="aedst_a11y_next">التالي</string>
+    <string name="aedst_a11y_page">الصفحة %1$d</string>
+    <string name="aedst_a11y_pagination">التنقل بين الصفحات</string>
+    <string name="aedst_a11y_more_pages">صفحات أخرى</string>
+    <string name="aedst_a11y_breadcrumb">مسار التنقل</string>
+    <string name="aedst_a11y_resize_handle">تغيير حجم اللوحات</string>
+    <string name="aedst_a11y_copy_code">نسخ الرمز</string>
+    <string name="aedst_a11y_sort_ascending">مرتّب تصاعديًا</string>
+    <string name="aedst_a11y_sort_descending">مرتّب تنازليًا</string>
+    <string name="aedst_a11y_sort_none">غير مرتّب</string>
+    <string name="aedst_a11y_slide">الشريحة %1$d من %2$d</string>
+    <string name="aedst_a11y_close">إغلاق</string>
+    <string name="aedst_a11y_open_menu">فتح القائمة</string>
 
     <!-- User-facing text for each AedstError kind (see AedstError.userMessageRes) -->
     <string name="aedst_error_offline">لا يوجد اتصال بالإنترنت. تحقق من الشبكة وحاول مرة أخرى.</string>

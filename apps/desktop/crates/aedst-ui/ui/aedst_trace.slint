@@ -1,0 +1,141 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstSpinner } from "aedst_spinner.slint";
+
+// The `status` axis of ui-kit.yaml (web `traceStatusVariants`).
+export enum AedstTraceStatus { pending, running, success, error, skipped }
+
+export struct AedstTraceStep {
+    id: string,
+    title: string,
+    status: AedstTraceStatus,
+    // Translated status label: the status is never shown by colour alone.
+    status-text: string,
+    // Already formatted by the caller, for example "1.2 s".
+    duration: string,
+    // Extra text (arguments, output) shown when the step is open.
+    detail: string,
+    // Nesting level: the caller flattens the step tree (0 for top-level steps).
+    depth: int,
+    open: bool,
+}
+
+// A step-by-step trace of a run (an AEDST component, like web `trace`). A step with `detail`
+// is a tab stop that opens and closes with Enter, Space or a click; the component writes `open`
+// back into the model and reports it with `toggled(id, open)`.
+export component AedstTrace inherits Rectangle {
+    in property <[AedstTraceStep]> steps;
+    in property <string> label;
+    callback toggled(string, bool);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> pad: AedstTokens.spacing-sm;
+
+    pure function tint(status: AedstTraceStatus) -> color {
+        return status == AedstTraceStatus.success ? AedstTokens.success
+            : status == AedstTraceStatus.error ? AedstTokens.destructive
+            : status == AedstTraceStatus.running ? AedstTokens.info
+            : AedstTokens.muted-foreground;
+    }
+
+    accessible-role: list;
+    accessible-label: root.label;
+
+    VerticalLayout {
+        for step in root.steps: VerticalLayout {
+            line := Rectangle {
+                property <bool> expandable: step.detail != "";
+                property <length> indent: root.pad + step.depth * AedstTokens.spacing-lg;
+                property <length> trail: meta.preferred-width + root.pad;
+                height: 28px;
+                border-radius: AedstTokens.radius-md;
+                background: (self.expandable && line-touch.has-hover) ? AedstTokens.muted : transparent;
+                border-width: line-focus.has-focus ? 2px : 0px;
+                border-color: AedstTokens.ring;
+                accessible-role: self.expandable ? AccessibleRole.button : AccessibleRole.list-item;
+                accessible-label: step.title + ": " + step.status-text;
+                accessible-description: step.duration;
+                accessible-expandable: self.expandable;
+                accessible-expanded: step.open;
+                accessible-action-default => {
+                    if (self.expandable) {
+                        root.toggled(step.id, !step.open);
+                        step.open = !step.open;
+                    }
+                }
+
+                line-focus := FocusScope {
+                    enabled: line.expandable;
+                    key-pressed(event) => {
+                        if (event.text == " " || event.text == "\n") {
+                            root.toggled(step.id, !step.open);
+                            step.open = !step.open;
+                            return accept;
+                        }
+                        return reject;
+                    }
+                }
+
+                // Status mark at the reading start: a spinner while running, otherwise a dot
+                // (filled for success and error, a ring for pending and skipped).
+                Rectangle {
+                    x: root.rtl ? parent.width - line.indent - self.width : line.indent;
+                    width: 12px;
+                    height: 12px;
+                    if step.status == AedstTraceStatus.running: AedstSpinner {
+                        diameter: 12px;
+                        tint: root.tint(step.status);
+                    }
+                    if step.status != AedstTraceStatus.running: Rectangle {
+                        border-radius: 6px;
+                        border-width: 2px;
+                        border-color: root.tint(step.status);
+                        background: (step.status == AedstTraceStatus.success || step.status == AedstTraceStatus.error)
+                            ? root.tint(step.status) : transparent;
+                    }
+                }
+                Text {
+                    x: root.rtl ? line.trail : line.indent + 20px;
+                    width: parent.width - line.indent - 20px - line.trail;
+                    text: line.expandable ? step.title + (step.open ? "  \u{25BE}" : root.rtl ? "  \u{25C2}" : "  \u{25B8}") : step.title;
+                    color: AedstTokens.foreground;
+                    font-size: AedstTokens.typography-label-large-font-size;
+                    font-weight: AedstTokens.typography-label-large-font-weight;
+                    horizontal-alignment: root.rtl ? right : left;
+                    vertical-alignment: center;
+                    overflow: elide;
+                    accessible-role: AccessibleRole.none;
+                }
+                meta := Text {
+                    x: root.rtl ? root.pad : parent.width - root.pad - self.width;
+                    width: self.preferred-width;
+                    text: step.duration == "" ? step.status-text : step.status-text + "  " + step.duration;
+                    color: AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-body-small-font-size;
+                    vertical-alignment: center;
+                    accessible-role: AccessibleRole.none;
+                }
+                line-touch := TouchArea {
+                    enabled: line.expandable;
+                    clicked => {
+                        line-focus.focus();
+                        root.toggled(step.id, !step.open);
+                        step.open = !step.open;
+                    }
+                }
+            }
+            if step.open && step.detail != "": HorizontalLayout {
+                padding-left: root.rtl ? root.pad : root.pad + step.depth * AedstTokens.spacing-lg + 20px;
+                padding-right: root.rtl ? root.pad + step.depth * AedstTokens.spacing-lg + 20px : root.pad;
+                padding-bottom: AedstTokens.spacing-xs;
+                Text {
+                    text: step.detail;
+                    color: AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-body-small-font-size;
+                    horizontal-alignment: root.rtl ? right : left;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+}

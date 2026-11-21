@@ -1,0 +1,10 @@
+// Keeps its content at a fixed width-to-height ratio (16 / 9 by default). The width comes from
+// the parent; the height follows. Content fills the box and is clipped to it.
+export component AedstAspectRatio inherits Rectangle {
+    in property <float> ratio: 16 / 9;
+
+    height: root.ratio > 0 ? self.width / root.ratio : self.width;
+    clip: true;
+
+    @children
+}

@@ -3,7 +3,9 @@ import AedstCore
 import AedstTesting
 import Foundation
 import Testing
-@testable import Search
+@testable import SearchData
+@testable import SearchDomain
+@testable import SearchPresentation
 
 private final class RecordingAnalytics: AnalyticsClient, @unchecked Sendable {
     private let lock = NSLock()

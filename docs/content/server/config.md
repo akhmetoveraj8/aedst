@@ -33,6 +33,7 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | `AEDST_AUTH_RATE_LIMIT_PER_MINUTE` | int | `30` | AuthRateLimitPerMinute is the per-client-IP budget for the public authentication RPCs (register/login/refresh). 0 disables. |
 | `AEDST_AUTH_FAIL_RATE_LIMIT_PER_MINUTE` | int | `60` | AuthFailRateLimitPerMinute is the per-client-IP budget of failed authentications (missing or invalid bearer token) on authenticated RPCs; once spent, that address gets RESOURCE_EXHAUSTED until the window passes. Successful requests cost nothing. 0 disables. |
 | `AEDST_API_RATE_LIMIT_PER_MINUTE` | int | `1200` | APIRateLimitPerMinute is the per-user budget for authenticated RPCs, shared by every replica through Dragonfly. It bounds what one account (or one leaked token) can take from everyone else. 0 disables. |
+| `AEDST_PROCEDURE_RATE_LIMITS` | map | (empty) | ProcedureRateLimits gives an expensive procedure its own per-user budget per minute on top of APIRateLimitPerMinute: "/pkg.Service/Method=10,/pkg.Service/*=60" (an exact entry has its own counter, a service wildcard is one counter for the service). It overlays the modules' built-in limits; 0 switches a built-in one off. An unknown or public procedure is a startup error. |
 | `AEDST_MAX_IN_FLIGHT` | int | `1024` | MaxInFlight caps concurrently processing requests per instance; the excess is shed with 429 + Retry-After rather than queued until latency collapses. 0 disables. |
 | `AEDST_GRPC_REFLECTION_ENABLED` | bool | `false` | GRPCReflectionEnabled serves gRPC server reflection (schema discovery for grpcurl and similar). Off by default: it publishes the whole API surface to anyone who can reach the port. |
 
@@ -47,6 +48,7 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | `AEDST_DATABASE_MAX_CONN_IDLE_MINUTES` | int | `15` |  |
 | `AEDST_DATABASE_STATEMENT_TIMEOUT_MS` | int | `15000` | StatementTimeoutMs aborts runaway queries server-side (0 = no limit). |
 | `AEDST_DATABASE_IDLE_IN_TX_TIMEOUT_MS` | int | `30000` | IdleInTxTimeoutMs kills sessions that hold a transaction open while idle (0 = no limit). |
+| `AEDST_DATABASE_SLOW_QUERY_MS` | int | `500` | SlowQueryMs reports every statement that takes at least this long: a warning log line with the trace id, a span event and the counter aedst_db_slow_queries (statement text only, never its arguments). 0 = off. |
 | `AEDST_DATABASE_JOBS_MAX_CONNS` | int | `30` | JobsMaxConns sizes the second pool used by background work (River, event consumers). Keeping it apart from MaxConns means a burst of jobs can only exhaust its own connections, never the ones request handlers need — and a slow request storm cannot starve the workers either. Budget: replicas x (MaxConns + JobsMaxConns) must stay below Postgres max_connections (or PgBouncer's server pool). |
 | `AEDST_DATABASE_DIRECT_DSN` | string | (empty) | DirectDSN, when set, is used by the jobs pool instead of DSN. Point DSN at PgBouncer (transaction pooling) for request traffic and DirectDSN at Postgres itself: River uses LISTEN/NOTIFY and platform/lock uses session-level advisory locks, neither of which survives transaction pooling. |
 | `AEDST_DATABASE_READ_URL` | string | (empty) | ReadDSN, when set, opens a third pool (modulekit.Env.ReadPool) on a read replica (CloudNativePG "-ro" service, an RDS reader endpoint). Only modules whose queries tolerate replica lag use it (search today); every write and every read-your-writes path stays on AEDST_DATABASE_URL. Empty = ReadPool is the primary pool. It sits behind the same AEDST_DATABASE_POOLER mode as the primary. See docs/content/server/runbook-postgres-scaling.md. |
@@ -85,7 +87,7 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 
 | Variable | Type | Default | Description |
 |---|---|---|---|
-| `AEDST_ROLE_POLICY` | map | (empty) | RolePolicy restricts procedures to callers holding one of the listed roles: "/pkg.Service/Method=role\|role,/pkg.Other/Method=role". A procedure that is unknown or public is a startup error (see httpserver.ValidateRolePolicy), so a typo cannot leave the real RPC open. Empty means every authenticated caller may call every RPC. |
+| `AEDST_ROLE_POLICY` | map | (empty) | RolePolicy restricts procedures to callers satisfying one of the listed alternatives: "/pkg.Service/Method=role\|role,/pkg.Other/Method=role". An alternative is a role, an OAuth scope of the token ("scope:tasks.operator", for machine callers using client credentials) or both joined with "+" ("internal+scope:events.ingest"). A malformed alternative or a procedure that is unknown or public is a startup error (see httpserver.ValidateRolePolicy), so a typo cannot leave the real RPC open. Empty means every authenticated caller may call every RPC. |
 
 ## OIDC
 
@@ -99,6 +101,22 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | `AEDST_OIDC_ROLES_CLAIM` | string | `roles` | RolesClaim locates roles in the token: a top-level claim name or a dotted path. ZITADEL: "urn:zitadel:iam:org:project:roles" (an object keyed by role name); Keycloak: "realm_access.roles". An array of strings or an object keyed by role name are both understood. |
 | `AEDST_OIDC_ROLES_ORG` | string | (empty) | RolesOrg (optional) is an organisation id. For an object-shaped roles claim ({role: {orgId: domain}}, ZITADEL: roles are bound to an organisation) only roles granted in that organisation count. Empty = any. |
 | `AEDST_OIDC_CLOCK_SKEW_SECONDS` | int | `30` |  |
+
+## ServiceIdentity
+
+| Variable | Type | Default | Description |
+|---|---|---|---|
+| `AEDST_SERVICE_IDENTITY_TOKEN_URL` | string | (empty) | TokenURL is the provider's token endpoint (ZITADEL: <issuer>/oauth/v2/token). |
+| `AEDST_SERVICE_IDENTITY_CLIENT_ID` | string | (empty) | ClientID and ClientSecret authenticate the client (HTTP Basic, RFC 6749 2.3.1). |
+| `AEDST_SERVICE_IDENTITY_CLIENT_SECRET` | string | (empty) |  |
+| `AEDST_SERVICE_IDENTITY_SCOPES` | list | (empty) | Scopes are requested with the grant. They must make the access token pass this server's own verification (audience, roles claim), e.g. for ZITADEL "openid urn:zitadel:iam:org:project:id:<project>:aud urn:zitadel:iam:org:projects:roles". |
+
+## Events
+
+| Variable | Type | Default | Description |
+|---|---|---|---|
+| `AEDST_EVENTS_FORWARD` | map | (empty) | Forward maps a consumer unit that lives in another service with its own database to that service's base URL (AEDST_EVENTS_FORWARD="notifications=https://n.internal,search=https://s.internal"). A producer here inserts a platform.event_forward job for each such consumer instead of a delivery. It needs the service identity (AEDST_SERVICE_IDENTITY_*). |
+| `AEDST_EVENTS_INGEST_ENABLED` | bool | `false` | IngestEnabled mounts EventIngestService, the endpoint a forwarding producer calls, on this process. It admits only the "internal" role. |
 
 ## Observability
 
@@ -249,6 +267,29 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | `AEDST_APPATTEST_RATE_LIMIT_PER_MINUTE` | int | `10` | RateLimitPerMinute is the per-user budget for CreateChallenge + Enroll (they are rare: once per install). 0 disables. |
 | `AEDST_APPATTEST_ASSERTION_RATE_LIMIT_PER_MINUTE` | int | `120` | AssertionRateLimitPerMinute is the per-user budget for VerifyAssertion. 0 disables. |
 | `AEDST_APPATTEST_KEY_RETENTION_DAYS` | int | `365` | KeyRetentionDays purges keys not used for this long (the app re-enrolls). |
+
+## Webhooks
+
+| Variable | Type | Default | Description |
+|---|---|---|---|
+| `AEDST_WEBHOOKS_ENABLED` | bool | `false` |  |
+| `AEDST_WEBHOOKS_SECRET_KEY` | string | (empty) | SecretKey is the AES-256 key that seals endpoint signing secrets at rest: 32 random bytes in base64, optionally prefixed with its version ("2:<base64>", 1 to 255; no prefix means version 1). New secrets are sealed with this key. Required when enabled. |
+| `AEDST_WEBHOOKS_PREVIOUS_SECRET_KEYS` | list | (empty) | PreviousSecretKeys are older keys ("<version>:<base64>"), kept only to open secrets sealed before a key rotation. Rotating the key: give the new key the next version in SecretKey and move the old one here. |
+| `AEDST_WEBHOOKS_ALLOWED_HOSTS` | list | (empty) | AllowedHosts restricts deliveries to these hosts (exact, or a ".example.com" suffix). Empty allows any host with a public address. |
+| `AEDST_WEBHOOKS_DISABLE_AFTER_FAILURES` | int | `5` | DisableAfterFailures disables an endpoint after this many failed deliveries in a row (rejected by the receiver, or every retry used up). |
+| `AEDST_WEBHOOKS_DELIVERY_RETENTION_DAYS` | int | `30` | DeliveryRetentionDays is how long the delivery log is kept. A delivery is retried for about three weeks, so less than that drops rows still in flight. |
+
+## NATS
+
+| Variable | Type | Default | Description |
+|---|---|---|---|
+| `AEDST_NATS_URL` | string | (empty) |  |
+| `AEDST_NATS_STREAM` | string | `AEDST_EVENTS` | Stream is the JetStream stream that holds forwarded events. |
+| `AEDST_NATS_FORWARD_TYPES` | list | (empty) | ForwardTypes lists the event types forwarded to the gateway (an allowlist: a new realtime event is an explicit entry). |
+| `AEDST_NATS_RECIPIENT_FIELD` | string | `user_id` | RecipientField is the payload field that names the recipient user id. |
+| `AEDST_NATS_REPLICAS` | int | `1` |  |
+| `AEDST_NATS_MAX_AGE_HOURS` | int | `24` |  |
+| `AEDST_NATS_DUPLICATE_WINDOW_SECONDS` | int | `120` | DuplicateWindowSeconds is JetStream's Nats-Msg-Id dedup window. |
 
 ## Topology
 

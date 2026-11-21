@@ -5,10 +5,12 @@ import "time"
 // Integration events this module publishes via platform/events (a River job per consumer, inserted in the producing transaction). These types
 // are the published contract: other modules subscribe to the event type on
 // the registry and decode the JSON payload into these structs, importing only this
-// package (see docs/content/server/events.md and ADR-0006). JSON rather than a
-// protobuf contract while every consumer is in-process; when an event has to
-// cross a service boundary, promote it to api/proto/aedst/tasks/v1/events.proto
-// with the same field names and bump the version.
+// package (see docs/content/server/events.md and ADR-0006). The contract of each
+// payload is a Protobuf message in api/proto/aedst/tasks/events/v1/events.proto
+// (covered by buf breaking); the wire is its JSON form with the proto field
+// names, which is exactly what encoding/json writes for these structs.
+// events_contract_test.go fails when a struct, its golden fixture and its
+// message disagree: change all three together.
 //
 // Evolution rules: fields are only ever added (consumers ignore unknown
 // fields), never renamed, retyped or removed within a version; a breaking

@@ -27,7 +27,7 @@ opentofu = "1.13.9"      # IaC (decisions.md); latest stable verified 2026-11-18
 
 # Apple: Tuist is only useful on macOS (Xcode required).
 [tools.tuist]
-version = "4.218.1"   # latest stable, verified 2026-11-18 (git ls-remote --tags, plain X.Y.Z tags only; matches apps/apple/mise.toml)
+version = "4.218.2"   # latest stable, verified 2026-11-21 (git ls-remote --tags, plain X.Y.Z tags only; matches apps/apple/mise.toml)
 os = ["macos"]
 
 # Not managed here (install separately):

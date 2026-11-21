@@ -1,0 +1,57 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// A static table: a header row and text rows, columns of equal width. The first column sits at
+// the reading start. For sorting and row selection use AedstDataTable.
+export component AedstTable inherits Rectangle {
+    in property <[string]> columns;
+    in property <[[string]]> rows;
+    in property <string> label;
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> cell-width: root.columns.length > 0 ? root.width / root.columns.length : root.width;
+
+    // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored column.
+    pure function at(slot: int) -> int {
+        return root.rtl ? root.columns.length - 1 - slot : slot;
+    }
+
+    min-width: 64px * Math.max(1, root.columns.length);
+    accessible-role: table;
+    accessible-label: root.label;
+
+    VerticalLayout {
+        Rectangle {
+            height: 36px;
+            for slot in root.columns.length: Text {
+                x: slot * root.cell-width + AedstTokens.spacing-sm;
+                width: root.cell-width - 2 * AedstTokens.spacing-sm;
+                text: root.columns[root.at(slot)];
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-label-large-font-size;
+                font-weight: AedstTokens.typography-label-large-font-weight;
+                horizontal-alignment: root.rtl ? right : left;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+        for cells in root.rows: Rectangle {
+            height: 36px;
+            Rectangle {
+                y: 0px;
+                height: 1px;
+                background: AedstTokens.border;
+            }
+            for slot in root.columns.length: Text {
+                x: slot * root.cell-width + AedstTokens.spacing-sm;
+                width: root.cell-width - 2 * AedstTokens.spacing-sm;
+                text: cells[root.at(slot)];
+                color: AedstTokens.foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: root.rtl ? right : left;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+    }
+}

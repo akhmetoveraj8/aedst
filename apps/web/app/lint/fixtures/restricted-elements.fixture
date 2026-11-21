@@ -1,6 +1,6 @@
 //// run: biome
 //// expect: noRestrictedElements
-//// file: src/modules/tasks/ui/BadElements.tsx
+//// file: src/modules/tasks/ui/bad-elements.tsx
 export function BadElements() {
   return (
     <div>

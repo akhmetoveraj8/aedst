@@ -43,6 +43,7 @@ next-env.d.ts
 
 # generated ConnectRPC client stubs live in ../shared/api/connect/generated (ignored by ../shared/.gitignore)
 .vitest-attachments/
+.vitest/
 __screenshots__/
 
 # Storybook static build (pnpm build-storybook)

@@ -15,6 +15,7 @@ on:
         "apps/web/biome.json",
         "apps/web/pnpm-*.yaml",
         "apps/server/api/proto/**",
+        "apps/web/app/scripts/check-feature-boundaries.sh",
         ".github/workflows/landing-ci.yml",
       ]
   pull_request:
@@ -26,6 +27,7 @@ on:
         "apps/web/biome.json",
         "apps/web/pnpm-*.yaml",
         "apps/server/api/proto/**",
+        "apps/web/app/scripts/check-feature-boundaries.sh",
         ".github/workflows/landing-ci.yml",
       ]
   workflow_dispatch:
@@ -49,7 +51,7 @@ env:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -85,6 +87,19 @@ jobs:
       - name: knip (unused files/exports/deps)
         run: pnpm knip
 
+      # The bash gate is the authoritative one: dependency-cruiser cannot load
+      # TypeScript 7.0 (docs/content/decisions/web.md), so its graph may be incomplete.
+      - name: Module and feature boundaries (authoritative)
+        run: pnpm check:feature-boundaries
+
+      - name: Import graph (dependency-cruiser)
+        run: pnpm check:deps
+
+      # Right-to-left: no physical Tailwind utilities (ml-, left-, text-left);
+      # no Base64 images. Negative fixtures: apps/web/app `pnpm check:selftest`.
+      - name: Source bans (RTL utilities, Base64 images)
+        run: pnpm check:source
+
       - name: Unit tests
         run: pnpm test
 
@@ -92,3 +107,40 @@ jobs:
         env:
           NEXT_PUBLIC_SITE_URL: ${{ env.SITE_URL }}
         run: pnpm build
+
+      # Performance budget: fails the PR that adds the weight.
+      - name: Client bundle and font budget
+        run: pnpm check:bundle
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      # Rendered HTML of every public page in all five locales (canonical,
+      # hreflang with x-default, og:url, JSON-LD types, one h1) and axe at
+      # WCAG 2.2 AA including the right-to-left pages. Playwright starts
+      # `next start` on the build above (playwright.config.ts).
+      - name: Playwright e2e (SEO tags and accessibility)
+        env:
+          CI: "1"
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: landing-playwright-report
+          path: apps/web/landing/playwright-report/
+          retention-days: 7
+
+      # lighthouserc.json: performance and SEO >= 0.95, accessibility 1,
+      # LCP/CLS/TBT, page weight, fonts, request count and TTFB.
+      - name: Lighthouse CI
+        run: pnpm lighthouse
+
+      - name: Upload Lighthouse reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: landing-lighthouse-reports
+          path: apps/web/landing/.lighthouseci/
+          retention-days: 7

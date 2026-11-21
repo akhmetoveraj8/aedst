@@ -12,7 +12,7 @@ import type { Locale } from "@/shared/i18n/locales";
  * `namespaces` limits the module catalogs (`common` is always included). The
  * request config loads everything for server components (`getTranslations`
  * reads it server-side and it never reaches the browser); what is *sent* to
- * client components is a subset per route, see `providers/RouteMessages.tsx`.
+ * client components is a subset per route, see `providers/route-messages.tsx`.
  */
 export async function loadMessages(
   locale: Locale,

@@ -1,0 +1,862 @@
+openapi: 3.1.0
+info:
+  title: AEDST notifications API (aedst.notifications.v1)
+  description: Generated from apps/server/api/proto/aedst/notifications/v1. ConnectRPC over HTTP, one POST per RPC (GET where the RPC has no side effects). Do not edit by hand.
+  version: v1
+paths:
+  /aedst.notifications.v1.NotificationsOperatorService/CountAllActiveDevices:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsOperatorService
+      summary: CountAllActiveDevices
+      description: Number of active push devices across all users.
+      operationId: aedst.notifications.v1.NotificationsOperatorService.CountAllActiveDevices
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.CountAllActiveDevicesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.CountAllActiveDevicesResponse'
+  /aedst.notifications.v1.NotificationsOperatorService/OperatorBroadcast:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsOperatorService
+      summary: OperatorBroadcast
+      description: |-
+        Sends a SYSTEM notification to one user, or to every known user when user_id
+         is empty. Replaying an idempotency_key returns the first result; reusing a
+         key for a different message is ABORTED.
+      operationId: aedst.notifications.v1.NotificationsOperatorService.OperatorBroadcast
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.OperatorBroadcastRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.OperatorBroadcastResponse'
+  /aedst.notifications.v1.NotificationsService/GetPreferences:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsService
+      summary: GetPreferences
+      description: Returns the caller's notification preferences.
+      operationId: aedst.notifications.v1.NotificationsService.GetPreferences
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.GetPreferencesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.GetPreferencesResponse'
+  /aedst.notifications.v1.NotificationsService/GetUnreadCount:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsService
+      summary: GetUnreadCount
+      description: Counts the caller's unread notifications.
+      operationId: aedst.notifications.v1.NotificationsService.GetUnreadCount
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.GetUnreadCountRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.GetUnreadCountResponse'
+  /aedst.notifications.v1.NotificationsService/GetWebPushConfig:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsService
+      summary: GetWebPushConfig
+      description: |-
+        Public VAPID key the browser needs for PushManager.subscribe. Empty when
+         Web Push is not configured on this deployment.
+      operationId: aedst.notifications.v1.NotificationsService.GetWebPushConfig
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.GetWebPushConfigRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.GetWebPushConfigResponse'
+  /aedst.notifications.v1.NotificationsService/ListNotifications:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsService
+      summary: ListNotifications
+      description: Lists the caller's inbox, newest first (keyset).
+      operationId: aedst.notifications.v1.NotificationsService.ListNotifications
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.ListNotificationsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.ListNotificationsResponse'
+  /aedst.notifications.v1.NotificationsService/MarkAllRead:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsService
+      summary: MarkAllRead
+      description: Marks every unread notification of the caller as read and returns how many.
+      operationId: aedst.notifications.v1.NotificationsService.MarkAllRead
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.MarkAllReadRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.MarkAllReadResponse'
+  /aedst.notifications.v1.NotificationsService/MarkRead:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsService
+      summary: MarkRead
+      description: Marks the given notifications of the caller as read.
+      operationId: aedst.notifications.v1.NotificationsService.MarkRead
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.MarkReadRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.MarkReadResponse'
+  /aedst.notifications.v1.NotificationsService/RegisterPushDevice:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsService
+      summary: RegisterPushDevice
+      description: |-
+        Push channels. A device registers once per install (or per browser push
+         subscription) and re-registers when the platform rotates its token.
+      operationId: aedst.notifications.v1.NotificationsService.RegisterPushDevice
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.RegisterPushDeviceRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.RegisterPushDeviceResponse'
+  /aedst.notifications.v1.NotificationsService/UnregisterPushDevice:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsService
+      summary: UnregisterPushDevice
+      description: Removes a push registration of the caller, for example on sign-out.
+      operationId: aedst.notifications.v1.NotificationsService.UnregisterPushDevice
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.UnregisterPushDeviceRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.UnregisterPushDeviceResponse'
+  /aedst.notifications.v1.NotificationsService/UpdatePreferences:
+    post:
+      tags:
+        - aedst.notifications.v1.NotificationsService
+      summary: UpdatePreferences
+      description: Changes the caller's notification preferences.
+      operationId: aedst.notifications.v1.NotificationsService.UpdatePreferences
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.notifications.v1.UpdatePreferencesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.notifications.v1.UpdatePreferencesResponse'
+components:
+  schemas:
+    aedst.notifications.v1.CountAllActiveDevicesRequest:
+      type: object
+      title: CountAllActiveDevicesRequest
+      additionalProperties: false
+    aedst.notifications.v1.CountAllActiveDevicesResponse:
+      type: object
+      properties:
+        devices:
+          type: string
+          title: devices
+          format: int64
+      title: CountAllActiveDevicesResponse
+      additionalProperties: false
+    aedst.notifications.v1.GetPreferencesRequest:
+      type: object
+      title: GetPreferencesRequest
+      additionalProperties: false
+    aedst.notifications.v1.GetPreferencesResponse:
+      type: object
+      properties:
+        preferences:
+          title: preferences
+          $ref: '#/components/schemas/aedst.notifications.v1.Preferences'
+      title: GetPreferencesResponse
+      additionalProperties: false
+    aedst.notifications.v1.GetUnreadCountRequest:
+      type: object
+      title: GetUnreadCountRequest
+      additionalProperties: false
+    aedst.notifications.v1.GetUnreadCountResponse:
+      type: object
+      properties:
+        unread:
+          type: integer
+          title: unread
+          format: int32
+      title: GetUnreadCountResponse
+      additionalProperties: false
+    aedst.notifications.v1.GetWebPushConfigRequest:
+      type: object
+      title: GetWebPushConfigRequest
+      additionalProperties: false
+    aedst.notifications.v1.GetWebPushConfigResponse:
+      type: object
+      properties:
+        vapidPublicKey:
+          type: string
+          title: vapid_public_key
+          description: |-
+            Base64url (uncompressed P-256 point), as PushManager.subscribe expects
+             for applicationServerKey.
+      title: GetWebPushConfigResponse
+      additionalProperties: false
+    aedst.notifications.v1.ListNotificationsRequest:
+      type: object
+      properties:
+        unreadOnly:
+          type: boolean
+          title: unread_only
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 100
+          minimum: 0
+          format: int32
+          description: Defaults to 20, clamped to 100.
+        pageToken:
+          type: string
+          title: page_token
+          maxLength: 512
+          description: Opaque keyset cursor from next_page_token.
+      title: ListNotificationsRequest
+      additionalProperties: false
+    aedst.notifications.v1.ListNotificationsResponse:
+      type: object
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.notifications.v1.Notification'
+          title: notifications
+        nextPageToken:
+          type: string
+          title: next_page_token
+      title: ListNotificationsResponse
+      additionalProperties: false
+    aedst.notifications.v1.MarkAllReadRequest:
+      type: object
+      title: MarkAllReadRequest
+      additionalProperties: false
+    aedst.notifications.v1.MarkAllReadResponse:
+      type: object
+      properties:
+        marked:
+          type: integer
+          title: marked
+          format: int32
+      title: MarkAllReadResponse
+      additionalProperties: false
+    aedst.notifications.v1.MarkReadRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          title: ids
+          maxItems: 100
+          minItems: 1
+      title: MarkReadRequest
+      additionalProperties: false
+    aedst.notifications.v1.MarkReadResponse:
+      type: object
+      title: MarkReadResponse
+      additionalProperties: false
+    aedst.notifications.v1.Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        kind:
+          title: kind
+          $ref: '#/components/schemas/aedst.notifications.v1.NotificationKind'
+        title:
+          type: string
+          title: title
+        body:
+          type: string
+          title: body
+        link:
+          type: string
+          title: link
+          description: In-app route the client opens on tap, e.g. "/tasks/<id>". Relative only.
+        subjectId:
+          type: string
+          title: subject_id
+          description: ID of the entity the notification is about (task id for task kinds).
+        createdAt:
+          title: created_at
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        readAt:
+          title: read_at
+          description: Unset while unread.
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: Notification
+      additionalProperties: false
+    aedst.notifications.v1.NotificationKind:
+      type: string
+      title: NotificationKind
+      enum:
+        - NOTIFICATION_KIND_UNSPECIFIED
+        - NOTIFICATION_KIND_TASK_COMPLETED
+        - NOTIFICATION_KIND_TASK_DUE_SOON
+        - NOTIFICATION_KIND_MEDIA_READY
+        - NOTIFICATION_KIND_SYSTEM
+    aedst.notifications.v1.OperatorBroadcastRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          title: user_id
+          format: uuid
+          description: Empty means every known user.
+        title:
+          type: string
+          title: title
+          maxLength: 120
+          minLength: 1
+        body:
+          type: string
+          title: body
+          maxLength: 1000
+        link:
+          type: string
+          title: link
+          maxLength: 500
+          pattern: ^(/[^/].*)?$
+          description: An in-app path ("/tasks/..."), or empty.
+        idempotencyKey:
+          type: string
+          title: idempotency_key
+          maxLength: 128
+          minLength: 1
+          description: |-
+            1-128 characters, unique per intended broadcast (the admin module sends the
+             audit entry id).
+      title: OperatorBroadcastRequest
+      additionalProperties: false
+    aedst.notifications.v1.OperatorBroadcastResponse:
+      type: object
+      properties:
+        recipients:
+          type: string
+          title: recipients
+          format: int64
+      title: OperatorBroadcastResponse
+      additionalProperties: false
+    aedst.notifications.v1.Preferences:
+      type: object
+      properties:
+        pushEnabled:
+          type: boolean
+          title: push_enabled
+        taskCompleted:
+          type: boolean
+          title: task_completed
+        taskDueSoon:
+          type: boolean
+          title: task_due_soon
+        mediaReady:
+          type: boolean
+          title: media_ready
+      title: Preferences
+      additionalProperties: false
+    aedst.notifications.v1.PushPlatform:
+      type: string
+      title: PushPlatform
+      enum:
+        - PUSH_PLATFORM_UNSPECIFIED
+        - PUSH_PLATFORM_WEB_PUSH
+        - PUSH_PLATFORM_FCM
+        - PUSH_PLATFORM_APNS
+    aedst.notifications.v1.RegisterPushDeviceRequest:
+      type: object
+      properties:
+        platform:
+          not:
+            enum:
+              - PUSH_PLATFORM_UNSPECIFIED
+          title: platform
+          $ref: '#/components/schemas/aedst.notifications.v1.PushPlatform'
+        token:
+          type: string
+          title: token
+          maxLength: 4096
+          description: FCM registration token or APNs device token (hex). Empty for WEB_PUSH.
+        webPush:
+          title: web_push
+          description: Required for WEB_PUSH, ignored otherwise.
+          $ref: '#/components/schemas/aedst.notifications.v1.WebPushSubscription'
+        apnsTopic:
+          type: string
+          title: apns_topic
+          maxLength: 255
+          description: |-
+            APNs only: the bundle id the token belongs to (topic) and whether it was
+             issued by the sandbox environment.
+        apnsSandbox:
+          type: boolean
+          title: apns_sandbox
+        deviceName:
+          type: string
+          title: device_name
+          maxLength: 120
+          description: Free-form, shown in "your devices" (e.g. "Pixel 9 · Android 17").
+        locale:
+          type: string
+          title: locale
+          maxLength: 35
+      title: RegisterPushDeviceRequest
+      additionalProperties: false
+    aedst.notifications.v1.RegisterPushDeviceResponse:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          title: device_id
+      title: RegisterPushDeviceResponse
+      additionalProperties: false
+    aedst.notifications.v1.UnregisterPushDeviceRequest:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          title: device_id
+          format: uuid
+      title: UnregisterPushDeviceRequest
+      additionalProperties: false
+    aedst.notifications.v1.UnregisterPushDeviceResponse:
+      type: object
+      title: UnregisterPushDeviceResponse
+      additionalProperties: false
+    aedst.notifications.v1.UpdatePreferencesRequest:
+      type: object
+      properties:
+        preferences:
+          title: preferences
+          $ref: '#/components/schemas/aedst.notifications.v1.Preferences'
+      title: UpdatePreferencesRequest
+      required:
+        - preferences
+      additionalProperties: false
+    aedst.notifications.v1.UpdatePreferencesResponse:
+      type: object
+      properties:
+        preferences:
+          title: preferences
+          $ref: '#/components/schemas/aedst.notifications.v1.Preferences'
+      title: UpdatePreferencesResponse
+      additionalProperties: false
+    aedst.notifications.v1.WebPushSubscription:
+      type: object
+      properties:
+        endpoint:
+          type: string
+          title: endpoint
+          maxLength: 2048
+          format: uri
+        p256dh:
+          type: string
+          title: p256dh
+          maxLength: 256
+          minLength: 1
+          description: Base64url-encoded keys from PushSubscription.toJSON().keys.
+        auth:
+          type: string
+          title: auth
+          maxLength: 128
+          minLength: 1
+      title: WebPushSubscription
+      additionalProperties: false
+    connect-protocol-version:
+      type: number
+      examples:
+        - 1
+      title: Connect-Protocol-Version
+      description: Define the version of the Connect protocol
+      const: 1
+    connect-timeout-header:
+      type: number
+      examples:
+        - 1000
+      title: Connect-Timeout-Ms
+      description: Define the timeout, in ms
+    connect.error:
+      type: object
+      properties:
+        code:
+          type: string
+          examples:
+            - not_found
+          enum:
+            - canceled
+            - unknown
+            - invalid_argument
+            - deadline_exceeded
+            - not_found
+            - already_exists
+            - permission_denied
+            - resource_exhausted
+            - failed_precondition
+            - aborted
+            - out_of_range
+            - unimplemented
+            - internal
+            - unavailable
+            - data_loss
+            - unauthenticated
+          description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+        message:
+          type: string
+          description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/connect.error_details.Any'
+          description: A list of messages that carry the error details. There is no limit on the number of messages.
+      title: Connect Error
+      additionalProperties: true
+      description: 'Error type returned by Connect: https://connectrpc.com/docs/go/errors/#http-representation'
+    connect.error_details.Any:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'A URL that acts as a globally unique identifier for the type of the serialized message. For example: `type.googleapis.com/google.rpc.ErrorInfo`.'
+        value:
+          type: string
+          format: byte
+          description: The Protobuf message, serialized as bytes and base64-encoded. The specific message type is identified by the `type` field.
+        debug:
+          type: object
+          title: Debug
+          additionalProperties: true
+          description: Deserialized error detail payload. The 'type' field indicates the schema. This field is for easier debugging and should not be relied upon for application logic.
+      additionalProperties: true
+      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message, with an additional debug field for ConnectRPC error details.
+    google.protobuf.Timestamp:
+      type: string
+      examples:
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
+      format: date-time
+      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+security: []
+tags:
+  - name: aedst.notifications.v1.NotificationsService
+    description: |-
+      NotificationsService serves the caller's in-app inbox and manages the push
+       channels (Web Push, FCM, APNs) notifications are fanned out to. Like
+       TasksService, every RPC is scoped to the authenticated caller — user_id is
+       never a request field.
+
+       The inbox is a projection: the notifications module never receives a
+       synchronous call from the module that caused a notification. It consumes
+       that module's integration events (reference: tasks.v1.TaskCompleted) inside
+       an inbox transaction and delivers push messages from a River job.
+  - name: aedst.notifications.v1.NotificationsOperatorService
+    description: |-
+      NotificationsOperatorService is the operator surface of notifications. The
+       admin module calls it when notifications is not hosted in its own process; in
+       a monolith the same operations run in-process through
+       notifications/api.Broadcaster. Closed to ordinary users: the module's built-in
+       role policy admits "admin" (a human operator whose token is forwarded, for
+       reads) and "internal" (the machine identity of the admin.apply job, for
+       mutations). Mutations are idempotent on idempotency_key.

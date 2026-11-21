@@ -1,0 +1,77 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// Variants are the ones of ui-kit.yaml (web `typographyVariants`).
+export enum AedstTypographyVariant { h1, h2, h3, h4, p, blockquote, list, inline-code, lead, large, small, muted }
+
+// Text styles as one component. `list` renders `items` as bullets; every other variant renders `text`.
+export component AedstTypography inherits Rectangle {
+    in property <string> text;
+    in property <[string]> items;
+    in property <AedstTypographyVariant> variant: AedstTypographyVariant.p;
+    // No font-family token exists yet; "monospace" relies on the platform's generic family (UNVERIFIED).
+    in property <string> mono-family: "monospace";
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> quote: root.variant == AedstTypographyVariant.blockquote;
+    private property <bool> code: root.variant == AedstTypographyVariant.inline-code;
+    private property <length> font-px: root.variant == AedstTypographyVariant.h1 ? AedstTokens.typography-display-large-font-size
+        : root.variant == AedstTypographyVariant.h2 ? AedstTokens.typography-headline-large-font-size
+        : root.variant == AedstTypographyVariant.h3 ? AedstTokens.typography-headline-medium-font-size
+        : root.variant == AedstTypographyVariant.h4 ? AedstTokens.typography-title-large-font-size
+        : root.variant == AedstTypographyVariant.lead ? AedstTokens.typography-title-large-font-size
+        : root.variant == AedstTypographyVariant.large ? AedstTokens.typography-title-medium-font-size
+        : (root.variant == AedstTypographyVariant.small || root.variant == AedstTypographyVariant.muted || root.code) ? AedstTokens.typography-body-medium-font-size
+        : AedstTokens.typography-body-large-font-size;
+    private property <int> weight: root.variant == AedstTypographyVariant.h1 ? AedstTokens.typography-display-large-font-weight
+        : (root.variant == AedstTypographyVariant.h2 || root.variant == AedstTypographyVariant.h3 || root.variant == AedstTypographyVariant.h4
+            || root.variant == AedstTypographyVariant.large || root.code) ? AedstTokens.typography-headline-large-font-weight
+        : root.variant == AedstTypographyVariant.small ? AedstTokens.typography-label-large-font-weight
+        : AedstTokens.typography-body-large-font-weight;
+    private property <color> ink: (root.variant == AedstTypographyVariant.lead || root.variant == AedstTypographyVariant.muted)
+        ? AedstTokens.muted-foreground : AedstTokens.foreground;
+    private property <length> inset: root.quote ? AedstTokens.spacing-xxl : root.code ? AedstTokens.spacing-xs : 0px;
+
+    background: root.code ? AedstTokens.muted : transparent;
+    border-radius: root.code ? AedstTokens.radius-xs : 0px;
+
+    VerticalLayout {
+        padding-left: (root.code || !root.rtl) ? root.inset : 0px;
+        padding-right: (root.code || root.rtl) ? root.inset : 0px;
+        padding-bottom: root.variant == AedstTypographyVariant.h2 ? AedstTokens.spacing-sm : 0px;
+        spacing: AedstTokens.spacing-sm;
+        if root.variant != AedstTypographyVariant.list: Text {
+            text: root.text;
+            color: root.ink;
+            font-size: root.font-px;
+            font-weight: root.weight;
+            font-italic: root.quote;
+            font-family: root.code ? root.mono-family : "";
+            horizontal-alignment: root.rtl ? right : left;
+            wrap: word-wrap;
+        }
+        if root.variant == AedstTypographyVariant.list: VerticalLayout {
+            spacing: AedstTokens.spacing-sm;
+            for entry in root.items: Text {
+                text: "\u{2022}  " + entry;
+                color: root.ink;
+                font-size: root.font-px;
+                font-weight: root.weight;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+            }
+        }
+    }
+
+    // The blockquote bar sits at the reading start edge.
+    if root.quote: Rectangle {
+        x: root.rtl ? parent.width - self.width : 0px;
+        width: 2px;
+        background: AedstTokens.border;
+    }
+    if root.variant == AedstTypographyVariant.h2: Rectangle {
+        y: parent.height - self.height;
+        height: 1px;
+        background: AedstTokens.border;
+    }
+}

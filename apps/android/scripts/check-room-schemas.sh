@@ -13,10 +13,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 root="${1:-core/database}"
-source_file="$root/src/main/kotlin/com/aedst/core/database/AppDatabase.kt"
+source_file="$root/src/commonMain/kotlin/com/aedst/core/database/AppDatabase.kt"
 schema_dir="$root/schemas/com.aedst.core.database.AppDatabase"
 
-version=$(grep -oE 'const val VERSION = [0-9]+' "$source_file" | grep -oE '[0-9]+$' || true)
+version=$(grep -oE 'const val VERSION(: Int)? = [0-9]+' "$source_file" | grep -oE '[0-9]+$' || true)
 if [ -z "$version" ]; then
   echo "::error::Cannot read 'const val VERSION = N' from $source_file (the @Database version must be that constant)."
   exit 1

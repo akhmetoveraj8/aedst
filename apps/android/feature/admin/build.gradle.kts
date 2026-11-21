@@ -7,6 +7,8 @@ android {
 }
 
 dependencies {
+    // The feature's pure domain (Kotlin Multiplatform, commonMain): entities, repository ports, use cases.
+    implementation(project(":feature:admin:domain"))
     implementation(project(":core:network"))
     implementation(libs.compose.material.icons.extended)
 

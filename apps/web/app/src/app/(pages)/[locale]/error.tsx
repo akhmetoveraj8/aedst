@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
-import { PageMain } from "@/app/shell/PageMain";
+import { PageMain } from "@/app/shell/page-main";
 
 import { reportError } from "@/shared/lib/errors/report-error";
 import { Button } from "@/shared/ui/button";

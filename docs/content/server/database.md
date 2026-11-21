@@ -1,11 +1,11 @@
 ---
 title: "Database Ownership"
-description: "Phase 1 runs a single PostgreSQL 18 cluster/database, but schema-per-module from day one — this is what makes database-per-module (Phase 2) and..."
+description: "Phase 1 runs a single PostgreSQL 19 cluster/database, but schema-per-module from day one — this is what makes database-per-module (Phase 2) and..."
 ---
 
 # Database Ownership
 
-Phase 1 runs a single PostgreSQL 18 cluster/database, but **schema-per-module**
+Phase 1 runs a single PostgreSQL 19 cluster/database, but **schema-per-module**
 from day one — this is what makes `database-per-module` (Phase 2) and
 `database-per-service` (Phase 3) a `pg_dump`/restore exercise instead of a
 migration project.

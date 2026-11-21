@@ -34,13 +34,22 @@ mod tests {
 
     #[test]
     fn recipient_is_the_token_after_the_prefix() {
-        let subject = "aedst.events.user.0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0c.tasks.v1.TaskCompleted";
-        assert_eq!(recipient_of(subject), Some("0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0c"));
+        let subject =
+            "aedst.events.user.0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0c.tasks.v1.TaskCompleted";
+        assert_eq!(
+            recipient_of(subject),
+            Some("0190f3a2-7b1c-7d4e-8a21-5c6d7e8f9a0c")
+        );
     }
 
     #[test]
     fn foreign_or_short_subjects_have_no_recipient() {
-        for subject in ["aedst.events.other.x.y", "aedst.events.user.", "aedst.events.user.abc", ""] {
+        for subject in [
+            "aedst.events.other.x.y",
+            "aedst.events.user.",
+            "aedst.events.user.abc",
+            "",
+        ] {
             assert_eq!(recipient_of(subject), None, "{subject}");
         }
     }

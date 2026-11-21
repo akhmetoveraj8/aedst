@@ -1,6 +1,6 @@
 package com.aedst.core.media
 
-import java.time.Instant
+import kotlin.time.Instant
 
 enum class MediaKind { IMAGE, VIDEO, AUDIO, DOCUMENT, UNKNOWN }
 

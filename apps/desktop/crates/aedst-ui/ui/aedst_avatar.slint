@@ -1,0 +1,33 @@
+import { AedstTokens } from "aedst_tokens.slint";
+
+// A round user picture. While `source` is empty the `fallback` text (initials) is shown.
+// `label` is the accessible name (the person's name).
+export component AedstAvatar inherits Rectangle {
+    in property <image> source;
+    in property <string> fallback;
+    in property <string> label;
+    in property <length> diameter: 32px;
+
+    width: root.diameter;
+    height: root.diameter;
+    border-radius: root.diameter / 2;
+    background: AedstTokens.muted;
+    clip: true;
+    accessible-role: AccessibleRole.image;
+    accessible-label: root.label;
+
+    if root.source.width == 0: Text {
+        text: root.fallback;
+        color: AedstTokens.muted-foreground;
+        font-size: root.diameter * 0.4;
+        font-weight: AedstTokens.typography-label-large-font-weight;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    if root.source.width > 0: Image {
+        source: root.source;
+        width: root.diameter;
+        height: root.diameter;
+        image-fit: cover;
+    }
+}

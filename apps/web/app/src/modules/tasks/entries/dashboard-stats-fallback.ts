@@ -1,1 +1,1 @@
-export { DashboardStatsFallback } from "@/modules/tasks/ui/DashboardStatsFallback";
+export { DashboardStatsFallback } from "@/modules/tasks/features/dashboard/ui/dashboard-stats-fallback";

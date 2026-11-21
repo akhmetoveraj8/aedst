@@ -56,7 +56,9 @@ analyzer (see "Scope cut" below):
   template name (never ids) to PostHog and as a Sentry breadcrumb.
 - Inside a feature, layering is one-directional: `presentation -> domain`,
   `data -> domain` (implements its repository interfaces), never
-  `domain -> data`. See `feature/auth` for the fully worked layout.
+  `domain -> data`. The domain is its own Kotlin Multiplatform module
+  (`feature/<name>/domain`, common code), so that direction is a Gradle edge;
+  see [KMP structure](/android/kmp) and `feature/tasks` for the worked layout.
 
 ## Boundary enforcement: `check-feature-boundaries.sh`
 
@@ -91,7 +93,7 @@ already documents for iOS/macOS: two **thin** platform app modules sharing
   `MainTvActivity`/`AedstTvApplication` entry point, wiring the same `AuthNavGraph` from `:feature:auth`
   (`useDeviceFlow = true`, and an `actionButton` slot that swaps the touch `AedstButton` for `TvPrimaryButton`,
   because `feature/auth` must not depend on TV widgets) — zero business-logic duplication,
-  the same way `App_iOS`/`App_macOS` both link one `AedstAppShared` package.
+  the same way `App_iOS`/`App_macOS` both link one `AedstAppCore` package (and each its own UI targets).
 - **`:core:ui`** stays the shared design system both targets can use for
   anything that doesn't need to diverge (theme tokens, non-focus-sensitive
   pieces).

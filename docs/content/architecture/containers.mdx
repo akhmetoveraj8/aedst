@@ -19,7 +19,7 @@ A *container* here is anything that runs and holds state or code: a process, a d
     { id: "gw", label: "Realtime gateway", sub: "Rust, axum WebSocket", x: 260, y: 300, kind: "process", desc: "Terminates WebSockets and verifies the same OIDC tokens. Server to client only; a nudge, never the source of truth (ADR-0021)." },
     { id: "api", label: "aedst-server", sub: "Go, ConnectRPC, stateless", x: 540, y: 110, kind: "process", width: 200, desc: "The modular monolith: tasks, media, notifications, search, admin, capabilities, integrity, appattest. Any replica serves any request." },
     { id: "idp", label: "ZITADEL", sub: "OIDC provider", x: 540, y: 0, kind: "external", desc: "Sign-in, MFA, passkeys, tokens. Separate from AEDST and unmodified (AGPL boundary)." },
-    { id: "pg", label: "PostgreSQL 18", sub: "via PgBouncer; schema per module", x: 840, y: 40, kind: "store", width: 190, desc: "System of record and the event outbox (River tables). One schema per module, no cross-schema joins." },
+    { id: "pg", label: "PostgreSQL 19", sub: "via PgBouncer; schema per module", x: 840, y: 40, kind: "store", width: 190, desc: "System of record and the event outbox (River tables). One schema per module, no cross-schema joins." },
     { id: "cache", label: "DragonflyDB", sub: "cache, rate limits", x: 840, y: 150, kind: "store", desc: "Optional. Correctness never depends on it." },
     { id: "s3", label: "Object storage", sub: "S3 / MinIO / R2", x: 840, y: 250, kind: "store", desc: "Media bytes. Presigned PUT from the client." },
     { id: "imgproxy", label: "imgproxy", sub: "on-the-fly variants", x: 840, y: 350, kind: "process", desc: "Optional. Signed URLs resize and convert images from object storage (ADR-0015)." },

@@ -23,22 +23,39 @@ first.
 > build, and fix whatever the compiler flags, especially the `NOTE:` comments
 > in `Core/AedstNetwork` and each feature's `Connect*RemoteDataSource` file.
 
-## One project, two platform targets, one codebase
+## One project, one business logic, two UI builds
 
-Per-platform UI, one shared business-logic graph — the split is:
+Written, not compiled (owner decision of 2026-11-21, see [decisions](/decisions/apple)). The split is:
 
-- **Shared** (`Core/*`, `Features/*`, `App/Shared`): Swift Package Manager
-  local packages. No `#if os(...)` in here except the handful of spots that
-  need a genuinely different system API (`AedstColor`'s `UIColor`/`NSColor`
-  bridging, `AedstButton`'s macOS `.buttonStyle(.plain)`). Everything else —
-  domain models, use cases, repositories, networking, persistence, and even
-  most SwiftUI views — builds once and runs on both.
-- **Platform-specific** (`App/iOS`, `App/macOS`): thin Xcode application
-  targets. Each is just an `@main App` entry point, an `Info.plist`, and an
-  asset catalog — the platform's own chrome (window sizing, macOS
-  `Settings` scene / menu commands, iOS launch screen) and nothing else.
-  Both link the same `AedstAppShared` package and render the same
-  `RootView`.
+- **Shared logic** (`Core/*`, three targets of every feature, `App/Shared`): Swift Package Manager local
+  packages. In `Features/<X>`: `<X>Domain` (models, repository protocols, use cases), `<X>Data`
+  (repository implementations) and `<X>Presentation` (the `@Observable` view models, display formatting and
+  the feature's String Catalog; no SwiftUI import). `App/Shared` is the package `AedstAppCore`: the
+  composition root (`AppDependencies`), links, outbox wiring, `RootViewModel`, `PreferencesViewModel`; no views.
+  `Core/AedstDesignSystem` is one shared package too (tokens and 61 components, with small `#if os(...)`
+  inside a component where a system API differs).
+- **Per-platform UI**: every feature has two more targets, `<X>UIiOS` and `<X>UIMac`, holding the SwiftUI views
+  and the `*Destinations` modifier under the same type names. `App_iOS` links the `UIiOS` targets and compiles
+  `App/iOS/Sources` (`RootView`, `HomeView`, `FeatureDestinations`, overlays, app delegate, background task);
+  `App_macOS` links the `UIMac` targets and compiles `App/macOS/Sources` (`RootView`, `SidebarView`,
+  `AppCommands`, `PreferencesView`, `FeatureDestinations`, overlays, app delegate).
+- **How a platform difference is written**: as two files, never as a branch. Every file of a UI target is wrapped
+  in one whole-file guard (`#if os(iOS)` in `UIiOS`, `#if os(macOS)` in `UIMac`) and the target's dependencies
+  carry `.when(platforms:)`, so on the other platform the target compiles to nothing and `swift build` /
+  `swift test` of the package still work on a Mac host. No other `#if os` is allowed in a UI file.
+- **What differs today**: the Mac is sidebar first (a selectable `List` in a `NavigationSplitView`, always),
+  has one View-menu command per section (Command-1..4, Command-F), keeps settings in the `Settings` scene,
+  refreshes with Command-R instead of pull-to-refresh and picks files with `fileImporter`; iOS keeps the adaptive
+  stack / split layout, settings in the home list and the PHPicker sheet. The rest of the view code is a faithful
+  copy (about 70 differing lines out of 1,400 in the features).
+- macOS stays single-window (`Window`, not `WindowGroup`): see the "Single window" decision.
+
+```text
+App_iOS   -> App/iOS/Sources   + <X>UIiOS -+
+                                           +-> <X>Presentation -> <X>Domain <- <X>Data
+App_macOS -> App/macOS/Sources + <X>UIMac -+         ^                ^           ^
+                                                     +---- AedstAppCore (App/Shared) ----+-> Core/*
+```
 
 The project is described by [Tuist](https://tuist.dev) manifests written in
 Swift: `Project.swift` (targets), `Tuist.swift` (config) and
@@ -88,7 +105,7 @@ below).
 
 | Server module (`apps/server/internal/modules/`) | Apple package (`apps/apple/`) | Status |
 |---|---|---|
-| `auth` | `Features/Auth` | complete worked example (Domain/Data/Presentation/Navigation) |
+| `auth` | `Features/Auth` | complete worked example (`AuthDomain`, `AuthData`, `AuthPresentation`, `AuthUIiOS`, `AuthUIMac`) |
 | `tasks` | `Features/Tasks` | reference module (never compiled, see [status](/status)); the template for new feature modules next to `Features/Auth` |
 | `internal/shared`, `internal/platform` | `Core/AedstCore`, `Core/AedstNetwork`, `Core/AedstPersistence`, `Core/AedstAnalytics` | cross-cutting, no feature imports these back into another feature |
 | a module's `api/` package | `Core/AedstNavigation`'s `AedstRoute`/`Router` | the only surface another feature or `App/Shared` may depend on |
@@ -110,20 +127,24 @@ Gradle module graph. Apple's is enforced by the SwiftPM package graph:
   `AdminRoute`, `AuthRoute`) lives in `AedstRoutes.swift` there, so a feature
   pushes another feature's screen (`Tasks` pushes `MediaRoute.detail`) by
   value, without importing it. Each feature keeps only its `*Destinations`
-  view modifier, which maps its own route type to views, and `App/Shared`
-  attaches them. This is the same split as Android, where `core/navigation`
+  view modifier (one copy per UI target), which maps its own route type to views, and the app
+  target's `FeatureDestinations` attaches them. This is the same split as Android, where `core/navigation`
   holds the `NavKey`s (`MediaDetailKey`) and each feature an `AedstNavGraph`.
-- `App/Shared` (the `AedstAppShared` package) is the only package allowed to
-  depend on every feature — it composes their `*Destinations` view
-  modifiers onto one `NavigationStack` in `RootView.swift`, exactly like
+- `App/Shared` (the `AedstAppCore` package) is the only package allowed to
+  depend on every feature's logic; the two app targets are the only places that
+  know every feature's UI — each composes the `*Destinations` view
+  modifiers onto its navigation stack in `FeatureDestinations.swift`, exactly like
   `AppNavHost.kt` on Android and `cmd/server` wiring every module's
   transport handlers on the backend.
-- Inside a feature, layering is one-directional: `Presentation -> Domain`,
+- Inside a feature, layering is one-directional and each layer is a SwiftPM target, so the
+  compiler enforces it: `UIiOS / UIMac -> Presentation -> Domain`,
   `Data -> Domain` (implements its repository protocols), never
-  `Domain -> Data`. See `Features/Auth` for the fully worked layout —
-  `Domain/AuthRepository.swift` is the protocol, `Data/OIDCAuthRepository.swift`
-  the implementation, `Presentation/LoginViewModel.swift` depends on the
-  protocol via a `UseCase`, never on `Data` directly.
+  `Domain -> Data` and never `UI -> Data`. See `Features/Auth` for the fully worked layout —
+  `AuthDomain/AuthRepository.swift` is the protocol, `AuthData/OIDCAuthRepository.swift`
+  the implementation, `AuthPresentation/LoginViewModel.swift` depends on the
+  protocol via a `UseCase`, and `AuthUIiOS/LoginView.swift` / `AuthUIMac/LoginView.swift` render it.
+  `scripts/check-feature-layers.sh` checks the same rules without a compiler (imports per target, one
+  whole-file platform guard per UI file, no AppKit in `UIiOS`, no UIKit in `UIMac`).
 
 ## Networking: generated Connect stubs are not committed
 
@@ -139,7 +160,7 @@ that compiles a feature `Data/` layer (unit tests, the app targets) can run befo
 `make generate`. `make build` / `make test` depend on `generate`, and CI
 generates once (`.github/actions/apple-codegen`) and shares the result with
 every downstream job. The generated-code dependency is still isolated to one
-file per feature (`Features/Tasks/.../Data/ConnectTaskRepository.swift` is the worked example),
+file per feature (`Features/Tasks/Sources/TasksData/ConnectTaskRepository.swift` is the worked example),
 so no other file in the graph names a `Aedst_*_V1_*` type.
 
 ### Session, refresh and retry

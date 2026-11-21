@@ -73,7 +73,7 @@ func TestRawSQLCheckRejectsLiterals(t *testing.T) {
 	if got := rawSQLCalls(file); len(got) != 3 {
 		t.Fatalf("found %d literal SQL calls, want 3", len(got))
 	}
-	if !allowedRawSQL("../internal/platform/lock/lock.go") || allowedRawSQL("../internal/modules/tasks/infrastructure/postgres/postgres.go") {
+	if !allowedRawSQL("../internal/platform/lock/lock.go") || allowedRawSQL("../internal/modules/tasks/features/core/infrastructure/postgres/postgres.go") {
 		t.Fatal("allowlist must cover platform/lock only among these")
 	}
 }

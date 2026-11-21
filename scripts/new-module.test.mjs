@@ -86,6 +86,15 @@ describe('scaffold in a temp copy', () => {
     for (const p of PLATFORMS) assert.ok(first.files.some((f) => f.startsWith(`apps/${p}/`)), p);
     assert.match(readFileSync(path.join(tmp, 'apps/server/cmd/server/modules.go'), 'utf8'), /modules\/zeta\/module"/);
     assert.match(readFileSync(path.join(tmp, 'apps/server/architecturetest/layers_test.go'), 'utf8'), /"tasks", "zeta"\}/);
+    // Server: module, then feature. The use cases live in the first feature, the module keeps api/, domain/ and module/.
+    const server = first.files.filter((f) => f.startsWith('apps/server/internal/modules/zeta/')).map((f) => f.slice('apps/server/internal/modules/zeta/'.length));
+    assert.deepEqual([...new Set(server.map((f) => f.split('/')[0]))].sort(), ['api', 'domain', 'features', 'module']);
+    for (const f of server.filter((p) => p.startsWith('features/'))) {
+      assert.match(f, /^features\/entries\/(application|domain|infrastructure|transport)\//, f);
+    }
+    const moduleGo = readFileSync(path.join(tmp, 'apps/server/internal/modules/zeta/module/module.go'), 'utf8');
+    assert.match(moduleGo, /modules\/zeta\/features\/entries\/application"/);
+    assert.doesNotMatch(readFileSync(path.join(tmp, 'apps/server/internal/modules/zeta/api/api.go'), 'utf8'), /modules\/zeta\/features\//);
     git('add', '-A');
     node('scripts/check-i18n-parity.mjs');
     assert.deepEqual(featureDrift(), []);

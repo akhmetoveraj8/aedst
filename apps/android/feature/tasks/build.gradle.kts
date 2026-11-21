@@ -7,6 +7,8 @@ android {
 }
 
 dependencies {
+    // The feature's pure domain (Kotlin Multiplatform, commonMain): entities, repository ports, use cases.
+    implementation(project(":feature:tasks:domain"))
     implementation(project(":core:network"))
     // Offline writes: task.create / task.complete handlers and the queue behind the create form.
     implementation(project(":core:outbox"))
@@ -28,4 +30,11 @@ dependencies {
     testImplementation(libs.connect.kotlin.okhttp)
     testImplementation(libs.okhttp.core)
     testImplementation(libs.okhttp.mockwebserver)
+}
+
+// Domain fakes (ScriptedTaskRepository, FakeTaskWriteQueue, ...) are shared with the domain module's own tests.
+android {
+    sourceSets {
+        getByName("test").kotlin.directories.add("domain/src/commonTestFixtures/kotlin")
+    }
 }

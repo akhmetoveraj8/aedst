@@ -1,0 +1,280 @@
+syntax = "proto3";
+
+package aedst.webhooks.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/aedst/server/gen/go/aedst/webhooks/v1;webhooksv1";
+
+// WebhooksService manages outbound webhooks: the endpoints of third parties that
+// receive integration events as signed HTTPS POSTs (Standard Webhooks format,
+// docs/content/api/webhooks.md), and the log of what was delivered to them.
+//
+// It is an operator surface: every RPC requires the `admin` role by default
+// (the module's built-in role policy; AEDST_ROLE_POLICY may replace it). The
+// caller is taken from the token, never from a request field. Every RPC answers
+// FAILED_PRECONDITION (reason WEBHOOKS_DISABLED) while AEDST_WEBHOOKS_ENABLED is
+// false. A signing secret is returned exactly twice in an endpoint's life at
+// most: by CreateEndpoint and by RotateEndpointSecret. No other response
+// carries it and it cannot be read back.
+service WebhooksService {
+  // Registers an endpoint and returns its signing secret once. Replay-safe with
+  // an Idempotency-Key header: a retry returns the same endpoint and secret.
+  rpc CreateEndpoint(CreateEndpointRequest) returns (CreateEndpointResponse);
+  // Returns one endpoint, without its secret.
+  rpc GetEndpoint(GetEndpointRequest) returns (GetEndpointResponse);
+  // Lists endpoints, newest first, with keyset pagination.
+  rpc ListEndpoints(ListEndpointsRequest) returns (ListEndpointsResponse);
+  // Replaces the signing secret and returns the new one once. The old secret
+  // stops signing immediately; deliveries already queued are signed with the new one.
+  rpc RotateEndpointSecret(RotateEndpointSecretRequest) returns (RotateEndpointSecretResponse);
+  // Stops deliveries to an endpoint: new events are not fanned out to it and
+  // queued deliveries are cancelled when they are next attempted. Disabling a
+  // disabled endpoint changes nothing.
+  rpc DisableEndpoint(DisableEndpointRequest) returns (DisableEndpointResponse);
+  // Resumes deliveries to an endpoint and resets its failure counter. Events
+  // published while it was disabled are not replayed. Enabling an active
+  // endpoint changes nothing.
+  rpc EnableEndpoint(EnableEndpointRequest) returns (EnableEndpointResponse);
+  // Deletes an endpoint together with its delivery log. Queued deliveries are
+  // cancelled when they are next attempted.
+  rpc DeleteEndpoint(DeleteEndpointRequest) returns (DeleteEndpointResponse);
+  // Lists the deliveries of one endpoint, newest first, with keyset pagination.
+  rpc ListDeliveries(ListDeliveriesRequest) returns (ListDeliveriesResponse);
+  // Queues a failed or cancelled delivery again, with the original event id
+  // (webhook-id) and payload. A delivery that is already pending is returned
+  // unchanged, so a retry of this call queues nothing twice.
+  rpc RedeliverDelivery(RedeliverDeliveryRequest) returns (RedeliverDeliveryResponse);
+}
+
+// EndpointStatus says whether an endpoint receives deliveries.
+enum EndpointStatus {
+  // Never a valid value.
+  ENDPOINT_STATUS_UNSPECIFIED = 0;
+  // Events are fanned out to the endpoint.
+  ENDPOINT_STATUS_ACTIVE = 1;
+  // The endpoint receives nothing until EnableEndpoint.
+  ENDPOINT_STATUS_DISABLED = 2;
+}
+
+// EndpointDisabledReason says who disabled an endpoint.
+enum EndpointDisabledReason {
+  // The endpoint is active.
+  ENDPOINT_DISABLED_REASON_UNSPECIFIED = 0;
+  // An operator called DisableEndpoint.
+  ENDPOINT_DISABLED_REASON_OPERATOR = 1;
+  // The server disabled it after too many consecutive failed deliveries
+  // (AEDST_WEBHOOKS_DISABLE_AFTER_FAILURES): the dead-letter state.
+  ENDPOINT_DISABLED_REASON_CONSECUTIVE_FAILURES = 2;
+}
+
+// DeliveryStatus is the state of one delivery of one event to one endpoint.
+enum DeliveryStatus {
+  // Never a valid value.
+  DELIVERY_STATUS_UNSPECIFIED = 0;
+  // Queued or being retried.
+  DELIVERY_STATUS_PENDING = 1;
+  // The receiver answered 2xx.
+  DELIVERY_STATUS_DELIVERED = 2;
+  // The receiver rejected the delivery for good (a 4xx other than 408, 425 and
+  // 429) or every retry was used up.
+  DELIVERY_STATUS_FAILED = 3;
+  // Not sent: the endpoint was disabled or deleted, or its URL may not be called.
+  DELIVERY_STATUS_CANCELLED = 4;
+}
+
+// Endpoint is one registered receiver. It never carries the signing secret.
+message Endpoint {
+  // Opaque identifier (UUID).
+  string id = 1;
+  // The https URL deliveries are POSTed to.
+  string url = 2;
+  // Free-form note for operators.
+  string description = 3;
+  // Event types the endpoint is subscribed to, for example "tasks.v1.TaskCompleted".
+  repeated string event_types = 4;
+  // Whether the endpoint receives deliveries.
+  EndpointStatus status = 5;
+  // Who disabled the endpoint; unspecified while it is active.
+  EndpointDisabledReason disabled_reason = 6;
+  // Failed deliveries in a row since the last success or EnableEndpoint.
+  int32 consecutive_failures = 7;
+  // When the endpoint was registered.
+  google.protobuf.Timestamp created_at = 8;
+  // When the endpoint, its secret or its status last changed.
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// Delivery is one event sent, or to be sent, to one endpoint.
+message Delivery {
+  // Opaque identifier (UUID).
+  string id = 1;
+  // The endpoint the delivery belongs to.
+  string endpoint_id = 2;
+  // The integration event id, sent to the receiver as webhook-id.
+  string event_id = 3;
+  // The event type, sent as Webhook-Event-Type.
+  string event_type = 4;
+  // Where the delivery stands.
+  DeliveryStatus status = 5;
+  // How many POSTs were attempted, redeliveries included.
+  int32 attempts = 6;
+  // HTTP status of the last attempt; 0 when the receiver did not answer.
+  int32 last_status_code = 7;
+  // Why the last attempt did not succeed; empty after a success. Never
+  // contains the signing secret.
+  string last_error = 8;
+  // When the event was fanned out to the endpoint.
+  google.protobuf.Timestamp created_at = 9;
+  // When the delivery last changed.
+  google.protobuf.Timestamp updated_at = 10;
+  // When the receiver accepted it; unset until then.
+  google.protobuf.Timestamp delivered_at = 11;
+}
+
+// CreateEndpointRequest registers a receiver.
+message CreateEndpointRequest {
+  // Absolute https URL with a host, without credentials or a fragment. The
+  // address it resolves to must be public (checked on every delivery).
+  string url = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 2048
+    uri: true
+  }];
+  // Free-form note for operators, at most 500 characters.
+  string description = 2 [(buf.validate.field).string.max_len = 500];
+  // Event types to subscribe to: 1 to 32 distinct types the server offers to
+  // webhooks. An unknown type is INVALID_ARGUMENT.
+  repeated string event_types = 3 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 32
+    unique: true
+    items: {
+      string: {
+        min_len: 1
+        max_len: 128
+      }
+    }
+  }];
+}
+
+// CreateEndpointResponse carries the new endpoint and its secret.
+message CreateEndpointResponse {
+  // The registered endpoint.
+  Endpoint endpoint = 1;
+  // The signing secret in the Standard Webhooks form "whsec_<base64>". Shown
+  // only here: store it now, it cannot be read back.
+  string secret = 2;
+}
+
+// GetEndpointRequest names an endpoint.
+message GetEndpointRequest {
+  // Endpoint identifier.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// GetEndpointResponse carries the endpoint.
+message GetEndpointResponse {
+  // The endpoint, without its secret.
+  Endpoint endpoint = 1;
+}
+
+// ListEndpointsRequest pages through the endpoints.
+message ListEndpointsRequest {
+  // Defaults to 20 when 0; at most 100.
+  int32 page_size = 1 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  // Opaque cursor from a previous next_page_token; empty for the first page.
+  string page_token = 2 [(buf.validate.field).string.max_len = 512];
+}
+
+// ListEndpointsResponse is one page of endpoints.
+message ListEndpointsResponse {
+  // Endpoints, newest first.
+  repeated Endpoint endpoints = 1;
+  // Cursor of the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// RotateEndpointSecretRequest names the endpoint whose secret is replaced.
+message RotateEndpointSecretRequest {
+  // Endpoint identifier.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// RotateEndpointSecretResponse carries the endpoint and its new secret.
+message RotateEndpointSecretResponse {
+  // The endpoint after the rotation.
+  Endpoint endpoint = 1;
+  // The new signing secret ("whsec_<base64>"). Shown only here.
+  string secret = 2;
+}
+
+// DisableEndpointRequest names the endpoint to disable.
+message DisableEndpointRequest {
+  // Endpoint identifier.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DisableEndpointResponse carries the endpoint after the call.
+message DisableEndpointResponse {
+  // The disabled endpoint.
+  Endpoint endpoint = 1;
+}
+
+// EnableEndpointRequest names the endpoint to enable.
+message EnableEndpointRequest {
+  // Endpoint identifier.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// EnableEndpointResponse carries the endpoint after the call.
+message EnableEndpointResponse {
+  // The active endpoint.
+  Endpoint endpoint = 1;
+}
+
+// DeleteEndpointRequest names the endpoint to delete.
+message DeleteEndpointRequest {
+  // Endpoint identifier.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteEndpointResponse is empty: the endpoint is gone.
+message DeleteEndpointResponse {}
+
+// ListDeliveriesRequest pages through one endpoint's deliveries.
+message ListDeliveriesRequest {
+  // The endpoint whose deliveries are listed.
+  string endpoint_id = 1 [(buf.validate.field).string.uuid = true];
+  // Defaults to 20 when 0; at most 100.
+  int32 page_size = 2 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  // Opaque cursor from a previous next_page_token; empty for the first page.
+  string page_token = 3 [(buf.validate.field).string.max_len = 512];
+}
+
+// ListDeliveriesResponse is one page of deliveries.
+message ListDeliveriesResponse {
+  // Deliveries, newest first.
+  repeated Delivery deliveries = 1;
+  // Cursor of the next page; empty on the last page.
+  string next_page_token = 2;
+}
+
+// RedeliverDeliveryRequest names the delivery to queue again.
+message RedeliverDeliveryRequest {
+  // Delivery identifier.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// RedeliverDeliveryResponse carries the delivery after the call.
+message RedeliverDeliveryResponse {
+  // The delivery, pending again.
+  Delivery delivery = 1;
+}

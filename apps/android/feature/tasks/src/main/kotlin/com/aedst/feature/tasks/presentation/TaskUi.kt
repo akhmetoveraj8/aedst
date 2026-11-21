@@ -8,10 +8,11 @@ import com.aedst.core.ui.components.AedstBadgeVariant
 import com.aedst.feature.tasks.R
 import com.aedst.feature.tasks.domain.TaskPriority
 import com.aedst.feature.tasks.domain.TaskStatus
-import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 
 @Composable
 internal fun TaskStatusBadge(status: TaskStatus) {
@@ -36,6 +37,9 @@ internal fun priorityLabel(priority: TaskPriority): String = stringResource(
     },
 )
 
-/** Localized medium date in the device time zone (java.time, desugared — no extra date library). */
+/**
+ * Localized medium date in the device time zone. The domain carries `kotlin.time.Instant`; formatting is a UI-edge
+ * concern and uses java.time (desugared, no extra date library).
+ */
 internal fun Instant.formatDate(): String =
-    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()).format(this)
+    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()).format(toJavaInstant())

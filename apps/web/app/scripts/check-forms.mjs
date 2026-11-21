@@ -54,7 +54,7 @@ for (const path of [...walk(srcDir), ...walk(join(rootDir, "..", "shared"))]) {
 
 if (offenders.length > 0) {
   console.error(
-    "A form must use React Hook Form (useForm + protovalidateResolver, see modules/tasks/ui/TaskForm.tsx). These files render a form without importing react-hook-form:\n",
+    "A form must use React Hook Form (useForm + protovalidateResolver, see modules/tasks/ui/task-form.tsx). These files render a form without importing react-hook-form:\n",
   );
   for (const file of offenders) {
     console.error(`  ${file}`);

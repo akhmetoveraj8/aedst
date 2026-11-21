@@ -4,9 +4,9 @@ import com.aedst.core.analytics.AnalyticsTracker
 import com.aedst.core.common.Logger
 import com.aedst.core.security.IntegrityFacade
 import com.aedst.core.testing.FakeDispatcherProvider
-import com.aedst.feature.auth.domain.model.DeviceAttestation
-import com.aedst.feature.auth.domain.repository.DeviceAttestor
-import com.aedst.feature.auth.domain.usecase.AttestDeviceUseCase
+import com.aedst.feature.auth.domain.AttestDeviceUseCase
+import com.aedst.feature.auth.domain.DeviceAttestation
+import com.aedst.feature.auth.domain.DeviceAttestor
 import com.aedst.integrity.v1.DeviceVerdict
 import com.aedst.integrity.v1.FailureReason
 import com.aedst.integrity.v1.IntegrityServiceClientInterface

@@ -16,7 +16,10 @@
 // this). Search results are eventually consistent (River event delivery ->
 // projection), so the search checks only assert a well-formed response.
 //
-// Thresholds are the pass/fail SLOs: k6 exits non-zero when one is breached.
+// Thresholds are the pass/fail SLOs: k6 exits non-zero (99) when one is
+// breached, and `task load` passes that exit code on. CI (server-ci.yml, job
+// `load`) fails on a smoke threshold miss; the `load` scenario is reported
+// only, because p95/p99 under an arrival rate on a shared runner is noise.
 import http from "k6/http";
 import { check, fail } from "k6";
 
@@ -71,6 +74,9 @@ export const options = {
     "http_req_duration{rpc:Suggest}": strict ? ["p(95)<150", "p(99)<300"] : ["p(95)<1000"],
     "http_req_duration{rpc:CompleteTask}": strict ? ["p(95)<300", "p(99)<600"] : ["p(95)<1500"],
     ...(SCENARIO === "load" ? { dropped_iterations: ["count==0"] } : {}),
+    // A smoke run that did nothing must not pass: 30 s of one VU is hundreds of
+    // iterations on any machine, so fewer than 10 means the API barely answered.
+    ...(SCENARIO === "smoke" ? { iterations: ["count>=10"] } : {}),
   },
 };
 

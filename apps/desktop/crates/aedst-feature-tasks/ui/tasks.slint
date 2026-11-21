@@ -1,6 +1,6 @@
 // The Tasks list screen. Stateless: it renders `TasksStore` and calls its callbacks; Rust
 // (`ui_glue.rs`) owns the state. Only `aedst-ui` components are used; no raw std-widgets control.
-import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstTextField, AedstBadge, AedstCheckbox } from "@aedst-ui";
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstInput, AedstBadge, AedstCheckbox, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
 
 export struct TaskRowData {
     id: string,
@@ -70,7 +70,7 @@ export global TaskTexts {
 component PriorityChoice inherits AedstButton {
     in property <string> key;
     text: TaskTexts.priority-text(root.key);
-    primary: TasksStore.priority == root.key;
+    variant: TasksStore.priority == root.key ? AedstButtonVariant.default : AedstButtonVariant.secondary;
     min-width: 72px;
     clicked => { TasksStore.priority = root.key; }
 }
@@ -126,22 +126,22 @@ component TaskRow inherits Rectangle {
             toggled => { TasksStore.toggle(root.data.id); }
         }
         AedstLabel { text: root.data.title; vertical-alignment: center; horizontal-stretch: 1; }
-        AedstBadge { text: TaskTexts.priority-text(root.data.priority); }
+        AedstBadge { variant: AedstBadgeVariant.secondary; text: TaskTexts.priority-text(root.data.priority); }
         AedstBadge {
             text: TaskTexts.status-text(root.data.status);
-            tone: root.data.status == "done" ? "success" : "neutral";
+            variant: root.data.status == "done" ? AedstBadgeVariant.success : AedstBadgeVariant.secondary;
         }
-        if root.data.pending: AedstBadge { text: @tr("" => "Pending sync"); tone: "danger"; }
+        if root.data.pending: AedstBadge { text: @tr("" => "Pending sync"); variant: AedstBadgeVariant.destructive; }
     }
     if AedstLayout.rtl: HorizontalLayout {
         padding: AedstTokens.spacing-sm;
         spacing: AedstTokens.spacing-sm;
-        if root.data.pending: AedstBadge { text: @tr("" => "Pending sync"); tone: "danger"; }
+        if root.data.pending: AedstBadge { text: @tr("" => "Pending sync"); variant: AedstBadgeVariant.destructive; }
         AedstBadge {
             text: TaskTexts.status-text(root.data.status);
-            tone: root.data.status == "done" ? "success" : "neutral";
+            variant: root.data.status == "done" ? AedstBadgeVariant.success : AedstBadgeVariant.secondary;
         }
-        AedstBadge { text: TaskTexts.priority-text(root.data.priority); }
+        AedstBadge { variant: AedstBadgeVariant.secondary; text: TaskTexts.priority-text(root.data.priority); }
         AedstLabel { text: root.data.title; vertical-alignment: center; horizontal-stretch: 1; }
         AedstCheckbox {
             checked: root.data.done;
@@ -171,11 +171,11 @@ export component TasksListView inherits Rectangle {
                     font-size: AedstTokens.typography-title-large-font-size;
                     font-weight: AedstTokens.typography-title-large-font-weight;
                 }
-                if TasksStore.total >= 0: AedstBadge { text: @tr("" => "{} in total", TasksStore.total); }
+                if TasksStore.total >= 0: AedstBadge { variant: AedstBadgeVariant.secondary; text: @tr("" => "{} in total", TasksStore.total); }
             }
             if AedstLayout.rtl: HorizontalLayout {
                 spacing: AedstTokens.spacing-sm;
-                if TasksStore.total >= 0: AedstBadge { text: @tr("" => "{} in total", TasksStore.total); }
+                if TasksStore.total >= 0: AedstBadge { variant: AedstBadgeVariant.secondary; text: @tr("" => "{} in total", TasksStore.total); }
                 AedstLabel {
                     text: @tr("" => "Tasks");
                     font-size: AedstTokens.typography-title-large-font-size;
@@ -186,7 +186,7 @@ export component TasksListView inherits Rectangle {
 
         if TasksStore.pending-count > 0: AedstBadge {
             text: @tr("" => "Waiting to sync: {}", TasksStore.pending-count);
-            tone: "danger";
+            variant: AedstBadgeVariant.destructive;
             vertical-stretch: 0;
         }
 
@@ -194,7 +194,7 @@ export component TasksListView inherits Rectangle {
         VerticalLayout {
             spacing: AedstTokens.spacing-sm;
             vertical-stretch: 0;
-            title-field := AedstTextField {
+            title-field := AedstInput {
                 label: @tr("" => "New task title");
                 placeholder: @tr("" => "What needs to be done?");
                 invalid: TasksStore.create-state == "invalid";
@@ -226,7 +226,7 @@ export component TasksListView inherits Rectangle {
             vertical-stretch: 0;
             AedstLabel { text: @tr("" => "Could not load tasks"); font-weight: 600; }
             AedstLabel { text: TaskTexts.kind-text(TasksStore.error-kind); color: AedstTokens.destructive; }
-            AedstButton { text: @tr("" => "Try again"); primary: false; clicked => { TasksStore.reload(); } }
+            AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { TasksStore.reload(); } }
         }
         if TasksStore.phase == "ready" && TasksStore.rows.length == 0: VerticalLayout {
             alignment: start;
@@ -251,7 +251,7 @@ export component TasksListView inherits Rectangle {
 
         if TasksStore.has-more: AedstButton {
             text: @tr("" => "Load more");
-            primary: false;
+            variant: AedstButtonVariant.secondary;
             vertical-stretch: 0;
             clicked => { TasksStore.load-more(); }
         }

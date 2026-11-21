@@ -1,19 +1,22 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { JsonLd } from "@/app/config/JsonLd";
+import { JsonLd } from "@/app/config/json-ld";
 import { buildAlternates } from "@/app/config/seo";
 import {
   faqPage,
   graph,
   softwareApplication,
 } from "@/app/config/structured-data";
-import { signInUrl } from "@/modules/marketing/lib/app-links";
-import { CtaSection } from "@/modules/marketing/ui/CtaSection";
-import { FaqSection, getFaqEntries } from "@/modules/marketing/ui/FaqSection";
-import { Features } from "@/modules/marketing/ui/Features";
-import { Hero } from "@/modules/marketing/ui/Hero";
-import { HowItWorks } from "@/modules/marketing/ui/HowItWorks";
-import { Pricing } from "@/modules/marketing/ui/Pricing";
+import { signInUrl } from "@/modules/marketing/entries/app-links";
+import { CtaSection } from "@/modules/marketing/entries/cta-section";
+import {
+  FaqSection,
+  getFaqEntries,
+} from "@/modules/marketing/entries/faq-section";
+import { Features } from "@/modules/marketing/entries/features";
+import { Hero } from "@/modules/marketing/entries/hero";
+import { HowItWorks } from "@/modules/marketing/entries/how-it-works";
+import { Pricing } from "@/modules/marketing/entries/pricing";
 import { toLanguageTag } from "@/shared/i18n/locales";
 import { requireLocale } from "@/shared/i18n/require-locale";
 

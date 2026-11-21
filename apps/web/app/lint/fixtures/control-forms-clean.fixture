@@ -1,6 +1,6 @@
 //// run: forms
 //// expect: pass
-//// file: src/modules/tasks/ui/OkForm.tsx
+//// file: src/modules/tasks/ui/ok-form.tsx
 import { useForm } from "react-hook-form";
 
 import { Form } from "@/shared/ui/form";

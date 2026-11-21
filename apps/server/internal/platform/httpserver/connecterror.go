@@ -60,25 +60,31 @@ func ToConnectError(err error) error {
 	msg := clientMessage(err)
 	switch sharederrors.KindOf(err) {
 	case sharederrors.KindNotFound:
-		return connect.NewError(connect.CodeNotFound, msg)
+		return withDetails(connect.NewError(connect.CodeNotFound, msg), errorInfo(reasonOf(err, ReasonNotFound), nil))
 	case sharederrors.KindAlreadyExists:
-		return connect.NewError(connect.CodeAlreadyExists, msg)
+		return withDetails(connect.NewError(connect.CodeAlreadyExists, msg), errorInfo(reasonOf(err, ReasonAlreadyExists), nil))
 	case sharederrors.KindConflict:
-		return connect.NewError(connect.CodeAborted, msg)
+		reason := reasonOf(err, ReasonConflict)
+		return withDetails(connect.NewError(connect.CodeAborted, msg), errorInfo(reason, nil), preconditionFailure(reason, msg))
 	case sharederrors.KindValidation:
-		return connect.NewError(connect.CodeInvalidArgument, msg)
+		return withDetails(connect.NewError(connect.CodeInvalidArgument, msg), errorInfo(reasonOf(err, ReasonInvalidArgument), nil))
 	case sharederrors.KindUnauthorized:
-		return connect.NewError(connect.CodeUnauthenticated, msg)
+		return withDetails(connect.NewError(connect.CodeUnauthenticated, msg), errorInfo(reasonOf(err, ReasonUnauthenticated), nil))
 	case sharederrors.KindRateLimited:
-		return connect.NewError(connect.CodeResourceExhausted, msg)
+		e := withDetails(connect.NewError(connect.CodeResourceExhausted, msg),
+			errorInfo(reasonOf(err, ReasonRateLimited), nil), retryInfo(rateLimitRetrySeconds))
+		return withRetryAfter(e, rateLimitRetrySeconds)
 	case sharederrors.KindForbidden:
-		return connect.NewError(connect.CodePermissionDenied, msg)
+		return permissionDenied(msg, reasonOf(err, ReasonPermissionDenied), nil)
 	case sharederrors.KindFailedPrecondition:
-		return connect.NewError(connect.CodeFailedPrecondition, msg)
+		reason := reasonOf(err, ReasonFailedPrecondition)
+		return withDetails(connect.NewError(connect.CodeFailedPrecondition, msg), errorInfo(reason, nil), preconditionFailure(reason, msg))
 	case sharederrors.KindUnavailable:
-		return withRetryAfter(connect.NewError(connect.CodeUnavailable, msg).WithCause(err), retryAfterSeconds)
+		e := withDetails(connect.NewError(connect.CodeUnavailable, msg).WithCause(err),
+			errorInfo(reasonOf(err, ReasonUnavailable), nil), retryInfo(retryAfterSeconds))
+		return withRetryAfter(e, retryAfterSeconds)
 	case sharederrors.KindTimeout:
-		return connect.NewError(connect.CodeDeadlineExceeded, msg).WithCause(err)
+		return withDetails(connect.NewError(connect.CodeDeadlineExceeded, msg).WithCause(err), errorInfo(reasonOf(err, ReasonTimeout), nil))
 	case sharederrors.KindUnknown:
 		fallthrough
 	default:
@@ -89,6 +95,9 @@ func ToConnectError(err error) error {
 // retryAfterSeconds is the Retry-After hint sent with UNAVAILABLE: long enough for
 // a pod restart or a failover to settle, short enough for an interactive client.
 const retryAfterSeconds = "5"
+
+// rateLimitRetrySeconds is the hint sent with a domain-level RESOURCE_EXHAUSTED.
+const rateLimitRetrySeconds = "1"
 
 // withRetryAfter marks e to be answered with a Retry-After header (seconds).
 // The header is written by ErrorHeadersInterceptor, which must be in the chain

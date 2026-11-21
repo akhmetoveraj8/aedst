@@ -66,6 +66,7 @@ type Config struct {
 	Tasks     TasksConfig
 	Integrity IntegrityConfig
 	AppAttest AppAttestConfig
+	Webhooks  WebhooksConfig
 	NATS      NATSConfig
 	// Topology selects the units this process hosts and the URLs of the others
 	// (AEDST_MODULES, AEDST_MODULE_<NAME>_URL); the default is the whole monolith.
@@ -111,6 +112,12 @@ type HTTPConfig struct {
 	// shared by every replica through Dragonfly. It bounds what one account (or one
 	// leaked token) can take from everyone else. 0 disables.
 	APIRateLimitPerMinute int `env:"AEDST_API_RATE_LIMIT_PER_MINUTE" envDefault:"1200"`
+	// ProcedureRateLimits gives an expensive procedure its own per-user budget per
+	// minute on top of APIRateLimitPerMinute: "/pkg.Service/Method=10,/pkg.Service/*=60"
+	// (an exact entry has its own counter, a service wildcard is one counter for the
+	// service). It overlays the modules' built-in limits; 0 switches a built-in one
+	// off. An unknown or public procedure is a startup error.
+	ProcedureRateLimits map[string]int `env:"AEDST_PROCEDURE_RATE_LIMITS" envSeparator:"," envKeyValSeparator:"=" envDefault:""`
 	// MaxInFlight caps concurrently processing requests per instance; the excess
 	// is shed with 429 + Retry-After rather than queued until latency collapses.
 	// 0 disables.
@@ -134,6 +141,10 @@ type DatabaseConfig struct {
 	// IdleInTxTimeoutMs kills sessions that hold a transaction open while
 	// idle (0 = no limit).
 	IdleInTxTimeoutMs int `env:"AEDST_DATABASE_IDLE_IN_TX_TIMEOUT_MS" envDefault:"30000"`
+	// SlowQueryMs reports every statement that takes at least this long: a
+	// warning log line with the trace id, a span event and the counter
+	// aedst_db_slow_queries (statement text only, never its arguments). 0 = off.
+	SlowQueryMs int `env:"AEDST_DATABASE_SLOW_QUERY_MS" envDefault:"500"`
 
 	// JobsMaxConns sizes the second pool used by background work (River,
 	// event consumers). Keeping it apart from MaxConns means a
@@ -234,8 +245,11 @@ func (c FlagsConfig) Enabled() bool { return c.FlagdHost != "" }
 // verification (see OIDCConfig). The server issues no tokens and stores no
 // credentials (ADR-0019).
 type AuthConfig struct {
-	// RolePolicy restricts procedures to callers holding one of the listed roles:
-	// "/pkg.Service/Method=role|role,/pkg.Other/Method=role". A procedure that is
+	// RolePolicy restricts procedures to callers satisfying one of the listed
+	// alternatives: "/pkg.Service/Method=role|role,/pkg.Other/Method=role". An
+	// alternative is a role, an OAuth scope of the token ("scope:tasks.operator",
+	// for machine callers using client credentials) or both joined with "+"
+	// ("internal+scope:events.ingest"). A malformed alternative or a procedure that is
 	// unknown or public is a startup error (see httpserver.ValidateRolePolicy), so
 	// a typo cannot leave the real RPC open. Empty means every authenticated caller
 	// may call every RPC.
@@ -354,6 +368,9 @@ func (c Config) Validate() error {
 	if c.DB.MinConns > c.DB.MaxConns {
 		bad("AEDST_DATABASE_MIN_CONNS (%d) must not exceed AEDST_DATABASE_MAX_CONNS (%d)", c.DB.MinConns, c.DB.MaxConns)
 	}
+	if c.DB.SlowQueryMs < 0 {
+		bad("AEDST_DATABASE_SLOW_QUERY_MS (%d) must not be negative (0 turns slow-query reporting off)", c.DB.SlowQueryMs)
+	}
 	if c.DB.ReadMaxConns < 0 {
 		bad("AEDST_DATABASE_READ_MAX_CONNS (%d) must not be negative", c.DB.ReadMaxConns)
 	}
@@ -443,6 +460,7 @@ func (c Config) Validate() error {
 	}
 	c.validateFeatures(bad)
 	c.validateAppAttest(bad)
+	c.validateWebhooks(bad)
 	c.validateServiceIdentity(bad)
 	c.validateEvents(bad)
 

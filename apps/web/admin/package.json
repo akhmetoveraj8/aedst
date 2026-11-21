@@ -23,8 +23,11 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "knip": "knip",
+    "check:bundle": "node ../shared/scripts/check-bundle-size.mjs",
     "check:deps": "depcruise src ../shared --config .dependency-cruiser.cjs",
-    "check": "pnpm lint && pnpm typecheck && pnpm knip && pnpm check:deps",
+    "check:source": "node ../shared/scripts/check-source-bans.mjs",
+    "check:feature-boundaries": "bash ../app/scripts/check-feature-boundaries.sh .",
+    "check": "pnpm lint && pnpm typecheck && pnpm knip && pnpm check:deps && pnpm check:feature-boundaries && pnpm check:source",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -55,6 +58,7 @@
   },
   "devDependencies": {
     "@babel/core": "catalog:",
+    "@axe-core/playwright": "catalog:",
     "@biomejs/biome": "catalog:",
     "@playwright/test": "catalog:",
     "@rolldown/plugin-babel": "catalog:",

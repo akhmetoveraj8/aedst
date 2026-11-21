@@ -5,20 +5,20 @@ description: "How to call the AEDST API: the Connect protocol, headers, authenti
 
 # API overview
 
-The API is **ConnectRPC over HTTP**, defined in Protobuf under `apps/server/api/proto/aedst/<module>/v1/`. It is not REST: there is one `POST` per RPC. The per-service pages in this section are **generated from the `.proto` files** (`task docs:api`), so field names, bounds and comments cannot drift from the contract. Design rules: [API design](/engineering/api-design).
+The API is **ConnectRPC over HTTP**, defined in Protobuf under `apps/server/api/proto/aedst/<module>/v1/`. It is not REST: there is one `POST` per RPC. The per-module reference pages ([Modules](/modules)) are **generated from the `.proto` files** (`task docs:api`), together with one OpenAPI 3.1 document per package (`/openapi/aedst.<module>.v1.yaml`), so field names, bounds and comments cannot drift from the contract. Design rules: [API design](/engineering/api-design).
 
 ## Service catalog
 
 | Service | Audience | Page |
 |---|---|---|
-| `aedst.tasks.v1.TasksService` | Signed-in user, own data | [Tasks](/api/tasks) |
-| `aedst.media.v1.MediaService` | Signed-in user | [Media](/api/media) |
-| `aedst.notifications.v1.NotificationsService` | Signed-in user | [Notifications](/api/notifications) |
-| `aedst.search.v1.SearchService` | Signed-in user | [Search](/api/search) |
-| `aedst.capabilities.v1.CapabilitiesService` | Public | [Capabilities](/api/capabilities) |
-| `aedst.integrity.v1.IntegrityService` | Signed-in Android app | [Play Integrity](/api/integrity) |
-| `aedst.appattest.v1.AppAttestService` | Signed-in Apple app | [App Attest](/api/appattest) |
-| `aedst.admin.v1.AdminService` | Role `admin` | [Admin](/api/admin) |
+| `aedst.tasks.v1.TasksService` | Signed-in user, own data | [Tasks](/modules/tasks/api) |
+| `aedst.media.v1.MediaService` | Signed-in user | [Media](/modules/media/api) |
+| `aedst.notifications.v1.NotificationsService` | Signed-in user | [Notifications](/modules/notifications/api) |
+| `aedst.search.v1.SearchService` | Signed-in user | [Search](/modules/search/api) |
+| `aedst.capabilities.v1.CapabilitiesService` | Public | [Capabilities](/modules/capabilities/api) |
+| `aedst.integrity.v1.IntegrityService` | Signed-in Android app | [Play Integrity](/modules/integrity/api) |
+| `aedst.appattest.v1.AppAttestService` | Signed-in Apple app | [App Attest](/modules/appattest/api) |
+| `aedst.admin.v1.AdminService` | Role `admin` | [Admin](/modules/admin/api) |
 | `*OperatorService` (tasks, media, notifications) | Staff and machine identity | Same pages as their module |
 | `aedst.events.v1.EventIngestService` | Machine identity `internal` only | [Event ingest](/api/events) |
 
@@ -150,7 +150,7 @@ Authenticated RPCs are limited per user (default 1200 per minute); each instance
 
 ## Versioning
 
-Within `v1` changes are additive only (new fields, RPCs, enum values). A breaking change ships as `v2` beside `v1`. Deprecated items carry `deprecated = true` and a replacement. Clients discover optional features with [`GetCapabilities`](/api/capabilities). Rules: [ADR-0009](/decisions/0009-api-compatibility-and-client-versioning).
+Within `v1` changes are additive only (new fields, RPCs, enum values). A breaking change ships as `v2` beside `v1`. Deprecated items carry `deprecated = true` and a replacement. Clients discover optional features with [`GetCapabilities`](/modules/capabilities/api). Rules: [ADR-0009](/decisions/0009-api-compatibility-and-client-versioning).
 
 ## Try it
 
@@ -161,7 +161,7 @@ Within `v1` changes are additive only (new fields, RPCs, enum values). A breakin
 ## Regenerating these pages
 
 ```bash
-task docs:api          # rewrite docs/content/api/*.md from the .proto files
+task docs:api          # rewrite docs/content/modules/<module>/api.md from buf's descriptor of the .proto files
 task check:api-docs    # fail when a committed page is stale (CI)
 ```
 

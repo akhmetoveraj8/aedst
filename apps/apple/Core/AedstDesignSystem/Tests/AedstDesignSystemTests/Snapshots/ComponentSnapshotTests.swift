@@ -21,9 +21,9 @@ struct ComponentSnapshotTests {
 
     @Test("AedstButton")
     func button() {
-        assertComponent(height: 560) {
+        assertComponent(height: 720) {
             VStack(alignment: .leading, spacing: AedstSpacing.sm) {
-                AedstButton("Primary") {}
+                AedstButton("Default") {}
                 AedstButton("Secondary", variant: .secondary) {}
                 AedstButton("Destructive", variant: .destructive) {}
                 AedstButton("Outline", variant: .outline) {}
@@ -32,32 +32,43 @@ struct ComponentSnapshotTests {
                 AedstButton("With icon", systemImage: "plus") {}
                 AedstButton("Loading", isLoading: true) {}
                 AedstButton("Disabled", isDisabled: true) {}
+                AedstButton("Extra small", size: .xs) {}
                 AedstButton("Small", size: .sm) {}
                 AedstButton("Large", size: .lg) {}
+                HStack(spacing: AedstSpacing.sm) {
+                    AedstButton("Add", systemImage: "plus", size: .iconXs) {}
+                    AedstButton("Add", systemImage: "plus", size: .iconSm) {}
+                    AedstButton("Add", systemImage: "plus", size: .icon) {}
+                    AedstButton("Add", systemImage: "plus", size: .iconLg) {}
+                }
             }
         }
     }
 
     @Test("AedstBadge")
     func badge() {
-        assertComponent(height: 220) {
+        assertComponent(height: 420) {
             VStack(alignment: .leading, spacing: AedstSpacing.sm) {
                 AedstBadge("Default")
                 AedstBadge("Secondary", variant: .secondary)
                 AedstBadge("Destructive", variant: .destructive)
+                AedstBadge("Success", variant: .success)
+                AedstBadge("Warning", variant: .warning)
+                AedstBadge("Info", variant: .info)
                 AedstBadge("Outline", variant: .outline)
+                AedstBadge("Ghost", variant: .ghost)
+                AedstBadge("Link", variant: .link)
             }
         }
     }
 
     @Test("AedstAlert")
     func alert() {
-        assertComponent(height: 560) {
+        assertComponent(height: 420) {
             VStack(spacing: AedstSpacing.sm) {
-                AedstAlert("Heads up", message: "Informational message.", severity: .info)
-                AedstAlert("Saved", message: "Your changes were saved.", severity: .success)
-                AedstAlert("Careful", message: "This action has side effects.", severity: .warning)
-                AedstAlert("Failed", message: "Something went wrong.", severity: .destructive)
+                AedstAlert("Heads up", message: "Informational message.")
+                AedstAlert("Failed", message: "Something went wrong.", variant: .destructive)
+                AedstAlert("Saved", systemImage: "checkmark.circle.fill")
                 AedstAlert("Title only")
             }
         }
@@ -99,6 +110,63 @@ struct ComponentSnapshotTests {
                 AedstSkeleton(cornerRadius: AedstRadius.full).frame(width: 48, height: 48)
                 AedstSkeleton().frame(width: 200, height: 16)
                 AedstSkeleton().frame(width: 160, height: 16)
+            }
+        }
+    }
+    @Test("AedstText")
+    func text() {
+        assertComponent(height: 620) {
+            VStack(alignment: .leading, spacing: AedstSpacing.sm) {
+                AedstText("Heading 1", variant: .h1)
+                AedstText("Heading 2", variant: .h2)
+                AedstText("Heading 3", variant: .h3)
+                AedstText("Heading 4", variant: .h4)
+                AedstText("A lead paragraph.", variant: .lead)
+                AedstText("Body text at reading size.")
+                AedstText("A quotation.", variant: .blockquote)
+                AedstText(list: ["First", "Second"])
+                AedstText("task check", variant: .inlineCode)
+                AedstText("Large", variant: .large)
+                AedstText("Small", variant: .small)
+                AedstText("Muted", variant: .muted)
+            }
+        }
+    }
+
+    @Test("AedstItem, AedstEmpty")
+    func itemAndEmpty() {
+        assertComponent(height: 720) {
+            VStack(spacing: AedstSpacing.sm) {
+                AedstItem("Default", description: "Title and description.")
+                AedstItem("Outline", variant: .outline) {
+                    AedstItemMedia(variant: .icon) { Image(systemName: "shield") }
+                } actions: {
+                    AedstBadge("New")
+                }
+                AedstItem("Muted, small", variant: .muted, size: .sm) {
+                    AedstItemMedia(variant: .image, size: .sm) { AedstColor.chart2 }
+                } actions: {
+                    EmptyView()
+                }
+                AedstItem("Extra small", description: "Dense.", size: .xs)
+                AedstEmpty("No tasks yet", description: "Create the first task.", systemImage: "tray")
+                AedstEmpty("Nothing found", systemImage: "magnifyingglass", variant: .icon)
+            }
+        }
+    }
+
+    @Test("AedstAvatar, AedstKbd")
+    func avatarAndKbd() {
+        // AedstSpinner is left out on purpose: an animating indicator has no stable frame.
+        assertComponent(height: 220) {
+            VStack(alignment: .leading, spacing: AedstSpacing.sm) {
+                HStack(spacing: AedstSpacing.sm) {
+                    AedstAvatar(name: "Ada Lovelace", size: .sm)
+                    AedstAvatar(name: "Ada Lovelace")
+                    AedstAvatar(name: "Ada Lovelace", size: .lg)
+                }
+                AedstKbd("Esc")
+                AedstKbd(keys: ["Ctrl", "K"])
             }
         }
     }

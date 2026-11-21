@@ -21,7 +21,7 @@ here="$(cd "$(dirname "$0")" && pwd)"
 # Production files allowed to contain an unchecked escape hatch (reason: decisions/apple.md, "Swift 6 language mode").
 ESCAPE_ALLOWLIST="Core/AedstMedia/Sources/AedstMedia/BackgroundUploader.swift
 Core/AedstMedia/Sources/AedstMedia/ImageDownsampler.swift
-App/Shared/Sources/AedstAppShared/OutboxBackgroundTask.swift"
+App/iOS/Sources/OutboxBackgroundTask.swift"
 
 run_checks() {
   local root="$1" docs="$2" status=0

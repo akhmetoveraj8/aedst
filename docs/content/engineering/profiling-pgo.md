@@ -34,6 +34,11 @@ which cost throughput. `TestStartProfiling_UploadsToBackend` proves the adapter 
 
 ## PGO
 
+**Current state: `cmd/server/default.pgo` does not exist in the repository, on purpose** (see "Measured
+result"). The build does not need it: with no profile `-pgo=auto` is a no-op, and
+`CGO_ENABLED=0 go build ./...` is part of every verification run. Do not commit a profile made from
+benchmarks or from a synthetic run to tick this box.
+
 Go applies a profile named `default.pgo` in the main package directory automatically (`-pgo=auto`),
 so `cmd/server/default.pgo` also reaches the Docker build with no flag. `task pgo`
 (`scripts/pgo.sh`) writes it:

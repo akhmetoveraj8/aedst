@@ -1,0 +1,71 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant } from "aedst_button.slint";
+import { AedstMenuItem, AedstMenuList } from "aedst_dropdown_menu.slint";
+
+export struct AedstNavigationItem {
+    id: string,
+    title: string,
+    // Sub-links (label and description); empty for a plain link.
+    links: [AedstMenuItem],
+}
+
+// Top-level navigation: plain links and links that open a panel of sub-links. `current-id`
+// marks the active destination. The first item sits at the reading start (the right in RTL).
+export component AedstNavigationMenu inherits Rectangle {
+    in property <[AedstNavigationItem]> items;
+    in property <string> label;
+    in property <string> current-id;
+    in property <length> panel-width: 280px;
+    // The `id` of the chosen item or sub-link.
+    callback navigate(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <int> open-item: 0;
+    private property <length> open-x;
+
+    // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored item.
+    pure function at(slot: int) -> int {
+        return root.rtl ? root.items.length - 1 - slot : slot;
+    }
+
+    min-height: 32px;
+    max-height: 32px;
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    HorizontalLayout {
+        spacing: AedstTokens.spacing-xs;
+        alignment: root.rtl ? end : start;
+        for slot in root.items.length: link := AedstButton {
+            property <AedstNavigationItem> entry: root.items[root.at(slot)];
+            text: self.entry.title;
+            variant: self.entry.id == root.current-id ? AedstButtonVariant.secondary : AedstButtonVariant.ghost;
+            clicked => {
+                if (self.entry.links.length == 0) {
+                    root.navigate(self.entry.id);
+                } else {
+                    root.open-item = root.at(slot);
+                    root.open-x = root.rtl ? link.x + link.width - root.panel-width : link.x;
+                    popup.show();
+                }
+            }
+        }
+    }
+
+    popup := PopupWindow {
+        x: root.open-x;
+        y: root.height + AedstTokens.spacing-xs;
+        width: root.panel-width;
+        close-policy: PopupClosePolicy.close-on-click-outside;
+        AedstMenuList {
+            items: root.items[root.open-item].links;
+            label: root.items[root.open-item].title;
+            activated(index) => {
+                popup.close();
+                root.navigate(root.items[root.open-item].links[index].id);
+            }
+            dismissed => { popup.close(); }
+        }
+    }
+}

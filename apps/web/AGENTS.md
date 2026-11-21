@@ -26,7 +26,9 @@ Decision rule, in this order:
 - Auth: `app` and `admin` are SEPARATE OIDC clients (`aedst-web`, `aedst-admin`) with their own `__Host-` cookies and `AUTH_COOKIE_NAME`; never share a session or cookie ([projects.md](../../docs/content/web/projects.md)).
 - Projects NEVER import each other (`../app/src`, `../admin/src` are forbidden). They meet only in `shared/` and over the network (ConnectRPC to `apps/server`).
 - `shared` NEVER imports a project (`@/app/*`, `@/modules/*`); in tests only `@/test/*` of the host project `app`.
-- Inside a project: `app -> modules -> shared`; modules never import each other.
+- Inside a project: `app -> modules -> shared`; modules never import each other. Code outside a module imports only its `public.ts`, `manifest.ts` or `entries/*`.
+- Inside a module ([modules-and-features](../../docs/content/architecture/modules-and-features.md)): `features/<feature>/{ui,lib}` holds one capability; a feature never imports another feature; code two features share lives in the module's own `lib/` or `ui/`, which import no feature. A module with one capability stays flat (`ui/`, `lib/`).
+- Gate for all of the above in all three projects: `bash apps/web/app/scripts/check-feature-boundaries.sh <project-dir>` (`pnpm check:feature-boundaries` in each project, `task check:boundaries` for all). It is the authoritative one; `pnpm check:deps` (dependency-cruiser) repeats the graph rules but cannot load TypeScript 7.0.
 - Storybook of `shared/ui` and the vitest of `shared/**` tests are hosted by `app`; a `shared/` change must pass all three projects.
 
 ## Validation boundary (mandatory, machine-enforced)
@@ -35,7 +37,8 @@ API-message forms: Protovalidate through `protovalidateResolver`, rules only in 
 
 ## Starting a task
 
-- Product feature: `app/src/modules/tasks` is the reference module. Admin screen: `admin/src/modules/admin`. Marketing section: `landing/src/modules/marketing`.
+- Product feature: `app/src/modules/tasks` is the reference module and `app/src/modules/tasks/features/list` the reference feature. Admin screen: `admin/src/modules/admin`. Marketing section: `landing/src/modules/marketing`.
+- New feature in an existing module (`app`, `admin`): `node scripts/new-feature-web.mjs MODULE=<m> NAME=<f> [--project=admin]` (the web part of `task new:feature`).
 - New primitive: `shared/ui` with a `.stories.tsx`. New shared lib: copy a sibling in `shared/lib`.
 - New RPC client / proto change: `task app:generate` regenerates `shared/api/connect/generated` (gitignored, never hand-edit).
 - New module on all platforms: `task new:module -- NAME=<id>` ([new-module.md](../../docs/agent/new-module.md)).
@@ -48,17 +51,19 @@ project's knip allowlist and [library-first/web.md](../../docs/content/library-f
 
 ## Commands (from the repo root; `web:*` runs all three projects)
 
-| Project | Dev                | Gates                                                                                 |
-| ------- | ------------------ | ------------------------------------------------------------------------------------- |
-| app     | `task app:dev`     | `task app:lint app:knip app:test` (+ `app:build`, `app:check:bundle`, `app:test:e2e`) |
-| admin   | `task admin:dev`   | `task admin:lint admin:knip admin:test` (+ `admin:build`)                             |
-| landing | `task landing:dev` | `task landing:lint landing:knip landing:test` (+ `landing:build`)                     |
-| all     | `task web:dev`     | `task web:lint web:knip web:test web:build`, then `task check`                        |
+| Project | Dev                | Gates                                                                                                                               |
+| ------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| app     | `task app:dev`     | `task app:lint app:knip app:test` (+ `app:build`, `app:check:bundle`, `app:test:e2e`)                                               |
+| admin   | `task admin:dev`   | `task admin:lint admin:knip admin:test` (+ `admin:build`, `admin:check:bundle`, `admin:test:e2e`)                                   |
+| landing | `task landing:dev` | `task landing:lint landing:knip landing:test` (+ `landing:build`, `landing:check:bundle`, `landing:test:e2e`, `landing:lighthouse`) |
+| all     | `task web:dev`     | `task web:lint web:knip web:test web:build web:check:bundle web:check:source`, then `task check`                                    |
+
+Build tooling used by two or more projects lives in `shared/scripts/` (bundle budget, SEO placeholder guard, source bans); each project calls it from its own `package.json`.
 
 ## Vibe coding checklist
 
 1. Name the project first (table above) and open its `AGENTS.md`. Never start by editing `shared/`.
 2. Copy the reference file the project's table names; do not invent a new pattern.
 3. Use `shared/ui` for UI, generated clients for the server, tokens for color, `shared/env` or the project's `env.ts` for variables.
-4. Keep files at or under 300 lines; English only; all five locales (`en ru tj uz ar`) for every string.
+4. Keep files at or under 300 lines; every file name kebab-case (`task-form.tsx` exports `TaskForm`); English only; all five locales (`en ru tj uz ar`) for every string.
 5. Run the project's gates, then `task check`; if you touched `shared/`, run `task web:lint web:test`. Claim only what ran.

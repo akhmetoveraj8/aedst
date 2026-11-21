@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
@@ -33,12 +32,19 @@ import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 import com.aedst.core.ui.theme.LocalAedstDarkTheme
 
-/** Visual treatment of [AedstAlert], mirroring web's `alert.tsx` `variant` prop. */
+/** Visual treatment of [AedstAlert], mirroring web's `alert.tsx` `variant` prop (ui-kit.yaml: default, destructive). */
 enum class AedstAlertVariant {
-    INFO,
-    SUCCESS,
-    WARNING,
+    DEFAULT,
     DESTRUCTIVE,
+}
+
+/**
+ * Android extension outside the canonical variant set: an accent for a [AedstAlertVariant.DEFAULT] alert. Web has no
+ * warning alert; the app's "outbox failed" and "sign-in not configured" banners use [WARNING].
+ */
+enum class AedstAlertAccent {
+    NONE,
+    WARNING,
 }
 
 private data class AedstAlertPalette(
@@ -50,30 +56,19 @@ private data class AedstAlertPalette(
 )
 
 @Composable
-private fun rememberAlertPalette(variant: AedstAlertVariant): AedstAlertPalette {
+private fun rememberAlertPalette(variant: AedstAlertVariant, accent: AedstAlertAccent): AedstAlertPalette {
     val colorScheme = MaterialTheme.colorScheme
     val isDark = LocalAedstDarkTheme.current
-    return when (variant) {
-        AedstAlertVariant.INFO -> AedstAlertPalette(
-            container = colorScheme.secondary.copy(alpha = 0.14f),
-            border = colorScheme.secondary.copy(alpha = 0.4f),
-            icon = colorScheme.secondary,
-            title = colorScheme.onSurface,
-            description = colorScheme.onSurfaceVariant,
+    return when {
+        variant == AedstAlertVariant.DESTRUCTIVE -> AedstAlertPalette(
+            container = colorScheme.surface,
+            border = colorScheme.error,
+            icon = colorScheme.error,
+            title = colorScheme.error,
+            description = colorScheme.error,
         )
 
-        AedstAlertVariant.SUCCESS -> {
-            val tint = if (isDark) AedstDarkPalette.success else AedstLightPalette.success
-            AedstAlertPalette(
-                container = tint.copy(alpha = 0.14f),
-                border = tint.copy(alpha = 0.4f),
-                icon = tint,
-                title = colorScheme.onSurface,
-                description = colorScheme.onSurfaceVariant,
-            )
-        }
-
-        AedstAlertVariant.WARNING -> {
+        accent == AedstAlertAccent.WARNING -> {
             val tint = if (isDark) AedstDarkPalette.warning else AedstLightPalette.warning
             AedstAlertPalette(
                 container = tint.copy(alpha = 0.14f),
@@ -84,22 +79,20 @@ private fun rememberAlertPalette(variant: AedstAlertVariant): AedstAlertPalette 
             )
         }
 
-        AedstAlertVariant.DESTRUCTIVE -> AedstAlertPalette(
-            container = colorScheme.errorContainer,
-            border = colorScheme.error,
-            icon = colorScheme.error,
-            title = colorScheme.onErrorContainer,
-            description = colorScheme.onErrorContainer.copy(alpha = 0.85f),
+        else -> AedstAlertPalette(
+            container = colorScheme.surface,
+            border = colorScheme.outlineVariant,
+            icon = colorScheme.onSurface,
+            title = colorScheme.onSurface,
+            description = colorScheme.onSurfaceVariant,
         )
     }
 }
 
-private fun defaultIconFor(variant: AedstAlertVariant): ImageVector = when (variant) {
-    AedstAlertVariant.SUCCESS -> Icons.Default.Check
-    AedstAlertVariant.WARNING -> Icons.Default.Warning
+private fun defaultIconFor(variant: AedstAlertVariant, accent: AedstAlertAccent): ImageVector = when {
     // "Error" is not part of material-icons-core; Warning doubles as the destructive glyph.
-    AedstAlertVariant.DESTRUCTIVE -> Icons.Default.Warning
-    AedstAlertVariant.INFO -> Icons.Default.Info
+    variant == AedstAlertVariant.DESTRUCTIVE || accent == AedstAlertAccent.WARNING -> Icons.Default.Warning
+    else -> Icons.Default.Info
 }
 
 /**
@@ -112,11 +105,12 @@ fun AedstAlert(
     title: String,
     modifier: Modifier = Modifier,
     description: String? = null,
-    variant: AedstAlertVariant = AedstAlertVariant.INFO,
+    variant: AedstAlertVariant = AedstAlertVariant.DEFAULT,
+    accent: AedstAlertAccent = AedstAlertAccent.NONE,
     icon: (@Composable () -> Unit)? = null,
     actions: (@Composable RowScope.() -> Unit)? = null,
 ) {
-    val palette = rememberAlertPalette(variant)
+    val palette = rememberAlertPalette(variant, accent)
 
     Surface(
         modifier = modifier
@@ -134,7 +128,7 @@ fun AedstAlert(
                 icon()
             } else {
                 Icon(
-                    imageVector = defaultIconFor(variant),
+                    imageVector = defaultIconFor(variant, accent),
                     contentDescription = null,
                     tint = palette.icon,
                     modifier = Modifier.size(20.dp),
@@ -175,20 +169,11 @@ private fun AedstAlertPreview() {
                 modifier = Modifier.padding(AedstSpacing.lg),
                 verticalArrangement = Arrangement.spacedBy(AedstSpacing.sm),
             ) {
-                AedstAlert(
-                    title = "Heads up",
-                    description = "This is an informational message.",
-                    variant = AedstAlertVariant.INFO,
-                )
-                AedstAlert(
-                    title = "Saved successfully",
-                    description = "Your changes have been synced.",
-                    variant = AedstAlertVariant.SUCCESS,
-                )
+                AedstAlert(title = "Heads up", description = "This is an informational message.")
                 AedstAlert(
                     title = "Storage almost full",
                     description = "You are close to your plan limit.",
-                    variant = AedstAlertVariant.WARNING,
+                    accent = AedstAlertAccent.WARNING,
                 )
                 AedstAlert(
                     title = "Action failed",

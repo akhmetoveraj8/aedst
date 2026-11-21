@@ -1,0 +1,41 @@
+// Package application holds the use cases of the {{module}} module's {{feature}}
+// feature. Scaffolded by `task new:feature`; replace the sample use case.
+//
+// Rules (architecturetest): this feature imports the module's shared packages
+// (modules/{{module}}/domain, and api/ from infrastructure or transport), never
+// another feature; modules/{{module}}/module is the only package that imports
+// it. The layers a feature may have are application, domain, infrastructure
+// and transport: add infrastructure/postgres when it needs SQL (sqlc queries
+// stay in sql/{{module}}) and transport when it serves RPCs of the module's
+// proto service.
+package application
+
+import (
+	"context"
+	"time"
+
+	"github.com/aedst/server/internal/shared/ids"
+	sharedtime "github.com/aedst/server/internal/shared/time"
+)
+
+// Repository is the feature's persistence port; an infrastructure package of
+// this feature implements it. Replace Touch with what the use cases need.
+type Repository interface {
+	// Touch records that owner used the feature at the given time.
+	Touch(ctx context.Context, ownerID ids.ID, at time.Time) error
+}
+
+type Service struct {
+	repo  Repository
+	clock sharedtime.Clock
+}
+
+func NewService(repo Repository, clock sharedtime.Clock) *Service {
+	return &Service{repo: repo, clock: clock}
+}
+
+// Touch is the sample use case: the owner comes from the caller (the verified
+// token), the time from the injected clock.
+func (s *Service) Touch(ctx context.Context, ownerID ids.ID) error {
+	return s.repo.Touch(ctx, ownerID, s.clock.Now())
+}

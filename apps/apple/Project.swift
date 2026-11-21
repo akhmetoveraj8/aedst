@@ -5,9 +5,11 @@ import ProjectDescription
 // commit them). `tuist install` resolves `Tuist/Package.swift`; `tuist generate`
 // writes the project. See README.md's "Getting started".
 //
-// One project, two platform-specific app targets (`App_iOS`, `App_macOS`)
-// sharing every line of business logic through the local Swift packages under
-// Core/ and Features/, composed in App/Shared — see docs/content/apple/architecture.md.
+// One project, two platform-specific app targets (`App_iOS`, `App_macOS`). One business logic, two UI builds
+// (decisions/apple.md): both link the same Core/* packages, every feature's Domain / Data / Presentation targets and
+// the composition root `AedstAppCore` (App/Shared); each links only its own UI layer: the `<Feature>UIiOS` or
+// `<Feature>UIMac` targets plus the Root / Home / Preferences views in its App/<platform>/Sources.
+// See docs/content/apple/architecture.md.
 
 // Minimum OS versions: the single place these are declared for the app targets
 // (they were duplicated in project.yml and Config/*.xcconfig before). Each
@@ -18,11 +20,26 @@ private let macOSDeploymentTarget = "15.0"
 
 private let bundleIdentifierPrefix = "com.aedst.apple"
 
+private let featureNames = ["Auth", "Tasks", "Search", "Notifications", "Media", "Admin"]
+
+/// What an app target links: the shared logic, then the one UI layer named by `uiSuffix` ("UIiOS" or "UIMac").
+/// The app-target sources import these modules directly, so each is listed (not left to transitive linking).
+private func appDependencies(uiSuffix: String) -> [TargetDependency] {
+    let shared = [
+        "AedstAppCore", "AedstCore", "AedstNetwork", "AedstPersistence", "AedstDesignSystem", "AedstNavigation",
+        "AedstAnalytics", "AedstMedia",
+    ]
+    let logic = featureNames.flatMap { ["\($0)Domain", "\($0)Presentation"] }
+    let userInterface = featureNames.map { "\($0)\(uiSuffix)" }
+    return (shared + logic + userInterface).map { .external(name: $0) }
+}
+
 private func makeAppTarget(
     name: String,
     destinations: Destinations,
     deploymentTargets: DeploymentTargets,
     platformDirectory: String,
+    uiSuffix: String,
     bundleIdentifierSuffix: String,
     resources: ResourceFileElements,
     entitlements: Entitlements? = nil,
@@ -39,9 +56,7 @@ private func makeAppTarget(
         sources: ["App/\(platformDirectory)/Sources/**"],
         resources: resources,
         entitlements: entitlements,
-        dependencies: [
-            .external(name: "AedstAppShared"),
-        ],
+        dependencies: appDependencies(uiSuffix: uiSuffix),
         settings: .settings(
             base: additionalSettings,
             configurations: [
@@ -88,6 +103,7 @@ let project = Project(
             destinations: [.iPhone, .iPad],
             deploymentTargets: .iOS(iOSDeploymentTarget),
             platformDirectory: "iOS",
+            uiSuffix: "UIiOS",
             bundleIdentifierSuffix: "ios",
             resources: [
                 "App/iOS/Assets.xcassets",
@@ -105,6 +121,7 @@ let project = Project(
             destinations: [.mac],
             deploymentTargets: .macOS(macOSDeploymentTarget),
             platformDirectory: "macOS",
+            uiSuffix: "UIMac",
             bundleIdentifierSuffix: "macos",
             resources: [
                 "App/macOS/Assets.xcassets",

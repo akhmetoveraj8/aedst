@@ -16,7 +16,16 @@ option go_package = "github.com/aedst/server/gen/go/aedst/capabilities/v1;capabi
 // Compatibility: fields are only added. A client ignores feature names it does
 // not know and treats a missing feature as disabled.
 service CapabilitiesService {
-  rpc GetCapabilities(GetCapabilitiesRequest) returns (GetCapabilitiesResponse);
+  // Returns the server identity, the supported client releases and the enabled
+  // features. Public and independent of the caller's identity.
+  //
+  // No side effects, so it is also served as a Connect GET and is the reference
+  // cacheable read: the response carries a strong ETag and
+  // "Cache-Control: public, max-age=..." and If-None-Match is answered 304
+  // (modulekit.Cacheable). The answer varies by X-Aedst-Client only.
+  rpc GetCapabilities(GetCapabilitiesRequest) returns (GetCapabilitiesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
 }
 
 message GetCapabilitiesRequest {}

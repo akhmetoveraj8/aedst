@@ -22,6 +22,7 @@ import (
 	_ "github.com/aedst/server/gen/go/aedst/notifications/v1"
 	_ "github.com/aedst/server/gen/go/aedst/search/v1"
 	_ "github.com/aedst/server/gen/go/aedst/tasks/v1"
+	_ "github.com/aedst/server/gen/go/aedst/webhooks/v1"
 )
 
 // TestProtovalidateConventions checks, on the generated descriptors of every

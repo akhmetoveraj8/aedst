@@ -43,6 +43,9 @@ type Config struct {
 	// session (0 = unlimited).
 	StatementTimeout time.Duration
 	IdleInTxTimeout  time.Duration
+	// SlowQueryThreshold reports statements that take at least this long (a
+	// warning log line, a span event and a counter; see slowquery.go). 0 = off.
+	SlowQueryThreshold time.Duration
 	// ApplicationName shows up in pg_stat_activity and logs.
 	ApplicationName string
 	// Pooler declares what sits in front of Postgres. PoolerPgBouncer forces
@@ -94,7 +97,7 @@ func NewPool(ctx context.Context, cfg Config) (*pgxpool.Pool, error) {
 		params["idle_in_transaction_session_timeout"] = strconv.FormatInt(cfg.IdleInTxTimeout.Milliseconds(), 10)
 	}
 
-	applyTracer(poolCfg, newTracer())
+	applyTracer(poolCfg, newTracer(), cfg.SlowQueryThreshold, cfg.ApplicationName)
 	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
 	if err != nil {
 		return nil, fmt.Errorf("database: create pool: %w", err)

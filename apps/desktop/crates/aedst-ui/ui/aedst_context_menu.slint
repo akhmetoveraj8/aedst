@@ -1,0 +1,86 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstMenuItem, AedstMenuList } from "aedst_dropdown_menu.slint";
+
+// Wraps its children with a context menu. A right click on the area opens the menu at the
+// pointer; the area is also a tab stop, where the Menu key, Shift+F10, Enter or Space open the
+// menu at its centre. A child that handles pointer events itself (a button) keeps its own clicks.
+export component AedstContextMenu inherits Rectangle {
+    in property <[AedstMenuItem]> items;
+    in property <string> label;
+    in property <bool> enabled: true;
+    in property <length> menu-width: 192px;
+    out property <bool> has-focus: focus.has-focus;
+    // The `id` of the activated entry.
+    callback activated(string);
+
+    private property <length> at-x;
+    private property <length> at-y;
+
+    public function show-at(px: length, py: length) {
+        if (root.enabled) {
+            root.at-x = px;
+            root.at-y = py;
+            popup.show();
+        }
+    }
+
+    min-width: content.min-width;
+    min-height: content.min-height;
+    preferred-width: content.preferred-width;
+    preferred-height: content.preferred-height;
+    forward-focus: focus;
+    accessible-role: groupbox;
+    accessible-label: root.label;
+    accessible-expandable: true;
+    accessible-action-default => { root.show-at(root.width / 2, root.height / 2); }
+    accessible-action-expand => { root.show-at(root.width / 2, root.height / 2); }
+
+    TouchArea {
+        enabled: root.enabled;
+        pointer-event(event) => {
+            if (event.button == PointerEventButton.right && event.kind == PointerEventKind.up) {
+                root.show-at(self.mouse-x, self.mouse-y);
+            }
+        }
+    }
+
+    // Keys bubble from a focused child up to this scope.
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == Key.Menu || (event.text == Key.F10 && event.modifiers.shift)
+                || ((event.text == " " || event.text == "\n") && self.has-focus)) {
+                root.show-at(root.width / 2, root.height / 2);
+                return accept;
+            }
+            return reject;
+        }
+
+        content := VerticalLayout {
+            @children
+        }
+    }
+
+    // Visible keyboard focus ring.
+    Rectangle {
+        border-width: focus.has-focus ? 2px : 0px;
+        border-color: AedstTokens.ring;
+        border-radius: AedstTokens.radius-sm;
+    }
+
+    popup := PopupWindow {
+        x: root.at-x;
+        y: root.at-y;
+        width: root.menu-width;
+        close-policy: PopupClosePolicy.close-on-click-outside;
+        AedstMenuList {
+            items: root.items;
+            label: root.label;
+            activated(index) => {
+                popup.close();
+                root.activated(root.items[index].id);
+            }
+            dismissed => { popup.close(); }
+        }
+    }
+}

@@ -8,10 +8,6 @@
       "routePrefix": "/[locale]/tasks",
       "firstLoadGzipKB": 412
     },
-    "admin": {
-      "routePrefix": "/[locale]/admin",
-      "firstLoadGzipKB": 442
-    },
     "search": {
       "routePrefix": "/[locale]/search",
       "firstLoadGzipKB": 364
@@ -22,9 +18,9 @@
     }
   },
   "shell": {
-    "/[locale]": 310,
-    "/[locale]/forbidden": 308,
+    "/[locale]": 254,
+    "/[locale]/forbidden": 241,
     "/_not-found": 164
   },
-  "$comment2": "modules/shell: first-load gzip JS per route (Next route-bundle-stats), the heaviest route of each module, ~3% above a normal minified build (2026-11-05): tasks 399.6 (/tasks/new), search 353.4, notifications 358.6, locale root 300.5, forbidden 298.5, not-found 159.1 KB (/tasks/[id] 352.5). The drop from the 490/423/423/361/359/240 limits came from three fixes: (1) the tasks pages and loading.tsx import modules/tasks/entries/* instead of the barrel, and the server sections are one file each, so /tasks/[id] no longer carries CreateTaskPage/TaskForm (-26 KB); (2) the Sentry browser SDK is a lazy chunk requested by instrumentation-client.ts through src/app/config/sentry/loader.ts instead of a first-load import (-47 KB on every route, -68 KB on not-found); (3) date-fns locale data loads per active locale (shared/date/format-date.ts) instead of all four in one chunk. Emitted total JS grew ~22 KB (per-locale and lazy chunks), which the total ceiling absorbs. Earlier history: the signed-in layouts import single-export files from modules/<id>/entries/*; the task-list select filters are a ssr:false dynamic chunk; the attachment viewer/delete dialogs load on first click. A module owning no route (auth, media) is covered by the routes that embed it. Next candidate: tasks/new (TaskForm carries the Select stack)."
+  "$comment2": "2026-11-21: the query, URL-state and outbox providers moved from the root layout to the (app) layout (src/app/providers/signed-in-providers.tsx), so the anonymous routes no longer load TanStack Query, the Connect transport, nuqs or the IndexedDB outbox: locale root 301.5 -> 246.1, forbidden 299.5 -> 233.5 (limits lowered to ~3% above). The signed-in routes carry a second copy of some shared chunk code and grew about 7 KB each (tasks 407.9, notifications 366.5, search 361.1; total 893.7), inside their unchanged limits. Earlier: modules/shell: first-load gzip JS per route (Next route-bundle-stats), the heaviest route of each module, ~3% above a normal minified build (2026-11-05): tasks 399.6 (/tasks/new), search 353.4, notifications 358.6, locale root 300.5, forbidden 298.5, not-found 159.1 KB (/tasks/[id] 352.5). The drop from the 490/423/423/361/359/240 limits came from three fixes: (1) the tasks pages and loading.tsx import modules/tasks/entries/* instead of the barrel, and the server sections are one file each, so /tasks/[id] no longer carries CreateTaskPage/TaskForm (-26 KB); (2) the Sentry browser SDK is a lazy chunk requested by instrumentation-client.ts through src/app/config/sentry/loader.ts instead of a first-load import (-47 KB on every route, -68 KB on not-found); (3) date-fns locale data loads per active locale (shared/date/format-date.ts) instead of all four in one chunk. Emitted total JS grew ~22 KB (per-locale and lazy chunks), which the total ceiling absorbs. Earlier history: the signed-in layouts import single-export files from modules/<id>/entries/*; the task-list select filters are a ssr:false dynamic chunk; the attachment viewer/delete dialogs load on first click. A module owning no route (auth, media) is covered by the routes that embed it. Next candidate: tasks/new (TaskForm carries the Select stack)."
 }

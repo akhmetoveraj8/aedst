@@ -4,7 +4,9 @@ import AedstMedia
 import Foundation
 import Testing
 import UniformTypeIdentifiers
-@testable import Media
+@testable import MediaData
+@testable import MediaDomain
+@testable import MediaPresentation
 
 private final class RecordingAnalytics: AnalyticsClient, @unchecked Sendable {
     private let lock = NSLock()

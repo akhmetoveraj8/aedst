@@ -2,8 +2,10 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/exaring/otelpgx"
+	"github.com/jackc/pgx/v5/multitracer"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
@@ -28,8 +30,16 @@ func newTracer() *otelpgx.Tracer {
 }
 
 // applyTracer installs t on every connection of the pool (it also traces acquires via the pool tracer interface).
-func applyTracer(poolCfg *pgxpool.Config, t *otelpgx.Tracer) {
-	poolCfg.ConnConfig.Tracer = t
+// With a slow-query threshold the two are combined by the multitracer that
+// ships with pgx. The slow-query tracer goes first: multitracer runs End hooks
+// in the same order as Start hooks, so it sees the statement span that otelpgx
+// opened while that span is still recording.
+func applyTracer(poolCfg *pgxpool.Config, t *otelpgx.Tracer, slowAfter time.Duration, pool string) {
+	if slowAfter <= 0 {
+		poolCfg.ConnConfig.Tracer = t
+		return
+	}
+	poolCfg.ConnConfig.Tracer = multitracer.New(newSlowQueryTracer(slowAfter, pool), t)
 }
 
 // parentOnlyProvider hands out tracers that start a span only when the context

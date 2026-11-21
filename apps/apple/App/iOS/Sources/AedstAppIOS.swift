@@ -1,4 +1,4 @@
-import AedstAppShared
+import AedstAppCore
 import SwiftUI
 
 @main

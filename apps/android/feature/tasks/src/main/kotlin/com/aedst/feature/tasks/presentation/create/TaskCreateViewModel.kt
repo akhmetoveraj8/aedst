@@ -94,7 +94,7 @@ internal class TaskCreateViewModel @Inject constructor(
         when (result) {
             is CreateTaskResult.Created -> {
                 mutableState.update { it.copy(isSaving = false) }
-                effectChannel.send(TaskCreateEffect.Created(result.task.id))
+                effectChannel.send(TaskCreateEffect.Created(result.task.id.value))
             }
             // Offline: the outbox owns the write now. Start a fresh form instead of leaving the sent text behind.
             CreateTaskResult.Queued -> {

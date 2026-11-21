@@ -6,7 +6,7 @@ import { TaskAttachments } from "@/modules/media/public";
 import { TaskDetailsFallback } from "@/modules/tasks/entries/task-details-fallback";
 import { TaskDetailsSection } from "@/modules/tasks/entries/task-details-section";
 import { requireLocale } from "@/shared/i18n/require-locale";
-import { ErrorBoundary } from "@/shared/lib/errors/ErrorBoundary";
+import { ErrorBoundary } from "@/shared/lib/errors/error-boundary";
 
 // A title per page (WCAG 2.4.2); the task's own title is not fetched here, the
 // page heading carries it.

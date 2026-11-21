@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.Instant
+import kotlin.time.Instant
 import com.aedst.notifications.v1.NotificationKind as ProtoNotificationKind
 
 class ConnectNotificationsRepositoryTest {

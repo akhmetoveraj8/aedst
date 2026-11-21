@@ -1,0 +1,139 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstToggle, AedstToggleSize } from "aedst_toggle.slint";
+
+export struct AedstCodeLine {
+    text: string,
+    // Emphasised line (the web `highlightLines`).
+    emphasized: bool,
+}
+
+// Code display (an AEDST component, like web `code-block`): optional header (file name,
+// language, wrap toggle, copy button), line numbers and line emphasis. The code is always left
+// to right and scrolls sideways unless wrapped. Slint cannot split a string, so the caller
+// passes the lines (`lines`) and the whole text (`code`, for the copy button). Copying goes
+// through a hidden `TextInput` (the only clipboard access in Slint). No syntax highlighter.
+export component AedstCodeBlock inherits Rectangle {
+    in property <[AedstCodeLine]> lines;
+    in property <string> code;
+    in property <string> filename;
+    in property <string> language;
+    in property <bool> show-line-numbers: false;
+    in-out property <bool> wrapped: false;
+    // Text of the wrap toggle; the toggle is hidden without it.
+    in property <string> wrap-label;
+    // Text of the copy button; the button is hidden without it.
+    in property <string> copy-label;
+    // Shown on the button for two seconds after copying.
+    in property <string> copied-label;
+    // No font-family token exists yet; "monospace" relies on the platform's generic family (UNVERIFIED).
+    in property <string> mono-family: "monospace";
+    callback copied();
+
+    private property <bool> just-copied: false;
+    private property <bool> has-header: root.filename != "" || root.language != "" || root.wrap-label != "" || root.copy-label != "";
+    private property <length> gutter: root.show-line-numbers ? 40px : AedstTokens.spacing-md;
+    private property <length> line-height: AedstTokens.typography-mono-line-height;
+
+    background: AedstTokens.muted;
+    border-radius: AedstTokens.radius-lg;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+    clip: true;
+    accessible-role: groupbox;
+    accessible-label: root.filename != "" ? root.filename : root.language;
+
+    clipboard := TextInput {
+        visible: false;
+        width: 0px;
+        height: 0px;
+        text: root.code;
+        read-only: true;
+        // Not a tab stop: it only lends its clipboard access.
+        enabled: false;
+        accessible-role: AccessibleRole.none;
+    }
+
+    Timer {
+        interval: 2s;
+        running: root.just-copied;
+        triggered => { root.just-copied = false; }
+    }
+
+    VerticalLayout {
+        if root.has-header: HorizontalLayout {
+            padding-left: AedstTokens.spacing-md;
+            padding-right: AedstTokens.spacing-sm;
+            padding-top: AedstTokens.spacing-xs;
+            padding-bottom: AedstTokens.spacing-xs;
+            spacing: AedstTokens.spacing-sm;
+            Text {
+                text: root.filename != "" ? root.filename : root.language;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-small-font-size;
+                font-family: root.mono-family;
+                horizontal-alignment: left;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+                overflow: elide;
+            }
+            if root.wrap-label != "": AedstToggle {
+                text: root.wrap-label;
+                size: AedstToggleSize.sm;
+                checked: root.wrapped;
+                toggled(value) => { root.wrapped = value; }
+            }
+            if root.copy-label != "": AedstButton {
+                text: (root.just-copied && root.copied-label != "") ? root.copied-label : root.copy-label;
+                variant: AedstButtonVariant.ghost;
+                size: AedstButtonSize.sm;
+                clicked => {
+                    clipboard.select-all();
+                    clipboard.copy();
+                    root.just-copied = true;
+                    root.copied();
+                }
+            }
+        }
+        if root.has-header: Rectangle {
+            height: 1px;
+            background: AedstTokens.border;
+        }
+        flick := Flickable {
+            height: body.preferred-height;
+            content-width: root.wrapped ? self.width : Math.max(self.width, body.preferred-width);
+            body := VerticalLayout {
+                width: flick.content-width;
+                padding-top: AedstTokens.spacing-sm;
+                padding-bottom: AedstTokens.spacing-sm;
+                for entry[index] in root.lines: Rectangle {
+                    min-height: Math.max(root.line-height, content.preferred-height);
+                    min-width: root.gutter + content.preferred-width + AedstTokens.spacing-md;
+                    background: entry.emphasized ? AedstTokens.accent : transparent;
+                    if root.show-line-numbers: Text {
+                        x: 0px;
+                        y: 0px;
+                        width: root.gutter - AedstTokens.spacing-sm;
+                        text: "\{index + 1}";
+                        color: AedstTokens.muted-foreground;
+                        font-size: AedstTokens.typography-mono-font-size;
+                        font-family: root.mono-family;
+                        horizontal-alignment: right;
+                        accessible-role: AccessibleRole.none;
+                    }
+                    content := Text {
+                        x: root.gutter;
+                        y: 0px;
+                        width: root.wrapped ? parent.width - root.gutter - AedstTokens.spacing-md : self.preferred-width;
+                        text: entry.text;
+                        color: AedstTokens.foreground;
+                        font-size: AedstTokens.typography-mono-font-size;
+                        font-family: root.mono-family;
+                        horizontal-alignment: left;
+                        wrap: root.wrapped ? word-wrap : no-wrap;
+                    }
+                }
+            }
+        }
+    }
+}

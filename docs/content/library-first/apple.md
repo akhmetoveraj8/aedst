@@ -53,18 +53,18 @@ on the real tree plus negative fixtures; the SwiftLint engine itself is **UNVERI
 |---|---|---|---|
 | State: Observation, not `ObservableObject`/`@StateObject`/`@ObservedObject`/`@EnvironmentObject` | `no_observable_object` in `.swiftlint.yml` | `scripts/check-swiftlint-rules-static.sh` | `scripts/fixtures/swiftlint/bad/**` |
 | Reactive/persistence: async/await + GRDB, not Combine/SwiftData/CoreData | `no_combine_swiftdata` | same | same |
-| Telemetry SDKs only in `Core/AedstTelemetry` (Sentry, PostHog); Nuke only in `Core/AedstMedia`; GRDB only in `Core/AedstPersistence`; Connect only in `Core/AedstNetwork`, `App/Shared`, `Features/*/Data` | `sdk_telemetry_only_in_telemetry`, `sdk_nuke_only_in_media`, `sdk_grdb_only_in_persistence`, `sdk_connect_only_in_network` | same | same |
+| Telemetry SDKs only in `Core/AedstTelemetry` (Sentry, PostHog); Nuke only in `Core/AedstMedia`; GRDB only in `Core/AedstPersistence`; Connect only in `Core/AedstNetwork`, `App/Shared`, a feature `<X>Data` target | `sdk_telemetry_only_in_telemetry`, `sdk_nuke_only_in_media`, `sdk_grdb_only_in_persistence`, `sdk_connect_only_in_network` | same | same |
 | Generated proto types (`Aedst_*_V1_*`) only in `Features/*/Data` and `Core/AedstNetwork` | `generated_types_only_in_data` | same | same |
 | Settings: GRDB / Keychain, never `UserDefaults` | `no_user_defaults` | same | same |
 | Logging: `AedstLogger`, never `print`/`debugPrint` | `no_print` | same | same |
-| Remote images: `AedstRemoteImage`/`AedstAvatar` (Nuke), never `AsyncImage` | `no_async_image` | same | same |
+| Remote images: `AedstRemoteImage`/`AedstRemoteAvatar` (Nuke), never `AsyncImage` | `no_async_image` | same | same |
 | Concurrency: no `Task.detached` without a same-line `// concurrency-ok: reason`; no `Task.sleep(nanoseconds:)` (use `.seconds` or `AedstClock`) | `no_task_detached`, `no_sleep_nanoseconds` | same | same |
-| Time: `AedstClock` injected, no `Date()`/`Date.now` in `Presentation/` and `App/` | `no_wall_clock_in_presentation` | same | same |
+| Time: `AedstClock` injected, no `Date()`/`Date.now` in a feature's `<X>Presentation`, `<X>UIiOS`, `<X>UIMac` targets and `App/` | `no_wall_clock_in_presentation` | same | same |
 | i18n: no literal `Text("...")`/`Label`/`Button` (escape: `// i18n-ok`, `Text(verbatim:)` for identifiers/brands) | `no_hardcoded_text` | same | same |
 | Sheets: `aedstSheet(isPresented:)` / `aedstSheet(item:)`, no raw `.sheet(` in Features | `no_raw_sheet` | same | same |
 | Navigation: `NavigationLink(value:)` + `aedstDestination`, no eager `NavigationLink(destination:)` | `no_navigation_link_destination` | same | same |
 | Packages: every `.package(url:)` is in the list below and owned by one Core package; none in `Features/*` or `App/Shared`; no `Features/` path in `Core/*` | `scripts/approved-packages.txt` | `scripts/check-dependencies.sh` | `check-dependencies.sh --self-test` (`scripts/fixtures/dependencies/bad/*`) |
-| Secrets/auth: `SecItem*`/`kSec*` only in `Core/AedstPersistence/.../Keychain.swift`; `AuthenticationServices`/`WebKit`/`WKWebView` only in `Features/Auth/.../Data/WebAuthenticator.swift`; `kSecAttrSynchronizable` never true | the script itself | `scripts/check-apple-sensitive-apis.sh` | `check-apple-sensitive-apis.sh --self-test` (`scripts/fixtures/sensitive/bad`) |
+| Secrets/auth: `SecItem*`/`kSec*` only in `Core/AedstPersistence/.../Keychain.swift`; `AuthenticationServices`/`WebKit`/`WKWebView` only in `Features/Auth/Sources/AuthData/WebAuthenticator.swift`; `kSecAttrSynchronizable` never true | the script itself | `scripts/check-apple-sensitive-apis.sh` | `check-apple-sensitive-apis.sh --self-test` (`scripts/fixtures/sensitive/bad`) |
 | Localization: integer placeholders need `variations.plural`; `String(format: String(localized:))` banned (use `String(localized: "key \(value)")`, catalog key `key %lld`) | `apps/apple/scripts/i18n-apple-checks.mjs` | `node scripts/check-i18n-parity.mjs` (`task check:i18n`) | `node apps/apple/scripts/i18n-apple-checks.mjs --self-test` |
 
 The `custom_rules` block in `apps/apple/.swiftlint.yml` is the **single source**: SwiftLint (CI, `--strict`) and

@@ -2,14 +2,19 @@
 
 use std::process::ExitCode;
 use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
+use std::time::Duration;
 
 use aedst_gateway::auth::Verifier;
 use aedst_gateway::config::Config;
+use aedst_gateway::consumer::ConsumerHealth;
 use aedst_gateway::hub::Hub;
+use aedst_gateway::server::Limits;
 use aedst_gateway::telemetry::Telemetry;
-use aedst_gateway::{consumer, ws};
+use aedst_gateway::{consumer, server, ws};
 use tokio_util::sync::CancellationToken;
+
+/// How often the shutdown path looks whether every socket has closed.
+const DRAIN_POLL: Duration = Duration::from_millis(50);
 
 #[tokio::main]
 async fn main() -> ExitCode {
@@ -28,45 +33,66 @@ async fn main() -> ExitCode {
 async fn run() -> Result<(), String> {
     let cfg = Config::from_env().map_err(|e| e.to_string())?;
     let verifier = Verifier::new(cfg.oidc.clone()).map_err(|e| e.to_string())?;
-    let hub = Arc::new(Hub::new(cfg.max_conns_per_user, cfg.send_queue));
-    let ready = Arc::new(AtomicBool::new(false));
-    let shutdown = CancellationToken::new();
+    let listener = tokio::net::TcpListener::bind(cfg.addr)
+        .await
+        .map_err(|e| format!("bind {}: {e}", cfg.addr))?;
+    tracing::info!(addr = %cfg.addr, "gateway listening");
 
+    let hub = Arc::new(Hub::new(
+        cfg.max_conns_per_user,
+        cfg.max_conns,
+        cfg.send_queue,
+    ));
+    let health = Arc::new(ConsumerHealth::default());
+    let shutdown = CancellationToken::new();
     let consumer_task = tokio::spawn(consumer::run(
         cfg.nats_url.clone(),
         cfg.nats_stream.clone(),
         Arc::clone(&hub),
-        Arc::clone(&ready),
+        Arc::clone(&health),
         shutdown.clone(),
     ));
 
-    let listener = tokio::net::TcpListener::bind(cfg.addr).await.map_err(|e| format!("bind {}: {e}", cfg.addr))?;
-    tracing::info!(addr = %cfg.addr, "gateway listening");
     let grace = cfg.shutdown;
-    let state = Arc::new(ws::AppState { cfg, verifier, hub: Arc::clone(&hub), ready, shutdown: shutdown.clone() });
+    let limits = Limits {
+        header_timeout: cfg.header_timeout,
+        max_handshakes: cfg.max_handshakes,
+    };
+    let state = Arc::new(ws::AppState {
+        cfg,
+        verifier,
+        hub: Arc::clone(&hub),
+        consumer: health,
+        shutdown: shutdown.clone(),
+    });
 
-    // On SIGTERM/Ctrl-C: fail readiness, tell every socket to reconnect (1012 + jittered hint), then
-    // stop accepting; the deadline bounds how long open sockets may delay the exit.
+    // On SIGTERM/Ctrl-C: fail readiness, tell every socket to reconnect (1012 + jittered hint) and
+    // stop accepting. The deadline bounds how long open sockets may delay the exit.
     let trigger = shutdown.clone();
-    let server = axum::serve(listener, ws::router(state)).with_graceful_shutdown(async move {
+    tokio::spawn(async move {
         wait_for_signal().await;
         trigger.cancel();
     });
-    let server = std::pin::pin!(std::future::IntoFuture::into_future(server));
-    let outcome = tokio::select! {
-        result = server => result.map_err(|e| e.to_string()),
-        () = async {
-            shutdown.cancelled().await;
-            tokio::time::sleep(grace).await;
-        } => {
-            tracing::warn!("shutdown deadline reached; exiting with sockets still open");
-            hub.close_all(1012, "restart");
-            Ok(())
+    let work = async {
+        server::serve(listener, ws::router(state), limits, shutdown.clone()).await;
+        while !hub.is_empty() {
+            tokio::time::sleep(DRAIN_POLL).await;
         }
     };
+    let deadline = async {
+        shutdown.cancelled().await;
+        tokio::time::sleep(grace).await;
+    };
+    tokio::select! {
+        () = work => {}
+        () = deadline => {
+            tracing::warn!("shutdown deadline reached; closing the remaining sockets");
+            hub.close_all(1012, "restart");
+        }
+    }
     shutdown.cancel();
     let _ = consumer_task.await;
-    outcome
+    Ok(())
 }
 
 async fn wait_for_signal() {

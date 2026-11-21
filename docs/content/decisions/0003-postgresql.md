@@ -14,7 +14,7 @@ tooling, and a clear path to per-module/per-service database ownership as
 modules are extracted.
 
 ## Decision
-PostgreSQL 18 is the source of truth for every module. Access is through
+PostgreSQL 19 is the source of truth for every module. Access is through
 `pgx v5` (driver/pool) and `sqlc` (typed query generation from hand-written
 SQL) — no ORM. Migrations are managed with Goose, namespaced per module.
 Connection pooling in front of the app (for horizontal scaling) is PgBouncer in

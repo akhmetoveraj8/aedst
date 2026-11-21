@@ -6,19 +6,17 @@ deps:
 lint:
   use:
     - STANDARD
+    # Every service and RPC carries a comment: it is the summary in the generated
+    # reference (docs/content/modules/<module>/api.md) and in the OpenAPI documents.
+    - COMMENT_SERVICE
+    - COMMENT_RPC
 breaking:
   use:
     - FILE
-  # ADR-0019: first-party authentication was removed outright. AuthService is
-  # gone and AdminService lost ListUsers and users_total (reserved). Clients
-  # authenticate against the OIDC provider only. Remove these exemptions once
-  # the comparison branch contains this change.
-  ignore:
-    - api/proto/aedst/auth/v1/auth.proto
+  # GetCapabilities gained "idempotency_level = NO_SIDE_EFFECTS" (2026-11-21) so it
+  # can be served as a cacheable Connect GET. That is wire compatible (POST is still
+  # accepted; a client uses GET only when it opts in), but FILE reports every change
+  # of the level. Remove this exemption once the comparison branch contains it.
   ignore_only:
-    RPC_NO_DELETE:
-      - api/proto/aedst/admin/v1/admin.proto
-    MESSAGE_NO_DELETE:
-      - api/proto/aedst/admin/v1/admin.proto
-    FIELD_NO_DELETE:
-      - api/proto/aedst/admin/v1/admin.proto
+    RPC_SAME_IDEMPOTENCY_LEVEL:
+      - api/proto/aedst/capabilities/v1/capabilities.proto

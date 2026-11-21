@@ -1,1 +1,1 @@
-export { AdminNav } from "@/modules/admin/ui/AdminNav";
+export { AdminNav } from "@/modules/admin/ui/admin-nav";

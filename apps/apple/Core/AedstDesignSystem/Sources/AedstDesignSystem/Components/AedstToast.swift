@@ -1,14 +1,40 @@
 import SwiftUI
 
+/// Kind of a toast: picks the icon and its colour (sonner's `info` / `success` / `warning` / `error` toasts).
+public enum AedstToastSeverity: Sendable, CaseIterable {
+    case info
+    case success
+    case warning
+    case destructive
+
+    var systemImage: String {
+        switch self {
+        case .info: "info.circle.fill"
+        case .success: "checkmark.circle.fill"
+        case .warning: "exclamationmark.triangle.fill"
+        case .destructive: "xmark.octagon.fill"
+        }
+    }
+
+    var tint: Color {
+        switch self {
+        case .info: AedstColor.foreground
+        case .success: AedstColor.success
+        case .warning: AedstColor.warning
+        case .destructive: AedstColor.destructive
+        }
+    }
+}
+
 /// Transient overlay notification matching shadcn/ui (`sonner`) `Toast` —
 /// SwiftUI has no native toast, so this is a custom `ViewModifier` that
 /// overlays a card and auto-dismisses.
 public struct AedstToastData: Equatable {
     public let title: String
     public let message: String?
-    public let severity: AedstAlertSeverity
+    public let severity: AedstToastSeverity
 
-    public init(title: String, message: String? = nil, severity: AedstAlertSeverity = .info) {
+    public init(title: String, message: String? = nil, severity: AedstToastSeverity = .info) {
         self.title = title
         self.message = message
         self.severity = severity
@@ -23,6 +49,7 @@ public struct AedstToastModifier: ViewModifier {
     @Binding private var toast: AedstToastData?
     private let duration: TimeInterval
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
 
     public init(toast: Binding<AedstToastData?>, duration: TimeInterval = 3) {
         self._toast = toast

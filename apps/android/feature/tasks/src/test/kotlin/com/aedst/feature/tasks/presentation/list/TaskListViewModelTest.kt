@@ -6,6 +6,7 @@ import com.aedst.core.common.Outcome
 import com.aedst.core.testing.MainDispatcherExtension
 import com.aedst.feature.tasks.domain.NewTask
 import com.aedst.feature.tasks.domain.Task
+import com.aedst.feature.tasks.domain.TaskId
 import com.aedst.feature.tasks.domain.TaskPage
 import com.aedst.feature.tasks.domain.TaskPriority
 import com.aedst.feature.tasks.domain.TaskRepository
@@ -37,13 +38,13 @@ class TaskListViewModelTest {
 
         viewModel.onIntent(TaskListIntent.Refresh)
         testScheduler.advanceUntilIdle()
-        assertEquals(listOf("1", "2"), viewModel.state.value.tasks.map(Task::id))
+        assertEquals(listOf("1", "2"), viewModel.state.value.tasks.map { it.id.value })
         assertEquals(3, viewModel.state.value.totalCount)
         assertTrue(viewModel.state.value.canLoadMore)
 
         viewModel.onIntent(TaskListIntent.LoadMore)
         testScheduler.advanceUntilIdle()
-        assertEquals(listOf("1", "2", "3"), viewModel.state.value.tasks.map(Task::id))
+        assertEquals(listOf("1", "2", "3"), viewModel.state.value.tasks.map { it.id.value })
         assertFalse(viewModel.state.value.canLoadMore)
     }
 
@@ -84,7 +85,7 @@ class TaskListViewModelTest {
             testScheduler.advanceUntilIdle()
 
             val settled = expectMostRecentItem()
-            assertEquals(listOf("new"), settled.tasks.map(Task::id))
+            assertEquals(listOf("new"), settled.tasks.map { it.id.value })
             assertFalse(settled.isLoading)
             expectNoEvents()
         }
@@ -105,12 +106,12 @@ class TaskListViewModelTest {
             viewModel.onIntent(TaskListIntent.Refresh)
             testScheduler.advanceUntilIdle()
 
-            assertEquals(listOf("1"), viewModel.state.value.tasks.map(Task::id))
+            assertEquals(listOf("1"), viewModel.state.value.tasks.map { it.id.value })
             assertFalse(viewModel.state.value.isLoadingMore)
         }
 
     private fun task(id: String) = Task(
-        id = id,
+        id = TaskId(id),
         title = "Task $id",
         description = "",
         status = TaskStatus.TODO,
@@ -129,15 +130,15 @@ private class FakeTaskRepository : TaskRepository {
     override suspend fun list(pageToken: String?): Outcome<TaskPage> =
         failure?.let { Outcome.Failure(it) } ?: Outcome.Success(pages.getValue(pageToken))
 
-    override suspend fun get(id: String): Outcome<Task> = Outcome.Failure(AedstError.NotFound())
+    override suspend fun get(id: TaskId): Outcome<Task> = Outcome.Failure(AedstError.NotFound())
 
     override suspend fun create(task: NewTask, idempotencyKey: String): Outcome<Task> =
         Outcome.Failure(AedstError.Unknown("unused"))
 
-    override suspend fun complete(id: String, idempotencyKey: String): Outcome<Task> =
+    override suspend fun complete(id: TaskId, idempotencyKey: String): Outcome<Task> =
         Outcome.Failure(AedstError.Unknown("unused"))
 
-    override suspend fun reopen(id: String): Outcome<Task> = Outcome.Failure(AedstError.Unknown("unused"))
+    override suspend fun reopen(id: TaskId): Outcome<Task> = Outcome.Failure(AedstError.Unknown("unused"))
 
-    override suspend fun delete(id: String): Outcome<Unit> = Outcome.Failure(AedstError.Unknown("unused"))
+    override suspend fun delete(id: TaskId): Outcome<Unit> = Outcome.Failure(AedstError.Unknown("unused"))
 }

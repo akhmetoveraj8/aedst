@@ -1,7 +1,8 @@
 import AedstCore
 import Foundation
 import Testing
-@testable import {{Name}}
+@testable import {{Name}}Domain
+@testable import {{Name}}Presentation
 
 struct FixedRepository: {{Name}}Repository {
     func entries() async -> Outcome<[{{Name}}Entry]> {

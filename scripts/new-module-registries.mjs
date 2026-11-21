@@ -166,7 +166,9 @@ export function registryEdits(c) {
       remove: (text) => text.replace(`,\n${budget}`, ''),
     },
     // --- android ---
+    // The Android module and its Kotlin Multiplatform domain module (docs/content/android/kmp.md), in that order.
     { platform: 'android', file: 'apps/android/settings.gradle.kts', ...afterLastLine(/^include\(":feature:/, `include(":feature:${name}")`) },
+    { platform: 'android', file: 'apps/android/settings.gradle.kts', ...afterLastLine(/^include\(":feature:/, `include(":feature:${name}:domain")`) },
     { platform: 'android', file: 'apps/android/app/build.gradle.kts', ...afterLastLine(/^ {4}implementation\(project\(":feature:/, `    implementation(project(":feature:${name}"))`) },
     { platform: 'android', file: 'apps/android/app/src/main/kotlin/com/aedst/android/navigation/AppNavHost.kt', ...sortedBy(kotlinImport, `import com.aedst.feature.${name}.navigation.${Name}NavGraph`) },
     { platform: 'android', file: 'apps/android/app/src/main/kotlin/com/aedst/android/navigation/AppNavHost.kt', ...beforeClose(/^private val featureGraphs: /, /^\)$/, `    ${Name}NavGraph(),`) },
@@ -177,6 +179,13 @@ export function registryEdits(c) {
     },
     // --- apple ---
     { platform: 'apple', file: 'apps/apple/App/Shared/Package.swift', ...afterLastLine(/^ {8}\.package\(path: "\.\.\/\.\.\/Features\//, `        .package(path: "../../Features/${Name}"),`) },
-    { platform: 'apple', file: 'apps/apple/App/Shared/Package.swift', ...beforeClose(/^ {8}\.target\($/, /^ {12}\],$/, `                "${Name}",`) },
+    // The composition root (AedstAppCore) links the shared layers; the UI targets (<Name>UIiOS, <Name>UIMac) are wired
+    // by hand in Project.swift and the app targets' FeatureDestinations (docs/agent/new-module.md).
+    ...['Domain', 'Data', 'Presentation'].map((layer) => ({
+      platform: 'apple',
+      file: 'apps/apple/App/Shared/Package.swift',
+      ...beforeClose(/^ {8}\.target\($/, /^ {12}\],$/, `                .product(name: "${Name}${layer}", package: "${Name}"),`),
+    })),
+    { platform: 'apple', file: 'apps/apple/Tuist/Package.swift', ...afterLastLine(/^ {8}\.package\(path: "\.\.\/Features\//, `        .package(path: "../Features/${Name}"),`) },
   ];
 }

@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+// Integration event payloads published by the tasks module (the producer).
+//
+// These messages are the contract of the JSON payloads carried by the events
+// "tasks.v1.TaskCreated", "TaskUpdated", "TaskCompleted", "TaskDeleted" and
+// "TaskDueSoon". The wire format is the ProtoJSON mapping with the proto field
+// names (snake_case), timestamps as RFC 3339 strings: exactly what the golden
+// fixtures in internal/modules/tasks/api/testdata pin. Because the payloads
+// are Protobuf messages, `buf breaking` covers them: a field can be added,
+// never renumbered, renamed, retyped or removed. A breaking change is a new
+// package version published beside this one.
+//
+// The Go payload structs in internal/modules/tasks/api/events.go mirror these
+// messages one to one; TestEventStructsMatchTheProtobufContract fails when the
+// two drift.
+package aedst.tasks.events.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/aedst/server/gen/go/aedst/tasks/events/v1;taskseventsv1";
+
+// TaskCompleted is the payload of "tasks.v1.TaskCompleted": a task moved to
+// done. It is self-contained (it carries the title) so a consumer can build its
+// own projection without calling back into tasks.
+message TaskCompleted {
+  // The task id (UUID).
+  string task_id = 1;
+  // The owner's user id (UUID).
+  string user_id = 2;
+  // The task title at completion time.
+  string title = 3;
+  // When the task was completed.
+  google.protobuf.Timestamp completed_at = 4;
+  // The task version after completion. 0 (omitted) from producers that predate it.
+  int32 version = 5;
+}
+
+// TaskSnapshot is the payload of "tasks.v1.TaskCreated" and
+// "tasks.v1.TaskUpdated": the full task after the change. Deliveries are not
+// ordered, so a projection applies a snapshot only when its version is newer
+// than the one it stored.
+message TaskSnapshot {
+  // The task id (UUID).
+  string task_id = 1;
+  // The owner's user id (UUID).
+  string user_id = 2;
+  // The task title.
+  string title = 3;
+  // The task description; may be empty.
+  string description = 4;
+  // One of "todo", "in_progress", "done".
+  string status = 5;
+  // One of "low", "medium", "high", "urgent".
+  string priority = 6;
+  // The due date; absent when the task has none.
+  google.protobuf.Timestamp due_date = 7;
+  // When the task was created.
+  google.protobuf.Timestamp created_at = 8;
+  // When the task was last changed.
+  google.protobuf.Timestamp updated_at = 9;
+  // The task version after the change.
+  int32 version = 10;
+}
+
+// TaskDeleted is the payload of "tasks.v1.TaskDeleted" (deleted by its owner
+// or by an operator).
+message TaskDeleted {
+  // The task id (UUID).
+  string task_id = 1;
+  // The owner's user id (UUID).
+  string user_id = 2;
+  // When the task was deleted.
+  google.protobuf.Timestamp deleted_at = 3;
+  // One above the last stored version, so it outranks every earlier snapshot.
+  int32 version = 4;
+}
+
+// TaskDueSoon is the payload of "tasks.v1.TaskDueSoon": published once per
+// (task, due date) when the due date is close and the task is still open.
+message TaskDueSoon {
+  // The task id (UUID).
+  string task_id = 1;
+  // The owner's user id (UUID).
+  string user_id = 2;
+  // The task title.
+  string title = 3;
+  // The due date the reminder is about.
+  google.protobuf.Timestamp due_date = 4;
+  // When the reminder fired.
+  google.protobuf.Timestamp occurred_at = 5;
+}

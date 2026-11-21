@@ -4,12 +4,21 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3002",
+    "prebuild": "node ../shared/scripts/check-seo-placeholders.mjs",
     "build": "next build",
     "start": "next start -p 3002",
     "lint": "biome check --error-on-warnings",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "knip": "knip"
+    "knip": "knip",
+    "check:bundle": "node ../shared/scripts/check-bundle-size.mjs",
+    "lighthouse": "pnpm dlx @lhci/cli@0.15.1 autorun",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install chromium",
+    "check:deps": "depcruise src ../shared --config .dependency-cruiser.cjs",
+    "check:source": "node ../shared/scripts/check-source-bans.mjs",
+    "check:feature-boundaries": "bash ../app/scripts/check-feature-boundaries.sh .",
+    "check": "pnpm lint && pnpm typecheck && pnpm knip && pnpm check:deps && pnpm check:feature-boundaries && pnpm check:source"
   },
   "dependencies": {
     "@fontsource/noto-sans": "catalog:",
@@ -23,7 +32,6 @@
     "@hugeicons/core-free-icons": "catalog:",
     "@sentry/nextjs": "catalog:",
     "zod": "catalog:",
-    "next-themes": "catalog:",
     "tw-animate-css": "catalog:",
     "shadcn": "catalog:"
   },
@@ -42,7 +50,9 @@
     "@testing-library/dom": "catalog:",
     "@testing-library/user-event": "catalog:",
     "knip": "catalog:",
+    "dependency-cruiser": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
-    "@playwright/test": "catalog:"
+    "@playwright/test": "catalog:",
+    "@axe-core/playwright": "catalog:"
   }
 }

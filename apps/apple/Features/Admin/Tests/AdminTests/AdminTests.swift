@@ -1,6 +1,8 @@
 import AedstCore
 import Testing
-@testable import Admin
+@testable import AdminData
+@testable import AdminDomain
+@testable import AdminPresentation
 
 @Suite("Admin")
 struct AdminTests {

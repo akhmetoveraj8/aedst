@@ -18,7 +18,7 @@ import { TasksService } from "@/shared/api/connect/client";
 import type { GetTaskResponse } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { mutationKeyFor } from "@/shared/api/connect/mutation-key";
 import { parseDateInputValue } from "@/shared/date/format-date";
-import { useOutboxItems } from "@/shared/lib/outbox/OutboxProvider";
+import { useOutboxItems } from "@/shared/lib/outbox/outbox-provider";
 import { useQueuedWrite } from "@/shared/lib/outbox/use-queued-write";
 
 const META = { silent: true, feature: "tasks" } as const;

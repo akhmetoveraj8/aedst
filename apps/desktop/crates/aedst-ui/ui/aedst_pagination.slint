@@ -1,0 +1,55 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// Page navigation: previous, up to five page numbers around the current page, next. Pages are
+// 1-based. "Previous" sits at the reading start (the right in RTL). The texts come from the caller.
+export component AedstPagination inherits Rectangle {
+    in-out property <int> page: 1;
+    in property <int> page-count: 1;
+    in property <string> label;
+    in property <string> previous-text;
+    in property <string> next-text;
+    // Prefix of the accessible name of a page button: "Page" gives "Page 3". Translated by the caller.
+    in property <string> page-label;
+    callback page-changed(int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <int> shown: Math.min(5, root.page-count);
+    private property <int> first: Math.max(1, Math.min(root.page - 2, root.page-count - root.shown + 1));
+
+    function go(target: int) {
+        if (target >= 1 && target <= root.page-count && target != root.page) {
+            root.page = target;
+            root.page-changed(target);
+        }
+    }
+
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    HorizontalLayout {
+        spacing: AedstTokens.spacing-xs;
+        alignment: center;
+        AedstButton {
+            text: root.rtl ? root.next-text : root.previous-text;
+            variant: AedstButtonVariant.ghost;
+            enabled: root.rtl ? root.page < root.page-count : root.page > 1;
+            clicked => { root.go(root.rtl ? root.page + 1 : root.page - 1); }
+        }
+        for slot in root.shown: AedstButton {
+            property <int> number: root.first + (root.rtl ? root.shown - 1 - slot : slot);
+            text: "\{self.number}";
+            label: root.page-label == "" ? "\{self.number}" : root.page-label + " \{self.number}";
+            size: AedstButtonSize.icon;
+            variant: self.number == root.page ? AedstButtonVariant.outline : AedstButtonVariant.ghost;
+            clicked => { root.go(self.number); }
+        }
+        AedstButton {
+            text: root.rtl ? root.previous-text : root.next-text;
+            variant: AedstButtonVariant.ghost;
+            enabled: root.rtl ? root.page > 1 : root.page < root.page-count;
+            clicked => { root.go(root.rtl ? root.page - 1 : root.page + 1); }
+        }
+    }
+}

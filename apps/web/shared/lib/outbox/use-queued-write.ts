@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { outcomeForError } from "@/shared/lib/outbox/classify";
-import { useOutbox } from "@/shared/lib/outbox/OutboxProvider";
+import { useOutbox } from "@/shared/lib/outbox/outbox-provider";
 
 export type QueuedWriteResult<T> =
   | { status: "sent"; value: T }

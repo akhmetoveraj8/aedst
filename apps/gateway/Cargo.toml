@@ -7,15 +7,22 @@ license = "Apache-2.0"
 publish = false
 description = "AEDST realtime gateway: NATS JetStream events to authenticated WebSocket clients (ADR-0021)."
 
-# Versions verified against crates.io on 2026-11-18. NOT compiled together yet (no Rust toolchain on the
-# authoring machine): features marked UNVERIFIED must be checked by the first `cargo build`.
+# Versions verified against crates.io on 2026-11-18. Every version and every feature name below was checked
+# against the crates.io API (`/api/v1/crates/<name>/<version>`, the `features` map) on 2026-11-21: all exist.
+# NOT compiled together yet (no Rust toolchain on the authoring machine): that the features are SUFFICIENT for
+# the code is still UNVERIFIED until the first `cargo build`. A crate must also be in approved-crates.txt and on
+# docs/content/library-first/gateway.md; versions shared with apps/desktop/Cargo.toml must be identical
+# (apps/desktop/scripts/check-approved-crates.sh, no cargo needed).
 [dependencies]
 tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros", "net", "signal", "time", "sync"] }
 tokio-util = "0.7.20"
 futures = "0.3.34"
 axum = { version = "0.8.9", default-features = false, features = ["ws", "http1", "tokio"] }
+# The accept loop (src/server.rs): header-read timeout and a cap on connections in the HTTP phase, which
+# `axum::serve` does not offer. Same crate and features axum 0.8.9 itself depends on (^0.1.3).
+hyper-util = { version = "0.1.21", default-features = false, features = ["tokio", "server", "http1", "service"] }
 async-nats = "0.53.0"
-# UNVERIFIED feature name: jsonwebtoken 10+ needs an explicit crypto backend.
+# Exactly one crypto backend must be chosen (`rust_crypto` or `aws_lc_rs`); `use_pem` (the default) is not needed.
 jsonwebtoken = { version = "12.0.0", default-features = false, features = ["rust_crypto"] }
 reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "json"] }
 serde = { version = "1.0.229", features = ["derive"] }
@@ -25,15 +32,20 @@ uuid = "1.29.0"
 thiserror = "2.0.21"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
-# Telemetry: traces over OTLP/HTTP when OTEL_EXPORTER_OTLP_ENDPOINT is set. UNVERIFIED feature names.
+# Telemetry: traces and metrics over OTLP/HTTP when OTEL_EXPORTER_OTLP_ENDPOINT is set. Feature names exist
+# (checked); `http-proto` enables the `metrics` signal of opentelemetry-otlp.
+# UNVERIFIED at run time: `reqwest-client` (async) together with the SDK's thread-based batch processor and
+# periodic reader used in src/telemetry.rs; if the exporter cannot reach a Tokio reactor, switch to `reqwest-blocking-client`.
 opentelemetry = "0.33.1"
 opentelemetry_sdk = { version = "0.33.1", features = ["rt-tokio"] }
 opentelemetry-otlp = { version = "0.33.1", default-features = false, features = ["trace", "http-proto", "reqwest-client"] }
 tracing-opentelemetry = "0.34.0"
 
 [dev-dependencies]
-ed25519-dalek = { version = "3.0.0", features = ["pkcs8", "rand_core"] }
-tokio-tungstenite = "0.30.0"
+# `alloc` + `pkcs8`: tests/auth.rs calls `to_pkcs8_der` (EncodePrivateKey needs alloc; 3.0.0 defaults are fast + zeroize).
+ed25519-dalek = { version = "3.0.0", features = ["alloc", "pkcs8"] }
+# Test-only: the JWK `x` value in tests/auth.rs. 0.23.1 verified on crates.io 2026-11-21 (jsonwebtoken uses ^0.23).
+base64 = "0.23.1"
 
 [lints.rust]
 unsafe_code = "forbid"

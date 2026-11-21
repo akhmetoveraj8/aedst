@@ -57,14 +57,6 @@ type AssertionResult struct {
 
 type Option func(*Service)
 
-// WithLimiter caps challenge/enrollment calls and assertion verifications per
-// user per minute. A zero limit disables that cap.
-func WithLimiter(l Limiter, enrollPerMinute, assertPerMinute int) Option {
-	return func(s *Service) {
-		s.limiter, s.enrollPerMinute, s.assertPerMinute = l, enrollPerMinute, assertPerMinute
-	}
-}
-
 type Service struct {
 	attester   Attester
 	asserter   Asserter
@@ -72,10 +64,6 @@ type Service struct {
 	keys       KeyStore
 	policy     domain.Policy
 	clock      sharedtime.Clock
-
-	limiter         Limiter
-	enrollPerMinute int
-	assertPerMinute int
 }
 
 // NewService builds the service. A nil attester yields a disabled service
@@ -95,30 +83,11 @@ func (s *Service) disabled(op string) error {
 	return sharederrors.FailedPrecondition(op, "app attest verification is not configured on this server")
 }
 
-func (s *Service) limit(ctx context.Context, op, bucket string, userID ids.ID, perMinute int) error {
-	if s.limiter == nil || perMinute <= 0 {
-		return nil
-	}
-	allowed, err := s.limiter.Allow(ctx, "appattest:"+bucket+":"+userID.String(), perMinute, time.Minute)
-	if err != nil {
-		// Fail open by design (the limiter is not a security boundary), but never silently.
-		slog.WarnContext(ctx, "app attest rate limiter unavailable, allowing the request", "bucket", bucket, "error", err)
-		return nil
-	}
-	if !allowed {
-		return sharederrors.RateLimited(op, "too many app attest requests, retry later")
-	}
-	return nil
-}
-
 // CreateChallenge issues a single-use challenge bound to the user.
 func (s *Service) CreateChallenge(ctx context.Context, userID ids.ID) (Challenge, error) {
 	const op = "appattest.CreateChallenge"
 	if !s.Enabled() {
 		return Challenge{}, s.disabled(op)
-	}
-	if err := s.limit(ctx, op, "enroll", userID, s.enrollPerMinute); err != nil {
-		return Challenge{}, err
 	}
 	value := make([]byte, domain.ChallengeSize)
 	_, _ = rand.Read(value) // crypto/rand.Read never returns an error (Go 1.24+: it crashes the program instead)
@@ -147,9 +116,6 @@ func (s *Service) Enroll(ctx context.Context, in EnrollInput) (EnrollResult, err
 	bundle, ok := s.policy.ResolveBundle(in.BundleID)
 	if !ok {
 		return rejectEnroll(ctx, domain.ReasonBundleNotAllowed), nil
-	}
-	if err := s.limit(ctx, op, "enroll", in.UserID, s.enrollPerMinute); err != nil {
-		return EnrollResult{}, err
 	}
 
 	now := s.clock.Now()
@@ -210,9 +176,6 @@ func (s *Service) VerifyAssertion(ctx context.Context, in AssertionInput) (Asser
 	keyID, err := domain.DecodeKeyID(in.KeyID)
 	if err != nil || len(in.Assertion) == 0 || !domain.ValidAction(in.Action) {
 		return AssertionResult{}, sharederrors.Validation(op, "key id, assertion and a valid action are required")
-	}
-	if err := s.limit(ctx, op, "assert", in.UserID, s.assertPerMinute); err != nil {
-		return AssertionResult{}, err
 	}
 
 	// One lookup answers "unknown", "revoked" and "someone else's key" alike.

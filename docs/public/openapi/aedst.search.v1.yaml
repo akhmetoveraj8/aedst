@@ -1,0 +1,288 @@
+openapi: 3.1.0
+info:
+  title: AEDST search API (aedst.search.v1)
+  description: Generated from apps/server/api/proto/aedst/search/v1. ConnectRPC over HTTP, one POST per RPC (GET where the RPC has no side effects). Do not edit by hand.
+  version: v1
+paths:
+  /aedst.search.v1.SearchService/Search:
+    post:
+      tags:
+        - aedst.search.v1.SearchService
+      summary: Search
+      description: Ranked full-text search over the caller's own documents.
+      operationId: aedst.search.v1.SearchService.Search
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.search.v1.SearchRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.search.v1.SearchResponse'
+  /aedst.search.v1.SearchService/Suggest:
+    post:
+      tags:
+        - aedst.search.v1.SearchService
+      summary: Suggest
+      description: Prefix suggestions for a search box (title-only, cheap).
+      operationId: aedst.search.v1.SearchService.Suggest
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.search.v1.SuggestRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.search.v1.SuggestResponse'
+components:
+  schemas:
+    aedst.search.v1.DocumentKind:
+      type: string
+      title: DocumentKind
+      enum:
+        - DOCUMENT_KIND_UNSPECIFIED
+        - DOCUMENT_KIND_TASK
+        - DOCUMENT_KIND_MEDIA
+    aedst.search.v1.SearchHit:
+      type: object
+      properties:
+        kind:
+          title: kind
+          $ref: '#/components/schemas/aedst.search.v1.DocumentKind'
+        id:
+          type: string
+          title: id
+          description: ID in the owning module (task id for DOCUMENT_KIND_TASK).
+        title:
+          type: string
+          title: title
+        snippet:
+          type: string
+          title: snippet
+          description: |-
+            Plain-text excerpt; matched terms are wrapped in U+E000 / U+E001 so each
+             client renders highlighting natively without parsing HTML.
+        score:
+          oneOf:
+            - type: number
+              format: float
+            - type: string
+              enum:
+                - NaN
+                - Infinity
+                - -Infinity
+          title: score
+        link:
+          type: string
+          title: link
+          description: In-app route, e.g. "/tasks/<id>".
+        updatedAt:
+          title: updated_at
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: SearchHit
+      additionalProperties: false
+    aedst.search.v1.SearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          title: query
+          maxLength: 200
+          minLength: 1
+        kinds:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.search.v1.DocumentKind'
+          title: kinds
+          description: Empty means every kind.
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 50
+          minimum: 0
+          format: int32
+          description: Defaults to 20, clamped to 50.
+        pageToken:
+          type: string
+          title: page_token
+          maxLength: 512
+      title: SearchRequest
+      additionalProperties: false
+    aedst.search.v1.SearchResponse:
+      type: object
+      properties:
+        hits:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.search.v1.SearchHit'
+          title: hits
+        nextPageToken:
+          type: string
+          title: next_page_token
+        totalEstimate:
+          type: integer
+          title: total_estimate
+          format: int32
+          description: Approximate total; populated on the first page only.
+      title: SearchResponse
+      additionalProperties: false
+    aedst.search.v1.SuggestRequest:
+      type: object
+      properties:
+        prefix:
+          type: string
+          title: prefix
+          maxLength: 100
+          minLength: 1
+        limit:
+          type: integer
+          title: limit
+          maximum: 20
+          minimum: 0
+          format: int32
+          description: Defaults to 8, clamped to 20.
+      title: SuggestRequest
+      additionalProperties: false
+    aedst.search.v1.SuggestResponse:
+      type: object
+      properties:
+        suggestions:
+          type: array
+          items:
+            type: string
+          title: suggestions
+      title: SuggestResponse
+      additionalProperties: false
+    connect-protocol-version:
+      type: number
+      examples:
+        - 1
+      title: Connect-Protocol-Version
+      description: Define the version of the Connect protocol
+      const: 1
+    connect-timeout-header:
+      type: number
+      examples:
+        - 1000
+      title: Connect-Timeout-Ms
+      description: Define the timeout, in ms
+    connect.error:
+      type: object
+      properties:
+        code:
+          type: string
+          examples:
+            - not_found
+          enum:
+            - canceled
+            - unknown
+            - invalid_argument
+            - deadline_exceeded
+            - not_found
+            - already_exists
+            - permission_denied
+            - resource_exhausted
+            - failed_precondition
+            - aborted
+            - out_of_range
+            - unimplemented
+            - internal
+            - unavailable
+            - data_loss
+            - unauthenticated
+          description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+        message:
+          type: string
+          description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/connect.error_details.Any'
+          description: A list of messages that carry the error details. There is no limit on the number of messages.
+      title: Connect Error
+      additionalProperties: true
+      description: 'Error type returned by Connect: https://connectrpc.com/docs/go/errors/#http-representation'
+    connect.error_details.Any:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'A URL that acts as a globally unique identifier for the type of the serialized message. For example: `type.googleapis.com/google.rpc.ErrorInfo`.'
+        value:
+          type: string
+          format: byte
+          description: The Protobuf message, serialized as bytes and base64-encoded. The specific message type is identified by the `type` field.
+        debug:
+          type: object
+          title: Debug
+          additionalProperties: true
+          description: Deserialized error detail payload. The 'type' field indicates the schema. This field is for easier debugging and should not be relied upon for application logic.
+      additionalProperties: true
+      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message, with an additional debug field for ConnectRPC error details.
+    google.protobuf.Timestamp:
+      type: string
+      examples:
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
+      format: date-time
+      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+security: []
+tags:
+  - name: aedst.search.v1.SearchService
+    description: |-
+      SearchService is a read-only, cross-module search over the caller's own
+       content. The search module owns a projection (search.documents, Postgres
+       full-text search with tsvector + pg_trgm for typo tolerance) that it builds
+       by consuming other modules' integration events — it never queries another
+       module's tables. Tasks is the reference producer (TaskCreated, TaskUpdated,
+       TaskCompleted, TaskDeleted).
+
+       Results are always filtered to documents owned by the authenticated caller.

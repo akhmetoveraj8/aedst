@@ -50,9 +50,21 @@ public enum AedstColor {
     public static let warning = adaptive(light: AedstLightPalette.warning, dark: AedstDarkPalette.warning)
     public static let warningForeground = adaptive(light: AedstLightPalette.warningForeground, dark: AedstDarkPalette.warningForeground)
 
+    public static let info = adaptive(light: AedstLightPalette.info, dark: AedstDarkPalette.info)
+    public static let infoForeground = adaptive(light: AedstLightPalette.infoForeground, dark: AedstDarkPalette.infoForeground)
+
     public static let border = adaptive(light: AedstLightPalette.border, dark: AedstDarkPalette.border)
     public static let input = adaptive(light: AedstLightPalette.input, dark: AedstDarkPalette.input)
     public static let ring = adaptive(light: AedstLightPalette.ring, dark: AedstDarkPalette.ring)
+
+    public static let sidebar = adaptive(light: AedstLightPalette.sidebar, dark: AedstDarkPalette.sidebar)
+    public static let sidebarForeground = adaptive(light: AedstLightPalette.sidebarForeground, dark: AedstDarkPalette.sidebarForeground)
+    public static let sidebarPrimary = adaptive(light: AedstLightPalette.sidebarPrimary, dark: AedstDarkPalette.sidebarPrimary)
+    public static let sidebarPrimaryForeground = adaptive(light: AedstLightPalette.sidebarPrimaryForeground, dark: AedstDarkPalette.sidebarPrimaryForeground)
+    public static let sidebarAccent = adaptive(light: AedstLightPalette.sidebarAccent, dark: AedstDarkPalette.sidebarAccent)
+    public static let sidebarAccentForeground = adaptive(light: AedstLightPalette.sidebarAccentForeground, dark: AedstDarkPalette.sidebarAccentForeground)
+    public static let sidebarBorder = adaptive(light: AedstLightPalette.sidebarBorder, dark: AedstDarkPalette.sidebarBorder)
+    public static let sidebarRing = adaptive(light: AedstLightPalette.sidebarRing, dark: AedstDarkPalette.sidebarRing)
 
     public static let chart1 = adaptive(light: AedstLightPalette.chart1, dark: AedstDarkPalette.chart1)
     public static let chart2 = adaptive(light: AedstLightPalette.chart2, dark: AedstDarkPalette.chart2)

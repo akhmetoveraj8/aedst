@@ -7,7 +7,8 @@ import path from 'node:path';
 
 const WEB_LOCALES = ['en', 'ru', 'tj', 'uz', 'ar'];
 const NATIVE_LOCALES = ['en', 'ru', 'tg', 'uz', 'ar'];
-const ANDROID_RES = ['values', 'values-en', 'values-tg', 'values-uz', 'values-ar'];
+// `values/` is the default locale (English); Russian and the others are qualified.
+const ANDROID_RES = ['values', 'values-ru', 'values-tg', 'values-uz', 'values-ar'];
 
 const pascal = (id) => id.charAt(0).toUpperCase() + id.slice(1);
 const list = (v) => (Array.isArray(v) ? v : []);
@@ -56,22 +57,36 @@ function platformChecks(root, platform, featureId, dir) {
       };
     }
     case 'android': {
+      // data, presentation and navigation are the Android module; the domain is the Kotlin Multiplatform module next
+      // to it (`feature/<id>/domain`, commonMain). See docs/content/android/kmp.md.
       const main = `${dir}/src/main/kotlin/com/aedst/feature/${id}`;
+      const domain = `${dir}/domain/src/commonMain/kotlin/com/aedst/feature/${id}/domain`;
       return {
         ...layers(main),
+        domain: () => (hasDir(root, domain) ? null : `missing layer directory ${domain}`),
         navigation: () => (has(root, `${main}/navigation/${pascal(id)}NavGraph.kt`) ? null : `missing ${main}/navigation/${pascal(id)}NavGraph.kt`),
         i18n: locales(ANDROID_RES, (r) => `${dir}/src/main/res/${r}/strings.xml`),
         tests: () => (files().some((f) => f.startsWith(`${dir}/src/test/`) && f.endsWith('.kt')) ? null : `no unit test under ${dir}/src/test`),
       };
     }
     case 'apple': {
-      const src = `${dir}/Sources/${path.basename(dir)}`;
+      // apps/apple/Features/<Name>: one SwiftPM target per layer, Sources/<Name>{Domain,Data,Presentation,UIiOS,UIMac}
+      // ("One business logic, two UI builds", docs/content/decisions/apple.md).
+      const name = path.basename(dir);
+      const layer = (l) => `${dir}/Sources/${name}${l}`;
+      const destinations = (ui) => `${layer(ui)}/${pascal(id)}Destinations.swift`;
       return {
         package: () => (has(root, `${dir}/Package.swift`) ? null : `missing ${dir}/Package.swift`),
-        ...layers(src),
-        navigation: () => (has(root, `${src}/Navigation/${pascal(id)}Destinations.swift`) ? null : `missing ${src}/Navigation/${pascal(id)}Destinations.swift`),
+        ...Object.fromEntries(['Data', 'Domain', 'Presentation'].map((l) => [
+          l.toLowerCase(),
+          () => (hasDir(root, layer(l)) ? null : `missing layer directory ${layer(l)}`),
+        ])),
+        navigation: () => {
+          const miss = ['UIiOS', 'UIMac'].map(destinations).filter((f) => !has(root, f));
+          return miss.length ? `missing ${miss.join(', ')}` : null;
+        },
         i18n: () => {
-          const cat = `${src}/Resources/Localizable.xcstrings`;
+          const cat = `${layer('Presentation')}/Resources/Localizable.xcstrings`;
           if (!has(root, cat)) return `missing ${cat}`;
           const used = new Set();
           for (const entry of Object.values(JSON.parse(read(root, cat)).strings ?? {}))
@@ -136,13 +151,13 @@ export function clientBuildOf(root, platform) {
     out.features = new Set(mods.map((m) => m.n));
     out.flagged = new Set(mods.filter((m) => /flagged:\s*true/.test(read(root, m.file))).map((m) => m.n));
   } else if (platform === 'android') {
-    const consts = stringConstants(read(root, 'apps/android/core/common/src/main/kotlin/com/aedst/core/common/CapabilitiesState.kt'));
+    const consts = stringConstants(read(root, 'apps/android/core/common/src/commonMain/kotlin/com/aedst/core/common/CapabilitiesState.kt'));
     const text = read(root, 'apps/android/core/capabilities/src/main/kotlin/com/aedst/core/capabilities/CapabilitiesModule.kt');
     const set = (key) => new Set([...(new RegExp(`${key}\\s*=\\s*setOf\\(([^)]*)\\)`).exec(text)?.[1] ?? '').matchAll(/AedstFeature\.(\w+)/g)].map((m) => consts[m[1]] ?? m[1]));
     out.features = set('features');
     out.flagged = set('flagged');
   } else if (platform === 'apple') {
-    const text = read(root, 'apps/apple/App/Shared/Sources/AedstAppShared/AppDependencies+Capabilities.swift');
+    const text = read(root, 'apps/apple/App/Shared/Sources/AedstAppCore/AppDependencies+Capabilities.swift');
     const consts = stringConstants(text);
     const set = (key) => new Set([...(new RegExp(`${key}:\\s*Set<String>\\s*=\\s*\\[([^\\]]*)\\]`).exec(text)?.[1] ?? '').split(',').map((s) => s.trim()).filter(Boolean).map((n) => consts[n] ?? n)]);
     out.features = set('built');

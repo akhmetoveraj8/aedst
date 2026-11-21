@@ -19,6 +19,8 @@ import (
 	"github.com/aedst/server/internal/modules/appattest/infrastructure/apple"
 	"github.com/aedst/server/internal/modules/appattest/infrastructure/postgres"
 	"github.com/aedst/server/internal/modules/appattest/transport"
+	"github.com/aedst/server/internal/platform/config"
+	"github.com/aedst/server/internal/platform/httpserver"
 	"github.com/aedst/server/internal/platform/modulekit"
 	"github.com/aedst/server/internal/platform/retention"
 )
@@ -29,12 +31,26 @@ const requestBytes = 64 << 10
 func init() {
 	m := &appattestModule{}
 	modulekit.Register(modulekit.Module{
-		Name:      "appattest",
-		Files:     []protoreflect.FileDescriptor{appattestv1.File_aedst_appattest_v1_appattest_proto},
-		Retention: retentionPolicies,
-		Setup:     m.setup,
-		Mount:     m.mount,
+		Name:       "appattest",
+		Files:      []protoreflect.FileDescriptor{appattestv1.File_aedst_appattest_v1_appattest_proto},
+		Retention:  retentionPolicies,
+		RateLimits: rateLimits,
+		Setup:      m.setup,
+		Mount:      m.mount,
 	})
+}
+
+// rateLimits are the per-user budgets of the App Attest RPCs, enforced by the
+// platform's per-procedure limiter (not by this module): challenge creation and
+// enrolment are one flow and share a budget, assertions have their own.
+func rateLimits(cfg config.Config) map[string]httpserver.ProcedureLimit {
+	a := cfg.AppAttest
+	enroll := httpserver.ProcedureLimit{PerMinute: a.RateLimitPerMinute, Bucket: "appattest:enroll"}
+	return map[string]httpserver.ProcedureLimit{
+		appattestv1connect.AppAttestServiceCreateChallengeProcedure: enroll,
+		appattestv1connect.AppAttestServiceEnrollProcedure:          enroll,
+		appattestv1connect.AppAttestServiceVerifyAssertionProcedure: {PerMinute: a.AssertionRateLimitPerMinute, Bucket: "appattest:assert"},
+	}
 }
 
 func retentionPolicies(env *modulekit.Env) []retention.Policy {
@@ -87,6 +103,5 @@ func newService(env *modulekit.Env) (*application.Service, error) {
 		verifier, verifier,
 		postgres.NewChallengeRepository(env.PoolFor("appattest")), postgres.NewKeyRepository(env.PoolFor("appattest")),
 		policy, env.Clock,
-		application.WithLimiter(env.RateLimiter, a.RateLimitPerMinute, a.AssertionRateLimitPerMinute),
 	), nil
 }

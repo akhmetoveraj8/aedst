@@ -9,6 +9,7 @@ Rust follows the standard API guidelines; `rustfmt` and `clippy -D warnings` enf
 | What | Rule | Example | Level |
 |---|---|---|---|
 | Crate (directory and package) | `aedst-<name>`, kebab-case; features `aedst-feature-<name>` | `aedst-feature-tasks` | Must (by convention, reviewed) |
+| Feature inside a crate (from the second capability) | `src/<feature>/{domain,data,presentation}` and `ui/<feature>/`, shared code in `src/shared` and `ui/shared`; a one-capability crate stays flat | `src/transfer/domain/`, `ui/transfer/transfer.slint` | Must (`check-feature-boundaries.sh`, rule D6) |
 | Rust file / module | `snake_case.rs` | `task_repository.rs` | Must (`scripts/check-naming.sh`) |
 | Slint file | `snake_case.slint` | `task_list_view.slint` | Must (`scripts/check-naming.sh`) |
 | Types, traits, enum variants | `PascalCase` | `TaskRepository`, `TaskStatus::Done` | Must (rustc lint) |
@@ -20,7 +21,7 @@ Rust follows the standard API guidelines; `rustfmt` and `clippy -D warnings` enf
 
 ## Enforcement gates (apps/desktop)
 
-`cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings` and `cargo deny check` (see `task verify:desktop`), plus `scripts/check-naming.sh` for file names. The desktop CI workflow is experimental and non-blocking until its first green run.
+`cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings` and `cargo deny check` (see `task verify:desktop`), plus `scripts/check-naming.sh` for file names. Without cargo: `apps/desktop/scripts/check-feature-boundaries.sh` (in `task check:boundaries`) checks crate boundaries, the feature layout and the approved-crate list; rules in [desktop/boundaries](../../content/desktop/boundaries.md). The desktop CI workflow is experimental and non-blocking until its first green run.
 
 ## Cross-platform vocabulary (same concept, same name on every client)
 

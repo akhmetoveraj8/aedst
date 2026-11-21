@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   budgetStatus,
   containsReplayRecorder,
-} from "../../scripts/bundle-status.mjs";
+} from "../../../shared/scripts/bundle-status.mjs";
 
 describe("budgetStatus", () => {
   it("is ok below 95 % of the budget", () => {

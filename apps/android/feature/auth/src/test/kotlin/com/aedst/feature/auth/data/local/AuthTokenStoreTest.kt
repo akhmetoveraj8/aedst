@@ -1,6 +1,6 @@
 package com.aedst.feature.auth.data.local
 
-import com.aedst.feature.auth.domain.model.AuthSession
+import com.aedst.feature.auth.domain.AuthSession
 import com.aedst.feature.auth.testing.FakeEncryptedPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

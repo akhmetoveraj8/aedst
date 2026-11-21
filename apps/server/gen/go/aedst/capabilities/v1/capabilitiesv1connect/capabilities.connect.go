@@ -32,15 +32,23 @@ const (
 var (
 	capabilitiesServiceGetCapabilitiesSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
-			StreamType: connect.StreamTypeUnary,
-			Schema:     v1.File_aedst_capabilities_v1_capabilities_proto.Services().ByName("CapabilitiesService").Methods().ByName("GetCapabilities"),
-			Procedure:  CapabilitiesServiceGetCapabilitiesProcedure,
+			StreamType:       connect.StreamTypeUnary,
+			Schema:           v1.File_aedst_capabilities_v1_capabilities_proto.Services().ByName("CapabilitiesService").Methods().ByName("GetCapabilities"),
+			Procedure:        CapabilitiesServiceGetCapabilitiesProcedure,
+			IdempotencyLevel: connect.IdempotencyNoSideEffects,
 		}
 	})
 )
 
 // CapabilitiesServiceClient is a client for the aedst.capabilities.v1.CapabilitiesService service.
 type CapabilitiesServiceClient interface {
+	// Returns the server identity, the supported client releases and the enabled
+	// features. Public and independent of the caller's identity.
+	//
+	// No side effects, so it is also served as a Connect GET and is the reference
+	// cacheable read: the response carries a strong ETag and
+	// "Cache-Control: public, max-age=..." and If-None-Match is answered 304
+	// (modulekit.Cacheable). The answer varies by X-Aedst-Client only.
 	GetCapabilities(context.Context, *v1.GetCapabilitiesRequest) (*v1.GetCapabilitiesResponse, error)
 }
 
@@ -54,6 +62,13 @@ func NewCapabilitiesServiceClient(client *connect.Client) CapabilitiesServiceCli
 // CapabilitiesServiceHandler is an implementation of the aedst.capabilities.v1.CapabilitiesService
 // service.
 type CapabilitiesServiceHandler interface {
+	// Returns the server identity, the supported client releases and the enabled
+	// features. Public and independent of the caller's identity.
+	//
+	// No side effects, so it is also served as a Connect GET and is the reference
+	// cacheable read: the response carries a strong ETag and
+	// "Cache-Control: public, max-age=..." and If-None-Match is answered 304
+	// (modulekit.Cacheable). The answer varies by X-Aedst-Client only.
 	GetCapabilities(context.Context, *v1.GetCapabilitiesRequest) (*v1.GetCapabilitiesResponse, error)
 }
 

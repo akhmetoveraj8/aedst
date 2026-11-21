@@ -74,6 +74,37 @@ func (a *app) mountModules(rpc *modulekit.Mounter) error {
 	return nil
 }
 
+// cachePolicies merges the reads the modules marked cacheable and validates them
+// against the descriptors: an unknown procedure, an RPC that is not declared
+// NO_SIDE_EFFECTS or a shared cache on a non-public procedure fails startup.
+func (a *app) cachePolicies(public map[string]bool) (map[string]httpserver.CachePolicy, error) {
+	policies := map[string]httpserver.CachePolicy{}
+	var files []protoreflect.FileDescriptor
+	for _, m := range a.mods {
+		maps.Copy(policies, m.Cacheable)
+		files = append(files, m.Files...)
+	}
+	return policies, httpserver.ValidateCachePolicy(policies, public, files...)
+}
+
+// procedureLimits merges the modules' built-in per-procedure rate limits with
+// AEDST_PROCEDURE_RATE_LIMITS and validates the result against the procedures
+// that exist, so a typo fails the deploy instead of limiting nothing.
+func (a *app) procedureLimits(known, public map[string]bool) (map[string]httpserver.ProcedureLimit, error) {
+	defaults := map[string]httpserver.ProcedureLimit{}
+	for _, m := range a.mods {
+		if m.RateLimits != nil {
+			maps.Copy(defaults, m.RateLimits(a.cfg))
+		}
+	}
+	configured, err := httpserver.ParseProcedureLimits(a.cfg.HTTP.ProcedureRateLimits)
+	if err != nil {
+		return nil, err
+	}
+	limits := httpserver.MergeProcedureLimits(defaults, configured)
+	return limits, httpserver.ValidateProcedureLimits(limits, known, public)
+}
+
 // rpcSurface merges what the modules declare about their RPCs: the procedures
 // reachable without a token, the built-in role policy, and every procedure that
 // exists (from the protobuf files, to validate AEDST_ROLE_POLICY against).

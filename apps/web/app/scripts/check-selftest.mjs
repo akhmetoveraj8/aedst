@@ -4,7 +4,7 @@
 //   pnpm check:selftest
 //
 // Every "mandatory library per concern" rule (Biome rules and GritQL plugins,
-// check-feature-boundaries.sh, check-color-literals, check-forms, check-validation,
+// check-feature-boundaries.sh, check-color-literals, check-source-bans, check-forms, check-validation,
 // check-naming.sh) is run against a deliberately broken fixture and MUST
 // fail with the expected message; the `control-*` fixtures are clean and MUST
 // pass, which proves the harness is not just failing everything.
@@ -138,6 +138,14 @@ const runners = {
     sh(
       process.execPath,
       [join(webDir, "scripts", "check-color-literals.mjs")],
+      {
+        env: { ...process.env, AEDST_WEB_ROOT: dir },
+      },
+    ),
+  source: (dir) =>
+    sh(
+      process.execPath,
+      [join(webDir, "..", "shared", "scripts", "check-source-bans.mjs")],
       {
         env: { ...process.env, AEDST_WEB_ROOT: dir },
       },

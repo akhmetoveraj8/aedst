@@ -1,0 +1,100 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// One choice out of `items`. The group is a single tab stop: arrow keys move the selection
+// (Up/Down, and Left/Right following the reading direction), Home/End jump to the ends.
+export component AedstRadioGroup inherits Rectangle {
+    in property <[string]> items;
+    in property <string> label;
+    in-out property <int> current-index: -1;
+    in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
+    callback selected(int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    function choose(index: int) {
+        if (root.enabled && index >= 0 && index < root.items.length && index != root.current-index) {
+            root.current-index = index;
+            root.selected(index);
+        }
+    }
+
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == Key.DownArrow || event.text == (root.rtl ? Key.LeftArrow : Key.RightArrow)) {
+                root.choose(Math.min(root.current-index + 1, root.items.length - 1));
+                return accept;
+            }
+            if (event.text == Key.UpArrow || event.text == (root.rtl ? Key.RightArrow : Key.LeftArrow)) {
+                root.choose(Math.max(root.current-index - 1, 0));
+                return accept;
+            }
+            if (event.text == Key.Home || (event.text == " " && root.current-index < 0)) {
+                root.choose(0);
+                return accept;
+            }
+            if (event.text == Key.End) {
+                root.choose(root.items.length - 1);
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    VerticalLayout {
+        spacing: AedstTokens.spacing-sm;
+        for entry[index] in root.items: Rectangle {
+            min-height: 20px;
+            preferred-width: 24px + caption.preferred-width;
+            accessible-role: radio-button;
+            accessible-label: entry;
+            accessible-checkable: true;
+            accessible-checked: root.current-index == index;
+            accessible-enabled: root.enabled;
+            accessible-action-default => { root.choose(index); }
+
+            Rectangle {
+                x: root.rtl ? parent.width - self.width : 0px;
+                y: (parent.height - self.height) / 2;
+                width: 16px;
+                height: 16px;
+                border-radius: 8px;
+                // The focus ring is drawn on the selected item (or the first one when nothing is selected).
+                border-width: (focus.has-focus && (root.current-index == index || (root.current-index < 0 && index == 0))) ? 2px : 1px;
+                border-color: focus.has-focus ? AedstTokens.ring : AedstTokens.input;
+                background: AedstTokens.background;
+                if root.current-index == index: Rectangle {
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 4px;
+                    background: AedstTokens.primary;
+                }
+            }
+            caption := Text {
+                x: root.rtl ? 0px : 24px;
+                width: parent.width - 24px;
+                height: parent.height;
+                text: entry;
+                color: AedstTokens.foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: root.rtl ? right : left;
+                vertical-alignment: center;
+                accessible-role: AccessibleRole.none;
+            }
+            TouchArea {
+                enabled: root.enabled;
+                clicked => {
+                    focus.focus();
+                    root.choose(index);
+                }
+            }
+        }
+    }
+}

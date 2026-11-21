@@ -103,8 +103,8 @@ Alert on `aedst_events_forward_discarded_total`. No broker was added.
 ## Step 6 - host a subset of units (supported)
 
 There is no second binary to build: `cmd/server` names no module and the same image runs any subset.
-`AEDST_MODULES=media` hosts only `media` (a module name also hosts its features, a feature name such as
-`social/like` only itself); empty hosts everything. `modulekit.Select` validates the choice at startup: an unknown
+`AEDST_MODULES=media` hosts only `media`; empty hosts everything (the unit is the module: a feature inside a
+module is not hosted separately). `modulekit.Select` validates the choice at startup: an unknown
 unit, or a hosted unit that requires one that is neither hosted nor given a URL, fails with the variable to set
 (`AEDST_MODULE_<NAME>_URL`). Helm: `modules.enabled` for the release, `workers[].modules` per worker
 Deployment. A unit that is not hosted is not mounted and has no workers or consumers here, so it must be

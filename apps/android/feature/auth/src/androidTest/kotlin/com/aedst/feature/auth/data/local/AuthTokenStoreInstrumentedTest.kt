@@ -4,7 +4,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.aedst.core.common.DispatcherProvider
 import com.aedst.core.security.TinkEncryptedPreferences
-import com.aedst.feature.auth.domain.model.AuthSession
+import com.aedst.feature.auth.domain.AuthSession
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

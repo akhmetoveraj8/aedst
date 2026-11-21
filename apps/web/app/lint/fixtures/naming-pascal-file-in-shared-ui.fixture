@@ -1,0 +1,4 @@
+//// run: naming
+//// expect: web source file must be kebab-case
+//// file: apps/web/shared/ui/SomeKitPart.tsx
+export const SomeKitPart = () => null;

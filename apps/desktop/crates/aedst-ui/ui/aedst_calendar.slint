@@ -1,0 +1,205 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// A month grid (Gregorian) with one selectable date. Month and weekday names come from the
+// caller (translated), `weekday-names` starting at `first-weekday` (0: Sunday, 1: Monday).
+// The grid is one tab stop: arrows move by day and week (Left/Right follow the reading
+// direction), PageUp/PageDown change the month, Enter and Space select. Columns are mirrored in RTL.
+export component AedstCalendar inherits Rectangle {
+    in-out property <int> year: 2026;
+    in-out property <int> month: 1;
+    in-out property <int> selected-year;
+    in-out property <int> selected-month;
+    in-out property <int> selected-day;
+    in property <int> today-year;
+    in property <int> today-month;
+    in property <int> today-day;
+    in property <int> first-weekday: 1;
+    in property <[string]> month-names;
+    in property <[string]> weekday-names;
+    in property <string> label;
+    in property <string> previous-label;
+    in property <string> next-label;
+    in property <bool> autofocus: false;
+    out property <bool> has-focus: focus.has-focus;
+    // Year, month (1 to 12), day.
+    callback selected(int, int, int);
+    callback month-changed(int, int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <[int]> month-keys: [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+    private property <int> days: root.days-in(root.year, root.month);
+    // Empty cells before day 1 in the first week.
+    private property <int> lead: Math.mod(root.weekday(root.year, root.month, 1) - root.first-weekday + 7, 7);
+    private property <int> cursor: 1;
+    private property <string> title: root.month-names[root.month - 1] + " \{root.year}";
+
+    pure function days-in(y: int, m: int) -> int {
+        return m == 2 ? ((Math.mod(y, 4) == 0 && (Math.mod(y, 100) != 0 || Math.mod(y, 400) == 0)) ? 29 : 28)
+            : (m == 4 || m == 6 || m == 9 || m == 11) ? 30 : 31;
+    }
+    // Sakamoto's method; 0 is Sunday.
+    pure function weekday(y: int, m: int, d: int) -> int {
+        return Math.mod((m < 3 ? y - 1 : y) + Math.floor((m < 3 ? y - 1 : y) / 4) - Math.floor((m < 3 ? y - 1 : y) / 100)
+            + Math.floor((m < 3 ? y - 1 : y) / 400) + root.month-keys[m - 1] + d, 7);
+    }
+    function show-month(delta: int) {
+        if (root.month + delta < 1) {
+            root.year -= 1;
+            root.month = 12;
+        } else if (root.month + delta > 12) {
+            root.year += 1;
+            root.month = 1;
+        } else {
+            root.month += delta;
+        }
+        root.cursor = Math.min(root.cursor, root.days-in(root.year, root.month));
+        root.month-changed(root.year, root.month);
+    }
+    function move(delta: int) {
+        if (root.cursor + delta < 1) {
+            root.show-month(-1);
+            root.cursor = root.days-in(root.year, root.month);
+        } else if (root.cursor + delta > root.days) {
+            root.show-month(1);
+            root.cursor = 1;
+        } else {
+            root.cursor += delta;
+        }
+    }
+    function choose(day: int) {
+        root.cursor = day;
+        root.selected-year = root.year;
+        root.selected-month = root.month;
+        root.selected-day = day;
+        root.selected(root.year, root.month, day);
+    }
+
+    init => {
+        if (root.autofocus) {
+            focus.focus();
+        }
+    }
+
+    min-width: 7 * 32px + 2 * AedstTokens.spacing-sm;
+    min-height: body.min-height;
+    preferred-height: body.preferred-height;
+    forward-focus: focus;
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    body := VerticalLayout {
+        padding: AedstTokens.spacing-sm;
+        spacing: AedstTokens.spacing-xs;
+        HorizontalLayout {
+            AedstButton {
+                text: root.rtl ? "\u{203A}" : "\u{2039}";
+                label: root.rtl ? root.next-label : root.previous-label;
+                variant: AedstButtonVariant.ghost;
+                size: AedstButtonSize.icon-sm;
+                clicked => { root.show-month(root.rtl ? 1 : -1); }
+            }
+            Text {
+                text: root.title;
+                color: AedstTokens.foreground;
+                font-size: AedstTokens.typography-label-large-font-size;
+                font-weight: AedstTokens.typography-label-large-font-weight;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+            }
+            AedstButton {
+                text: root.rtl ? "\u{2039}" : "\u{203A}";
+                label: root.rtl ? root.previous-label : root.next-label;
+                variant: AedstButtonVariant.ghost;
+                size: AedstButtonSize.icon-sm;
+                clicked => { root.show-month(root.rtl ? -1 : 1); }
+            }
+        }
+        HorizontalLayout {
+            for slot in 7: Text {
+                text: root.weekday-names[root.rtl ? 6 - slot : slot];
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-small-font-size;
+                horizontal-alignment: center;
+                horizontal-stretch: 1;
+                min-width: 32px;
+            }
+        }
+        Rectangle {
+            min-height: 6 * 32px;
+            focus := FocusScope {
+                key-pressed(event) => {
+                    if (event.text == (root.rtl ? Key.LeftArrow : Key.RightArrow)) {
+                        root.move(1);
+                        return accept;
+                    }
+                    if (event.text == (root.rtl ? Key.RightArrow : Key.LeftArrow)) {
+                        root.move(-1);
+                        return accept;
+                    }
+                    if (event.text == Key.DownArrow) {
+                        root.move(7);
+                        return accept;
+                    }
+                    if (event.text == Key.UpArrow) {
+                        root.move(-7);
+                        return accept;
+                    }
+                    if (event.text == Key.PageDown) {
+                        root.show-month(1);
+                        return accept;
+                    }
+                    if (event.text == Key.PageUp) {
+                        root.show-month(-1);
+                        return accept;
+                    }
+                    if (event.text == " " || event.text == "\n") {
+                        root.choose(root.cursor);
+                        return accept;
+                    }
+                    return reject;
+                }
+            }
+            for cell in 42: Rectangle {
+                // `cell` counts in reading order; the column is mirrored in RTL.
+                property <int> lane: Math.mod(cell, 7);
+                property <int> day: cell - root.lead + 1;
+                property <bool> in-month: self.day >= 1 && self.day <= root.days;
+                property <bool> chosen: self.in-month && self.day == root.selected-day && root.month == root.selected-month && root.year == root.selected-year;
+                property <bool> today: self.in-month && self.day == root.today-day && root.month == root.today-month && root.year == root.today-year;
+                x: (root.rtl ? 6 - self.lane : self.lane) * parent.width / 7;
+                y: Math.floor(cell / 7) * 32px;
+                width: parent.width / 7;
+                height: 32px;
+                visible: self.in-month;
+                border-radius: AedstTokens.radius-md;
+                background: self.chosen ? AedstTokens.primary : (self.today || touch.has-hover) ? AedstTokens.accent : transparent;
+                border-width: (focus.has-focus && self.day == root.cursor) ? 2px : 0px;
+                border-color: AedstTokens.ring;
+                accessible-role: self.in-month ? AccessibleRole.button : AccessibleRole.none;
+                accessible-label: "\{self.day} " + root.title;
+                accessible-checkable: true;
+                accessible-checked: self.chosen;
+                accessible-action-default => { root.choose(self.day); }
+
+                Text {
+                    text: "\{parent.day}";
+                    color: parent.chosen ? AedstTokens.primary-foreground : AedstTokens.foreground;
+                    font-size: AedstTokens.typography-body-medium-font-size;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                    accessible-role: AccessibleRole.none;
+                }
+                touch := TouchArea {
+                    enabled: parent.in-month;
+                    clicked => {
+                        focus.focus();
+                        root.choose(parent.day);
+                    }
+                }
+            }
+        }
+    }
+}

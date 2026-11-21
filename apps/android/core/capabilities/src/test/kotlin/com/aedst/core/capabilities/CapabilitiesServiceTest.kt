@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneOffset
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 class CapabilitiesServiceTest {
     private val build = ClientBuild(
@@ -29,10 +29,8 @@ class CapabilitiesServiceTest {
     private val cache = FakeCache()
     private val gate = ClientUpgradeGate()
     private var now = Instant.parse("2026-10-08T10:00:00Z")
-    private val clock = object : Clock() {
-        override fun getZone() = ZoneOffset.UTC
-        override fun withZone(zone: java.time.ZoneId?) = this
-        override fun instant(): Instant = now
+    private val clock = object : Clock {
+        override fun now(): Instant = now
     }
     private var answer: () -> GetCapabilitiesResponse = { error("no answer") }
     private var fetches = 0
@@ -75,7 +73,7 @@ class CapabilitiesServiceTest {
         repository.refresh()
         repository.refresh()
         assertEquals(1, fetches)
-        now = now.plusSeconds(301)
+        now += 301.seconds
         repository.refresh()
         assertEquals(2, fetches)
         repository.refresh(force = true)

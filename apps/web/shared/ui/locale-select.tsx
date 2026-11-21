@@ -21,7 +21,7 @@ type LocaleSelectProps = {
 
 /**
  * Presentational language picker: a `Select` whose options are the languages'
- * own names. It knows nothing about routing; `app/shell/LocaleSwitcher` wires
+ * own names. It knows nothing about routing; `app/shell/locale-switcher` wires
  * it to next-intl.
  */
 export function LocaleSelect({

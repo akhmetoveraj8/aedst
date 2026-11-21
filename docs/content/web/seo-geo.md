@@ -22,7 +22,7 @@ Scope today: the locale root is the sign-in page and everything else is per-user
 | `llms.txt` | `src/app/llms.txt/route.ts` (force-static), `config/llms.ts` | built from `siteConfig` and the route table. The docs site has its own `llms.txt`/`llms-full.txt` |
 | Structured data | `src/app/config/structured-data.ts` | Organization + WebSite as one `@graph` in the locale layout; WebApplication on the sign-in page; builders for breadcrumb, FAQ and article ready for public pages. Stable `@id`s derive from the origin |
 | Search-console tokens | `buildVerification()` | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`, `NEXT_PUBLIC_BING_SITE_VERIFICATION` |
-| Placeholder guard | `scripts/check-seo-placeholders.mjs` | `prebuild`; enforces only with `AEDST_REQUIRE_REAL_SEO=1` (`pnpm check:seo`) |
+| Placeholder guard (`app` and `landing`) | `apps/web/shared/scripts/check-seo-placeholders.mjs` | `prebuild`; enforces only with `AEDST_REQUIRE_REAL_SEO=1` (`pnpm check:seo`) |
 
 ## Crawler defaults
 

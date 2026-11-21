@@ -56,4 +56,4 @@ Follow the eight-step [client recipe](/client-recipe): declare, domain, data, pr
 
 ## Compatibility between old clients and new servers
 
-Within `v1` only additive changes are allowed. Clients identify themselves with `X-Aedst-Client: <platform>/<semver>`; below a minimum version the server answers `FAILED_PRECONDITION` with reason `CLIENT_UPGRADE_REQUIRED` and the app shows a forced-upgrade screen. Newly available features are discovered through [`GetCapabilities`](/api/capabilities), not by guessing the server version ([ADR-0009](/decisions/0009-api-compatibility-and-client-versioning)).
+Within `v1` only additive changes are allowed. Clients identify themselves with `X-Aedst-Client: <platform>/<semver>`; below a minimum version the server answers `FAILED_PRECONDITION` with reason `CLIENT_UPGRADE_REQUIRED` and the app shows a forced-upgrade screen. Newly available features are discovered through [`GetCapabilities`](/modules/capabilities/api), not by guessing the server version ([ADR-0009](/decisions/0009-api-compatibility-and-client-versioning)).

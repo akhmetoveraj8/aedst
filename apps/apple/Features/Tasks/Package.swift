@@ -10,6 +10,13 @@ let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("InferIsolatedConformances"),
 ]
 
+// One business logic, two UI builds (decisions/apple.md): `TasksDomain`, `TasksData` and `TasksPresentation` are shared;
+// `TasksUIiOS` is linked by App_iOS only and `TasksUIMac` by App_macOS only. A UI target's dependencies carry a platform
+// condition and every file in it is wrapped in one `#if os(...)` guard, so the other platform compiles it to nothing
+// (`swift build` on a Mac host still builds the whole package). scripts/check-feature-boundaries.sh enforces the rest.
+let iOSOnly: TargetDependencyCondition? = .when(platforms: [.iOS])
+let macOnly: TargetDependencyCondition? = .when(platforms: [.macOS])
+
 let package = Package(
     name: "Tasks",
     defaultLocalization: "en",
@@ -19,7 +26,11 @@ let package = Package(
         .macOS(.v15),
     ],
     products: [
-        .library(name: "Tasks", targets: ["Tasks"]),
+        .library(name: "TasksDomain", targets: ["TasksDomain"]),
+        .library(name: "TasksData", targets: ["TasksData"]),
+        .library(name: "TasksPresentation", targets: ["TasksPresentation"]),
+        .library(name: "TasksUIiOS", targets: ["TasksUIiOS"]),
+        .library(name: "TasksUIMac", targets: ["TasksUIMac"]),
     ],
     dependencies: [
         .package(path: "../../Core/AedstCore"),
@@ -30,21 +41,53 @@ let package = Package(
         .package(path: "../../Core/AedstTesting"),
     ],
     targets: [
+        // Models, repository protocols, use cases. No UI, network or persistence import.
         .target(
-            name: "Tasks",
-            dependencies: [
-                "AedstCore",
-                "AedstNetwork",
-                "AedstDesignSystem",
-                "AedstNavigation",
-                "AedstAnalytics",
-            ],
+            name: "TasksDomain",
+            dependencies: ["AedstCore"],
+            swiftSettings: swiftSettings
+        ),
+        // Repository implementations.
+        .target(
+            name: "TasksData",
+            dependencies: ["TasksDomain", "AedstCore", "AedstNetwork"],
+            swiftSettings: swiftSettings
+        ),
+        // Platform-neutral `@Observable` view models and the String Catalog both UI builds read.
+        .target(
+            name: "TasksPresentation",
+            dependencies: ["TasksDomain", "AedstCore", "AedstAnalytics"],
             resources: [.process("Resources")],
             swiftSettings: swiftSettings
         ),
+        // SwiftUI views for iPhone and iPad.
+        .target(
+            name: "TasksUIiOS",
+            dependencies: [
+                .target(name: "TasksDomain", condition: iOSOnly),
+                .target(name: "TasksPresentation", condition: iOSOnly),
+                .product(name: "AedstCore", package: "AedstCore", condition: iOSOnly),
+                .product(name: "AedstDesignSystem", package: "AedstDesignSystem", condition: iOSOnly),
+                .product(name: "AedstNavigation", package: "AedstNavigation", condition: iOSOnly),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        // SwiftUI views for the Mac.
+        .target(
+            name: "TasksUIMac",
+            dependencies: [
+                .target(name: "TasksDomain", condition: macOnly),
+                .target(name: "TasksPresentation", condition: macOnly),
+                .product(name: "AedstCore", package: "AedstCore", condition: macOnly),
+                .product(name: "AedstDesignSystem", package: "AedstDesignSystem", condition: macOnly),
+                .product(name: "AedstNavigation", package: "AedstNavigation", condition: macOnly),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        // Logic tests (domain, data, view models); they run on the Mac host and import no UI target.
         .testTarget(
             name: "TasksTests",
-            dependencies: ["Tasks", "AedstCore", "AedstNavigation", "AedstAnalytics", "AedstTesting"],
+            dependencies: ["TasksDomain", "TasksData", "TasksPresentation", "AedstCore", "AedstNavigation", "AedstAnalytics", "AedstTesting"],
             swiftSettings: swiftSettings
         ),
     ],

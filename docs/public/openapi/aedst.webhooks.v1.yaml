@@ -1,0 +1,834 @@
+openapi: 3.1.0
+info:
+  title: AEDST webhooks API (aedst.webhooks.v1)
+  description: Generated from apps/server/api/proto/aedst/webhooks/v1. ConnectRPC over HTTP, one POST per RPC (GET where the RPC has no side effects). Do not edit by hand.
+  version: v1
+paths:
+  /aedst.webhooks.v1.WebhooksService/CreateEndpoint:
+    post:
+      tags:
+        - aedst.webhooks.v1.WebhooksService
+      summary: CreateEndpoint
+      description: |-
+        Registers an endpoint and returns its signing secret once. Replay-safe with
+         an Idempotency-Key header: a retry returns the same endpoint and secret.
+      operationId: aedst.webhooks.v1.WebhooksService.CreateEndpoint
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.webhooks.v1.CreateEndpointRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.webhooks.v1.CreateEndpointResponse'
+  /aedst.webhooks.v1.WebhooksService/DeleteEndpoint:
+    post:
+      tags:
+        - aedst.webhooks.v1.WebhooksService
+      summary: DeleteEndpoint
+      description: |-
+        Deletes an endpoint together with its delivery log. Queued deliveries are
+         cancelled when they are next attempted.
+      operationId: aedst.webhooks.v1.WebhooksService.DeleteEndpoint
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.webhooks.v1.DeleteEndpointRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.webhooks.v1.DeleteEndpointResponse'
+  /aedst.webhooks.v1.WebhooksService/DisableEndpoint:
+    post:
+      tags:
+        - aedst.webhooks.v1.WebhooksService
+      summary: DisableEndpoint
+      description: |-
+        Stops deliveries to an endpoint: new events are not fanned out to it and
+         queued deliveries are cancelled when they are next attempted. Disabling a
+         disabled endpoint changes nothing.
+      operationId: aedst.webhooks.v1.WebhooksService.DisableEndpoint
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.webhooks.v1.DisableEndpointRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.webhooks.v1.DisableEndpointResponse'
+  /aedst.webhooks.v1.WebhooksService/EnableEndpoint:
+    post:
+      tags:
+        - aedst.webhooks.v1.WebhooksService
+      summary: EnableEndpoint
+      description: |-
+        Resumes deliveries to an endpoint and resets its failure counter. Events
+         published while it was disabled are not replayed. Enabling an active
+         endpoint changes nothing.
+      operationId: aedst.webhooks.v1.WebhooksService.EnableEndpoint
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.webhooks.v1.EnableEndpointRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.webhooks.v1.EnableEndpointResponse'
+  /aedst.webhooks.v1.WebhooksService/GetEndpoint:
+    post:
+      tags:
+        - aedst.webhooks.v1.WebhooksService
+      summary: GetEndpoint
+      description: Returns one endpoint, without its secret.
+      operationId: aedst.webhooks.v1.WebhooksService.GetEndpoint
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.webhooks.v1.GetEndpointRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.webhooks.v1.GetEndpointResponse'
+  /aedst.webhooks.v1.WebhooksService/ListDeliveries:
+    post:
+      tags:
+        - aedst.webhooks.v1.WebhooksService
+      summary: ListDeliveries
+      description: Lists the deliveries of one endpoint, newest first, with keyset pagination.
+      operationId: aedst.webhooks.v1.WebhooksService.ListDeliveries
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.webhooks.v1.ListDeliveriesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.webhooks.v1.ListDeliveriesResponse'
+  /aedst.webhooks.v1.WebhooksService/ListEndpoints:
+    post:
+      tags:
+        - aedst.webhooks.v1.WebhooksService
+      summary: ListEndpoints
+      description: Lists endpoints, newest first, with keyset pagination.
+      operationId: aedst.webhooks.v1.WebhooksService.ListEndpoints
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.webhooks.v1.ListEndpointsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.webhooks.v1.ListEndpointsResponse'
+  /aedst.webhooks.v1.WebhooksService/RedeliverDelivery:
+    post:
+      tags:
+        - aedst.webhooks.v1.WebhooksService
+      summary: RedeliverDelivery
+      description: |-
+        Queues a failed or cancelled delivery again, with the original event id
+         (webhook-id) and payload. A delivery that is already pending is returned
+         unchanged, so a retry of this call queues nothing twice.
+      operationId: aedst.webhooks.v1.WebhooksService.RedeliverDelivery
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.webhooks.v1.RedeliverDeliveryRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.webhooks.v1.RedeliverDeliveryResponse'
+  /aedst.webhooks.v1.WebhooksService/RotateEndpointSecret:
+    post:
+      tags:
+        - aedst.webhooks.v1.WebhooksService
+      summary: RotateEndpointSecret
+      description: |-
+        Replaces the signing secret and returns the new one once. The old secret
+         stops signing immediately; deliveries already queued are signed with the new one.
+      operationId: aedst.webhooks.v1.WebhooksService.RotateEndpointSecret
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aedst.webhooks.v1.RotateEndpointSecretRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aedst.webhooks.v1.RotateEndpointSecretResponse'
+components:
+  schemas:
+    aedst.webhooks.v1.CreateEndpointRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          title: url
+          maxLength: 2048
+          minLength: 1
+          format: uri
+          description: |-
+            Absolute https URL with a host, without credentials or a fragment. The
+             address it resolves to must be public (checked on every delivery).
+        description:
+          type: string
+          title: description
+          maxLength: 500
+          description: Free-form note for operators, at most 500 characters.
+        eventTypes:
+          type: array
+          items:
+            type: string
+            maxLength: 128
+            minLength: 1
+          title: event_types
+          maxItems: 32
+          minItems: 1
+          uniqueItems: true
+          description: |-
+            Event types to subscribe to: 1 to 32 distinct types the server offers to
+             webhooks. An unknown type is INVALID_ARGUMENT.
+      title: CreateEndpointRequest
+      additionalProperties: false
+      description: CreateEndpointRequest registers a receiver.
+    aedst.webhooks.v1.CreateEndpointResponse:
+      type: object
+      properties:
+        endpoint:
+          title: endpoint
+          description: The registered endpoint.
+          $ref: '#/components/schemas/aedst.webhooks.v1.Endpoint'
+        secret:
+          type: string
+          title: secret
+          description: |-
+            The signing secret in the Standard Webhooks form "whsec_<base64>". Shown
+             only here: store it now, it cannot be read back.
+      title: CreateEndpointResponse
+      additionalProperties: false
+      description: CreateEndpointResponse carries the new endpoint and its secret.
+    aedst.webhooks.v1.DeleteEndpointRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+          description: Endpoint identifier.
+      title: DeleteEndpointRequest
+      additionalProperties: false
+      description: DeleteEndpointRequest names the endpoint to delete.
+    aedst.webhooks.v1.DeleteEndpointResponse:
+      type: object
+      title: DeleteEndpointResponse
+      additionalProperties: false
+      description: 'DeleteEndpointResponse is empty: the endpoint is gone.'
+    aedst.webhooks.v1.Delivery:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          description: Opaque identifier (UUID).
+        endpointId:
+          type: string
+          title: endpoint_id
+          description: The endpoint the delivery belongs to.
+        eventId:
+          type: string
+          title: event_id
+          description: The integration event id, sent to the receiver as webhook-id.
+        eventType:
+          type: string
+          title: event_type
+          description: The event type, sent as Webhook-Event-Type.
+        status:
+          title: status
+          description: Where the delivery stands.
+          $ref: '#/components/schemas/aedst.webhooks.v1.DeliveryStatus'
+        attempts:
+          type: integer
+          title: attempts
+          format: int32
+          description: How many POSTs were attempted, redeliveries included.
+        lastStatusCode:
+          type: integer
+          title: last_status_code
+          format: int32
+          description: HTTP status of the last attempt; 0 when the receiver did not answer.
+        lastError:
+          type: string
+          title: last_error
+          description: |-
+            Why the last attempt did not succeed; empty after a success. Never
+             contains the signing secret.
+        createdAt:
+          title: created_at
+          description: When the event was fanned out to the endpoint.
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        updatedAt:
+          title: updated_at
+          description: When the delivery last changed.
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        deliveredAt:
+          title: delivered_at
+          description: When the receiver accepted it; unset until then.
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: Delivery
+      additionalProperties: false
+      description: Delivery is one event sent, or to be sent, to one endpoint.
+    aedst.webhooks.v1.DeliveryStatus:
+      type: string
+      title: DeliveryStatus
+      enum:
+        - DELIVERY_STATUS_UNSPECIFIED
+        - DELIVERY_STATUS_PENDING
+        - DELIVERY_STATUS_DELIVERED
+        - DELIVERY_STATUS_FAILED
+        - DELIVERY_STATUS_CANCELLED
+      description: DeliveryStatus is the state of one delivery of one event to one endpoint.
+    aedst.webhooks.v1.DisableEndpointRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+          description: Endpoint identifier.
+      title: DisableEndpointRequest
+      additionalProperties: false
+      description: DisableEndpointRequest names the endpoint to disable.
+    aedst.webhooks.v1.DisableEndpointResponse:
+      type: object
+      properties:
+        endpoint:
+          title: endpoint
+          description: The disabled endpoint.
+          $ref: '#/components/schemas/aedst.webhooks.v1.Endpoint'
+      title: DisableEndpointResponse
+      additionalProperties: false
+      description: DisableEndpointResponse carries the endpoint after the call.
+    aedst.webhooks.v1.EnableEndpointRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+          description: Endpoint identifier.
+      title: EnableEndpointRequest
+      additionalProperties: false
+      description: EnableEndpointRequest names the endpoint to enable.
+    aedst.webhooks.v1.EnableEndpointResponse:
+      type: object
+      properties:
+        endpoint:
+          title: endpoint
+          description: The active endpoint.
+          $ref: '#/components/schemas/aedst.webhooks.v1.Endpoint'
+      title: EnableEndpointResponse
+      additionalProperties: false
+      description: EnableEndpointResponse carries the endpoint after the call.
+    aedst.webhooks.v1.Endpoint:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          description: Opaque identifier (UUID).
+        url:
+          type: string
+          title: url
+          description: The https URL deliveries are POSTed to.
+        description:
+          type: string
+          title: description
+          description: Free-form note for operators.
+        eventTypes:
+          type: array
+          items:
+            type: string
+          title: event_types
+          description: Event types the endpoint is subscribed to, for example "tasks.v1.TaskCompleted".
+        status:
+          title: status
+          description: Whether the endpoint receives deliveries.
+          $ref: '#/components/schemas/aedst.webhooks.v1.EndpointStatus'
+        disabledReason:
+          title: disabled_reason
+          description: Who disabled the endpoint; unspecified while it is active.
+          $ref: '#/components/schemas/aedst.webhooks.v1.EndpointDisabledReason'
+        consecutiveFailures:
+          type: integer
+          title: consecutive_failures
+          format: int32
+          description: Failed deliveries in a row since the last success or EnableEndpoint.
+        createdAt:
+          title: created_at
+          description: When the endpoint was registered.
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+        updatedAt:
+          title: updated_at
+          description: When the endpoint, its secret or its status last changed.
+          $ref: '#/components/schemas/google.protobuf.Timestamp'
+      title: Endpoint
+      additionalProperties: false
+      description: Endpoint is one registered receiver. It never carries the signing secret.
+    aedst.webhooks.v1.EndpointDisabledReason:
+      type: string
+      title: EndpointDisabledReason
+      enum:
+        - ENDPOINT_DISABLED_REASON_UNSPECIFIED
+        - ENDPOINT_DISABLED_REASON_OPERATOR
+        - ENDPOINT_DISABLED_REASON_CONSECUTIVE_FAILURES
+      description: EndpointDisabledReason says who disabled an endpoint.
+    aedst.webhooks.v1.EndpointStatus:
+      type: string
+      title: EndpointStatus
+      enum:
+        - ENDPOINT_STATUS_UNSPECIFIED
+        - ENDPOINT_STATUS_ACTIVE
+        - ENDPOINT_STATUS_DISABLED
+      description: EndpointStatus says whether an endpoint receives deliveries.
+    aedst.webhooks.v1.GetEndpointRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+          description: Endpoint identifier.
+      title: GetEndpointRequest
+      additionalProperties: false
+      description: GetEndpointRequest names an endpoint.
+    aedst.webhooks.v1.GetEndpointResponse:
+      type: object
+      properties:
+        endpoint:
+          title: endpoint
+          description: The endpoint, without its secret.
+          $ref: '#/components/schemas/aedst.webhooks.v1.Endpoint'
+      title: GetEndpointResponse
+      additionalProperties: false
+      description: GetEndpointResponse carries the endpoint.
+    aedst.webhooks.v1.ListDeliveriesRequest:
+      type: object
+      properties:
+        endpointId:
+          type: string
+          title: endpoint_id
+          format: uuid
+          description: The endpoint whose deliveries are listed.
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 100
+          minimum: 0
+          format: int32
+          description: Defaults to 20 when 0; at most 100.
+        pageToken:
+          type: string
+          title: page_token
+          maxLength: 512
+          description: Opaque cursor from a previous next_page_token; empty for the first page.
+      title: ListDeliveriesRequest
+      additionalProperties: false
+      description: ListDeliveriesRequest pages through one endpoint's deliveries.
+    aedst.webhooks.v1.ListDeliveriesResponse:
+      type: object
+      properties:
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.webhooks.v1.Delivery'
+          title: deliveries
+          description: Deliveries, newest first.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Cursor of the next page; empty on the last page.
+      title: ListDeliveriesResponse
+      additionalProperties: false
+      description: ListDeliveriesResponse is one page of deliveries.
+    aedst.webhooks.v1.ListEndpointsRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 100
+          minimum: 0
+          format: int32
+          description: Defaults to 20 when 0; at most 100.
+        pageToken:
+          type: string
+          title: page_token
+          maxLength: 512
+          description: Opaque cursor from a previous next_page_token; empty for the first page.
+      title: ListEndpointsRequest
+      additionalProperties: false
+      description: ListEndpointsRequest pages through the endpoints.
+    aedst.webhooks.v1.ListEndpointsResponse:
+      type: object
+      properties:
+        endpoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/aedst.webhooks.v1.Endpoint'
+          title: endpoints
+          description: Endpoints, newest first.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Cursor of the next page; empty on the last page.
+      title: ListEndpointsResponse
+      additionalProperties: false
+      description: ListEndpointsResponse is one page of endpoints.
+    aedst.webhooks.v1.RedeliverDeliveryRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+          description: Delivery identifier.
+      title: RedeliverDeliveryRequest
+      additionalProperties: false
+      description: RedeliverDeliveryRequest names the delivery to queue again.
+    aedst.webhooks.v1.RedeliverDeliveryResponse:
+      type: object
+      properties:
+        delivery:
+          title: delivery
+          description: The delivery, pending again.
+          $ref: '#/components/schemas/aedst.webhooks.v1.Delivery'
+      title: RedeliverDeliveryResponse
+      additionalProperties: false
+      description: RedeliverDeliveryResponse carries the delivery after the call.
+    aedst.webhooks.v1.RotateEndpointSecretRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          format: uuid
+          description: Endpoint identifier.
+      title: RotateEndpointSecretRequest
+      additionalProperties: false
+      description: RotateEndpointSecretRequest names the endpoint whose secret is replaced.
+    aedst.webhooks.v1.RotateEndpointSecretResponse:
+      type: object
+      properties:
+        endpoint:
+          title: endpoint
+          description: The endpoint after the rotation.
+          $ref: '#/components/schemas/aedst.webhooks.v1.Endpoint'
+        secret:
+          type: string
+          title: secret
+          description: The new signing secret ("whsec_<base64>"). Shown only here.
+      title: RotateEndpointSecretResponse
+      additionalProperties: false
+      description: RotateEndpointSecretResponse carries the endpoint and its new secret.
+    connect-protocol-version:
+      type: number
+      examples:
+        - 1
+      title: Connect-Protocol-Version
+      description: Define the version of the Connect protocol
+      const: 1
+    connect-timeout-header:
+      type: number
+      examples:
+        - 1000
+      title: Connect-Timeout-Ms
+      description: Define the timeout, in ms
+    connect.error:
+      type: object
+      properties:
+        code:
+          type: string
+          examples:
+            - not_found
+          enum:
+            - canceled
+            - unknown
+            - invalid_argument
+            - deadline_exceeded
+            - not_found
+            - already_exists
+            - permission_denied
+            - resource_exhausted
+            - failed_precondition
+            - aborted
+            - out_of_range
+            - unimplemented
+            - internal
+            - unavailable
+            - data_loss
+            - unauthenticated
+          description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+        message:
+          type: string
+          description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/connect.error_details.Any'
+          description: A list of messages that carry the error details. There is no limit on the number of messages.
+      title: Connect Error
+      additionalProperties: true
+      description: 'Error type returned by Connect: https://connectrpc.com/docs/go/errors/#http-representation'
+    connect.error_details.Any:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'A URL that acts as a globally unique identifier for the type of the serialized message. For example: `type.googleapis.com/google.rpc.ErrorInfo`.'
+        value:
+          type: string
+          format: byte
+          description: The Protobuf message, serialized as bytes and base64-encoded. The specific message type is identified by the `type` field.
+        debug:
+          type: object
+          title: Debug
+          additionalProperties: true
+          description: Deserialized error detail payload. The 'type' field indicates the schema. This field is for easier debugging and should not be relied upon for application logic.
+      additionalProperties: true
+      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message, with an additional debug field for ConnectRPC error details.
+    google.protobuf.Timestamp:
+      type: string
+      examples:
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
+      format: date-time
+      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+security: []
+tags:
+  - name: aedst.webhooks.v1.WebhooksService
+    description: |-
+      WebhooksService manages outbound webhooks: the endpoints of third parties that
+       receive integration events as signed HTTPS POSTs (Standard Webhooks format,
+       docs/content/api/webhooks.md), and the log of what was delivered to them.
+
+       It is an operator surface: every RPC requires the `admin` role by default
+       (the module's built-in role policy; AEDST_ROLE_POLICY may replace it). The
+       caller is taken from the token, never from a request field. Every RPC answers
+       FAILED_PRECONDITION (reason WEBHOOKS_DISABLED) while AEDST_WEBHOOKS_ENABLED is
+       false. A signing secret is returned exactly twice in an endpoint's life at
+       most: by CreateEndpoint and by RotateEndpointSecret. No other response
+       carries it and it cannot be read back.

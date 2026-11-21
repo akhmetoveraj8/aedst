@@ -95,15 +95,15 @@ func (r *Readiness) Evaluate(ctx context.Context) (failed, degraded []string) {
 
 // Handler returns the /readyz handler. A nil Readiness is always ready.
 func (r *Readiness) Handler() http.HandlerFunc {
+	// Not ready is an error and answers RFC 9457 problem+json; ready (also degraded) is plain JSON.
 	return func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
 		if r == nil {
+			w.Header().Set("Content-Type", "application/json")
 			_, _ = w.Write([]byte(`{"status":"ok"}`))
 			return
 		}
 		if r.Draining() {
-			w.WriteHeader(http.StatusServiceUnavailable)
-			_, _ = w.Write([]byte(`{"status":"draining"}`))
+			WriteProblem(w, req, Problem{Status: http.StatusServiceUnavailable, Code: "DRAINING", Detail: "the instance is shutting down"})
 			return
 		}
 
@@ -111,11 +111,15 @@ func (r *Readiness) Handler() http.HandlerFunc {
 		body := map[string]any{"status": "ok"}
 		switch {
 		case len(failed) > 0:
-			w.WriteHeader(http.StatusServiceUnavailable)
-			body = map[string]any{"status": "unavailable", "failed": failed}
+			WriteProblem(w, req, Problem{
+				Status: http.StatusServiceUnavailable, Code: "DEPENDENCY_UNAVAILABLE",
+				Detail: "a required dependency is not reachable", Extensions: map[string]any{"failed": failed},
+			})
+			return
 		case len(degraded) > 0:
 			body = map[string]any{"status": "degraded", "degraded": degraded}
 		}
+		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(body)
 	}
 }

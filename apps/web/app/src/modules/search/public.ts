@@ -12,5 +12,5 @@
 export {
   CommandPalette,
   CommandPaletteTrigger,
-} from "@/modules/search/ui/CommandPalette";
-export { SearchPage } from "@/modules/search/ui/SearchPage";
+} from "@/modules/search/ui/command-palette";
+export { SearchPage } from "@/modules/search/ui/search-page";

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { JsonLd } from "@/app/config/JsonLd";
+import { JsonLd } from "@/app/config/json-ld";
 import { buildAlternates } from "@/app/config/seo";
 import { graph, webApplication } from "@/app/config/structured-data";
-import { PrivacySettingsButton } from "@/app/providers/PrivacySettingsButton";
-import { LocaleSwitcherLazy } from "@/app/shell/LocaleSwitcherLazy";
-import { PageMain } from "@/app/shell/PageMain";
+import { PrivacySettingsButton } from "@/app/providers/privacy-settings-button";
+import { LocaleSwitcherLazy } from "@/app/shell/locale-switcher-lazy";
+import { PageMain } from "@/app/shell/page-main";
 import { AuthGate } from "@/modules/auth/public";
 import { toLanguageTag } from "@/shared/i18n/locales";
 import { requireLocale } from "@/shared/i18n/require-locale";

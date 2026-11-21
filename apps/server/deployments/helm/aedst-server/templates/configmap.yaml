@@ -26,6 +26,9 @@ data:
   AEDST_ROLE_POLICY: {{ include "aedst-server.rolePolicy" . | quote }}
   {{- end }}
   AEDST_API_RATE_LIMIT_PER_MINUTE: {{ .Values.config.apiRateLimitPerMinute | int64 | quote }}
+  {{- if .Values.config.procedureRateLimits }}
+  AEDST_PROCEDURE_RATE_LIMITS: {{ include "aedst-server.procedureRateLimits" . | quote }}
+  {{- end }}
   AEDST_MAX_IN_FLIGHT: {{ .Values.config.maxInFlight | int64 | quote }}
   AEDST_GRPC_REFLECTION_ENABLED: {{ .Values.config.grpcReflectionEnabled | quote }}
   # Retention of append-only tables.
@@ -45,6 +48,7 @@ data:
   AEDST_DATABASE_MAX_CONN_IDLE_MINUTES: {{ .Values.database.maxConnIdleMinutes | int64 | quote }}
   AEDST_DATABASE_STATEMENT_TIMEOUT_MS: {{ .Values.database.statementTimeoutMs | int64 | quote }}
   AEDST_DATABASE_IDLE_IN_TX_TIMEOUT_MS: {{ .Values.database.idleInTxTimeoutMs | int64 | quote }}
+  AEDST_DATABASE_SLOW_QUERY_MS: {{ .Values.database.slowQueryMs | int64 | quote }}
   {{- if .Values.imgproxy.enabled }}
   # imgproxy delivery URLs (key and salt come from the Secret, see the Deployment).
   AEDST_IMGPROXY_ENABLED: "true"
@@ -210,6 +214,19 @@ data:
   AEDST_APPATTEST_RATE_LIMIT_PER_MINUTE: {{ .rateLimitPerMinute | int64 | quote }}
   AEDST_APPATTEST_ASSERTION_RATE_LIMIT_PER_MINUTE: {{ .assertionRateLimitPerMinute | int64 | quote }}
   AEDST_APPATTEST_KEY_RETENTION_DAYS: {{ .keyRetentionDays | int64 | quote }}
+  {{- end }}
+  {{- end }}
+  # Outbound webhooks (modules/webhooks). Off unless enabled. The sealing key comes from the
+  # Secret (secretKeys.webhooksSecretKey -> AEDST_WEBHOOKS_SECRET_KEY, see the Deployment).
+  {{- with .Values.config.webhooks }}
+  AEDST_WEBHOOKS_ENABLED: {{ .enabled | quote }}
+  {{- if .enabled }}
+  {{- if not $.Values.secretKeys.webhooksSecretKey }}
+  {{- fail "config.webhooks.enabled requires secretKeys.webhooksSecretKey (the Secret key holding AEDST_WEBHOOKS_SECRET_KEY)" }}
+  {{- end }}
+  AEDST_WEBHOOKS_ALLOWED_HOSTS: {{ join "," .allowedHosts | quote }}
+  AEDST_WEBHOOKS_DISABLE_AFTER_FAILURES: {{ .disableAfterFailures | int64 | quote }}
+  AEDST_WEBHOOKS_DELIVERY_RETENTION_DAYS: {{ .deliveryRetentionDays | int64 | quote }}
   {{- end }}
   {{- end }}
   # Transport security and abuse limits.

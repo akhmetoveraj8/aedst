@@ -1,0 +1,69 @@
+import {
+    AedstTokens, AedstLabel, AedstButton, AedstButtonVariant, AedstDialog, AedstAlertDialog, AedstSheet,
+    AedstSheetSide, AedstDrawer, AedstSonner, AedstInput
+} from "../lib.slint";
+import { GalleryState } from "gallery_state.slint";
+
+// Gallery page 4: overlays. Each one is the last child of the page root, as the kit asks.
+export component GalleryOverlays inherits Rectangle {
+    VerticalLayout {
+        padding: AedstTokens.spacing-lg;
+        spacing: AedstTokens.spacing-md;
+        alignment: start;
+        AedstLabel { text: "Overlays"; }
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            alignment: start;
+            AedstButton { text: "Open dialog"; clicked => { GalleryState.dialog-open = true; } }
+            AedstButton { text: "Delete project"; variant: AedstButtonVariant.destructive; clicked => { GalleryState.alert-open = true; } }
+            AedstButton { text: "Open sheet"; variant: AedstButtonVariant.outline; clicked => { GalleryState.sheet-open = true; } }
+            AedstButton { text: "Open drawer"; variant: AedstButtonVariant.outline; clicked => { GalleryState.drawer-open = true; } }
+        }
+    }
+
+    AedstSonner {
+        toasts: GalleryState.toasts;
+        dismiss-label: "Dismiss notification";
+        auto-dismiss: 0ms;
+        dismissed(id) => { GalleryState.log("toast-dismissed:" + id); }
+        action(id) => { GalleryState.log("toast-action:" + id); }
+    }
+
+    AedstDialog {
+        open <=> GalleryState.dialog-open;
+        title: "Rename project";
+        description: "The new name is visible to everyone.";
+        close-label: "Close dialog";
+        closed => { GalleryState.log("dialog:closed"); }
+        AedstInput { label: "Project name"; placeholder: "Name"; }
+    }
+
+    AedstAlertDialog {
+        open <=> GalleryState.alert-open;
+        title: "Delete this project?";
+        description: "This cannot be undone.";
+        confirm-text: "Delete forever";
+        cancel-text: "Keep project";
+        destructive: true;
+        confirmed => { GalleryState.log("alert:confirmed"); }
+        cancelled => { GalleryState.log("alert:cancelled"); }
+    }
+
+    AedstSheet {
+        open <=> GalleryState.sheet-open;
+        side: AedstSheetSide.right;
+        title: "Filters";
+        description: "Narrow the list.";
+        close-label: "Close filters";
+        closed => { GalleryState.log("sheet:closed"); }
+        AedstLabel { text: "No filters yet"; }
+    }
+
+    AedstDrawer {
+        open <=> GalleryState.drawer-open;
+        title: "Share";
+        close-label: "Close share";
+        closed => { GalleryState.log("drawer:closed"); }
+        AedstLabel { text: "Copy the link to share"; }
+    }
+}

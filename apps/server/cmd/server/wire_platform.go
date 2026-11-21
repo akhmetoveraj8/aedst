@@ -58,15 +58,16 @@ func (a *app) close() {
 func (a *app) poolConfig(dsn string, maxConns, minConns int32, name string, pooler database.Pooler) database.Config {
 	db := a.cfg.DB
 	return database.Config{
-		DSN:              dsn,
-		MaxConns:         maxConns,
-		MinConns:         minConns,
-		MaxConnLifetime:  time.Duration(db.MaxConnLifetimeMinutes) * time.Minute,
-		MaxConnIdleTime:  time.Duration(db.MaxConnIdleMinutes) * time.Minute,
-		StatementTimeout: time.Duration(db.StatementTimeoutMs) * time.Millisecond,
-		IdleInTxTimeout:  time.Duration(db.IdleInTxTimeoutMs) * time.Millisecond,
-		ApplicationName:  name,
-		Pooler:           pooler,
+		DSN:                dsn,
+		MaxConns:           maxConns,
+		MinConns:           minConns,
+		MaxConnLifetime:    time.Duration(db.MaxConnLifetimeMinutes) * time.Minute,
+		MaxConnIdleTime:    time.Duration(db.MaxConnIdleMinutes) * time.Minute,
+		StatementTimeout:   time.Duration(db.StatementTimeoutMs) * time.Millisecond,
+		IdleInTxTimeout:    time.Duration(db.IdleInTxTimeoutMs) * time.Millisecond,
+		SlowQueryThreshold: time.Duration(db.SlowQueryMs) * time.Millisecond,
+		ApplicationName:    name,
+		Pooler:             pooler,
 	}
 }
 
@@ -156,6 +157,7 @@ func (a *app) openCache(ctx context.Context) error {
 		a.logger.WarnContext(ctx, "cache unreachable at startup; rate limiting will fail open until it is back", slog.Any("error", err))
 	}
 	a.env.RateLimiter = cache.NewRateLimiter(client)
+	a.env.Cache = cache.NewStore(client)
 	a.cachePing = func(ctx context.Context) error { return cache.Ping(ctx, client) }
 	return nil
 }

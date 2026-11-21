@@ -20,8 +20,11 @@ option go_package = "github.com/aedst/server/gen/go/aedst/tasks/v1;tasksv1";
 // vulnerability; TasksService is deliberately designed so that mistake is
 // not representable in the request shape at all.
 service TasksService {
+  // Creates a task owned by the caller. Replay-safe with an Idempotency-Key header.
   rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+  // Returns one of the caller's tasks; another user's task is NOT_FOUND.
   rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+  // Lists the caller's tasks with typed filters, a sort enum and keyset pagination.
   rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
   // Mutates title/description/priority/due_date only — never status. Status
   // is a state machine (see TaskStatus), not a plain field: it only moves
@@ -30,8 +33,11 @@ service TasksService {
   // explicit reopen" a single well-known no, not something every caller of
   // UpdateTask has to remember not to do by omitting status from the mask.
   rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
+  // Deletes one of the caller's tasks and publishes TaskDeleted in the same transaction.
   rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
+  // Moves a task to DONE and stamps completed_at; completing a DONE task changes nothing.
   rpc CompleteTask(CompleteTaskRequest) returns (CompleteTaskResponse);
+  // Moves a task back to TODO and clears completed_at; reopening a TODO task changes nothing.
   rpc ReopenTask(ReopenTaskRequest) returns (ReopenTaskResponse);
   // GetTaskStats backs the dashboard (total/todo/in_progress/done/overdue) —
   // one aggregate query instead of the client computing it from a full list.

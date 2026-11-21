@@ -1,6 +1,6 @@
 //// run: validation
 //// expect: pass
-//// file: src/modules/tasks/ui/OkForm.tsx
+//// file: src/modules/tasks/ui/ok-form.tsx
 import { useForm } from "react-hook-form";
 import { protovalidateResolver } from "@/shared/lib/forms/protovalidate-resolver";
 

@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.aedst.core.ui.components.AedstAlert
-import com.aedst.core.ui.components.AedstAlertVariant
+import com.aedst.core.ui.components.AedstAlertAccent
 import com.aedst.core.ui.components.AedstButton
 import com.aedst.core.ui.components.AedstButtonSize
 import com.aedst.core.ui.components.AedstButtonVariant
@@ -28,7 +28,7 @@ fun OutboxFailedAlert(failedCount: Int, onRetry: () -> Unit, onDiscard: () -> Un
     AedstAlert(
         title = stringResource(R.string.outbox_failed_title),
         description = stringResource(R.string.outbox_failed_description),
-        variant = AedstAlertVariant.WARNING,
+        accent = AedstAlertAccent.WARNING,
         modifier = modifier.windowInsetsPadding(WindowInsets.statusBars).padding(AedstSpacing.sm),
         actions = {
             AedstButton(

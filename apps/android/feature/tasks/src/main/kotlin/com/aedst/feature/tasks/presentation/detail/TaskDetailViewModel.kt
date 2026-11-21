@@ -13,6 +13,7 @@ import com.aedst.core.media.upload.UploadProgress
 import com.aedst.feature.tasks.domain.CompleteTaskResult
 import com.aedst.feature.tasks.domain.CompleteTaskUseCase
 import com.aedst.feature.tasks.domain.Task
+import com.aedst.feature.tasks.domain.TaskId
 import com.aedst.feature.tasks.domain.TaskRepository
 import com.aedst.feature.tasks.domain.TaskStatus
 import dagger.assisted.Assisted
@@ -116,7 +117,7 @@ internal class TaskDetailViewModel @AssistedInject constructor(
         loadJob?.cancel()
         mutableState.update { it.copy(isLoading = true) }
         loadJob = viewModelScope.launch {
-            val outcome = tasks.get(taskId)
+            val outcome = tasks.get(TaskId(taskId))
             ensureActive()
             when (outcome) {
                 is Outcome.Success -> mutableState.update {
@@ -183,7 +184,7 @@ internal class TaskDetailViewModel @AssistedInject constructor(
         if (mutableState.value.isMutating) return
         mutableState.update { it.copy(isMutating = true) }
         viewModelScope.launch {
-            when (val outcome = tasks.delete(taskId)) {
+            when (val outcome = tasks.delete(TaskId(taskId))) {
                 is Outcome.Success -> effectChannel.send(TaskDetailEffect.Deleted)
                 is Outcome.Failure -> mutableState.update { it.copy(isMutating = false, error = outcome.error) }
             }

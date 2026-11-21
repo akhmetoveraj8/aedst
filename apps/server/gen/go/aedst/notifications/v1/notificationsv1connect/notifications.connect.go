@@ -122,18 +122,25 @@ var (
 // NotificationsServiceClient is a client for the aedst.notifications.v1.NotificationsService
 // service.
 type NotificationsServiceClient interface {
+	// Lists the caller's inbox, newest first (keyset).
 	ListNotifications(context.Context, *v1.ListNotificationsRequest) (*v1.ListNotificationsResponse, error)
+	// Counts the caller's unread notifications.
 	GetUnreadCount(context.Context, *v1.GetUnreadCountRequest) (*v1.GetUnreadCountResponse, error)
+	// Marks the given notifications of the caller as read.
 	MarkRead(context.Context, *v1.MarkReadRequest) (*v1.MarkReadResponse, error)
+	// Marks every unread notification of the caller as read and returns how many.
 	MarkAllRead(context.Context, *v1.MarkAllReadRequest) (*v1.MarkAllReadResponse, error)
 	// Push channels. A device registers once per install (or per browser push
 	// subscription) and re-registers when the platform rotates its token.
 	RegisterPushDevice(context.Context, *v1.RegisterPushDeviceRequest) (*v1.RegisterPushDeviceResponse, error)
+	// Removes a push registration of the caller, for example on sign-out.
 	UnregisterPushDevice(context.Context, *v1.UnregisterPushDeviceRequest) (*v1.UnregisterPushDeviceResponse, error)
 	// Public VAPID key the browser needs for PushManager.subscribe. Empty when
 	// Web Push is not configured on this deployment.
 	GetWebPushConfig(context.Context, *v1.GetWebPushConfigRequest) (*v1.GetWebPushConfigResponse, error)
+	// Returns the caller's notification preferences.
 	GetPreferences(context.Context, *v1.GetPreferencesRequest) (*v1.GetPreferencesResponse, error)
+	// Changes the caller's notification preferences.
 	UpdatePreferences(context.Context, *v1.UpdatePreferencesRequest) (*v1.UpdatePreferencesResponse, error)
 }
 
@@ -147,18 +154,25 @@ func NewNotificationsServiceClient(client *connect.Client) NotificationsServiceC
 // NotificationsServiceHandler is an implementation of the
 // aedst.notifications.v1.NotificationsService service.
 type NotificationsServiceHandler interface {
+	// Lists the caller's inbox, newest first (keyset).
 	ListNotifications(context.Context, *v1.ListNotificationsRequest) (*v1.ListNotificationsResponse, error)
+	// Counts the caller's unread notifications.
 	GetUnreadCount(context.Context, *v1.GetUnreadCountRequest) (*v1.GetUnreadCountResponse, error)
+	// Marks the given notifications of the caller as read.
 	MarkRead(context.Context, *v1.MarkReadRequest) (*v1.MarkReadResponse, error)
+	// Marks every unread notification of the caller as read and returns how many.
 	MarkAllRead(context.Context, *v1.MarkAllReadRequest) (*v1.MarkAllReadResponse, error)
 	// Push channels. A device registers once per install (or per browser push
 	// subscription) and re-registers when the platform rotates its token.
 	RegisterPushDevice(context.Context, *v1.RegisterPushDeviceRequest) (*v1.RegisterPushDeviceResponse, error)
+	// Removes a push registration of the caller, for example on sign-out.
 	UnregisterPushDevice(context.Context, *v1.UnregisterPushDeviceRequest) (*v1.UnregisterPushDeviceResponse, error)
 	// Public VAPID key the browser needs for PushManager.subscribe. Empty when
 	// Web Push is not configured on this deployment.
 	GetWebPushConfig(context.Context, *v1.GetWebPushConfigRequest) (*v1.GetWebPushConfigResponse, error)
+	// Returns the caller's notification preferences.
 	GetPreferences(context.Context, *v1.GetPreferencesRequest) (*v1.GetPreferencesResponse, error)
+	// Changes the caller's notification preferences.
 	UpdatePreferences(context.Context, *v1.UpdatePreferencesRequest) (*v1.UpdatePreferencesResponse, error)
 }
 

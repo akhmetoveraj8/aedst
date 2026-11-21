@@ -98,6 +98,15 @@ describe("HTML route: nonce and headers", () => {
     expect(response.headers.get("x-request-id")).toBeTruthy();
   });
 
+  it("serves robots.txt that disallows everything, to anonymous crawlers, with noindex", async () => {
+    const { app } = makeHarness(PRODUCTION);
+    const response = await app.request("/robots.txt");
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("text/plain");
+    expect(await response.text()).toBe("User-agent: *\nDisallow: /\n");
+    expect(response.headers.get("x-robots-tag")).toContain("noindex");
+  });
+
   it("adds Trusted Types report-only and Reporting-Endpoints with a Sentry DSN", async () => {
     const { app } = makeHarness({ SENTRY_DSN: SENTRY });
     const response = await app.request("/en/admin", {

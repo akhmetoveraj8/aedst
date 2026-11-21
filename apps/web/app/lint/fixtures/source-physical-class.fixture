@@ -1,0 +1,4 @@
+//// run: source
+//// expect: ml-4
+//// file: src/modules/tasks/ui/bad-margin.tsx
+export const BadMargin = () => <p className="ml-4 text-foreground">x</p>;

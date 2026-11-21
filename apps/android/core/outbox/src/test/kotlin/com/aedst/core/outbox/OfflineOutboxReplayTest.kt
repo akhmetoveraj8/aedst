@@ -28,9 +28,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneOffset
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * Replays docs/contract/behavior/offline-outbox.json against the real [OutboxRepository], [OutboxSyncWorker] and an
@@ -46,11 +45,9 @@ class OfflineOutboxReplayTest {
     private val logger = mockk<Logger>(relaxed = true)
 
     /** Strictly increasing millis so creation order is unambiguous. */
-    private val clock = object : Clock() {
+    private val clock = object : Clock {
         private var now = 0L
-        override fun getZone() = ZoneOffset.UTC
-        override fun withZone(zone: java.time.ZoneId) = this
-        override fun instant(): Instant = Instant.ofEpochMilli(now++)
+        override fun now(): Instant = Instant.fromEpochMilliseconds(now++)
     }
 
     @Before

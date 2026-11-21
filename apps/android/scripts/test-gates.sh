@@ -172,12 +172,49 @@ seed "$PKG/presentation/SelfTestViewModel.kt" 'package com.aedst.feature.tasks.p
 class SelfTestViewModel'
 expect_fail "boundaries: public ViewModel" "Public Screen/ViewModel/Repository/Module type" bash scripts/check-feature-boundaries.sh
 rm -f "$PKG/presentation/SelfTestViewModel.kt"
+# Domain modules (Kotlin Multiplatform, docs/content/android/kmp.md).
+DOMAIN=feature/tasks/domain/src/commonMain/kotlin/com/aedst/feature/tasks/domain
+amend feature/search/build.gradle.kts 'dependencies { implementation(project(":feature:tasks:domain")) }'
+expect_fail "boundaries: feature -> another feature's domain" "depends on another feature module" bash scripts/check-feature-boundaries.sh
+cleanup; backups=()
+amend app/build.gradle.kts 'dependencies { implementation(project(":feature:tasks:domain")) }'
+expect_fail "boundaries: app -> a feature's domain module" "Depends on a feature's domain module" bash scripts/check-feature-boundaries.sh
+cleanup; backups=()
+amend feature/tasks/domain/build.gradle.kts 'dependencies { commonMainImplementation(project(":core:network")) }'
+expect_fail "boundaries: domain -> Android module" "which is not a multiplatform module" bash scripts/check-feature-boundaries.sh
+cleanup; backups=()
+seed "$DOMAIN/SelfTestAndroidImport.kt" 'package com.aedst.feature.tasks.domain
+
+import android.content.Context'
+expect_fail "boundaries: android import in a domain module" "Platform import in a feature domain module" bash scripts/check-feature-boundaries.sh
+rm -f "$DOMAIN/SelfTestAndroidImport.kt"
+seed "$DOMAIN/SelfTestAndroidxImport.kt" 'package com.aedst.feature.tasks.domain
+
+import androidx.lifecycle.ViewModel'
+expect_fail "boundaries: androidx import in a domain module" "Platform import in a feature domain module" bash scripts/check-feature-boundaries.sh
+rm -f "$DOMAIN/SelfTestAndroidxImport.kt"
+seed "$DOMAIN/SelfTestInject.kt" 'package com.aedst.feature.tasks.domain
+
+import javax.inject.Inject'
+expect_fail "boundaries: javax.inject in a domain module" "Platform import in a feature domain module" bash scripts/check-feature-boundaries.sh
+rm -f "$DOMAIN/SelfTestInject.kt"
+seed "$DOMAIN/SelfTestLayerImport.kt" 'package com.aedst.feature.tasks.domain
+
+import com.aedst.feature.tasks.data.ConnectTaskRepository'
+expect_fail "boundaries: domain imports the data layer" "imports the feature's data / presentation / navigation layer" bash scripts/check-feature-boundaries.sh
+rm -f "$DOMAIN/SelfTestLayerImport.kt"
+seed "core/common/src/commonMain/kotlin/com/aedst/core/common/SelfTestJavaTime.kt" 'package com.aedst.core.common
+
+import java.time.Instant'
+expect_fail "boundaries: java.* in commonMain" "Android or JVM-only import in commonMain" bash scripts/check-feature-boundaries.sh
+rm -f "core/common/src/commonMain/kotlin/com/aedst/core/common/SelfTestJavaTime.kt"
+expect_pass "check-feature-boundaries (clean again)" bash scripts/check-feature-boundaries.sh
 
 echo "== check-room-schemas"
 tmp_db="$(mktemp -d)"
-mkdir -p "$tmp_db/src/main/kotlin/com/aedst/core/database" "$tmp_db/schemas/com.aedst.core.database.AppDatabase"
+mkdir -p "$tmp_db/src/commonMain/kotlin/com/aedst/core/database" "$tmp_db/schemas/com.aedst.core.database.AppDatabase"
 printf 'abstract class AppDatabase {\n    companion object {\n        const val VERSION = 2\n    }\n}\n' \
-  > "$tmp_db/src/main/kotlin/com/aedst/core/database/AppDatabase.kt"
+  > "$tmp_db/src/commonMain/kotlin/com/aedst/core/database/AppDatabase.kt"
 echo '{}' > "$tmp_db/schemas/com.aedst.core.database.AppDatabase/1.json"
 expect_fail "room: schema of the new version is missing" "2.json is missing" bash scripts/check-room-schemas.sh "$tmp_db"
 echo '{}' > "$tmp_db/schemas/com.aedst.core.database.AppDatabase/2.json"
@@ -206,7 +243,7 @@ import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import org.koin.core.Koin
 import retrofit2.Retrofit'
-  seed "core/common/src/main/kotlin/com/aedst/core/common/SelfTestAllowed.kt" 'package com.aedst.core.common
+  seed "core/common/src/androidMain/kotlin/com/aedst/core/common/SelfTestAllowed.kt" 'package com.aedst.core.common
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -237,7 +274,7 @@ internal fun selfTestAllowedClient() = OkHttpClient()'
   need "detekt: raw material3 CircularProgressIndicator in a feature" "SelfTestForbidden.kt.*CircularProgressIndicator.*\[ForbiddenImport/Material3Raw\]"
   absent "detekt: core/common may use Log and Dispatchers" "core.common.SelfTestAllowed.kt.*ForbiddenImport"
   absent "detekt: core/network may use OkHttp" "core.network.SelfTestAllowed.kt.*ForbiddenImport"
-  rm -f "$PKG/presentation/SelfTestForbidden.kt" "core/common/src/main/kotlin/com/aedst/core/common/SelfTestAllowed.kt" \
+  rm -f "$PKG/presentation/SelfTestForbidden.kt" "core/common/src/androidMain/kotlin/com/aedst/core/common/SelfTestAllowed.kt" \
     "core/network/src/main/kotlin/com/aedst/core/network/SelfTestAllowed.kt"
 
   echo "== detekt: type-resolved rules and compose-rules (detektDebug)"

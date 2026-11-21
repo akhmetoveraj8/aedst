@@ -4,6 +4,22 @@
     <string name="aedst_a11y_avatar">Аватар</string>
     <string name="aedst_a11y_avatar_named">Аватар: %1$s</string>
     <string name="aedst_a11y_loading">Боргирӣ</string>
+    <string name="aedst_a11y_expanded">Кушода</string>
+    <string name="aedst_a11y_collapsed">Пӯшида</string>
+    <string name="aedst_a11y_previous">Қаблӣ</string>
+    <string name="aedst_a11y_next">Баъдӣ</string>
+    <string name="aedst_a11y_page">Саҳифаи %1$d</string>
+    <string name="aedst_a11y_pagination">Паймоиш аз рӯи саҳифаҳо</string>
+    <string name="aedst_a11y_more_pages">Саҳифаҳои дигар</string>
+    <string name="aedst_a11y_breadcrumb">Занҷираи паймоиш</string>
+    <string name="aedst_a11y_resize_handle">Тағйир додани андозаи панелҳо</string>
+    <string name="aedst_a11y_copy_code">Нусхабардории код</string>
+    <string name="aedst_a11y_sort_ascending">Бо тартиби афзоиш</string>
+    <string name="aedst_a11y_sort_descending">Бо тартиби камшавӣ</string>
+    <string name="aedst_a11y_sort_none">Мураттаб нашудааст</string>
+    <string name="aedst_a11y_slide">Слайди %1$d аз %2$d</string>
+    <string name="aedst_a11y_close">Пӯшидан</string>
+    <string name="aedst_a11y_open_menu">Кушодани меню</string>
 
     <!-- User-facing text for each AedstError kind (see AedstError.userMessageRes) -->
     <string name="aedst_error_offline">Пайвастшавӣ ба интернет нест. Шабакаро санҷед ва бори дигар кӯшиш кунед.</string>

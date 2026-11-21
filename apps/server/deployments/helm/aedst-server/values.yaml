@@ -37,6 +37,8 @@ secretKeys:
   apnsPrivateKey: "" # AEDST_PUSH_APNS_PRIVATE_KEY
   integrityCredentialsJson: "" # AEDST_INTEGRITY_CREDENTIALS_JSON
   profilingBasicAuthPassword: "" # AEDST_PROFILING_BASIC_AUTH_PASSWORD (Grafana Cloud access-policy token with profiles:write)
+  webhooksSecretKey: "" # AEDST_WEBHOOKS_SECRET_KEY (required when config.webhooks.enabled): "[<version>:]<base64 of 32 random bytes>"
+  webhooksPreviousSecretKeys: "" # AEDST_WEBHOOKS_PREVIOUS_SECRET_KEYS: "<version>:<base64>,..." kept after a key rotation
 
 database:
   # Connection budget (fails the render when exceeded; 0 = not checked). Set it to the
@@ -80,6 +82,7 @@ database:
   maxConnIdleMinutes: 15
   statementTimeoutMs: 15000
   idleInTxTimeoutMs: 30000
+  slowQueryMs: 500 # AEDST_DATABASE_SLOW_QUERY_MS: log/trace/count statements at least this slow (0 = off); keep in step with log_min_duration_statement
 
 config:
   env: production # AEDST_ENV: development|test|staging|production
@@ -107,6 +110,11 @@ config:
   #     /aedst.tasks.v1.TasksService/DeleteTask: [admin, support]
   rolePolicy: {}
   apiRateLimitPerMinute: 1200 # per authenticated user, cluster-wide via Dragonfly (0 = off)
+  # Per-user budget per minute of an expensive procedure, on top of apiRateLimitPerMinute; overlays
+  # the modules' built-in limits (0 switches one off; unknown or public procedures fail the deploy):
+  #   procedureRateLimits:
+  #     /aedst.search.v1.SearchService/Search: 120
+  procedureRateLimits: {}
   maxInFlight: 1024 # concurrent requests per pod before 429 load shedding (0 = off)
   grpcReflectionEnabled: false # publishes the whole API surface; enable deliberately
   retention:
@@ -189,6 +197,13 @@ config:
     rateLimitPerMinute: 10
     assertionRateLimitPerMinute: 120
     keyRetentionDays: 365
+  # Outbound webhooks (modules/webhooks, docs/content/api/webhooks.md). The key that seals endpoint
+  # signing secrets is secretKeys.webhooksSecretKey. Needs the webhooks migration.
+  webhooks:
+    enabled: false
+    allowedHosts: [] # AEDST_WEBHOOKS_ALLOWED_HOSTS: exact host or ".example.com" suffix; empty = any public address
+    disableAfterFailures: 5 # failed deliveries in a row before an endpoint is disabled
+    deliveryRetentionDays: 30 # how long the delivery log is kept
   # Service identity: an OIDC client-credentials client for calls with no user (the admin.apply
   # job calling a unit hosted elsewhere). Empty tokenUrl = none. The client secret is
   # secretKeys.serviceIdentityClientSecret; the IdP grants this client the "internal" role.
@@ -362,7 +377,7 @@ migrations:
     tag: "" # empty = image.tag (the migrate image is pushed with the same tags)
     pullPolicy: IfNotPresent
   # One goose directory (and one version table, goose_<module>) per module schema.
-  modules: ["platform", "auth", "tasks", "notifications", "search", "media", "admin", "integrity", "appattest"]
+  modules: ["platform", "auth", "tasks", "notifications", "search", "media", "admin", "integrity", "appattest", "webhooks"]
   backoffLimit: 0
   # Hard stop for the whole Job. Index builds on large tables are slow: raise it per environment (values-prod.yaml).
   activeDeadlineSeconds: 600
@@ -435,7 +450,7 @@ imgproxy:
   enabled: false
   image:
     repository: darthsim/imgproxy
-    tag: v4.0.20 # verified on Docker Hub 2026-10-28; pin a digest in prod
+    tag: v4.0.24 # verified on Docker Hub 2026-11-21; pin a digest in prod
     pullPolicy: IfNotPresent
   replicaCount: 2
   # Public (CDN) origin clients fetch; becomes AEDST_IMGPROXY_URL.

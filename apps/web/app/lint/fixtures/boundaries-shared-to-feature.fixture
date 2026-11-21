@@ -1,0 +1,18 @@
+//// run: boundaries
+//// expect: module shared code must not import a feature
+//// file: src/modules/demo/manifest.ts
+export const manifest = {
+  id: "demo",
+};
+//// file: src/app/config/modules/registry.ts
+import { manifest } from "@/modules/demo/manifest";
+
+export const registry = [manifest];
+//// file: src/modules/demo/public.ts
+export { helper } from "@/modules/demo/lib/helper";
+//// file: src/modules/demo/features/list/ui/demo-list.ts
+export const DemoList = 1;
+//// file: src/modules/demo/lib/helper.ts
+import { DemoList } from "@/modules/demo/features/list/ui/demo-list";
+
+export const helper = DemoList;

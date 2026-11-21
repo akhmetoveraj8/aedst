@@ -1,6 +1,8 @@
 import AedstCore
 import Foundation
-@testable import Auth
+@testable import AuthData
+@testable import AuthDomain
+@testable import AuthPresentation
 
 /// Scripted `OIDCTransport`: records every request and answers through `handler`.
 final class StubTransport: @unchecked Sendable {

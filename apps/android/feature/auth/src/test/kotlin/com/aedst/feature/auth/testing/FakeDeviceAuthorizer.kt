@@ -1,8 +1,8 @@
 package com.aedst.feature.auth.testing
 
-import com.aedst.feature.auth.domain.model.DeviceAuthorization
-import com.aedst.feature.auth.domain.model.DeviceTokenResult
-import com.aedst.feature.auth.domain.repository.DeviceAuthorizer
+import com.aedst.feature.auth.domain.DeviceAuthorization
+import com.aedst.feature.auth.domain.DeviceAuthorizer
+import com.aedst.feature.auth.domain.DeviceTokenResult
 
 /** Scriptable [DeviceAuthorizer]: no HTTP, no waiting. */
 class FakeDeviceAuthorizer : DeviceAuthorizer {

@@ -3,6 +3,7 @@ package com.aedst.core.outbox
 import com.aedst.core.database.OutboxDao
 import com.aedst.core.database.OutboxEntity
 import com.aedst.core.database.OutboxState
+import com.aedst.core.testing.fixedClock
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -12,15 +13,12 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneOffset
 
 class OutboxRepositoryTest {
 
     private val dao = mockk<OutboxDao>(relaxed = true)
     private val scheduler = mockk<OutboxScheduler>(relaxed = true)
-    private val clock = Clock.fixed(Instant.ofEpochMilli(NOW_MS), ZoneOffset.UTC)
+    private val clock = fixedClock(NOW_MS)
     private val repository = OutboxRepository(dao, scheduler, clock)
 
     @Test

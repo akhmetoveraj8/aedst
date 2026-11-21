@@ -31,6 +31,17 @@ name instead of being physically renamed.
 | `lib/pwa/`, `lib/auth/sign-out-hooks.ts`          | Platform services                                                                                            | **New**                           | Push payload parsing shared with the service worker, install-prompt hook; sign-out hooks let modules clean up (push unregistration, SW caches) before the session ends without the auth module importing them.                                                                                                                                                                                                                                                                                                              |
 | `lib/hooks/`, `lib/utils/`, `lib/query-client.ts` | `core/common` (Android), `AedstCore` (Apple), `Common` (Desktop)                                             | **Documented only — not renamed** | Small, general-purpose cross-cutting utilities (the `cn()` class-name helper, a `useIsMobile` hook, the shared TanStack Query client instance) with no feature-specific logic — this is exactly what native `core/common`/`Common` holds. Left under the existing, idiomatic `lib/` name (standard in the JS/TS ecosystem) rather than renamed to `common/`, since the value of matching native vocabulary exactly did not outweigh the import churn for a directory whose meaning is already unambiguous on this platform. |
 
+## Build scripts shared by the projects (`scripts/`)
+
+Node scripts (built-ins only) that two or more projects run from their own `package.json`; each takes the
+project directory from the working directory. They are tooling, not kit code: nothing under `src/` imports them.
+
+- `check-bundle-size.mjs` (+ `bundle-status.mjs`): `pnpm check:bundle` in `app`, `landing` and `admin`,
+  against that project's `bundle-budget.json`.
+- `check-seo-placeholders.mjs`: `prebuild` of `app` and `landing`; enforces when `AEDST_REQUIRE_REAL_SEO=1`.
+- `check-source-bans.mjs` (+ `source-bans-allowlist.json`): `pnpm check:source` in all three projects; bans
+  physical Tailwind direction utilities and Base64 images in the project and in this directory.
+
 ## Feature module internal shape
 
 Native `feature/auth` modules use a consistent internal layout: `Data/`,

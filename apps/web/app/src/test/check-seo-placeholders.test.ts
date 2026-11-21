@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { findProblems } from "../../scripts/check-seo-placeholders.mjs";
+import { findProblems } from "../../../shared/scripts/check-seo-placeholders.mjs";
 
 const real = {
   siteUrl: "https://app.example.com",

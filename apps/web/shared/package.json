@@ -17,6 +17,7 @@
     "@sentry/react": "catalog:",
     "@shadcn/react": "catalog:",
     "@tanstack/react-query": "catalog:",
+    "@tanstack/react-table": "catalog:",
     "class-variance-authority": "catalog:",
     "client-only": "catalog:",
     "cmdk": "catalog:",
@@ -38,6 +39,7 @@
     "react-resizable-panels": "catalog:",
     "recharts": "catalog:",
     "server-only": "catalog:",
+    "sonner": "catalog:",
     "use-intl": "catalog:",
     "zod": "catalog:",
     "zustand": "catalog:"

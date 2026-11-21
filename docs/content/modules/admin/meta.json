@@ -1,0 +1,9 @@
+{
+  "title": "Admin",
+  "pages": [
+    "index",
+    "api",
+    "openapi",
+    "..."
+  ]
+}

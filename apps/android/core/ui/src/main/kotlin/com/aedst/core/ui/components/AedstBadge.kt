@@ -3,7 +3,7 @@ package com.aedst.core.ui.components
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -11,26 +11,60 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.theme.AedstDarkPalette
+import com.aedst.core.ui.theme.AedstLightPalette
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
+import com.aedst.core.ui.theme.LocalAedstDarkTheme
 
 /** Visual treatment of [AedstBadge], mirroring web's `badge.tsx` `variant` prop. */
 enum class AedstBadgeVariant {
     DEFAULT,
     SECONDARY,
     DESTRUCTIVE,
+    SUCCESS,
+    WARNING,
+    INFO,
     OUTLINE,
+    GHOST,
+    LINK,
 }
 
 private data class AedstBadgeColors(val container: Color, val content: Color, val border: BorderStroke?)
 
+private fun filled(container: Color, content: Color) = AedstBadgeColors(container, content, border = null)
+
 @Composable
 private fun colorsFor(variant: AedstBadgeVariant): AedstBadgeColors {
     val colorScheme = MaterialTheme.colorScheme
+    val isDark = LocalAedstDarkTheme.current
     return when (variant) {
+        AedstBadgeVariant.SUCCESS -> if (isDark) {
+            filled(AedstDarkPalette.success, AedstDarkPalette.successForeground)
+        } else {
+            filled(AedstLightPalette.success, AedstLightPalette.successForeground)
+        }
+
+        AedstBadgeVariant.WARNING -> if (isDark) {
+            filled(AedstDarkPalette.warning, AedstDarkPalette.warningForeground)
+        } else {
+            filled(AedstLightPalette.warning, AedstLightPalette.warningForeground)
+        }
+
+        AedstBadgeVariant.INFO -> if (isDark) {
+            filled(AedstDarkPalette.info, AedstDarkPalette.infoForeground)
+        } else {
+            filled(AedstLightPalette.info, AedstLightPalette.infoForeground)
+        }
+
+        AedstBadgeVariant.GHOST -> filled(Color.Transparent, colorScheme.onSurface)
+
+        AedstBadgeVariant.LINK -> filled(Color.Transparent, colorScheme.primary)
+
         AedstBadgeVariant.DEFAULT -> AedstBadgeColors(
             container = colorScheme.primary,
             content = colorScheme.onPrimary,
@@ -72,6 +106,7 @@ fun AedstBadge(text: String, modifier: Modifier = Modifier, variant: AedstBadgeV
         Text(
             text = text,
             style = MaterialTheme.typography.labelSmall,
+            textDecoration = if (variant == AedstBadgeVariant.LINK) TextDecoration.Underline else null,
             modifier = Modifier.padding(horizontal = AedstSpacing.sm, vertical = 2.dp),
         )
     }
@@ -83,14 +118,12 @@ fun AedstBadge(text: String, modifier: Modifier = Modifier, variant: AedstBadgeV
 private fun AedstBadgePreview() {
     AedstTheme {
         Surface {
-            Row(
+            FlowRow(
                 modifier = Modifier.padding(AedstSpacing.lg),
                 horizontalArrangement = Arrangement.spacedBy(AedstSpacing.sm),
+                verticalArrangement = Arrangement.spacedBy(AedstSpacing.sm),
             ) {
-                AedstBadge(text = "Default", variant = AedstBadgeVariant.DEFAULT)
-                AedstBadge(text = "Secondary", variant = AedstBadgeVariant.SECONDARY)
-                AedstBadge(text = "Destructive", variant = AedstBadgeVariant.DESTRUCTIVE)
-                AedstBadge(text = "Outline", variant = AedstBadgeVariant.OUTLINE)
+                AedstBadgeVariant.entries.forEach { AedstBadge(text = it.name.lowercase(), variant = it) }
             }
         }
     }

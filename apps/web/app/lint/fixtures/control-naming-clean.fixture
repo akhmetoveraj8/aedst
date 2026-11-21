@@ -1,6 +1,6 @@
 //// run: naming
 //// expect: pass
-//// file: apps/web/app/src/modules/tasks/ui/GoodName.tsx
+//// file: apps/web/app/src/modules/tasks/ui/good-name.tsx
 export const GoodName = () => null;
 //// file: apps/web/app/src/modules/tasks/lib/good-name.ts
 export const goodName = 1;

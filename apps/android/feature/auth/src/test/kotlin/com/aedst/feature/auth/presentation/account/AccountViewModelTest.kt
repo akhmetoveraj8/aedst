@@ -6,9 +6,9 @@ import com.aedst.core.analytics.AnalyticsConsentStore
 import com.aedst.core.analytics.NoOpAnalyticsTracker
 import com.aedst.core.testing.FakeDispatcherProvider
 import com.aedst.core.testing.MainDispatcherExtension
-import com.aedst.feature.auth.domain.model.AuthSession
-import com.aedst.feature.auth.domain.repository.AuthRepository
-import com.aedst.feature.auth.domain.usecase.LogoutUseCase
+import com.aedst.feature.auth.domain.AuthRepository
+import com.aedst.feature.auth.domain.AuthSession
+import com.aedst.feature.auth.domain.LogoutUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

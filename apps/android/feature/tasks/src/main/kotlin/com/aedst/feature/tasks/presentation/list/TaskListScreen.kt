@@ -143,8 +143,8 @@ private fun TaskList(
         if (shouldLoadMore && state.canLoadMore) currentOnIntent(TaskListIntent.LoadMore)
     }
     LazyColumn(state = listState, modifier = modifier.fillMaxSize(), contentPadding = contentPadding) {
-        items(state.tasks, key = Task::id) { task ->
-            TaskRow(task = task, selected = task.id == selectedTaskId, onClick = { onOpenTask(task.id) })
+        items(state.tasks, key = { it.id.value }) { task ->
+            TaskRow(task = task, selected = task.id.value == selectedTaskId, onClick = { onOpenTask(task.id.value) })
             AedstDivider()
         }
     }

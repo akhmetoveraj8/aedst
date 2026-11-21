@@ -1,0 +1,171 @@
+import {
+    AedstTokens, AedstLabel, AedstField, AedstFieldOrientation, AedstForm, AedstInput, AedstInputGroup,
+    AedstInputGroupAlign, AedstInputOtp, AedstTextarea, AedstNativeSelect, AedstSelect, AedstCombobox,
+    AedstRadioGroup, AedstSwitch, AedstSlider, AedstToggle, AedstToggleVariant, AedstToggleGroup,
+    AedstButtonGroup, AedstCalendar, AedstDatePicker
+} from "../lib.slint";
+import { GalleryState } from "gallery_state.slint";
+
+// Gallery page 1: form controls.
+export component GalleryForms inherits Flickable {
+    private property <[string]> months: ["January", "February", "March", "April", "May", "June", "July",
+        "August", "September", "October", "November", "December"];
+    private property <[string]> weekdays: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+
+    public function focus-control(name: string) {
+        if (name == "switch") { power.focus(); }
+        if (name == "slider") { volume.focus(); }
+        if (name == "radio") { plan.focus(); }
+        if (name == "otp") { code.focus(); }
+        if (name == "toggle") { bold.focus(); }
+        if (name == "select") { fruit.focus(); }
+        if (name == "calendar") { month-grid.focus(); }
+    }
+
+    content-height: column.preferred-height;
+
+    column := VerticalLayout {
+        width: root.width;
+        padding: AedstTokens.spacing-lg;
+        spacing: AedstTokens.spacing-md;
+
+        AedstForm {
+            label: "Profile form";
+            error: "Fix the highlighted fields";
+            AedstField {
+                label: "Display name";
+                description: "Shown to your team";
+                AedstInput { label: "Display name"; placeholder: "Ada"; }
+            }
+            AedstField {
+                label: "Website";
+                error: "Enter a valid address";
+                orientation: AedstFieldOrientation.responsive;
+                AedstInputGroup {
+                    label: "Website";
+                    addon-text: "https://";
+                    addon-align: AedstInputGroupAlign.inline-start;
+                    button-text: "Check";
+                    invalid: true;
+                    button-clicked => { GalleryState.log("input-group:button"); }
+                }
+            }
+            AedstField {
+                label: "About";
+                orientation: AedstFieldOrientation.horizontal;
+                AedstTextarea { label: "About"; placeholder: "A few words"; }
+            }
+        }
+
+        code := AedstInputOtp {
+            label: "Verification code";
+            digits: 4;
+            completed(entered) => { GalleryState.log("otp:" + entered); }
+        }
+
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-md;
+            AedstNativeSelect { label: "Native fruit"; options: ["Apple", "Pear"]; }
+            fruit := AedstSelect {
+                label: "Fruit";
+                placeholder: "Pick a fruit";
+                options: [{ id: "apple", label: "Apple" }, { id: "pear", label: "Pear" }, { id: "plum", label: "Plum", disabled: true }];
+                current-index <=> GalleryState.select-index;
+                selected(id) => { GalleryState.log("select:" + id); }
+            }
+            AedstCombobox {
+                label: "Assignee";
+                placeholder: "Choose a person";
+                search-placeholder: "Search people";
+                empty-text: "Nobody found";
+                text: GalleryState.combobox-text;
+                options: [{ id: "ada", label: "Ada" }, { id: "linus", label: "Linus" }];
+                selected(id) => {
+                    GalleryState.combobox-text = id;
+                    GalleryState.log("combobox:" + id);
+                }
+            }
+        }
+
+        plan := AedstRadioGroup {
+            label: "Plan";
+            items: ["Free", "Team", "Enterprise"];
+            current-index <=> GalleryState.radio-index;
+            selected(index) => { GalleryState.log("radio:\{index}"); }
+        }
+
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-md;
+            alignment: start;
+            power := AedstSwitch {
+                label: "Notifications";
+                checked: GalleryState.switch-on;
+                toggled(value) => {
+                    GalleryState.switch-on = value;
+                    GalleryState.log(value ? "switch:on" : "switch:off");
+                }
+            }
+            bold := AedstToggle {
+                text: "Bold";
+                variant: AedstToggleVariant.outline;
+                checked: GalleryState.toggle-on;
+                toggled(value) => {
+                    GalleryState.toggle-on = value;
+                    GalleryState.log(value ? "toggle:on" : "toggle:off");
+                }
+            }
+            AedstToggleGroup {
+                label: "Alignment";
+                items: ["Start", "Middle", "End"];
+                current-index <=> GalleryState.group-index;
+                selected(index) => { GalleryState.log("toggle-group:\{index}"); }
+            }
+            AedstButtonGroup {
+                label: "History";
+                items: ["Undo", "Redo"];
+                clicked(index) => { GalleryState.log("button-group:\{index}"); }
+            }
+        }
+
+        volume := AedstSlider {
+            label: "Volume";
+            step: 10;
+            value <=> GalleryState.slider-value;
+            value-changed(next) => { GalleryState.log("slider:\{next}"); }
+        }
+
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-md;
+            alignment: start;
+            month-grid := AedstCalendar {
+                label: "Due date calendar";
+                year: 2026;
+                month: 11;
+                today-year: 2026;
+                today-month: 11;
+                today-day: 21;
+                month-names: root.months;
+                weekday-names: root.weekdays;
+                previous-label: "Previous month";
+                next-label: "Next month";
+                selected(yy, mm, dd) => { GalleryState.log("calendar:\{yy}-\{mm}-\{dd}"); }
+            }
+            VerticalLayout {
+                alignment: start;
+                spacing: AedstTokens.spacing-sm;
+                AedstLabel { text: "Start date"; }
+                AedstDatePicker {
+                    label: "Start date";
+                    placeholder: "Pick a date";
+                    year: 2026;
+                    month: 11;
+                    month-names: root.months;
+                    weekday-names: root.weekdays;
+                    previous-label: "Earlier month";
+                    next-label: "Later month";
+                    selected(yy, mm, dd) => { GalleryState.log("date-picker:\{yy}-\{mm}-\{dd}"); }
+                }
+            }
+        }
+    }
+}

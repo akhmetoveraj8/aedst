@@ -19,6 +19,7 @@ the same shape.
 | `integrity` | `integrity.*` (replay table `verified_tokens` only) | — (authenticated caller from the auth context) | `aedst.integrity.v1` |
 | `appattest` | `appattest.*` (`challenges`, `keys`) | — (authenticated caller from the auth context) | `aedst.appattest.v1` |
 | `admin` | `admin.*` (audit log only) | `tasks`, `media`, `notifications` (read-mostly composition) | `aedst.admin.v1` |
+| `webhooks` | `webhooks.*` (`endpoints`, `deliveries`) | events only: `tasks` (`TaskCreated/Updated/Completed/Deleted/DueSoon`), `media` (`MediaReady/Deleted`) | `aedst.webhooks.v1` (operator API, role `admin`; off unless `AEDST_WEBHOOKS_ENABLED`) |
 | `capabilities` | none (stateless, configuration only) | — | `aedst.capabilities.v1` (public: server version, client support windows, feature flags) |
 
 Contracts live in `apps/server/api/proto/aedst/<module>/v1/` and are the single
@@ -35,6 +36,8 @@ source of truth for all four clients (Web, Android, Apple, Desktop).
         └── search        ◄──────────┘   projection (Postgres FTS + pg_trgm)
 
 admin ──→ api/ of tasks, media, notifications  (nothing depends on admin)
+
+webhooks ◄── events of tasks and media  (consumer only; POSTs them to registered endpoints)
 ```
 
 Rules this graph encodes:
@@ -171,45 +174,55 @@ internal/modules/<name>/
 in-process today and over ConnectRPC tomorrow — it is the seam the
 [extraction path](/server/architecture#extraction-path) cuts along.
 
-## Features: units below a module
+## Features: slices inside a module
 
-A large module can be built from **features** (`social` from `like`, `comment`, `follow`; `shop` from `cart`,
-`checkout`). A feature is a unit with the same shape as a module, one level down:
+A module with more than one capability is split into **features** (owner decision of 2026-11-21,
+[modules and features](/architecture/modules-and-features)). A feature is a vertical slice of its module, not a
+unit: the contract (`api/`, the proto service), the schema (`migrations/<module>`, `sql/<module>`, one sqlc
+package) and the registration (`module/`) stay with the module, which is also the unit of extraction.
 
 ```
-internal/modules/<module>/features/<feature>/
-    domain/ application/ infrastructure/ transport/ api/ module/
-migrations/<module>_<feature>/      the feature's own Postgres schema
-sql/<module>_<feature>/             its sqlc queries
+internal/modules/<module>/
+    api/  domain/  module/                     shared by the features (module/ composes them)
+    infrastructure/<pkg>/  transport/<pkg>/    shared helpers, when two features need the same code
+    features/<feature>/
+        application/ domain/ infrastructure/ transport/    only these four, any subset
 ```
 
-- The unit name is `<module>/<feature>` (`social/like`): that is what `modulekit.Register`, `Requires`,
-  `AEDST_MODULES` and `AEDST_MODULE_<NAME>_URL` use (`SOCIAL__LIKE`).
-- Features of one module meet only through each other's `api/`; the module composes them and may re-export
-  their contracts as its own `api/`; a feature never imports its module. Other modules may use a feature's
-  `api/` directly. All of it is enforced by `architecturetest`.
-- A feature owns its tables in its own schema. No foreign keys or joins to another unit's schema: a `like`
-  refers to a post by id and learns about posts through `social/post`'s `api/` or an event projection.
-- Start with the module and split a feature out when it has its own scaling or ownership need; the structure
-  costs nothing, the extra process does.
+- A feature imports the module's shared packages under the usual layer rules and never another feature. Code
+  two features need moves to a shared package; behaviour one feature needs from another becomes a port that
+  `module/` wires.
+- Shared packages import no feature; only `<module>/module` does; other modules still use `<module>/api` only.
+- A module with one capability stays flat (the layout above without `features/`).
 
-Adding a feature (there is no generator for features yet; `task new:module` stamps modules only):
+Reference: `internal/modules/tasks`.
 
-1. Write the spec (`apps/server/specs/<module>/<feature>.md`) and the proto in
-   `api/proto/aedst/<module>_<feature>/v1/` (contract first, see the `api-design` skill).
-2. Create `internal/modules/<module>/features/<feature>/` with the layers above; copy
-   `internal/modules/tasks` as the shape, with imports under `.../<module>/features/<feature>/...`.
-3. Create `migrations/<module>_<feature>/` and `sql/<module>_<feature>/`; add the schema to the four lists
-   `architecturetest.TestMigrationModuleListsAgree` checks (Taskfile `MODULES`/`MODULES_REVERSE`,
-   `scripts/lint-migrations.sh`, Helm `migrations.modules`) and `sqlc.yaml`.
-4. `module/module.go`: `modulekit.Register(modulekit.Module{Name: "<module>/<feature>", ...})`, and one blank
-   import line in `cmd/server/modules.go`.
-5. Let the module compose it: the module's `Setup` takes the feature's `api/` with `modulekit.Require`, and
-   `Requires: []string{"<module>/<feature>"}`.
-6. `go test ./architecturetest/...` must pass: it checks the shape (`api/`, `module/`, the schema), the import
-   rules and that the unit's SQL never names another unit's schema.
+| Feature | Contains |
+|---|---|
+| `core` | create, read, list, edit, delete, owner counts: `application`, `infrastructure/postgres`, `transport` |
+| `completion` | complete and reopen, the `TaskCompleted` event: `application`, `infrastructure/postgres`, `transport` |
+| `reminders` | the due-soon River job, its scheduler, the guarded `TaskDueSoon` write: `application` (port), `infrastructure/{jobs,postgres}` |
+| `operator` | cross-owner list, counts and delete (`TasksOperatorService`): `application`, `infrastructure/postgres`, `transport` |
 
-Choosing the level: [ADR-0020](../../../apps/server/docs/adr/0020-location-transparent-units.md).
+Module-level: `api/`, `domain/` (entity, listing vocabulary), `infrastructure/store` (row mapping, event writer),
+`transport/taskproto` (proto mapping), `module/` (registration, `compose.go`, the `Remote` hook, the Postgres
+integration tests that span features).
+
+Adding a feature:
+
+1. Write the spec (`apps/server/specs/<module>/<feature>.md`); change the module's proto first when the feature
+   adds RPCs (the `api-design` skill).
+2. `task new:feature -- MODULE=<module> NAME=<feature>` stamps `features/<feature>/application` with a sample use
+   case and its test. Add `domain/`, `infrastructure/` and `transport/` as the feature needs them; queries go in
+   `sql/<module>/queries.sql`.
+3. Wire it in `<module>/module` (build the service in `Setup`, embed its handler in the module's service
+   handler). `architecturetest` fails until that package imports the feature.
+4. If the module was flat, move its existing capability into a feature in the same change.
+5. `go test ./architecturetest/...` checks the imports, the directory shape and the composition.
+
+The earlier model, where a feature was a deployable unit with its own `api/`, `module/` and schema
+([ADR-0020](../../../apps/server/docs/adr/0020-location-transparent-units.md), section 1), is superseded for
+features; it still describes modules.
 
 ## Reference implementations
 

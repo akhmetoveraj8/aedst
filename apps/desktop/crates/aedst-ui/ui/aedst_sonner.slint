@@ -1,0 +1,110 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+export struct AedstToast {
+    id: string,
+    title: string,
+    description: string,
+    // Text of an optional action button ("Undo").
+    action-text: string,
+}
+
+// The toast stack (manifest name `sonner`; `toast` is an alias of it). Place it as the LAST
+// child of the view's root element (not inside a layout): toasts appear at the bottom, at the
+// reading end. The list lives with the caller: the component asks to remove a toast with
+// `dismissed(id)`, from the close button or when `auto-dismiss` elapses for the oldest toast
+// (0ms: never). It does not block the view under it.
+export component AedstSonner inherits Rectangle {
+    in property <[AedstToast]> toasts;
+    // Accessible name of the close button of a toast.
+    in property <string> dismiss-label;
+    in property <duration> auto-dismiss: 4s;
+    callback dismissed(string);
+    callback action(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    Timer {
+        interval: root.auto-dismiss > 0ms ? root.auto-dismiss : 1s;
+        running: root.auto-dismiss > 0ms && root.toasts.length > 0;
+        triggered => { root.dismissed(root.toasts[0].id); }
+    }
+
+    VerticalLayout {
+        padding: AedstTokens.spacing-lg;
+        spacing: AedstTokens.spacing-sm;
+        alignment: end;
+        for toast in root.toasts: HorizontalLayout {
+            alignment: root.rtl ? start : end;
+            Rectangle {
+                width: Math.min(360px, root.width - 2 * AedstTokens.spacing-lg);
+                background: AedstTokens.popover;
+                border-radius: AedstTokens.radius-lg;
+                border-width: 1px;
+                border-color: AedstTokens.border;
+                drop-shadow-blur: AedstTokens.elevation-level-4;
+                drop-shadow-offset-y: AedstTokens.elevation-level-1;
+                drop-shadow-color: AedstTokens.foreground.transparentize(0.85);
+                accessible-role: AccessibleRole.text;
+                accessible-label: toast.description == "" ? toast.title : toast.title + ". " + toast.description;
+
+                // Clicks on a toast do not reach the view under it.
+                TouchArea { }
+
+                HorizontalLayout {
+                    padding: AedstTokens.spacing-md;
+                    spacing: AedstTokens.spacing-sm;
+                    if root.rtl: AedstButton {
+                        text: "\u{00D7}";
+                        label: root.dismiss-label;
+                        variant: AedstButtonVariant.ghost;
+                        size: AedstButtonSize.icon-xs;
+                        clicked => { root.dismissed(toast.id); }
+                    }
+                    if root.rtl && toast.action-text != "": AedstButton {
+                        text: toast.action-text;
+                        variant: AedstButtonVariant.outline;
+                        size: AedstButtonSize.xs;
+                        clicked => { root.action(toast.id); }
+                    }
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        spacing: AedstTokens.spacing-xxs;
+                        alignment: center;
+                        Text {
+                            text: toast.title;
+                            color: AedstTokens.popover-foreground;
+                            font-size: AedstTokens.typography-label-large-font-size;
+                            font-weight: AedstTokens.typography-label-large-font-weight;
+                            horizontal-alignment: root.rtl ? right : left;
+                            wrap: word-wrap;
+                            accessible-role: AccessibleRole.none;
+                        }
+                        if toast.description != "": Text {
+                            text: toast.description;
+                            color: AedstTokens.muted-foreground;
+                            font-size: AedstTokens.typography-body-medium-font-size;
+                            horizontal-alignment: root.rtl ? right : left;
+                            wrap: word-wrap;
+                            accessible-role: AccessibleRole.none;
+                        }
+                    }
+                    if !root.rtl && toast.action-text != "": AedstButton {
+                        text: toast.action-text;
+                        variant: AedstButtonVariant.outline;
+                        size: AedstButtonSize.xs;
+                        clicked => { root.action(toast.id); }
+                    }
+                    if !root.rtl: AedstButton {
+                        text: "\u{00D7}";
+                        label: root.dismiss-label;
+                        variant: AedstButtonVariant.ghost;
+                        size: AedstButtonSize.icon-xs;
+                        clicked => { root.dismissed(toast.id); }
+                    }
+                }
+            }
+        }
+    }
+}

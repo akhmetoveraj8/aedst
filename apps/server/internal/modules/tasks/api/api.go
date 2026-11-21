@@ -3,6 +3,10 @@
 // architecturetest). It exposes the owner-scoped Service (transport), the
 // operator AdminService (admin module), and the integration events in
 // events.go (notifications and search consume them).
+//
+// It is shared by the module's features (features/<feature>): they implement
+// these interfaces and import this package, never the reverse. tasks/module
+// composes the features into Service and asserts the result satisfies it.
 package api
 
 import (
@@ -11,7 +15,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/aedst/server/internal/modules/tasks/application"
 	"github.com/aedst/server/internal/modules/tasks/domain"
 	"github.com/aedst/server/internal/shared/ids"
 	"github.com/aedst/server/internal/shared/pagination"
@@ -22,9 +25,9 @@ type (
 	Patch      = domain.Patch
 	Status     = domain.Status
 	Priority   = domain.Priority
-	ListParams = application.ListParams
-	Stats      = application.Stats
-	ListResult = application.ListResult
+	ListParams = domain.ListParams
+	Stats      = domain.Stats
+	ListResult = domain.ListResult
 )
 
 const (
@@ -39,7 +42,8 @@ const (
 )
 
 // Service is everything a transport handler can do with tasks. It is
-// satisfied by *application.Service. Every method takes userID explicitly,
+// satisfied by the composition of features/core and features/completion
+// (tasks/module). Every method takes userID explicitly,
 // derived by the caller from the authenticated context — see
 // api/proto/aedst/tasks/v1/tasks.proto's service doc comment.
 type Service interface {
@@ -59,13 +63,11 @@ type Service interface {
 	GetStats(ctx context.Context, userID ids.ID) (Stats, error)
 }
 
-var _ Service = (*application.Service)(nil)
-
 // AdminStats are counts over every owner's tasks.
-type AdminStats = application.AdminStats
+type AdminStats = domain.AdminStats
 
 // AdminSortToken is the cursor ordering of AdminService.ListAllTasks.
-const AdminSortToken = application.AdminSortToken
+const AdminSortToken = domain.AdminSortToken
 
 // AdminService is the operator view of tasks, used only by the admin module
 // (behind the admin role policy). It is not owner-scoped. DeleteTaskTx runs in
@@ -78,8 +80,6 @@ type AdminService interface {
 	CountByOwners(ctx context.Context, owners []ids.ID) (map[ids.ID]int64, error)
 }
 
-var _ AdminService = (*application.AdminService)(nil)
-
 // OperatorService is the network-safe part of the operator surface: plain values,
 // no transaction, safe to repeat. The admin module uses it (through the
 // TasksOperatorService RPCs) when tasks is not hosted in its process; it is the
@@ -89,5 +89,3 @@ type OperatorService interface {
 	// with the same key and task returns the first result.
 	DeleteTask(ctx context.Context, idempotencyKey string, id ids.ID) (owner ids.ID, err error)
 }
-
-var _ OperatorService = (*application.AdminService)(nil)

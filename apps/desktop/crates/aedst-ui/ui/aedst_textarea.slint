@@ -1,0 +1,74 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// A multi-line text input built on the built-in `TextInput` (no std-widgets). The view scrolls
+// to keep the cursor visible. `label` is what a screen reader announces.
+export component AedstTextarea inherits Rectangle {
+    in-out property <string> text <=> input.text;
+    in property <string> placeholder;
+    in property <string> label;
+    in property <bool> invalid: false;
+    in property <bool> enabled: true;
+    in property <bool> read-only: false;
+    out property <bool> has-focus: input.has-focus;
+    callback edited(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> line: AedstTokens.typography-body-medium-line-height;
+
+    min-height: 64px;
+    preferred-height: 80px;
+    min-width: 64px;
+    border-radius: AedstTokens.radius-md;
+    background: AedstTokens.background;
+    border-width: input.has-focus ? 2px : 1px;
+    border-color: root.invalid ? AedstTokens.destructive : (input.has-focus ? AedstTokens.ring : AedstTokens.input);
+    opacity: root.enabled ? 1.0 : 0.5;
+    accessible-role: text-input;
+    accessible-label: root.label;
+    accessible-value: root.text;
+    accessible-placeholder-text: root.placeholder;
+    accessible-enabled: root.enabled;
+    accessible-read-only: root.read-only;
+    forward-focus: input;
+
+    flick := Flickable {
+        x: AedstTokens.spacing-sm;
+        y: AedstTokens.spacing-xs;
+        width: parent.width - 2 * AedstTokens.spacing-sm;
+        height: parent.height - 2 * AedstTokens.spacing-xs;
+        content-height: Math.max(self.height, input.preferred-height);
+
+        input := TextInput {
+            width: flick.width;
+            height: flick.content-height;
+            single-line: false;
+            wrap: word-wrap;
+            horizontal-alignment: root.rtl ? right : left;
+            color: AedstTokens.foreground;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            enabled: root.enabled;
+            read-only: root.read-only;
+            edited => { root.edited(self.text); }
+            cursor-position-changed(position) => {
+                if (position.y < -flick.content-y) {
+                    flick.content-y = -position.y;
+                } else if (position.y + root.line > flick.height - flick.content-y) {
+                    flick.content-y = flick.height - position.y - root.line;
+                }
+            }
+        }
+    }
+
+    if input.text == "": Text {
+        x: AedstTokens.spacing-sm;
+        y: AedstTokens.spacing-xs;
+        width: parent.width - 2 * AedstTokens.spacing-sm;
+        text: root.placeholder;
+        color: AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-body-medium-font-size;
+        horizontal-alignment: root.rtl ? right : left;
+        wrap: word-wrap;
+        accessible-role: AccessibleRole.none;
+    }
+}

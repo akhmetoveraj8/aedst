@@ -61,6 +61,8 @@ server_only_modules:
     reason: Apple App Attest verifier; Android/Web/Desktop do not use it.
   integrity:
     reason: Play Integrity verifier; Apple/Web/Desktop do not use it.
+  webhooks:
+    reason: Outbound webhooks are sent by the server and managed through an operator API (role admin); no client has a screen for them yet.
   capabilities:
     reason: Server side of capability negotiation; clients consume it through the capability-negotiation behaviour, not a feature module.
 
@@ -74,7 +76,7 @@ behaviors:
       server:  { status: na, reason: Resource server verifies tokens only; the IdP refreshes. }
       web:     { status: verified,    evidence: apps/web/app/src/test/contract/session-refresh.replay.test.ts, note: "Known deviation: first invalid_grant keeps the refresh cookie (multi-replica rotation race window of 15 s); session ends on the next refusal." }
       android: { status: verified,    evidence: apps/android/feature/auth/src/test/kotlin/com/aedst/feature/auth/data/remote/SessionRefreshReplayTest.kt }
-      apple:   { status: implemented, evidence: apps/apple/App/Shared/Tests/AedstAppSharedTests/SessionRefreshReplayTests.swift }
+      apple:   { status: implemented, evidence: apps/apple/App/Shared/Tests/AedstAppCoreTests/SessionRefreshReplayTests.swift }
       desktop: { status: implemented, evidence: apps/desktop/crates/aedst-api/tests/session_refresh_replay.rs }
   offline-outbox:
     fixtures: docs/contract/behavior/offline-outbox.json
@@ -90,7 +92,7 @@ behaviors:
       server:  { status: verified,    evidence: apps/server/internal/platform/idempotency/interceptor_test.go }
       web:     { status: verified,    evidence: apps/web/app/src/test/contract/offline-outbox.replay.browser.test.ts }
       android: { status: verified,    evidence: apps/android/core/outbox/src/test/kotlin/com/aedst/core/outbox/OutboxSyncWorkerTest.kt }
-      apple:   { status: implemented, evidence: apps/apple/Features/Tasks/Sources/Tasks/Data/TaskOutboxHandlers.swift }
+      apple:   { status: implemented, evidence: apps/apple/Features/Tasks/Sources/TasksData/TaskOutboxHandlers.swift }
       desktop: { status: implemented, evidence: apps/desktop/crates/aedst-feature-tasks/tests/outbox_delivery.rs }
   client-identification:
     fixtures: docs/contract/behavior/client-version-gate.json
@@ -106,7 +108,7 @@ behaviors:
       server:  { status: verified, evidence: apps/server/internal/platform/httpserver/clientversion_test.go }
       web:     { status: na, reason: Web is always current; a reload fetches the latest build. }
       android: { status: verified, evidence: apps/android/core/network/src/test/kotlin/com/aedst/core/network/ClientUpgradeTest.kt, note: "Phone app only; app-tv does not show the screen yet." }
-      apple:   { status: implemented, evidence: apps/apple/App/Shared/Tests/AedstAppSharedTests/UpgradeAndOutboxWiringTests.swift }
+      apple:   { status: implemented, evidence: apps/apple/App/Shared/Tests/AedstAppCoreTests/UpgradeAndOutboxWiringTests.swift }
       desktop: { status: missing, tracking: "desktop has no replay test of docs/contract/behavior/client-version-gate.json yet (the header is set in aedst-api/src/config.rs; the Qt replay test was deleted with the Qt tree)" }
   capability-negotiation:
     fixtures: docs/contract/behavior/capabilities.json

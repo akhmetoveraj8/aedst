@@ -1,7 +1,7 @@
 // The Media screens: library with upload, and the image viewer. Stateless: they render
 // `MediaStore` and call its callbacks; Rust (`ui_glue.rs`) owns the state. Only `aedst-ui`
 // components are used; no raw std-widgets control.
-import { AedstTokens, AedstLayout, AedstLabel, AedstButton } from "@aedst-ui";
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstButtonVariant } from "@aedst-ui";
 import { MediaStore } from "media_store.slint";
 import { MediaTexts } from "media_texts.slint";
 import { MediaRow } from "media_row.slint";
@@ -61,7 +61,7 @@ component UploadPanel inherits VerticalLayout {
             alignment: AedstLayout.rtl ? end : start;
             AedstButton {
                 text: @tr("" => "Dismiss");
-                primary: false;
+                variant: AedstButtonVariant.secondary;
                 clicked => { MediaStore.dismiss-upload(); }
             }
         }
@@ -93,7 +93,7 @@ component Library inherits VerticalLayout {
         AedstLabel { text: MediaTexts.kind-text(MediaStore.error-kind); color: AedstTokens.destructive; }
         HorizontalLayout {
             alignment: AedstLayout.rtl ? end : start;
-            AedstButton { text: @tr("" => "Try again"); primary: false; clicked => { MediaStore.reload(); } }
+            AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { MediaStore.reload(); } }
         }
     }
     if MediaStore.phase == "ready" && MediaStore.rows.length == 0: VerticalLayout {
@@ -120,7 +120,7 @@ component Library inherits VerticalLayout {
 
     if MediaStore.has-more: AedstButton {
         text: @tr("" => "Load more");
-        primary: false;
+        variant: AedstButtonVariant.secondary;
         vertical-stretch: 0;
         clicked => { MediaStore.load-more(); }
     }
@@ -134,7 +134,7 @@ component Viewer inherits VerticalLayout {
         spacing: AedstTokens.spacing-sm;
         vertical-stretch: 0;
         height: 40px;
-        AedstButton { text: @tr("" => "Back"); primary: false; clicked => { MediaStore.close-viewer(); } }
+        AedstButton { text: @tr("" => "Back"); variant: AedstButtonVariant.secondary; clicked => { MediaStore.close-viewer(); } }
         AedstLabel { text: MediaStore.viewer-title; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; }
     }
     if AedstLayout.rtl: HorizontalLayout {
@@ -142,7 +142,7 @@ component Viewer inherits VerticalLayout {
         vertical-stretch: 0;
         height: 40px;
         AedstLabel { text: MediaStore.viewer-title; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; }
-        AedstButton { text: @tr("" => "Back"); primary: false; clicked => { MediaStore.close-viewer(); } }
+        AedstButton { text: @tr("" => "Back"); variant: AedstButtonVariant.secondary; clicked => { MediaStore.close-viewer(); } }
     }
 
     if MediaStore.viewer-phase == "ready": Image {

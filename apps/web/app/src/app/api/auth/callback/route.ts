@@ -5,6 +5,7 @@ import { getOidcConfig, OidcConfigError } from "@/shared/lib/auth/oidc/config";
 import { completeLogin } from "@/shared/lib/auth/oidc/login-flow";
 import { PRE_AUTH_COOKIE } from "@/shared/lib/auth/oidc/pre-auth-cookie";
 import {
+  clearSessionCookies,
   isSecureSite,
   writeSessionCookies,
 } from "@/shared/lib/auth/session-cookies";
@@ -19,7 +20,8 @@ import { reportError } from "@/shared/lib/errors/report-error";
  */
 export async function GET(request: NextRequest): Promise<Response> {
   const site = clientEnv.NEXT_PUBLIC_SITE_URL;
-  const sealed = request.cookies.get(PRE_AUTH_COOKIE)?.value;
+  const read = (name: string) => request.cookies.get(name)?.value;
+  const sealed = read(PRE_AUTH_COOKIE);
 
   let response: NextResponse;
   try {
@@ -31,7 +33,14 @@ export async function GET(request: NextRequest): Promise<Response> {
     if (result.ok) {
       // Locale-less on purpose: proxy.ts (next-intl) adds the visitor's locale.
       response = NextResponse.redirect(new URL(result.next, site));
-      writeSessionCookies(response.cookies, result.tokens);
+      if (!writeSessionCookies(response.cookies, result.tokens, read)) {
+        // The tokens do not fit the session cookies (logged there): refuse the
+        // sign-in instead of looping between the app and the IdP.
+        const failure = new URL("/", site);
+        failure.searchParams.set("auth_error", "config");
+        response = NextResponse.redirect(failure);
+        clearSessionCookies(response.cookies, read);
+      }
     } else {
       const failure = new URL("/", site);
       failure.searchParams.set("auth_error", result.reason);

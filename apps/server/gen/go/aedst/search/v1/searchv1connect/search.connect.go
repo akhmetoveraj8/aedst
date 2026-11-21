@@ -49,6 +49,7 @@ var (
 
 // SearchServiceClient is a client for the aedst.search.v1.SearchService service.
 type SearchServiceClient interface {
+	// Ranked full-text search over the caller's own documents.
 	Search(context.Context, *v1.SearchRequest) (*v1.SearchResponse, error)
 	// Prefix suggestions for a search box (title-only, cheap).
 	Suggest(context.Context, *v1.SuggestRequest) (*v1.SuggestResponse, error)
@@ -62,6 +63,7 @@ func NewSearchServiceClient(client *connect.Client) SearchServiceClient {
 
 // SearchServiceHandler is an implementation of the aedst.search.v1.SearchService service.
 type SearchServiceHandler interface {
+	// Ranked full-text search over the caller's own documents.
 	Search(context.Context, *v1.SearchRequest) (*v1.SearchResponse, error)
 	// Prefix suggestions for a search box (title-only, cheap).
 	Suggest(context.Context, *v1.SuggestRequest) (*v1.SuggestResponse, error)

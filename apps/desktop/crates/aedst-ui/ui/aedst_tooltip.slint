@@ -1,0 +1,68 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// Wraps its children and shows `text` in a small popup under them after the pointer has rested
+// on them for `delay`. A tooltip is pointer-only: also give the wrapped control the same text
+// as its accessible label or description, so keyboard and screen-reader users get it.
+export component AedstTooltip inherits Rectangle {
+    in property <string> text;
+    in property <duration> delay: 500ms;
+    in property <length> tip-width: 200px;
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> shown: false;
+
+    min-width: content.min-width;
+    min-height: content.min-height;
+    preferred-width: content.preferred-width;
+    preferred-height: content.preferred-height;
+
+    // A parent TouchArea sees the hover while the children keep their own clicks.
+    hover := TouchArea {
+        changed has-hover => {
+            if (!self.has-hover && root.shown) {
+                root.shown = false;
+                popup.close();
+            }
+        }
+        content := VerticalLayout {
+            @children
+        }
+    }
+
+    Timer {
+        interval: root.delay;
+        running: hover.has-hover && !root.shown && root.text != "";
+        triggered => {
+            root.shown = true;
+            popup.show();
+        }
+    }
+
+    popup := PopupWindow {
+        x: root.rtl ? root.width - root.tip-width : 0px;
+        y: root.height + AedstTokens.spacing-xs;
+        width: root.tip-width;
+        close-policy: PopupClosePolicy.no-auto-close;
+        HorizontalLayout {
+            alignment: root.rtl ? end : start;
+            Rectangle {
+                background: AedstTokens.foreground;
+                border-radius: AedstTokens.radius-sm;
+                HorizontalLayout {
+                    padding-left: AedstTokens.spacing-sm;
+                    padding-right: AedstTokens.spacing-sm;
+                    padding-top: AedstTokens.spacing-xs;
+                    padding-bottom: AedstTokens.spacing-xs;
+                    Text {
+                        text: root.text;
+                        color: AedstTokens.background;
+                        font-size: AedstTokens.typography-body-small-font-size;
+                        horizontal-alignment: root.rtl ? right : left;
+                        wrap: word-wrap;
+                    }
+                }
+            }
+        }
+    }
+}

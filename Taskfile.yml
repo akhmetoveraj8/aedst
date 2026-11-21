@@ -112,6 +112,7 @@ tasks:
       - task: check:i18n
       - task: check:boundaries
       - task: check:features
+      - task: check:ui-kit
       - task: check:behavior
       - task: check:analytics
       - task: check:hooks
@@ -129,18 +130,21 @@ tasks:
     desc: Library-First gates for the Core profile (web forms/selftest, server lint selftest), each with its negative self-test.
     cmds:
       - pnpm --dir apps/web/app check:forms
+      - task: web:check:source
       - pnpm --dir apps/web/app check:selftest
       - task: server:lint:selftest
 
   check:gates:frozen:
-    desc: Static gates of the frozen platforms (apple custom rules, android gates). Runs only with PROFILE=full.
+    desc: Static gates of the frozen platforms (apple custom rules, android gates, desktop boundaries and Rust dependency policy). Runs only with PROFILE=full.
     status:
       - '{{if eq (.PROFILE | default "core") "full"}}false{{else}}true{{end}}'
     cmds:
       - bash apps/apple/scripts/check-swiftlint-rules-static.sh
       - bash apps/apple/scripts/check-apple-sensitive-apis.sh
       - bash apps/apple/scripts/check-dependencies.sh
+      - bash apps/apple/scripts/check-feature-layers.sh
       - bash apps/android/scripts/test-gates.sh
+      - bash apps/desktop/scripts/check-feature-boundaries.sh
 
   check:naming:
     desc: File/directory naming conventions (CONVENTIONS.md).
@@ -195,6 +199,12 @@ tasks:
       - node --test scripts/test/check-backlog.test.mjs
       - node scripts/check-features.mjs {{.CLI_ARGS}}
 
+  check:ui-kit:
+    desc: ui-kit.yaml (component x platform x status, canonical variants and sizes) matches the kit trees on all four platforms, with variants and sizes checked against the web cva definitions and the Kotlin, Swift and Slint enums; prints the parity report. Pass --write-docs to regenerate the matrix in docs/content/ui-kit.md.
+    cmds:
+      - node --test scripts/test/check-ui-kit.test.mjs
+      - node scripts/check-ui-kit.mjs {{.CLI_ARGS}}
+
   check:behavior:
     desc: Shared behaviour fixtures (docs/contract/behavior) agree with the reference model.
     cmds:
@@ -210,6 +220,11 @@ tasks:
     cmds:
       - node scripts/new-module.mjs {{.CLI_ARGS}}
 
+  new:feature:
+    desc: "Scaffold a feature inside an existing module: task new:feature -- MODULE=<m> NAME=<f> [--platforms=server,web] [--project=app|admin] [--dry-run] [--remove]. Default platform: server. See docs/agent/new-module.md."
+    cmds:
+      - node scripts/new-feature.mjs {{.CLI_ARGS}}
+
   template:new:
     desc: "Turn this template into a product: task template:new -- --name <brand> --profile core|mobile|full (--out <dir> | --in-place) [--dry-run]. See README, 'Using this repo as a template'."
     cmds:
@@ -221,9 +236,9 @@ tasks:
       - bash scripts/check-hooks.sh
 
   test:scripts:
-    desc: Tests of the repo scripts (template-new per profile on repo copies, new-module, docs, features shape, backlog). Slow; CI runs them in policies-ci.
+    desc: Tests of the repo scripts (template-new per profile on repo copies, new-module, new-feature, docs, features shape, backlog). Slow; CI runs them in policies-ci.
     cmds:
-      - node --test scripts/test/template-new.test.mjs scripts/new-module.test.mjs scripts/check-docs.test.mjs scripts/test/check-features-shape.test.mjs scripts/test/check-backlog.test.mjs
+      - node --test scripts/test/template-new.test.mjs scripts/new-module.test.mjs scripts/test/new-feature.test.mjs scripts/check-docs.test.mjs scripts/test/check-features-shape.test.mjs scripts/test/check-backlog.test.mjs
 
   doctor:
     desc: "Print the active profile (PROFILE, default core) and detect installed toolchains: which verification level (static / tests / build) is possible per platform."
@@ -270,6 +285,7 @@ tasks:
       - |
         echo "rustup toolchain install <version in apps/gateway/rust-toolchain.toml>"
         echo "task gateway:lint gateway:test gateway:build gateway:deny   # rustfmt, clippy -D warnings, cargo test, cargo build, cargo-deny"
+        echo "bash apps/desktop/scripts/check-approved-crates.sh          # no cargo: approved direct dependencies, versions shared with desktop"
         echo "End to end (Docker for Postgres): AEDST_GATEWAY_BIN=apps/gateway/target/debug/aedst-gateway go test -tags integration ./internal/platform/natsbridge/   (in apps/server)"
   verify:desktop:
     desc: Print the commands that verify the Rust + Slint Desktop app (cargo, Windows or Linux).
@@ -279,6 +295,7 @@ tasks:
         echo "rustup toolchain install <version in apps/desktop/rust-toolchain.toml>"
         echo "task desktop:lint desktop:test desktop:build   # rustfmt, clippy -D warnings, cargo test, cargo build"
         echo "task desktop:deny                                    # needs: cargo install --locked cargo-deny@0.20.2"
+        echo "bash apps/desktop/scripts/check-feature-boundaries.sh   # no cargo: crate boundaries, feature layout, approved crates, self-tests"
         echo "Linux needs Slint system libraries (fontconfig, xkbcommon, wayland): UNVERIFIED list, see desktop-ci.yml"
   deps:update:
     desc: Update every platform to the latest stable dependencies (pass platforms as CLI_ARGS, e.g. `task deps:update -- server web`).
@@ -338,14 +355,15 @@ tasks:
     cmds:
       - pnpm --dir docs dev
   docs:api:
-    desc: Regenerate docs/content/api/*.md (API reference with requests and responses) from apps/server/api/proto.
+    desc: Regenerate docs/content/modules/<module>/api.md (API reference with requests and responses) from buf's descriptor of apps/server/api/proto (needs buf).
     cmds:
       - node scripts/api-docs/index.mjs
   check:api-docs:
-    desc: The committed API reference pages match the .proto files (regenerate with `task docs:api`), plus the generator's own tests.
+    desc: The committed API reference pages match the .proto files (regenerate with `task docs:api`; needs buf), plus the generator's own tests.
     cmds:
-      - node --test scripts/api-docs/parse-proto.test.mjs
+      - node --test scripts/api-docs/descriptor.test.mjs
       - node scripts/api-docs/index.mjs --check
+      - node docs/scripts/openapi-pages.mjs --check
   docs:test:
     desc: Unit tests for the docs site generators (llms.txt, llms-full.txt, front matter).
     cmds:
@@ -385,17 +403,29 @@ tasks:
     cmds:
       - task: app:test:coverage
   web:test:e2e:
-    desc: Playwright suite (app).
+    desc: Playwright suites of app, admin and landing (run web:build first).
     cmds:
       - task: app:test:e2e
+      - task: admin:test:e2e
+      - task: landing:test:e2e
   web:check:bundle:
-    desc: Client bundle size budget (app; run after web:build).
+    desc: Client bundle size budgets of app, admin and landing (run after web:build).
     cmds:
       - task: app:check:bundle
+      - task: admin:check:bundle
+      - task: landing:check:bundle
+  web:check:source:
+    desc: Source bans in app, admin, landing and shared (physical Tailwind direction utilities, Base64 images).
+    dir: apps/web
+    cmds:
+      - pnpm --dir app check:source
+      - pnpm --dir admin check:source
+      - pnpm --dir landing check:source
   web:lighthouse:
-    desc: Lighthouse CI budgets (app; run after web:build).
+    desc: Lighthouse CI budgets of app and landing (run after web:build; needs Chrome).
     cmds:
       - task: app:lighthouse
+      - task: landing:lighthouse
   web:build:
     desc: Production build of app, admin and landing.
     cmds:
@@ -475,9 +505,13 @@ tasks:
     dir: apps/web/admin
     cmds: [pnpm test]
   admin:test:e2e:
-    desc: admin Playwright e2e against the built BFF and the mock IdP/API (run admin:build first; pnpm test:browser:install once).
+    desc: admin Playwright e2e (flows and axe WCAG 2.2 AA) against the built BFF and the mock IdP/API (run admin:build first; pnpm test:browser:install once).
     dir: apps/web/admin
     cmds: [pnpm test:e2e]
+  admin:check:bundle:
+    desc: admin client bundle and font budget (run after admin:build).
+    dir: apps/web/admin
+    cmds: [pnpm check:bundle]
 
   # --- web: landing (marketing site, port 3002) ----------------------------
   landing:dev:
@@ -488,6 +522,18 @@ tasks:
     desc: Production build of the landing (Next.js).
     dir: apps/web/landing
     cmds: [pnpm build]
+  landing:check:bundle:
+    desc: landing client bundle and font budget (run after landing:build).
+    dir: apps/web/landing
+    cmds: [pnpm check:bundle]
+  landing:lighthouse:
+    desc: landing Lighthouse CI budgets (run after landing:build; needs Chrome).
+    dir: apps/web/landing
+    cmds: [pnpm lighthouse]
+  landing:test:e2e:
+    desc: landing Playwright e2e on the built site (rendered SEO tags of every page and locale, axe WCAG 2.2 AA; pnpm test:e2e:install once).
+    dir: apps/web/landing
+    cmds: [pnpm test:e2e]
   landing:lint:
     desc: landing Biome lint and TypeScript typecheck.
     dir: apps/web/landing

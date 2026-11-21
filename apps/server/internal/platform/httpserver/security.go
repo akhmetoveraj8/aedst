@@ -48,10 +48,45 @@ func securityHeaders(hstsMaxAge time.Duration, trustForwardedProto bool) func(ht
 			if hsts != "" && isHTTPS(r, trustForwardedProto) {
 				h.Set("Strict-Transport-Security", hsts)
 			}
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(&cacheDefaultWriter{ResponseWriter: w}, r)
 		})
 	}
 }
+
+// cacheDefaultWriter makes "Cache-Control: no-store" a default instead of a
+// second header: Connect adds response headers to the ones already set, so a
+// cacheable read (ConditionalReadInterceptor) would otherwise answer both
+// "no-store" and its own policy. When the handler added a Cache-Control, the
+// default set by securityHeaders is dropped just before the header is written.
+// Unwrap keeps http.ResponseController (Flush, deadlines) working.
+type cacheDefaultWriter struct {
+	http.ResponseWriter
+	resolved bool
+}
+
+func (w *cacheDefaultWriter) resolve() {
+	if w.resolved {
+		return
+	}
+	w.resolved = true
+	if values := w.Header().Values("Cache-Control"); len(values) > 1 && values[0] == "no-store" {
+		w.Header()["Cache-Control"] = values[1:]
+	}
+}
+
+func (w *cacheDefaultWriter) WriteHeader(code int) {
+	if code >= 200 || code == http.StatusSwitchingProtocols {
+		w.resolve()
+	}
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func (w *cacheDefaultWriter) Write(b []byte) (int, error) {
+	w.resolve()
+	return w.ResponseWriter.Write(b)
+}
+
+func (w *cacheDefaultWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
 
 func isHTTPS(r *http.Request, trustForwardedProto bool) bool {
 	if r.TLS != nil {
@@ -67,7 +102,7 @@ func maxBodyBytes(limit int64) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.ContentLength > limit {
-				http.Error(w, "request body too large", http.StatusRequestEntityTooLarge)
+				WriteProblem(w, r, Problem{Status: http.StatusRequestEntityTooLarge, Code: "BODY_TOO_LARGE", Detail: "request body too large"})
 				return
 			}
 			r.Body = http.MaxBytesReader(w, r.Body, limit)

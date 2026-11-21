@@ -55,6 +55,9 @@ allow = [
     "LicenseRef-Slint-Royalty-free-2.0",
 ]
 
+# The approved list of DIRECT dependencies is approved-crates.txt, enforced by scripts/check-approved-crates.sh
+# (no cargo needed). cargo-deny 0.20.2 has no allow-list for direct dependencies only: `[bans] allow` denies every
+# crate that is not listed, transitive ones included (docs/src/checks/bans/cfg.md at tag 0.20.2), so it is not used.
 [bans]
 multiple-versions = "warn"
 # Approved alternatives are in docs/content/library-first/desktop.md.
@@ -66,6 +69,14 @@ deny = [
 wildcards = "deny"
 # Path dependencies between our own crates carry no version.
 allow-wildcard-paths = true
+
+# Every external dependency of a member crate must be `{ workspace = true }` (the script's rule A1, repeated here
+# for the resolved graph). `unused` stays a warning: a few approved crates are declared before their first use.
+# Written without cargo on 2026-11-21: this table has never been evaluated by cargo-deny.
+[bans.workspace-dependencies]
+duplicates = "deny"
+include-path-dependencies = false
+unused = "warn"
 
 [sources]
 unknown-registry = "deny"

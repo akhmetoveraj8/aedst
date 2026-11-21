@@ -344,9 +344,9 @@ const file_aedst_capabilities_v1_capabilities_proto_rawDesc = "" +
 	"\fUpdateStatus\x12\x1d\n" +
 	"\x19UPDATE_STATUS_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15UPDATE_STATUS_CURRENT\x10\x01\x12\x1d\n" +
-	"\x19UPDATE_STATUS_RECOMMENDED\x10\x022\x87\x01\n" +
-	"\x13CapabilitiesService\x12p\n" +
-	"\x0fGetCapabilities\x12-.aedst.capabilities.v1.GetCapabilitiesRequest\x1a..aedst.capabilities.v1.GetCapabilitiesResponseB\xe9\x01\n" +
+	"\x19UPDATE_STATUS_RECOMMENDED\x10\x022\x8c\x01\n" +
+	"\x13CapabilitiesService\x12u\n" +
+	"\x0fGetCapabilities\x12-.aedst.capabilities.v1.GetCapabilitiesRequest\x1a..aedst.capabilities.v1.GetCapabilitiesResponse\"\x03\x90\x02\x01B\xe9\x01\n" +
 	"\x19com.aedst.capabilities.v1B\x11CapabilitiesProtoP\x01ZCgithub.com/aedst/server/gen/go/aedst/capabilities/v1;capabilitiesv1\xa2\x02\x03ACX\xaa\x02\x15Aedst.Capabilities.V1\xca\x02\x15Aedst\\Capabilities\\V1\xe2\x02!Aedst\\Capabilities\\V1\\GPBMetadata\xea\x02\x17Aedst::Capabilities::V1b\x06proto3"
 
 var (

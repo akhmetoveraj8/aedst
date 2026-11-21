@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
 import com.aedst.core.ui.theme.AedstShapesScale
@@ -29,19 +30,31 @@ import androidx.compose.material3.Button as Material3Button
 /** Visual treatment of [AedstButton], mirroring web's `button.tsx` `variant` prop. */
 enum class AedstButtonVariant {
     DEFAULT,
-    SECONDARY,
-    DESTRUCTIVE,
     OUTLINE,
+    SECONDARY,
     GHOST,
+    DESTRUCTIVE,
     LINK,
 }
 
-/** Sizing of [AedstButton], mirroring web's `button.tsx` `size` prop. */
-enum class AedstButtonSize {
-    DEFAULT,
-    SM,
-    LG,
-    ICON,
+/**
+ * Sizing of [AedstButton], mirroring web's `button.tsx` `size` prop (ui-kit.yaml: default, xs, sm, lg, icon, icon-xs,
+ * icon-sm, icon-lg). The `ICON*` sizes are square and render only the `leadingIcon` slot; `text` becomes the
+ * accessible name. Visual heights are denser than 48dp; Material keeps the touch target at 48dp.
+ */
+enum class AedstButtonSize(
+    internal val height: Dp,
+    internal val horizontalPadding: Dp,
+    internal val iconOnly: Boolean,
+) {
+    DEFAULT(40.dp, 16.dp, false),
+    XS(28.dp, 8.dp, false),
+    SM(32.dp, 12.dp, false),
+    LG(48.dp, 24.dp, false),
+    ICON(40.dp, 0.dp, true),
+    ICON_XS(28.dp, 0.dp, true),
+    ICON_SM(32.dp, 0.dp, true),
+    ICON_LG(48.dp, 0.dp, true),
 }
 
 /**
@@ -61,31 +74,19 @@ fun AedstButton(
     leadingIcon: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val isEnabled = enabled && !loading
-    val contentPadding = when (size) {
-        AedstButtonSize.DEFAULT -> PaddingValues(horizontal = 16.dp, vertical = 10.dp)
-        AedstButtonSize.SM -> PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-        AedstButtonSize.LG -> PaddingValues(horizontal = 24.dp, vertical = 14.dp)
-        AedstButtonSize.ICON -> PaddingValues(8.dp)
-    }
-    val heightModifier = when (size) {
-        AedstButtonSize.SM -> Modifier.height(32.dp)
-        AedstButtonSize.LG -> Modifier.height(48.dp)
-        AedstButtonSize.ICON -> Modifier.size(40.dp)
-        AedstButtonSize.DEFAULT -> Modifier.height(40.dp)
-    }
+    val contentPadding = PaddingValues(horizontal = size.horizontalPadding)
+    val heightModifier = if (size.iconOnly) Modifier.size(size.height) else Modifier.height(size.height)
     val shape = AedstShapesScale.medium
     // While loading the visible content is a spinner; keep the button named and announce its state.
     val loadingDescription = stringResource(R.string.aedst_a11y_loading)
     val buttonModifier = modifier.then(heightModifier).semantics {
         if (!isEnabled) disabled()
-        if (loading) {
-            contentDescription = text
-            stateDescription = loadingDescription
-        }
+        if (loading || size.iconOnly) contentDescription = text
+        if (loading) stateDescription = loadingDescription
     }
 
     val label: @Composable () -> Unit = {
-        ButtonContent(text = text, loading = loading, leadingIcon = leadingIcon)
+        ButtonContent(text = text.takeUnless { size.iconOnly }, loading = loading, leadingIcon = leadingIcon)
     }
 
     when (variant) {
@@ -156,7 +157,7 @@ fun AedstButton(
 }
 
 @Composable
-private fun ButtonContent(text: String, loading: Boolean, leadingIcon: (@Composable RowScope.() -> Unit)?) {
+private fun ButtonContent(text: String?, loading: Boolean, leadingIcon: (@Composable RowScope.() -> Unit)?) {
     if (loading) {
         CircularProgressIndicator(
             modifier = Modifier.size(16.dp),
@@ -170,6 +171,6 @@ private fun ButtonContent(text: String, loading: Boolean, leadingIcon: (@Composa
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     ) {
         leadingIcon?.invoke(this)
-        Text(text)
+        if (text != null) Text(text)
     }
 }

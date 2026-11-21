@@ -5,7 +5,7 @@ import com.aedst.core.common.Logger
 import com.aedst.core.network.TokenRefreshAuthenticator
 import com.aedst.core.testing.BehaviorFixture
 import com.aedst.feature.auth.data.local.AuthTokenStore
-import com.aedst.feature.auth.domain.model.AuthSession
+import com.aedst.feature.auth.domain.AuthSession
 import com.aedst.feature.auth.testing.FakeEncryptedPreferences
 import com.aedst.feature.auth.testing.FakeOidcAuthorizer
 import io.mockk.mockk

@@ -1,6 +1,9 @@
 package com.aedst.feature.tasks.data
 
+import com.aedst.core.common.NetworkMonitor
 import com.aedst.core.outbox.OutboxHandler
+import com.aedst.feature.tasks.domain.CompleteTaskUseCase
+import com.aedst.feature.tasks.domain.CreateTaskUseCase
 import com.aedst.feature.tasks.domain.TaskRepository
 import com.aedst.feature.tasks.domain.TaskWriteQueue
 import com.aedst.tasks.v1.TasksServiceClient
@@ -42,5 +45,20 @@ internal abstract class TasksModule {
         @Singleton
         fun provideTasksServiceClient(client: ProtocolClientInterface): TasksServiceClientInterface =
             TasksServiceClient(client)
+
+        // Use cases live in the common-code domain module, which has no DI annotations: they are constructed here.
+        @Provides
+        fun provideCreateTaskUseCase(
+            repository: TaskRepository,
+            queue: TaskWriteQueue,
+            network: NetworkMonitor,
+        ): CreateTaskUseCase = CreateTaskUseCase(repository, queue, network)
+
+        @Provides
+        fun provideCompleteTaskUseCase(
+            repository: TaskRepository,
+            queue: TaskWriteQueue,
+            network: NetworkMonitor,
+        ): CompleteTaskUseCase = CompleteTaskUseCase(repository, queue, network)
     }
 }

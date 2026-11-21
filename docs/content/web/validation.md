@@ -39,7 +39,7 @@ The web has three tools that all look like "validation". Each has exactly one jo
 
 ## Error messages and i18n
 
-Protovalidate violations carry the rule's `message` (English) and a rule id. The resolver maps each violation to the form field (`fieldMap`: proto camelCase path to form field name) and puts the rule id in the RHF error `type`; the UI picks a translated string from that id (see `titleErrorKey` in `modules/tasks/ui/TaskForm.tsx`) under the module's `i18n/<locale>.json` namespace (all five locales). Do not display the English proto text to users and do not translate by matching message text. Zod schemas use message keys, not literals, for the same reason.
+Protovalidate violations carry the rule's `message` (English) and a rule id. The resolver maps each violation to the form field (`fieldMap`: proto camelCase path to form field name) and puts the rule id in the RHF error `type`; the UI picks a translated string from that id (see `titleErrorKey` in `modules/tasks/ui/task-form.tsx`) under the module's `i18n/<locale>.json` namespace (all five locales). Do not display the English proto text to users and do not translate by matching message text. Zod schemas use message keys, not literals, for the same reason.
 
 ## Where each import is allowed
 

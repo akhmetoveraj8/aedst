@@ -1,0 +1,4 @@
+//// run: source
+//// expect: Base64 image
+//// file: src/modules/tasks/ui/bad-image.tsx
+export const pixel = "data:image/png;base64,iVBORw0KGgo=";

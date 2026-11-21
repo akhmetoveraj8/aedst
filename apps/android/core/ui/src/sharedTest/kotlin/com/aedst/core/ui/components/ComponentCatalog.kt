@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,7 +15,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -58,10 +58,12 @@ object ComponentCatalog {
         "AedstDropdownMenu" to "popup window; the anchor/trigger is covered through AedstSelect",
         "AedstSnackbarHost" to "renders nothing until a message is queued; exercised by the feature screens",
         "AedstErrorSnackbarEffect" to "side effect only, renders nothing",
+        "AedstSheet" to "own window (Dialog)",
     )
 
     val entries: List<CatalogEntry> = actionEntries() + inputEntries() + selectionEntries() + feedbackEntries() +
-        navigationEntries() + containerEntries()
+        navigationEntries() + containerEntries() + kitDisplayEntries() + kitDataEntries() + kitFormEntries() +
+        kitNavigationEntries() + kitOverlayEntries()
 
     /** Screenshot pages, in a stable order: group id to its entries. */
     val groups: Map<String, List<CatalogEntry>> = entries.groupBy { it.group }
@@ -108,6 +110,16 @@ private fun actionEntries(): List<CatalogEntry> = listOf(
             AedstButton(text = "Loading", onClick = {}, loading = true)
             AedstButton(text = "Disabled", onClick = {}, enabled = false)
             AedstButton(text = "With icon", onClick = {}, leadingIcon = { Icon(Icons.Default.Check, null) })
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(AedstSpacing.sm)) {
+                AedstButtonSize.entries.forEach { size ->
+                    AedstButton(
+                        text = size.name.lowercase(),
+                        onClick = {},
+                        size = size,
+                        leadingIcon = if (size.name.startsWith("ICON")) ({ Icon(Icons.Default.Check, null) }) else null,
+                    )
+                }
+            }
         }
     },
     CatalogEntry("icon_button", "actions", setOf("AedstIconButton")) {
@@ -199,10 +211,11 @@ private fun feedbackEntries(): List<CatalogEntry> = listOf(
                     variant = variant,
                 )
             }
+            AedstAlert(title = "Warning", accent = AedstAlertAccent.WARNING)
         }
     },
     CatalogEntry("badge", "feedback", setOf("AedstBadge")) {
-        Row(horizontalArrangement = Arrangement.spacedBy(AedstSpacing.sm)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(AedstSpacing.sm)) {
             AedstBadgeVariant.entries.forEach { variant ->
                 AedstBadge(text = variant.name.lowercase(), variant = variant)
             }
@@ -236,54 +249,6 @@ private fun feedbackEntries(): List<CatalogEntry> = listOf(
         Column(verticalArrangement = Arrangement.spacedBy(AedstSpacing.sm)) {
             AedstSkeleton(modifier = Modifier.height(48.dp).width(160.dp))
             AedstSkeletonText(lines = 3)
-        }
-    },
-)
-
-private fun navigationEntries(): List<CatalogEntry> = listOf(
-    CatalogEntry("tabs", "navigation", setOf("AedstTabs")) {
-        AedstTabs(tabs = listOf("Open", "Done", "All"), selectedIndex = 0, onTabSelected = {})
-    },
-    CatalogEntry("top_app_bar", "navigation", setOf("AedstTopAppBar")) {
-        AedstTopAppBar(
-            title = "Tasks",
-            navigationIcon = {
-                AedstIconButton(
-                    onClick = {},
-                    contentDescription = "Back",
-                    icon = { Icon(Icons.Default.Check, contentDescription = null) },
-                )
-            },
-        )
-    },
-)
-
-private fun containerEntries(): List<CatalogEntry> = listOf(
-    CatalogEntry(
-        "card",
-        "containers",
-        setOf(
-            "AedstCard",
-            "AedstCardHeader",
-            "AedstCardTitle",
-            "AedstCardDescription",
-            "AedstCardContent",
-            "AedstCardFooter",
-        ),
-    ) {
-        AedstCard {
-            AedstCardHeader {
-                AedstCardTitle("Release plan")
-                AedstCardDescription("Ship the beta on Friday")
-            }
-            AedstCardContent { Text("Three tasks are still open.") }
-            AedstCardFooter { AedstButton(text = "Open", onClick = {}) }
-        }
-    },
-    CatalogEntry("divider", "containers", setOf("AedstDivider")) {
-        Column {
-            AedstDivider()
-            Row(Modifier.height(24.dp)) { AedstDivider(orientation = AedstDividerOrientation.VERTICAL) }
         }
     },
 )

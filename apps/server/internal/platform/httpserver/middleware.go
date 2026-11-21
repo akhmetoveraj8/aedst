@@ -108,7 +108,7 @@ func NewRouter(opts Options) *Router {
 	// Readiness: dependencies reachable and not draining; gates traffic.
 	mux.Handle("GET /readyz", opts.Readiness.Handler())
 
-	var h http.Handler = mux
+	h := problemFallback(mux)
 	for _, s := range slices.Backward(stack) {
 		h = s(h)
 	}
@@ -130,7 +130,7 @@ func loadShedding(limit int) func(http.Handler) http.Handler {
 				next.ServeHTTP(w, r)
 			default:
 				w.Header().Set("Retry-After", "1")
-				http.Error(w, "server busy, retry shortly", http.StatusTooManyRequests)
+				WriteProblem(w, r, Problem{Status: http.StatusTooManyRequests, Code: "SERVER_BUSY", Detail: "server busy, retry shortly"})
 			}
 		})
 	}
@@ -148,7 +148,7 @@ func requestTimeout(d time.Duration) func(http.Handler) http.Handler {
 			defer func() {
 				cancel()
 				if ctx.Err() == context.DeadlineExceeded && !sw.wrote {
-					w.WriteHeader(http.StatusGatewayTimeout)
+					WriteProblem(w, r, Problem{Status: http.StatusGatewayTimeout, Code: "REQUEST_TIMEOUT", Detail: "the request ran out of time"})
 				}
 			}()
 			next.ServeHTTP(sw, r.WithContext(ctx))
@@ -223,11 +223,13 @@ func corsMiddleware(allowedOrigins []string) func(http.Handler) http.Handler {
 			"Connect-Content-Encoding",
 			"Connect-Accept-Encoding",
 			"Idempotency-Key",
+			"If-None-Match",
 			"X-Aedst-Client",
 			"X-Request-Id",
 			"X-Grpc-Web",
 		},
 		ExposedHeaders: []string{
+			"ETag",
 			"Connect-Content-Encoding",
 			"Connect-Accept-Encoding",
 			"X-Request-Id",
@@ -269,7 +271,7 @@ func recoveryMiddleware(logger *slog.Logger) func(http.Handler) http.Handler {
 					slog.Any("panic", rec),
 					slog.String("stack", string(debug.Stack())),
 				)
-				http.Error(w, "internal server error", http.StatusInternalServerError)
+				WriteProblem(w, r, Problem{Status: http.StatusInternalServerError, Code: "INTERNAL", Detail: "internal server error"})
 			}()
 			next.ServeHTTP(w, r)
 		})

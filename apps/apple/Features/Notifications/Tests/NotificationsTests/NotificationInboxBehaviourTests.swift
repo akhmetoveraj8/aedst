@@ -2,7 +2,9 @@ import AedstAnalytics
 import AedstCore
 import Foundation
 import Testing
-@testable import Notifications
+@testable import NotificationsData
+@testable import NotificationsDomain
+@testable import NotificationsPresentation
 
 private final class RecordingAnalytics: AnalyticsClient, @unchecked Sendable {
     private let lock = NSLock()

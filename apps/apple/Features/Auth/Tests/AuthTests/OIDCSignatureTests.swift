@@ -3,7 +3,9 @@ import AedstTesting
 import CryptoKit
 import Foundation
 import Testing
-@testable import Auth
+@testable import AuthData
+@testable import AuthDomain
+@testable import AuthPresentation
 
 /// Mutable JWKS the stub provider serves; lets a test rotate keys between requests.
 private final class JWKSBox: @unchecked Sendable {

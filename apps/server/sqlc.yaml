@@ -137,3 +137,17 @@ sql:
     rules:
       - delete-needs-where
       - update-needs-where
+
+  - schema: migrations/webhooks
+    queries: sql/webhooks
+    engine: postgresql
+    gen:
+      go:
+        package: webhooksdb
+        out: gen/db/webhooks
+        sql_package: pgx/v5
+        emit_json_tags: true
+        emit_interface: true
+    rules:
+      - delete-needs-where
+      - update-needs-where

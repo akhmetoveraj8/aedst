@@ -1,0 +1,66 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// A single-line text input (manifest name `input`; called AedstTextField before 2026-11-21).
+// `label` is what a screen reader announces (the placeholder is not a label).
+export component AedstInput inherits Rectangle {
+    in-out property <string> text <=> input.text;
+    in property <string> placeholder;
+    in property <string> label;
+    in property <bool> invalid: false;
+    in property <bool> enabled: true;
+    in property <bool> read-only: false;
+    in property <InputType> input-type: InputType.text;
+    out property <bool> has-focus: input.has-focus;
+    callback accepted();
+    callback edited(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    public function select-all() { input.select-all(); }
+
+    preferred-height: 32px;
+    min-height: 32px;
+    max-height: 32px;
+    min-width: 64px;
+    border-radius: AedstTokens.radius-md;
+    background: AedstTokens.background;
+    border-width: input.has-focus ? 2px : 1px;
+    border-color: root.invalid ? AedstTokens.destructive : (input.has-focus ? AedstTokens.ring : AedstTokens.input);
+    opacity: root.enabled ? 1.0 : 0.5;
+    accessible-role: text-input;
+    accessible-label: root.label;
+    accessible-value: root.text;
+    accessible-placeholder-text: root.placeholder;
+    accessible-enabled: root.enabled;
+    accessible-read-only: root.read-only;
+    forward-focus: input;
+
+    input := TextInput {
+        x: AedstTokens.spacing-sm;
+        width: parent.width - 2 * AedstTokens.spacing-sm;
+        height: parent.height;
+        vertical-alignment: center;
+        horizontal-alignment: root.rtl ? right : left;
+        color: AedstTokens.foreground;
+        font-size: AedstTokens.typography-body-medium-font-size;
+        single-line: true;
+        enabled: root.enabled;
+        read-only: root.read-only;
+        input-type: root.input-type;
+        accepted => { root.accepted(); }
+        edited => { root.edited(self.text); }
+    }
+
+    if input.text == "": Text {
+        x: AedstTokens.spacing-sm;
+        width: parent.width - 2 * AedstTokens.spacing-sm;
+        height: parent.height;
+        text: root.placeholder;
+        color: AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-body-medium-font-size;
+        vertical-alignment: center;
+        horizontal-alignment: root.rtl ? right : left;
+        overflow: elide;
+    }
+}

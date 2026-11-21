@@ -15,9 +15,11 @@ that remains is written.
 
 | Page | Covers |
 |---|---|
-| [Modern language features](/engineering/modern-language) | Which features of each pinned toolchain to use (Go 1.27, TypeScript 7 / React 19.3 / Next 16.4, Kotlin 2.4, Swift 6, Rust 2024), what is off limits, how it is enforced |
+| [Modern language features](/engineering/modern-language) | Which features of each pinned toolchain to use (Go 1.27, TypeScript 7 / React 19.3 / Next 16.4, Kotlin 2.5.0-RC, Swift 6, Rust 2024), what is off limits, how it is enforced |
 | [API design](/engineering/api-design) | ConnectRPC/Protobuf contracts: naming, resources, pagination, partial updates, idempotency, errors, auth, versioning, the new-RPC checklist |
 | [Security](/engineering/security) | The API security checklist, item by item, with the file or gate that enforces it |
+| [Roadmap coverage](/engineering/checklists) | roadmap.sh Frontend Performance, Backend Performance, SEO and API Design, item by item, with the gate and an honest status |
+| [Accessibility](/engineering/accessibility) | WCAG 2.2 AA rules for every client and the gates per platform |
 | [Performance](/engineering/performance) | CI budgets, frontend and backend rules, profiling, scaling order |
 | [Fuzzing and mutation testing](/engineering/mutation-testing) | Go fuzz targets for parsers, gremlins thresholds for domain packages, what runs per PR and nightly |
 | [Profiling and PGO](/engineering/profiling-pgo) | Pyroscope push profiling behind the observability port, `task pgo`, the measured PGO result |

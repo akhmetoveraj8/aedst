@@ -5,8 +5,9 @@
 #   key-glob: `*` = any run of characters. Use `*` as the key to allow a whole missing locale file.
 # Do not add a line to hide a real gap; fix the translation instead.
 
-# The Android TV app ships a Russian-only default `values/` (no values-en); other locales are not planned for TV.
-android apps/android/app-tv/src/main/res *    # TV UI is single-locale (ru) until TV i18n is scheduled
+# The Android TV app module has no translatable string of its own (only the brand `app_name`, translatable="false"):
+# its screens take their five-locale strings from feature/auth and core/ui-tv.
+android apps/android/app-tv/src/main/res *    # no translatable strings in the TV app module itself
 
 # Platform-specific features (no counterpart on the other clients), cross-platform report only.
 cross-web apps/web/admin/src/modules/admin/i18n *    # admin console is web-only (android/apple/desktop admin screens are a reduced set)

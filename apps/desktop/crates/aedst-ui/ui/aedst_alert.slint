@@ -1,0 +1,48 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// Variants are the ones of ui-kit.yaml (web `alertVariants`).
+export enum AedstAlertVariant { default, destructive }
+
+// An inline message. The title and description are announced together as one text.
+export component AedstAlert inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <AedstAlertVariant> variant: AedstAlertVariant.default;
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <color> ink: root.variant == AedstAlertVariant.destructive ? AedstTokens.destructive : AedstTokens.card-foreground;
+
+    background: AedstTokens.card;
+    border-radius: AedstTokens.radius-lg;
+    border-width: 1px;
+    border-color: root.variant == AedstAlertVariant.destructive ? AedstTokens.destructive.transparentize(0.5) : AedstTokens.border;
+    accessible-role: AccessibleRole.text;
+    accessible-label: root.description == "" ? root.title : root.title + ". " + root.description;
+
+    VerticalLayout {
+        padding-left: AedstTokens.spacing-md;
+        padding-right: AedstTokens.spacing-md;
+        padding-top: AedstTokens.spacing-sm;
+        padding-bottom: AedstTokens.spacing-sm;
+        spacing: AedstTokens.spacing-xxs;
+        if root.title != "": Text {
+            text: root.title;
+            color: root.ink;
+            font-size: AedstTokens.typography-label-large-font-size;
+            font-weight: AedstTokens.typography-label-large-font-weight;
+            horizontal-alignment: root.rtl ? right : left;
+            wrap: word-wrap;
+            accessible-role: AccessibleRole.none;
+        }
+        if root.description != "": Text {
+            text: root.description;
+            color: root.variant == AedstAlertVariant.destructive ? AedstTokens.destructive : AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: root.rtl ? right : left;
+            wrap: word-wrap;
+            accessible-role: AccessibleRole.none;
+        }
+        @children
+    }
+}

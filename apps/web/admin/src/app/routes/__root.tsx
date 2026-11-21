@@ -3,8 +3,8 @@ import { createRootRoute, Outlet, redirect } from "@tanstack/react-router";
 import { goToSignIn } from "@/app/auth/guards";
 import { loadSession } from "@/app/auth/session";
 import { negotiateLocale, splitLocale } from "@/app/i18n/locale-path";
-import { RootError } from "@/app/shell/RootError";
-import { RootNotFound } from "@/app/shell/RootNotFound";
+import { RootError } from "@/app/shell/root-error";
+import { RootNotFound } from "@/app/shell/root-not-found";
 
 export const Route = createRootRoute({
   // Runs on every navigation, but the session is probed once (cached), so

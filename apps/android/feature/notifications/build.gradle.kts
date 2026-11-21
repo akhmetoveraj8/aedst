@@ -7,6 +7,8 @@ android {
 }
 
 dependencies {
+    // The feature's pure domain (Kotlin Multiplatform, commonMain): entities, repository ports, use cases.
+    implementation(project(":feature:notifications:domain"))
     implementation(project(":core:network"))
     // Push bookkeeping (server device id, last registered token) lives in the UserPrefs DataStore.
     implementation(project(":core:datastore"))

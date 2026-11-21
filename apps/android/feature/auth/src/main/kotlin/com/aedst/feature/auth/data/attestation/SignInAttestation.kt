@@ -5,7 +5,7 @@ import com.aedst.core.common.ApplicationScope
 import com.aedst.core.common.Logger
 import com.aedst.core.common.onFailure
 import com.aedst.core.common.onSuccess
-import com.aedst.feature.auth.domain.usecase.AttestDeviceUseCase
+import com.aedst.feature.auth.domain.AttestDeviceUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

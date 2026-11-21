@@ -3,7 +3,7 @@ import { useTranslations } from "use-intl";
 
 import { assertPermission } from "@/app/auth/guards";
 import { cursorSearchSchema } from "@/app/config/search-schemas";
-import { PageTitle } from "@/app/shell/PageTitle";
+import { PageTitle } from "@/app/shell/page-title";
 import { AuditLog } from "@/modules/admin/public";
 
 export const Route = createFileRoute("/$locale/admin/audit")({

@@ -6,5 +6,6 @@ pub mod config;
 pub mod consumer;
 pub mod envelope;
 pub mod hub;
+pub mod server;
 pub mod telemetry;
 pub mod ws;

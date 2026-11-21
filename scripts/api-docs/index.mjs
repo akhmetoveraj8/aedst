@@ -1,45 +1,66 @@
 #!/usr/bin/env node
-// Generates docs/content/api/<module>.md from apps/server/api/proto. Usage:
+// Generates the API reference pages from the Protobuf contract. The input is buf's descriptor
+// set (`buf build -o -#format=json` in apps/server), never the .proto text. Output:
+//   docs/content/modules/<module>/api.md   one page per module package
+//   docs/content/api/<package>.md          packages owned by the platform, not a module
+//   docs/content/modules/<module>/events.md  event payload contracts (aedst.<module>.events.v1)
+// Usage:
 //   node scripts/api-docs/index.mjs           write the pages
 //   node scripts/api-docs/index.mjs --check   exit 1 when a committed page is stale
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { parseProto } from "./parse-proto.mjs";
+import { filesByPackage, loadDescriptorSet } from "./descriptor.mjs";
 import { renderModule } from "./render.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const protoRoot = join(root, "apps/server/api/proto/aedst");
-const outDir = join(root, "docs/content/api");
 
-export function generate() {
+// Proto packages served by platform code (apps/server/internal/platform), which has no module section.
+export const PLATFORM_PACKAGES = new Set(["events"]);
+
+export const pagePath = (module) =>
+  PLATFORM_PACKAGES.has(module) ? `docs/content/api/${module}.md` : `docs/content/modules/${module}/api.md`;
+
+// The interactive OpenAPI page of a package (written by docs/scripts/openapi-pages.mjs), next to its reference page.
+export const openapiPagePath = (module) =>
+  PLATFORM_PACKAGES.has(module) ? `docs/content/api/${module}-openapi.mdx` : `docs/content/modules/${module}/openapi.mdx`;
+
+// Site route of a docs/content page path.
+export const routeOf = (page) => page.replace(/^docs\/content/, "").replace(/\.mdx?$/, "");
+
+// descriptor set -> Map<repo-relative page path, Markdown>
+export function generate(set) {
   const pages = new Map();
-  for (const module of readdirSync(protoRoot).sort()) {
-    const dir = join(protoRoot, module, "v1");
-    if (!existsSync(dir)) continue;
-    const names = readdirSync(dir).filter((n) => n.endsWith(".proto")).sort();
-    const files = names.map((n) => parseProto(readFileSync(join(dir, n), "utf8")));
-    pages.set(`${module}.md`, renderModule(module, files, `apps/server/api/proto/aedst/${module}/v1/`));
+  for (const [pkg, files] of filesByPackage(set)) {
+    const [, module, third] = pkg.split(".");
+    const repoPath = `apps/server/api/proto/${dirname(files[0].name)}/`;
+    if (third === "events") {
+      // aedst.<module>.events.v<N>: messages only, the payloads of the module's integration events.
+      pages.set(`docs/content/modules/${module}/events.md`, renderModule(module, files, repoPath, { overview: "/server/events", openapi: "" }, "events"));
+      continue;
+    }
+    pages.set(pagePath(module), renderModule(module, files, repoPath, { overview: "/api", openapi: `/openapi/aedst.${module}.${third}.yaml`, interactive: routeOf(openapiPagePath(module)) }));
   }
   return pages;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const pages = generate();
+  const check = process.argv.includes("--check");
+  const pages = generate(loadDescriptorSet(join(root, "apps/server")));
   const stale = [];
   for (const [name, text] of pages) {
-    const path = join(outDir, name);
+    const path = join(root, name);
     const current = existsSync(path) ? readFileSync(path, "utf8") : null;
     if (current === text) continue;
     stale.push(name);
-    if (!process.argv.includes("--check")) {
-      mkdirSync(outDir, { recursive: true });
+    if (!check) {
+      mkdirSync(dirname(path), { recursive: true });
       writeFileSync(path, text);
     }
   }
-  if (process.argv.includes("--check") && stale.length) {
+  if (check && stale.length) {
     console.error(`stale API pages: ${stale.join(", ")} (run: task docs:api)`);
     process.exit(1);
   }
-  console.log(`${pages.size} API pages ${process.argv.includes("--check") ? "up to date" : `written (${stale.length} changed)`}`);
+  console.log(`${pages.size} API pages ${check ? "up to date" : `written (${stale.length} changed)`}`);
 }

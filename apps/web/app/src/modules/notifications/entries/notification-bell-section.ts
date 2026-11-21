@@ -1,1 +1,1 @@
-export { NotificationBellSection } from "@/modules/notifications/ui/NotificationBellSection";
+export { NotificationBellSection } from "@/modules/notifications/ui/notification-bell-section";

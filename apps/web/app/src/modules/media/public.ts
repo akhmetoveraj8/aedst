@@ -5,4 +5,4 @@
  * scripts/check-feature-boundaries.sh).
  */
 
-export { TaskAttachments } from "@/modules/media/ui/TaskAttachments";
+export { TaskAttachments } from "@/modules/media/ui/task-attachments";

@@ -2,7 +2,9 @@ import AedstCore
 import AedstTesting
 import Foundation
 import Testing
-@testable import Notifications
+@testable import NotificationsData
+@testable import NotificationsDomain
+@testable import NotificationsPresentation
 
 actor FakeNotificationsRepository: NotificationsRepository {
     var items: [InboxNotification] = []

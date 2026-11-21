@@ -6,7 +6,7 @@ import com.aedst.core.common.SignOutHook
 import com.aedst.core.network.TokenRefresher
 import com.aedst.core.network.toAedstError
 import com.aedst.feature.auth.data.local.AuthTokenStore
-import com.aedst.feature.auth.domain.repository.OidcAuthorizer
+import com.aedst.feature.auth.domain.OidcAuthorizer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex

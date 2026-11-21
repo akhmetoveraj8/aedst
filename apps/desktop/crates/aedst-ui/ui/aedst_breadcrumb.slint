@@ -1,0 +1,52 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// A path of links; the last item is the current page and is plain text. The first item sits at
+// the reading start (the right in RTL).
+export component AedstBreadcrumb inherits Rectangle {
+    in property <[string]> items;
+    in property <string> label;
+    // The index of the link that was activated.
+    callback navigate(int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored item.
+    pure function at(slot: int) -> int {
+        return root.rtl ? root.items.length - 1 - slot : slot;
+    }
+
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    HorizontalLayout {
+        alignment: root.rtl ? end : start;
+        for slot in root.items.length: HorizontalLayout {
+            if slot > 0: Text {
+                text: "/";
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                vertical-alignment: center;
+                accessible-role: AccessibleRole.none;
+            }
+            if root.at(slot) < root.items.length - 1: AedstButton {
+                text: root.items[root.at(slot)];
+                variant: AedstButtonVariant.link;
+                size: AedstButtonSize.sm;
+                clicked => { root.navigate(root.at(slot)); }
+            }
+            if root.at(slot) == root.items.length - 1: HorizontalLayout {
+                padding-left: AedstTokens.spacing-md;
+                padding-right: AedstTokens.spacing-md;
+                Text {
+                    text: root.items[root.at(slot)];
+                    color: AedstTokens.foreground;
+                    font-size: AedstTokens.typography-label-medium-font-size;
+                    font-weight: AedstTokens.typography-label-large-font-weight;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}

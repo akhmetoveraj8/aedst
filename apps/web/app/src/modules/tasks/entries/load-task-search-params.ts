@@ -1,1 +1,1 @@
-export { loadTaskSearchParams } from "@/modules/tasks/lib/task-search-params";
+export { loadTaskSearchParams } from "@/modules/tasks/features/list/lib/task-search-params";

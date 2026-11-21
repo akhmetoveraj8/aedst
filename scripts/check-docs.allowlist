@@ -2,8 +2,8 @@
 # links/paths/prompts: glob matches the mentioned path as written. cyrillic: glob matches the file.
 # Every entry needs a reason in the comment above it.
 
-# Android default locale (res/values) is Russian by product decision; the other locales are values-*.
-cyrillic **/res/values/strings.xml
+# Android Russian catalogs (the default res/values is English; Russian is the values-ru qualifier).
+cyrillic **/res/values-ru/strings.xml
 # Apple per-locale permission strings and Android/Apple/desktop test data that assert Cyrillic input handling.
 cyrillic **/*.lproj/*.strings
 # Build outputs mentioned by CI upload steps; they exist only after a build.

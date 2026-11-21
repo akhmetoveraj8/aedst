@@ -10,15 +10,18 @@ let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("InferIsolatedConformances"),
 ]
 
+// The composition root without views ("One business logic, two UI builds", decisions/apple.md): dependencies, links,
+// outbox wiring, the root and preferences view models and the app-shell String Catalog. Root, Home and Preferences
+// views live in the app targets (App/iOS/Sources, App/macOS/Sources), one set per platform.
 let package = Package(
-    name: "AedstAppShared",
+    name: "AedstAppCore",
     defaultLocalization: "en",
     platforms: [
         .iOS(.v18),
         .macOS(.v15),
     ],
     products: [
-        .library(name: "AedstAppShared", targets: ["AedstAppShared"]),
+        .library(name: "AedstAppCore", targets: ["AedstAppCore"]),
     ],
     dependencies: [
         .package(path: "../../Core/AedstCore"),
@@ -39,7 +42,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "AedstAppShared",
+            name: "AedstAppCore",
             dependencies: [
                 "AedstCore",
                 "AedstNetwork",
@@ -51,21 +54,42 @@ let package = Package(
                 "AedstTelemetry",
                 // Foundation-only doubles; the DEBUG-only UI-test launch mode reuses InMemorySecureStore.
                 "AedstTesting",
-                "Auth",
-                "Tasks",
-                "Search",
-                "Notifications",
-                "Media",
-                "Admin",
+                // Shared layers of every feature. The UI targets (<X>UIiOS, <X>UIMac) are linked by the app targets.
+                .product(name: "AuthDomain", package: "Auth"),
+                .product(name: "AuthData", package: "Auth"),
+                .product(name: "AuthPresentation", package: "Auth"),
+                .product(name: "TasksDomain", package: "Tasks"),
+                .product(name: "TasksData", package: "Tasks"),
+                .product(name: "TasksPresentation", package: "Tasks"),
+                .product(name: "SearchDomain", package: "Search"),
+                .product(name: "SearchData", package: "Search"),
+                .product(name: "SearchPresentation", package: "Search"),
+                .product(name: "NotificationsDomain", package: "Notifications"),
+                .product(name: "NotificationsData", package: "Notifications"),
+                .product(name: "NotificationsPresentation", package: "Notifications"),
+                .product(name: "MediaDomain", package: "Media"),
+                .product(name: "MediaData", package: "Media"),
+                .product(name: "MediaPresentation", package: "Media"),
+                .product(name: "AdminDomain", package: "Admin"),
+                .product(name: "AdminData", package: "Admin"),
+                .product(name: "AdminPresentation", package: "Admin"),
             ],
             resources: [.process("Resources")],
             swiftSettings: swiftSettings
         ),
         .testTarget(
-            name: "AedstAppSharedTests",
+            name: "AedstAppCoreTests",
             dependencies: [
-                "AedstAppShared", "AedstCore", "AedstPersistence", "AedstNetwork", "AedstAnalytics",
-                "Auth", "Tasks", "Admin", "AedstTesting",
+                "AedstAppCore", "AedstCore", "AedstPersistence", "AedstNetwork", "AedstAnalytics", "AedstTesting",
+                .product(name: "AuthDomain", package: "Auth"),
+                .product(name: "AuthData", package: "Auth"),
+                .product(name: "AuthPresentation", package: "Auth"),
+                .product(name: "TasksDomain", package: "Tasks"),
+                .product(name: "TasksData", package: "Tasks"),
+                .product(name: "TasksPresentation", package: "Tasks"),
+                .product(name: "AdminDomain", package: "Admin"),
+                .product(name: "AdminData", package: "Admin"),
+                .product(name: "AdminPresentation", package: "Admin"),
             ],
             swiftSettings: swiftSettings
         ),

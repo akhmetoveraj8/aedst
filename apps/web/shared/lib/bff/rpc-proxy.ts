@@ -3,6 +3,7 @@ import "server-only";
 import type { RefreshResult } from "@/shared/lib/auth/refresh-session";
 import { isAccessTokenExpired } from "@/shared/lib/auth/session-claims";
 import {
+  type CookieReader,
   type CookieWriter,
   clearAccessCookie,
   clearSessionCookies,
@@ -62,19 +63,21 @@ export type RpcProxyOutcome = {
 
 const KEEP: SessionCookieAction = { kind: "keep" };
 
+/** `existing` reads the request cookies, so only chunks the browser holds are expired. */
 export function applySessionCookieAction(
   jar: CookieWriter,
   action: SessionCookieAction,
+  existing?: CookieReader,
 ): void {
   switch (action.kind) {
     case "write":
-      writeSessionCookies(jar, action.tokens);
+      writeSessionCookies(jar, action.tokens, existing);
       return;
     case "clear":
-      clearSessionCookies(jar);
+      clearSessionCookies(jar, existing);
       return;
     case "clear-access":
-      clearAccessCookie(jar);
+      clearAccessCookie(jar, existing);
       return;
     case "keep":
       return;

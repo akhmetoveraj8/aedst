@@ -4,6 +4,7 @@ import com.aedst.core.common.AedstError
 import com.aedst.core.common.Outcome
 import com.aedst.core.network.toTimestamp
 import com.aedst.feature.tasks.domain.NewTask
+import com.aedst.feature.tasks.domain.TaskId
 import com.aedst.feature.tasks.domain.TaskPriority
 import com.aedst.feature.tasks.domain.TaskStatus
 import com.aedst.tasks.v1.CreateTaskRequest
@@ -24,7 +25,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.Instant
+import kotlin.time.Instant
 import com.aedst.tasks.v1.Task as ProtoTask
 import com.aedst.tasks.v1.TaskPriority as ProtoTaskPriority
 import com.aedst.tasks.v1.TaskStatus as ProtoTaskStatus
@@ -110,7 +111,7 @@ class ConnectTaskRepositoryTest {
 
         val page = (repository.list() as Outcome.Success).value
 
-        assertEquals(listOf("1", "2"), page.tasks.map { it.id })
+        assertEquals(listOf("1", "2"), page.tasks.map { it.id.value })
         assertEquals(listOf(TaskStatus.DONE, TaskStatus.UNKNOWN), page.tasks.map { it.status })
         assertEquals("next", page.nextPageToken)
         assertEquals(12, page.totalCount)
@@ -129,7 +130,7 @@ class ConnectTaskRepositoryTest {
     fun `get returns the task`() = runTest {
         coEvery { client.getTask(any(), any()) } returns success(getTaskResponse { task = protoTask { id = "7" } })
 
-        assertEquals("7", (repository.get("7") as Outcome.Success).value.id)
+        assertEquals("7", (repository.get(TaskId("7")) as Outcome.Success).value.id.value)
     }
 
     @Test
@@ -152,7 +153,7 @@ class ConnectTaskRepositoryTest {
         coEvery { client.getTask(any(), any()) } returns
             ResponseMessage.Failure(ConnectException(Code.NOT_FOUND, message = "no such task"), emptyMap(), emptyMap())
 
-        val outcome = repository.get("missing")
+        val outcome = repository.get(TaskId("missing"))
 
         assertTrue((outcome as Outcome.Failure).error is AedstError.NotFound)
     }

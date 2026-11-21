@@ -60,9 +60,10 @@ const phBraces = (s) => [...s.matchAll(/\{\}/g)].map(() => '{}');
 function loadWeb() {
   const dirs = new Map();
   for (const f of files) {
-    const m = /^apps\/web\/((?:app|admin|landing)\/src|shared)\/(.*\/)?i18n\/([a-z]{2})\.json$/.exec(f);
+    // A bundle is `i18n/<locale>.json` or a named catalogue below it, `i18n/<name>/<locale>.json` (the shell's `common`).
+    const m = /^apps\/web\/((?:app|admin|landing)\/src|shared)\/(.*\/)?i18n\/(?:([a-z][a-z0-9-]*)\/)?([a-z]{2})\.json$/.exec(f);
     if (!m) continue;
-    const id = `apps/web/${m[1]}/${m[2] ?? ''}i18n`;
+    const id = `apps/web/${m[1]}/${m[2] ?? ''}i18n${m[3] ? `/${m[3]}` : ''}`;
     if (!dirs.has(id)) dirs.set(id, new Map());
     const flat = new Map();
     const walk = (o, p) => {
@@ -72,11 +73,11 @@ function loadWeb() {
       }
     };
     walk(JSON.parse(read(f)), '');
-    dirs.get(id).set(canon(m[3]), flat);
+    dirs.get(id).set(canon(m[4]), flat);
   }
   return [...dirs].map(([id, entries]) => ({ id, entries, ph: phWeb, module: webModule(id) }));
 }
-const webModule = (id) => (/modules\/([^/]+)\/i18n$/.exec(id)?.[1] ?? (id.includes('/common') ? 'common' : id.split('/').slice(-2)[0]));
+const webModule = (id) => (/modules\/([^/]+)\/i18n$/.exec(id)?.[1] ?? (id.endsWith('/common') ? 'common' : id.split('/').slice(-2)[0]));
 
 const unxml = (s) =>
   s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
@@ -85,8 +86,9 @@ function loadAndroid() {
   for (const f of files) {
     const m = /^(apps\/android\/.*\/src\/main\/res)\/values(?:-([a-z]{2}))?\/strings\.xml$/.exec(f);
     if (!m) continue;
-    // `values/` (no qualifier) is the default locale of the project = Russian (see docs/content/android/i18n.md).
-    const locale = canon(m[2] ?? 'ru');
+    // `values/` (no qualifier) is the default locale of the project = English (see docs/content/android/i18n.md);
+    // Russian is `values-ru/`, like every other locale.
+    const locale = canon(m[2] ?? 'en');
     const flat = new Map();
     const xml = read(f).replace(/<!--[\s\S]*?-->/g, '');
     for (const s of xml.matchAll(/<string\s+([^>]*?)>([\s\S]*?)<\/string>/g)) {

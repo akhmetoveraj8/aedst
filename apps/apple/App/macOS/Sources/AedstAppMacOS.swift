@@ -1,4 +1,4 @@
-import AedstAppShared
+import AedstAppCore
 import SwiftUI
 
 @main
@@ -17,10 +17,11 @@ struct AedstAppMacOS: App {
                 .frame(minWidth: 720, minHeight: 480)
         }
         .commands {
-            // The main window has a real sidebar (split layout), so the toggle-sidebar command applies.
-            SidebarCommands()
+            // Sidebar toggle plus one View-menu command per section (the window has a real sidebar).
+            AppCommands()
         }
 
+        // Command-comma: analytics consent, app lock, notifications. The iOS build shows these in its home list.
         Settings {
             PreferencesView(dependencies: appDelegate.dependencies)
         }

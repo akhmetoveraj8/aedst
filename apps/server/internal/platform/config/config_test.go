@@ -29,6 +29,8 @@ func TestConfig_Validate(t *testing.T) {
 		{"unknown env", func(c *config.Config) { c.Env = "prod" }, "AEDST_ENV"},
 		{"wildcard cors in production", func(c *config.Config) { c.Env = config.EnvProduction; c.HTTP.AllowedOrigins = []string{"*"} }, "CORS"},
 		{"min conns above max", func(c *config.Config) { c.DB.MinConns = 50 }, "MIN_CONNS"},
+		{"slow-query reporting can be turned off", func(c *config.Config) { c.DB.SlowQueryMs = 0 }, ""},
+		{"negative slow-query threshold", func(c *config.Config) { c.DB.SlowQueryMs = -1 }, "AEDST_DATABASE_SLOW_QUERY_MS"},
 		{"jobs pool of one would stall event delivery", func(c *config.Config) { c.DB.JobsMaxConns = 1 }, "JOBS_MAX_CONNS"},
 		{"pooler none needs nothing else", func(c *config.Config) { c.DB.Pooler = config.PoolerNone }, ""},
 		{"pooler unset behaves as none", func(c *config.Config) { c.DB.Pooler = "" }, ""},

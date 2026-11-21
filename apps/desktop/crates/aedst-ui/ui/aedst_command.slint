@@ -1,0 +1,131 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstMenuItem, AedstMenuRow } from "aedst_dropdown_menu.slint";
+
+// A command palette: a search field over a list of entries. Slint has no string search, so the
+// CALLER filters: `query-edited(text)` asks for it and `items` holds the result. The focus stays
+// in the field; Up/Down move the active entry, Enter activates it, Escape asks the owner to close.
+export component AedstCommand inherits Rectangle {
+    in property <[AedstMenuItem]> items;
+    in-out property <string> query <=> input.text;
+    in property <string> placeholder;
+    in property <string> label;
+    // Shown when `items` is empty.
+    in property <string> empty-text;
+    // Take the keyboard focus when the component appears (inside a popup or a dialog).
+    in property <bool> autofocus: false;
+    in property <bool> bordered: true;
+    out property <bool> has-focus: input.has-focus;
+    callback query-edited(string);
+    // The `id` of the activated entry.
+    callback activated(string);
+    callback dismissed();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <int> active: 0;
+
+    function activate(index: int) {
+        if (index >= 0 && index < root.items.length && !root.items[index].disabled) {
+            root.activated(root.items[index].id);
+        }
+    }
+
+    init => {
+        if (root.autofocus) {
+            input.focus();
+        }
+    }
+
+    min-width: 200px;
+    min-height: body.min-height;
+    preferred-height: body.preferred-height;
+    background: AedstTokens.popover;
+    border-radius: AedstTokens.radius-lg;
+    border-width: root.bordered ? 1px : 0px;
+    border-color: AedstTokens.border;
+    forward-focus: input;
+
+    body := VerticalLayout {
+        Rectangle {
+            height: 36px;
+            accessible-role: text-input;
+            accessible-label: root.label;
+            accessible-value: root.query;
+            accessible-placeholder-text: root.placeholder;
+
+            input := TextInput {
+                x: AedstTokens.spacing-md;
+                width: parent.width - 2 * AedstTokens.spacing-md;
+                vertical-alignment: center;
+                horizontal-alignment: root.rtl ? right : left;
+                color: AedstTokens.popover-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                single-line: true;
+                edited => {
+                    root.active = 0;
+                    root.query-edited(self.text);
+                }
+                accepted => { root.activate(root.active); }
+                key-pressed(event) => {
+                    if (event.text == Key.DownArrow) {
+                        root.active = Math.min(root.active + 1, root.items.length - 1);
+                        return accept;
+                    }
+                    if (event.text == Key.UpArrow) {
+                        root.active = Math.max(root.active - 1, 0);
+                        return accept;
+                    }
+                    if (event.text == Key.Escape) {
+                        root.dismissed();
+                        return accept;
+                    }
+                    return reject;
+                }
+            }
+            if input.text == "": Text {
+                x: AedstTokens.spacing-md;
+                width: parent.width - 2 * AedstTokens.spacing-md;
+                text: root.placeholder;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: root.rtl ? right : left;
+                vertical-alignment: center;
+                overflow: elide;
+                accessible-role: AccessibleRole.none;
+            }
+        }
+        Rectangle {
+            height: 1px;
+            background: AedstTokens.border;
+        }
+        VerticalLayout {
+            padding: AedstTokens.spacing-xs;
+            for entry[position] in root.items: VerticalLayout {
+                if entry.separator: VerticalLayout {
+                    padding-top: AedstTokens.spacing-xs;
+                    padding-bottom: AedstTokens.spacing-xs;
+                    Rectangle {
+                        height: 1px;
+                        background: AedstTokens.border;
+                    }
+                }
+                AedstMenuRow {
+                    data: entry;
+                    active: root.active == position;
+                    index: position;
+                    count: root.items.length;
+                    clicked => { root.activate(position); }
+                    hovered => { root.active = position; }
+                }
+            }
+            if root.items.length == 0 && root.empty-text != "": Text {
+                height: 48px;
+                text: root.empty-text;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+}

@@ -4,9 +4,9 @@ name: desktop-ci (experimental, non-blocking until first green run)
 on:
   push:
     branches: [main]
-    paths: ["apps/desktop/**", "apps/server/api/proto/**", ".github/workflows/desktop-ci.yml"]
+    paths: ["apps/desktop/**", "apps/gateway/Cargo.toml", "apps/gateway/approved-crates.txt", "docs/content/library-first/desktop.md", "apps/server/api/proto/**", ".github/workflows/desktop-ci.yml"]
   pull_request:
-    paths: ["apps/desktop/**", "apps/server/api/proto/**", ".github/workflows/desktop-ci.yml"]
+    paths: ["apps/desktop/**", "apps/gateway/Cargo.toml", "apps/gateway/approved-crates.txt", "docs/content/library-first/desktop.md", "apps/server/api/proto/**", ".github/workflows/desktop-ci.yml"]
   workflow_dispatch:
 
 permissions:
@@ -27,6 +27,16 @@ env:
   CARGO_DENY_VERSION: "0.20.2"
 
 jobs:
+  # Static gates that need no Rust toolchain (bash + node): crate boundaries and feature layout (D1-D6), approved
+  # direct dependencies, versions shared with apps/gateway, lint parity, plus the negative self-tests of both.
+  # policies-ci runs the same through scripts/check-boundaries.sh. Passes locally (2026-11-21); never run on GitHub.
+  boundaries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: bash scripts/check-feature-boundaries.sh
+
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 30

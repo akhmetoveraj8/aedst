@@ -190,7 +190,11 @@
       }
     },
     {
-      "includes": ["shared/lib/stores/**", "*/src/modules/*/lib/*-store.ts"],
+      "includes": [
+        "shared/lib/stores/**",
+        "*/src/modules/*/lib/*-store.ts",
+        "*/src/modules/*/features/*/lib/*-store.ts"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -303,7 +307,7 @@
               "options": {
                 "strictCase": false,
                 "requireAscii": true,
-                "filenameCases": ["kebab-case", "PascalCase"]
+                "filenameCases": ["kebab-case"]
               }
             }
           }
@@ -324,15 +328,10 @@
         "rules": {
           "style": {
             "noRestrictedImports": "off",
-            "useFilenamingConvention": "off",
             "useNamingConvention": "off"
           },
           "a11y": {
-            "useSemanticElements": "off",
-            "useFocusableInteractive": "off",
-            "useKeyWithClickEvents": "off",
-            "noLabelWithoutControl": "off",
-            "noRedundantRoles": "off"
+            "useSemanticElements": "off"
           },
           "correctness": {
             "useExhaustiveDependencies": "off"

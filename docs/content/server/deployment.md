@@ -1,13 +1,13 @@
 ---
 title: "Deployment"
-description: "apps/server/deployments/docker/docker-compose.yml runs PostgreSQL 18 and DragonflyDB (the only services aedst-server needs). Optional compose profiles add..."
+description: "apps/server/deployments/docker/docker-compose.yml runs PostgreSQL 19 and DragonflyDB (the only services aedst-server needs). Optional compose profiles add..."
 ---
 
 # Deployment
 
 ## Local development
 
-`apps/server/deployments/docker/docker-compose.yml` runs PostgreSQL 18 and DragonflyDB
+`apps/server/deployments/docker/docker-compose.yml` runs PostgreSQL 19 and DragonflyDB
 (the only services `aedst-server` needs). Optional compose profiles add
 observability (`observability`), a ZITADEL OIDC provider (`idp`) and PgBouncer
 (`pgbouncer`, transaction pooling on `localhost:6432`) for rehearsing the production

@@ -5,6 +5,6 @@
  * scripts/check-feature-boundaries.sh).
  */
 
-export { AuthGate } from "@/modules/auth/ui/AuthGate";
-export { CurrentUser } from "@/modules/auth/ui/CurrentUser";
-export { SignOutButton } from "@/modules/auth/ui/SignOutButton";
+export { AuthGate } from "@/modules/auth/ui/auth-gate";
+export { CurrentUser } from "@/modules/auth/ui/current-user";
+export { SignOutButton } from "@/modules/auth/ui/sign-out-button";

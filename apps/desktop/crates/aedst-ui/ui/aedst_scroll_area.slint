@@ -1,0 +1,78 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// A vertically scrolling region with a thin token-coloured scrollbar, built on the built-in
+// `Flickable` (the manifest allows the native `ScrollView` here; this adds the kit look and
+// keyboard scrolling). The children are stacked in a column as wide as the area. The area is a
+// tab stop: Up/Down scroll by a line, PageUp/PageDown by a page, Home/End to the ends.
+// The scrollbar sits at the reading end (the left in RTL) and shows the position; it is not draggable.
+export component AedstScrollArea inherits Rectangle {
+    in property <string> label;
+    out property <bool> has-focus: focus.has-focus;
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> overflow-height: Math.max(0px, flick.content-height - flick.height);
+
+    function scroll-by(delta: length) {
+        flick.content-y = -Math.max(0px, Math.min(root.overflow-height, -flick.content-y + delta));
+    }
+
+    min-height: 48px;
+    forward-focus: focus;
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.DownArrow) {
+                root.scroll-by(32px);
+                return accept;
+            }
+            if (event.text == Key.UpArrow) {
+                root.scroll-by(-32px);
+                return accept;
+            }
+            if (event.text == Key.PageDown) {
+                root.scroll-by(flick.height);
+                return accept;
+            }
+            if (event.text == Key.PageUp) {
+                root.scroll-by(-flick.height);
+                return accept;
+            }
+            if (event.text == Key.Home) {
+                root.scroll-by(-root.overflow-height);
+                return accept;
+            }
+            if (event.text == Key.End) {
+                root.scroll-by(root.overflow-height);
+                return accept;
+            }
+            return reject;
+        }
+
+        flick := Flickable {
+            content-height: content.preferred-height;
+            content := VerticalLayout {
+                width: flick.width;
+                @children
+            }
+        }
+    }
+
+    if root.overflow-height > 0: Rectangle {
+        x: root.rtl ? 2px : parent.width - self.width - 2px;
+        y: (parent.height - self.height) * (-flick.content-y / root.overflow-height);
+        width: 4px;
+        height: Math.max(24px, parent.height * (flick.height / flick.content-height));
+        border-radius: 2px;
+        background: AedstTokens.border;
+    }
+
+    // Visible keyboard focus ring.
+    Rectangle {
+        border-width: focus.has-focus ? 2px : 0px;
+        border-color: AedstTokens.ring;
+        border-radius: AedstTokens.radius-sm;
+    }
+}

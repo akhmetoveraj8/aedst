@@ -1,6 +1,6 @@
 // One row of the library. Slint cannot reverse a layout, so the right-to-left order is spelled out
 // (the cost of mirroring recorded in ADR-0001).
-import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstBadge } from "@aedst-ui";
+import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstBadge, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
 import { MediaRowData, MediaStore } from "media_store.slint";
 import { MediaTexts } from "media_texts.slint";
 
@@ -23,7 +23,7 @@ component RowInfo inherits VerticalLayout {
 component StatusBadge inherits AedstBadge {
     in property <string> status;
     text: MediaTexts.status-text(root.status);
-    tone: root.status == "ready" ? "success" : root.status == "failed" ? "danger" : "neutral";
+    variant: root.status == "ready" ? AedstBadgeVariant.success : root.status == "failed" ? AedstBadgeVariant.destructive : AedstBadgeVariant.secondary;
 }
 
 // Keeps the badge at its own height, centred on the row.
@@ -36,14 +36,14 @@ component BadgeSlot inherits VerticalLayout {
 component ViewButton inherits AedstButton {
     in property <string> id;
     text: @tr("" => "View");
-    primary: false;
+    variant: AedstButtonVariant.secondary;
     clicked => { MediaStore.open(root.id); }
 }
 
 component DeleteButton inherits AedstButton {
     in property <string> id;
     text: @tr("" => "Delete");
-    primary: false;
+    variant: AedstButtonVariant.secondary;
     enabled: !MediaStore.deleting;
     clicked => { MediaStore.request-delete(root.id); }
 }
@@ -55,11 +55,11 @@ component ConfirmButtons inherits HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
         AedstLabel { text: @tr("" => "Delete this file?"); vertical-alignment: center; wrap: no-wrap; }
         AedstButton { text: @tr("" => "Delete"); enabled: !MediaStore.deleting; clicked => { MediaStore.confirm-delete(); } }
-        AedstButton { text: @tr("" => "Cancel"); primary: false; enabled: !MediaStore.deleting; clicked => { MediaStore.cancel-delete(); } }
+        AedstButton { text: @tr("" => "Cancel"); variant: AedstButtonVariant.secondary; enabled: !MediaStore.deleting; clicked => { MediaStore.cancel-delete(); } }
     }
     if AedstLayout.rtl: HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
-        AedstButton { text: @tr("" => "Cancel"); primary: false; enabled: !MediaStore.deleting; clicked => { MediaStore.cancel-delete(); } }
+        AedstButton { text: @tr("" => "Cancel"); variant: AedstButtonVariant.secondary; enabled: !MediaStore.deleting; clicked => { MediaStore.cancel-delete(); } }
         AedstButton { text: @tr("" => "Delete"); enabled: !MediaStore.deleting; clicked => { MediaStore.confirm-delete(); } }
         AedstLabel { text: @tr("" => "Delete this file?"); vertical-alignment: center; wrap: no-wrap; }
     }

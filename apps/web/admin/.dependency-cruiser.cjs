@@ -36,6 +36,22 @@ module.exports = {
       to: { path: ["^src/modules/(?!$1/)", "^src/app/"] },
     },
     {
+      name: "feature-not-to-other-feature",
+      severity: "error",
+      comment:
+        "A feature (src/modules/<m>/features/<f>) never imports another feature; shared code moves to the module's lib/ or ui/.",
+      from: { path: "^src/modules/([^/]+)/features/([^/]+)/" },
+      to: { path: "^src/modules/$1/features/(?!$2/)" },
+    },
+    {
+      name: "module-shared-not-to-feature",
+      severity: "error",
+      comment:
+        "A module's shared code (lib/, ui/, any folder but features/ and entries/) never imports a feature; only entries/, public.ts, outbox.ts and module-root tests compose features.",
+      from: { path: "^src/modules/([^/]+)/(?!features/|entries/)[^/]+/" },
+      to: { path: "^src/modules/$1/features/" },
+    },
+    {
       name: "no-shared-to-app-or-modules",
       severity: "error",
       comment:

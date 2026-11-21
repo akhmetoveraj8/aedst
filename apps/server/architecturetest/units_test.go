@@ -11,123 +11,13 @@ import (
 	"regexp"
 	"slices"
 	"sort"
-	"strconv"
 	"strings"
 	"testing"
 
 	"golang.org/x/tools/go/packages"
 )
 
-// ---- feature units: layout and registration -------------------------------
-
 const migrationsDir = "../migrations"
-
-// featureLayoutProblems checks every feature unit under modulesRoot
-// (<m>/features/<f>): it has an api/ contract, a module/ package that registers
-// exactly "<m>/<f>", and its own schema migrations/<m>_<f>. A feature is a unit
-// like a module, so anything a module must have to be relocatable, it must have.
-func featureLayoutProblems(modulesRoot, migrationsRoot string) []string {
-	var problems []string
-	modules, _ := os.ReadDir(modulesRoot)
-	for _, m := range modules {
-		if !m.IsDir() {
-			continue
-		}
-		features, _ := os.ReadDir(filepath.Join(modulesRoot, m.Name(), featuresDir))
-		for _, f := range features {
-			if !f.IsDir() {
-				continue
-			}
-			unit := m.Name() + "/" + f.Name()
-			dir := filepath.Join(modulesRoot, m.Name(), featuresDir, f.Name())
-			if info, err := os.Stat(filepath.Join(dir, "api")); err != nil || !info.IsDir() {
-				problems = append(problems, "feature "+unit+" has no api/ package")
-			}
-			if info, err := os.Stat(filepath.Join(dir, "module")); err != nil || !info.IsDir() {
-				problems = append(problems, "feature "+unit+" has no module/ package calling modulekit.Register")
-			} else if got := registeredIn(filepath.Join(dir, "module")); len(got) != 1 || got[0] != unit {
-				problems = append(problems, "feature "+unit+": module/ registers "+strings.Join(got, ",")+", want exactly "+unit)
-			}
-			schema := m.Name() + "_" + f.Name()
-			if info, err := os.Stat(filepath.Join(migrationsRoot, schema)); err != nil || !info.IsDir() {
-				problems = append(problems, "feature "+unit+" has no migrations/"+schema+" directory (a feature owns the schema "+schema+")")
-			}
-		}
-	}
-	return problems
-}
-
-func registeredIn(dir string) []string {
-	fset := token.NewFileSet()
-	matches, _ := filepath.Glob(filepath.Join(dir, "*.go"))
-	var files []*ast.File
-	for _, name := range matches {
-		if strings.HasSuffix(name, "_test.go") {
-			continue
-		}
-		if f, err := parser.ParseFile(fset, name, nil, 0); err == nil {
-			files = append(files, f)
-		}
-	}
-	return registeredNames(files)
-}
-
-func TestEveryFeatureHasTheShapeOfAUnit(t *testing.T) {
-	for _, p := range featureLayoutProblems(modulesDir, migrationsDir) {
-		t.Error(p)
-	}
-}
-
-// TestEveryFeatureIsLinked: cmd/server blank-imports every feature's module/
-// package, so a feature that exists on disk is a feature that is registered.
-func TestEveryFeatureIsLinked(t *testing.T) {
-	_, root := parseDir(t, "../cmd/server")
-	imports := map[string]bool{}
-	for _, f := range root {
-		for _, imp := range f.Imports {
-			path, _ := strconv.Unquote(imp.Path.Value)
-			imports[path] = true
-		}
-	}
-	for _, m := range moduleNames(t) {
-		features, _ := os.ReadDir(filepath.Join(modulesDir, m, featuresDir))
-		for _, f := range features {
-			if path := modulePrefix + m + "/" + featuresDir + "/" + f.Name() + "/module"; f.IsDir() && !imports[path] {
-				t.Errorf("feature %s/%s is not imported by cmd/server: add `_ %q` to cmd/server/modules.go", m, f.Name(), path)
-			}
-		}
-	}
-}
-
-func TestFeatureLayoutCheckRejectsAnIncompleteFeature(t *testing.T) {
-	root, mig := t.TempDir(), t.TempDir()
-	mk := func(p ...string) {
-		if err := os.MkdirAll(filepath.Join(p...), 0o755); err != nil {
-			t.Fatal(err)
-		}
-	}
-	// complete: api, module registering social/like, schema social_like.
-	mk(root, "social", featuresDir, "like", "api")
-	mk(root, "social", featuresDir, "like", "module")
-	mk(mig, "social_like")
-	src := `package module
-import "github.com/aedst/server/internal/platform/modulekit"
-func init() { modulekit.Register(modulekit.Module{Name: "social/like"}) }`
-	if err := os.WriteFile(filepath.Join(root, "social", featuresDir, "like", "module", "module.go"), []byte(src), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if got := featureLayoutProblems(root, mig); len(got) != 0 {
-		t.Fatalf("a complete feature was reported: %q", got)
-	}
-	// incomplete: nothing.
-	mk(root, "social", featuresDir, "comment")
-	got := featureLayoutProblems(root, mig)
-	for _, want := range []string{"social/comment has no api/", "social/comment has no module/", "migrations/social_comment"} {
-		if !slices.ContainsFunc(got, func(p string) bool { return strings.Contains(p, want) }) {
-			t.Errorf("missing problem %q in %q", want, got)
-		}
-	}
-}
 
 // ---- a unit owns its schema: no references into another unit's schema ------
 

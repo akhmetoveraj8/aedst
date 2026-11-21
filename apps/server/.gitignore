@@ -2,6 +2,9 @@ bin/
 .env
 *.local.env
 coverage.out
+# task bench / bench:check outputs
+bench.txt
+base.txt
 
 # Secrets: never commit private keys or decrypted secret files.
 key.txt

@@ -6,7 +6,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Component workshop for the shared design system (`apps/web/shared/ui`) and a few
- * composite module screens (`src/modules/<m>/ui/*.stories.tsx`, backed by the
+ * composite module screens (`src/modules/<m>/ui/*.stories.tsx` and
+ * `src/modules/<m>/features/<f>/ui/*.stories.tsx`, backed by the
  * typed in-memory Connect transport, see `with-app-providers.tsx`). Dev-only:
  * nothing here is imported by the app, so the client bundle budget is
  * unaffected. Stories live next to their component (`button.stories.tsx`).
@@ -16,6 +17,7 @@ const config: StorybookConfig = {
   stories: [
     "../../shared/ui/**/*.stories.@(ts|tsx)",
     "../src/modules/*/ui/*.stories.@(ts|tsx)",
+    "../src/modules/*/features/*/ui/*.stories.@(ts|tsx)",
   ],
   addons: ["@storybook/addon-a11y", "@storybook/addon-vitest"],
   // No usage telemetry from a repo-wide dev tool.

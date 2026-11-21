@@ -1,0 +1,16 @@
+<resources>
+
+    <string name="nav_tasks">Задачи</string>
+    <string name="nav_search">Поиск</string>
+    <string name="nav_notifications">Уведомления</string>
+    <string name="nav_media">Файлы</string>
+    <string name="nav_account">Аккаунт</string>
+    <string name="nav_admin">Админ</string>
+
+    <string name="update_recommended">Доступна новая версия AEDST.</string>
+    <string name="update_recommended_action">Обновить</string>
+    <string name="update_recommended_later">Не сейчас</string>
+    <string name="outbox_failed_title">Часть изменений не удалось отправить</string>
+    <string name="outbox_failed_description">Эти изменения не были отправлены. Повторите отправку или удалите их.</string>
+    <string name="outbox_failed_discard">Удалить</string>
+</resources>

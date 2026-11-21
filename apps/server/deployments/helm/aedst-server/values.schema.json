@@ -27,7 +27,9 @@
         "fcmCredentialsJson": {"type": "string"},
         "apnsPrivateKey": {"type": "string"},
         "integrityCredentialsJson": {"type": "string"},
-        "profilingBasicAuthPassword": {"type": "string"}
+        "profilingBasicAuthPassword": {"type": "string"},
+        "webhooksSecretKey": {"type": "string"},
+        "webhooksPreviousSecretKeys": {"type": "string"}
       }
     },
     "database": {
@@ -43,7 +45,8 @@
         "allowUnverifiedTls": {"type": "boolean"},
         "jobsPollOnly": {"type": "boolean"},
         "statementTimeoutMs": {"type": "integer", "minimum": 0},
-        "idleInTxTimeoutMs": {"type": "integer", "minimum": 0}
+        "idleInTxTimeoutMs": {"type": "integer", "minimum": 0},
+        "slowQueryMs": {"type": "integer", "minimum": 0}
       }
     },
     "config": {
@@ -72,6 +75,7 @@
         },
         "rolePolicy": {"type": "object"},
         "apiRateLimitPerMinute": {"type": "integer", "minimum": 0},
+        "procedureRateLimits": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
         "maxInFlight": {"type": "integer", "minimum": 0},
         "grpcReflectionEnabled": {"type": "boolean"},
         "retention": {
@@ -178,6 +182,16 @@
             "rateLimitPerMinute": {"type": "integer", "minimum": 0},
             "assertionRateLimitPerMinute": {"type": "integer", "minimum": 0},
             "keyRetentionDays": {"type": "integer", "minimum": 1}
+          }
+        },
+        "webhooks": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "allowedHosts": {"type": "array", "items": {"type": "string"}},
+            "disableAfterFailures": {"type": "integer", "minimum": 1},
+            "deliveryRetentionDays": {"type": "integer", "minimum": 1}
           }
         },
         "cache": {

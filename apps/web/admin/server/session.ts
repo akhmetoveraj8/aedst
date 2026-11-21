@@ -3,10 +3,12 @@ import { getCookie, setCookie } from "hono/cookie";
 
 import {
   ACCESS_COOKIE,
+  type CookieReader,
   type CookieWriter,
   clearSessionCookies,
   ID_COOKIE,
   REFRESH_COOKIE,
+  readSessionCookie,
   writeSessionCookies,
 } from "@/shared/lib/auth/session-cookies";
 import { classifySession, type SessionState } from "./security/route-guard";
@@ -27,6 +29,17 @@ export function cookieJar(c: Ctx): CookieWriter {
       });
     },
   };
+}
+
+/** The request cookies, for expiring only the chunks the browser holds. */
+export const requestCookies =
+  (c: Ctx): CookieReader =>
+  (name) =>
+    getCookie(c, name);
+
+/** A session value from the request, whole or put back together from its chunks. */
+export function readCookie(c: Ctx, name: string): string | undefined {
+  return readSessionCookie(requestCookies(c), name);
 }
 
 export type ResolvedSession = {
@@ -51,9 +64,9 @@ export async function resolveSession(
   auth: Pick<AuthDeps, "refreshSession">,
   fetchImpl: typeof fetch,
 ): Promise<ResolvedSession> {
-  let accessToken = getCookie(c, ACCESS_COOKIE);
-  const refreshToken = getCookie(c, REFRESH_COOKIE);
-  let idToken = getCookie(c, ID_COOKIE);
+  let accessToken = readCookie(c, ACCESS_COOKIE);
+  const refreshToken = readCookie(c, REFRESH_COOKIE);
+  let idToken = readCookie(c, ID_COOKIE);
   let state = classifySession({ accessToken, refreshToken });
   let idpUnavailable = false;
 
@@ -62,12 +75,16 @@ export async function resolveSession(
       fetch: fetchImpl,
     });
     if (result.status === "ok") {
-      writeSessionCookies(cookieJar(c), result.tokens);
-      accessToken = result.tokens.accessToken;
-      idToken = result.tokens.idToken ?? idToken;
-      state = "active";
+      // `false`: the rotated tokens do not fit the cookies (logged, cleared).
+      if (writeSessionCookies(cookieJar(c), result.tokens, requestCookies(c))) {
+        accessToken = result.tokens.accessToken;
+        idToken = result.tokens.idToken ?? idToken;
+        state = "active";
+      } else {
+        state = "anonymous";
+      }
     } else if (result.status === "rejected") {
-      clearSessionCookies(cookieJar(c));
+      clearSessionCookies(cookieJar(c), requestCookies(c));
       state = "anonymous";
     } else if (result.status === "stale") {
       // Probably lost a rotation race to another replica: signed out for this

@@ -1,1 +1,1 @@
-export { NotificationPreferences } from "@/modules/notifications/ui/NotificationPreferences";
+export { NotificationPreferences } from "@/modules/notifications/ui/notification-preferences";

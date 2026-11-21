@@ -16,8 +16,8 @@ public struct AedstAlertDialogModifier: ViewModifier {
         isPresented: Binding<Bool>,
         title: String,
         message: String? = nil,
-        confirmTitle: String = "Continue",
-        cancelTitle: String = "Cancel",
+        confirmTitle: String = AedstCommonStrings.continueAction,
+        cancelTitle: String = AedstCommonStrings.cancel,
         isDestructive: Bool = false,
         onConfirm: @escaping () -> Void
     ) {
@@ -47,8 +47,8 @@ extension View {
         isPresented: Binding<Bool>,
         title: String,
         message: String? = nil,
-        confirmTitle: String = "Continue",
-        cancelTitle: String = "Cancel",
+        confirmTitle: String = AedstCommonStrings.continueAction,
+        cancelTitle: String = AedstCommonStrings.cancel,
         isDestructive: Bool = false,
         onConfirm: @escaping () -> Void
     ) -> some View {

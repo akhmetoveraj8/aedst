@@ -10,6 +10,13 @@ let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("InferIsolatedConformances"),
 ]
 
+// One business logic, two UI builds (decisions/apple.md): `MediaDomain`, `MediaData` and `MediaPresentation` are shared;
+// `MediaUIiOS` is linked by App_iOS only and `MediaUIMac` by App_macOS only. A UI target's dependencies carry a platform
+// condition and every file in it is wrapped in one `#if os(...)` guard, so the other platform compiles it to nothing
+// (`swift build` on a Mac host still builds the whole package). scripts/check-feature-boundaries.sh enforces the rest.
+let iOSOnly: TargetDependencyCondition? = .when(platforms: [.iOS])
+let macOnly: TargetDependencyCondition? = .when(platforms: [.macOS])
+
 let package = Package(
     name: "Media",
     defaultLocalization: "en",
@@ -19,7 +26,11 @@ let package = Package(
         .macOS(.v15),
     ],
     products: [
-        .library(name: "Media", targets: ["Media"]),
+        .library(name: "MediaDomain", targets: ["MediaDomain"]),
+        .library(name: "MediaData", targets: ["MediaData"]),
+        .library(name: "MediaPresentation", targets: ["MediaPresentation"]),
+        .library(name: "MediaUIiOS", targets: ["MediaUIiOS"]),
+        .library(name: "MediaUIMac", targets: ["MediaUIMac"]),
     ],
     dependencies: [
         .package(path: "../../Core/AedstCore"),
@@ -31,22 +42,55 @@ let package = Package(
         .package(path: "../../Core/AedstMedia"),
     ],
     targets: [
+        // Models, repository protocols, use cases. No UI, network or persistence import.
         .target(
-            name: "Media",
-            dependencies: [
-                "AedstCore",
-                "AedstNetwork",
-                "AedstDesignSystem",
-                "AedstNavigation",
-                "AedstAnalytics",
-                "AedstMedia",
-            ],
+            name: "MediaDomain",
+            dependencies: ["AedstCore", "AedstMedia"],
+            swiftSettings: swiftSettings
+        ),
+        // Repository implementations.
+        .target(
+            name: "MediaData",
+            dependencies: ["MediaDomain", "AedstCore", "AedstNetwork"],
+            swiftSettings: swiftSettings
+        ),
+        // Platform-neutral `@Observable` view models and the String Catalog both UI builds read.
+        .target(
+            name: "MediaPresentation",
+            dependencies: ["MediaDomain", "AedstCore", "AedstAnalytics", "AedstMedia"],
             resources: [.process("Resources")],
             swiftSettings: swiftSettings
         ),
+        // SwiftUI views for iPhone and iPad.
+        .target(
+            name: "MediaUIiOS",
+            dependencies: [
+                .target(name: "MediaDomain", condition: iOSOnly),
+                .target(name: "MediaPresentation", condition: iOSOnly),
+                .product(name: "AedstCore", package: "AedstCore", condition: iOSOnly),
+                .product(name: "AedstDesignSystem", package: "AedstDesignSystem", condition: iOSOnly),
+                .product(name: "AedstNavigation", package: "AedstNavigation", condition: iOSOnly),
+                .product(name: "AedstMedia", package: "AedstMedia", condition: iOSOnly),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        // SwiftUI views for the Mac.
+        .target(
+            name: "MediaUIMac",
+            dependencies: [
+                .target(name: "MediaDomain", condition: macOnly),
+                .target(name: "MediaPresentation", condition: macOnly),
+                .product(name: "AedstCore", package: "AedstCore", condition: macOnly),
+                .product(name: "AedstDesignSystem", package: "AedstDesignSystem", condition: macOnly),
+                .product(name: "AedstNavigation", package: "AedstNavigation", condition: macOnly),
+                .product(name: "AedstMedia", package: "AedstMedia", condition: macOnly),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        // Logic tests (domain, data, view models); they run on the Mac host and import no UI target.
         .testTarget(
             name: "MediaTests",
-            dependencies: ["Media", "AedstCore", "AedstAnalytics", "AedstMedia", "AedstTesting"],
+            dependencies: ["MediaDomain", "MediaData", "MediaPresentation", "AedstCore", "AedstAnalytics", "AedstMedia", "AedstTesting"],
             swiftSettings: swiftSettings
         ),
     ],

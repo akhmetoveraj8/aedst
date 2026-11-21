@@ -1,0 +1,163 @@
+import {
+    AedstTokens, AedstTypography, AedstTypographyVariant, AedstAlert, AedstAlertVariant, AedstAvatar,
+    AedstAspectRatio, AedstBadge, AedstBadgeVariant, AedstCard, AedstEmpty, AedstItem, AedstItemVariant,
+    AedstKbd, AedstSeparator, AedstSkeleton, AedstSpinner, AedstProgress, AedstTable, AedstDataTable,
+    AedstChart, AedstChartKind, AedstCodeBlock, AedstTrace, AedstCarousel, AedstScrollArea, AedstResizable,
+    AedstButton, AedstButtonVariant, AedstButtonSize
+} from "../lib.slint";
+import { GalleryState } from "gallery_state.slint";
+
+// Gallery page 2: content and data display.
+export component GalleryDisplay inherits Flickable {
+    in-out property <int> sort-column: 0;
+    in-out property <bool> sort-ascending: true;
+
+    public function focus-control(name: string) {
+        if (name == "carousel") { slides.focus(); }
+    }
+
+    content-height: column.preferred-height;
+
+    column := VerticalLayout {
+        width: root.width;
+        padding: AedstTokens.spacing-lg;
+        spacing: AedstTokens.spacing-md;
+
+        AedstTypography { variant: AedstTypographyVariant.h2; text: "Display"; }
+        AedstTypography { variant: AedstTypographyVariant.lead; text: "Every display component of the kit."; }
+        AedstTypography { variant: AedstTypographyVariant.blockquote; text: "Tokens only, mirrored for Arabic."; }
+        AedstTypography { variant: AedstTypographyVariant.list; items: ["First point", "Second point"]; }
+        AedstTypography { variant: AedstTypographyVariant.inline-code; text: "task check"; }
+
+        AedstAlert { title: "Heads up"; description: "The server restarts at noon."; }
+        AedstAlert { variant: AedstAlertVariant.destructive; title: "Upload failed"; description: "The file is too large."; }
+
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            alignment: start;
+            AedstAvatar { label: "Ada Lovelace"; fallback: "AL"; }
+            AedstBadge { text: "Beta"; variant: AedstBadgeVariant.info; }
+            AedstBadge { text: "Draft"; variant: AedstBadgeVariant.outline; }
+            AedstBadge { text: "Late"; variant: AedstBadgeVariant.warning; }
+            AedstKbd { text: "Ctrl"; }
+            AedstKbd { text: "K"; }
+            AedstSpinner { label: "Loading results"; }
+            AedstButton { text: "+"; label: "Add item"; size: AedstButtonSize.icon; variant: AedstButtonVariant.outline; }
+            AedstButton { text: "Remove"; variant: AedstButtonVariant.destructive; size: AedstButtonSize.sm; }
+            AedstButton { text: "Learn more"; variant: AedstButtonVariant.link; size: AedstButtonSize.lg; }
+        }
+        AedstSeparator { }
+        AedstProgress { label: "Upload progress"; value: 40; }
+        AedstSkeleton { label: "Loading profile"; height: 24px; }
+
+        AedstCard {
+            title: "Storage";
+            description: "4 GB of 10 GB used";
+            AedstItem {
+                title: "Photos";
+                description: "2.1 GB";
+                variant: AedstItemVariant.outline;
+                interactive: true;
+                clicked => { GalleryState.log("item:photos"); }
+                AedstButton { text: "Open"; variant: AedstButtonVariant.ghost; size: AedstButtonSize.sm; }
+            }
+            AedstEmpty { title: "No shared folders"; description: "Folders shared with you appear here."; }
+        }
+
+        AedstAspectRatio {
+            ratio: 4;
+            Rectangle { background: AedstTokens.muted; }
+        }
+
+        AedstTable {
+            label: "Team";
+            columns: ["Name", "Role"];
+            rows: [["Ada", "Engineer"], ["Linus", "Reviewer"]];
+        }
+        AedstDataTable {
+            label: "Invoices";
+            height: 150px;
+            empty-text: "No invoices";
+            ascending-text: "ascending";
+            descending-text: "descending";
+            columns: [{ title: "Number", share: 0.4, sortable: true }, { title: "Amount", share: 0.6, sortable: true }];
+            rows: [["INV-1", "120"], ["INV-2", "80"], ["INV-3", "310"]];
+            sort-column: root.sort-column;
+            sort-ascending: root.sort-ascending;
+            current-row <=> GalleryState.table-row;
+            sort-requested(column) => {
+                root.sort-ascending = root.sort-column == column ? !root.sort-ascending : true;
+                root.sort-column = column;
+                GalleryState.log("sort:\{column}");
+            }
+            row-activated(index) => { GalleryState.log("row:\{index}"); }
+        }
+
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-md;
+            AedstChart {
+                label: "Tasks closed per day";
+                description: "Rising from 3 on Monday to 9 on Friday";
+                values: [3, 5, 4, 7, 9];
+                labels: ["Mo", "Tu", "We", "Th", "Fr"];
+                maximum: 10;
+                height: 120px;
+            }
+            AedstChart {
+                label: "Open tasks trend";
+                kind: AedstChartKind.line;
+                series: 3;
+                values: [9, 7, 8, 4, 2];
+                labels: ["Mo", "Tu", "We", "Th", "Fr"];
+                maximum: 10;
+                height: 120px;
+            }
+        }
+
+        AedstCodeBlock {
+            filename: "main.rs";
+            show-line-numbers: true;
+            wrap-label: "Wrap";
+            copy-label: "Copy";
+            copied-label: "Copied";
+            code: "fn main() {\n    run();\n}";
+            lines: [{ text: "fn main() {" }, { text: "    run();", emphasized: true }, { text: "}" }];
+            copied => { GalleryState.log("code-block:copied"); }
+        }
+
+        AedstTrace {
+            label: "Agent run";
+            steps: GalleryState.steps;
+            toggled(id, open) => { GalleryState.log(open ? "trace:open:" + id : "trace:closed:" + id); }
+        }
+
+        slides := AedstCarousel {
+            label: "Tips";
+            previous-label: "Previous tip";
+            next-label: "Next tip";
+            count: 2;
+            height: 140px;
+            current-index <=> GalleryState.carousel-index;
+            index-changed(index) => { GalleryState.log("carousel:\{index}"); }
+            AedstCard { title: "Tip 1"; description: "Press Ctrl+K to search."; }
+            AedstCard { title: "Tip 2"; description: "Drag the handle to resize."; }
+        }
+
+        HorizontalLayout {
+            height: 120px;
+            AedstResizable {
+                label: "Resize notes";
+                extent: 160px;
+                AedstScrollArea {
+                    label: "Notes";
+                    AedstTypography { text: "Line one of a long note that scrolls."; }
+                    AedstTypography { text: "Line two."; }
+                    AedstTypography { text: "Line three."; }
+                    AedstTypography { text: "Line four."; }
+                    AedstTypography { text: "Line five."; }
+                }
+            }
+            Rectangle { background: AedstTokens.muted; }
+        }
+    }
+}

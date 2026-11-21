@@ -1,6 +1,6 @@
 //// run: validation
 //// expect: uses both standardSchemaResolver and protovalidateResolver
-//// file: src/modules/tasks/ui/MixedResolverForm.tsx
+//// file: src/modules/tasks/ui/mixed-resolver-form.tsx
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { protovalidateResolver } from "@/shared/lib/forms/protovalidate-resolver";
 

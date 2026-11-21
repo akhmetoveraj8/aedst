@@ -1,0 +1,114 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// Variants are the ones of ui-kit.yaml (web `tabsListVariants`).
+export enum AedstTabsVariant { default, line }
+
+// A tab list above its panel. The children are the panel: show the right one with
+// `if tabs.current-index == n`. The list is a single tab stop: Left/Right (following the reading
+// direction) and Home/End move the selection.
+export component AedstTabs inherits Rectangle {
+    in property <[string]> items;
+    in property <string> label;
+    in-out property <int> current-index: 0;
+    in property <AedstTabsVariant> variant: AedstTabsVariant.default;
+    out property <bool> has-focus: focus.has-focus;
+    callback selected(int);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> line: root.variant == AedstTabsVariant.line;
+
+    // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored item.
+    pure function at(slot: int) -> int {
+        return root.rtl ? root.items.length - 1 - slot : slot;
+    }
+    function choose(index: int) {
+        if (index >= 0 && index < root.items.length && index != root.current-index) {
+            root.current-index = index;
+            root.selected(index);
+        }
+    }
+
+    forward-focus: focus;
+
+    VerticalLayout {
+        spacing: AedstTokens.spacing-sm;
+        HorizontalLayout {
+            alignment: root.rtl ? end : start;
+            Rectangle {
+                background: root.line ? transparent : AedstTokens.muted;
+                border-radius: AedstTokens.radius-lg;
+                accessible-role: tab-list;
+                accessible-label: root.label;
+
+                focus := FocusScope {
+                    key-pressed(event) => {
+                        if (event.text == (root.rtl ? Key.LeftArrow : Key.RightArrow)) {
+                            root.choose(Math.min(root.current-index + 1, root.items.length - 1));
+                            return accept;
+                        }
+                        if (event.text == (root.rtl ? Key.RightArrow : Key.LeftArrow)) {
+                            root.choose(Math.max(root.current-index - 1, 0));
+                            return accept;
+                        }
+                        if (event.text == Key.Home) {
+                            root.choose(0);
+                            return accept;
+                        }
+                        if (event.text == Key.End) {
+                            root.choose(root.items.length - 1);
+                            return accept;
+                        }
+                        return reject;
+                    }
+                }
+
+                HorizontalLayout {
+                    padding: 3px;
+                    spacing: root.line ? AedstTokens.spacing-xs : 0px;
+                    for slot in root.items.length: cell := Rectangle {
+                        property <bool> active: root.current-index == root.at(slot);
+                        min-height: 26px;
+                        border-radius: AedstTokens.radius-md;
+                        background: (self.active && !root.line) ? AedstTokens.background : transparent;
+                        border-width: (focus.has-focus && self.active) ? 2px : 0px;
+                        border-color: AedstTokens.ring;
+                        accessible-role: tab;
+                        accessible-label: root.items[root.at(slot)];
+                        accessible-item-selectable: true;
+                        accessible-item-selected: self.active;
+                        accessible-item-index: root.at(slot);
+                        accessible-item-count: root.items.length;
+                        accessible-action-default => { root.choose(root.at(slot)); }
+
+                        HorizontalLayout {
+                            padding-left: AedstTokens.spacing-sm;
+                            padding-right: AedstTokens.spacing-sm;
+                            Text {
+                                text: root.items[root.at(slot)];
+                                color: cell.active ? AedstTokens.foreground : AedstTokens.muted-foreground;
+                                font-size: AedstTokens.typography-label-large-font-size;
+                                font-weight: AedstTokens.typography-label-large-font-weight;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                                accessible-role: AccessibleRole.none;
+                            }
+                        }
+                        if root.line && cell.active: Rectangle {
+                            y: parent.height - self.height;
+                            height: 2px;
+                            background: AedstTokens.foreground;
+                        }
+                        TouchArea {
+                            clicked => {
+                                focus.focus();
+                                root.choose(root.at(slot));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        @children
+    }
+}

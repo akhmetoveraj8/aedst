@@ -103,14 +103,12 @@ pre-commit:
         - "apps/web/shared/**/*.{ts,tsx}"
         - "apps/web/shared/*.{ts,tsx}"
       run: pnpm check:deps
+    # Module and feature boundaries of all three web projects (app, admin, landing).
     web-boundaries:
-      root: "apps/web/app/"
       glob:
-        - "apps/web/app/**/*.{ts,tsx}"
-        - "apps/web/app/*.{ts,tsx}"
-        - "apps/web/shared/**/*.{ts,tsx}"
-        - "apps/web/shared/*.{ts,tsx}"
-      run: bash scripts/check-feature-boundaries.sh
+        - "apps/web/**/*.{ts,tsx}"
+        - "apps/web/app/scripts/check-feature-boundaries.sh"
+      run: bash scripts/check-boundaries.sh web
     web-colors:
       root: "apps/web/app/"
       glob:
@@ -206,3 +204,11 @@ pre-commit:
       glob:
         - "apps/desktop/**/*.rs"
       run: bash ../../scripts/run-if-installed.sh cargo "CI runs cargo fmt --check" fmt --check
+    # Rust static gates that need no cargo (bash + node): desktop crate boundaries and feature layout, approved
+    # direct dependencies of apps/desktop and apps/gateway, shared versions, lint parity. CI also runs the self-tests.
+    rust-gates:
+      glob:
+        - "apps/desktop/**/*.{rs,slint,toml,txt,mjs,sh}"
+        - "apps/gateway/**/*.{toml,txt}"
+        - "docs/content/library-first/{desktop,gateway}.md"
+      run: bash apps/desktop/scripts/check-feature-boundaries.sh --no-self-test
