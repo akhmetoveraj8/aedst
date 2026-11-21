@@ -145,7 +145,7 @@ File-size policy counts (`task check:file-size`, hand-written source only):
 | android | 451 | 1 | 0 | 0 |
 | apple | 397 | 3 | 0 | 0 |
 | desktop | 314 | 15 | 4 | 0 |
-| root | 88 | 5 | 0 | 0 |
+| root | 97 | 5 | 0 | 0 |
 
 <!-- metrics:end -->
 

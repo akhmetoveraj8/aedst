@@ -33,7 +33,7 @@ Web is a workspace of four directories (`shared`, `app`, `admin`, `landing`): st
 | Adding a dependency or writing a new utility | [library-first/general](../content/library-first/general.md) (order of preference, version policy, rejections, Definition of Done), then the platform stack page |
 | Proposing an architectural change | [decisions index](../content/decisions.md), then the platform decision page; do not re-propose recorded items |
 | Naming a file/type/resource | The platform file in `conventions/`; linter shapes in [conventions/tooling.md](conventions/tooling.md) |
-| UI component or color | [ui-kit](../content/ui-kit.md) (parity matrix, generated tokens) and `ui-kit.yaml` (the component manifest: add a component there first; `task check:ui-kit`); never hand-edit generated token files |
+| UI component or color | [ui-kit](../content/ui-kit.md) (parity matrix, generated tokens) and `ui-kit.yaml` (the component manifest: add a component there first; `task check:ui-kit`); never hand-edit generated token files. Component reference: one generated page per component under `docs/content/ui-kit/components/` (API and example per platform); a new component = manifest entry first, then implement, then `task docs:ui-kit` |
 | User-facing strings | [i18n](../content/i18n.md) (locales en/ru/tg/uz/ar, key mapping, parity script) |
 | A file grows past 300 lines | Split it; see "File size" in [`CONVENTIONS.md`](../../CONVENTIONS.md) |
 | First push, cloning the template, GitHub-side settings and secrets | [github-setup.md](github-setup.md) |
