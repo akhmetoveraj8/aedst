@@ -4,6 +4,22 @@
     <string name="aedst_a11y_avatar">Avatar</string>
     <string name="aedst_a11y_avatar_named">Avatar: %1$s</string>
     <string name="aedst_a11y_loading">Loading</string>
+    <string name="aedst_a11y_expanded">Expanded</string>
+    <string name="aedst_a11y_collapsed">Collapsed</string>
+    <string name="aedst_a11y_previous">Previous</string>
+    <string name="aedst_a11y_next">Next</string>
+    <string name="aedst_a11y_page">Page %1$d</string>
+    <string name="aedst_a11y_pagination">Pagination</string>
+    <string name="aedst_a11y_more_pages">More pages</string>
+    <string name="aedst_a11y_breadcrumb">Breadcrumb</string>
+    <string name="aedst_a11y_resize_handle">Resize panels</string>
+    <string name="aedst_a11y_copy_code">Copy code</string>
+    <string name="aedst_a11y_sort_ascending">Sorted ascending</string>
+    <string name="aedst_a11y_sort_descending">Sorted descending</string>
+    <string name="aedst_a11y_sort_none">Not sorted</string>
+    <string name="aedst_a11y_slide">Slide %1$d of %2$d</string>
+    <string name="aedst_a11y_close">Close</string>
+    <string name="aedst_a11y_open_menu">Open menu</string>
 
     <!-- User-facing text for each AedstError kind (see AedstError.userMessageRes) -->
     <string name="aedst_error_offline">No internet connection. Check your network and try again.</string>

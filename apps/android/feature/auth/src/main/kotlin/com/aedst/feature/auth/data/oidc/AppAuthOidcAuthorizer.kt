@@ -7,10 +7,10 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
 import com.aedst.core.common.AedstError
 import com.aedst.core.common.DispatcherProvider
-import com.aedst.feature.auth.domain.model.AuthorizationCallback
-import com.aedst.feature.auth.domain.model.AuthorizationLaunch
-import com.aedst.feature.auth.domain.model.OidcTokens
-import com.aedst.feature.auth.domain.repository.OidcAuthorizer
+import com.aedst.feature.auth.domain.AuthorizationCallback
+import com.aedst.feature.auth.domain.AuthorizationLaunch
+import com.aedst.feature.auth.domain.OidcAuthorizer
+import com.aedst.feature.auth.domain.OidcTokens
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -25,11 +25,11 @@ import net.openid.appauth.NoClientAuthentication
 import net.openid.appauth.ResponseTypeValues
 import net.openid.appauth.TokenRequest
 import net.openid.appauth.TokenResponse
-import java.time.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.time.Clock
 
 /**
  * [OidcAuthorizer] on AppAuth-Android 0.11.1: Authorization Code + PKCE in the system browser (a Custom Tab where

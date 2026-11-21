@@ -13,7 +13,6 @@
     <string name="notifications_channel_tasks">Задачи</string>
     <string name="notifications_channel_media">Файлы</string>
     <string name="notifications_channel_system">Общие</string>
-    <string name="notifications_channel_system_id" translatable="false">system</string>
     <plurals name="notifications_unread_count">
         <item quantity="one">Уведомления, %d непрочитанное</item>
         <item quantity="few">Уведомления, %d непрочитанных</item>

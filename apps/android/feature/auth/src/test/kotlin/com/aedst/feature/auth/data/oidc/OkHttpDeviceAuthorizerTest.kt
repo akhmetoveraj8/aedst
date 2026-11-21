@@ -1,8 +1,9 @@
 package com.aedst.feature.auth.data.oidc
 
 import com.aedst.core.common.AedstError
-import com.aedst.feature.auth.domain.model.DeviceAuthorization
-import com.aedst.feature.auth.domain.model.DeviceTokenResult
+import com.aedst.core.testing.fixedClock
+import com.aedst.feature.auth.domain.DeviceAuthorization
+import com.aedst.feature.auth.domain.DeviceTokenResult
 import com.aedst.feature.auth.testing.fakeJwt
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
@@ -17,15 +18,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneOffset
 
 class OkHttpDeviceAuthorizerTest {
 
     private val server = MockWebServer()
     private val config = OidcConfig("https://auth.example.com", "tv-client", "proj-1", "com.aedst.android.tv")
-    private val clock = Clock.fixed(Instant.ofEpochSecond(1_000), ZoneOffset.UTC)
+    private val clock = fixedClock(epochMillis = 1_000_000)
 
     @AfterEach
     fun tearDown() {

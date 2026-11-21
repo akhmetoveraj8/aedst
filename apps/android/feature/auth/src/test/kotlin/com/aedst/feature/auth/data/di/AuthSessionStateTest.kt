@@ -2,7 +2,7 @@ package com.aedst.feature.auth.data.di
 
 import app.cash.turbine.test
 import com.aedst.feature.auth.data.local.AuthTokenStore
-import com.aedst.feature.auth.domain.model.AuthSession
+import com.aedst.feature.auth.domain.AuthSession
 import com.aedst.feature.auth.testing.FakeEncryptedPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.StandardTestDispatcher

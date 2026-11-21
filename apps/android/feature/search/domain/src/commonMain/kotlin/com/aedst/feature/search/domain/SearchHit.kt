@@ -1,11 +1,11 @@
 package com.aedst.feature.search.domain
 
 import com.aedst.core.common.Outcome
-import java.time.Instant
+import kotlin.time.Instant
 
-enum class SearchKind { TASK, MEDIA, OTHER }
+public enum class SearchKind { TASK, MEDIA, OTHER }
 
-data class SearchHit(
+public data class SearchHit(
     val kind: SearchKind,
     val id: String,
     val title: String,
@@ -16,9 +16,9 @@ data class SearchHit(
     val updatedAt: Instant?,
 )
 
-data class SearchResults(val hits: List<SearchHit>, val nextPageToken: String?, val totalEstimate: Int)
+public data class SearchResults(val hits: List<SearchHit>, val nextPageToken: String?, val totalEstimate: Int)
 
 /** Read-only, caller-scoped full-text search (SearchService). */
-internal interface SearchRepository {
-    suspend fun search(query: String, pageToken: String? = null): Outcome<SearchResults>
+public interface SearchRepository {
+    public suspend fun search(query: String, pageToken: String? = null): Outcome<SearchResults>
 }

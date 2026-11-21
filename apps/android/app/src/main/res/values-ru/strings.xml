@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">AEDST</string>
 
     <string name="nav_tasks">Задачи</string>
     <string name="nav_search">Поиск</string>

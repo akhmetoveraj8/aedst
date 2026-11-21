@@ -2,8 +2,8 @@ package com.aedst.feature.auth.data.attestation
 
 import com.aedst.core.network.rpc
 import com.aedst.core.security.IntegrityFacade
-import com.aedst.feature.auth.domain.model.DeviceAttestation
-import com.aedst.feature.auth.domain.repository.DeviceAttestor
+import com.aedst.feature.auth.domain.DeviceAttestation
+import com.aedst.feature.auth.domain.DeviceAttestor
 import com.aedst.integrity.v1.DeviceVerdict
 import com.aedst.integrity.v1.IntegrityServiceClientInterface
 import com.aedst.integrity.v1.verifyIntegrityTokenRequest

@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import com.aedst.core.ui.adaptive.AedstWindowSizePreviews
 import com.aedst.core.ui.theme.AedstTheme
 import com.aedst.feature.tasks.domain.Task
+import com.aedst.feature.tasks.domain.TaskId
 import com.aedst.feature.tasks.domain.TaskPriority
 import com.aedst.feature.tasks.domain.TaskStatus
 
@@ -43,7 +44,7 @@ internal val previewTasks: List<Task> = listOf(
 )
 
 internal fun previewTask(id: String, title: String, status: TaskStatus, priority: TaskPriority) = Task(
-    id = id,
+    id = TaskId(id),
     title = title,
     description = "",
     status = status,

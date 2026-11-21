@@ -12,17 +12,17 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DatabaseModule {
+public object DatabaseModule {
 
     private const val DATABASE_NAME = "aedst.db"
 
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
+    public fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
             .setDriver(AndroidSQLiteDriver())
             .build()
 
     @Provides
-    fun provideOutboxDao(database: AppDatabase): OutboxDao = database.outboxDao()
+    public fun provideOutboxDao(database: AppDatabase): OutboxDao = database.outboxDao()
 }

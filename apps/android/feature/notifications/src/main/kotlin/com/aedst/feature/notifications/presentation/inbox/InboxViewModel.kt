@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Instant
 import javax.inject.Inject
+import kotlin.time.Clock
 
 data class InboxState(
     val notifications: List<InboxNotification> = emptyList(),
@@ -100,7 +100,7 @@ internal class InboxViewModel @Inject constructor(private val repository: Notifi
     /** Optimistic: the row turns read immediately; the badge follows via the shared unread store. */
     private fun markRead(notification: InboxNotification) {
         if (!notification.isUnread) return
-        val now = Instant.now()
+        val now = Clock.System.now()
         mutableState.update { state ->
             state.copy(
                 notifications = state.notifications.map { if (it.id == notification.id) it.copy(readAt = now) else it },
@@ -114,7 +114,7 @@ internal class InboxViewModel @Inject constructor(private val repository: Notifi
     }
 
     private fun markAllRead() {
-        val now = Instant.now()
+        val now = Clock.System.now()
         mutableState.update { state ->
             state.copy(notifications = state.notifications.map { it.copy(readAt = it.readAt ?: now) })
         }

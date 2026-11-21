@@ -7,9 +7,9 @@ import com.aedst.feature.tasks.FakeTaskWriteQueue
 import com.aedst.feature.tasks.ScriptedTaskRepository
 import com.aedst.feature.tasks.domainTask
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class CompleteTaskUseCaseTest {
 
@@ -23,7 +23,7 @@ class CompleteTaskUseCaseTest {
         val done = domainTask("1", status = TaskStatus.DONE)
         repository.completeResult = Outcome.Success(done)
 
-        assertEquals(Outcome.Success(CompleteTaskResult.Completed(done)), useCase("1"))
+        assertEquals(Outcome.Success(CompleteTaskResult.Completed(done)), useCase(TaskId("1")))
         assertEquals(1, repository.completeKeys.size)
         assertTrue(queue.queued.isEmpty())
     }
@@ -32,7 +32,7 @@ class CompleteTaskUseCaseTest {
     fun `offline the completion is queued and the server is not called`() = runTest {
         network.state.value = false
 
-        assertEquals(Outcome.Success(CompleteTaskResult.Queued), useCase("1"))
+        assertEquals(Outcome.Success(CompleteTaskResult.Queued), useCase(TaskId("1")))
 
         assertTrue(repository.completed.isEmpty())
         assertEquals("1", queue.queued.single().completedTaskId)
@@ -42,7 +42,7 @@ class CompleteTaskUseCaseTest {
     fun `a retryable failure queues the operation under the key it was sent with`() = runTest {
         repository.completeResult = Outcome.Failure(AedstError.Timeout())
 
-        assertEquals(Outcome.Success(CompleteTaskResult.Queued), useCase("1"))
+        assertEquals(Outcome.Success(CompleteTaskResult.Queued), useCase(TaskId("1")))
 
         assertEquals(repository.completeKeys.single(), queue.queued.single().operationId)
     }
@@ -52,7 +52,7 @@ class CompleteTaskUseCaseTest {
         val notFound = Outcome.Failure(AedstError.NotFound())
         repository.completeResult = notFound
 
-        assertEquals(notFound, useCase("1"))
+        assertEquals(notFound, useCase(TaskId("1")))
         assertTrue(queue.queued.isEmpty())
     }
 }

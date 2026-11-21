@@ -1,18 +1,16 @@
 package com.aedst.feature.auth.data.oidc
 
 import com.aedst.core.common.AedstError
+import com.aedst.core.testing.fixedClock
 import com.aedst.feature.auth.testing.fakeJwt
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneOffset
 
 class OidcTokenMappingTest {
 
-    private val clock = Clock.fixed(Instant.ofEpochSecond(1_000), ZoneOffset.UTC)
+    private val clock = fixedClock(epochMillis = 1_000_000)
     private val access = fakeJwt("""{"sub":"access-sub"}""")
 
     @Test

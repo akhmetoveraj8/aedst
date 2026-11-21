@@ -5,11 +5,15 @@
 # (new on that pass: AGP 9.5.0, KSP 2.3.13, Room 3.0.3, kotlinx-serialization 1.12.0, Sentry plugin 6.25.0, PostHog 3.75.3; detekt is the one pre-release exception, see "static analysis" below).
 
 # --- language / build ---
-kotlin = "2.4.21"
+# EXCEPTION to the stable-only policy (explicit owner decision, 2026-11-21): Kotlin 2.5.0-RC. 2.5.0 final is not
+# published (Maven Central has only 2.5.0-Beta1/Beta2/RC, verified 2026-11-21); 2.4.21 is the latest stable.
+# UNVERIFIED: not compiled; KSP 2.3.14, Hilt 2.60.1 and detekt 2.0.0-alpha.6 (embeds Kotlin 2.4.10) do not state
+# Kotlin 2.5 support. Revisit trigger: 2.5.0 final -> pin it and drop this exception (docs/content/decisions/android.md).
+kotlin = "2.5.0-RC"
 # AGP 9 with built-in Kotlin: no `org.jetbrains.kotlin.android` plugin anywhere
-# (convention plugins, benchmark). 9.5.1 is the latest stable (needs Gradle >= 9.6; the wrapper is 9.9.1).
-agp = "9.5.1"
-# KSP versions independently of Kotlin since 2.3.0; 2.3.13 supports Kotlin 2.4.x
+# (convention plugins, benchmark). 9.5.2 is the latest stable (needs Gradle >= 9.6; the wrapper is 9.9.2).
+agp = "9.5.2"
+# KSP versions independently of Kotlin since 2.3.0; 2.3.14 supports Kotlin 2.4.x (Kotlin 2.5.0-RC: UNVERIFIED)
 # and AGP 9.
 ksp = "2.3.14"
 
@@ -17,9 +21,9 @@ ksp = "2.3.14"
 # Compose UI/Foundation/Material3 versions come from the BOM
 # (`platform(libs.compose.bom)` in AndroidComposeConventionPlugin) — do not pin
 # them individually. The Compose compiler plugin version == `kotlin`.
-compose-bom = "2026.09.00"
+compose-bom = "2026.11.01"
 compose-activity = "1.13.0"
-compose-lifecycle = "2.11.0"
+compose-lifecycle = "2.11.1"
 
 # --- coroutines / DI / navigation ---
 coroutines = "1.11.0"
@@ -28,7 +32,7 @@ coroutines = "1.11.0"
 hilt = "2.60.1"
 hilt-androidx = "1.4.0" # androidx.hilt: lifecycle-viewmodel-compose, work, compiler
 # Navigation 3: the back stack is app-owned state (a list of serializable NavKeys); see docs/content/android/architecture.md.
-navigation3 = "1.2.1"
+navigation3 = "1.2.2"
 
 # --- networking ---
 # ConnectRPC/Protobuf generated client (see ../buf.gen.yaml). connect-kotlin
@@ -43,6 +47,7 @@ kotlinx-serialization = "1.13.0"
 # Room 3 (package androidx.room3, KSP only, SQLiteDriver based, no SupportSQLite): 3.0.3 is the latest stable on Google Maven
 # (3.1.0 is alpha only). Verified 2026-11-04. Migration notes: docs/content/decisions/android.md.
 room = "3.0.3"
+sqlite = "2.6.2"
 datastore = "1.3.0"
 protobuf-plugin = "0.10.1"
 # One protobuf runtime version app-wide: core/datastore's local schema and
@@ -192,6 +197,9 @@ okhttp-coroutines = { module = "com.squareup.okhttp3:okhttp-coroutines", version
 
 room-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room" }
+# SQLite compiled into the artifact: the driver of non-Android targets (the jvm target uses it in tests). Android keeps
+# AndroidSQLiteDriver. Version = the androidx.sqlite line Room 3.0.3 resolves (2.6.2).
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
 datastore-core = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobuf-javalite" }
@@ -251,6 +259,10 @@ androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstall
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 android-test = { id = "com.android.test", version.ref = "agp" }
+# Kotlin Multiplatform structure (android + jvm targets, no iOS): docs/content/android/kmp.md. AGP 9 does not allow
+# `com.android.library` next to `kotlin-multiplatform`; `com.android.kotlin.multiplatform.library` is its replacement.
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
@@ -273,4 +285,5 @@ android-feature-convention = { id = "aedst.android.feature" }
 android-compose-convention = { id = "aedst.android.compose" }
 android-hilt-convention = { id = "aedst.android.hilt" }
 jvm-library-convention = { id = "aedst.jvm.library" }
+kmp-library-convention = { id = "aedst.kmp.library" }
 detekt-convention = { id = "aedst.detekt" }

@@ -1,15 +1,11 @@
-package com.aedst.feature.auth.domain.usecase
+package com.aedst.feature.auth.domain
 
 import com.aedst.core.common.DispatcherProvider
 import com.aedst.core.common.NoParamsUseCase
 import com.aedst.core.common.UseCase
-import com.aedst.feature.auth.domain.model.DeviceAuthorization
-import com.aedst.feature.auth.domain.model.DeviceSignInResult
-import com.aedst.feature.auth.domain.repository.AuthRepository
-import javax.inject.Inject
 
 /** Device flow step 1: asks the IdP for the user code to show on the TV. */
-internal class BeginDeviceSignInUseCase @Inject constructor(
+public class BeginDeviceSignInUseCase(
     private val authRepository: AuthRepository,
     dispatcherProvider: DispatcherProvider,
 ) : NoParamsUseCase<DeviceAuthorization>(dispatcherProvider) {
@@ -17,7 +13,7 @@ internal class BeginDeviceSignInUseCase @Inject constructor(
 }
 
 /** Device flow step 2: polls until the user approves on another device, then stores the session. */
-internal class AwaitDeviceSignInUseCase @Inject constructor(
+public class AwaitDeviceSignInUseCase(
     private val authRepository: AuthRepository,
     dispatcherProvider: DispatcherProvider,
 ) : UseCase<DeviceAuthorization, DeviceSignInResult>(dispatcherProvider) {

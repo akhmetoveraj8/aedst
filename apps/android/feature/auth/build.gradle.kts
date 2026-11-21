@@ -49,6 +49,8 @@ android {
 }
 
 dependencies {
+    // The feature's pure domain (Kotlin Multiplatform, commonMain): entities, repository ports, use cases.
+    implementation(project(":feature:auth:domain"))
     implementation(project(":core:network"))
     implementation(project(":core:security"))
     implementation(project(":core:analytics"))

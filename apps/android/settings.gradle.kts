@@ -34,11 +34,18 @@ include(":core:navigation")
 include(":core:media")
 include(":core:testing")
 
+// A feature is an Android module (data, presentation, navigation, Hilt) plus, when it has domain logic, a Kotlin
+// Multiplatform `:feature:<name>:domain` module (commonMain; docs/content/android/kmp.md).
 include(":feature:auth")
+include(":feature:auth:domain")
 include(":feature:tasks")
+include(":feature:tasks:domain")
 include(":feature:search")
+include(":feature:search:domain")
 include(":feature:notifications")
+include(":feature:notifications:domain")
 include(":feature:media")
 include(":feature:admin")
+include(":feature:admin:domain")
 
 include(":benchmark")

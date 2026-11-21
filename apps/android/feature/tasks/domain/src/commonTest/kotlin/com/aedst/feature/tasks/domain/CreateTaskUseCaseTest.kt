@@ -7,10 +7,10 @@ import com.aedst.feature.tasks.FakeTaskWriteQueue
 import com.aedst.feature.tasks.ScriptedTaskRepository
 import com.aedst.feature.tasks.domainTask
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertInstanceOf
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class CreateTaskUseCaseTest {
 
@@ -23,8 +23,8 @@ class CreateTaskUseCaseTest {
         NewTask(title, description, TaskPriority.HIGH, null)
 
     private fun assertRejected(outcome: Outcome<CreateTaskResult>, field: String) {
-        val failure = assertInstanceOf(Outcome.Failure::class.java, outcome)
-        val error = assertInstanceOf(AedstError.InvalidInput::class.java, failure.error)
+        val failure = assertIs<Outcome.Failure>(outcome)
+        val error = assertIs<AedstError.InvalidInput>(failure.error)
         assertEquals(field, error.message)
         assertTrue(repository.created.isEmpty(), "a rejected task must never reach the repository")
         assertTrue(queue.queued.isEmpty(), "a rejected task must never be queued")
@@ -40,14 +40,14 @@ class CreateTaskUseCaseTest {
         assertRejected(useCase(input(title = "t".repeat(201))), CreateTaskUseCase.FIELD_TITLE)
 
         repository.createResult = Outcome.Success(domainTask("1"))
-        assertInstanceOf(Outcome.Success::class.java, useCase(input(title = "t".repeat(200))))
+        assertIs<Outcome.Success<*>>(useCase(input(title = "t".repeat(200))))
     }
 
     @Test
     fun `title length counts code points not UTF-16 units`() = runTest {
         // 200 emoji are 400 UTF-16 units but 200 code points: valid, like the server and Desktop.
         repository.createResult = Outcome.Success(domainTask("1"))
-        assertInstanceOf(Outcome.Success::class.java, useCase(input(title = "😀".repeat(200))))
+        assertIs<Outcome.Success<*>>(useCase(input(title = "😀".repeat(200))))
     }
 
     @Test
@@ -110,8 +110,8 @@ class CreateTaskUseCaseTest {
         network.state.value = false
         queue.failure = IllegalStateException("disk full")
 
-        val failure = assertInstanceOf(Outcome.Failure::class.java, useCase(input()))
+        val failure = assertIs<Outcome.Failure>(useCase(input()))
 
-        assertInstanceOf(AedstError.Storage::class.java, failure.error)
+        assertIs<AedstError.Storage>(failure.error)
     }
 }

@@ -1,35 +1,35 @@
 package com.aedst.feature.tasks.domain
 
 import com.aedst.core.common.AedstError
+import com.aedst.core.common.NetworkMonitor
 import com.aedst.core.common.Outcome
 import com.aedst.core.common.isRetryable
-import com.aedst.core.network.NetworkMonitor
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
-import java.util.UUID
-import javax.inject.Inject
 
 /** How a complete ended: confirmed by the server, or accepted into the offline queue. */
-internal sealed interface CompleteTaskResult {
-    data class Completed(val task: Task) : CompleteTaskResult
+public sealed interface CompleteTaskResult {
+    public data class Completed(val task: Task) : CompleteTaskResult
 
     /** Saved on the device; the outbox sends it when the network is back. The UI shows the task as done meanwhile. */
-    data object Queued : CompleteTaskResult
+    public data object Queued : CompleteTaskResult
 }
 
 /**
  * Marks a task done, online-first with an outbox fallback (same rules as [CreateTaskUseCase]): the operation id is the
  * `Idempotency-Key` of the direct call and of the queued one. Reopening and deleting stay online-only: the server
  * state machine does not accept them out of order, and a queued delete could outlive the user's change of mind.
+ *
+ * No DI annotation: the domain is common code. The feature's Hilt module provides it (`TasksModule`).
  */
-internal class CompleteTaskUseCase @Inject constructor(
+public class CompleteTaskUseCase(
     private val repository: TaskRepository,
     private val queue: TaskWriteQueue,
     private val network: NetworkMonitor,
 ) {
 
-    suspend operator fun invoke(taskId: String): Outcome<CompleteTaskResult> {
-        val operationId = UUID.randomUUID().toString()
+    public suspend operator fun invoke(taskId: TaskId): Outcome<CompleteTaskResult> {
+        val operationId = newOperationId()
         if (!network.isOnline.first()) return enqueue(taskId, operationId)
         return when (val outcome = repository.complete(taskId, operationId)) {
             is Outcome.Success -> Outcome.Success(CompleteTaskResult.Completed(outcome.value))
@@ -37,7 +37,7 @@ internal class CompleteTaskUseCase @Inject constructor(
         }
     }
 
-    private suspend fun enqueue(taskId: String, operationId: String): Outcome<CompleteTaskResult> = try {
+    private suspend fun enqueue(taskId: TaskId, operationId: String): Outcome<CompleteTaskResult> = try {
         queue.queueComplete(taskId, operationId)
         Outcome.Success(CompleteTaskResult.Queued)
     } catch (cancellation: CancellationException) {

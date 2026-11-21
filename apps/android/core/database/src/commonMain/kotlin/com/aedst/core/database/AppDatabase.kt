@@ -1,7 +1,9 @@
 package com.aedst.core.database
 
+import androidx.room3.ConstructedBy
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
+import androidx.room3.RoomDatabaseConstructor
 
 /**
  * Single Room database for the app. Each feature owns its own table(s) and
@@ -20,11 +22,21 @@ import androidx.room3.RoomDatabase
     version = AppDatabase.VERSION,
     exportSchema = true,
 )
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun outboxDao(): OutboxDao
+@ConstructedBy(AppDatabaseConstructor::class)
+public abstract class AppDatabase : RoomDatabase() {
+    public abstract fun outboxDao(): OutboxDao
 
-    companion object {
+    public companion object {
         /** The `@Database` version; `scripts/check-room-schemas.sh` reads this constant. */
-        const val VERSION = 1
+        public const val VERSION: Int = 1
     }
+}
+
+/**
+ * How Room instantiates the generated implementation without reflection on non-Android targets. Room's KSP processor
+ * writes the `actual` object for every target, hence the suppression.
+ */
+@Suppress("KotlinNoActualForExpect", "NO_ACTUAL_FOR_EXPECT")
+public expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
+    override fun initialize(): AppDatabase
 }

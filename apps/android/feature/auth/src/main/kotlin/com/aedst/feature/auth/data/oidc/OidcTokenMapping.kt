@@ -2,9 +2,9 @@ package com.aedst.feature.auth.data.oidc
 
 import com.aedst.core.common.AedstError
 import com.aedst.feature.auth.data.local.AccessTokenClaims
-import com.aedst.feature.auth.domain.model.OidcTokens
+import com.aedst.feature.auth.domain.OidcTokens
 import net.openid.appauth.TokenResponse
-import java.time.Clock
+import kotlin.time.Clock
 
 /** Used only if the IdP omitted `expires_in` (ZITADEL always sends it): refresh again soon rather than never. */
 private const val FALLBACK_ACCESS_TTL_SECONDS = 300L
@@ -43,7 +43,7 @@ internal fun oidcTokensFrom(
         accessToken = access,
         refreshToken = refreshToken?.takeIf(String::isNotBlank),
         accessExpiresAtEpochSeconds = accessExpirationMillis?.let { Math.floorDiv(it, MILLIS_PER_SECOND) }
-            ?: (clock.instant().epochSecond + FALLBACK_ACCESS_TTL_SECONDS),
+            ?: (clock.now().epochSeconds + FALLBACK_ACCESS_TTL_SECONDS),
         subject = idToken?.let(AccessTokenClaims::subject) ?: AccessTokenClaims.subject(access),
     )
 }

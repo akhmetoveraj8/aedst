@@ -14,6 +14,7 @@ import com.aedst.core.common.Outcome
 import com.aedst.core.database.AppDatabase
 import com.aedst.core.database.OutboxDao
 import com.aedst.core.database.OutboxEntity
+import com.aedst.core.testing.fixedClock
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -21,9 +22,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneOffset
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
@@ -41,7 +39,7 @@ class OutboxSyncWorkerTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var database: AppDatabase
     private lateinit var dao: OutboxDao
-    private val clock = Clock.fixed(Instant.ofEpochMilli(NOW_MS), ZoneOffset.UTC)
+    private val clock = fixedClock(NOW_MS)
     private val logger = object : Logger {
         override fun debug(tag: String, message: String) = Unit
         override fun warn(tag: String, message: String, throwable: Throwable?) = Unit

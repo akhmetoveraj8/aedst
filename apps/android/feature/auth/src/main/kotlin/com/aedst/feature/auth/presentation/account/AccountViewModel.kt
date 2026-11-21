@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.aedst.core.analytics.AnalyticsConsentState
 import com.aedst.core.analytics.AnalyticsConsentStore
 import com.aedst.core.analytics.AnalyticsTracker
-import com.aedst.feature.auth.domain.repository.AuthRepository
-import com.aedst.feature.auth.domain.usecase.LogoutUseCase
+import com.aedst.feature.auth.domain.AuthRepository
+import com.aedst.feature.auth.domain.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

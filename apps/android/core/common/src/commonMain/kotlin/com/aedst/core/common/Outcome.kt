@@ -11,67 +11,67 @@ import kotlin.coroutines.cancellation.CancellationException
  * is never shown to users. UI maps the error *type* to a localized string
  * (see `core/ui`'s `AedstError.userMessage()`).
  */
-sealed interface Outcome<out T> {
-    data class Success<T>(val value: T) : Outcome<T>
-    data class Failure(val error: AedstError) : Outcome<Nothing>
+public sealed interface Outcome<out T> {
+    public data class Success<T>(val value: T) : Outcome<T>
+    public data class Failure(val error: AedstError) : Outcome<Nothing>
 }
 
-sealed class AedstError(override val message: String, override val cause: Throwable? = null) :
+public sealed class AedstError(override val message: String, override val cause: Throwable? = null) :
     Throwable(message, cause) {
     /** The server was reached (or should have been) but the call failed: 5xx, connection reset (kind `unavailable`). */
-    class Unavailable(message: String, cause: Throwable? = null) : AedstError(message, cause)
+    public class Unavailable(message: String, cause: Throwable? = null) : AedstError(message, cause)
 
     /** The call ran out of time (Connect `DEADLINE_EXCEEDED`, socket timeout). */
-    class Timeout(message: String = "Timed out", cause: Throwable? = null) : AedstError(message, cause)
+    public class Timeout(message: String = "Timed out", cause: Throwable? = null) : AedstError(message, cause)
 
     /** The caller gave up (Connect `CANCELED`). Never shown to users; coroutine cancellation is rethrown instead. */
-    class Cancelled(message: String = "Cancelled", cause: Throwable? = null) : AedstError(message, cause)
+    public class Cancelled(message: String = "Cancelled", cause: Throwable? = null) : AedstError(message, cause)
 
     /** A local database or file failure. */
-    class Storage(message: String, cause: Throwable? = null) : AedstError(message, cause)
+    public class Storage(message: String, cause: Throwable? = null) : AedstError(message, cause)
 
     /** The device has no usable connection; the operation may be queued and retried when it returns. */
-    class Offline(message: String = "Offline", cause: Throwable? = null) : AedstError(message, cause)
+    public class Offline(message: String = "Offline", cause: Throwable? = null) : AedstError(message, cause)
 
     /** No valid session (Connect `UNAUTHENTICATED`): sign in again. */
-    class Unauthenticated(message: String = "Unauthenticated") : AedstError(message)
+    public class Unauthenticated(message: String = "Unauthenticated") : AedstError(message)
 
     /** Signed in but not allowed (Connect `PERMISSION_DENIED`, e.g. a non-admin calling AdminService). */
-    class Forbidden(message: String = "Forbidden") : AedstError(message)
-    class NotFound(message: String = "Not found") : AedstError(message)
+    public class Forbidden(message: String = "Forbidden") : AedstError(message)
+    public class NotFound(message: String = "Not found") : AedstError(message)
 
     /** The resource changed or already exists (Connect `ABORTED` / `ALREADY_EXISTS`): re-read and retry. */
-    class Conflict(message: String = "Conflict") : AedstError(message)
+    public class Conflict(message: String = "Conflict") : AedstError(message)
 
     /** Throttled by the server (Connect `RESOURCE_EXHAUSTED`); retry later. */
-    class RateLimited(message: String = "Rate limited") : AedstError(message)
-    class InvalidInput(message: String) : AedstError(message)
+    public class RateLimited(message: String = "Rate limited") : AedstError(message)
+    public class InvalidInput(message: String) : AedstError(message)
 
     /**
      * The server refuses this app build (Connect `FAILED_PRECONDITION` with reason `CLIENT_UPGRADE_REQUIRED`,
      * ADR-0009). Never retryable; `app/` shows the blocking upgrade screen from [ClientUpgradeState], and the server
      * text is dropped (the version numbers are not diagnostic value, the kind is).
      */
-    class UpgradeRequired(message: String = "Client upgrade required") : AedstError(message)
-    class Unknown(message: String, cause: Throwable? = null) : AedstError(message, cause)
+    public class UpgradeRequired(message: String = "Client upgrade required") : AedstError(message)
+    public class Unknown(message: String, cause: Throwable? = null) : AedstError(message, cause)
 }
 
-inline fun <T, R> Outcome<T>.map(transform: (T) -> R): Outcome<R> = when (this) {
+public inline fun <T, R> Outcome<T>.map(transform: (T) -> R): Outcome<R> = when (this) {
     is Outcome.Success -> Outcome.Success(transform(value))
     is Outcome.Failure -> this
 }
 
-inline fun <T> Outcome<T>.onSuccess(action: (T) -> Unit): Outcome<T> {
+public inline fun <T> Outcome<T>.onSuccess(action: (T) -> Unit): Outcome<T> {
     if (this is Outcome.Success) action(value)
     return this
 }
 
-inline fun <T> Outcome<T>.onFailure(action: (AedstError) -> Unit): Outcome<T> {
+public inline fun <T> Outcome<T>.onFailure(action: (AedstError) -> Unit): Outcome<T> {
     if (this is Outcome.Failure) action(error)
     return this
 }
 
-suspend fun <T> runCatchingOutcome(block: suspend () -> T): Outcome<T> = try {
+public suspend fun <T> runCatchingOutcome(block: suspend () -> T): Outcome<T> = try {
     Outcome.Success(block())
 } catch (error: AedstError) {
     Outcome.Failure(error)
@@ -82,7 +82,7 @@ suspend fun <T> runCatchingOutcome(block: suspend () -> T): Outcome<T> = try {
 }
 
 /** Shared kind name (`error-kinds.json`) of this error. */
-val AedstError.kind: String
+public val AedstError.kind: String
     get() = when (this) {
         is AedstError.Unauthenticated -> "unauthenticated"
         is AedstError.Forbidden -> "forbidden"
@@ -100,12 +100,12 @@ val AedstError.kind: String
     }
 
 /** Whether retrying the same operation later can plausibly succeed (drives outbox retry vs. give-up). */
-val AedstError.isRetryable: Boolean
+public val AedstError.isRetryable: Boolean
     get() = when (this) {
         is AedstError.Unavailable, is AedstError.Offline, is AedstError.RateLimited, is AedstError.Timeout -> true
         else -> false
     }
 
 /** Whether the error is worth a crash-reporter event: a bug or a storage fault, never expected states. */
-val AedstError.isReportable: Boolean
+public val AedstError.isReportable: Boolean
     get() = this is AedstError.Unknown || this is AedstError.Storage

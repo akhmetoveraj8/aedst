@@ -8,27 +8,27 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import java.time.Clock
 import java.util.Optional
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlin.time.Clock
 
 /** Qualifier for the process-lifetime [CoroutineScope] (work that must outlive any screen). */
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
-annotation class ApplicationScope
+public annotation class ApplicationScope
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class CommonModule {
+public abstract class CommonModule {
 
     @Binds
-    abstract fun bindDispatcherProvider(impl: DefaultDispatcherProvider): DispatcherProvider
+    public abstract fun bindDispatcherProvider(impl: DefaultDispatcherProvider): DispatcherProvider
 
-    companion object {
+    public companion object {
         /** Injected so time-dependent logic (token expiry) is testable with a fixed clock. */
         @Provides
-        fun provideClock(): Clock = Clock.systemUTC()
+        public fun provideClock(): Clock = Clock.System
 
         /**
          * Process-lifetime scope. A failure in one launched job neither cancels its siblings ([SupervisorJob]) nor
@@ -38,7 +38,7 @@ abstract class CommonModule {
         @Provides
         @Singleton
         @ApplicationScope
-        fun provideApplicationScope(
+        public fun provideApplicationScope(
             dispatchers: DispatcherProvider,
             logger: Logger,
             errorReporter: Optional<ErrorReporter>,

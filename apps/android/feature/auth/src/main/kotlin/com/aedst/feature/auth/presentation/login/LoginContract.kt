@@ -1,8 +1,8 @@
 package com.aedst.feature.auth.presentation.login
 
 import com.aedst.core.common.AedstError
-import com.aedst.feature.auth.domain.model.AuthorizationCallback
-import com.aedst.feature.auth.domain.model.AuthorizationLaunch
+import com.aedst.feature.auth.domain.AuthorizationCallback
+import com.aedst.feature.auth.domain.AuthorizationLaunch
 
 /**
  * MVI contract: State is the single source of render truth, Intent is every user action or platform result, Effect

@@ -7,6 +7,7 @@ import com.aedst.core.network.rpc
 import com.aedst.core.network.toInstantOrNull
 import com.aedst.feature.tasks.domain.NewTask
 import com.aedst.feature.tasks.domain.Task
+import com.aedst.feature.tasks.domain.TaskId
 import com.aedst.feature.tasks.domain.TaskPage
 import com.aedst.feature.tasks.domain.TaskPriority
 import com.aedst.feature.tasks.domain.TaskRepository
@@ -41,8 +42,8 @@ internal class ConnectTaskRepository @Inject constructor(private val client: Tas
         )
     }
 
-    override suspend fun get(id: String): Outcome<Task> = runCatchingOutcome {
-        rpc { client.getTask(getTaskRequest { this.id = id }) }.task.toDomain()
+    override suspend fun get(id: TaskId): Outcome<Task> = runCatchingOutcome {
+        rpc { client.getTask(getTaskRequest { this.id = id.value }) }.task.toDomain()
     }
 
     // Every write carries an Idempotency-Key: OkHttp (retryOnConnectionFailure) re-sends a POST whose connection broke,
@@ -52,17 +53,17 @@ internal class ConnectTaskRepository @Inject constructor(private val client: Tas
         rpc { client.createTask(task.toRequest(), idempotencyHeaders(idempotencyKey)) }.task.toDomain()
     }
 
-    override suspend fun complete(id: String, idempotencyKey: String): Outcome<Task> = runCatchingOutcome {
-        rpc { client.completeTask(completeTaskRequest { this.id = id }, idempotencyHeaders(idempotencyKey)) }
+    override suspend fun complete(id: TaskId, idempotencyKey: String): Outcome<Task> = runCatchingOutcome {
+        rpc { client.completeTask(completeTaskRequest { this.id = id.value }, idempotencyHeaders(idempotencyKey)) }
             .task.toDomain()
     }
 
-    override suspend fun reopen(id: String): Outcome<Task> = runCatchingOutcome {
-        rpc { client.reopenTask(reopenTaskRequest { this.id = id }, idempotencyHeaders()) }.task.toDomain()
+    override suspend fun reopen(id: TaskId): Outcome<Task> = runCatchingOutcome {
+        rpc { client.reopenTask(reopenTaskRequest { this.id = id.value }, idempotencyHeaders()) }.task.toDomain()
     }
 
-    override suspend fun delete(id: String): Outcome<Unit> = runCatchingOutcome {
-        rpc { client.deleteTask(deleteTaskRequest { this.id = id }, idempotencyHeaders()) }
+    override suspend fun delete(id: TaskId): Outcome<Unit> = runCatchingOutcome {
+        rpc { client.deleteTask(deleteTaskRequest { this.id = id.value }, idempotencyHeaders()) }
         Unit
     }
 
@@ -72,7 +73,7 @@ internal class ConnectTaskRepository @Inject constructor(private val client: Tas
 }
 
 internal fun ProtoTask.toDomain(): Task = Task(
-    id = id,
+    id = TaskId(id),
     title = title,
     description = description,
     status = status.toDomain(),

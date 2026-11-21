@@ -192,7 +192,7 @@ private fun TaskDetailBody(
             AedstAlert(
                 title = stringResource(R.string.tasks_pending_sync_title),
                 description = stringResource(R.string.tasks_pending_sync),
-                variant = AedstAlertVariant.INFO,
+                variant = AedstAlertVariant.DEFAULT,
             )
         }
         Attachments(

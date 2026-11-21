@@ -63,12 +63,13 @@ class ConnectMediaRepository @Inject constructor(private val client: MediaServic
                 idempotencyHeaders(),
             )
         }
+        val expiresAt = if (response.hasExpiresAt()) response.expiresAt.toInstant().toEpochMilliseconds() else 0L
         return UploadTarget(
             mediaId = response.media.id,
             url = response.uploadUrl,
             method = response.method.ifEmpty { "PUT" },
             headers = response.headersMap,
-            expiresAtEpochMs = if (response.hasExpiresAt()) response.expiresAt.toInstant().toEpochMilli() else 0L,
+            expiresAtEpochMs = expiresAt,
         )
     }
 

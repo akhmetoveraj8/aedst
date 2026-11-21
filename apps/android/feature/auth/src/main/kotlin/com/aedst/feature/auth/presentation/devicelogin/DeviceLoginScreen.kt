@@ -32,6 +32,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.core.ui.adaptive.AedstWindowSizePreviews
 import com.aedst.core.ui.components.AedstAlert
+import com.aedst.core.ui.components.AedstAlertAccent
 import com.aedst.core.ui.components.AedstAlertVariant
 import com.aedst.core.ui.components.AedstButton
 import com.aedst.core.ui.components.AedstButtonSize
@@ -177,13 +178,12 @@ private fun ProblemAlert(problem: DeviceLoginProblem) {
         DeviceLoginProblem.Expired -> stringResource(R.string.auth_device_expired)
         is DeviceLoginProblem.Failed -> stringResource(R.string.auth_login_failed_title)
     }
+    val isNotConfigured = problem == DeviceLoginProblem.NotConfigured
     AedstAlert(
         title = title,
         description = (problem as? DeviceLoginProblem.Failed)?.error?.userMessage(),
-        variant = when (problem) {
-            DeviceLoginProblem.NotConfigured -> AedstAlertVariant.WARNING
-            else -> AedstAlertVariant.DESTRUCTIVE
-        },
+        variant = if (isNotConfigured) AedstAlertVariant.DEFAULT else AedstAlertVariant.DESTRUCTIVE,
+        accent = if (isNotConfigured) AedstAlertAccent.WARNING else AedstAlertAccent.NONE,
     )
 }
 

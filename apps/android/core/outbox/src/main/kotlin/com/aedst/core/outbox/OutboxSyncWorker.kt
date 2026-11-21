@@ -13,8 +13,8 @@ import com.aedst.core.database.OutboxEntity
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException
-import java.time.Clock
 import java.util.concurrent.TimeUnit
+import kotlin.time.Clock
 
 /**
  * Drains the outbox in creation order. Ordering matters (create-then-edit), so a retryable failure stops the run and
@@ -47,7 +47,7 @@ class OutboxSyncWorker @AssistedInject constructor(
 
     /** Parked items nobody dealt with for [FAILED_RETENTION_DAYS] days are dropped so the table cannot grow forever. */
     private suspend fun pruneFailed() {
-        val cutoff = clock.millis() - TimeUnit.DAYS.toMillis(FAILED_RETENTION_DAYS)
+        val cutoff = clock.now().toEpochMilliseconds() - TimeUnit.DAYS.toMillis(FAILED_RETENTION_DAYS)
         dao.deleteFailedOlderThan(cutoff)
     }
 

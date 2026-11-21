@@ -2,6 +2,7 @@ package com.aedst.feature.auth.data.di
 
 import android.content.Context
 import com.aedst.core.common.ApplicationScope
+import com.aedst.core.common.DispatcherProvider
 import com.aedst.core.common.SessionState
 import com.aedst.core.common.SessionUser
 import com.aedst.core.network.AuthTokenProvider
@@ -20,11 +21,17 @@ import com.aedst.feature.auth.data.oidc.OkHttpTokenRevoker
 import com.aedst.feature.auth.data.oidc.RevocationEndpointSource
 import com.aedst.feature.auth.data.remote.AuthTokenRefresher
 import com.aedst.feature.auth.data.repository.OidcAuthRepository
-import com.aedst.feature.auth.domain.repository.AuthRepository
-import com.aedst.feature.auth.domain.repository.DeviceAttestor
-import com.aedst.feature.auth.domain.repository.DeviceAuthorizer
-import com.aedst.feature.auth.domain.repository.OidcAuthorizer
-import com.aedst.feature.auth.domain.repository.TokenRevoker
+import com.aedst.feature.auth.domain.AttestDeviceUseCase
+import com.aedst.feature.auth.domain.AuthRepository
+import com.aedst.feature.auth.domain.AwaitDeviceSignInUseCase
+import com.aedst.feature.auth.domain.BeginDeviceSignInUseCase
+import com.aedst.feature.auth.domain.BeginSignInUseCase
+import com.aedst.feature.auth.domain.CompleteSignInUseCase
+import com.aedst.feature.auth.domain.DeviceAttestor
+import com.aedst.feature.auth.domain.DeviceAuthorizer
+import com.aedst.feature.auth.domain.LogoutUseCase
+import com.aedst.feature.auth.domain.OidcAuthorizer
+import com.aedst.feature.auth.domain.TokenRevoker
 import com.aedst.integrity.v1.IntegrityServiceClient
 import com.aedst.integrity.v1.IntegrityServiceClientInterface
 import com.connectrpc.ProtocolClientInterface
@@ -110,6 +117,37 @@ internal abstract class AuthModule {
             redirectScheme = context.packageName,
             allowCleartextIssuer = BuildConfig.DEBUG && BuildConfig.OIDC_ISSUER.startsWith("http://"),
         )
+
+        // Use cases live in the common-code domain module, which has no DI annotations: they are constructed here.
+        @Provides
+        fun provideBeginSignInUseCase(repository: AuthRepository, dispatchers: DispatcherProvider): BeginSignInUseCase =
+            BeginSignInUseCase(repository, dispatchers)
+
+        @Provides
+        fun provideCompleteSignInUseCase(
+            repository: AuthRepository,
+            dispatchers: DispatcherProvider,
+        ): CompleteSignInUseCase = CompleteSignInUseCase(repository, dispatchers)
+
+        @Provides
+        fun provideBeginDeviceSignInUseCase(
+            repository: AuthRepository,
+            dispatchers: DispatcherProvider,
+        ): BeginDeviceSignInUseCase = BeginDeviceSignInUseCase(repository, dispatchers)
+
+        @Provides
+        fun provideAwaitDeviceSignInUseCase(
+            repository: AuthRepository,
+            dispatchers: DispatcherProvider,
+        ): AwaitDeviceSignInUseCase = AwaitDeviceSignInUseCase(repository, dispatchers)
+
+        @Provides
+        fun provideLogoutUseCase(repository: AuthRepository, dispatchers: DispatcherProvider): LogoutUseCase =
+            LogoutUseCase(repository, dispatchers)
+
+        @Provides
+        fun provideAttestDeviceUseCase(attestor: DeviceAttestor, dispatchers: DispatcherProvider): AttestDeviceUseCase =
+            AttestDeviceUseCase(attestor, dispatchers)
     }
 }
 

@@ -3,10 +3,10 @@ package com.aedst.core.outbox
 import com.aedst.core.database.OutboxDao
 import com.aedst.core.database.OutboxEntity
 import kotlinx.coroutines.flow.Flow
-import java.time.Clock
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Clock
 
 /**
  * Front door of the offline write path: persist the operation locally, then ask [OutboxScheduler] to deliver it
@@ -40,7 +40,8 @@ class OutboxRepository @Inject constructor(
      * ignored.
      */
     suspend fun enqueue(type: String, payload: String, id: String = UUID.randomUUID().toString()): String {
-        dao.insert(OutboxEntity(id = id, type = type, payload = payload, createdAtEpochMs = clock.millis()))
+        val createdAt = clock.now().toEpochMilliseconds()
+        dao.insert(OutboxEntity(id = id, type = type, payload = payload, createdAtEpochMs = createdAt))
         scheduler.scheduleSync()
         return id
     }

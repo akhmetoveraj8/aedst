@@ -90,7 +90,7 @@ class TaskDetailViewModelTest {
 
         testScheduler.advanceUntilIdle()
 
-        assertEquals(TASK_ID, viewModel.state.value.task?.id)
+        assertEquals(TASK_ID, viewModel.state.value.task?.id?.value)
         assertEquals(listOf("a1"), viewModel.state.value.attachments.map(MediaItem::id))
         assertFalse(viewModel.state.value.isLoading)
     }

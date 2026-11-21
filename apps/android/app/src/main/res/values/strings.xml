@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name" translatable="false">AEDST</string>
     <string name="nav_tasks">Tasks</string>
     <string name="nav_search">Search</string>
     <string name="nav_notifications">Inbox</string>

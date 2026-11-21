@@ -21,8 +21,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
                 configureLint(lint)
 
-                // Generates res/xml/_generated_res_locale_config from the values-<locale> folders (en, tg, uz, ar) plus the
-                // module's `unqualifiedResLocale` (ru, in res/resources.properties), so the system per-app language
+                // Generates res/xml/_generated_res_locale_config from the values-<locale> folders (ru, tg, uz, ar) plus the
+                // module's `unqualifiedResLocale` (en, in res/resources.properties), so the system per-app language
                 // picker offers exactly the locales the app ships.
                 androidResources {
                     generateLocaleConfig = true

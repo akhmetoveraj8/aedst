@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.aedst.core.common.CapabilitiesState
 import com.aedst.core.common.ClientUpgradeState
 import com.aedst.core.common.FeatureAvailability
+import com.aedst.core.common.NetworkMonitor
 import com.aedst.core.common.SessionState
 import com.aedst.core.navigation.AedstRoutes
-import com.aedst.core.network.NetworkMonitor
 import com.aedst.core.outbox.OutboxRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

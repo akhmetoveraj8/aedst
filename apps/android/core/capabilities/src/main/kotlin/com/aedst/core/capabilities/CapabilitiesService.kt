@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.time.Clock
 import java.time.Duration
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Clock
 
 /**
  * Capability negotiation (ADR-0009, `docs/contract/behavior/capabilities.json`). The cache is the single source of
@@ -43,7 +43,7 @@ class CapabilitiesService @Inject constructor(
 
     override suspend fun refresh(force: Boolean) {
         mutex.withLock {
-            val now = clock.millis()
+            val now = clock.now().toEpochMilliseconds()
             val last = lastFetchMillis
             if (!force && last != null && now - last < MIN_INTERVAL.toMillis()) return
             try {

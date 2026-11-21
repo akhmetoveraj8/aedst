@@ -129,7 +129,7 @@ private fun TaskCreateForm(state: TaskCreateState, onIntent: (TaskCreateIntent) 
             AedstAlert(
                 title = stringResource(R.string.tasks_pending_sync_title),
                 description = stringResource(R.string.tasks_pending_sync),
-                variant = AedstAlertVariant.INFO,
+                variant = AedstAlertVariant.DEFAULT,
             )
         }
         AedstButton(

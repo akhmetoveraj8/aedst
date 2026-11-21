@@ -1,4 +1,4 @@
-package com.aedst.feature.auth.domain.model
+package com.aedst.feature.auth.domain
 
 /**
  * What a token endpoint call (authorization-code exchange or refresh) yields, independent of AppAuth.
@@ -7,7 +7,7 @@ package com.aedst.feature.auth.domain.model
  * sign-in without one is rejected by the repository). [subject] comes from the ID token (falling back to the
  * access token) and is null if neither carried one.
  */
-data class OidcTokens(
+public data class OidcTokens(
     val accessToken: String,
     val refreshToken: String?,
     val accessExpiresAtEpochSeconds: Long,
@@ -19,27 +19,27 @@ data class OidcTokens(
  * Tab, the view model passes it on untouched, and the Compose layer launches it. Keeping it `Any` keeps
  * `domain/` and the view model free of Android types and JVM-testable.
  */
-class AuthorizationLaunch(val platformIntent: Any)
+public class AuthorizationLaunch(public val platformIntent: Any)
 
 /** What came back from the browser round trip: the result `Intent` (or null if the system delivered nothing). */
-class AuthorizationCallback(val platformIntent: Any?)
+public class AuthorizationCallback(public val platformIntent: Any?)
 
 /** Outcome of preparing a sign-in. */
-sealed interface BeginSignInResult {
+public sealed interface BeginSignInResult {
     /** Launch [launch] to show the IdP's hosted login. */
-    data class Ready(val launch: AuthorizationLaunch) : BeginSignInResult
+    public data class Ready(val launch: AuthorizationLaunch) : BeginSignInResult
 
     /** Issuer or client id is not configured for this build. */
-    data object NotConfigured : BeginSignInResult
+    public data object NotConfigured : BeginSignInResult
 
     /** No installed browser can handle the sign-in (AppAuth found no matching browser). */
-    data object NoBrowser : BeginSignInResult
+    public data object NoBrowser : BeginSignInResult
 }
 
 /** Outcome of finishing a sign-in after the browser returned. */
-sealed interface SignInResult {
-    data class SignedIn(val session: AuthSession) : SignInResult
+public sealed interface SignInResult {
+    public data class SignedIn(val session: AuthSession) : SignInResult
 
     /** The user backed out of the browser (or the system delivered no result). Not an error. */
-    data object Cancelled : SignInResult
+    public data object Cancelled : SignInResult
 }

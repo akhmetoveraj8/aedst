@@ -2,7 +2,7 @@ package com.aedst.feature.auth.data.local
 
 import com.aedst.core.common.ApplicationScope
 import com.aedst.core.security.EncryptedPreferences
-import com.aedst.feature.auth.domain.model.AuthSession
+import com.aedst.feature.auth.domain.AuthSession
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow

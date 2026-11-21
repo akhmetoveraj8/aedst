@@ -1,13 +1,9 @@
-package com.aedst.feature.auth.domain.usecase
+package com.aedst.feature.auth.domain
 
 import com.aedst.core.common.DispatcherProvider
 import com.aedst.core.common.NoParamsUseCase
-import com.aedst.feature.auth.domain.repository.AuthRepository
-import javax.inject.Inject
 
-internal class LogoutUseCase @Inject constructor(
-    private val authRepository: AuthRepository,
-    dispatcherProvider: DispatcherProvider,
-) : NoParamsUseCase<Unit>(dispatcherProvider) {
-    override suspend fun execute() = authRepository.logout()
+public class LogoutUseCase(private val authRepository: AuthRepository, dispatcherProvider: DispatcherProvider) :
+    NoParamsUseCase<Unit>(dispatcherProvider) {
+    override suspend fun execute(): Unit = authRepository.logout()
 }

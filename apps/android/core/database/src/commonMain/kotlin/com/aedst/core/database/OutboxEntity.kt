@@ -4,7 +4,7 @@ import androidx.room3.Entity
 import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
-enum class OutboxState {
+public enum class OutboxState {
     /** Waiting to be delivered (possibly after earlier retryable failures). */
     PENDING,
 
@@ -23,7 +23,7 @@ enum class OutboxState {
  * Tokens live only in `core/security`'s encrypted store.
  */
 @Entity(tableName = "outbox", indices = [Index(value = ["state", "createdAtEpochMs"])])
-data class OutboxEntity(
+public data class OutboxEntity(
     @PrimaryKey val id: String,
     /** Routing key selecting the `OutboxHandler` that knows how to deliver [payload]. */
     val type: String,

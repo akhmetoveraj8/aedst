@@ -20,20 +20,19 @@ Design tokens are **generated** from `packages/design-tokens/tokens` (single sou
 
 ## Components (`components/`)
 
-30 files, one `PascalCase.kt` file per public composable's main type, each with light+dark `@Preview` pairs wrapped in `AedstTheme { Surface { ... } }`. The kit was pruned to what the app and a five-feature template use (plus the common form/overlay primitives a new feature reaches for first); components with no usage were removed rather than kept as dead code. Re-add one from git history when a feature needs it, together with its `ComponentCatalog` entry.
+66 files, one `PascalCase.kt` file per component, each with light+dark `@Preview` pairs wrapped in `AedstTheme { Surface { ... } }`. The kit covers the whole `ui-kit.yaml` manifest (the 59 shadcn/ui names plus `trace` and `code-block`): 58 component files, 2 entries the platform provides (`aspect-ratio` = `Modifier.aspectRatio`, `scroll-area` = scroll modifiers and lazy lists) and `toast`, an alias of `sonner`. Variant and size enums carry exactly the manifest's names in `SCREAMING_SNAKE_CASE` (`icon-xs` is `ICON_XS`).
 
 | Category | Components |
 |---|---|
-| Layout | `AedstCard` (+Header/Title/Description/Content/Footer slots), `AedstDivider` |
-| Actions | `AedstButton` (variant/size enums, loading+disabled), `AedstIconButton`, `AedstFab`, `AedstFilterChip` |
-| Forms | `AedstTextField`, `AedstTextArea`, `AedstLabel`, `AedstCheckbox`, `AedstSwitch`, `AedstRadioGroup`, `AedstSelect`, `AedstDatePicker` |
-| Feedback | `AedstAlert` (optional `actions` row: retry, discard), `AedstAlertDialog`, `AedstSnackbar`, `AedstProgressIndicator` (linear+circular), `AedstSkeleton` (+Text), `AedstBadge`, `AedstCountBadge`, `AedstOfflineBanner`, `LoadingIndicator` |
-| Overlay/Nav | `AedstDialog`, `AedstBottomSheet`, `AedstDropdownMenu`, `AedstTopAppBar`, `AedstTabs` |
-| Data display | `AedstAvatar` |
+| Layout | `AedstCard` (+Header/Title/Description/Content/Footer slots), `AedstDivider`, `AedstResizable`, `AedstSidebar` (+`AedstSidebarMenuButton`), `AedstButtonGroup` |
+| Actions | `AedstButton` (variant/size enums, loading+disabled), `AedstToggle`, `AedstToggleGroup`, `AedstIconButton`, `AedstFab`, `AedstFilterChip` |
+| Forms | `AedstForm`, `AedstField`, `AedstTextField`, `AedstTextArea`, `AedstInputGroup` (+`AedstInputGroupButton`), `AedstInputOtp`, `AedstLabel`, `AedstCheckbox`, `AedstSwitch`, `AedstRadioGroup`, `AedstSelect`, `AedstNativeSelect`, `AedstCombobox`, `AedstSlider`, `AedstCalendar`, `AedstDatePicker` |
+| Feedback | `AedstAlert` (optional `actions` row: retry, discard), `AedstAlertDialog`, `AedstSnackbar`, `AedstProgressIndicator` (linear+circular), `AedstSpinner`, `AedstSkeleton` (+Text), `AedstBadge`, `AedstEmpty`, `AedstCountBadge`, `AedstOfflineBanner`, `LoadingIndicator` |
+| Overlay | `AedstDialog`, `AedstBottomSheet`, `AedstSheet`, `AedstPopover`, `AedstHoverCard`, `AedstTooltip`, `AedstDropdownMenu`, `AedstContextMenu` |
+| Navigation | `AedstTopAppBar`, `AedstTabs`, `AedstBreadcrumb`, `AedstPagination`, `AedstMenubar`, `AedstNavigationMenu`, `AedstCommand`, `AedstAccordion`, `AedstCollapsible` |
+| Data display | `AedstAvatar`, `AedstItem`, `AedstTable`, `AedstDataTable`, `AedstChart`, `AedstCarousel`, `AedstTypography`, `AedstKbd`, `AedstCodeBlock`, `AedstTrace` |
 | Errors | `ErrorMessages.kt`: `AedstError.userMessage()` (the localized text of an error kind) and `AedstErrorSnackbarEffect` (shows it once; `onRetry` adds a "Retry" action to retryable kinds) |
 | Screens | `screens/UpgradeRequiredScreen.kt`: the blocking forced-upgrade screen (ADR-0009) |
-
-Removed as unused: Accordion, ExpandableSection, BottomNavigationBar (NavigationSuiteScaffold replaces it), Breadcrumb, Carousel, Chart, CommandPalette, ContextMenu, DataTable, Drawer, LongPressPreview, Popover, OtpInput, Pagination, ScrollArea, SearchableDropdown, Slider, ToggleButton, ToggleGroup, Tooltip, AspectRatioBox.
 
 ## Adaptive layout (`adaptive/`)
 
@@ -41,9 +40,14 @@ Screens adapt to the window, not the device: `rememberAedstWidthClass()` (compac
 
 ## Deliberate adaptations vs. web's shadcn catalog
 
-- **Sheet** -> `AedstBottomSheet` (`ModalBottomSheet`).
-- **NavigationMenu** -> `AedstTopAppBar` here; the bottom bar / rail is the app's `NavigationSuiteScaffold`.
-- **Menubar, HoverCard, Command, Combobox** -> intentionally not provided on Android.
+- **Alert**: the manifest set is `DEFAULT`, `DESTRUCTIVE`. `AedstAlertAccent.WARNING` is an Android extension used by the app's outbox and sign-in banners; the former `INFO` and `SUCCESS` variants are gone.
+- **Drawer** -> `AedstBottomSheet` (`ModalBottomSheet`); **Sheet** -> `AedstSheet` (a full-window `Dialog` with an edge-aligned panel: Material 3 has no modal side sheet for Compose).
+- **NavigationMenu** -> `AedstNavigationMenu` wraps the Material 3 bottom `NavigationBar`; switching bar / rail / drawer by window size stays with the app's `NavigationSuiteScaffold`.
+- **HoverCard** -> Material 3 rich tooltip (touch-and-hold, hover, keyboard focus); **ContextMenu** -> touch-and-hold plus an "Open menu" accessibility action.
+- **NativeSelect** -> a field that opens a modal single-choice list (the platform spinner's dialog mode).
+- **Chart** -> a minimal Canvas bar / line chart with a legend, no axes or tooltips. No chart library is approved for Android; anything richer needs an owner decision.
+- **CodeBlock** has no syntax highlighting (needs a tokenizer library: owner decision) and hoists copying to `onCopy`.
+- **Form** is layout only: Compose has no form element, validation and submission stay in the ViewModel.
 - Avatar image loading: no image-loading dependency in this module (Coil lives in `core/media`), so `AedstAvatar`'s `imageUrl` is accepted but always renders the initials fallback.
 
 ## Tests and verification status

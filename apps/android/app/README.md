@@ -38,8 +38,8 @@ web-side change; nothing here hosts it). Unverified on a device.
   `app` and `app-tv`): pass `-Paedst.certPins=...` or deliberately `-Paedst.allowUnpinnedRelease=true`.
 - **Version**: `versionCode` from `AEDST_VERSION_CODE` (or CI's `GITHUB_RUN_NUMBER`, else 1); `versionName` from
   `aedst.versionName`.
-- **Locales**: `generateLocaleConfig = true` and `res/resources.properties` (`unqualifiedResLocale=ru`) give the system
-  language picker ru, en, tg, uz and ar.
+- **Locales**: `generateLocaleConfig = true` and `res/resources.properties` (`unqualifiedResLocale=en`, the unqualified `values/` is English) give the system
+  language picker en, ru, tg, uz and ar.
 - **Debug only**: LeakCanary (`debugImplementation`), StrictMode, the user-CA debug override and cleartext to the
   emulator host (`src/debug`).
 - **Sentry**: the Gradle plugin uploads the R8 mapping when `SENTRY_AUTH_TOKEN` is set.

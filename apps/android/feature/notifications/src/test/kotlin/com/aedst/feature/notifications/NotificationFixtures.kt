@@ -7,7 +7,7 @@ import com.aedst.feature.notifications.domain.InboxPage
 import com.aedst.feature.notifications.domain.NotificationKind
 import com.aedst.feature.notifications.domain.NotificationPreferences
 import com.aedst.feature.notifications.domain.NotificationsRepository
-import java.time.Instant
+import kotlin.time.Instant
 
 internal fun inboxNotification(id: String, readAt: Instant? = null) = InboxNotification(
     id = id,

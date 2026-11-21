@@ -16,6 +16,7 @@ import com.aedst.core.outbox.OutboxRepository
 import com.aedst.core.outbox.OutboxScheduler
 import com.aedst.core.outbox.OutboxSyncWorker
 import com.aedst.feature.tasks.domain.NewTask
+import com.aedst.feature.tasks.domain.TaskId
 import com.aedst.feature.tasks.domain.TaskPriority
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -24,7 +25,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.time.Clock
+import kotlin.time.Clock
 
 /**
  * The whole offline write path with nothing faked but the network edge: the task queue writes a row, the real
@@ -51,7 +52,7 @@ class TaskOutboxDeliveryTest {
             .setDriver(AndroidSQLiteDriver())
             .allowMainThreadQueries()
             .build()
-        val outbox = OutboxRepository(database.outboxDao(), OutboxScheduler(context), Clock.systemUTC())
+        val outbox = OutboxRepository(database.outboxDao(), OutboxScheduler(context), Clock.System)
         queue = OutboxTaskWriteQueue(outbox)
     }
 
@@ -69,7 +70,7 @@ class TaskOutboxDeliveryTest {
         )
         val factory = object : WorkerFactory() {
             override fun createWorker(appContext: Context, workerClassName: String, params: WorkerParameters) =
-                OutboxSyncWorker(appContext, params, database.outboxDao(), handlers, logger, Clock.systemUTC())
+                OutboxSyncWorker(appContext, params, database.outboxDao(), handlers, logger, Clock.System)
         }
         TestListenableWorkerBuilder<OutboxSyncWorker>(context).setWorkerFactory(factory).build().doWork()
     }
@@ -106,7 +107,7 @@ class TaskOutboxDeliveryTest {
         http.respondCompleted()
         runBlocking {
             queue.queueCreate(NewTask("Write report", "", TaskPriority.HIGH, null), "op-1")
-            queue.queueComplete("t1", "op-2")
+            queue.queueComplete(TaskId("t1"), "op-2")
         }
 
         assertEquals(Result.success(), drain())

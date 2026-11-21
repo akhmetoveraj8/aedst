@@ -2,7 +2,7 @@ package com.aedst.feature.auth.data.oidc
 
 import com.aedst.core.common.AedstError
 import com.aedst.core.network.ExternalHttpClient
-import com.aedst.feature.auth.domain.repository.TokenRevoker
+import com.aedst.feature.auth.domain.TokenRevoker
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request

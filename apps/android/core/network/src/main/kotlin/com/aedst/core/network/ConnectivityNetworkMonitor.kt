@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import com.aedst.core.common.NetworkMonitor
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -16,12 +17,6 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
-
-/** Observable connectivity, so UI can show an offline banner and repositories can pick cache vs. network. */
-interface NetworkMonitor {
-    /** Emits the current state on collection, then every change. `true` = a validated internet connection exists. */
-    val isOnline: Flow<Boolean>
-}
 
 /**
  * Backed by `ConnectivityManager.registerDefaultNetworkCallback` (API 24+; minSdk is 26). The callback is only

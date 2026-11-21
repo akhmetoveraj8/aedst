@@ -1,10 +1,11 @@
 package com.aedst.feature.tasks
 
 import com.aedst.core.common.AedstError
+import com.aedst.core.common.NetworkMonitor
 import com.aedst.core.common.Outcome
-import com.aedst.core.network.NetworkMonitor
 import com.aedst.feature.tasks.domain.NewTask
 import com.aedst.feature.tasks.domain.Task
+import com.aedst.feature.tasks.domain.TaskId
 import com.aedst.feature.tasks.domain.TaskPage
 import com.aedst.feature.tasks.domain.TaskPriority
 import com.aedst.feature.tasks.domain.TaskRepository
@@ -19,7 +20,7 @@ internal fun domainTask(
     priority: TaskPriority = TaskPriority.MEDIUM,
     title: String = "Task $id",
 ) = Task(
-    id = id,
+    id = TaskId(id),
     title = title,
     description = "",
     status = status,
@@ -50,7 +51,7 @@ internal class ScriptedTaskRepository : TaskRepository {
 
     override suspend fun list(pageToken: String?): Outcome<TaskPage> = Outcome.Success(pages.getValue(pageToken))
 
-    override suspend fun get(id: String): Outcome<Task> = getResult
+    override suspend fun get(id: TaskId): Outcome<Task> = getResult
 
     override suspend fun create(task: NewTask, idempotencyKey: String): Outcome<Task> {
         created += task
@@ -58,19 +59,19 @@ internal class ScriptedTaskRepository : TaskRepository {
         return createResult
     }
 
-    override suspend fun complete(id: String, idempotencyKey: String): Outcome<Task> {
-        completed += id
+    override suspend fun complete(id: TaskId, idempotencyKey: String): Outcome<Task> {
+        completed += id.value
         completeKeys += idempotencyKey
         return completeResult
     }
 
-    override suspend fun reopen(id: String): Outcome<Task> {
-        reopened += id
+    override suspend fun reopen(id: TaskId): Outcome<Task> {
+        reopened += id.value
         return reopenResult
     }
 
-    override suspend fun delete(id: String): Outcome<Unit> {
-        deleted += id
+    override suspend fun delete(id: TaskId): Outcome<Unit> {
+        deleted += id.value
         return deleteResult
     }
 }
@@ -87,9 +88,9 @@ internal class FakeTaskWriteQueue : TaskWriteQueue {
         queued += Queued(operationId, task, null)
     }
 
-    override suspend fun queueComplete(taskId: String, operationId: String) {
+    override suspend fun queueComplete(taskId: TaskId, operationId: String) {
         failure?.let { throw it }
-        queued += Queued(operationId, null, taskId)
+        queued += Queued(operationId, null, taskId.value)
     }
 }
 

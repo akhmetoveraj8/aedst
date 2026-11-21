@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aedst.core.analytics.AnalyticsTracker
 import com.aedst.core.common.Outcome
-import com.aedst.feature.auth.domain.model.DeviceAuthorization
-import com.aedst.feature.auth.domain.model.DeviceSignInResult
-import com.aedst.feature.auth.domain.repository.AuthRepository
-import com.aedst.feature.auth.domain.usecase.AwaitDeviceSignInUseCase
-import com.aedst.feature.auth.domain.usecase.BeginDeviceSignInUseCase
+import com.aedst.feature.auth.domain.AuthRepository
+import com.aedst.feature.auth.domain.AwaitDeviceSignInUseCase
+import com.aedst.feature.auth.domain.BeginDeviceSignInUseCase
+import com.aedst.feature.auth.domain.DeviceAuthorization
+import com.aedst.feature.auth.domain.DeviceSignInResult
 import com.aedst.feature.auth.presentation.SignInDiagnostics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job

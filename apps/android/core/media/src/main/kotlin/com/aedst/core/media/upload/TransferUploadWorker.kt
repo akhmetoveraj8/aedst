@@ -20,7 +20,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.time.Clock
+import kotlin.time.Clock
 
 /**
  * Step 2/3: PUT the staged file to the presigned URL, publishing progress (`KEY_PROGRESS`, 0..1) for the UI.
@@ -47,7 +47,7 @@ class TransferUploadWorker @AssistedInject constructor(
             return failed(AedstError.InvalidInput("Staged upload missing"))
         }
         val expiresAt = inputData.getLong(UploadWorkData.KEY_UPLOAD_EXPIRES_AT, 0L)
-        if (expiresAt in 1..clock.millis()) {
+        if (expiresAt in 1..clock.now().toEpochMilliseconds()) {
             return failed(AedstError.InvalidInput("Upload URL expired"))
         }
 

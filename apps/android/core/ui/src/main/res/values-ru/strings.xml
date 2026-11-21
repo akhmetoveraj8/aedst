@@ -4,6 +4,22 @@
     <string name="aedst_a11y_avatar">Аватар</string>
     <string name="aedst_a11y_avatar_named">Аватар: %1$s</string>
     <string name="aedst_a11y_loading">Загрузка</string>
+    <string name="aedst_a11y_expanded">Развёрнуто</string>
+    <string name="aedst_a11y_collapsed">Свёрнуто</string>
+    <string name="aedst_a11y_previous">Назад</string>
+    <string name="aedst_a11y_next">Вперёд</string>
+    <string name="aedst_a11y_page">Страница %1$d</string>
+    <string name="aedst_a11y_pagination">Постраничная навигация</string>
+    <string name="aedst_a11y_more_pages">Ещё страницы</string>
+    <string name="aedst_a11y_breadcrumb">Навигационная цепочка</string>
+    <string name="aedst_a11y_resize_handle">Изменить размер панелей</string>
+    <string name="aedst_a11y_copy_code">Скопировать код</string>
+    <string name="aedst_a11y_sort_ascending">Отсортировано по возрастанию</string>
+    <string name="aedst_a11y_sort_descending">Отсортировано по убыванию</string>
+    <string name="aedst_a11y_sort_none">Не отсортировано</string>
+    <string name="aedst_a11y_slide">Слайд %1$d из %2$d</string>
+    <string name="aedst_a11y_close">Закрыть</string>
+    <string name="aedst_a11y_open_menu">Открыть меню</string>
 
     <!-- User-facing text for each AedstError kind (see AedstError.userMessageRes) -->
     <string name="aedst_error_offline">Нет подключения к интернету. Проверьте сеть и повторите попытку.</string>

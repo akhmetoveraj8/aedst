@@ -4,6 +4,22 @@
     <string name="aedst_a11y_avatar">Avatar</string>
     <string name="aedst_a11y_avatar_named">Avatar: %1$s</string>
     <string name="aedst_a11y_loading">Yuklanmoqda</string>
+    <string name="aedst_a11y_expanded">Yoyilgan</string>
+    <string name="aedst_a11y_collapsed">Yig‘ilgan</string>
+    <string name="aedst_a11y_previous">Oldingi</string>
+    <string name="aedst_a11y_next">Keyingi</string>
+    <string name="aedst_a11y_page">%1$d-sahifa</string>
+    <string name="aedst_a11y_pagination">Sahifalar bo‘yicha navigatsiya</string>
+    <string name="aedst_a11y_more_pages">Boshqa sahifalar</string>
+    <string name="aedst_a11y_breadcrumb">Navigatsiya zanjiri</string>
+    <string name="aedst_a11y_resize_handle">Panellar o‘lchamini o‘zgartirish</string>
+    <string name="aedst_a11y_copy_code">Kodni nusxalash</string>
+    <string name="aedst_a11y_sort_ascending">O‘sish tartibida saralangan</string>
+    <string name="aedst_a11y_sort_descending">Kamayish tartibida saralangan</string>
+    <string name="aedst_a11y_sort_none">Saralanmagan</string>
+    <string name="aedst_a11y_slide">%2$d tadan %1$d-slayd</string>
+    <string name="aedst_a11y_close">Yopish</string>
+    <string name="aedst_a11y_open_menu">Menyuni ochish</string>
 
     <!-- User-facing text for each AedstError kind (see AedstError.userMessageRes) -->
     <string name="aedst_error_offline">Internet aloqasi yo‘q. Tarmoqni tekshirib, qayta urinib ko‘ring.</string>

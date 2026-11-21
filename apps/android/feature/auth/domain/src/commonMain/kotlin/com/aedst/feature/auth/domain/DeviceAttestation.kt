@@ -1,4 +1,4 @@
-package com.aedst.feature.auth.domain.model
+package com.aedst.feature.auth.domain
 
 /**
  * What the server concluded about this device (Play Integrity). Informational only: nothing in the app gates on it
@@ -7,4 +7,4 @@ package com.aedst.feature.auth.domain.model
  * [reason] and [deviceVerdict] are short lowercase labels (e.g. `device_not_trusted`, `meets_device_integrity`), safe
  * for telemetry; `""` when not applicable.
  */
-data class DeviceAttestation(val verified: Boolean, val reason: String, val deviceVerdict: String)
+public data class DeviceAttestation(val verified: Boolean, val reason: String, val deviceVerdict: String)

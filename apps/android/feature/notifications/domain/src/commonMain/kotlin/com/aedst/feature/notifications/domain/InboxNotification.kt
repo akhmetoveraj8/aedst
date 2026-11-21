@@ -1,11 +1,11 @@
 package com.aedst.feature.notifications.domain
 
 import com.aedst.core.common.Outcome
-import java.time.Instant
+import kotlin.time.Instant
 
-enum class NotificationKind { TASK_COMPLETED, TASK_DUE_SOON, MEDIA_READY, SYSTEM }
+public enum class NotificationKind { TASK_COMPLETED, TASK_DUE_SOON, MEDIA_READY, SYSTEM }
 
-data class InboxNotification(
+public data class InboxNotification(
     val id: String,
     val kind: NotificationKind,
     val title: String,
@@ -15,12 +15,12 @@ data class InboxNotification(
     val createdAt: Instant?,
     val readAt: Instant?,
 ) {
-    val isUnread: Boolean get() = readAt == null
+    public val isUnread: Boolean get() = readAt == null
 }
 
-data class InboxPage(val notifications: List<InboxNotification>, val nextPageToken: String?)
+public data class InboxPage(val notifications: List<InboxNotification>, val nextPageToken: String?)
 
-data class NotificationPreferences(
+public data class NotificationPreferences(
     val pushEnabled: Boolean,
     val taskCompleted: Boolean,
     val taskDueSoon: Boolean,
@@ -28,16 +28,16 @@ data class NotificationPreferences(
 )
 
 /** The caller's inbox and preferences (NotificationsService). */
-internal interface NotificationsRepository {
-    suspend fun list(unreadOnly: Boolean = false, pageToken: String? = null): Outcome<InboxPage>
+public interface NotificationsRepository {
+    public suspend fun list(unreadOnly: Boolean = false, pageToken: String? = null): Outcome<InboxPage>
 
-    suspend fun unreadCount(): Outcome<Int>
+    public suspend fun unreadCount(): Outcome<Int>
 
-    suspend fun markRead(ids: List<String>): Outcome<Unit>
+    public suspend fun markRead(ids: List<String>): Outcome<Unit>
 
-    suspend fun markAllRead(): Outcome<Int>
+    public suspend fun markAllRead(): Outcome<Int>
 
-    suspend fun preferences(): Outcome<NotificationPreferences>
+    public suspend fun preferences(): Outcome<NotificationPreferences>
 
-    suspend fun updatePreferences(preferences: NotificationPreferences): Outcome<NotificationPreferences>
+    public suspend fun updatePreferences(preferences: NotificationPreferences): Outcome<NotificationPreferences>
 }

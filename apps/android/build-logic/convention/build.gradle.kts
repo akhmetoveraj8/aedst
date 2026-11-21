@@ -43,6 +43,10 @@ gradlePlugin {
             id = "aedst.android.hilt"
             implementationClass = "AndroidHiltConventionPlugin"
         }
+        register("kmpLibrary") {
+            id = "aedst.kmp.library"
+            implementationClass = "KmpLibraryConventionPlugin"
+        }
         register("jvmLibrary") {
             id = "aedst.jvm.library"
             implementationClass = "JvmLibraryConventionPlugin"

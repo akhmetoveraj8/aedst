@@ -10,7 +10,7 @@ import com.aedst.media.v1.variant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import java.time.Instant
+import kotlin.time.Instant
 import com.aedst.media.v1.MediaKind as ProtoMediaKind
 import com.aedst.media.v1.MediaStatus as ProtoMediaStatus
 

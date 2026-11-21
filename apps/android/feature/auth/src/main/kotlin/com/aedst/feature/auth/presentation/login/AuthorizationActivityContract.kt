@@ -3,8 +3,8 @@ package com.aedst.feature.auth.presentation.login
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
-import com.aedst.feature.auth.domain.model.AuthorizationCallback
-import com.aedst.feature.auth.domain.model.AuthorizationLaunch
+import com.aedst.feature.auth.domain.AuthorizationCallback
+import com.aedst.feature.auth.domain.AuthorizationLaunch
 
 /**
  * Starts AppAuth's `AuthorizationManagementActivity` (the intent the data layer prepared) for a result and wraps the
