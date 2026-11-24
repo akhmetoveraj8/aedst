@@ -2,6 +2,7 @@ package com.aedst.core.media.upload
 
 import com.aedst.core.common.AedstError
 import com.aedst.core.network.ExternalHttpClient
+import dev.zacsweers.metro.Inject
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -13,7 +14,6 @@ import okio.buffer
 import okio.source
 import java.io.File
 import java.io.IOException
-import javax.inject.Inject
 
 /** Where and how to PUT one staged file: the presigned URL, verb and signed headers returned by `CreateUpload`. */
 data class PresignedTarget(
@@ -30,7 +30,8 @@ data class PresignedTarget(
  * Throws [AedstError]: `Unavailable` (retry), `InvalidInput` (the URL expired or the signature/headers were rejected:
  * a new `CreateUpload` is needed), `Unknown` for anything else.
  */
-class PresignedUploader @Inject constructor(@ExternalHttpClient private val client: OkHttpClient) {
+@Inject
+class PresignedUploader(@ExternalHttpClient private val client: OkHttpClient) {
 
     suspend fun upload(file: File, target: PresignedTarget, onProgress: (sentBytes: Long, totalBytes: Long) -> Unit) {
         // The body's media type becomes the Content-Type header; it must equal the signed one byte for byte.

@@ -5,17 +5,21 @@ import android.content.Context
 import android.content.pm.ServiceInfo
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.aedst.core.common.AedstError
 import com.aedst.core.common.DispatcherProvider
+import com.aedst.core.common.WorkerAssistedFactory
+import com.aedst.core.common.WorkerKey
 import com.aedst.core.media.R
 import com.aedst.core.network.toAedstError
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
@@ -30,8 +34,8 @@ import kotlin.time.Clock
  * the compressed file and the `CreateUpload` result from step 1 are reused. An expired URL fails the chain with
  * `InvalidInput` (the user re-attaches; the server garbage-collects the pending media row).
  */
-@HiltWorker
-class TransferUploadWorker @AssistedInject constructor(
+@AssistedInject
+class TransferUploadWorker(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val uploader: PresignedUploader,
@@ -39,6 +43,13 @@ class TransferUploadWorker @AssistedInject constructor(
     private val staging: UploadStaging,
     private val dispatchers: DispatcherProvider,
 ) : CoroutineWorker(appContext, params) {
+
+    @WorkerKey(TransferUploadWorker::class)
+    @ContributesIntoMap(AppScope::class)
+    @AssistedFactory
+    fun interface Factory : WorkerAssistedFactory {
+        override fun create(appContext: Context, params: WorkerParameters): TransferUploadWorker
+    }
 
     override suspend fun doWork(): Result {
         val file = inputData.getString(UploadWorkData.KEY_FILE_PATH)?.let(::File)

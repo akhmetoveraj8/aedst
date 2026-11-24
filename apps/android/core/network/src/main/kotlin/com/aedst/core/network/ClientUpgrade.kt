@@ -7,16 +7,15 @@ import com.connectrpc.Interceptor
 import com.connectrpc.StreamFunction
 import com.connectrpc.UnaryFunction
 import com.google.protobuf.CodedInputStream
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ExposeImplBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Forced-upgrade protocol (ADR-0009). The server answers a build older than `AEDST_MIN_CLIENT_VERSIONS` with Connect
@@ -51,8 +50,12 @@ internal object ClientUpgrade {
 }
 
 /** Process-wide holder of the latched "upgrade required" signal; written by [ClientUpgradeInterceptor]. */
-@Singleton
-class ClientUpgradeGate @Inject constructor() : ClientUpgradeState {
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+// The interceptor below injects the gate itself, so the implementation binding stays visible.
+@ExposeImplBinding
+@Inject
+class ClientUpgradeGate : ClientUpgradeState {
     private val required = MutableStateFlow(false)
     override val upgradeRequired: StateFlow<Boolean> = required.asStateFlow()
 
@@ -66,7 +69,8 @@ class ClientUpgradeGate @Inject constructor() : ClientUpgradeState {
  * upgrade-required error and flips [ClientUpgradeGate]. The response is passed on untouched, so the caller still gets
  * the mapped `AedstError.UpgradeRequired` from [toAedstError].
  */
-class ClientUpgradeInterceptor @Inject constructor(private val gate: ClientUpgradeGate) : Interceptor {
+@Inject
+class ClientUpgradeInterceptor(private val gate: ClientUpgradeGate) : Interceptor {
     override fun unaryFunction(): UnaryFunction = UnaryFunction(
         responseFunction = { response ->
             if (response.cause?.let(ClientUpgrade::isUpgradeRequired) == true) gate.report()
@@ -75,11 +79,4 @@ class ClientUpgradeInterceptor @Inject constructor(private val gate: ClientUpgra
     )
 
     override fun streamFunction(): StreamFunction = StreamFunction()
-}
-
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class ClientUpgradeModule {
-    @Binds
-    abstract fun bindClientUpgradeState(impl: ClientUpgradeGate): ClientUpgradeState
 }

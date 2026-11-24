@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.library.convention)
-    alias(libs.plugins.android.hilt.convention)
+    alias(libs.plugins.android.metro.convention)
 }
 
 // Release TLS pins: comma-separated `sha256/<base64 SPKI hash>` values (live key + at least one backup), passed as

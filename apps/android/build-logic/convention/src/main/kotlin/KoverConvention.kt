@@ -8,7 +8,7 @@ import java.util.Properties
  * project root (`core/common=60`), so raising or lowering one is a visible, reviewed diff. A module without an entry
  * has no floor (reported only); `koverVerify` in android-ci fails a module that drops below its floor.
  *
- * Generated and framework glue is excluded: Hilt/Dagger output, Room `_Impl`, Compose singletons, R/BuildConfig.
+ * Generated and framework glue is excluded: Metro output, Room `_Impl`, Compose singletons, R/BuildConfig.
  */
 fun Project.configureKover() {
     pluginManager.apply("org.jetbrains.kotlinx.kover")
@@ -28,13 +28,8 @@ fun Project.configureKover() {
                         "*.R",
                         "*.R$*",
                         "*.BuildConfig",
-                        "*_Factory",
-                        "*_Factory$*",
-                        "*_MembersInjector",
-                        "*_HiltModules*",
-                        "*Hilt_*",
-                        "hilt_aggregated_deps.*",
-                        "dagger.hilt.internal.*",
+                        "*\$\$Metro*",
+                        "metro.hints.*",
                         "*_Impl",
                         "*_Impl$*",
                         "*ComposableSingletons*",

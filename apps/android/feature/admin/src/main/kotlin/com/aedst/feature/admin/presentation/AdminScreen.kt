@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.core.ui.adaptive.AedstAdaptiveContent
 import com.aedst.core.ui.adaptive.AedstContentWidth
@@ -47,9 +46,10 @@ import com.aedst.core.ui.theme.AedstTheme
 import com.aedst.feature.admin.R
 import com.aedst.feature.admin.domain.AdminOverview
 import com.aedst.feature.admin.domain.AdminTaskRow
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 @Composable
-internal fun AdminRoute(modifier: Modifier = Modifier, viewModel: AdminViewModel = hiltViewModel()) {
+internal fun AdminRoute(modifier: Modifier = Modifier, viewModel: AdminViewModel = metroViewModel()) {
     val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
     val state by viewModel.state.collectAsStateWithLifecycle()
     if (!isAdmin) {

@@ -6,25 +6,23 @@ import com.connectrpc.extensions.GoogleJavaLiteProtobufStrategy
 import com.connectrpc.impl.ProtocolClient
 import com.connectrpc.okhttp.ConnectOkHttpClient
 import com.connectrpc.protocols.NetworkProtocol
-import dagger.BindsOptionalOf
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import java.util.Optional
 import java.util.concurrent.TimeUnit
-import javax.inject.Singleton
 
 /**
  * Base network wiring shared by every feature's generated ConnectRPC service
  * client (mirrors `internal/platform` on the server, and Apple's
  * `ConnectClientFactory`). One [ProtocolClientInterface] per app process.
  */
-@Module
-@InstallIn(SingletonComponent::class)
+@BindingContainer
+@ContributesTo(AppScope::class)
 object NetworkModule {
 
     private const val CONNECT_TIMEOUT_SECONDS = 10L
@@ -35,11 +33,12 @@ object NetworkModule {
 
     /** API client: first-party headers, bearer refresh, TLS pinning and (last) the tracing SDK's interceptor. */
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun provideOkHttpClient(
         headersInterceptor: RequestHeadersInterceptor,
         authenticator: TokenRefreshAuthenticator,
-        httpTelemetry: Optional<HttpTelemetry>,
+        // Optional binding: `core/analytics` supplies it, a build without telemetry simply has none.
+        httpTelemetry: HttpTelemetry? = null,
     ): OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         // callTimeout bounds the whole call (DNS + connect + body), so a stalled radio can't hold a coroutine forever.
@@ -50,7 +49,7 @@ object NetworkModule {
         .addInterceptor(loggingInterceptor())
         .apply { buildCertificatePinner()?.let { pinner -> certificatePinner(pinner) } }
         // Sentry asks to be added last so it records the request exactly as sent.
-        .apply { httpTelemetry.ifPresent { addInterceptor(it.interceptor) } }
+        .apply { httpTelemetry?.let { addInterceptor(it.interceptor) } }
         .build()
 
     /**
@@ -58,7 +57,7 @@ object NetworkModule {
      * and the authenticator: presigned URLs must never receive the bearer token or first-party headers.
      */
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     @ExternalHttpClient
     fun provideExternalOkHttpClient(apiClient: OkHttpClient): OkHttpClient = apiClient.newBuilder()
         .apply {
@@ -91,7 +90,7 @@ object NetworkModule {
     }
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun provideProtocolClient(
         okHttpClient: OkHttpClient,
         authInterceptor: AuthInterceptor,
@@ -105,11 +104,4 @@ object NetworkModule {
             interceptors = listOf({ _ -> authInterceptor }, { _ -> upgradeInterceptor }),
         ),
     )
-}
-
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class HttpTelemetryModule {
-    @BindsOptionalOf
-    abstract fun httpTelemetry(): HttpTelemetry
 }

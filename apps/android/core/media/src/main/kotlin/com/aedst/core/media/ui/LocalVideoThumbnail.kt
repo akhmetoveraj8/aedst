@@ -10,7 +10,7 @@ import coil3.fetch.ImageFetchResult
 import coil3.key.Keyer
 import coil3.request.Options
 import com.aedst.core.media.processing.LocalThumbnailLoader
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * Coil model for "a still of this local video": `AsyncImage(model = LocalVideoThumbnail(uri))`. Coil decodes picked
@@ -32,7 +32,8 @@ class LocalVideoThumbnailFetcher(private val model: LocalVideoThumbnail, private
         return ImageFetchResult(image = bitmap.asImage(), isSampled = false, dataSource = DataSource.DISK)
     }
 
-    class Factory @Inject constructor(private val loader: LocalThumbnailLoader) : Fetcher.Factory<LocalVideoThumbnail> {
+    @Inject
+    class Factory(private val loader: LocalThumbnailLoader) : Fetcher.Factory<LocalVideoThumbnail> {
         override fun create(data: LocalVideoThumbnail, options: Options, imageLoader: ImageLoader): Fetcher =
             LocalVideoThumbnailFetcher(data, loader)
     }

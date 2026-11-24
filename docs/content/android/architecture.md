@@ -49,9 +49,9 @@ analyzer (see "Scope cut" below):
   Kotlin and unit-tested). `NavDisplay` renders the entries inside a
   `NavigationSuiteScaffold` (bottom bar on phones, rail on tablets). Entry
   decorators scope `rememberSaveable` state and ViewModels per back stack
-  entry, so a ViewModel that needs its key (task/media id) gets it through Hilt
-  assisted injection (`@HiltViewModel(assistedFactory = ...)` +
-  `hiltViewModel(creationCallback = ...)`) instead of `SavedStateHandle`.
+  entry, so a ViewModel that needs its key (task/media id) gets it through Metro
+  assisted injection (a nested `@AssistedFactory` that is a `ManualViewModelAssistedFactory`, read with
+  `assistedMetroViewModel { create(key) }`) instead of `SavedStateHandle`.
   Sign-out resets every stack; `NavigationTelemetry` reports the top key's
   template name (never ids) to PostHog and as a Sentry breadcrumb.
 - Inside a feature, layering is one-directional: `presentation -> domain`,
@@ -128,8 +128,10 @@ Full rationale and revisit conditions: [decisions](/decisions); stack table:
 - **JDK 21 required** (project toolchain pin). Run `make generate` (buf)
   before the first build; generated stubs are not committed. Versions are
   latest-stable only, with the Compose BOM applied through `platform()`.
-- **DI: Hilt on AGP 9** with built-in Kotlin (no explicit `kotlin-android`
-  plugin). Metro only if KMP appears; Koin was rejected (no compile-time checks).
+- **DI: Metro 1.6.0** (a Kotlin compiler plugin, replaced Hilt on 2026-11-25; AGP 9 with built-in Kotlin, no explicit
+  `kotlin-android` plugin). One graph per application module (`AppGraph`, `TvGraph`), aggregation through
+  `@Contributes*`, ViewModels through `metrox-viewmodel`. Koin was rejected (no compile-time checks). See
+  [decisions/android](/decisions/android) and the "DI" paragraph of [library-first/android](/library-first/android).
 - **Networking: connect-kotlin 0.10.0 over OkHttp 5.5.1** (compileSdk 37); no
   Retrofit. Plan B if connect-kotlin stalls: Wire / gRPC-Kotlin (the server also
   serves gRPC and gRPC-Web).
@@ -152,7 +154,7 @@ request ──► RequestHeadersInterceptor (X-Aedst-Client, traceparent)
 ```
 
 - **Sign-in is OIDC.** The app signs in with Authorization Code + PKCE in a Custom Tab on the IdP's hosted login (AppAuth-Android) and has no credential form or first-party login RPC. The refresh token never leaves the Tink-encrypted store; a refresh is the OIDC `refresh_token` grant at the IdP token endpoint (AppAuth), single-flight behind a mutex because ZITADEL rotates refresh tokens. `invalid_grant` clears the session; offline/5xx keep it. Registration: `apps/server/deployments/zitadel/android-app.md`.
-- **Who owns what.** `core/network` declares the contracts (`AuthTokenProvider`, `TokenRefresher`); `feature/auth` implements them in `AuthModule`; `core/common` declares `SessionState`, which `app/` reads. `app/` never imports `feature/auth`'s domain or data packages.
+- **Who owns what.** `core/network` declares the contracts (`AuthTokenProvider`, `TokenRefresher`); `feature/auth` implements them (`@ContributesBinding` on the implementing classes, `@Provides` in `AuthProviders`); `core/common` declares `SessionState`, which `app/` reads. `app/` never imports `feature/auth`'s domain or data packages.
 - **Offline writes.** A feature persists an `OutboxEntity` through `OutboxRepository.enqueue(type, payload, id)` and registers one `OutboxHandler` per type (`@Binds @IntoSet`). `OutboxSyncWorker` delivers in creation order when the network is connected, with exponential backoff; the row id is the `Idempotency-Key`. Retryable errors (`Unavailable`, `Offline`, `Timeout`, `RateLimited`) keep the item; anything else parks it as `FAILED`. `feature/tasks` is the reference: `TaskCreateOutboxHandler` (`task.create`), `TaskCompleteOutboxHandler` (`task.complete`) and `TaskUpdateOutboxHandler` (`task.update`, no producer yet) decode the queued request message (protobuf wire format in Base64) and call the generated client with `idempotencyHeaders(item.id)`. `CreateTaskUseCase` / `CompleteTaskUseCase` are online-first: they call the server at once under a fresh operation id and queue **the same id** when the device is offline (`NetworkMonitor`) or the call failed retryably. Every direct write (`ConnectTaskRepository`, `ConnectMediaRepository.createUpload`) sends a fresh `Idempotency-Key` per call too, because OkHttp's `retryOnConnectionFailure(true)` re-sends a POST. Parked items raise `OutboxFailedAlert` (retry / discard) under the offline banner and are deleted after 30 days. The queue, the Coil caches, in-flight uploads and the unread badge are wiped when the session ends (`SignOutHook.onSessionEnded`, on sign-out and on a rejected refresh token).
 - **Errors reach users as kinds, not text.** ViewModels put an `AedstError` in state; the composable calls `error.userMessage()` (`core/ui`), which maps the kind to a localized string.
 - **Forced upgrade.** `core/network`'s `ClientUpgradeInterceptor` (connect-kotlin interceptor) reads the `google.rpc.ErrorInfo` detail of a `failed_precondition` answer; reason `CLIENT_UPGRADE_REQUIRED` latches `ClientUpgradeState` (`core/common`), `app/`'s `MainActivity` then renders only `UpgradeRequiredScreen` (`core/ui`: localized, `market://` link with an https fallback). `toAedstError()` maps the same error to `AedstError.UpgradeRequired` (never retryable, message not shown or logged). Replay tests: `ClientVersionGateReplayTest`, `SessionRefreshReplayTest`, `OutboxFixtureReplayTest` read `docs/contract/behavior/*.json` directly (Gradle test-resources srcDir, no copies).
@@ -181,7 +183,7 @@ Every screen's ViewModel has the same shape. References: `feature/tasks` (`TaskC
   `ensureActive()` follows the repository call, so a superseded answer is never applied (a repository that finished
   anyway cannot overwrite a newer page). Jobs are declared before `init`, which may start one.
 - **Saved state.** Input worth keeping across process death (the create-form draft, the search query) lives in
-  `SavedStateHandle`. Ids from a navigation key still arrive by assisted injection (`@HiltViewModel(assistedFactory)`),
+  `SavedStateHandle`. Ids from a navigation key still arrive by assisted injection (a `ManualViewModelAssistedFactory`), and the handle itself is an assisted parameter built from the creation extras (`ViewModelAssistedFactory`, `extras.createSavedStateHandle()`),
   not through the handle.
 - **Streams that are not user intent** (WorkManager upload progress, the session) may be extra read-only `StateFlow`s.
 

@@ -6,6 +6,9 @@ import com.aedst.core.network.toAedstError
 import com.aedst.feature.auth.domain.DeviceAuthorization
 import com.aedst.feature.auth.domain.DeviceAuthorizer
 import com.aedst.feature.auth.domain.DeviceTokenResult
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -17,7 +20,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.coroutines.executeAsync
 import java.io.IOException
-import javax.inject.Inject
 import kotlin.time.Clock
 
 /**
@@ -32,7 +34,9 @@ import kotlin.time.Clock
  * Time is accounted by the waits themselves (`delay`), not by the wall clock: the loop is deterministic under
  * virtual time and immune to the user changing the device clock mid-flow.
  */
-class OkHttpDeviceAuthorizer @Inject constructor(
+@ContributesBinding(AppScope::class)
+@Inject
+class OkHttpDeviceAuthorizer(
     @ExternalHttpClient private val client: OkHttpClient,
     private val config: OidcConfig,
     private val endpoints: DeviceEndpointSource,

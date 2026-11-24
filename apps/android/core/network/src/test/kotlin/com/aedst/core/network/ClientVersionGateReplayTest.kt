@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.Optional
 
 /**
  * Replays docs/contract/behavior/client-version-gate.json against the client half of the gate: the real
@@ -61,7 +60,7 @@ class ClientVersionGateReplayTest {
             val tasks = TasksServiceClient(
                 ProtocolClient(
                     httpClient = ConnectOkHttpClient(
-                        OkHttpClient.Builder().addInterceptor(RequestHeadersInterceptor(Optional.empty())).build(),
+                        OkHttpClient.Builder().addInterceptor(RequestHeadersInterceptor()).build(),
                     ),
                     ProtocolClientConfig(
                         host = server.url("/").toString(),

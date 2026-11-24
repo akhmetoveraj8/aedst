@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.core.media.MediaItem
 import com.aedst.core.media.MediaKind
@@ -46,14 +45,15 @@ import com.aedst.core.ui.components.FullScreenLoading
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 import com.aedst.feature.media.R
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 
 @Composable
 internal fun MediaDetailRoute(
     mediaId: String,
     onBack: () -> Unit,
-    viewModel: MediaDetailViewModel = hiltViewModel<MediaDetailViewModel, MediaDetailViewModel.Factory>(
-        creationCallback = { factory -> factory.create(mediaId) },
-    ),
+    viewModel: MediaDetailViewModel = assistedMetroViewModel<MediaDetailViewModel, MediaDetailViewModel.Factory> {
+        create(mediaId)
+    },
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val currentOnBack by rememberUpdatedState(onBack)

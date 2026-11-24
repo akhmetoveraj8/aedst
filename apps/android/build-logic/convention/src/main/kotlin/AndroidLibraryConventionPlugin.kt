@@ -50,7 +50,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             // them add `junit-vintage-engine` (testRuntimeOnly) so this same JUnit Platform task also runs those.
             tasks.withType(org.gradle.api.tasks.testing.Test::class.java).configureEach {
                 useJUnitPlatform()
-                // Gradle 9 fails a test task whose variant has generated (Hilt/KSP) test sources but no tests; many
+                // Gradle 9 fails a test task whose variant has generated (KSP) test sources but no tests; many
                 // modules legitimately have none yet.
                 failOnNoDiscoveredTests.set(false)
             }

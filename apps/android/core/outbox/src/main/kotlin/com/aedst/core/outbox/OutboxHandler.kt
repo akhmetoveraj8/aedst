@@ -7,7 +7,7 @@ data class OutboxItem(val id: String, val type: String, val payload: String, val
 
 /**
  * Delivers one kind of queued operation. Features contribute handlers with
- * `@Binds @IntoSet abstract fun bind(impl: MyHandler): OutboxHandler` in their own Hilt module.
+ * `@ContributesIntoSet(AppScope::class, binding<OutboxHandler>())` on the handler class.
  *
  * Contract:
  *  - Delivery is **at-least-once**: send [OutboxItem.id] as the `Idempotency-Key` header so a retry after a lost

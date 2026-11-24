@@ -7,7 +7,7 @@
 # --- language / build ---
 # EXCEPTION to the stable-only policy (explicit owner decision, 2026-11-21): Kotlin 2.5.0-RC. 2.5.0 final is not
 # published (Maven Central has only 2.5.0-Beta1/Beta2/RC, verified 2026-11-21); 2.4.21 is the latest stable.
-# UNVERIFIED: not compiled; KSP 2.3.14, Hilt 2.60.1 and detekt 2.0.0-alpha.6 (embeds Kotlin 2.4.10) do not state
+# UNVERIFIED: not compiled; KSP 2.3.14, Metro 1.6.0 and detekt 2.0.0-alpha.6 (embeds Kotlin 2.4.10) do not state
 # Kotlin 2.5 support. Revisit trigger: 2.5.0 final -> pin it and drop this exception (docs/content/decisions/android.md).
 kotlin = "2.5.0-RC"
 # AGP 9 with built-in Kotlin: no `org.jetbrains.kotlin.android` plugin anywhere
@@ -27,10 +27,10 @@ compose-lifecycle = "2.11.1"
 
 # --- coroutines / DI / navigation ---
 coroutines = "1.11.0"
-# DI: Hilt (Dagger). Hilt >= 2.59 requires AGP 9 (satisfied). See the DI/AGP
-# decision in apps/android/README.md.
-hilt = "2.60.1"
-hilt-androidx = "1.4.0" # androidx.hilt: lifecycle-viewmodel-compose, work, compiler
+# DI: Metro (dev.zacsweers.metro): Kotlin compiler plugin, no KSP/kapt. 1.6.0 released 2026-11-16 (Maven Central
+# maven-metadata.xml, verified 2026-11-25). Replaces Hilt (docs/content/decisions/android.md). metrox-viewmodel and
+# metrox-viewmodel-compose share the Metro version.
+metro = "1.6.0"
 # Navigation 3: the back stack is app-owned state (a list of serializable NavKeys); see docs/content/android/architecture.md.
 navigation3 = "1.2.2"
 
@@ -127,7 +127,6 @@ robolectric = "4.18.1" # JVM Android runtime for Compose/Room/Worker tests — s
 androidx-benchmark = "1.5.0"
 androidx-profileinstaller = "1.4.1"
 
-javax-inject = "1"
 androidx-core = "1.19.1"
 splashscreen = "1.2.0"
 androidx-appcompat = "1.8.0"
@@ -138,14 +137,13 @@ desugar-jdk-libs = "2.1.5"
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 ksp-gradlePlugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
+metro-gradlePlugin = { module = "dev.zacsweers.metro:gradle-plugin", version.ref = "metro" }
 detekt-gradlePlugin = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 ktlint-gradlePlugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint-plugin" }
 compose-rules-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "compose-rules" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 compose-compiler-gradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 
-javax-inject = { module = "javax.inject:javax.inject", version.ref = "javax-inject" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
@@ -181,11 +179,8 @@ compose-material3-adaptive = { module = "androidx.compose.material3.adaptive:ada
 compose-material3-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout" }
 compose-material3-adaptive-navigation = { module = "androidx.compose.material3.adaptive:adaptive-navigation" }
 
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
-hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
-hilt-lifecycle-viewmodel-compose = { module = "androidx.hilt:hilt-lifecycle-viewmodel-compose", version.ref = "hilt-androidx" }
-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-androidx" }
-hilt-work-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt-androidx" }
+metrox-viewmodel = { module = "dev.zacsweers.metro:metrox-viewmodel", version.ref = "metro" }
+metrox-viewmodel-compose = { module = "dev.zacsweers.metro:metrox-viewmodel-compose", version.ref = "metro" }
 
 connect-kotlin-core = { module = "com.connectrpc:connect-kotlin", version.ref = "connect-kotlin" }
 connect-kotlin-okhttp = { module = "com.connectrpc:connect-kotlin-okhttp", version.ref = "connect-kotlin" }
@@ -267,7 +262,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-plugin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services-plugin" }
@@ -283,7 +278,7 @@ android-application-convention = { id = "aedst.android.application" }
 android-library-convention = { id = "aedst.android.library" }
 android-feature-convention = { id = "aedst.android.feature" }
 android-compose-convention = { id = "aedst.android.compose" }
-android-hilt-convention = { id = "aedst.android.hilt" }
+android-metro-convention = { id = "aedst.android.metro" }
 jvm-library-convention = { id = "aedst.jvm.library" }
 kmp-library-convention = { id = "aedst.kmp.library" }
 detekt-convention = { id = "aedst.detekt" }

@@ -13,10 +13,16 @@ import com.aedst.media.v1.createUploadRequest
 import com.aedst.media.v1.deleteMediaRequest
 import com.aedst.media.v1.getMediaRequest
 import com.aedst.media.v1.listMediaRequest
-import javax.inject.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 
 /** MediaService over ConnectRPC. Errors surface as `AedstError` (see `core/network`'s `toAedstError`). */
-class ConnectMediaRepository @Inject constructor(private val client: MediaServiceClientInterface) :
+@ContributesBinding(AppScope::class, binding<MediaRepository>())
+@ContributesBinding(AppScope::class, binding<MediaUploadApi>())
+@Inject
+class ConnectMediaRepository(private val client: MediaServiceClientInterface) :
     MediaRepository,
     MediaUploadApi {
 

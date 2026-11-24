@@ -4,7 +4,7 @@ import com.connectrpc.Interceptor
 import com.connectrpc.StreamFunction
 import com.connectrpc.UnaryFunction
 import com.connectrpc.http.clone
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * Supplies the current access token; implemented in feature/auth's data layer. Read synchronously, never blocking.
@@ -19,7 +19,8 @@ fun interface AuthTokenProvider {
  * [NetworkModule]. This interceptor only ever reads: an expired token is
  * handled reactively by [TokenRefreshAuthenticator] (refresh + replay on 401).
  */
-class AuthInterceptor @Inject constructor(private val tokenProvider: AuthTokenProvider) : Interceptor {
+@Inject
+class AuthInterceptor(private val tokenProvider: AuthTokenProvider) : Interceptor {
     override fun unaryFunction(): UnaryFunction = UnaryFunction(
         requestFunction = { request ->
             val token = tokenProvider.currentAccessToken()

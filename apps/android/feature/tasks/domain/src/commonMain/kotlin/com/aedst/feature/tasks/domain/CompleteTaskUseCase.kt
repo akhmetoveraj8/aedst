@@ -20,7 +20,7 @@ public sealed interface CompleteTaskResult {
  * `Idempotency-Key` of the direct call and of the queued one. Reopening and deleting stay online-only: the server
  * state machine does not accept them out of order, and a queued delete could outlive the user's change of mind.
  *
- * No DI annotation: the domain is common code. The feature's Hilt module provides it (`TasksModule`).
+ * No DI annotation: the domain is common code. The feature's Metro container provides it (`TasksProviders`).
  */
 public class CompleteTaskUseCase(
     private val repository: TaskRepository,

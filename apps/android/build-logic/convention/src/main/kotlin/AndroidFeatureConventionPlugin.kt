@@ -4,7 +4,7 @@ import org.gradle.kotlin.dsl.dependencies
 
 /**
  * Applied by every `feature` module. Composes the android-library, compose
- * and hilt conventions, and adds the modules every feature needs regardless
+ * and metro conventions, and adds the modules every feature needs regardless
  * of its own domain (navigation contracts, common primitives, DI, coroutines).
  * This is the Android analog of a server module's standard layer imports.
  */
@@ -13,7 +13,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
         with(target) {
             pluginManager.apply("aedst.android.library")
             pluginManager.apply("aedst.android.compose")
-            pluginManager.apply("aedst.android.hilt")
+            pluginManager.apply("aedst.android.metro")
 
             dependencies {
                 add("implementation", project(":core:common"))
@@ -22,8 +22,8 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 // Navigation 3 runtime (NavKey, EntryProviderScope): the contract each feature registers entries on.
                 // The NavDisplay UI and the entry decorators (ViewModel scoping) live in app/, not in features.
                 add("implementation", versionCatalog.findLibrary("navigation3-runtime").get())
-                // hiltViewModel() (+ the assisted-injection overload for ViewModels that take a navigation key).
-                add("implementation", versionCatalog.findLibrary("hilt-lifecycle-viewmodel-compose").get())
+                // metroViewModel() (+ assistedMetroViewModel() for ViewModels that take a navigation key).
+                add("implementation", versionCatalog.findLibrary("metrox-viewmodel-compose").get())
                 add("implementation", versionCatalog.findLibrary("kotlinx-coroutines-android").get())
 
                 add("testImplementation", project(":core:testing"))

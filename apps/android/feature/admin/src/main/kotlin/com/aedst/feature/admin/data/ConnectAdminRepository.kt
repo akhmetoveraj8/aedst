@@ -16,16 +16,17 @@ import com.aedst.feature.admin.domain.AdminTaskRow
 import com.aedst.feature.admin.domain.AuditRow
 import com.aedst.feature.admin.domain.Page
 import com.connectrpc.ProtocolClientInterface
-import dagger.Binds
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 
-internal class ConnectAdminRepository @Inject constructor(private val client: AdminServiceClientInterface) :
-    AdminRepository {
+@ContributesBinding(AppScope::class)
+@Inject
+internal class ConnectAdminRepository(private val client: AdminServiceClientInterface) : AdminRepository {
 
     override suspend fun overview(): Outcome<AdminOverview> = runCatchingOutcome {
         val response = rpc { client.getOverview(getOverviewRequest { }) }
@@ -101,16 +102,11 @@ internal class ConnectAdminRepository @Inject constructor(private val client: Ad
     }
 }
 
-@Module
-@InstallIn(SingletonComponent::class)
-internal abstract class AdminModule {
-    @Binds
-    abstract fun bindAdminRepository(impl: ConnectAdminRepository): AdminRepository
-
-    companion object {
-        @Provides
-        @Singleton
-        fun provideAdminServiceClient(client: ProtocolClientInterface): AdminServiceClientInterface =
-            AdminServiceClient(client)
-    }
+@BindingContainer
+@ContributesTo(AppScope::class)
+object AdminProviders {
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideAdminServiceClient(client: ProtocolClientInterface): AdminServiceClientInterface =
+        AdminServiceClient(client)
 }

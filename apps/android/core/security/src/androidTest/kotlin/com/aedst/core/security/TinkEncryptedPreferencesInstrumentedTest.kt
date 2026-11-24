@@ -17,7 +17,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.security.KeyStore
-import java.util.Optional
 
 /**
  * The Keystore + Tink secure store on a real Android Keystore (emulator or device), which no JVM test can exercise.
@@ -88,7 +87,7 @@ class TinkEncryptedPreferencesInstrumentedTest {
                     override val io: CoroutineDispatcher = Dispatchers.IO
                     override val default: CoroutineDispatcher = Dispatchers.Default
                 },
-                Optional.empty(),
+                null,
             )
         }
     }

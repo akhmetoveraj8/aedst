@@ -6,10 +6,13 @@ import com.aedst.core.common.AedstError
 import com.aedst.core.common.Outcome
 import com.aedst.core.media.MediaItem
 import com.aedst.core.media.data.MediaRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
@@ -38,11 +41,9 @@ sealed interface MediaDetailEffect {
     data object Deleted : MediaDetailEffect
 }
 
-@HiltViewModel(assistedFactory = MediaDetailViewModel.Factory::class)
-internal class MediaDetailViewModel @AssistedInject constructor(
-    @Assisted private val mediaId: String,
-    private val repository: MediaRepository,
-) : ViewModel() {
+@AssistedInject
+internal class MediaDetailViewModel(@Assisted private val mediaId: String, private val repository: MediaRepository) :
+    ViewModel() {
 
     private var loadJob: Job? = null
 
@@ -89,7 +90,9 @@ internal class MediaDetailViewModel @AssistedInject constructor(
 
     /** The media id comes from the Navigation 3 key (`MediaDetailKey`), passed by `MediaDetailRoute`. */
     @AssistedFactory
-    interface Factory {
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    interface Factory : ManualViewModelAssistedFactory {
         fun create(mediaId: String): MediaDetailViewModel
     }
 }

@@ -116,7 +116,7 @@
       "groupName": "android (Gradle)"
     },
     {
-      "description": "Kotlin, KSP, Compose compiler (== Kotlin version), AGP and Hilt must move together: one PR, never split.",
+      "description": "Kotlin, KSP, Compose compiler (== Kotlin version), AGP and Metro (its compiler plugin is tied to the Kotlin version) must move together: one PR, never split.",
       "matchManagers": [
         "gradle"
       ],
@@ -126,10 +126,9 @@
         "com.android.tools.build{/,}**",
         "com.android.application",
         "com.android.library",
-        "com.google.dagger{/,}**",
-        "com.google.dagger.hilt.android"
+        "dev.zacsweers.metro{/,}**"
       ],
-      "groupName": "android toolchain (Kotlin + KSP + Compose compiler + AGP + Hilt)"
+      "groupName": "android toolchain (Kotlin + KSP + Compose compiler + AGP + Metro)"
     },
     {
       "description": "Android: Compose BOM and the androidx libraries it does not manage move in one PR; majors stay separate.",
@@ -140,8 +139,7 @@
         "androidx.compose{/,}**",
         "androidx.activity{/,}**",
         "androidx.lifecycle{/,}**",
-        "androidx.navigation3{/,}**",
-        "androidx.hilt{/,}**"
+        "androidx.navigation3{/,}**"
       ],
       "groupName": "android (androidx + Compose)",
       "matchUpdateTypes": [

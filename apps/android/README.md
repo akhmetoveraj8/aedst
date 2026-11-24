@@ -10,7 +10,7 @@ of `apps/server` (see [../../docs/content/android/architecture.md](../../docs/co
 ## Module map
 
 ```
-app/                        phone/tablet application module — Hilt entry point, Navigation 3 shell, App Links, wires every feature
+app/                        phone/tablet application module — Metro graph (`AppGraph`), Navigation 3 shell, App Links, wires every feature
 app-tv/                     thin Android TV application module (device sign-in, upgrade screen); same convention plugin as app/
 
 core/common                 Outcome/AedstError, DispatcherProvider, UseCase base classes
@@ -81,17 +81,16 @@ Benchmark notes:
   against Maven Central / Google Maven metadata (never alpha/beta/rc). Compose
   versions come from the BOM (`platform(libs.compose.bom)` in the compose
   convention plugin), not from individual pins.
-- **AGP 9 with built-in Kotlin + Hilt 2.60.1** (DI decision). Weighed:
-  (a) AGP 9 + latest Hilt versus (b) migrating to Metro or Koin. Chose (a). The
-  AGP 9 migration is small (drop the `org.jetbrains.kotlin.android` plugin from
-  the convention plugins and `benchmark`; KSP, Hilt, Compose and serialization
-  plugins work unchanged). Hilt keeps compile-time graph validation and the
-  first-party integrations this app uses (`hilt-lifecycle-viewmodel-compose`,
-  `hilt-work`, `@HiltViewModel`) stay supported by Google. Metro is promising
-  and KMP-ready, but this is an Android-only client, so KMP-readiness has no
-  payoff today, and moving would mean replacing the Hilt navigation/work
-  integrations and rewriting every module for no functional gain; Koin gives up
-  compile-time safety. Revisit Metro only if a KMP shared module is introduced.
+- **AGP 9 with built-in Kotlin + Metro 1.6.0** (DI decision, 2026-11-25). Metro replaced Hilt: it is a Kotlin
+  compiler plugin (no KSP or kapt step), validates the graph at compile time like Dagger, aggregates with
+  `@ContributesTo` / `@ContributesBinding` / `@ContributesIntoSet` / `@ContributesIntoMap` instead of `@Module` +
+  `@InstallIn`, and ships first-party ViewModel integration (`metrox-viewmodel`, `metrox-viewmodel-compose`).
+  It has no `@AndroidEntryPoint`, `@HiltWorker` or WorkManager artifact, so the Application owns the graph,
+  Activities member-inject from it, a Service reads a contributed interface (`Context.graphAs<T>()`) and workers are
+  `@AssistedInject` classes built by `AedstWorkerFactory`. Metro follows Kotlin visibility: modules that contribute
+  bindings must be direct dependencies of `app` / `app-tv` (checked by `metro.hiddenDependencies`), and
+  `generateContributionProviders` keeps feature classes `internal`. Koin stays rejected (no compile-time safety).
+  Details: docs/content/decisions/android.md.
 - **Secrets storage**: `androidx.security:security-crypto`
   (`EncryptedSharedPreferences`) is deprecated and removed. `core/security` now
   uses Android Keystore (non-exportable master key) + Google Tink AEAD
@@ -198,7 +197,7 @@ Nothing below is required to build or run the template; an empty value disables 
 
 **Renovate** (root `renovate.json`) is the single updater for the whole monorepo, Gradle included: it reads
 `gradle/libs.versions.toml`, `*.gradle.kts` and the wrapper, proposes stable releases only, and groups related bumps
-(Kotlin + KSP + Compose compiler + AGP + Hilt in one PR; androidx/Compose; protobuf + connect + OkHttp; telemetry; test
+(Kotlin + KSP + Compose compiler + AGP + Metro in one PR; androidx/Compose; protobuf + connect + OkHttp; telemetry; test
 stack). The earlier in-repo `ben-manes` / `version-catalog-update` Gradle plugins were removed - two updaters
 disagreeing about the same catalog is worse than one. `detekt` is on 2.0.0-alpha.6 (`dev.detekt`) as a documented pre-release exception; Renovate may propose
 newer `dev.detekt` pre-releases only, until 2.0.0 stable (decisions.md). On-demand wrapper bump: `task deps:update` (`scripts/update-deps.sh android`).

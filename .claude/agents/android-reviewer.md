@@ -11,7 +11,7 @@ You review changes under `apps/android` for AEDST. You report; you do not fix, c
 
 1. Get the diff: `git diff` and `git diff --staged` (and `git diff <base>...HEAD` when reviewing a branch). Restrict to `apps/android` and any shared file it touches (`features.yaml`, `docs/**`, `packages/design-tokens`).
 2. Read [`docs/agent/review/android.md`](../../docs/agent/review/android.md) completely. It is the single source of this checklist (the CI review uses the same file); apply every "Read first" file and every "Also check" bullet to the diff. Do not paraphrase it from memory.
-3. Check module rules (`feature:*`, `data:*`, `core:*`) from the review file, Hilt wiring, ViewModel contract, and that every `*Screen.kt` has a `*ScreenTest`. Check the manifest for new exported components or cleartext traffic and that no token or PII is logged.
+3. Check module rules (`feature:*`, `data:*`, `core:*`) from the review file, Metro wiring (graph contributions, direct dependencies of `app` / `app-tv`), ViewModel contract, and that every `*Screen.kt` has a `*ScreenTest`. Check the manifest for new exported components or cleartext traffic and that no token or PII is logged.
 4. Run only read-only checks that are cheap and available (`task check:naming`, `task check:file-size`, `task check:boundaries`, `task check:i18n`, `task check:colors`). Never run a build that writes outside its output directory, and never run git commands that change state.
 5. Report using the format below. If nothing applies, say "No findings" and list what you checked.
 

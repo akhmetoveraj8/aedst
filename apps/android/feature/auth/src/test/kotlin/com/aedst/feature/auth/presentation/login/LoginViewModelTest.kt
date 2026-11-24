@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import java.util.Optional
 
 class LoginViewModelTest {
 
@@ -59,7 +58,7 @@ class LoginViewModelTest {
             authRepository,
             NoOpAnalyticsTracker(),
             savedState,
-            SignInDiagnostics(logger, Optional.of(reporter)),
+            SignInDiagnostics(logger, reporter),
         )
     }
 

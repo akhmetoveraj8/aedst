@@ -1,17 +1,21 @@
 package com.aedst.core.outbox
 
 import android.content.Context
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.aedst.core.common.AedstError
 import com.aedst.core.common.Logger
 import com.aedst.core.common.Outcome
+import com.aedst.core.common.WorkerAssistedFactory
+import com.aedst.core.common.WorkerKey
 import com.aedst.core.common.isRetryable
 import com.aedst.core.database.OutboxDao
 import com.aedst.core.database.OutboxEntity
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
 import kotlinx.coroutines.CancellationException
 import java.util.concurrent.TimeUnit
 import kotlin.time.Clock
@@ -21,15 +25,22 @@ import kotlin.time.Clock
  * asks WorkManager to retry with exponential backoff rather than skipping ahead; a permanent failure parks just that
  * item and continues.
  */
-@HiltWorker
-class OutboxSyncWorker @AssistedInject constructor(
+@AssistedInject
+class OutboxSyncWorker(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val dao: OutboxDao,
-    private val handlers: Set<@JvmSuppressWildcards OutboxHandler>,
+    private val handlers: Set<OutboxHandler>,
     private val logger: Logger,
     private val clock: Clock,
 ) : CoroutineWorker(appContext, params) {
+
+    @WorkerKey(OutboxSyncWorker::class)
+    @ContributesIntoMap(AppScope::class)
+    @AssistedFactory
+    fun interface Factory : WorkerAssistedFactory {
+        override fun create(appContext: Context, params: WorkerParameters): OutboxSyncWorker
+    }
 
     override suspend fun doWork(): Result {
         val handlersByType = handlers.associateBy(OutboxHandler::type)

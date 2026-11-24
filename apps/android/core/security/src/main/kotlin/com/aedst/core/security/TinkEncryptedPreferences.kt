@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStoreFile
+import com.aedst.core.common.ApplicationContext
 import com.aedst.core.common.DispatcherProvider
 import com.aedst.core.common.ErrorReporter
 import com.google.crypto.tink.Aead
@@ -12,13 +13,13 @@ import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.RegistryConfiguration
 import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
-import java.util.Optional
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * [EncryptedPreferences] backed by a DataStore whose file is sealed with a
@@ -33,11 +34,13 @@ import javax.inject.Singleton
  * unless the Keystore really protects it: the read or write fails (sign-in cannot complete, nothing sensitive is
  * written) and the failure is reported as a non-fatal.
  */
-@Singleton
-class TinkEncryptedPreferences @Inject constructor(
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
+class TinkEncryptedPreferences(
     @ApplicationContext private val context: Context,
     dispatchers: DispatcherProvider,
-    errorReporter: Optional<ErrorReporter>,
+    errorReporter: ErrorReporter? = null,
 ) : EncryptedPreferences {
 
     private val store: DataStore<SecretEntries> = DataStoreFactory.create(
@@ -46,7 +49,7 @@ class TinkEncryptedPreferences @Inject constructor(
                 try {
                     createAead(context)
                 } catch (@Suppress("TooGenericExceptionCaught") failure: Exception) {
-                    errorReporter.ifPresent { it.recordNonFatal(failure) }
+                    errorReporter?.recordNonFatal(failure)
                     throw failure
                 }
             },

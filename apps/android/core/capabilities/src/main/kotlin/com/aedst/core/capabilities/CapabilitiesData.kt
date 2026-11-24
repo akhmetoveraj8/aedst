@@ -8,18 +8,21 @@ import com.aedst.capabilities.v1.getCapabilitiesRequest
 import com.aedst.core.datastore.UserPrefs
 import com.aedst.core.network.rpc
 import com.google.protobuf.InvalidProtocolBufferException
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.IOException
-import javax.inject.Inject
 
 /** Fetches the server's answer. Public RPC: no token is needed, and a failure is thrown as an `AedstError`. */
 fun interface CapabilitiesRemote {
     suspend fun fetch(): GetCapabilitiesResponse
 }
 
-class ConnectCapabilitiesRemote @Inject constructor(private val client: CapabilitiesServiceClientInterface) :
-    CapabilitiesRemote {
+@ContributesBinding(AppScope::class)
+@Inject
+class ConnectCapabilitiesRemote(private val client: CapabilitiesServiceClientInterface) : CapabilitiesRemote {
     override suspend fun fetch(): GetCapabilitiesResponse = rpc { client.getCapabilities(getCapabilitiesRequest {}) }
 }
 
@@ -31,8 +34,9 @@ interface CapabilitiesCache {
     suspend fun save(response: GetCapabilitiesResponse)
 }
 
-class DataStoreCapabilitiesCache @Inject constructor(private val dataStore: DataStore<UserPrefs>) :
-    CapabilitiesCache {
+@ContributesBinding(AppScope::class)
+@Inject
+class DataStoreCapabilitiesCache(private val dataStore: DataStore<UserPrefs>) : CapabilitiesCache {
     override val lastKnown: Flow<GetCapabilitiesResponse?> = dataStore.data.map { prefs ->
         if (prefs.capabilitiesSnapshot.isEmpty) {
             null

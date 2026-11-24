@@ -8,8 +8,10 @@ import com.aedst.integrity.v1.DeviceVerdict
 import com.aedst.integrity.v1.IntegrityServiceClientInterface
 import com.aedst.integrity.v1.verifyIntegrityTokenRequest
 import com.google.protobuf.ByteString
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import java.security.SecureRandom
-import javax.inject.Inject
 
 /** The applicationId of this build, sent as `package_name` so the server can check it against its allow-list. */
 data class ApplicationId(val value: String)
@@ -20,7 +22,9 @@ data class ApplicationId(val value: String)
  * normal response (`verified = false` plus a reason); every other problem (no cloud project, no Play Services,
  * offline, server disabled = FAILED_PRECONDITION) is thrown for the caller to swallow.
  */
-class PlayIntegrityDeviceAttestor @Inject constructor(
+@ContributesBinding(AppScope::class)
+@Inject
+class PlayIntegrityDeviceAttestor(
     private val facade: IntegrityFacade,
     private val client: IntegrityServiceClientInterface,
     private val applicationId: ApplicationId,

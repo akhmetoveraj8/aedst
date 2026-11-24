@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.core.media.MediaItem
@@ -49,9 +48,10 @@ import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 import com.aedst.feature.media.R
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 @Composable
-internal fun MediaLibraryRoute(onOpenMedia: (String) -> Unit, viewModel: MediaLibraryViewModel = hiltViewModel()) {
+internal fun MediaLibraryRoute(onOpenMedia: (String) -> Unit, viewModel: MediaLibraryViewModel = metroViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val uploads by viewModel.activeUploads.collectAsStateWithLifecycle()
     // The one place the library loads: every start (first open, and coming back from a detail screen or the picker).

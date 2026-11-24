@@ -3,7 +3,7 @@ plugins {
 }
 
 // The pure domain of feature/{{name}}: entities, repository ports and use cases as common code (android + jvm targets).
-// It depends on core/common only; data, presentation and the Hilt wiring stay in the Android module next to it.
+// It depends on core/common only; data, presentation and the Metro wiring stay in the Android module next to it.
 kotlin {
     android {
         namespace = "com.aedst.feature.{{name}}.domain"

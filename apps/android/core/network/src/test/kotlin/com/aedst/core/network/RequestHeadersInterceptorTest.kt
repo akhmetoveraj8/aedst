@@ -10,12 +10,11 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.Optional
 
 class RequestHeadersInterceptorTest {
 
     private lateinit var server: MockWebServer
-    private val client = OkHttpClient.Builder().addInterceptor(RequestHeadersInterceptor(Optional.empty())).build()
+    private val client = OkHttpClient.Builder().addInterceptor(RequestHeadersInterceptor()).build()
 
     @BeforeEach
     fun setUp() {

@@ -4,14 +4,16 @@ import com.aedst.core.common.AedstError
 import com.aedst.core.common.CapabilitiesState
 import com.aedst.core.common.FeatureAvailability
 import com.aedst.core.network.ClientUpgradeGate
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Duration
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 
@@ -23,8 +25,10 @@ import kotlin.time.Clock
  * A fresh answer that puts this build below its platform minimum latches the forced-upgrade screen
  * ([ClientUpgradeGate]), the same path an RPC rejected with `CLIENT_UPGRADE_REQUIRED` takes.
  */
-@Singleton
-class CapabilitiesService @Inject constructor(
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
+class CapabilitiesService(
     private val remote: CapabilitiesRemote,
     private val cache: CapabilitiesCache,
     private val build: ClientBuild,

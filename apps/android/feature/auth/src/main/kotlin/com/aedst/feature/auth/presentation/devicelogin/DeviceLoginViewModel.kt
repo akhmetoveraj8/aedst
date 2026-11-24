@@ -10,7 +10,10 @@ import com.aedst.feature.auth.domain.BeginDeviceSignInUseCase
 import com.aedst.feature.auth.domain.DeviceAuthorization
 import com.aedst.feature.auth.domain.DeviceSignInResult
 import com.aedst.feature.auth.presentation.SignInDiagnostics
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -20,7 +23,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Runs the device flow: on creation (and on [DeviceLoginIntent.GetNewCode]) requests a code, shows it, polls in the
@@ -29,8 +31,10 @@ import javax.inject.Inject
  *
  * The device code is never part of the state; only what the user must see is.
  */
-@HiltViewModel
-internal class DeviceLoginViewModel @Inject constructor(
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+@Inject
+internal class DeviceLoginViewModel(
     private val beginDeviceSignIn: BeginDeviceSignInUseCase,
     private val awaitDeviceSignIn: AwaitDeviceSignInUseCase,
     private val authRepository: AuthRepository,

@@ -25,7 +25,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.core.ui.adaptive.AedstAdaptiveContent
 import com.aedst.core.ui.adaptive.AedstContentWidth
@@ -38,9 +37,10 @@ import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 import com.aedst.feature.search.R
 import com.aedst.feature.search.domain.SearchHit
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 
 @Composable
-internal fun SearchRoute(onOpenLink: (String) -> Unit, viewModel: SearchViewModel = hiltViewModel()) {
+internal fun SearchRoute(onOpenLink: (String) -> Unit, viewModel: SearchViewModel = assistedMetroViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     SearchScreen(state = state, onIntent = viewModel::onIntent, onOpenLink = onOpenLink)
 }

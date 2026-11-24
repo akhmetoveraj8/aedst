@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.library.convention)
     alias(libs.plugins.android.compose.convention)
-    alias(libs.plugins.android.hilt.convention)
+    alias(libs.plugins.android.metro.convention)
 }
 
 // Shared media building blocks used by feature/media and feature/tasks (attachments):
@@ -28,8 +28,6 @@ dependencies {
     implementation(libs.okhttp.coroutines)
 
     implementation(libs.workmanager.runtime)
-    implementation(libs.hilt.work)
-    ksp(libs.hilt.work.compiler)
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)

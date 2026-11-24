@@ -5,8 +5,7 @@ import com.aedst.core.common.ErrorReporter
 import com.aedst.core.common.Logger
 import com.aedst.core.common.isReportable
 import com.aedst.core.common.kind
-import java.util.Optional
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * What a developer needs when a sign-in fails. The user sees only the localized message of the error *kind*; the
@@ -17,13 +16,11 @@ import javax.inject.Inject
  *
  * The message never contains a token: AppAuth and the IdP return error codes, not credentials.
  */
-internal class SignInDiagnostics @Inject constructor(
-    private val logger: Logger,
-    private val errorReporter: Optional<ErrorReporter>,
-) {
+@Inject
+internal class SignInDiagnostics(private val logger: Logger, private val errorReporter: ErrorReporter? = null) {
     fun failed(method: String, error: AedstError) {
         logger.warn(TAG, "Sign-in ($method) failed: ${error.kind}: ${error.message}", error)
-        if (error.isReportable) errorReporter.ifPresent { it.recordNonFatal(error) }
+        if (error.isReportable) errorReporter?.recordNonFatal(error)
     }
 
     private companion object {

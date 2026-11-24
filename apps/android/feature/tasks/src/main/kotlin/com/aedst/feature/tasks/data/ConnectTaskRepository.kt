@@ -18,13 +18,16 @@ import com.aedst.tasks.v1.deleteTaskRequest
 import com.aedst.tasks.v1.getTaskRequest
 import com.aedst.tasks.v1.listTasksRequest
 import com.aedst.tasks.v1.reopenTaskRequest
-import javax.inject.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import com.aedst.tasks.v1.Task as ProtoTask
 import com.aedst.tasks.v1.TaskPriority as ProtoTaskPriority
 import com.aedst.tasks.v1.TaskStatus as ProtoTaskStatus
 
-internal class ConnectTaskRepository @Inject constructor(private val client: TasksServiceClientInterface) :
-    TaskRepository {
+@ContributesBinding(AppScope::class)
+@Inject
+internal class ConnectTaskRepository(private val client: TasksServiceClientInterface) : TaskRepository {
 
     override suspend fun list(pageToken: String?): Outcome<TaskPage> = runCatchingOutcome {
         val response = rpc {

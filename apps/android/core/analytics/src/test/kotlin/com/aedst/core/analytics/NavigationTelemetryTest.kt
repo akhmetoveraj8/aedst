@@ -1,9 +1,9 @@
 package com.aedst.core.analytics
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import javax.inject.Singleton
 
 class NavigationTelemetryTest {
 
@@ -30,7 +30,9 @@ class NavigationTelemetryTest {
 
     @Test
     fun `one instance serves the whole process, so an activity recreate does not repeat the screen view`() {
-        // The activity gets it injected: without @Singleton Hilt would build a fresh one (and a null lastScreen) per recreate.
-        assertTrue(NavigationTelemetry::class.java.isAnnotationPresent(Singleton::class.java))
+        // The activity gets it injected: without an app-wide scope the graph would build a fresh one (and a null
+        // lastScreen) per recreate.
+        val scope = NavigationTelemetry::class.java.getAnnotation(SingleIn::class.java)
+        assertEquals(AppScope::class.java, scope?.scope?.java)
     }
 }

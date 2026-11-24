@@ -4,12 +4,14 @@ import com.google.android.play.core.integrity.StandardIntegrityManager
 import com.google.android.play.core.integrity.StandardIntegrityManager.PrepareIntegrityTokenRequest
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenProvider
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenRequest
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Thin wrapper over the Play Integrity **standard** API (warm-up once, then a cheap per-request token), which is the
@@ -28,8 +30,10 @@ interface IntegrityFacade {
     suspend fun requestIntegrityToken(requestHash: String): Result<String>
 }
 
-@Singleton
-class PlayIntegrityFacade @Inject constructor(
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
+class PlayIntegrityFacade(
     private val integrityManager: StandardIntegrityManager,
     private val cloudProjectNumber: PlayIntegrityCloudProject,
 ) : IntegrityFacade {

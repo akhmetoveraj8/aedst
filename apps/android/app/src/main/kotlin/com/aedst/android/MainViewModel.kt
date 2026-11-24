@@ -9,7 +9,10 @@ import com.aedst.core.common.NetworkMonitor
 import com.aedst.core.common.SessionState
 import com.aedst.core.navigation.AedstRoutes
 import com.aedst.core.outbox.OutboxRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,14 +21,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * App-shell state: which graph to show (from the session), whether to show the offline banner and the admin entry,
  * and a pending deep link from a tapped notification.
  */
-@HiltViewModel
-class MainViewModel @Inject constructor(
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+@Inject
+class MainViewModel(
     sessionState: SessionState,
     networkMonitor: NetworkMonitor,
     clientUpgradeState: ClientUpgradeState,

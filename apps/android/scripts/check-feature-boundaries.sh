@@ -12,9 +12,9 @@
 #      b. a domain module depends on multiplatform modules only (those applying `kmp.library.convention`), never on
 #         an Android module or a feature;
 #      c. `feature/*/domain` sources import nothing Android or JVM-only (`android.*`, `androidx.*`, `java.*`,
-#         `javax.*`, `dagger.*`, OkHttp, Connect, protobuf) and nothing from the feature's data / presentation /
+#         `javax.*`, `dagger.*`, `dev.zacsweers.*`, OkHttp, Connect, protobuf) and nothing from the feature's data / presentation /
 #         navigation packages;
-#      d. `commonMain` of any module imports no `android.*`, `java.*`, `javax.*` or `dagger.*` (it must compile for
+#      d. `commonMain` of any module imports no `android.*`, `java.*`, `javax.*`, `dagger.*` or `dev.zacsweers.*` (it must compile for
 #         a non-JVM target the day one is added).
 #
 # Usage: check-feature-boundaries.sh   (run from anywhere; scripts/test-gates.sh seeds a violation per rule)
@@ -87,7 +87,7 @@ for gradle_file in feature/*/domain/build.gradle.kts; do
 done
 
 # 5c. Domain sources: nothing Android, nothing JVM-only, nothing from the feature's outer layers.
-hits=$(grep -rnE --include='*.kt' --exclude-dir=build '^import (android|androidx|java|javax|dagger|okhttp3|com\.connectrpc|com\.google\.protobuf)\.' feature/*/domain/src 2>/dev/null || true)
+hits=$(grep -rnE --include='*.kt' --exclude-dir=build '^import (android|androidx|java|javax|dagger|dev\.zacsweers|okhttp3|com\.connectrpc|com\.google\.protobuf)\.' feature/*/domain/src 2>/dev/null || true)
 if [ -n "$hits" ]; then
   fail "feature/*/domain" "Platform import in a feature domain module (the domain is common code: kotlin.*, kotlinx.coroutines and core/common only):"
   echo "$hits"
@@ -99,7 +99,7 @@ if [ -n "$hits" ]; then
 fi
 
 # 5d. commonMain of every module stays free of Android and JVM-only APIs.
-hits=$(grep -rnE --include='*.kt' --exclude-dir=build '^import (android|java|javax|dagger)\.' core/*/src/commonMain feature/*/domain/src/commonMain 2>/dev/null || true)
+hits=$(grep -rnE --include='*.kt' --exclude-dir=build '^import (android|java|javax|dagger|dev\.zacsweers)\.' core/*/src/commonMain feature/*/domain/src/commonMain 2>/dev/null || true)
 if [ -n "$hits" ]; then
   fail "commonMain" "Android or JVM-only import in commonMain (move the code to androidMain / jvmMain, or use the kotlin.* equivalent):"
   echo "$hits"

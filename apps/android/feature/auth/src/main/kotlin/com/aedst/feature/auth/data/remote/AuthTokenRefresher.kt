@@ -7,14 +7,17 @@ import com.aedst.core.network.TokenRefresher
 import com.aedst.core.network.toAedstError
 import com.aedst.feature.auth.data.local.AuthTokenStore
 import com.aedst.feature.auth.domain.OidcAuthorizer
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Provider
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.provider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 
 /**
  * Implements `core/network`'s [TokenRefresher]: exchanges the stored refresh token for new tokens at the IdP's token
@@ -33,13 +36,15 @@ import javax.inject.Singleton
  * Known window: if the process dies after the IdP rotated the token but before [AuthTokenStore.save] completed, the
  * old refresh token is gone and the next refresh is `invalid_grant` — the user signs in again.
  */
-@Singleton
-class AuthTokenRefresher @Inject constructor(
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
+class AuthTokenRefresher(
     private val tokenStore: AuthTokenStore,
     private val authorizer: OidcAuthorizer,
     private val logger: Logger,
     // A Provider: the hooks reach back into the HTTP stack (push unregister), which contains this refresher.
-    private val signOutHooks: Provider<Set<@JvmSuppressWildcards SignOutHook>> = Provider { emptySet() },
+    private val signOutHooks: Provider<Set<SignOutHook>> = provider { emptySet() },
 ) : TokenRefresher {
     private val mutex = Mutex()
 
@@ -59,7 +64,7 @@ class AuthTokenRefresher @Inject constructor(
             if (error is AedstError.Unauthenticated) {
                 logger.warn(TAG, "Refresh token rejected; ending session", error)
                 tokenStore.clear()
-                signOutHooks.get().runEach(logger, TAG) { it.onSessionEnded() }
+                signOutHooks().runEach(logger, TAG) { it.onSessionEnded() }
             } else {
                 logger.warn(TAG, "Token refresh failed transiently", error)
                 // Surfaces as a retryable network error (OkHttp propagates it), not as the original 401, so a queued

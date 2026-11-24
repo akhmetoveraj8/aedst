@@ -2,7 +2,9 @@ package com.aedst.feature.auth.presentation.login
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
 import com.aedst.core.analytics.AnalyticsTracker
 import com.aedst.core.common.Outcome
 import com.aedst.feature.auth.domain.AuthRepository
@@ -12,7 +14,13 @@ import com.aedst.feature.auth.domain.BeginSignInUseCase
 import com.aedst.feature.auth.domain.CompleteSignInUseCase
 import com.aedst.feature.auth.domain.SignInResult
 import com.aedst.feature.auth.presentation.SignInDiagnostics
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +28,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * UDF loop: intents flow in via [onIntent], state flows out via [state] for `collectAsStateWithLifecycle`, one-shot
@@ -33,15 +40,25 @@ import javax.inject.Inject
  * outlive the app process) the delivered result is still accepted, while a result nobody asked for is ignored. The
  * view model never touches an `Intent`: the launch/callback payloads are opaque domain values.
  */
-@HiltViewModel
-internal class LoginViewModel @Inject constructor(
+@AssistedInject
+internal class LoginViewModel(
     private val beginSignIn: BeginSignInUseCase,
     private val completeSignIn: CompleteSignInUseCase,
     authRepository: AuthRepository,
     private val analyticsTracker: AnalyticsTracker,
-    private val savedState: SavedStateHandle,
+    @Assisted private val savedState: SavedStateHandle,
     private val diagnostics: SignInDiagnostics,
 ) : ViewModel() {
+
+    /** The `SavedStateHandle` comes from the creation extras of the screen's back stack entry. */
+    @AssistedFactory
+    @ViewModelAssistedFactoryKey(LoginViewModel::class)
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ViewModelAssistedFactory {
+        override fun create(extras: CreationExtras): LoginViewModel = create(extras.createSavedStateHandle())
+
+        fun create(savedState: SavedStateHandle): LoginViewModel
+    }
 
     private val mutableState = MutableStateFlow(
         LoginState(problem = if (authRepository.isSignInConfigured) null else LoginProblem.NotConfigured),

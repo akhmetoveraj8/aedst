@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import java.util.Optional
 
 class DeviceLoginViewModelTest {
 
@@ -52,7 +51,7 @@ class DeviceLoginViewModelTest {
             AwaitDeviceSignInUseCase(authRepository, dispatchers),
             authRepository,
             NoOpAnalyticsTracker(),
-            SignInDiagnostics(logger, Optional.of(reporter)),
+            SignInDiagnostics(logger, reporter),
         )
     }
 

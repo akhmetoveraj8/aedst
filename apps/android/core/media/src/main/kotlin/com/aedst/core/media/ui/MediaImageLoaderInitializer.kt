@@ -5,15 +5,20 @@ import coil3.SingletonImageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import com.aedst.core.common.AppInitializer
 import com.aedst.core.network.ExternalHttpClient
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import okhttp3.OkHttpClient
-import javax.inject.Inject
 
 /**
  * Configures Coil's singleton [ImageLoader]: network images are fetched through the app's [ExternalHttpClient] (shared
  * connection pool, no bearer token — media URLs are presigned object-storage GETs), and [LocalVideoThumbnail] models
- * are resolved by [LocalVideoThumbnailFetcher] (the Hilt-provided `LocalThumbnailLoader`).
+ * are resolved by [LocalVideoThumbnailFetcher] (the injected `LocalThumbnailLoader`).
  */
-class MediaImageLoaderInitializer @Inject constructor(
+@ContributesIntoSet(AppScope::class, binding<AppInitializer>())
+@Inject
+class MediaImageLoaderInitializer(
     @ExternalHttpClient private val client: OkHttpClient,
     private val videoThumbnails: LocalVideoThumbnailFetcher.Factory,
 ) : AppInitializer {

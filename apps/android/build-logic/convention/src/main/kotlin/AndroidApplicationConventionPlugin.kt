@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 
 /**
- * Applied by every application module (`app/`, `app-tv/`). Everything cross-cutting (Hilt, Compose, Detekt, the
+ * Applied by every application module (`app/`, `app-tv/`). Everything cross-cutting (Metro, Compose, Detekt, the
  * release TLS-pin gate, locale config, leak detection) is composed in, so a new application module gets it for free.
  */
 class AndroidApplicationConventionPlugin : Plugin<Project> {

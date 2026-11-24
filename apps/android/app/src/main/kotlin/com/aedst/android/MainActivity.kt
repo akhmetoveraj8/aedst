@@ -9,10 +9,13 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.android.navigation.AppNavHost
@@ -21,17 +24,26 @@ import com.aedst.core.navigation.AedstRoutes
 import com.aedst.core.ui.components.AedstOfflineBanner
 import com.aedst.core.ui.screens.UpgradeRequiredScreen
 import com.aedst.core.ui.theme.AedstTheme
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     @Inject
     lateinit var navigationTelemetry: NavigationTelemetry
 
+    /** One factory for `by viewModels()` here and for `metroViewModel()` in every screen (see `setContent`). */
+    @Inject
+    lateinit var viewModelFactory: MetroViewModelFactory
+
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+        get() = viewModelFactory
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Metro has no @AndroidEntryPoint: the system builds the activity, so it asks the graph to fill it in.
+        (application as AedstApplication).appGraph.inject(this)
         // Must run before super.onCreate. Hold the splash until the persisted session is known, so a signed-in user
         // never sees a flash of the login screen.
         installSplashScreen().setKeepOnScreenCondition { viewModel.isSignedIn.value == null }
@@ -40,46 +52,8 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) handleDeepLink(intent)
 
         setContent {
-            val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
-            val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
-            val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
-            val pendingRoute by viewModel.pendingRoute.collectAsStateWithLifecycle()
-            val features by viewModel.features.collectAsStateWithLifecycle()
-            val showUpdatePrompt by viewModel.showUpdatePrompt.collectAsStateWithLifecycle()
-            val failedWrites by viewModel.failedWrites.collectAsStateWithLifecycle()
-
-            // Start-up and every return to the foreground; the repository skips it when the last answer is recent.
-            LifecycleEventEffect(Lifecycle.Event.ON_START) { viewModel.refreshCapabilities() }
-
-            val upgradeRequired by viewModel.upgradeRequired.collectAsStateWithLifecycle()
-
-            AedstTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    if (upgradeRequired) {
-                        // ADR-0009: this build is refused by the server; nothing else is reachable until it is updated.
-                        UpgradeRequiredScreen()
-                    } else {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            AedstOfflineBanner(isOffline = isOffline)
-                            OutboxFailedAlert(
-                                failedCount = failedWrites,
-                                onRetry = viewModel::retryFailedWrites,
-                                onDiscard = viewModel::discardFailedWrites,
-                            )
-                            if (showUpdatePrompt) {
-                                UpdateRecommendedBanner(onDismiss = viewModel::onUpdatePromptDismissed)
-                            }
-                            AppNavHost(
-                                isSignedIn = isSignedIn,
-                                isAdmin = isAdmin,
-                                features = features,
-                                pendingRoute = pendingRoute,
-                                onPendingRouteHandled = viewModel::onDeepLinkHandled,
-                                navigationTelemetry = navigationTelemetry,
-                            )
-                        }
-                    }
-                }
+            CompositionLocalProvider(LocalMetroViewModelFactory provides viewModelFactory) {
+                MainContent(viewModel = viewModel, navigationTelemetry = navigationTelemetry)
             }
         }
     }
@@ -99,5 +73,51 @@ class MainActivity : ComponentActivity() {
         val appLink = intent?.takeIf { it.action == Intent.ACTION_VIEW }?.data
             ?.let { AedstRoutes.linkForAppLink(it.scheme, it.path) }
         viewModel.onDeepLink(intent?.getStringExtra(AedstRoutes.EXTRA_LINK) ?: appLink)
+    }
+}
+
+/** The app shell: session-driven navigation, the offline, outbox and update banners, or the forced-upgrade screen. */
+@Composable
+private fun MainContent(viewModel: MainViewModel, navigationTelemetry: NavigationTelemetry) {
+    val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
+    val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
+    val isAdmin by viewModel.isAdmin.collectAsStateWithLifecycle()
+    val pendingRoute by viewModel.pendingRoute.collectAsStateWithLifecycle()
+    val features by viewModel.features.collectAsStateWithLifecycle()
+    val showUpdatePrompt by viewModel.showUpdatePrompt.collectAsStateWithLifecycle()
+    val failedWrites by viewModel.failedWrites.collectAsStateWithLifecycle()
+
+    // Start-up and every return to the foreground; the repository skips it when the last answer is recent.
+    LifecycleEventEffect(Lifecycle.Event.ON_START) { viewModel.refreshCapabilities() }
+
+    val upgradeRequired by viewModel.upgradeRequired.collectAsStateWithLifecycle()
+
+    AedstTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            if (upgradeRequired) {
+                // ADR-0009: this build is refused by the server; nothing else is reachable until it is updated.
+                UpgradeRequiredScreen()
+            } else {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    AedstOfflineBanner(isOffline = isOffline)
+                    OutboxFailedAlert(
+                        failedCount = failedWrites,
+                        onRetry = viewModel::retryFailedWrites,
+                        onDiscard = viewModel::discardFailedWrites,
+                    )
+                    if (showUpdatePrompt) {
+                        UpdateRecommendedBanner(onDismiss = viewModel::onUpdatePromptDismissed)
+                    }
+                    AppNavHost(
+                        isSignedIn = isSignedIn,
+                        isAdmin = isAdmin,
+                        features = features,
+                        pendingRoute = pendingRoute,
+                        onPendingRouteHandled = viewModel::onDeepLinkHandled,
+                        navigationTelemetry = navigationTelemetry,
+                    )
+                }
+            }
+        }
     }
 }

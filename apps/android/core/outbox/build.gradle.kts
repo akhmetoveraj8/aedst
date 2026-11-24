@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.library.convention)
-    alias(libs.plugins.android.hilt.convention)
+    alias(libs.plugins.android.metro.convention)
 }
 
 android {
@@ -12,8 +12,6 @@ dependencies {
     api(project(":core:database"))
 
     implementation(libs.workmanager.runtime)
-    implementation(libs.hilt.work)
-    ksp(libs.hilt.work.compiler)
     implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(project(":core:testing"))

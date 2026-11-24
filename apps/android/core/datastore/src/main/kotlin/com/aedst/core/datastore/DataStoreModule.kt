@@ -5,13 +5,13 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStoreFile
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
+import com.aedst.core.common.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import java.io.File
-import javax.inject.Singleton
 
 /**
  * The preferences store as production builds it. A corrupt file is replaced by the defaults instead of failing every
@@ -28,12 +28,12 @@ fun createUserPrefsDataStore(produceFile: () -> File): DataStore<UserPrefs> = Da
 internal val userPrefsCorruptionHandler: ReplaceFileCorruptionHandler<UserPrefs> =
     ReplaceFileCorruptionHandler { UserPrefs.getDefaultInstance() }
 
-@Module
-@InstallIn(SingletonComponent::class)
+@BindingContainer
+@ContributesTo(AppScope::class)
 object DataStoreModule {
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun provideUserPrefsDataStore(@ApplicationContext context: Context): DataStore<UserPrefs> =
         createUserPrefsDataStore { context.dataStoreFile("user_prefs.pb") }
 }

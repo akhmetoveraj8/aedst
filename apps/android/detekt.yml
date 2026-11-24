@@ -33,9 +33,6 @@ style:
     # property initializer captures (callbackFlow { context... }, flow { repository... }); kotlinc already warns on a
     # truly unused private. Revisit with dev.detekt 2.0.0 stable.
     active: false
-  AbstractClassCanBeInterface:
-    # Hilt @Module classes with only @Binds members must stay abstract classes (Dagger requirement for @Binds).
-    ignoreAnnotated: ['Module']
   ForbiddenComment:
     # TODO markers are allowed in the template; FIXME/STOPSHIP still fail the build.
     comments:
@@ -55,7 +52,10 @@ style:
       - { value: 'com.squareup.moshi.*', reason: 'No JSON DTO libraries: the API is protobuf.' }
       - { value: 'com.google.gson.*', reason: 'No JSON DTO libraries: the API is protobuf.' }
       - { value: 'androidx.security.crypto.*', reason: 'security-crypto is deprecated: use Keystore + Tink (core/security).' }
-      - { value: 'org.koin.*', reason: 'Koin is rejected: Hilt gives compile-time DI checks.' }
+      - { value: 'org.koin.*', reason: 'Koin is rejected: Metro gives compile-time DI checks.' }
+      - { value: 'dagger.*', reason: 'Dagger and Hilt were replaced by Metro (dev.zacsweers.metro), see decisions/android.' }
+      - { value: 'javax.inject.*', reason: 'Use the Metro annotations (dev.zacsweers.metro), not javax.inject.' }
+      - { value: 'androidx.hilt.*', reason: 'Hilt is removed: use metrox-viewmodel (metroViewModel()) and AedstWorkerFactory.' }
       - { value: 'io.reactivex.*', reason: 'RxJava is rejected: use Coroutines + Flow.' }
       - { value: 'kotlinx.coroutines.GlobalScope', reason: 'Use an injected, structured CoroutineScope.' }
       - { value: 'androidx.compose.runtime.collectAsState', reason: 'Use collectAsStateWithLifecycle.' }

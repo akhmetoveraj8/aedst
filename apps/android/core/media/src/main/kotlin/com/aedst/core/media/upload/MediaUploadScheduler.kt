@@ -12,9 +12,12 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.aedst.core.common.ApplicationContext
 import com.aedst.core.common.ApplicationScope
 import com.aedst.core.common.DispatcherProvider
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -22,8 +25,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** UI-facing state of one upload (one WorkManager chain). */
 data class UploadProgress(
@@ -44,8 +45,9 @@ data class UploadProgress(
  * `PrepareUploadWorker → TransferUploadWorker → CompleteUploadWorker`, network-constrained, exponential backoff,
  * surviving process death and reboots (WorkManager persists it) — no custom scheduler.
  */
-@Singleton
-class MediaUploadScheduler @Inject constructor(
+@SingleIn(AppScope::class)
+@Inject
+class MediaUploadScheduler(
     @ApplicationContext private val context: Context,
     private val staging: UploadStaging,
     private val dispatchers: DispatcherProvider,

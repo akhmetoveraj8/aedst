@@ -10,11 +10,12 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.aedst.core.common.ApplicationContext
 import com.aedst.core.navigation.AedstRoutes
 import com.aedst.feature.notifications.R
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
 /**
  * Notification channels (one per notification family, so users can mute e.g. "Media" without losing "Tasks") and
@@ -24,8 +25,9 @@ import javax.inject.Singleton
  * `NOTIFICATION_KIND_TASK_COMPLETED`), `title`, `body`, `link` (relative in-app route such as `/tasks/<id>`),
  * `notification_id`. Tapping opens the launcher activity with the [AedstRoutes.EXTRA_LINK] extra.
  */
-@Singleton
-class PushNotifier @Inject constructor(@ApplicationContext private val context: Context) {
+@SingleIn(AppScope::class)
+@Inject
+class PushNotifier(@ApplicationContext private val context: Context) {
 
     fun createChannels() {
         val manager = NotificationManagerCompat.from(context)

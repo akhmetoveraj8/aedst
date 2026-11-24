@@ -1,10 +1,10 @@
 package com.aedst.core.network
 
+import dev.zacsweers.metro.Inject
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
-import javax.inject.Inject
 
 /**
  * Supplies a fresh access token after the server rejected the one we sent.
@@ -33,17 +33,17 @@ fun interface TokenRefresher {
  *  - no fresh token could be obtained.
  *
  * [TokenRefresher] is injected lazily: the refresher's implementation needs the RPC client, which needs the
- * `OkHttpClient`, which needs this authenticator — `dagger.Lazy` breaks that cycle.
+ * `OkHttpClient`, which needs this authenticator — a Lazy breaks that cycle.
  */
-class TokenRefreshAuthenticator @Inject constructor(private val tokenRefresher: dagger.Lazy<TokenRefresher>) :
-    Authenticator {
+@Inject
+class TokenRefreshAuthenticator(private val tokenRefresher: Lazy<TokenRefresher>) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
         val request = response.request
         if (responseCount(response) > 1) return null
 
         val staleToken = request.header(AUTHORIZATION)?.removePrefix(BEARER_PREFIX)
-        val freshToken = tokenRefresher.get().refresh(staleToken)?.takeIf { it.isNotBlank() } ?: return null
+        val freshToken = tokenRefresher.value.refresh(staleToken)?.takeIf { it.isNotBlank() } ?: return null
 
         return request.newBuilder().header(AUTHORIZATION, BEARER_PREFIX + freshToken).build()
     }

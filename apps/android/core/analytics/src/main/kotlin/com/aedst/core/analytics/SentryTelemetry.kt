@@ -1,17 +1,19 @@
 package com.aedst.core.analytics
 
 import android.content.Context
+import com.aedst.core.common.ApplicationContext
 import com.aedst.core.common.ErrorReporter
 import com.aedst.core.network.ApiEndpoint
 import com.aedst.core.network.HttpTelemetry
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.sentry.Sentry
 import io.sentry.android.core.SentryAndroid
 import io.sentry.okhttp.SentryOkHttpInterceptor
 import io.sentry.protocol.User
 import okhttp3.Interceptor
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Sentry: crash + error reporting (one tool for the job, as on apps/web). Disabled (never initialised, no traffic)
@@ -25,8 +27,9 @@ import javax.inject.Singleton
  *  - **Tracing**: OkHttp spans + breadcrumbs via [SentryOkHttpInterceptor]; W3C `traceparent` is propagated to the
  *    API host only, so the server's OpenTelemetry trace continues the client span.
  */
-@Singleton
-class SentryTelemetry @Inject constructor(@ApplicationContext private val context: Context) {
+@SingleIn(AppScope::class)
+@Inject
+class SentryTelemetry(@ApplicationContext private val context: Context) {
 
     val isConfigured: Boolean get() = BuildConfig.SENTRY_DSN.isNotBlank()
 
@@ -57,14 +60,18 @@ class SentryTelemetry @Inject constructor(@ApplicationContext private val contex
 }
 
 /** [ErrorReporter] for non-fatal errors (application-scope coroutine failures, caught-but-unexpected errors). */
-class SentryErrorReporter @Inject constructor() : ErrorReporter {
+@ContributesBinding(AppScope::class)
+@Inject
+class SentryErrorReporter : ErrorReporter {
     override fun recordNonFatal(throwable: Throwable) {
         if (Sentry.isEnabled()) Sentry.captureException(throwable)
     }
 }
 
 /** Plugs Sentry's OkHttp integration into `core/network`'s API client without `core/network` depending on Sentry. */
-class SentryHttpTelemetry @Inject constructor() : HttpTelemetry {
+@ContributesBinding(AppScope::class)
+@Inject
+class SentryHttpTelemetry : HttpTelemetry {
     override val interceptor: Interceptor = SentryOkHttpInterceptor()
 
     override fun propagatesTraceparent(): Boolean = Sentry.isEnabled()

@@ -153,7 +153,7 @@ fun AppNavHost(
 
 /**
  * Decorates one back stack: [rememberSaveableStateHolderNavEntryDecorator] keeps `rememberSaveable` state per entry and
- * [rememberViewModelStoreNavEntryDecorator] scopes ViewModels (and `hiltViewModel()`) to the entry, clearing them when
+ * [rememberViewModelStoreNavEntryDecorator] scopes ViewModels (and `metroViewModel()`) to the entry, clearing them when
  * the entry leaves the stack.
  */
 @Composable

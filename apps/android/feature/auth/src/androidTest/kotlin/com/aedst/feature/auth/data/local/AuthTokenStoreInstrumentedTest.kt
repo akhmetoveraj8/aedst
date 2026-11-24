@@ -18,7 +18,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Optional
 
 /**
  * Token store round trip on the real Keystore + Tink store, no AppAuth involved: a saved session survives a "process
@@ -82,7 +81,7 @@ class AuthTokenStoreInstrumentedTest {
                     override val io: CoroutineDispatcher = Dispatchers.IO
                     override val default: CoroutineDispatcher = Dispatchers.Default
                 },
-                Optional.empty(),
+                null,
             )
         }
     }

@@ -8,6 +8,7 @@ import com.aedst.feature.auth.domain.AuthSession
 import com.aedst.feature.auth.domain.OidcTokens
 import com.aedst.feature.auth.testing.FakeEncryptedPreferences
 import com.aedst.feature.auth.testing.FakeOidcAuthorizer
+import dev.zacsweers.metro.provider
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import javax.inject.Provider
 
 class AuthTokenRefresherTest {
 
@@ -33,7 +33,7 @@ class AuthTokenRefresherTest {
             ended += "ended"
         }
     }
-    private val refresher = AuthTokenRefresher(store, authorizer, logger, Provider { setOf(hook) })
+    private val refresher = AuthTokenRefresher(store, authorizer, logger, provider { setOf(hook) })
 
     private val signedIn = AuthSession("u1", "old-access", "old-refresh", accessExpiresAtEpochSeconds = 10L)
 

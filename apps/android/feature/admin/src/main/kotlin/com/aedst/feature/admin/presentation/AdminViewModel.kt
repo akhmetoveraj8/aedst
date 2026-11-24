@@ -9,7 +9,10 @@ import com.aedst.feature.admin.domain.AdminOverview
 import com.aedst.feature.admin.domain.AdminRepository
 import com.aedst.feature.admin.domain.AdminTaskRow
 import com.aedst.feature.admin.domain.AuditRow
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -21,7 +24,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 enum class AdminTab { OVERVIEW, TASKS, AUDIT }
 
@@ -47,9 +49,10 @@ sealed interface AdminIntent {
     data object ErrorShown : AdminIntent
 }
 
-@HiltViewModel
-internal class AdminViewModel @Inject constructor(sessionState: SessionState, private val repository: AdminRepository) :
-    ViewModel() {
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+@Inject
+internal class AdminViewModel(sessionState: SessionState, private val repository: AdminRepository) : ViewModel() {
 
     /** UI gate only — the server authorises every AdminService call independently. */
     val isAdmin: StateFlow<Boolean> = sessionState.currentUser

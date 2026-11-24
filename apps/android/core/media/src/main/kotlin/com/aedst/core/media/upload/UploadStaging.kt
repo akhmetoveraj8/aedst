@@ -4,12 +4,13 @@ import android.content.Context
 import android.os.Build
 import androidx.work.ListenableWorker
 import androidx.work.WorkInfo
+import com.aedst.core.common.ApplicationContext
 import com.aedst.core.common.DispatcherProvider
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.withContext
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * The staged copies of picked media: `filesDir/media-uploads/<uploadId>[.ext]`. They live in `filesDir`, not the cache
@@ -17,11 +18,9 @@ import javax.inject.Singleton
  * upload can end must: [CompleteUploadWorker] on success, a terminal failure of any step, a cancel
  * ([MediaUploadScheduler.cancel]), the start-up [UploadStagingSweeper] (a process killed mid-upload) and sign-out.
  */
-@Singleton
-class UploadStaging @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val dispatchers: DispatcherProvider,
-) {
+@SingleIn(AppScope::class)
+@Inject
+class UploadStaging(@ApplicationContext private val context: Context, private val dispatchers: DispatcherProvider) {
     private val directory: File get() = File(context.filesDir, STAGING_DIR)
 
     /** The path stem for [uploadId]; the caller appends the extension of the (possibly re-encoded) file. */

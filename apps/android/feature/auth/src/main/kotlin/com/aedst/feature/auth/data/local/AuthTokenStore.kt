@@ -3,14 +3,15 @@ package com.aedst.feature.auth.data.local
 import com.aedst.core.common.ApplicationScope
 import com.aedst.core.security.EncryptedPreferences
 import com.aedst.feature.auth.domain.AuthSession
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * The only place in the app that reads/writes auth tokens — everything
@@ -25,11 +26,9 @@ import javax.inject.Singleton
  * instead of flashing the login form at a signed-in user. Writes wait for the
  * restore so they can never be clobbered by it.
  */
-@Singleton
-class AuthTokenStore @Inject constructor(
-    private val encryptedPreferences: EncryptedPreferences,
-    @ApplicationScope scope: CoroutineScope,
-) {
+@SingleIn(AppScope::class)
+@Inject
+class AuthTokenStore(private val encryptedPreferences: EncryptedPreferences, @ApplicationScope scope: CoroutineScope) {
     private val sessionState = MutableStateFlow<AuthSession?>(null)
     private val restoredState = MutableStateFlow(false)
     private val restored = CompletableDeferred<Unit>()

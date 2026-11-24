@@ -7,7 +7,10 @@ import com.aedst.core.analytics.AnalyticsConsentStore
 import com.aedst.core.analytics.AnalyticsTracker
 import com.aedst.feature.auth.domain.AuthRepository
 import com.aedst.feature.auth.domain.LogoutUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +19,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class AccountState(
     val userId: String? = null,
@@ -34,8 +36,10 @@ sealed interface AccountIntent {
  * The state is derived from the session and the consent store plus the local "signing out" flag. There is no effect:
  * signing out clears the session, and `app/` resets every back stack and shows the login screen on its own.
  */
-@HiltViewModel
-internal class AccountViewModel @Inject constructor(
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+@Inject
+internal class AccountViewModel(
     authRepository: AuthRepository,
     private val logoutUseCase: LogoutUseCase,
     private val analyticsTracker: AnalyticsTracker,

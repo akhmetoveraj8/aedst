@@ -1,34 +1,25 @@
 package com.aedst.core.security
 
 import android.content.Context
+import com.aedst.core.common.ApplicationContext
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.StandardIntegrityManager
-import dagger.Binds
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class SecurityModule {
+@BindingContainer
+@ContributesTo(AppScope::class)
+object SecurityModule {
 
-    @Binds
-    abstract fun bindEncryptedPreferences(impl: TinkEncryptedPreferences): EncryptedPreferences
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideIntegrityManager(@ApplicationContext context: Context): StandardIntegrityManager =
+        IntegrityManagerFactory.createStandard(context)
 
-    @Binds
-    abstract fun bindIntegrityFacade(impl: PlayIntegrityFacade): IntegrityFacade
-
-    companion object {
-        @Provides
-        @Singleton
-        fun provideIntegrityManager(@ApplicationContext context: Context): StandardIntegrityManager =
-            IntegrityManagerFactory.createStandard(context)
-
-        @Provides
-        fun providePlayIntegrityCloudProject(): PlayIntegrityCloudProject =
-            PlayIntegrityCloudProject(BuildConfig.PLAY_INTEGRITY_CLOUD_PROJECT)
-    }
+    @Provides
+    fun providePlayIntegrityCloudProject(): PlayIntegrityCloudProject =
+        PlayIntegrityCloudProject(BuildConfig.PLAY_INTEGRITY_CLOUD_PROJECT)
 }

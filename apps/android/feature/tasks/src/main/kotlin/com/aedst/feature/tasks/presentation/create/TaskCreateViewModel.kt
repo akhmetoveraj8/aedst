@@ -2,7 +2,9 @@ package com.aedst.feature.tasks.presentation.create
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
 import com.aedst.core.analytics.AnalyticsTracker
 import com.aedst.core.common.AedstError
 import com.aedst.core.common.Outcome
@@ -10,7 +12,13 @@ import com.aedst.feature.tasks.domain.CreateTaskResult
 import com.aedst.feature.tasks.domain.CreateTaskUseCase
 import com.aedst.feature.tasks.domain.NewTask
 import com.aedst.feature.tasks.domain.TaskPriority
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +27,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class TaskCreateState(
     val title: String = "",
@@ -49,12 +56,22 @@ sealed interface TaskCreateEffect {
  * The form draft (title, description, priority) lives in [SavedStateHandle], so the system killing the app's process
  * while the user is in another app does not lose what was typed.
  */
-@HiltViewModel
-internal class TaskCreateViewModel @Inject constructor(
-    private val savedState: SavedStateHandle,
+@AssistedInject
+internal class TaskCreateViewModel(
+    @Assisted private val savedState: SavedStateHandle,
     private val createTask: CreateTaskUseCase,
     private val analytics: AnalyticsTracker,
 ) : ViewModel() {
+
+    /** The `SavedStateHandle` comes from the creation extras of the screen's back stack entry. */
+    @AssistedFactory
+    @ViewModelAssistedFactoryKey(TaskCreateViewModel::class)
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ViewModelAssistedFactory {
+        override fun create(extras: CreationExtras): TaskCreateViewModel = create(extras.createSavedStateHandle())
+
+        fun create(savedState: SavedStateHandle): TaskCreateViewModel
+    }
 
     private val mutableState = MutableStateFlow(restoreDraft())
     val state: StateFlow<TaskCreateState> = mutableState.asStateFlow()

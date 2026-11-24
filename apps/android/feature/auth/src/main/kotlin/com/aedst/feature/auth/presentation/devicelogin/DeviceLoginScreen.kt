@@ -28,7 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.core.ui.adaptive.AedstWindowSizePreviews
 import com.aedst.core.ui.components.AedstAlert
@@ -42,13 +41,14 @@ import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 import com.aedst.feature.auth.R
 import com.aedst.feature.auth.navigation.AuthActionButton
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 /** TV sign-in (OAuth device flow). Used by `app-tv` through `AuthNavGraph(useDeviceFlow = true)`. */
 @Composable
 internal fun DeviceLoginRoute(
     onLoggedIn: () -> Unit,
     actionButton: AuthActionButton?,
-    viewModel: DeviceLoginViewModel = hiltViewModel(),
+    viewModel: DeviceLoginViewModel = metroViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val currentOnLoggedIn by rememberUpdatedState(onLoggedIn)

@@ -15,11 +15,11 @@ Targets today: `android` and `jvm`. Nothing here was run on a device; see "What 
 ## Module graph
 
 ```text
-app, app-tv                      Android applications (Compose, Hilt, navigation)
-  feature/<name>                 Android library: data, presentation, navigation, Hilt module
+app, app-tv                      Android applications (Compose, Metro graph, navigation)
+  feature/<name>                 Android library: data, presentation, navigation, Metro contributions
     feature/<name>/domain        KMP (commonMain): entities, repository ports, use cases
-  core/common                    KMP: commonMain (Outcome, AedstError, UseCase, ports) + androidMain (Hilt, Logcat)
-  core/database                  KMP: commonMain (Room 3 database, DAO, entity) + androidMain (Hilt, Android driver)
+  core/common                    KMP: commonMain (Outcome, AedstError, UseCase, ports) + androidMain (Metro, Logcat)
+  core/database                  KMP: commonMain (Room 3 database, DAO, entity) + androidMain (Metro, Android driver)
   core/outbox, core/network, core/ui, core/navigation, core/datastore, core/security, core/media,
   core/capabilities, core/analytics, core/testing, core/ui-tv      Android libraries (unchanged)
 ```
@@ -30,7 +30,7 @@ own (its repository lives in `core/media`).
 | Source set | Holds | May import |
 |---|---|---|
 | `commonMain` | Entities, value-class ids, repository and queue ports, use cases, `Outcome` / `AedstError` | `kotlin.*`, `kotlinx.coroutines`, other `commonMain` code; in `core/database` also `androidx.room3` (a multiplatform library) |
-| `androidMain` | Hilt modules, `@Inject` classes, Android APIs (`LogcatLogger`, `DatabaseModule`) | anything approved for Android |
+| `androidMain` | Metro containers, `@Inject` classes, Android APIs (`LogcatLogger`, `DatabaseModule`) | anything approved for Android |
 | `jvmMain` | Nothing yet. The target exists so common code compiles and is tested without the Android SDK | JVM libraries |
 | `commonTest` | `kotlin.test` tests, run by `jvmTest` and `testAndroidHostTest` | `kotlin.test`, `kotlinx-coroutines-test` |
 
@@ -40,7 +40,7 @@ own (its repository lives in `core/media`).
   itself multiplatform (domain in `commonMain`, data and presentation in `androidMain`). A separate
   `:feature:<name>:domain` was chosen because: the boundary is a Gradle edge, so a domain cannot reach data or
   presentation even by accident; the domain compiles and is tested on its own (feature modules need the generated
-  ConnectRPC client, the domain does not); Hilt and Compose keep the plain `com.android.library` plugin they are
+  ConnectRPC client, the domain does not); Metro and Compose keep the plain `com.android.library` plugin they are
   verified with; and "module, then feature" ([modules and features](/architecture/modules-and-features)) is unchanged,
   with `domain` as a reserved directory name inside a module. `check-feature-boundaries.sh` rule 5 enforces it.
 - **Convention plugin `aedst.kmp.library`** (`build-logic`): `org.jetbrains.kotlin.multiplatform` +
@@ -48,8 +48,9 @@ own (its repository lives in `core/media`).
   plugin), `jvm()`, the default hierarchy template, explicit API mode, JUnit Platform for both test tasks, detekt
   through the type-resolved `detektMainJvm` / `detektMainAndroid`, and the aliases `testDebugUnitTest` (runs `allTests`)
   and `koverVerifyDebug` (runs `koverVerify`) so the repository-wide Gradle commands do not skip shared code.
-- **No DI annotations in common code.** `javax.inject` is JVM-only. Use cases are plain classes; the feature's Hilt
-  module constructs them with `@Provides` (`TasksModule`, `AuthModule`).
+- **No DI annotations in common code.** The Metro annotations are multiplatform, but the domain stays annotation-free by rule
+  (`check-feature-boundaries.sh` bans `dev.zacsweers.*` there). Use cases are plain classes; the feature's `*Providers`
+  container constructs them with `@Provides` (`TasksProviders`, `AuthProviders`).
 - **Time and ids.** `kotlin.time.Instant` / `kotlin.time.Clock` replace `java.time` in domains and in the injected
   clock; `kotlin.uuid.Uuid` replaces `java.util.UUID`. Formatting stays at the UI edge with `java.time` (`TaskUi.kt`,
   `toJavaInstant()`). `TaskId` is a `@JvmInline value class`; navigation keys and the wire keep the raw string.
@@ -68,7 +69,7 @@ own (its repository lives in `core/media`).
 | 3 | `aedst.kmp.library`, `core/common` and each feature domain in `commonMain` | Done |
 | 4 | `core/database` (Room 3) and the outbox to common; WorkManager stays `androidMain` | **Partly.** Database, DAO and the outbox table are common. `core/outbox` (repository, handler contract, WorkManager worker and scheduler) is still an Android library |
 | 5 | Network to common | Not started (blocked, see below) |
-| 6 | Hilt to Metro | Not started (blocked, see below) |
+| 6 | Hilt to Metro | **Done 2026-11-25** (owner decision, ahead of step 5): DI wiring stays `androidMain` / Android modules because it needs `Context`, WorkManager and Compose; see below |
 | 7 | UI | Stays `androidMain` unless Compose Multiplatform is adopted by a separate decision |
 
 ### What was compiled (Windows, JDK 21, Gradle 9.9.2, AGP 9.5.2, Kotlin 2.5.0-RC, 2026-11-21)
@@ -79,6 +80,8 @@ own (its repository lives in `core/media`).
 | `core/database` | compiled (Room + Hilt KSP) | compiled (Room KSP) | 14 Robolectric host tests (1 skipped on Windows), 1 JVM test |
 | `feature/{auth,tasks,admin,notifications,search}/domain` | compiled | compiled | `tasks`: 14 tests on each target |
 | `core/{ui,ui-tv,navigation,datastore,security,network,outbox,analytics,testing}` | compiled against the multiplatform `core/common` and `core/database`; `core/outbox` unit tests pass | n/a | |
+
+After the Metro migration (2026-11-25, same toolchain, generated client from `buf generate`): `core/common` and `core/database` compile for both targets with the Metro plugin, and every other module plus `app` and `app-tv` pass `compileDebugKotlin`; the JVM tests listed in [status](/status) ran green.
 
 **Static only, never compiled here:** every `feature/*` Android module, `core/capabilities`, `core/media`, `app`,
 `app-tv`. They need the generated ConnectRPC client (`make generate`) and compileSdk 37.1. Their edits for steps 2
@@ -93,7 +96,7 @@ asset (skipped on Windows).
 
 **Rest of step 4, `core/outbox`.** `OutboxHandler`, `OutboxItem` and `OutboxRepository` can move to `commonMain` once
 `OutboxRepository` loses `@Inject` and depends on a small scheduling port instead of the WorkManager-backed
-`OutboxScheduler`. `OutboxSyncWorker`, `OutboxScheduler` and the Hilt module stay `androidMain`. Nothing blocks it.
+`OutboxScheduler`. `OutboxSyncWorker`, `OutboxScheduler` and the `OutboxBindings` container stay `androidMain`. Nothing blocks it.
 
 **Step 5, network.** Blocked. `connect-kotlin`, OkHttp and `protobuf-javalite` are JVM-only, so `core/network`,
 `core/capabilities`, `core/media` and every `Connect*Repository` cannot be common code. The recorded path is the
@@ -103,11 +106,11 @@ the edge evidence; Wire code generation in `buf.gen.yaml`; `core/network` split 
 engines; each repository moved from `feature/<name>/data` to the domain module's sibling or a new common data module.
 Until then repositories are Android code behind common ports, which is why the ports live in the domain modules.
 
-**Step 6, Hilt to Metro.** Blocked on step 5 in practice. Hilt and Dagger are JVM-only, so all DI wiring stays in
-`androidMain` and in Android modules. Metro is the recorded replacement (the Hilt decision row names KMP as its
-revisit trigger), but replacing Hilt is only worth it once data and network are common; today it would rewrite every
-`@HiltViewModel` and `@HiltWorker` for no shared code gained. It also needs an owner decision: Hilt is "kept by owner
-decision".
+**Step 6, Hilt to Metro.** Done on 2026-11-25 by owner decision, before step 5 (see the Metro row in
+[decisions/android](/decisions/android)). Metro's annotations and runtime are multiplatform, so the DI wiring can move
+to `commonMain` together with the code it wires once data and network are common (step 5); until then it stays in
+`androidMain` and in the Android modules because it needs `Context`, WorkManager and Compose. Step 6 no longer blocks
+anything: Hilt was the only JVM-only piece of the DI.
 
 **Step 7, UI.** `core/ui`, every screen and ViewModel stay Android. Compose Multiplatform is a separate decision (it
 would replace `androidx.compose` artifacts with JetBrains ones, Navigation 3, previews and Roborazzi included).

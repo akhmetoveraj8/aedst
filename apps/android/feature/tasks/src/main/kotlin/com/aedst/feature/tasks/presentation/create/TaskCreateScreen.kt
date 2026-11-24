@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.core.ui.adaptive.AedstAdaptiveContent
 import com.aedst.core.ui.adaptive.AedstContentWidth
@@ -42,12 +41,13 @@ import com.aedst.core.ui.theme.AedstTheme
 import com.aedst.feature.tasks.R
 import com.aedst.feature.tasks.domain.TaskPriority
 import com.aedst.feature.tasks.presentation.priorityLabel
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 
 @Composable
 internal fun TaskCreateRoute(
     onBack: () -> Unit,
     onCreated: (String) -> Unit,
-    viewModel: TaskCreateViewModel = hiltViewModel(),
+    viewModel: TaskCreateViewModel = assistedMetroViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val currentOnCreated by rememberUpdatedState(onCreated)

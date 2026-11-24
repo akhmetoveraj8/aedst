@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.library.convention)
-    alias(libs.plugins.android.hilt.convention)
+    alias(libs.plugins.android.metro.convention)
     alias(libs.plugins.protobuf)
 }
 

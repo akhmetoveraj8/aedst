@@ -241,6 +241,8 @@ import com.google.gson.Gson
 import io.reactivex.Observable
 import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import org.koin.core.Koin
 import retrofit2.Retrofit'
   seed "core/common/src/androidMain/kotlin/com/aedst/core/common/SelfTestAllowed.kt" 'package com.aedst.core.common
@@ -264,6 +266,8 @@ internal fun selfTestAllowedClient() = OkHttpClient()'
   need "detekt: retrofit2 banned" "SelfTestForbidden.kt.*retrofit2.*\[ForbiddenImport\]"
   need "detekt: gson banned" "SelfTestForbidden.kt.*gson.*\[ForbiddenImport\]"
   need "detekt: koin banned" "SelfTestForbidden.kt.*koin.*\[ForbiddenImport\]"
+  need "detekt: dagger / hilt banned" "SelfTestForbidden.kt.*dagger.*\[ForbiddenImport\]"
+  need "detekt: javax.inject banned" "SelfTestForbidden.kt.*javax.inject.*\[ForbiddenImport\]"
   need "detekt: rxjava banned" "SelfTestForbidden.kt.*reactivex.*\[ForbiddenImport\]"
   need "detekt: security-crypto banned" "SelfTestForbidden.kt.*security.crypto.*\[ForbiddenImport\]"
   need "detekt: collectAsState banned" "SelfTestForbidden.kt.*collectAsState.*\[ForbiddenImport\]"

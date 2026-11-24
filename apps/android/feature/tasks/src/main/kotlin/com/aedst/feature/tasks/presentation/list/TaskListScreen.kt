@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.core.ui.components.AedstDivider
@@ -48,13 +47,14 @@ import com.aedst.feature.tasks.presentation.TaskStatusBadge
 import com.aedst.feature.tasks.presentation.detail.TaskDetailRoute
 import com.aedst.feature.tasks.presentation.formatDate
 import com.aedst.feature.tasks.presentation.priorityLabel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 @Composable
 internal fun TaskListRoute(
     onOpenTask: (String) -> Unit,
     onCreateTask: () -> Unit,
     onOpenMedia: (String) -> Unit,
-    viewModel: TaskListViewModel = hiltViewModel(),
+    viewModel: TaskListViewModel = metroViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     // Reload whenever the list becomes visible again (after creating, completing or deleting a task).

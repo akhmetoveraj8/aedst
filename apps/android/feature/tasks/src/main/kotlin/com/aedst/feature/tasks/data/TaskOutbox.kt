@@ -18,7 +18,11 @@ import com.aedst.tasks.v1.completeTaskRequest
 import com.connectrpc.Headers
 import com.google.protobuf.MessageLite
 import com.google.protobuf.Parser
-import javax.inject.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import kotlin.io.encoding.Base64
 
 /** Outbox routing keys of the task writes that survive being offline. */
@@ -38,7 +42,9 @@ internal fun MessageLite.toOutboxPayload(): String = Base64.encode(toByteArray()
 internal fun <R : MessageLite> String.parseOutboxPayload(parser: Parser<R>): R = parser.parseFrom(Base64.decode(this))
 
 /** Persists task writes in the outbox, under the operation id that is also their `Idempotency-Key`. */
-internal class OutboxTaskWriteQueue @Inject constructor(private val outbox: OutboxRepository) : TaskWriteQueue {
+@ContributesBinding(AppScope::class)
+@Inject
+internal class OutboxTaskWriteQueue(private val outbox: OutboxRepository) : TaskWriteQueue {
     override suspend fun queueCreate(task: NewTask, operationId: String) {
         outbox.enqueue(TaskOutboxTypes.CREATE, task.toRequest().toOutboxPayload(), operationId)
     }
@@ -66,14 +72,18 @@ internal abstract class TaskOutboxHandler<R : MessageLite>(
     }
 }
 
-internal class TaskCreateOutboxHandler @Inject constructor(private val client: TasksServiceClientInterface) :
+@ContributesIntoSet(AppScope::class, binding<OutboxHandler>())
+@Inject
+internal class TaskCreateOutboxHandler(private val client: TasksServiceClientInterface) :
     TaskOutboxHandler<CreateTaskRequest>(TaskOutboxTypes.CREATE, CreateTaskRequest.parser()) {
     override suspend fun send(request: CreateTaskRequest, headers: Headers) {
         rpc { client.createTask(request, headers) }
     }
 }
 
-internal class TaskCompleteOutboxHandler @Inject constructor(private val client: TasksServiceClientInterface) :
+@ContributesIntoSet(AppScope::class, binding<OutboxHandler>())
+@Inject
+internal class TaskCompleteOutboxHandler(private val client: TasksServiceClientInterface) :
     TaskOutboxHandler<CompleteTaskRequest>(TaskOutboxTypes.COMPLETE, CompleteTaskRequest.parser()) {
     override suspend fun send(request: CompleteTaskRequest, headers: Headers) {
         rpc { client.completeTask(request, headers) }
@@ -85,7 +95,9 @@ internal class TaskCompleteOutboxHandler @Inject constructor(private val client:
  * type today; the handler is registered so a queued update can never be parked as "no handler" once an edit form
  * exists.
  */
-internal class TaskUpdateOutboxHandler @Inject constructor(private val client: TasksServiceClientInterface) :
+@ContributesIntoSet(AppScope::class, binding<OutboxHandler>())
+@Inject
+internal class TaskUpdateOutboxHandler(private val client: TasksServiceClientInterface) :
     TaskOutboxHandler<UpdateTaskRequest>(TaskOutboxTypes.UPDATE, UpdateTaskRequest.parser()) {
     override suspend fun send(request: UpdateTaskRequest, headers: Headers) {
         rpc { client.updateTask(request, headers) }

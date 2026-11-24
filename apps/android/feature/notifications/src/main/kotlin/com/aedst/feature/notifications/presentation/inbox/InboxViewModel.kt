@@ -6,7 +6,10 @@ import com.aedst.core.common.AedstError
 import com.aedst.core.common.Outcome
 import com.aedst.feature.notifications.domain.InboxNotification
 import com.aedst.feature.notifications.domain.NotificationsRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.time.Clock
 
 data class InboxState(
@@ -34,8 +36,10 @@ sealed interface InboxIntent {
     data object ErrorShown : InboxIntent
 }
 
-@HiltViewModel
-internal class InboxViewModel @Inject constructor(private val repository: NotificationsRepository) : ViewModel() {
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+@Inject
+internal class InboxViewModel(private val repository: NotificationsRepository) : ViewModel() {
 
     // One job per operation: a newer request of the same kind cancels the older one, so a slow earlier answer never
     // overwrites a later one (pull-to-refresh twice, refresh while a next page is loading).

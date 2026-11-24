@@ -1,21 +1,30 @@
 package com.aedst.core.analytics
 
 import android.content.Context
+import com.aedst.core.common.ApplicationContext
 import com.posthog.PostHog
 import com.posthog.android.PostHogAndroid
 import com.posthog.android.PostHogAndroidConfig
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ExposeImplBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * PostHog-backed [AnalyticsTracker] + [FeatureFlags]. Disabled entirely (no SDK init, no traffic) when
  * `BuildConfig.POSTHOG_KEY` is empty; otherwise set up **opted out** and only opted in once the user grants consent
  * (see [TelemetryInitializer]).
  */
-@Singleton
-class PostHogAnalytics @Inject constructor(@ApplicationContext private val context: Context) :
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding<AnalyticsTracker>())
+@ContributesBinding(AppScope::class, binding<FeatureFlags>())
+// TelemetryInitializer drives the SDK lifecycle through the class itself, so its binding stays visible.
+@ExposeImplBinding
+@Inject
+class PostHogAnalytics(@ApplicationContext private val context: Context) :
     AnalyticsTracker,
     FeatureFlags {
 

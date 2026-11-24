@@ -6,12 +6,16 @@ import android.content.Intent
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
 import com.aedst.core.common.AedstError
+import com.aedst.core.common.ApplicationContext
 import com.aedst.core.common.DispatcherProvider
 import com.aedst.feature.auth.domain.AuthorizationCallback
 import com.aedst.feature.auth.domain.AuthorizationLaunch
 import com.aedst.feature.auth.domain.OidcAuthorizer
 import com.aedst.feature.auth.domain.OidcTokens
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import net.openid.appauth.AppAuthConfiguration
@@ -25,8 +29,6 @@ import net.openid.appauth.NoClientAuthentication
 import net.openid.appauth.ResponseTypeValues
 import net.openid.appauth.TokenRequest
 import net.openid.appauth.TokenResponse
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.time.Clock
@@ -49,8 +51,10 @@ import kotlin.time.Clock
  * Custom Tabs service, which must not outlive the operation. Token-only operations use a matcher that selects no
  * browser, so they never bind anything.
  */
-@Singleton
-class AppAuthOidcAuthorizer @Inject constructor(
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
+class AppAuthOidcAuthorizer(
     @ApplicationContext private val context: Context,
     private val config: OidcConfig,
     private val discovery: OidcDiscovery,

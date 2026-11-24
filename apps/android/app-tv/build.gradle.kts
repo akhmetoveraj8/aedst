@@ -1,7 +1,9 @@
+import dev.zacsweers.metro.gradle.ExperimentalMetroGradleApi
+
 plugins {
     alias(libs.plugins.android.application.convention)
     alias(libs.plugins.android.compose.convention)
-    alias(libs.plugins.android.hilt.convention)
+    alias(libs.plugins.android.metro.convention)
     alias(libs.plugins.sentry)
 }
 
@@ -24,6 +26,15 @@ sentry {
     telemetry.set(false)
 }
 
+// Metro only aggregates contributions of dependencies this module can see. A module that is reachable only through
+// another module's `implementation` would be silently missing from the graph; this check fails the build instead.
+@OptIn(ExperimentalMetroGradleApi::class)
+metro {
+    hiddenDependencies {
+        checkOnCompile.set(true)
+    }
+}
+
 android {
     namespace = "com.aedst.android.tv"
 
@@ -41,9 +52,13 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:navigation"))
     implementation(project(":core:analytics"))
+    // ConnectRPC client, auth interceptors and the API OkHttpClient that feature/auth and capabilities build on.
+    implementation(project(":core:network"))
     implementation(project(":core:security"))
-    // Capability negotiation (+ the forced-upgrade latch it feeds); Hilt needs the module on the app classpath.
+    // Capability negotiation (+ the forced-upgrade latch it feeds); Metro only aggregates contributions of direct dependencies.
     implementation(project(":core:capabilities"))
+    // Contributes the DataStore<UserPrefs> binding that analytics, capabilities and push read.
+    implementation(project(":core:datastore"))
 
     // TV design system instead of `:core:ui` for TV-specific screens —
     // `:core:ui-tv` re-exposes `:core:ui`'s theme tokens via `api`, so
@@ -57,6 +72,8 @@ dependencies {
     implementation(libs.navigation3.runtime)
     implementation(libs.navigation3.ui)
     implementation(libs.lifecycle.viewmodel.navigation3)
+    // LocalMetroViewModelFactory (provided at the root of the Compose tree) and MetroViewModelFactory.
+    implementation(libs.metrox.viewmodel.compose)
 
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.espresso)

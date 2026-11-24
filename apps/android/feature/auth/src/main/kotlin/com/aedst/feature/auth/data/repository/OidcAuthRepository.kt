@@ -18,21 +18,25 @@ import com.aedst.feature.auth.domain.OidcAuthorizer
 import com.aedst.feature.auth.domain.OidcTokens
 import com.aedst.feature.auth.domain.SignInResult
 import com.aedst.feature.auth.domain.TokenRevoker
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
 
-internal class OidcAuthRepository @Inject constructor(
+@ContributesBinding(AppScope::class)
+@Inject
+internal class OidcAuthRepository(
     private val authorizer: OidcAuthorizer,
     private val deviceAuthorizer: DeviceAuthorizer,
     private val tokenRevoker: TokenRevoker,
     private val tokenStore: AuthTokenStore,
     private val logger: Logger,
     private val signInAttestation: SignInAttestation,
-    private val signOutHooks: Set<@JvmSuppressWildcards SignOutHook> = emptySet(),
+    private val signOutHooks: Set<SignOutHook> = emptySet(),
 ) : AuthRepository {
 
     override val session: Flow<AuthSession?> = tokenStore.session

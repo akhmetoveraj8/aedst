@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.core.media.ImagePreset
 import com.aedst.core.media.MediaItem
@@ -61,6 +60,7 @@ import com.aedst.feature.tasks.presentation.TaskStatusBadge
 import com.aedst.feature.tasks.presentation.formatDate
 import com.aedst.feature.tasks.presentation.list.previewTask
 import com.aedst.feature.tasks.presentation.priorityLabel
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 
 @Composable
 internal fun TaskDetailRoute(
@@ -71,10 +71,11 @@ internal fun TaskDetailRoute(
     isSinglePane: Boolean = true,
     // Keyed by the task id: the list-detail layout swaps the shown task inside one navigation entry, and every task
     // needs its own ViewModel (the default key would hand back the first one).
-    viewModel: TaskDetailViewModel = hiltViewModel<TaskDetailViewModel, TaskDetailViewModel.Factory>(
+    viewModel: TaskDetailViewModel = assistedMetroViewModel<TaskDetailViewModel, TaskDetailViewModel.Factory>(
         key = taskId,
-        creationCallback = { factory -> factory.create(taskId) },
-    ),
+    ) {
+        create(taskId)
+    },
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val uploads by viewModel.uploadsInFlight.collectAsStateWithLifecycle()

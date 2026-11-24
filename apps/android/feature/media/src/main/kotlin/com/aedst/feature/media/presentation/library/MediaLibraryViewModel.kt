@@ -9,7 +9,10 @@ import com.aedst.core.media.MediaItem
 import com.aedst.core.media.data.MediaRepository
 import com.aedst.core.media.upload.MediaUploadScheduler
 import com.aedst.core.media.upload.UploadProgress
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +25,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class MediaLibraryState(
     val items: List<MediaItem> = emptyList(),
@@ -41,8 +43,10 @@ sealed interface MediaLibraryIntent {
     data object ErrorShown : MediaLibraryIntent
 }
 
-@HiltViewModel
-internal class MediaLibraryViewModel @Inject constructor(
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+@Inject
+internal class MediaLibraryViewModel(
     private val repository: MediaRepository,
     private val uploads: MediaUploadScheduler,
 ) : ViewModel() {

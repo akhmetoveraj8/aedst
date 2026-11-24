@@ -3,6 +3,7 @@ package com.aedst.feature.notifications.push
 import android.content.Context
 import android.os.Build
 import androidx.datastore.core.DataStore
+import com.aedst.core.common.ApplicationContext
 import com.aedst.core.common.Logger
 import com.aedst.core.datastore.UserPrefs
 import com.aedst.core.network.rpc
@@ -12,15 +13,15 @@ import com.aedst.notifications.v1.registerPushDeviceRequest
 import com.aedst.notifications.v1.unregisterPushDeviceRequest
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Keeps this install's FCM token registered with the server (`RegisterPushDevice(FCM)`) for the signed-in user:
@@ -32,8 +33,9 @@ import javax.inject.Singleton
  * a failure is logged and retried on the next trigger. No-op when Firebase is not configured
  * (no `google-services.json` at build time).
  */
-@Singleton
-class PushRegistrar @Inject constructor(
+@SingleIn(AppScope::class)
+@Inject
+class PushRegistrar(
     @ApplicationContext private val context: Context,
     private val client: NotificationsServiceClientInterface,
     private val prefs: DataStore<UserPrefs>,

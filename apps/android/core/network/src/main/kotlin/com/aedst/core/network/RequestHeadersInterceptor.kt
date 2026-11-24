@@ -1,10 +1,9 @@
 package com.aedst.core.network
 
+import dev.zacsweers.metro.Inject
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.security.SecureRandom
-import java.util.Optional
-import javax.inject.Inject
 
 /**
  * Adds the headers every first-party request carries:
@@ -12,8 +11,8 @@ import javax.inject.Inject
  *  - `traceparent` (W3C Trace Context) — a fresh trace id per request so a slow/failed call can be found in the
  *    server's OpenTelemetry traces from a crash report or support ticket.
  */
-class RequestHeadersInterceptor @Inject constructor(private val httpTelemetry: Optional<HttpTelemetry>) :
-    Interceptor {
+@Inject
+class RequestHeadersInterceptor(private val httpTelemetry: HttpTelemetry? = null) : Interceptor {
     private val random = SecureRandom()
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -21,7 +20,7 @@ class RequestHeadersInterceptor @Inject constructor(private val httpTelemetry: O
             .header(CLIENT_HEADER, "android/${BuildConfig.CLIENT_VERSION}")
         // When Sentry is active it propagates `traceparent` itself (tied to its own span, so the crash report and the
         // server's OTel trace share one trace id); adding ours too would produce two conflicting headers.
-        val tracingSdkOwnsTraceparent = httpTelemetry.map { it.propagatesTraceparent() }.orElse(false)
+        val tracingSdkOwnsTraceparent = httpTelemetry?.propagatesTraceparent() ?: false
         if (!tracingSdkOwnsTraceparent) builder.header(TRACEPARENT_HEADER, newTraceparent())
         return chain.proceed(builder.build())
     }

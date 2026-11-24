@@ -1,9 +1,10 @@
 package com.aedst.core.analytics
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.sentry.Breadcrumb
 import io.sentry.Sentry
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Navigation -> telemetry: a PostHog `screen` event and a Sentry navigation breadcrumb whenever the top destination of
@@ -15,8 +16,9 @@ import javax.inject.Singleton
  * A singleton on purpose: the activity is re-created on rotation and on process-preserving config changes, and an
  * instance per activity would forget the last screen and report the same screen view again after every recreate.
  */
-@Singleton
-class NavigationTelemetry @Inject constructor(private val analytics: AnalyticsTracker) {
+@SingleIn(AppScope::class)
+@Inject
+class NavigationTelemetry(private val analytics: AnalyticsTracker) {
 
     private var lastScreen: String? = null
 

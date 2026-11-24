@@ -6,14 +6,19 @@ import com.aedst.core.common.SessionState
 import com.aedst.core.common.SignOutHook
 import com.aedst.feature.notifications.data.UnreadCountStore
 import com.aedst.feature.notifications.domain.NotificationsRepository
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /** Creates channels, then on every sign-in (and app start while signed in) registers push and loads the badge. */
-internal class PushInitializer @Inject constructor(
+@ContributesIntoSet(AppScope::class, binding<AppInitializer>())
+@Inject
+internal class PushInitializer(
     private val notifier: PushNotifier,
     private val registrar: PushRegistrar,
     private val repository: NotificationsRepository,
@@ -38,6 +43,8 @@ internal class PushInitializer @Inject constructor(
 }
 
 /** Unregisters this device while the session (bearer token) is still valid. */
-class PushSignOutHook @Inject constructor(private val registrar: PushRegistrar) : SignOutHook {
+@ContributesIntoSet(AppScope::class, binding<SignOutHook>())
+@Inject
+internal class PushSignOutHook(private val registrar: PushRegistrar) : SignOutHook {
     override suspend fun beforeSignOut() = registrar.unregister()
 }

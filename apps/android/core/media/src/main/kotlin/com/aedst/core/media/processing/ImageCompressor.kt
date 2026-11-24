@@ -7,8 +7,8 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import androidx.core.graphics.scale
+import dev.zacsweers.metro.Inject
 import java.io.File
-import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -19,7 +19,8 @@ import kotlin.math.roundToInt
  *
  * Animated images (GIF/animated WebP) are uploaded as-is by the caller; the server produces its own variants anyway.
  */
-class ImageCompressor @Inject constructor() {
+@Inject
+class ImageCompressor {
 
     data class Result(val file: File, val contentType: String, val extension: String)
 

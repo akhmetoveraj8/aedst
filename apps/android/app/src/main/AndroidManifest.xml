@@ -51,7 +51,7 @@
         </activity>
 
         <!-- WorkManager is initialised on demand by AedstApplication (Configuration.Provider) so that
-             @HiltWorker classes get their dependencies; the default auto-initialiser must be removed. -->
+             @AssistedInject workers get their dependencies; the default auto-initialiser must be removed. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

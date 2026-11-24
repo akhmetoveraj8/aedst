@@ -3,18 +3,22 @@ package com.aedst.core.media.upload
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.aedst.core.common.AedstError
 import com.aedst.core.common.DispatcherProvider
+import com.aedst.core.common.WorkerAssistedFactory
+import com.aedst.core.common.WorkerKey
 import com.aedst.core.media.data.MediaUploadApi
 import com.aedst.core.media.processing.ImageCompressor
 import com.aedst.core.media.processing.VideoCompressor
 import com.aedst.core.network.toAedstError
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
@@ -32,8 +36,8 @@ import java.io.File
  * [UploadStaging]); [CompleteUploadWorker] deletes it on success, and so does every other way this upload can end:
  * a terminal failure of any step, a cancel, the start-up sweep and sign-out.
  */
-@HiltWorker
-class PrepareUploadWorker @AssistedInject constructor(
+@AssistedInject
+class PrepareUploadWorker(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val uploadApi: MediaUploadApi,
@@ -42,6 +46,13 @@ class PrepareUploadWorker @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val staging: UploadStaging,
 ) : CoroutineWorker(appContext, params) {
+
+    @WorkerKey(PrepareUploadWorker::class)
+    @ContributesIntoMap(AppScope::class)
+    @AssistedFactory
+    fun interface Factory : WorkerAssistedFactory {
+        override fun create(appContext: Context, params: WorkerParameters): PrepareUploadWorker
+    }
 
     override suspend fun doWork(): Result {
         val uploadId = inputData.getString(UploadWorkData.KEY_UPLOAD_ID) ?: return Result.failure()

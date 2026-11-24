@@ -2,12 +2,16 @@ package com.aedst.feature.auth.data.oidc
 
 import androidx.core.net.toUri
 import com.aedst.core.common.AedstError
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ExposeImplBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.openid.appauth.AuthorizationServiceConfiguration
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -18,8 +22,13 @@ import kotlin.coroutines.resumeWithException
  * The document's `issuer` must equal the configured issuer (OIDC Discovery 4.3): a mismatch is rejected before any
  * endpoint from it is used.
  */
-@Singleton
-class OidcDiscovery @Inject constructor(private val config: OidcConfig) :
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding<RevocationEndpointSource>())
+@ContributesBinding(AppScope::class, binding<DeviceEndpointSource>())
+// AppAuthOidcAuthorizer injects the class itself, so its binding stays visible.
+@ExposeImplBinding
+@Inject
+class OidcDiscovery(private val config: OidcConfig) :
     RevocationEndpointSource,
     DeviceEndpointSource {
     private val mutex = Mutex()

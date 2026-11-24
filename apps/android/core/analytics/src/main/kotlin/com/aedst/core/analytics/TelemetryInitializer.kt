@@ -3,11 +3,14 @@ package com.aedst.core.analytics
 import com.aedst.core.common.AppInitializer
 import com.aedst.core.common.ApplicationScope
 import com.aedst.core.common.SessionState
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Starts Sentry and PostHog first thing in `Application.onCreate` (priority [AppInitializer.PRIORITY_TELEMETRY]),
@@ -15,7 +18,9 @@ import javax.inject.Inject
  *  - signed-in user id → Sentry user + PostHog `identify`; sign-out → cleared / `reset`;
  *  - consent GRANTED → PostHog `optIn`, anything else → `optOut`.
  */
-class TelemetryInitializer @Inject constructor(
+@ContributesIntoSet(AppScope::class, binding<AppInitializer>())
+@Inject
+class TelemetryInitializer(
     private val sentry: SentryTelemetry,
     private val postHog: PostHogAnalytics,
     private val consentStore: AnalyticsConsentStore,

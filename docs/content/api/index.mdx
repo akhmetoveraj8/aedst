@@ -80,7 +80,7 @@ const { task } = await client.createTask({ title: "Write the release notes", pri
   </Tab>
   <Tab value="Kotlin">
 ```kotlin
-// ProtocolClient is provided by Hilt (core/network NetworkModule.kt).
+// ProtocolClient is provided by Metro (core/network NetworkModule.kt).
 val tasks = TasksServiceClient(protocolClient)
 val response = tasks.createTask(
     CreateTaskRequest.newBuilder().setTitle("Write the release notes").build(),

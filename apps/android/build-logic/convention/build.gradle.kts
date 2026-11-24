@@ -14,7 +14,7 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
-    compileOnly(libs.hilt.gradlePlugin)
+    compileOnly(libs.metro.gradlePlugin)
     compileOnly(libs.detekt.gradlePlugin)
     compileOnly(libs.ktlint.gradlePlugin)
     compileOnly(libs.kover.gradlePlugin)
@@ -39,9 +39,9 @@ gradlePlugin {
             id = "aedst.android.compose"
             implementationClass = "AndroidComposeConventionPlugin"
         }
-        register("androidHilt") {
-            id = "aedst.android.hilt"
-            implementationClass = "AndroidHiltConventionPlugin"
+        register("androidMetro") {
+            id = "aedst.android.metro"
+            implementationClass = "AndroidMetroConventionPlugin"
         }
         register("kmpLibrary") {
             id = "aedst.kmp.library"

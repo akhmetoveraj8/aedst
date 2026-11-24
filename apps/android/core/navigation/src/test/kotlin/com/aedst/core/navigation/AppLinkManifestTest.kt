@@ -27,11 +27,10 @@ class AppLinkManifestTest {
     private fun androidAttr(element: Element, name: String): String? =
         element.getAttributeNS(ANDROID_NS, name).takeIf { it.isNotEmpty() }
 
-    private fun children(element: Element, tag: String): List<Element> =
-        (0 until element.childNodes.length)
-            .map { element.childNodes.item(it) }
-            .filter { it.nodeType == Node.ELEMENT_NODE && it.nodeName == tag }
-            .map { it as Element }
+    private fun children(element: Element, tag: String): List<Element> = (0 until element.childNodes.length)
+        .map { element.childNodes.item(it) }
+        .filter { it.nodeType == Node.ELEMENT_NODE && it.nodeName == tag }
+        .map { it as Element }
 
     private fun verifiedFilters(): List<Element> {
         assertTrue(manifest.isFile, "app manifest not found at ${manifest.absolutePath}")

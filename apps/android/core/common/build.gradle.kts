@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kmp.library.convention)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.android.metro.convention)
 }
 
 kotlin {
@@ -15,15 +15,12 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlinx.coroutines.test)
         }
-        // Hilt is JVM-only: the DI wiring (CommonModule, LoggerModule, AppLifecycleHooksModule) stays in androidMain.
-        // No Hilt Gradle plugin here: it only transforms @AndroidEntryPoint classes, and this module has none.
+        // The DI wiring (CommonModule, logger/dispatcher bindings, the hook multibindings, the WorkManager and
+        // ViewModel factories every application graph needs) stays in androidMain: it uses Context, Log and WorkManager.
         androidMain.dependencies {
-            implementation(libs.hilt.android)
-            implementation(libs.javax.inject)
+            implementation(libs.workmanager.runtime)
+            // MetroViewModelFactory is the supertype of AedstViewModelFactory (the one factory both apps bind).
+            api(libs.metrox.viewmodel)
         }
     }
-}
-
-dependencies {
-    add("kspAndroid", libs.hilt.compiler)
 }

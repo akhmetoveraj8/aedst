@@ -1,7 +1,7 @@
 package com.aedst.core.network
 
+import dev.zacsweers.metro.Qualifier
 import okhttp3.Interceptor
-import javax.inject.Qualifier
 
 /**
  * Seam for the crash/tracing SDK (implemented by `core/analytics` with Sentry) so `core/network` never imports it.

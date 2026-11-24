@@ -3,16 +3,19 @@ package com.aedst.core.analytics
 import androidx.datastore.core.DataStore
 import com.aedst.core.datastore.AnalyticsConsent
 import com.aedst.core.datastore.UserPrefs
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** Persists the analytics opt-in in the device's `UserPrefs` DataStore (not a secret, survives sign-out). */
-@Singleton
-class DataStoreAnalyticsConsentStore @Inject constructor(private val dataStore: DataStore<UserPrefs>) :
-    AnalyticsConsentStore {
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
+class DataStoreAnalyticsConsentStore(private val dataStore: DataStore<UserPrefs>) : AnalyticsConsentStore {
 
     override val consent: Flow<AnalyticsConsentState> = dataStore.data
         .map { prefs ->

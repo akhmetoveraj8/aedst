@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aedst.core.ui.adaptive.AedstAdaptiveContent
 import com.aedst.core.ui.adaptive.AedstContentWidth
@@ -30,11 +29,12 @@ import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 import com.aedst.feature.notifications.R
 import com.aedst.feature.notifications.domain.NotificationPreferences
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 @Composable
 internal fun NotificationPreferencesRoute(
     onBack: () -> Unit,
-    viewModel: NotificationPreferencesViewModel = hiltViewModel(),
+    viewModel: NotificationPreferencesViewModel = metroViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     NotificationPreferencesScreen(state = state, onIntent = viewModel::onIntent, onBack = onBack)

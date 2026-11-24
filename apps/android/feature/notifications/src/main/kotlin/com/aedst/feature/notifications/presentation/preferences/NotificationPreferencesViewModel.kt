@@ -6,13 +6,15 @@ import com.aedst.core.common.AedstError
 import com.aedst.core.common.Outcome
 import com.aedst.feature.notifications.domain.NotificationPreferences
 import com.aedst.feature.notifications.domain.NotificationsRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class NotificationPreferencesState(
     val preferences: NotificationPreferences? = null,
@@ -28,9 +30,10 @@ sealed interface NotificationPreferencesIntent {
     data object ErrorShown : NotificationPreferencesIntent
 }
 
-@HiltViewModel
-internal class NotificationPreferencesViewModel @Inject constructor(private val repository: NotificationsRepository) :
-    ViewModel() {
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+@Inject
+internal class NotificationPreferencesViewModel(private val repository: NotificationsRepository) : ViewModel() {
 
     private val mutableState = MutableStateFlow(NotificationPreferencesState())
     val state: StateFlow<NotificationPreferencesState> = mutableState.asStateFlow()

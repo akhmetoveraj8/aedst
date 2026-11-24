@@ -6,7 +6,10 @@ import com.aedst.core.common.AedstError
 import com.aedst.core.common.Outcome
 import com.aedst.feature.tasks.domain.Task
 import com.aedst.feature.tasks.domain.TaskRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class TaskListState(
     val tasks: List<Task> = emptyList(),
@@ -35,8 +37,10 @@ sealed interface TaskListIntent {
     data object ErrorShown : TaskListIntent
 }
 
-@HiltViewModel
-internal class TaskListViewModel @Inject constructor(private val repository: TaskRepository) : ViewModel() {
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+@Inject
+internal class TaskListViewModel(private val repository: TaskRepository) : ViewModel() {
 
     private val mutableState = MutableStateFlow(TaskListState())
     val state: StateFlow<TaskListState> = mutableState.asStateFlow()

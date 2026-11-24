@@ -2,12 +2,20 @@ package com.aedst.feature.search.presentation
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
 import com.aedst.core.common.AedstError
 import com.aedst.core.common.Outcome
 import com.aedst.feature.search.domain.SearchHit
 import com.aedst.feature.search.domain.SearchRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +28,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
 sealed interface SearchResultState {
     data object Idle : SearchResultState
@@ -44,11 +51,21 @@ sealed interface SearchIntent {
  * (shown in place of the list), not a transient error, so there is no `ErrorShown` intent here.
  */
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-@HiltViewModel
-internal class SearchViewModel @Inject constructor(
+@AssistedInject
+internal class SearchViewModel(
     private val repository: SearchRepository,
-    private val savedState: SavedStateHandle,
+    @Assisted private val savedState: SavedStateHandle,
 ) : ViewModel() {
+
+    /** The `SavedStateHandle` comes from the creation extras of the screen's back stack entry. */
+    @AssistedFactory
+    @ViewModelAssistedFactoryKey(SearchViewModel::class)
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ViewModelAssistedFactory {
+        override fun create(extras: CreationExtras): SearchViewModel = create(extras.createSavedStateHandle())
+
+        fun create(savedState: SavedStateHandle): SearchViewModel
+    }
 
     private val query = savedState.getStateFlow(KEY_QUERY, "")
 

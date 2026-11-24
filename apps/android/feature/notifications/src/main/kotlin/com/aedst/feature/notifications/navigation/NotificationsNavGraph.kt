@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.core.content.ContextCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -34,6 +33,7 @@ import com.aedst.feature.notifications.R
 import com.aedst.feature.notifications.presentation.UnreadBadgeViewModel
 import com.aedst.feature.notifications.presentation.inbox.InboxRoute
 import com.aedst.feature.notifications.presentation.preferences.NotificationPreferencesRoute
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 /**
  * feature/notifications' public boundary: the inbox + preferences destinations, the unread badge icon for the app's
@@ -63,7 +63,7 @@ fun NotificationsBadgedIcon(modifier: Modifier = Modifier) {
 // Separate internal composable: the ViewModel is a default parameter (compose-rules ViewModelInjection) and, being
 // internal, cannot appear in the public signature above.
 @Composable
-internal fun UnreadBadgedIcon(modifier: Modifier = Modifier, viewModel: UnreadBadgeViewModel = hiltViewModel()) {
+internal fun UnreadBadgedIcon(modifier: Modifier = Modifier, viewModel: UnreadBadgeViewModel = metroViewModel()) {
     val unread by viewModel.unread.collectAsStateWithLifecycle()
     val description = pluralStringResource(R.plurals.notifications_unread_count, unread, unread)
     BadgedBox(badge = { if (unread > 0) AedstCountBadge(badgeText(unread)) }, modifier = modifier) {

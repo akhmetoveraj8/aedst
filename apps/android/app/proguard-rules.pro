@@ -2,7 +2,7 @@
 # nothing is kept "by accident": every reflective access must be covered by a keep rule.
 #
 # Where rules live (docs: docs/content/android/r8.md):
-#   - Library-shipped consumer rules (AAR/JAR META-INF): Hilt/Dagger, Room, WorkManager, OkHttp, Tink, Sentry,
+#   - Library-shipped consumer rules (AAR/JAR META-INF): Room, WorkManager, OkHttp, Tink, Sentry,
 #     PostHog, Firebase, connect-kotlin (its Moshi JSON adapters), kotlinx.serialization (core jar, R8 flavour).
 #   - protobuf-javalite 4.36.x ships NONE, so the keep rules for generated messages are owned by core/network
 #     (core/network/consumer-rules.pro) and apply here through the consumer-rules merge. Do not duplicate them.

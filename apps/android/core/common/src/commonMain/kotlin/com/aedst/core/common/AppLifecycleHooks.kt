@@ -2,8 +2,8 @@ package com.aedst.core.common
 
 /**
  * Process-start work a module needs (notification channels, telemetry SDK init, push token sync). Modules contribute
- * one with `@Binds @IntoSet`; `app/`'s `Application.onCreate` runs them all. This keeps `app/` from importing any
- * feature's data/domain packages just to start it.
+ * one with `@ContributesIntoSet(AppScope::class, binding<AppInitializer>())`; `app/`'s `Application.onCreate` runs
+ * them all. This keeps `app/` from importing any feature's data/domain packages just to start it.
  */
 public interface AppInitializer {
     /** Lower runs first. Telemetry uses [PRIORITY_TELEMETRY] so crashes in later initializers are captured. */
@@ -19,7 +19,8 @@ public interface AppInitializer {
 }
 
 /**
- * Work tied to the end of a session. Modules contribute one with `@Binds @IntoSet`; `feature/auth` calls it. Each
+ * Work tied to the end of a session. Modules contribute one with
+ * `@ContributesIntoSet(AppScope::class, binding<SignOutHook>())`; `feature/auth` calls it. Each
  * method is best-effort and must not throw for expected failures.
  *
  *  - [beforeSignOut]: needs the session while it is still valid (e.g. `UnregisterPushDevice` needs the bearer token).

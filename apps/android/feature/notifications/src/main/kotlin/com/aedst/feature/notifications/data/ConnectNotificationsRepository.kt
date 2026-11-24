@@ -18,10 +18,14 @@ import com.aedst.notifications.v1.listNotificationsRequest
 import com.aedst.notifications.v1.markAllReadRequest
 import com.aedst.notifications.v1.markReadRequest
 import com.aedst.notifications.v1.updatePreferencesRequest
-import javax.inject.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import com.aedst.notifications.v1.NotificationKind as ProtoNotificationKind
 
-internal class ConnectNotificationsRepository @Inject constructor(
+@ContributesBinding(AppScope::class)
+@Inject
+internal class ConnectNotificationsRepository(
     private val client: NotificationsServiceClientInterface,
     private val unreadStore: UnreadCountStore,
 ) : NotificationsRepository {

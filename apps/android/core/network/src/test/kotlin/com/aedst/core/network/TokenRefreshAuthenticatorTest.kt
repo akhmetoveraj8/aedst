@@ -22,7 +22,7 @@ class TokenRefreshAuthenticatorTest {
         refreshResult
     }
     private val client = OkHttpClient.Builder()
-        .authenticator(TokenRefreshAuthenticator(dagger.Lazy { refresher }))
+        .authenticator(TokenRefreshAuthenticator(lazy { refresher }))
         .build()
 
     @BeforeEach

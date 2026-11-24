@@ -25,7 +25,9 @@ class PlayIntegrityFacadeInstrumentedTest {
         var prepareCalls = 0
         var lastRequestHash: String? = null
 
-        override fun prepareIntegrityToken(request: PrepareIntegrityTokenRequest): Task<StandardIntegrityTokenProvider> {
+        override fun prepareIntegrityToken(
+            request: PrepareIntegrityTokenRequest,
+        ): Task<StandardIntegrityTokenProvider> {
             prepareCalls++
             return Tasks.forResult(
                 object : StandardIntegrityTokenProvider {

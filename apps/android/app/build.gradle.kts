@@ -1,7 +1,9 @@
+import dev.zacsweers.metro.gradle.ExperimentalMetroGradleApi
+
 plugins {
     alias(libs.plugins.android.application.convention)
     alias(libs.plugins.android.compose.convention)
-    alias(libs.plugins.android.hilt.convention)
+    alias(libs.plugins.android.metro.convention)
     alias(libs.plugins.sentry)
     alias(libs.plugins.baseline.profile)
 }
@@ -43,6 +45,15 @@ baselineProfile {
     // Only app code goes into the generated profile; Compose, OkHttp etc. ship and merge their own profiles.
     filter {
         include("com.aedst.**")
+    }
+}
+
+// Metro only aggregates contributions of dependencies this module can see. A module that is reachable only through
+// another module's `implementation` would be silently missing from the graph; this check fails the build instead.
+@OptIn(ExperimentalMetroGradleApi::class)
+metro {
+    hiddenDependencies {
+        checkOnCompile.set(true)
     }
 }
 
@@ -89,12 +100,17 @@ dependencies {
     implementation(libs.compose.material.icons.extended)
     implementation(libs.navigation3.runtime)
     implementation(libs.navigation3.ui)
-    // Per-entry ViewModelStore (entry decorator) so hiltViewModel() inside a screen is scoped to its back stack entry.
+    // Per-entry ViewModelStore (entry decorator) so metroViewModel() inside a screen is scoped to its back stack entry.
     implementation(libs.lifecycle.viewmodel.navigation3)
     // NavigationSuiteScaffold: bottom bar on phones, rail on tablets/foldables.
     implementation(libs.compose.material3.adaptive.navigation.suite)
     implementation(libs.workmanager.runtime)
-    implementation(libs.hilt.work)
+    // Metro does not aggregate through transitive dependencies (Kotlin visibility, incremental compilation): every
+    // module that contributes bindings must be a direct dependency of the graph module. core:datastore is reached
+    // only through other modules otherwise. `checkOnCompile` (below) fails the build when one is missing.
+    implementation(project(":core:datastore"))
+    // LocalMetroViewModelFactory (provided at the root of the Compose tree) and MetroViewModelFactory.
+    implementation(libs.metrox.viewmodel.compose)
 
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.espresso)

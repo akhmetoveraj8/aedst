@@ -6,12 +6,13 @@ import com.aedst.core.common.Logger
 import com.aedst.core.common.onFailure
 import com.aedst.core.common.onSuccess
 import com.aedst.feature.auth.domain.AttestDeviceUseCase
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicReference
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Fire-and-forget device attestation once per successful sign-in. It runs on the application scope, never throws and
@@ -19,8 +20,9 @@ import javax.inject.Singleton
  * `verified`, `reason` and `device`; every failure (server disabled, no cloud project, no Play Services, offline) is
  * a debug log. A run already in flight absorbs further triggers (per-process throttle).
  */
-@Singleton
-internal class SignInAttestation @Inject constructor(
+@SingleIn(AppScope::class)
+@Inject
+internal class SignInAttestation(
     private val attestDevice: AttestDeviceUseCase,
     private val analytics: AnalyticsTracker,
     private val logger: Logger,

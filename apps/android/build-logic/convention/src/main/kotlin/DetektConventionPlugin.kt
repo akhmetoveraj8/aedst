@@ -35,7 +35,7 @@ class DetektConventionPlugin : Plugin<Project> {
                 exclude("**/kotlin-gen/**")
                 // A relative glob never matches when the source root itself is kotlin-gen (type-resolved tasks).
                 exclude { it.file.invariantSeparatorsPath.contains("/kotlin-gen/") }
-                // KSP output (Room, Hilt) is a Kotlin source root of multiplatform source sets.
+                // KSP output (Room) is a Kotlin source root of multiplatform source sets.
                 exclude { it.file.invariantSeparatorsPath.contains("/build/generated/") }
             }
             extensions.configure<KtlintExtension> {

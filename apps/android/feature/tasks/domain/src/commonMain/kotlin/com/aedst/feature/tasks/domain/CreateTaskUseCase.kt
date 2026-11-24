@@ -25,7 +25,7 @@ public sealed interface CreateTaskResult {
  * same operation id is queued in the outbox instead. Because the id is the `Idempotency-Key`, a request that did reach
  * the server but lost its response is not applied a second time when the queue delivers it.
  *
- * No DI annotation: the domain is common code. The feature's Hilt module provides it (`TasksModule`).
+ * No DI annotation: the domain is common code. The feature's Metro container provides it (`TasksProviders`).
  */
 public class CreateTaskUseCase(
     private val repository: TaskRepository,

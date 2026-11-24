@@ -13,16 +13,17 @@ import com.aedst.search.v1.SearchServiceClient
 import com.aedst.search.v1.SearchServiceClientInterface
 import com.aedst.search.v1.searchRequest
 import com.connectrpc.ProtocolClientInterface
-import dagger.Binds
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 
-internal class ConnectSearchRepository @Inject constructor(private val client: SearchServiceClientInterface) :
-    SearchRepository {
+@ContributesBinding(AppScope::class)
+@Inject
+internal class ConnectSearchRepository(private val client: SearchServiceClientInterface) : SearchRepository {
 
     override suspend fun search(query: String, pageToken: String?): Outcome<SearchResults> = runCatchingOutcome {
         val response = rpc {
@@ -62,16 +63,11 @@ internal class ConnectSearchRepository @Inject constructor(private val client: S
     }
 }
 
-@Module
-@InstallIn(SingletonComponent::class)
-internal abstract class SearchModule {
-    @Binds
-    abstract fun bindSearchRepository(impl: ConnectSearchRepository): SearchRepository
-
-    companion object {
-        @Provides
-        @Singleton
-        fun provideSearchServiceClient(client: ProtocolClientInterface): SearchServiceClientInterface =
-            SearchServiceClient(client)
-    }
+@BindingContainer
+@ContributesTo(AppScope::class)
+object SearchProviders {
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideSearchServiceClient(client: ProtocolClientInterface): SearchServiceClientInterface =
+        SearchServiceClient(client)
 }

@@ -16,10 +16,13 @@ import com.aedst.feature.tasks.domain.Task
 import com.aedst.feature.tasks.domain.TaskId
 import com.aedst.feature.tasks.domain.TaskRepository
 import com.aedst.feature.tasks.domain.TaskStatus
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
@@ -65,8 +68,8 @@ sealed interface TaskDetailEffect {
  * Task + its attachments (MediaService `ListMedia(task_id)`) + in-flight uploads (WorkManager). A finished upload
  * triggers an attachment reload, so a new file appears without pull-to-refresh.
  */
-@HiltViewModel(assistedFactory = TaskDetailViewModel.Factory::class)
-internal class TaskDetailViewModel @AssistedInject constructor(
+@AssistedInject
+internal class TaskDetailViewModel(
     @Assisted private val taskId: String,
     private val tasks: TaskRepository,
     private val completeTask: CompleteTaskUseCase,
@@ -193,7 +196,9 @@ internal class TaskDetailViewModel @AssistedInject constructor(
 
     /** The task id comes from the Navigation 3 key (`TaskDetailKey`), passed by `TaskDetailRoute`. */
     @AssistedFactory
-    interface Factory {
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    interface Factory : ManualViewModelAssistedFactory {
         fun create(taskId: String): TaskDetailViewModel
     }
 

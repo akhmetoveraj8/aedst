@@ -7,11 +7,11 @@ import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Build
 import android.util.Size
+import com.aedst.core.common.ApplicationContext
 import com.aedst.core.common.DispatcherProvider
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.withContext
 import java.io.File
-import javax.inject.Inject
 
 /**
  * Thumbnails for media that has **no server variant yet** (an upload in progress, or a file still processing).
@@ -20,7 +20,8 @@ import javax.inject.Inject
  * Order: `ContentResolver.loadThumbnail` (API 29+, cached by MediaStore) → `MediaMetadataRetriever` frame for
  * video → `ThumbnailUtils` for local files.
  */
-class LocalThumbnailLoader @Inject constructor(
+@Inject
+class LocalThumbnailLoader(
     @ApplicationContext private val context: Context,
     private val dispatchers: DispatcherProvider,
 ) {

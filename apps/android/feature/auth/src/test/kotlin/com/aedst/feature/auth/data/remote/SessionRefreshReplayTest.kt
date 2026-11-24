@@ -83,7 +83,7 @@ class SessionRefreshReplayTest {
             dispatcher = scripted
             start()
         }
-        val client = OkHttpClient.Builder().authenticator(TokenRefreshAuthenticator(dagger.Lazy { refresher })).build()
+        val client = OkHttpClient.Builder().authenticator(TokenRefreshAuthenticator(lazy { refresher })).build()
         val pool = Executors.newFixedThreadPool(ids.size)
         try {
             val results = ids.associateWith { rid ->

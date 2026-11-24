@@ -7,18 +7,20 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.aedst.core.common.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Schedules [OutboxSyncWorker]. WorkManager is the right tool for battery: it defers the work until the network is
  * connected, batches with other jobs, honours Doze/App Standby and survives process death and reboot — no wake locks
  * or polling of our own.
  */
-@Singleton
-class OutboxScheduler @Inject constructor(@ApplicationContext private val context: Context) {
+@SingleIn(AppScope::class)
+@Inject
+class OutboxScheduler(@ApplicationContext private val context: Context) {
 
     fun scheduleSync() {
         val request = OneTimeWorkRequestBuilder<OutboxSyncWorker>()
