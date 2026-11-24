@@ -13,7 +13,7 @@ RETURNING id;
 -- source_event_id of each row is derived from the broadcast id and the user,
 -- so re-running the same broadcast inserts nothing new.
 INSERT INTO notifications.notifications (id, user_id, kind, title, body, link, subject_id, source_event_id, created_at)
-SELECT gen_random_uuid(), u.user_id, 'system', sqlc.arg(title), sqlc.arg(body), sqlc.arg(link), NULL,
+SELECT uuidv7(), u.user_id, 'system', sqlc.arg(title), sqlc.arg(body), sqlc.arg(link), NULL,
        md5(sqlc.arg(broadcast_id)::text || u.user_id::text)::uuid, sqlc.arg(created_at)
 FROM (
     SELECT user_id FROM notifications.push_devices WHERE disabled_at IS NULL

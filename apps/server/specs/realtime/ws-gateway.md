@@ -11,7 +11,7 @@ served by Rust, not `coder/websocket`; NATS JetStream is allowed as the broker t
 carries events to the Rust gateway. ADR-0014 said "NATS is not adopted now,
 `events.Publisher` is the seam, the bridge is a River-delivered consumer
 (`platform.event_forward`), never a dual write". This spec implements exactly that
-bridge. ADR-0008 (Realtime: Proposed) gets a new ADR superseding its Valkey/Connect
+bridge. ADR-0008 (Realtime: Proposed) gets a new ADR superseding its DragonflyDB/Connect
 stream proposal for transport; ADR-0014 gets an "amended by" note.
 
 Not in scope: client (web/Android/Apple/Desktop) WebSocket code, presence/typing,

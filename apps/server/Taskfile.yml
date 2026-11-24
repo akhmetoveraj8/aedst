@@ -15,7 +15,7 @@ tasks:
   # --- local infra -----------------------------------------------------
 
   up:
-    desc: Start Postgres + Valkey for local development (add PROFILES="--profile observability --profile idp" for otel-lgtm and ZITADEL).
+    desc: Start PostgreSQL + DragonflyDB for local development (add PROFILES="--profile observability --profile idp" for otel-lgtm and ZITADEL).
     vars:
       PROFILES: '{{.PROFILES | default ""}}'
     cmds:
@@ -278,7 +278,7 @@ tasks:
           [ -n "{{.KEEP}}" ] || dc down >/dev/null 2>&1 || true
         }
         trap cleanup EXIT
-        dc up -d --wait postgres valkey pgbouncer
+        dc up -d --wait postgres cache pgbouncer
         task migrate
         dc up -d --build --scale server={{.REPLICAS}} server loadbalancer
         for i in $(seq 1 60); do curl -fsS http://localhost:8088/readyz >/dev/null 2>&1 && break; sleep 2; done

@@ -4,9 +4,10 @@
 // (use internal/platform/lock, PostgreSQL advisory locks) or for messaging
 // (use River InsertTx events, see internal/platform/events).
 //
-// The client is github.com/redis/go-redis/v9: Dragonfly speaks the same RESP
-// protocol, so no separate client library is needed. Keep every go-redis
-// import inside this package.
+// There is no Dragonfly-native Go client: DragonflyDB documents RESP-protocol
+// clients, and github.com/redis/go-redis/v9 is used purely as that wire-protocol
+// client (docs/content/decisions/server.md). Keep every go-redis import inside
+// this package.
 //
 // Dragonfly is an optional dependency by design: nothing correct depends on it,
 // so the client neither fails process startup nor takes a replica out of

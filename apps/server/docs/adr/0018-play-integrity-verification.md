@@ -46,15 +46,15 @@ unused (decisions.md, "Play Integrity").
    have exactly one winner. A token is claimed last, only after it passed every
    other check. Rows are purged by a `retention.Policy` (leader-elected River
    periodic job) after `max age + skew + 10 min`: an older token is rejected as
-   expired anyway. Valkey is not involved (AGENTS.md: never correctness in
-   Valkey).
+   expired anyway. DragonflyDB is not involved (AGENTS.md: never correctness in
+   DragonflyDB).
 6. **Authenticated callers only.** The RPC is not in `publicProcedures`, so
    `AuthInterceptor` requires a valid token; the caller's user id is recorded
    with the claim. An unauthenticated variant (e.g. attest before sign-up) is a
    Google-quota DoS vector and is deliberately out of scope; add it only with a
    per-IP limit and a separate decision.
 7. **Rate limit.** Beyond the global per-user limit, `AEDST_INTEGRITY_RATE_LIMIT_PER_MINUTE`
-   (default 10/user, Valkey `RateLimiter`, fails open) protects Google's decode
+   (default 10/user, DragonflyDB `RateLimiter`, fails open) protects Google's decode
    quota, which is shared by all users (10,000 calls/day by default).
 8. **Disabled by default.** `AEDST_INTEGRITY_ENABLED=false`: no Google client
    is built, no credential is read, startup never fails because of it, and the

@@ -92,7 +92,7 @@ services:
 
   # DragonflyDB (BSL 1.1, source-available, NOT OSI open source; owner decision,
   # docs/content/decisions/server.md) is the cache + rate-limit store. The
-  # server talks to it with the go-redis client; the wire protocol is RESP.
+  # server talks to it over the RESP wire protocol (go-redis is used only as that protocol client).
   # Nothing correct lives here: the limiter fails open and the cache is rebuildable.
   cache:
     image: ghcr.io/dragonflydb/dragonfly:v2.1.0

@@ -35,7 +35,7 @@ just fill the template by hand. A one-line bug fix doesn't need one.
 - Every library/boundary rule is a gate with a negative self-test; the table is in `docs/content/library-first/server.md` ("Enforcement"). Time comes from `sharedtime.Clock`, SQL only from sqlc (no string literals in `Exec`/`Query`), new direct dependencies go in `architecturetest/approved_modules.txt` together with the Library-First page.
 - Banned dependencies (enforced by `architecturetest` and depguard): Kafka, RabbitMQ or any
   other broker, NATS outside `internal/platform/natsbridge` (ADR-0021), RedSync/Redlock or any distributed lock in DragonflyDB, competing
-  JWT libraries, ORMs. Only `internal/platform/cache` imports the go-redis client, only `internal/platform/search` the Meilisearch client and only `internal/platform/flags` OpenFeature/flagd.
+  JWT libraries, ORMs. Only `internal/platform/cache` imports the go-redis RESP client (DragonflyDB has no native Go client), only `internal/platform/search` the Meilisearch client and only `internal/platform/flags` OpenFeature/flagd.
 
 ## When a change touches state and another system cares
 
@@ -119,7 +119,7 @@ With `AEDST_DATABASE_POOLER=pgbouncer` the api pool is forced to pgx CacheDescri
 ## When you need mutual exclusion
 
 Use PostgreSQL advisory locks via `internal/platform/lock` (`TryXact` inside a
-transaction is preferred; `Locker` for session locks). Never a Redis/DragonflyDB
+transaction is preferred; `Locker` for session locks). Never a DragonflyDB
 lock. For leader-only periodic work, River's own leader election/unique jobs.
 
 ## When you need cache or rate limiting

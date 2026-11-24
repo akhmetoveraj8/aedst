@@ -102,7 +102,7 @@ Docker. `task dev` / `task test:integration` need Docker for Postgres/DragonflyD
 | Data | PostgreSQL 19, pgx, sqlc, Goose | `sqlc vet` + squawk in the lint gate |
 | Async | **River** (jobs and events: `InsertTx` in the producer's transaction, ADR-0014) | one mechanism, no broker; `internal/platform/events.Publisher` is the seam when a consumer becomes a separate service |
 | Locks | PostgreSQL advisory locks (`internal/platform/lock`) | no Redlock/RedSync |
-| Cache / rate limits | DragonflyDB via go-redis + redis_rate (`internal/platform/cache`) | `AEDST_CACHE_*` |
+| Cache / rate limits | DragonflyDB via go-redis (RESP protocol client) + redis_rate (`internal/platform/cache`) | `AEDST_CACHE_*` |
 | Auth | OIDC resource server only (any IdP; ZITADEL by default), no first-party accounts | [ADR-0017](docs/adr/0017-identity-provider.md), [ADR-0019](docs/adr/0019-remove-first-party-auth.md) |
 | Observability | OpenTelemetry (traces, metrics, logs) over OTLP; optional `/metrics` | any backend |
 
@@ -156,7 +156,7 @@ Upgrading an existing dev database that was migrated with the old shared
 
 | Old | New |
 |---|---|
-| `AEDST_REDIS_ADDR/PASSWORD/DB`, then `AEDST_VALKEY_*` | `AEDST_CACHE_*` (same protocol; DragonflyDB since 2026-11-18). `AEDST_VALKEY_*` is still honoured for one release with a warning; `AEDST_REDIS_*` is not |
+| Earlier cache variable names | `AEDST_CACHE_*` (DragonflyDB since 2026-11-18). The old aliases were removed on 2026-11-25 and are no longer read |
 | `AEDST_NATS_URL` | removed |
 | `AEDST_OTLP_ENDPOINT` (gRPC, insecure) | standard `OTEL_EXPORTER_OTLP_ENDPOINT` / `_HEADERS` / `_PROTOCOL` |
 | `AEDST_METRICS_ADDR` default `:9090` | default empty (opt-in) |

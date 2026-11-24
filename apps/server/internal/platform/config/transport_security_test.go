@@ -67,19 +67,3 @@ func TestValidate_AuditRetentionRespectsTheDatabaseFloor(t *testing.T) {
 		t.Fatalf("the floor itself is valid: %v", err)
 	}
 }
-
-func TestLoad_LegacyValkeyEnvIsHonoured(t *testing.T) {
-	t.Setenv("AEDST_DATABASE_URL", "postgres://x?sslmode=verify-full")
-	t.Setenv("AEDST_OIDC_ISSUER", "https://idp.example")
-	t.Setenv("AEDST_OIDC_AUDIENCE", "api")
-	t.Setenv("AEDST_VALKEY_ADDR", "old:6379")
-	t.Setenv("AEDST_CACHE_DB", "3")
-	t.Setenv("AEDST_VALKEY_DB", "9") // the new name wins
-	cfg, err := config.Load()
-	if err != nil {
-		t.Fatalf("Load: %v", err)
-	}
-	if cfg.Cache.Addr != "old:6379" || cfg.Cache.DB != 3 {
-		t.Fatalf("Cache = %+v; want legacy addr honoured and new DB winning", cfg.Cache)
-	}
-}

@@ -201,7 +201,7 @@ the meantime:
 | Login timing revealed which emails exist | Unknown accounts burn an equivalent dummy hash |
 | Refresh rotation was read-then-write | Atomic compare-and-swap on the stored hash; loser revokes the session |
 | Refresh tokens issued in the same second were byte-identical | `jti` + `nbf` claims on every token |
-| No throttling | Per-IP limit on register/login/refresh RPCs and per-account limit on login (Valkey, cluster-wide, fail-open) |
+| No throttling | Per-IP limit on register/login/refresh RPCs and per-account limit on login (DragonflyDB, cluster-wide, fail-open) |
 | Emails case-sensitive | Normalised to lower case |
 | Proto validation annotations were never enforced | `connectrpc.com/validate` interceptor; length caps added |
 | Dev signing key accepted anywhere; no minimum length | Config rejects keys < 32 bytes, and the dev placeholder in staging/production |

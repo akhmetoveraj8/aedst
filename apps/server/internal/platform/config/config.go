@@ -192,9 +192,8 @@ const (
 	PoolerPgBouncer = "pgbouncer"
 )
 
-// CacheConfig configures the Dragonfly (cache + rate limiting) connection. It
-// supersedes AEDST_VALKEY_* (still read for one release, see legacy_env.go) and
-// AEDST_REDIS_*; the go-redis client speaks the Redis protocol DragonflyDB implements.
+// CacheConfig configures the DragonflyDB (cache + rate limiting) connection.
+// The go-redis package is only the RESP wire-protocol client DragonflyDB speaks.
 type CacheConfig struct {
 	Addr     string `env:"AEDST_CACHE_ADDR" envDefault:"localhost:6379"`
 	Password string `env:"AEDST_CACHE_PASSWORD" envDefault:""`
@@ -332,7 +331,7 @@ func (o ObservabilityConfig) ExportEnabled() bool {
 // Load parses configuration from the process environment and validates it.
 func Load() (Config, error) {
 	var cfg Config
-	if err := env.ParseWithOptions(&cfg, env.Options{Environment: environment(os.Environ(), warnDeprecatedEnv)}); err != nil {
+	if err := env.ParseWithOptions(&cfg, env.Options{}); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
 	}
 	// env.Parse applies envDefault to a variable that is set but empty. For the

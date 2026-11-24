@@ -13,7 +13,7 @@ import (
 
 const broadcastNotification = `-- name: BroadcastNotification :many
 INSERT INTO notifications.notifications (id, user_id, kind, title, body, link, subject_id, source_event_id, created_at)
-SELECT gen_random_uuid(), u.user_id, 'system', $1, $2, $3, NULL,
+SELECT uuidv7(), u.user_id, 'system', $1, $2, $3, NULL,
        md5($4::text || u.user_id::text)::uuid, $5
 FROM (
     SELECT user_id FROM notifications.push_devices WHERE disabled_at IS NULL
