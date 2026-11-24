@@ -5,7 +5,8 @@ independent of `../app` (the signed-in product) and `../admin`. Shares only `../
 
 ```
 pnpm --filter @aedst/web-marketing dev      # http://localhost:3002
-pnpm --filter @aedst/web-marketing build
+pnpm --filter @aedst/web-marketing build    # static export in out/ + generated CSP in headers/
+pnpm --filter @aedst/web-marketing start    # serves out/ with those headers (not for production)
 pnpm --filter @aedst/web-marketing test
 ```
 

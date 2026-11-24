@@ -25,6 +25,8 @@
       "!**/dist",
       "!**/routeTree.gen.ts",
       "!**/dist-server",
+      "!**/out",
+      "!marketing/headers",
       "!**/coverage",
       "!**/node_modules",
       "!shared/api/connect/generated"

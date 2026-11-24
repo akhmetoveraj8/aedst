@@ -104,7 +104,7 @@ Logout: signing out of `admin` clears only admin's cookies, revokes its refresh 
 |---|---|---|---|---|
 | `app` | `apps/web/app/deployments/docker/Dockerfile`, Helm chart `apps/web/app/deployments/helm/aedst-web` | 3000 | `app.<domain>` (proposed) | `web-ci.yml`, `web-release.yml` (tag `web-v*`) |
 | `admin` | `apps/web/admin/deployments/docker/Dockerfile` (SPA `dist/` + BFF bundle, one distroless Node process) | 3001 | `admin.<domain>` | `admin-ci.yml` (no release workflow or chart yet) |
-| `marketing` | `apps/web/marketing/deployments/docker/Dockerfile` | 3002 | `<domain>` | `marketing-ci.yml` (no release workflow or chart yet) |
+| `marketing` | `apps/web/marketing/deployments/docker/Dockerfile` (static export served by nginx, [Marketing static](/web/marketing-static)) | 8080 in the image, 3002 in dev | `<domain>` | `marketing-ci.yml` (no release workflow or chart yet) |
 
 Every image is built with the repository root as context (the stubs are generated from `apps/server/api/proto` during the build and `shared/` is compiled in). Details and rollback
 for the app: [Web deployment](/web/deployment). Nothing here was built with Docker yet (UNVERIFIED); the first release run is the acceptance test. `apps/server` must list
@@ -112,8 +112,7 @@ each browser origin that calls it directly; the browsers call their own project'
 
 ## CSP per project
 
-`app` builds its nonce CSP in `src/app/config/security/csp.ts` and `proxy.ts`; `admin` builds its own in `server/security/csp.ts`, applied by the BFF (the browser talks to its own origin only, plus the Sentry ingest origin derived from the DSN in `connect-src`, there is no tunnel; Trusted Types report-only and `Reporting-Endpoints` when a Sentry DSN is set). `marketing` is static and must not need a per-request nonce, so its
-CSP is set in its `next.config.ts` and it allows no third-party origins. A new third-party origin goes into the CSP of the project that loads it, in the same change. `admin` allows
+`app` builds its nonce CSP in `src/app/config/security/csp.ts` and `proxy.ts`; `admin` builds its own in `server/security/csp.ts`, applied by the BFF (the browser talks to its own origin only, plus the Sentry ingest origin derived from the DSN in `connect-src`, there is no tunnel; Trusted Types report-only and `Reporting-Endpoints` when a Sentry DSN is set). `marketing` is a static export with a **hash-based** CSP: one SHA-256 per inline script, generated after the build (`scripts/build-security-headers.mjs`, policy in `scripts/security-policy.mjs`), no `unsafe-inline`, no third-party origins ([Marketing static](/web/marketing-static)). A new third-party origin goes into the CSP of the project that loads it, in the same change. `admin` allows
 no analytics or tracking origins.
 
 ## Commands

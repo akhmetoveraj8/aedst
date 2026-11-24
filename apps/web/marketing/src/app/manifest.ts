@@ -2,6 +2,9 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/app/config/seo";
 import { defaultLocale } from "@/shared/i18n/locales";
 
+// Required by `output: "export"`: the file is written once, at build time.
+export const dynamic = "force-static";
+
 /**
  * Plain web manifest for icons and theme colour. Deliberately NOT installable
  * (`display: browser`, no service worker): the installable PWA is the product

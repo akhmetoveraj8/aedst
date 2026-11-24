@@ -5,7 +5,7 @@ description: "How the apps/web projects ship (this page details the app project;
 
 # Web Deployment
 
-The three web projects (`app`, `admin`, `marketing`) are separate deployables, one container image each, on separate domains (see [Web projects](/web/projects)). This page details the **app** project; `marketing` follows the same shape with its own `deployments/docker/Dockerfile` (port 3002, no release workflow or Helm chart yet), built from the Next.js `output: "standalone"` bundle. `admin` is a Vite SPA plus a Hono BFF and is described in [Admin (Vite + Hono BFF)](#admin-vite--hono-bff) below. The
+The three web projects (`app`, `admin`, `marketing`) are separate deployables, one container image each, on separate domains (see [Web projects](/web/projects)). This page details the **app** project; `marketing` has its own `deployments/docker/Dockerfile` (no release workflow or Helm chart yet): a Next.js static export (`output: "export"`) served by non-root nginx on port 8080, see [Marketing static](/web/marketing-static). `admin` is a Vite SPA plus a Hono BFF and is described in [Admin (Vite + Hono BFF)](#admin-vite--hono-bff) below. The
 Vercel/OpenNext route is documented at the end and is **not implemented**.
 
 Status: the Dockerfile, the Helm chart and `web-release.yml` were authored without Docker, Helm or a CI run

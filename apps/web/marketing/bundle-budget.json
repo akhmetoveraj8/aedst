@@ -9,7 +9,8 @@
     "/[locale]": 141,
     "/[locale]/privacy": 141,
     "/[locale]/terms": 141,
-    "/[locale]/[...rest]": 141,
+    "/[locale]/404": 141,
+    "/": 137,
     "/_not-found": 137
   }
 }

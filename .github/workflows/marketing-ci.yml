@@ -121,7 +121,8 @@ jobs:
       # Rendered HTML of every public page in all five locales (canonical,
       # hreflang with x-default, og:url, JSON-LD types, one h1) and axe at
       # WCAG 2.2 AA including the right-to-left pages. Playwright starts
-      # `next start` on the build above (playwright.config.ts).
+      # `scripts/serve-out.mjs` on the static export built above, with the
+      # generated per-page CSP (playwright.config.ts); csp.spec.ts asserts it.
       - name: Playwright e2e (SEO tags and accessibility)
         env:
           CI: "1"

@@ -28,8 +28,9 @@ export default defineConfig({
   },
 
   webServer: {
-    // The production build: the specs assert the HTML a crawler receives. CI
-    // builds in an earlier step; locally this builds first.
+    // The static export served with its generated security headers
+    // (scripts/serve-out.mjs): the specs assert what a crawler and a browser
+    // receive. CI builds in an earlier step; locally this builds first.
     command: process.env.CI
       ? `pnpm start --port ${MARKETING_PORT}`
       : `pnpm build && pnpm start --port ${MARKETING_PORT}`,

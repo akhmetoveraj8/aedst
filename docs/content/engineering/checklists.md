@@ -46,7 +46,7 @@ locally, with the Lighthouse numbers per run, is in [status](/status).
 | Few iframes | None | implemented (CSP `frame-src`) |
 | Stylesheet complexity | One generated stylesheet per project, CSS budget | gated: CSS budget per project (`app` 36 KB, `marketing` 10.3 KB, `admin` 31.5 KB) and `resource-summary:stylesheet:size` |
 | Minified HTML | Framework output | implemented |
-| CDN | Static assets are CDN-cacheable; `marketing` is fully static; `app` HTML is dynamic because of the nonce CSP ([decisions/web](/decisions/web)) | implemented for assets |
+| CDN | Static assets are CDN-cacheable; `marketing` is a static export with a hash CSP ([marketing-static](/web/marketing-static)); `app` HTML is dynamic because of the nonce CSP ([decisions/web](/decisions/web)) | implemented for assets |
 | Vector over bitmap, `width`/`height` on images, no Base64 images, lazy offscreen images, images close to display size | `next/image` enforces size and lazy loading; no `data:` images in source | implemented; Base64 ban gated (`pnpm check:source`, with a negative fixture in `check:selftest`) |
 | No multiple inline scripts | One nonce'd bootstrap at most | implemented |
 | Dependencies up to date | Renovate, `pnpm outdated`, knip allowlist | gated (knip), Renovate has not run on GitHub yet |

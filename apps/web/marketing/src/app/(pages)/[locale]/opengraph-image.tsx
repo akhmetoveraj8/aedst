@@ -3,12 +3,19 @@ import { getTranslations } from "next-intl/server";
 import { loadOgFonts, OG_FONT_FAMILY } from "@/app/config/og-fonts";
 import { siteConfig } from "@/app/config/seo";
 import { requireLocale } from "@/shared/i18n/require-locale";
+import { routing } from "@/shared/i18n/routing";
 
 export const alt = siteConfig.name;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+// Required by `output: "export"`: one PNG per locale, written at build time.
+export const dynamic = "force-static";
 
-// Rendered at build time per locale (generateStaticParams in the layout).
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+// Rendered at build time, once per locale.
 export default async function Image({
   params,
 }: {

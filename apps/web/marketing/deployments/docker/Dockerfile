@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Production image for apps/web/marketing (Next.js `output: "standalone"`).
+# Production image for apps/web/marketing (Next.js `output: "export"` served by nginx).
 #
 # BUILD CONTEXT IS apps/web (the pnpm workspace root), because marketing compiles
 # ../shared and installs through the workspace catalog. From the repo root:
@@ -45,20 +45,15 @@ ENV AEDST_REQUIRE_REAL_SEO=${AEDST_REQUIRE_REAL_SEO}
 WORKDIR /repo/apps/web/marketing
 RUN pnpm build
 
-# Runtime: distroless Node, non-root. outputFileTracingRoot is apps/web, so the
-# standalone server lives at marketing/server.js inside the traced tree.
-FROM gcr.io/distroless/nodejs26-debian13:nonroot AS runtime
-ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1 \
-    HOSTNAME=0.0.0.0 \
-    PORT=3002
-WORKDIR /app
-COPY --from=build --chown=65532:65532 /repo/apps/web/marketing/.next/standalone ./
-COPY --from=build --chown=65532:65532 /repo/apps/web/marketing/.next/static ./marketing/.next/static
-COPY --from=build --chown=65532:65532 /repo/apps/web/marketing/public ./marketing/public
+# Runtime: nginx (non-root, port 8080) serving the static export. The build
+# step generated the per-page CSP (SHA-256 of each inline script) next to out/:
+# nginx.conf routes, headers/*.conf carry the policy. See
+# docs/content/web/marketing-static.md.
+FROM nginxinc/nginx-unprivileged:1.31.7-alpine3.24 AS runtime
+COPY --chown=101:101 marketing/deployments/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY --from=build --chown=101:101 /repo/apps/web/marketing/headers/nginx-common.conf /repo/apps/web/marketing/headers/nginx-pages.conf /etc/nginx/aedst/
+COPY --from=build --chown=101:101 /repo/apps/web/marketing/out /usr/share/nginx/html
 
-USER 65532:65532
-EXPOSE 3002
-HEALTHCHECK --interval=15s --timeout=3s --start-period=20s --retries=3 \
-  CMD ["/nodejs/bin/node", "-e", "fetch('http://127.0.0.1:'+(process.env.PORT||3002)+'/robots.txt').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
-CMD ["marketing/server.js"]
+EXPOSE 8080
+HEALTHCHECK --interval=15s --timeout=3s --start-period=5s --retries=3 \
+  CMD ["wget", "-q", "--spider", "http://127.0.0.1:8080/robots.txt"]

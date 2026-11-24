@@ -4,7 +4,13 @@ import { expect, type Page, test } from "@playwright/test";
 /**
  * axe at WCAG 2.2 AA on the rendered marketing pages, in both directions and
  * both themes. Same pattern as ../app/e2e/accessibility.spec.ts.
+ *
+ * `bypassCSP`: the site sends `style-src 'self'`, and the helper below injects
+ * a style element to freeze transitions. The CSP itself is asserted in
+ * csp.spec.ts, so this file may bypass it.
  */
+test.use({ bypassCSP: true });
+
 async function expectNoViolations(page: Page) {
   await expect(page).toHaveTitle(/\S/);
   // axe reads computed colours; freeze transitions so it never samples a
