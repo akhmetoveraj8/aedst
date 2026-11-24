@@ -52,6 +52,7 @@ private val SIGN_IN_LABELS = Pattern.compile("Continue|Продолжить|Davo
 data class BenchmarkCredentials(val email: String, val password: String, val submitLabel: String?) {
     companion object {
         private const val EMAIL = "aedst.benchmark.email"
+        // security-ignore: instrumentation argument name, not a password value
         private const val PASSWORD = "aedst.benchmark.password"
         private const val SUBMIT_LABEL = "aedst.benchmark.submitLabel"
 

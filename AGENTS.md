@@ -10,6 +10,10 @@ Always applicable:
 4. **[docs/agent/quality-bar.md](docs/agent/quality-bar.md)**: the senior-level bar (modern features of the pinned toolchain, API design, security, performance); full pages in `docs/content/engineering/`. Run the `quality-pass` skill before reporting a change done; start API work with the `api-design` skill.
 5. The `AGENTS.md` of the app you touch (`apps/server`, or `apps/web` and then the one web project `app` / `admin` / `marketing` you work in, see [docs/content/web/projects.md](docs/content/web/projects.md)) and platform ADRs (`apps/server/docs/adr/`, `apps/desktop/docs/adr/`).
 
+## Never write insecure code
+
+No `eval`, shell strings, string-built SQL, raw HTML sinks, disabled TLS checks, weak crypto, tokens in browser storage or literal secrets. A hook refuses them at write time and `task check:dangerous` in CI; a refused edit means use the safe form, never rephrase or waive it yourself. Full rule: [docs/content/engineering/ai-safe-code.md](docs/content/engineering/ai-safe-code.md).
+
 ## The one rule that matters most
 
 **Do not write code that an existing library or platform already does.** Before creating a utility, hook, component, service, repository, parser, formatter, validator or other abstraction, check in this order: standard library, platform API, libraries already in this repo's `package.json` / `go.mod` / `build.gradle.kts` / `Package.swift` / `Cargo.toml`, existing code in this repo. Write custom code only for a documented technical reason (missing functionality, unsupported platform, incompatible API, unacceptable performance, security/compliance, project-specific domain logic), never "it is simpler to write myself" or "it is only 50 lines".

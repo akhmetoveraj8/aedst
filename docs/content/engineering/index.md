@@ -18,6 +18,7 @@ that remains is written.
 | [Modern language features](/engineering/modern-language) | Which features of each pinned toolchain to use (Go 1.27, TypeScript 7 / React 19.3 / Next 16.4, Kotlin 2.5.0-RC, Swift 6, Rust 2024), what is off limits, how it is enforced |
 | [API design](/engineering/api-design) | ConnectRPC/Protobuf contracts: naming, resources, pagination, partial updates, idempotency, errors, auth, versioning, the new-RPC checklist |
 | [Security](/engineering/security) | The API security checklist, item by item, with the file or gate that enforces it |
+| [Safe code from AI agents](/engineering/ai-safe-code) | The rule against vulnerable AI-written code: refused patterns, the write-time hook and `task check:dangerous`, waivers, the diff checklist |
 | [Roadmap coverage](/engineering/checklists) | roadmap.sh Frontend Performance, Backend Performance, SEO and API Design, item by item, with the gate and an honest status |
 | [Accessibility](/engineering/accessibility) | WCAG 2.2 AA rules for every client and the gates per platform |
 | [Performance](/engineering/performance) | CI budgets, frontend and backend rules, profiling, scaling order |

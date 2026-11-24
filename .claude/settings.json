@@ -60,7 +60,26 @@
       "Edit(**/.env.local)",
       "Edit(**/.env.*.local)",
       "Edit(**/.env.production*)",
-      "Edit(**/.env.staging*)"
+      "Edit(**/.env.staging*)",
+      "PowerShell(Remove-Item*-Recurse*)",
+      "PowerShell(rm -r*)",
+      "PowerShell(del /s*)",
+      "PowerShell(git push --force*)",
+      "PowerShell(git push -f*)",
+      "PowerShell(git reset --hard*)",
+      "PowerShell(git clean -f*)",
+      "PowerShell(git commit*--no-verify*)",
+      "PowerShell(Get-Content*.env*)",
+      "PowerShell(gc *.env*)",
+      "PowerShell(cat *.env*)",
+      "PowerShell(type *.env*)",
+      "PowerShell(Select-String*.env*)",
+      "PowerShell(Get-ChildItem Env:*)",
+      "PowerShell(dir Env:*)",
+      "PowerShell(*Invoke-Expression*)",
+      "PowerShell(iex *)",
+      "PowerShell(*Invoke-WebRequest*|*iex*)",
+      "PowerShell(curl*|*sh*)"
     ],
     "ask": [
       "Bash(git commit*)",
@@ -74,7 +93,12 @@
       "Bash(git cherry-pick*)",
       "Bash(git push*)",
       "Bash(git branch -D*)",
-      "Bash(git tag -d*)"
+      "Bash(git tag -d*)",
+      "PowerShell(git commit*)",
+      "PowerShell(git push*)",
+      "PowerShell(git checkout*)",
+      "PowerShell(git reset*)",
+      "PowerShell(git stash*)"
     ],
     "allow": [
       "Read(**/.env.example)",

@@ -51,6 +51,7 @@ function buf(args) {
     cwd: rootDir,
     env,
     stdio: "inherit",
+    // security-ignore: build-time script, arguments are repo constants; Windows needs a shell for .cmd
     shell: true,
   });
   if (result.status !== 0) {

@@ -124,6 +124,14 @@ for p in "apps/server/internal/modules/tasks/domain/task.go" "apps/web/app/src/m
   expect_allow "$p"
 done
 
+# Insecure code is refused at write time; the same text with a waiver, and safe code, pass.
+out="$tmp/danger.json"
+node -e 'process.stdout.write(JSON.stringify({tool_name:"Write",tool_input:{file_path:"apps/web/app/src/modules/tasks/ui/task-form.tsx",content:"const v = eval(input);"}}))' | bash "$guard" >"$out" 2>/dev/null
+if json_ok "$out" 'j.hookSpecificOutput.permissionDecision==="deny"&&j.hookSpecificOutput.permissionDecisionReason.includes("js-eval")'; then ok "guard denies eval in a source file"; else bad "guard did not deny eval in a source file"; fi
+out="$tmp/danger-ok.txt"
+node -e 'process.stdout.write(JSON.stringify({tool_name:"Write",tool_input:{file_path:"apps/web/app/src/modules/tasks/ui/task-form.tsx",content:"// security-ignore: reviewed constant\nconst v = eval(1);"}}))' | bash "$guard" >"$out" 2>/dev/null
+if [ -s "$out" ]; then bad "guard denied a waived line"; else ok "guard allows a waived line"; fi
+
 # --- 3b. settings.json denies the shell routes to secrets (Read(...) rules do not cover Bash) ----
 if json_ok .claude/settings.json '["Bash(cat *.env.*)","Bash(grep*.env)","Bash(Get-Content*.env*)","Bash(printenv*)","Read(**/.env)","Edit(**/.env)","Bash(git commit*--no-verify*)"].every(r=>j.permissions.deny.includes(r))'; then
   ok "settings.json denies .env reads and edits through Bash, Read and Edit"

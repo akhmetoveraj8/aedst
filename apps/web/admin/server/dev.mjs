@@ -22,6 +22,7 @@ children.push(
 );
 if (withVite) {
   children.push(
+    // security-ignore: dev-only launcher, constant arguments; Windows needs a shell to run pnpm.cmd
     spawn("pnpm", ["exec", "vite"], { stdio: "inherit", shell: true }),
   );
 }

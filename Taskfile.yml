@@ -116,6 +116,7 @@ tasks:
       - task: check:ui-kit-only
       - task: check:behavior
       - task: check:analytics
+      - task: check:dangerous
       - task: check:hooks
       - task: check:docs
       - task: check:api-docs
@@ -221,6 +222,12 @@ tasks:
     desc: Analytics event names emitted by web, Android, Apple and Desktop match docs/contract/analytics-events.json.
     cmds:
       - node scripts/check-analytics-events.mjs
+
+  check:dangerous:
+    desc: Dangerous-code gate (eval, raw HTML sinks, shell strings, SQL built by hand, disabled TLS checks, weak crypto, hard-coded secrets) plus its negative self-test. Rules and waivers - docs/content/engineering/ai-safe-code.md.
+    cmds:
+      - node --test scripts/test/check-dangerous-code.test.mjs
+      - node scripts/check-dangerous-code.mjs {{.CLI_ARGS}}
 
   new:module:
     desc: "Scaffold a feature module on every platform and register it: task new:module -- NAME=<id> [--platforms=server,web] [--dry-run] [--remove]. See docs/agent/new-module.md."

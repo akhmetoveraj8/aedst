@@ -182,6 +182,31 @@ jobs:
       # if it is declared in a package.json; until then, bump by hand.
       - run: npx --yes --package renovate@44.147.0 renovate-config-validator --strict renovate.json
 
+  dangerous-code:
+    # Known-bad one-line patterns (eval, raw HTML sinks, shell strings, disabled TLS, literal secrets) and
+    # the negative self-test of every rule. Rules and waivers: docs/content/engineering/ai-safe-code.md.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: node --test scripts/test/check-dangerous-code.test.mjs
+      - run: node scripts/check-dangerous-code.mjs
+
+  sast:
+    # Semgrep static analysis (OWASP Top Ten, Go, TypeScript, React, secrets rule packs). Catches data-flow
+    # classes the line rules above cannot see. Version verified on PyPI 2026-11-25 (1.186.0). The rule packs
+    # are fetched from the Semgrep registry at run time; metrics are off. A finding fails the job: fix it, or
+    # suppress one line with `# nosemgrep: <rule-id> - <reason>` after review.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: >-
+          pipx run --spec semgrep==1.186.0 semgrep scan --error --metrics=off --quiet
+          --config p/owasp-top-ten --config p/golang --config p/typescript --config p/react --config p/secrets
+          --exclude node_modules --exclude gen --exclude generated --exclude docs --exclude '*.test.*' --exclude '*_test.go'
+          apps packages scripts
+
   secrets:
     # Secret scanning over full history. Config and documented placeholders: .gitleaks.toml.
     # The tool version is pinned in mise.toml (gitleaks); the action ships its own binary.

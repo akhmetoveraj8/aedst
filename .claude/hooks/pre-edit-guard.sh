@@ -13,7 +13,8 @@ HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 IO="$HOOK_DIR/lib/hook-io.mjs"
 
 command -v node >/dev/null 2>&1 || exit 0
-rel="$(node "$IO" field file_path 2>/dev/null || true)"
+input="$(cat)"
+rel="$(printf '%s' "$input" | node "$IO" field file_path 2>/dev/null || true)"
 [ -n "$rel" ] || exit 0
 
 regen=""
@@ -47,7 +48,12 @@ case "$(basename "$rel")" in
     exit 0 ;;
 esac
 
-[ -n "$regen" ] || exit 0
+# Insecure code (eval, raw HTML sinks, disabled TLS checks, hard-coded secrets, ...): the same rules as
+# `task check:dangerous`, applied to the text about to be written. Docs: docs/content/engineering/ai-safe-code.md.
+if [ -z "$regen" ]; then
+  printf '%s' "$input" | node "$HOOK_DIR/../../scripts/check-dangerous-code.mjs" --hook 2>/dev/null
+  exit 0
+fi
 
 node "$IO" deny "Refusing to edit generated or tool-written file '$rel'. Change its source and regenerate: $regen. See AGENTS.md (\"Generated files are never hand-edited\")."
 exit 0
