@@ -23,7 +23,7 @@ possible if the data model already carries the right keys.
 budget and cannot be fixed by an index or query change. Until then, do not cache.
 
 Rules when a cache is introduced:
-- **Valkey cache-aside** only, and only for read-heavy data that tolerates
+- **DragonflyDB cache-aside** only, and only for read-heavy data that tolerates
   staleness. Never write-through, never a source of truth.
 - Keys are namespaced `aedst:<module>:<entity>:<id>:v<schemaVersion>`; bumping
   `schemaVersion` invalidates all entries after a shape change.

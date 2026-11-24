@@ -31,7 +31,7 @@ Replace the placeholder entry with the real aggregate, then:
 | Platform | Must do next | Gate |
 |---|---|---|
 | Server | Write migration `migrations/<id>/` (check `scripts/lint-migrations.sh` rules), real sqlc queries, domain rules, `application` service tests; add the event publisher and idempotency only if the spec says so (copy `tasks`). New direct dependency goes through `add-dependency`. | `task server:check`, `task server:test:integration` (Docker or `AEDST_TEST_DATABASE_URL`) |
-| Web | Add the primary-nav entry, its `common.nav` label and update `registry.test.ts` (it pins the order); offline outbox handlers only if the spec says offline. Pick ONE project (`app`, `admin`, `landing`) per `docs/content/web/projects.md`. | `task web:lint web:test` or `task app:lint app:test` |
+| Web | Add the primary-nav entry, its `common.nav` label and update `registry.test.ts` (it pins the order); offline outbox handlers only if the spec says offline. Pick ONE project (`app`, `admin`, `marketing`) per `docs/content/web/projects.md`. | `task web:lint web:test` or `task app:lint app:test` |
 | Android | Make the screen reachable (`AedstTab` or `navigator.navigate(<Name>Key)`), real repository behind the domain port, five `strings.xml` locales. | Gates in `apps/android/AGENTS.md`; `task android:lint android:test` if a JDK 21 exists |
 | Apple | Wire the package into the app UI (route registration), not only the package graph. **Never compiled**: say so, do not claim it builds. | `task apple:lint` on macOS only |
 | Desktop | Register the plugin (plugin id equals the feature id) and the QML view. **Never compiled**: say so. | `task desktop:lint` (tools missing print SKIPPED) |

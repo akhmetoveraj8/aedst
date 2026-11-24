@@ -76,7 +76,7 @@ The project owner **deliberately decided to keep** the following. An AI agent do
 
 | What we keep | What not to propose instead | Reason (short; the owner's request is primary) |
 |---|---|---|
-| **Next.js** (Web `app` and `landing`) | Vite / another SPA stack for those two | owner decision; App Router, next-intl and Vercel integrations are already built on it. **Exception, owner decision 2026-11-04: `admin` moves to React + Vite + TanStack Router** (see decisions/web.md); do not extend the exception to `app` or `landing` |
+| **Next.js** (Web `app` and `marketing`) | Vite / another SPA stack for those two | owner decision; App Router, next-intl and Vercel integrations are already built on it. **Exception, owner decision 2026-11-04: `admin` moves to React + Vite + TanStack Router** (see decisions/web.md); do not extend the exception to `app` or `marketing` |
 | **react-use** (not installed) | adding it back for two small hooks | `use-mobile`, `use-online-status` and `use-sentinel` are hand-written documented exceptions (below); revisit if three or more such hooks accumulate |
 | **React Hook Form** | TanStack Form, Formik | accepted form standard; integrates with Zod and shadcn/ui |
 | **`cn` (npm package)** | a hand-written `clsx + tailwind-merge` helper | dependency of the shadcn ecosystem |

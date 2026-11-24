@@ -26,7 +26,7 @@ Agent map: `docs/agent/INDEX.md` (read only the rows for your platform and task)
 | Quality bar: modern language features, API design, security, performance | `docs/agent/quality-bar.md` and `docs/content/engineering/` (skills `api-design`, `quality-pass`) |
 | UI kit parity, tokens | `docs/content/ui-kit.md`, `packages/design-tokens/README.md` |
 | i18n (en, ru, tg, uz, ar) | `docs/content/i18n.md` |
-| Per-app rules | `apps/server/AGENTS.md`, `apps/web/AGENTS.md` (+ `apps/web/{app,admin,landing}/AGENTS.md`), platform ADRs |
+| Per-app rules | `apps/server/AGENTS.md`, `apps/web/AGENTS.md` (+ `apps/web/{app,admin,marketing}/AGENTS.md`), platform ADRs |
 
 ## Verification status (be honest)
 

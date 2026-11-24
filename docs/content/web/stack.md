@@ -5,7 +5,7 @@ description: The complete Web stack with exact versions.
 
 # Web stack
 
-Next.js workspace (`apps/web`: app, admin, landing, shared). Versions are pinned once in the `catalog:` of `apps/web/pnpm-workspace.yaml` (checked against the registries on **2026-10-07**). Approved-library rules and rejections: [Library-First](/library-first#web). How to bump versions: [Stack overview](/stack#keeping-it-current).
+Next.js workspace (`apps/web`: app, admin, marketing, shared). Versions are pinned once in the `catalog:` of `apps/web/pnpm-workspace.yaml` (checked against the registries on **2026-10-07**). Approved-library rules and rejections: [Library-First](/library-first#web). How to bump versions: [Stack overview](/stack#keeping-it-current).
 
 ## Framework
 
@@ -38,7 +38,7 @@ Next.js workspace (`apps/web`: app, admin, landing, shared). Versions are pinned
 | Animation | CSS + `tw-animate-css` (Motion not installed; only via `LazyMotion`) | 1.4 |
 | Toasts | Sonner | 2.0 |
 | Command palette | cmdk | 1.1 |
-| Charts | Recharts | 3.10 |
+| Charts | Apache ECharts + echarts-for-react (`shared/ui/chart`; Recharts is rejected) | 6.1 |
 | Date picker | react-day-picker | **10.0.2** |
 | Panels | react-resizable-panels | **4.14.2** |
 
@@ -59,9 +59,9 @@ Next.js workspace (`apps/web`: app, admin, landing, shared). Versions are pinned
 | Unused deps / exports | knip | **6.40.0** |
 | Unit (Node) | Vitest | **5.0.3** |
 | Component (real Chromium) | Vitest Browser Mode (`@vitest/browser-playwright`) + Testing Library | **5.0.3** / 16.3 |
-| Sign-in (OIDC, BFF) | oauth4webapi (Authorization Code + PKCE, refresh grant); Auth.js is rejected, see [decisions](/decisions) | **3.8.8** |
+| Sign-in (OIDC, BFF) | oauth4webapi (Authorization Code + PKCE, refresh grant); Auth.js is rejected, see [decisions](/decisions) | **3.8.9** |
 | API mocking | `createRouterTransport` (`@connectrpc/connect`) for components; a `fetch` stub (`apps/web/app/src/test/mocks/server.ts`) for server-side code; injected `fetch` for the IdP | 2.2.0 |
 | E2E | Playwright (`chromium`, `firefox`, `webkit`, `mobile-chrome`, `mobile-safari`) + axe-core | 1.63 / **4.14.0** |
 | Contract test | mock API vs. proto descriptors (`pnpm test:contract`) | in-repo |
 | Budgets | bundle-size script + Lighthouse CI | in-repo |
-| Package manager | pnpm (Node 26) | **12.21.0** |
+| Package manager | pnpm (Node 26) | **12.23.0** |

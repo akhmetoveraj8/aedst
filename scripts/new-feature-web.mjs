@@ -17,8 +17,8 @@
 // Placeholders: {{module}}, {{feature}}, {{Feature}}, {{featureKey}}, {{intlPackage}}, {{clientDirective}}.
 //
 // `scaffoldWebFeature` is exported so the shared CLI (scripts/new-module.mjs) can call it for the
-// web platform with the same MODULE / NAME flags. Landing is not supported: its sections are Server
-// Components without a component-test harness; add them by hand (apps/web/landing/AGENTS.md).
+// web platform with the same MODULE / NAME flags. Marketing is not supported: its sections are Server
+// Components without a component-test harness; add them by hand (apps/web/marketing/AGENTS.md).
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, rmdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

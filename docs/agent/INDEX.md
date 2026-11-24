@@ -17,14 +17,14 @@ Start here. Open only the rows for the platform and task at hand; do not read th
 | Web (router: which project owns what) | [conventions/web.md](conventions/web.md) | [library-first/web](../content/library-first/web.md) | [decisions/web](../content/decisions/web.md) | [`apps/web/AGENTS.md`](../../apps/web/AGENTS.md), [web/projects](../content/web/projects.md) |
 | Web-app (signed-in product) | [conventions/web.md](conventions/web.md) | [library-first/web](../content/library-first/web.md) | [decisions/web](../content/decisions/web.md) | [`apps/web/app/AGENTS.md`](../../apps/web/app/AGENTS.md) |
 | Web-admin (staff panel) | [conventions/web.md](conventions/web.md) | [library-first/web](../content/library-first/web.md) | [decisions/web](../content/decisions/web.md) | [`apps/web/admin/AGENTS.md`](../../apps/web/admin/AGENTS.md) |
-| Web-landing (marketing site) | [conventions/web.md](conventions/web.md) | [library-first/web](../content/library-first/web.md) | [decisions/web](../content/decisions/web.md) | [`apps/web/landing/AGENTS.md`](../../apps/web/landing/AGENTS.md) |
+| Web-marketing (site) | [conventions/web.md](conventions/web.md) | [library-first/web](../content/library-first/web.md) | [decisions/web](../content/decisions/web.md) | [`apps/web/marketing/AGENTS.md`](../../apps/web/marketing/AGENTS.md) |
 | Server | [conventions/server.md](conventions/server.md) | [library-first/server](../content/library-first/server.md) | [decisions/server](../content/decisions/server.md), `apps/server/docs/adr/` | [`apps/server/AGENTS.md`](../../apps/server/AGENTS.md) |
 | Android | [conventions/android.md](conventions/android.md) | [library-first/android](../content/library-first/android.md) | [decisions/android](../content/decisions/android.md) | [`apps/android/AGENTS.md`](../../apps/android/AGENTS.md) |
 | Apple | [conventions/apple.md](conventions/apple.md) | [library-first/apple](../content/library-first/apple.md) | [decisions/apple](../content/decisions/apple.md) | [`apps/apple/AGENTS.md`](../../apps/apple/AGENTS.md) |
 | Gateway (Rust realtime WebSocket gateway, `apps/gateway`) | [conventions/gateway.md](conventions/gateway.md) (`rustfmt` + clippy defaults) | [library-first/gateway](../content/library-first/gateway.md) | [ADR-0021](../../apps/server/docs/adr/0021-nats-jetstream-and-rust-gateway.md) | [`apps/gateway/AGENTS.md`](../../apps/gateway/AGENTS.md) |
 | Desktop (Rust + Slint, `apps/desktop`; frozen, see status) | [conventions/desktop.md](conventions/desktop.md) (`rustfmt` + clippy defaults) | [library-first/desktop](../content/library-first/desktop.md) | [decisions/desktop](../content/decisions/desktop.md), `apps/desktop/docs/adr/` | [`apps/desktop/AGENTS.md`](../../apps/desktop/AGENTS.md) |
 
-Web is a workspace of four directories (`shared`, `app`, `admin`, `landing`): start at `apps/web/AGENTS.md`, pick ONE project, then read that project's `AGENTS.md`. Each app has a situational `AGENTS.md` (the web, Android, Apple and Desktop ones stay at 80 lines or fewer, plus Next.js's generated block on web): "when you add a form / screen / RPC call / string / setting / offline write, use X, copy file Y, test Z, run gate W". Read it before touching that app; `README.md`, `CONTRIBUTING.md` and `CODING_STANDARDS.md` of an app are background, not the entry point.
+Web is a workspace of four directories (`shared`, `app`, `admin`, `marketing`): start at `apps/web/AGENTS.md`, pick ONE project, then read that project's `AGENTS.md`. Each app has a situational `AGENTS.md` (the web, Android, Apple and Desktop ones stay at 80 lines or fewer, plus Next.js's generated block on web): "when you add a form / screen / RPC call / string / setting / offline write, use X, copy file Y, test Z, run gate W". Read it before touching that app; `README.md`, `CONTRIBUTING.md` and `CODING_STANDARDS.md` of an app are background, not the entry point.
 
 ## By task
 
@@ -39,7 +39,7 @@ Web is a workspace of four directories (`shared`, `app`, `admin`, `landing`): st
 | First push, cloning the template, GitHub-side settings and secrets | [github-setup.md](github-setup.md) |
 | Adding a feature module (new vertical slice on all platforms) | [new-module.md](new-module.md): `task new:module -- NAME=<id>` |
 | The same feature on all four clients (eight steps, file per platform, web ui/lib mapping, unknown-enum and list-query rules) | [client-recipe](../content/client-recipe.md); reference behaviour spec: [features/tasks](../content/features/tasks.md) |
-| Which web project a change belongs in (app / admin / landing / shared), dependency direction, auth between app and admin | [web/projects](../content/web/projects.md) |
+| Which web project a change belongs in (app / admin / marketing / shared), dependency direction, auth between app and admin | [web/projects](../content/web/projects.md) |
 | SEO, GEO (AI crawlers, llms.txt, JSON-LD, canonical) of the web app | [web/seo-geo](../content/web/seo-geo.md) |
 | Deploying a web project (container, Helm, Sentry source maps, Vercel alternative) | [web/deployment](../content/web/deployment.md) |
 | Designing or changing an API (proto service, RPC, message, event, webhook, plain HTTP endpoint) | [engineering/api-design](../content/engineering/api-design.md), then the `api-design` skill |
@@ -50,7 +50,7 @@ Web is a workspace of four directories (`shared`, `app`, `admin`, `landing`): st
 | Where code goes: module, then feature (the same on all five platforms) | [architecture/modules-and-features](../content/architecture/modules-and-features.md) |
 | Which roadmap.sh item (frontend or backend performance, SEO, API design) has a rule, a gate, or a gap | [engineering/checklists](../content/engineering/checklists.md) |
 | Any UI: labels, keyboard, contrast, motion, right-to-left (WCAG 2.2 AA) | [engineering/accessibility](../content/engineering/accessibility.md) |
-| Indexing, SEO and budgets per web project (landing maximum SEO, admin never indexed) | [web/seo-by-project](../content/web/seo-by-project.md) |
+| Indexing, SEO and budgets per web project (marketing maximum SEO, admin never indexed) | [web/seo-by-project](../content/web/seo-by-project.md) |
 | Claiming something works | [Platform status](../content/status.md): what has actually been built and run |
 | Full rules text and forbidden list | [rules.md](rules.md) |
 

@@ -12,7 +12,7 @@ A *container* here is anything that runs and holds state or code: a process, a d
   height={620}
   caption="Production shape 1 (default). The gateway, NATS and imgproxy are optional and off by default."
   nodes={[
-    { id: "web", label: "Web app", sub: "Next.js 16 (app, admin, landing)", x: 0, y: 0, kind: "external", desc: "The browser never calls the server directly: it calls its own /api/rpc route (a BFF) which attaches the bearer token from an httpOnly cookie." },
+    { id: "web", label: "Web app", sub: "Next.js 16 (app, admin, marketing)", x: 0, y: 0, kind: "external", desc: "The browser never calls the server directly: it calls its own /api/rpc route (a BFF) which attaches the bearer token from an httpOnly cookie." },
     { id: "mobile", label: "Android / Apple", sub: "Compose, SwiftUI", x: 0, y: 110, kind: "external", desc: "Native apps talk Connect straight to the API with the access token from secure storage." },
     { id: "desktop", label: "Desktop", sub: "Rust + Slint", x: 0, y: 220, kind: "external", desc: "Desktop client; no push service, so it polls GetUnreadCount." },
     { id: "edge", label: "Edge", sub: "Cloudflare, Envoy / Ingress", x: 260, y: 110, kind: "external", desc: "TLS, WAF, coarse rate limiting, routing by service prefix when modules are split." },
@@ -80,7 +80,7 @@ A *container* here is anything that runs and holds state or code: a process, a d
 |---|---|---|
 | `8080` | HTTP/1.1 and HTTP/2, Connect, gRPC, gRPC-Web, JSON | The API, `/healthz`, `/readyz` |
 | `9090` | HTTP | Prometheus `/metrics` (optional) |
-| `3000`, `3001`, `3002` | HTTP | Web `app`, `admin`, `landing` (dev defaults) |
+| `3000`, `3001`, `3002` | HTTP | Web `app`, `admin`, `marketing` (dev defaults) |
 | gateway | WebSocket | Realtime nudges, authenticated with the same access token |
 
 Every environment variable that changes this shape is in [Configuration](/server/config). The three process shapes (monolith, module services, feature services) are in [Backend diagrams](/server/diagrams).

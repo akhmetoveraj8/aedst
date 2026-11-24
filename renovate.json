@@ -60,7 +60,7 @@
       "groupName": "Go modules (minor/patch)"
     },
     {
-      "description": "Web workspace (shared, app, admin, landing): versions live in apps/web/pnpm-workspace.yaml catalog (Renovate's pnpm manager reads catalogs), so one PR bumps all three projects.",
+      "description": "Web workspace (shared, app, admin, marketing): versions live in apps/web/pnpm-workspace.yaml catalog (Renovate's pnpm manager reads catalogs), so one PR bumps all three projects.",
       "matchFileNames": [
         "apps/web/**",
         "docs/**",

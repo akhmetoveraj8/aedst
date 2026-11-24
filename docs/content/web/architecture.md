@@ -5,7 +5,7 @@ description: "apps/web is the parity source of truth the three native clients (a
 
 # Web Architecture
 
-`apps/web` is a workspace of three Next.js projects (`app`, `admin`, `landing`) and a source-only `shared` kit; see [Web projects](/web/projects) for who owns what. The product app (`apps/web/app`) is the parity source of truth the three native clients
+`apps/web` is a workspace of three Next.js projects (`app`, `admin`, `marketing`) and a source-only `shared` kit; see [Web projects](/web/projects) for who owns what. The product app (`apps/web/app`) is the parity source of truth the three native clients
 (`apps/android`, `apps/apple`, `apps/desktop`) are built to match — see
 [architecture-android.md](/android/architecture), [architecture-apple.md](/apple/architecture),
 and [architecture-desktop.md](/desktop/architecture), each of which documents
@@ -37,7 +37,7 @@ onto.
 
 ## Project structure
 
-The workspace (`apps/web`): `shared/` (kit), `app/`, `admin/`, `landing/`. The tree below is the **app** project (`apps/web/app/src`) plus the shared kit it imports through `@/shared/*` (`apps/web/shared`); `admin` and `landing` follow the same `src/app` + `src/modules` shape.
+The workspace (`apps/web`): `shared/` (kit), `app/`, `admin/`, `marketing/`. The tree below is the **app** project (`apps/web/app/src`) plus the shared kit it imports through `@/shared/*` (`apps/web/shared`); `admin` and `marketing` follow the same `src/app` + `src/modules` shape.
 
 ```
 apps/web/app/src/
@@ -49,7 +49,7 @@ apps/web/app/src/
 ```
 
 ```
-apps/web/shared/    # alias @/shared/*, sibling of app/ admin/ landing/
+apps/web/shared/    # alias @/shared/*, sibling of app/ admin/ marketing/
   modules/          # the ModuleManifest contract (types only)
   api/connect/      # Connect-ES transport/client setup + generated stubs
   ui/               # shared UI components (shadcn-based) — see ui-kit.md
@@ -61,7 +61,7 @@ apps/web/shared/    # alias @/shared/*, sibling of app/ admin/ landing/
 |---|---|---|
 | `auth` | `auth` | complete worked example, including per-module i18n |
 | `tasks` | `tasks` | reference module — the shape every native client's future `feature/tasks`/`Features/Tasks`/`Modules/Features/Tasks` follows |
-| `auth` (root page) | `auth` | the locale root `/[locale]` is the sign-in landing; signed-in visitors are redirected to `?next=` or `/tasks` by `proxy.ts` (there is no separate home module) |
+| `auth` (root page) | `auth` | the locale root `/[locale]` is the sign-in marketing; signed-in visitors are redirected to `?next=` or `/tasks` by `proxy.ts` (there is no separate home module) |
 
 ## The boundary rule, translated
 
@@ -87,7 +87,7 @@ Each module owns its own `i18n/` catalog (`apps/web/app/src/modules/<name>/i18n/
 rather than a single global translation file — this per-module rule is
 mandatory across all five platforms now, see [i18n.md](/i18n).
 
-Messages reach the browser per route, not all at once: the request config (`config/i18n/request.ts`) still loads every catalog for server components (`getTranslations`), but the root locale layout hands client components only `common` plus the namespaces of modules with a public route (`auth`, the sign-in landing). `(app)/layout.tsx` adds the shell widgets’ modules (`search`, `notifications`) and each module segment layout (`tasks`, `admin`) adds its own through `providers/route-messages.tsx`, which resolves a route path to namespaces from `manifest.routes` (`i18nNamespacesForRoutes`); `providers/extend-messages.tsx` merges the subset into the parent provider. A module without a route (`media`) is passed by name. Budgeted by `resource-summary:document:size` in `lighthouserc.json`; the subset sizes are asserted in `config/i18n/messages.test.ts`.
+Messages reach the browser per route, not all at once: the request config (`config/i18n/request.ts`) still loads every catalog for server components (`getTranslations`), but the root locale layout hands client components only `common` plus the namespaces of modules with a public route (`auth`, the sign-in marketing). `(app)/layout.tsx` adds the shell widgets’ modules (`search`, `notifications`) and each module segment layout (`tasks`, `admin`) adds its own through `providers/route-messages.tsx`, which resolves a route path to namespaces from `manifest.routes` (`i18nNamespacesForRoutes`); `providers/extend-messages.tsx` merges the subset into the parent provider. A module without a route (`media`) is passed by name. Budgeted by `resource-summary:document:size` in `lighthouserc.json`; the subset sizes are asserted in `config/i18n/messages.test.ts`.
 
 The signed-in shell layouts (and the notification pages) import `entries/<name>.ts`, not `public.ts`: a Server Component that imports
 a barrel gets the client chunks of *every* component the barrel re-exports, so the signed-in
@@ -145,8 +145,8 @@ browser ──same-origin──▶ Next.js server ──API_BASE_URL──▶ ap
 
 | Gate | Where | What it enforces |
 |---|---|---|
-| Biome, knip, feature boundaries, naming | `web-ci` lint job; `admin-ci` and `landing-ci` run the same boundary script for their project | style, unused code, module and feature isolation (the boundary script is the authoritative gate, see [modules and features](/architecture/modules-and-features)) |
-| dependency-cruiser (`pnpm check:deps`, supplementary: it cannot load TypeScript 7.0) | `web-ci` lint job, `admin-ci`, `landing-ci`, lefthook `web-deps`; svg graph artifact `web-dep-graph` | import direction app -> modules -> shared, public-entry-only, no feature to feature, no module shared code to a feature, manifests import only `@/shared`, no cycles, no orphans, no devDependency in shipped code |
+| Biome, knip, feature boundaries, naming | `web-ci` lint job; `admin-ci` and `marketing-ci` run the same boundary script for their project | style, unused code, module and feature isolation (the boundary script is the authoritative gate, see [modules and features](/architecture/modules-and-features)) |
+| dependency-cruiser (`pnpm check:deps`, supplementary: it cannot load TypeScript 7.0) | `web-ci` lint job, `admin-ci`, `marketing-ci`, lefthook `web-deps`; svg graph artifact `web-dep-graph` | import direction app -> modules -> shared, public-entry-only, no feature to feature, no module shared code to a feature, manifests import only `@/shared`, no cycles, no orphans, no devDependency in shipped code |
 | Stryker mutation testing (`pnpm test:mutation`) | `web-mutation-nightly` workflow, cron + manual (optional `mutate` globs) only | mutation score of `shared/lib/{errors,auth,forms,outbox}` stays above `thresholds.break` in `stryker.config.mjs` (set to first score minus 5, then ratchet); report artifact `web-mutation-report` |
 | `tsc` | typecheck job | types (after `next typegen`) |
 | Vitest (`unit` Node + `browser` real Chromium), coverage thresholds | unit job | behaviour; coverage cannot fall |

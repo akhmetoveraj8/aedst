@@ -25,7 +25,7 @@ Never write a version from memory. Registry per platform: npm registry (`npm vie
 | Platform | Manifest | Allowlist that fails the build if missing | Page to update |
 |---|---|---|---|
 | Server | `go.mod` (`go mod tidy`) | `apps/server/architecturetest/approved_modules.txt`, depguard in `.golangci.yml` | `docs/content/library-first/server.md` |
-| Web | `pnpm-workspace.yaml` catalog + project `package.json` | `knip.jsonc` of the project (`apps/web/app`, `admin`, `landing`) | `docs/content/library-first/web.md` |
+| Web | `pnpm-workspace.yaml` catalog + project `package.json` | `knip.jsonc` of the project (`apps/web/app`, `admin`, `marketing`) | `docs/content/library-first/web.md` |
 | Android | `apps/android/gradle/libs.versions.toml` | `check-catalog-allowlist` in `apps/android/scripts/check-policies.sh` | `docs/content/library-first/android.md` |
 | Apple | `Package.swift` of the owning Core package | `apps/apple/scripts/approved-packages.txt` | `docs/content/library-first/apple.md` |
 | Desktop | `apps/desktop/Cargo.toml` (workspace dependencies), `Cargo.lock`, `deny.toml` | desktop policy checks | `docs/content/library-first/desktop.md` |

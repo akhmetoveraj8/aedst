@@ -61,7 +61,7 @@ function loadWeb() {
   const dirs = new Map();
   for (const f of files) {
     // A bundle is `i18n/<locale>.json` or a named catalogue below it, `i18n/<name>/<locale>.json` (the shell's `common`).
-    const m = /^apps\/web\/((?:app|admin|landing)\/src|shared)\/(.*\/)?i18n\/(?:([a-z][a-z0-9-]*)\/)?([a-z]{2})\.json$/.exec(f);
+    const m = /^apps\/web\/((?:app|admin|marketing)\/src|shared)\/(.*\/)?i18n\/(?:([a-z][a-z0-9-]*)\/)?([a-z]{2})\.json$/.exec(f);
     if (!m) continue;
     const id = `apps/web/${m[1]}/${m[2] ?? ''}i18n${m[3] ? `/${m[3]}` : ''}`;
     if (!dirs.has(id)) dirs.set(id, new Map());

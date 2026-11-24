@@ -5,7 +5,7 @@ description: "apps/web is one Next.js app and stays one. It is built so that a f
 
 # Path to microfrontends
 
-The web side is already split along audience lines into three separate projects (`app`, `admin`, `landing`; see [Web projects](/web/projects)). Inside the product app (`apps/web/app`) the feature modules stay one Next.js app, built so that a feature
+The web side is already split along audience lines into three separate projects (`app`, `admin`, `marketing`; see [Web projects](/web/projects)). Inside the product app (`apps/web/app`) the feature modules stay one Next.js app, built so that a feature
 module could later become its own deployable without a rewrite. This page
 records what is already prepared, what would change, the order of steps, and
 when to take them. Nothing here is adopted today: no Module Federation, no

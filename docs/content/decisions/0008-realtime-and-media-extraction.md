@@ -63,12 +63,12 @@ Image renditions are served by imgproxy ([ADR-0015](/decisions/0015-govips-and-i
 
 ## Realtime: proposed design (superseded in part by ADR-0021)
 
-> 2026-11-18: the transport is now a Rust WebSocket gateway (`apps/gateway`) fed by NATS JetStream, see [ADR-0021](../../../apps/server/docs/adr/0021-nats-jetstream-and-rust-gateway.md). The Valkey pub-sub and ConnectRPC-streaming proposals below are not pursued.
+> 2026-11-18: the transport is now a Rust WebSocket gateway (`apps/gateway`) fed by NATS JetStream, see [ADR-0021](../../../apps/server/docs/adr/0021-nats-jetstream-and-rust-gateway.md). The DragonflyDB pub-sub and ConnectRPC-streaming proposals below are not pursued.
 
 - The gateway is **stateless**: connection state is only the socket; the source of
   truth for messages and subscriptions is Postgres, so any gateway instance can be
   killed and clients reconnect and resume from a cursor.
-- **Ephemeral fan-out uses Valkey pub-sub** (presence, typing indicators, "new
+- **Ephemeral fan-out uses DragonflyDB pub-sub** (presence, typing indicators, "new
   message" nudges): it is already a platform dependency, has minimal latency and
   no persistence cost, and losing a message is acceptable because clients resync
   from the cursor. **Durable delivery uses River jobs inserted transactionally**
@@ -98,7 +98,7 @@ Preconditions before any of this is built (none is met today):
   River queue split, not by a second service.
 - Presigned URLs move authorisation to URL issuance: TTLs, scoped keys and
   content-length constraints are security-critical and have tests.
-- Valkey pub-sub is at-most-once. Any realtime feature needing guaranteed delivery
+- DragonflyDB pub-sub is at-most-once. Any realtime feature needing guaranteed delivery
   must use the transactional River path, and that must be visible in its design.
 - Realtime has no code, no Helm chart and no dashboard; docs that mention it
   describe a plan.

@@ -4,7 +4,7 @@ version: "3"
 # Taskfile/Makefile/package.json scripts; this file only delegates.
 # apps/server has a Taskfile and is included; the other apps expose
 # Makefile / pnpm / Gradle / CMake entry points, wrapped in namespaced tasks
-# below (web:*, app:*, admin:*, landing:*, android:*, apple:*, desktop:*).
+# below (web:*, app:*, admin:*, marketing:*, android:*, apple:*, desktop:*).
 #
 # PROFILE: the aggregate tasks (generate, lint, test, build, check) run the Core
 # profile (server + web + design tokens) by default. Android, Apple and Desktop are
@@ -113,6 +113,7 @@ tasks:
       - task: check:boundaries
       - task: check:features
       - task: check:ui-kit
+      - task: check:ui-kit-only
       - task: check:behavior
       - task: check:analytics
       - task: check:hooks
@@ -170,6 +171,11 @@ tasks:
     desc: No color literals in hand-written UI code (use design tokens). Allowlist in scripts/color-literals.allowlist.
     cmds:
       - node scripts/check-color-literals.mjs {{.CLI_ARGS}}
+
+  check:ui-kit-only:
+    desc: Feature code uses UI kit components only (no raw button/input/... on web, no raw Material 3 / SwiftUI controls / std-widgets outside the kit). Native debt is a ratchet in scripts/ui-kit-only.baseline; exempt one line with a ui-kit-ignore comment that states the reason.
+    cmds:
+      - node scripts/check-ui-kit-only.mjs {{.CLI_ARGS}}
 
   check:i18n:
     desc: i18n key and placeholder parity across web, android, apple and desktop (en, ru, tg, uz, ar). Pass --cross for the cross-platform report.
@@ -257,13 +263,13 @@ tasks:
         echo "task server:build server:test:race             # build and race-detector unit tests (race needs cgo)"
         echo "task server:test:integration                 # needs Docker, or AEDST_TEST_DATABASE_URL pointing at a Postgres"
   verify:web:
-    desc: Print the commands that verify the web workspace (app, admin, landing).
+    desc: Print the commands that verify the web workspace (app, admin, marketing).
     silent: true
     cmds:
       - |
         echo "pnpm --dir apps/web install --frozen-lockfile      # ONE install for the whole workspace"
         echo "task web:lint web:knip web:test:coverage web:build web:check:bundle   # all three projects"
-        echo "task app:lint app:test | admin:lint admin:test | landing:lint landing:test   # one project"
+        echo "task app:lint app:test | admin:lint admin:test | marketing:lint marketing:test   # one project"
         echo "task app:test:e2e           # Playwright, needs browsers"
   verify:android:
     desc: Print the commands that verify Android (needs JDK 21 and the Android SDK).
@@ -379,67 +385,67 @@ tasks:
     cmds:
       - pnpm --dir docs build
 
-  # --- web (workspace apps/web: shared + app + admin + landing) ------------
-  # web:* runs every project; app:* / admin:* / landing:* run one project.
+  # --- web (workspace apps/web: shared + app + admin + marketing) ------------
+  # web:* runs every project; app:* / admin:* / marketing:* run one project.
   # The ONE install is: pnpm --dir apps/web install --frozen-lockfile
   web:generate:
     desc: Regenerate the shared Connect clients from the protos.
     cmds:
       - task: app:generate
   web:lint:
-    desc: Biome lint and typecheck of app, admin and landing.
+    desc: Biome lint and typecheck of app, admin and marketing.
     cmds:
       - task: app:lint
       - task: admin:lint
-      - task: landing:lint
+      - task: marketing:lint
   web:knip:
-    desc: knip of app, admin and landing.
+    desc: knip of app, admin and marketing.
     cmds:
       - task: app:knip
       - task: admin:knip
-      - task: landing:knip
+      - task: marketing:knip
   web:test:
-    desc: Unit tests of app, admin and landing (shared tests are hosted by app).
+    desc: Unit tests of app, admin and marketing (shared tests are hosted by app).
     cmds:
       - task: app:test
       - task: admin:test
-      - task: landing:test
+      - task: marketing:test
   web:test:coverage:
-    desc: Coverage-gated tests (app; admin and landing have no thresholds yet).
+    desc: Coverage-gated tests (app; admin and marketing have no thresholds yet).
     cmds:
       - task: app:test:coverage
   web:test:e2e:
-    desc: Playwright suites of app, admin and landing (run web:build first).
+    desc: Playwright suites of app, admin and marketing (run web:build first).
     cmds:
       - task: app:test:e2e
       - task: admin:test:e2e
-      - task: landing:test:e2e
+      - task: marketing:test:e2e
   web:check:bundle:
-    desc: Client bundle size budgets of app, admin and landing (run after web:build).
+    desc: Client bundle size budgets of app, admin and marketing (run after web:build).
     cmds:
       - task: app:check:bundle
       - task: admin:check:bundle
-      - task: landing:check:bundle
+      - task: marketing:check:bundle
   web:check:source:
-    desc: Source bans in app, admin, landing and shared (physical Tailwind direction utilities, Base64 images).
+    desc: Source bans in app, admin, marketing and shared (physical Tailwind direction utilities, Base64 images).
     dir: apps/web
     cmds:
       - pnpm --dir app check:source
       - pnpm --dir admin check:source
-      - pnpm --dir landing check:source
+      - pnpm --dir marketing check:source
   web:lighthouse:
-    desc: Lighthouse CI budgets of app and landing (run after web:build; needs Chrome).
+    desc: Lighthouse CI budgets of app and marketing (run after web:build; needs Chrome).
     cmds:
       - task: app:lighthouse
-      - task: landing:lighthouse
+      - task: marketing:lighthouse
   web:build:
-    desc: Production build of app, admin and landing.
+    desc: Production build of app, admin and marketing.
     cmds:
       - task: app:build
       - task: admin:build
-      - task: landing:build
+      - task: marketing:build
   web:dev:
-    desc: Start all three dev servers (app 3000, admin 3001, landing 3002).
+    desc: Start all three dev servers (app 3000, admin 3001, marketing 3002).
     dir: apps/web
     cmds: ["pnpm -r --parallel dev"]
 
@@ -519,38 +525,38 @@ tasks:
     dir: apps/web/admin
     cmds: [pnpm check:bundle]
 
-  # --- web: landing (marketing site, port 3002) ----------------------------
-  landing:dev:
-    desc: Start the landing dev server.
-    dir: apps/web/landing
+  # --- web: marketing (site, port 3002) ----------------------------
+  marketing:dev:
+    desc: Start the marketing dev server.
+    dir: apps/web/marketing
     cmds: [pnpm dev]
-  landing:build:
-    desc: Production build of the landing (Next.js).
-    dir: apps/web/landing
+  marketing:build:
+    desc: Production build of the marketing (Next.js).
+    dir: apps/web/marketing
     cmds: [pnpm build]
-  landing:check:bundle:
-    desc: landing client bundle and font budget (run after landing:build).
-    dir: apps/web/landing
+  marketing:check:bundle:
+    desc: marketing client bundle and font budget (run after marketing:build).
+    dir: apps/web/marketing
     cmds: [pnpm check:bundle]
-  landing:lighthouse:
-    desc: landing Lighthouse CI budgets (run after landing:build; needs Chrome).
-    dir: apps/web/landing
+  marketing:lighthouse:
+    desc: marketing Lighthouse CI budgets (run after marketing:build; needs Chrome).
+    dir: apps/web/marketing
     cmds: [pnpm lighthouse]
-  landing:test:e2e:
-    desc: landing Playwright e2e on the built site (rendered SEO tags of every page and locale, axe WCAG 2.2 AA; pnpm test:e2e:install once).
-    dir: apps/web/landing
+  marketing:test:e2e:
+    desc: marketing Playwright e2e on the built site (rendered SEO tags of every page and locale, axe WCAG 2.2 AA; pnpm test:e2e:install once).
+    dir: apps/web/marketing
     cmds: [pnpm test:e2e]
-  landing:lint:
-    desc: landing Biome lint and TypeScript typecheck.
-    dir: apps/web/landing
+  marketing:lint:
+    desc: marketing Biome lint and TypeScript typecheck.
+    dir: apps/web/marketing
     cmds: ["pnpm lint", "pnpm typecheck"]
-  landing:knip:
-    desc: landing unused files/exports/dependencies and the approved-library allowlist (knip).
-    dir: apps/web/landing
+  marketing:knip:
+    desc: marketing unused files/exports/dependencies and the approved-library allowlist (knip).
+    dir: apps/web/marketing
     cmds: [pnpm knip]
-  landing:test:
-    desc: landing unit tests (Vitest).
-    dir: apps/web/landing
+  marketing:test:
+    desc: marketing unit tests (Vitest).
+    dir: apps/web/marketing
     cmds: [pnpm test]
 
   # --- android -------------------------------------------------------------

@@ -58,7 +58,7 @@ folder is a Go package path element, so hyphens are dropped (`bulk-edit` becomes
 `task new:feature -- MODULE=<m> NAME=<f> --platforms=web` (same flag names; the shared CLI calls its exported `scaffoldWebFeature`). It stamps
 `src/modules/<m>/features/<f>/ui/<f>-view.tsx` and its test from `scripts/templates/web/feature/**/*.ftmpl`, adds one export line to
 `public.ts` in Biome's sort order and the key `<featureKey>.title` to the five catalogues (English text everywhere: translate it).
-`NAME` is kebab-case (`bulk-edit`). Landing is not supported (Server Components, no component-test harness). Test:
+`NAME` is kebab-case (`bulk-edit`). Marketing is not supported (Server Components, no component-test harness). Test:
 `node --test scripts/test/new-feature-web.test.mjs`. Rules the result must keep: [modules and features](../content/architecture/modules-and-features.md).
 
 ## What it deliberately does not do

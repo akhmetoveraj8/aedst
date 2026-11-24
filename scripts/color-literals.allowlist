@@ -27,4 +27,4 @@ apps/android/core/media/src/main/kotlin/com/aedst/core/media/ui/VideoPlayer.kt  
 # Tailwind palette reduced to white/black/red-700 (see the comment above @theme).
 apps/web/app/src/app/styles/globals.css   # --color-white/black/red-700 theme entries; every other palette colour is removed by --color-*: initial
 apps/web/admin/src/app/styles/globals.css   # same theme entries as the app project (white/black/red-700); every other palette colour is removed by --color-*: initial
-apps/web/landing/src/app/config/seo.ts   # <meta name="theme-color"> accepts literal colours only (same as the app)
+apps/web/marketing/src/app/config/seo.ts   # <meta name="theme-color"> accepts literal colours only (same as the app)

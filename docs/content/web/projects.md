@@ -1,6 +1,6 @@
 ---
 title: "Web projects"
-description: "The web side is a workspace of three separate Next.js projects (app, admin, landing) and a source-only shared kit: who owns what, dependency direction, auth between app and admin, deployment and CSP per project."
+description: "The web side is a workspace of three separate Next.js projects (app, admin, marketing) and a source-only shared kit: who owns what, dependency direction, auth between app and admin, deployment and CSP per project."
 ---
 
 # Web projects
@@ -19,7 +19,7 @@ apps/web/
   shared/    @aedst/web-shared    # source-only kit, alias @/shared/*
   app/       @aedst/web-app       # product, signed-in end users, :3000
   admin/     @aedst/web-admin     # staff panel, :3001, noindex
-  landing/   @aedst/web-landing   # marketing site, :3002, SEO/GEO first
+  marketing/   @aedst/web-marketing   # marketing site, :3002, SEO/GEO first
 ```
 
 Paths in the other web pages without a prefix (`src/app/...`, `src/modules/...`, `scripts/...`, `knip.jsonc`) mean the **app** project (`apps/web/app`).
@@ -31,7 +31,7 @@ Paths in the other web pages without a prefix (`src/app/...`, `src/modules/...`,
 |---|---|
 | Does a signed-in end user use it (tasks, media, notifications, search, profile)? | `app` |
 | Is it an operation only staff may do (users, audit log, broadcasts, moderation)? | `admin` |
-| Is it an anonymous marketing, legal or SEO page? | `landing` |
+| Is it an anonymous marketing, legal or SEO page? | `marketing` |
 | Is it used by two or more projects and not product-specific (a UI primitive, the Connect client, a formatter, the session helpers)? | `shared` |
 | Anything else | stays in the project that uses it, even if reuse is likely; promote it when the second project needs it |
 
@@ -40,7 +40,7 @@ Paths in the other web pages without a prefix (`src/app/...`, `src/modules/...`,
 - A project imports only itself and `shared` (`@/shared/*`). Projects never import each other's `src`. They meet in `shared/` and over the network.
 - `shared` never imports a project (`@/app/*`, `@/modules/*`). Shared tests may use `@/test/*` of the host project `app`; Storybook of `shared/ui` and the
   Vitest run of `shared/**` tests are hosted by `app`.
-- Inside a project: `app -> modules -> shared`, modules never import each other; inside a module a feature never imports another feature and the module's shared `lib/` and `ui/` import no feature (`apps/web/app/scripts/check-feature-boundaries.sh`, run for `app`, `admin` and `landing`; dependency-cruiser repeats the graph rules in each project).
+- Inside a project: `app -> modules -> shared`, modules never import each other; inside a module a feature never imports another feature and the module's shared `lib/` and `ui/` import no feature (`apps/web/app/scripts/check-feature-boundaries.sh`, run for `app`, `admin` and `marketing`; dependency-cruiser repeats the graph rules in each project).
 - A change in `shared/` can break any project: CI for all three triggers on `apps/web/shared/**`.
 
 ## Why shared is source-only
@@ -64,7 +64,7 @@ projects. A new dependency also goes to the project's knip allowlist and to [Lib
 
 ## Admin on Vite
 
-Owner decision, 2026-11-04 (implemented the same day, see the UNVERIFIED list in decisions/web.md): `admin` is a React + Vite + TanStack Router single-page app (static `dist/`) served by a thin Hono backend-for-frontend (BFF) in the same image and process; `app` and `landing` stay on Next.js. The frontend is in `apps/web/admin/src` ([admin/README.md](../../../apps/web/admin/README.md)); the BFF is `apps/web/admin/server`.
+Owner decision, 2026-11-04 (implemented the same day, see the UNVERIFIED list in decisions/web.md): `admin` is a React + Vite + TanStack Router single-page app (static `dist/`) served by a thin Hono backend-for-frontend (BFF) in the same image and process; `app` and `marketing` stay on Next.js. The frontend is in `apps/web/admin/src` ([admin/README.md](../../../apps/web/admin/README.md)); the BFF is `apps/web/admin/server`.
 
 ### Server (BFF)
 
@@ -84,7 +84,7 @@ Status: **DECIDED** (owner, 2026-10-28). `admin` does not share the session of `
 - ZITADEL SSO makes the second sign-in seamless: a user already signed in at the IdP is not asked for credentials again.
 - Each project keeps its own `__Host-` cookies (Secure, `Path=/`, no `Domain`) on its own origin, so an XSS in `app` can never read the admin session. A parent-domain cookie (`Domain=.<domain>`) is not used: separate subdomains plus the `__Host-` prefix cannot share cookies, and widening to a parent-domain cookie would weaken staff sessions (any subdomain could set or shadow it).
 - Admin access requires role `admin`. The UI check in `admin` (`server/security/route-guard.ts` and the SPA route guards) is cosmetic; the real check is the server's RoleInterceptor policy per RPC. A signed-in user without the role lands on `/{locale}/forbidden`; login failures also land there (`?auth_error=`), because that page is exempt from the sign-in guard (no redirect loop).
-- `landing` has no session and no access to auth code or the Connect client.
+- `marketing` has no session and no access to auth code or the Connect client.
 
 | | `app` | `admin` |
 |---|---|---|
@@ -104,7 +104,7 @@ Logout: signing out of `admin` clears only admin's cookies, revokes its refresh 
 |---|---|---|---|---|
 | `app` | `apps/web/app/deployments/docker/Dockerfile`, Helm chart `apps/web/app/deployments/helm/aedst-web` | 3000 | `app.<domain>` (proposed) | `web-ci.yml`, `web-release.yml` (tag `web-v*`) |
 | `admin` | `apps/web/admin/deployments/docker/Dockerfile` (SPA `dist/` + BFF bundle, one distroless Node process) | 3001 | `admin.<domain>` | `admin-ci.yml` (no release workflow or chart yet) |
-| `landing` | `apps/web/landing/deployments/docker/Dockerfile` | 3002 | `<domain>` | `landing-ci.yml` (no release workflow or chart yet) |
+| `marketing` | `apps/web/marketing/deployments/docker/Dockerfile` | 3002 | `<domain>` | `marketing-ci.yml` (no release workflow or chart yet) |
 
 Every image is built with the repository root as context (the stubs are generated from `apps/server/api/proto` during the build and `shared/` is compiled in). Details and rollback
 for the app: [Web deployment](/web/deployment). Nothing here was built with Docker yet (UNVERIFIED); the first release run is the acceptance test. `apps/server` must list
@@ -112,10 +112,10 @@ each browser origin that calls it directly; the browsers call their own project'
 
 ## CSP per project
 
-`app` builds its nonce CSP in `src/app/config/security/csp.ts` and `proxy.ts`; `admin` builds its own in `server/security/csp.ts`, applied by the BFF (the browser talks to its own origin only, plus the Sentry ingest origin derived from the DSN in `connect-src`, there is no tunnel; Trusted Types report-only and `Reporting-Endpoints` when a Sentry DSN is set). `landing` is static and must not need a per-request nonce, so its
+`app` builds its nonce CSP in `src/app/config/security/csp.ts` and `proxy.ts`; `admin` builds its own in `server/security/csp.ts`, applied by the BFF (the browser talks to its own origin only, plus the Sentry ingest origin derived from the DSN in `connect-src`, there is no tunnel; Trusted Types report-only and `Reporting-Endpoints` when a Sentry DSN is set). `marketing` is static and must not need a per-request nonce, so its
 CSP is set in its `next.config.ts` and it allows no third-party origins. A new third-party origin goes into the CSP of the project that loads it, in the same change. `admin` allows
 no analytics or tracking origins.
 
 ## Commands
 
-`task web:*` runs all three; `task app:*`, `task admin:*`, `task landing:*` run one (`dev`, `build`, `lint`, `knip`, `test`; `app` also has `generate`, `test:coverage`, `test:e2e`, `check:bundle`, `lighthouse`).
+`task web:*` runs all three; `task app:*`, `task admin:*`, `task marketing:*` run one (`dev`, `build`, `lint`, `knip`, `test`; `app` also has `generate`, `test:coverage`, `test:e2e`, `check:bundle`, `lighthouse`).

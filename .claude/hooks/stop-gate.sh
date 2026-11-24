@@ -44,7 +44,7 @@ else
       server) cmds+=("task server:check") ;;
       web-app) cmds+=("task app:lint") ;;
       web-admin) cmds+=("task admin:lint") ;;
-      web-landing) cmds+=("task landing:lint") ;;
+      web-marketing) cmds+=("task marketing:lint") ;;
       web-shared) cmds+=("task web:lint") ;; # shared is used by every project
       android) command -v java >/dev/null 2>&1 && cmds+=("task android:lint") ;;
       apple) [ "$(uname -s)" = "Darwin" ] && cmds+=("task apple:lint") ;;

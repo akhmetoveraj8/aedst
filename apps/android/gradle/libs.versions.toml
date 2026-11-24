@@ -91,7 +91,7 @@ leakcanary = "2.14"
 
 # --- monitoring ---
 # Sentry: crash/error reporting + OkHttp tracing (every io.sentry artifact aligned through the BOM).
-sentry = "8.65.0"
+sentry = "8.65.1"
 sentry-gradle-plugin = "6.27.0"
 # PostHog: product analytics + feature flags; consent-gated and disabled when the project key is empty.
 posthog = "3.77.1"

@@ -9,7 +9,7 @@ The default profile is **Core = Server + Web**. These two are built, tested and 
 | App | Stack | Status |
 |---|---|---|
 | [`apps/server`](apps/server/README.md) | Go, net/http ServeMux, ConnectRPC v2, Postgres (pgx/sqlc/Goose), River, DragonflyDB, OpenTelemetry; OIDC resource server | **Core.** Built, vetted, unit-tested |
-| [`apps/web`](apps/web/README.md) (`app`, `admin`, `landing`, `shared`) | Next.js 16, React 19, TanStack Query, shadcn/ui, next-intl | **Core.** Typechecked, linted, unit- and browser-tested, built |
+| [`apps/web`](apps/web/README.md) (`app`, `admin`, `marketing`, `shared`) | Next.js 16, React 19, TanStack Query, shadcn/ui, next-intl | **Core.** Typechecked, linted, unit- and browser-tested, built |
 | [`apps/android`](apps/android/README.md) | Kotlin, Jetpack Compose, Hilt, connect-kotlin, Room 3 | Frozen. JVM gates passed before the Room 3 migration; the migration is **not compiled**; never run on a device |
 | [`apps/apple`](apps/apple/README.md) | SwiftUI, GRDB, connect-swift, Tuist (iOS 18+, macOS 15+) | Frozen. **Never compiled** |
 | [`apps/desktop`](apps/desktop/AGENTS.md) | Rust, Slint, connectrpc, openidconnect, keyring-core, rusqlite, Velopack (Windows and Linux) | Frozen. Fmt, clippy, tests and cargo-deny pass on Windows; **never built on Linux**, never run against a real server or IdP |

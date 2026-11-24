@@ -6,7 +6,7 @@
 #
 # Every command is `glob`-scoped to one app, so a commit touching only
 # apps/server never pays for apps/web's typecheck and vice versa (web is split
-# into app, admin and landing, each with its own typecheck and knip). `glob`
+# into app, admin and marketing, each with its own typecheck and knip). `glob`
 # paths are always relative to the repo root regardless of `root:` (see
 # https://lefthook.dev/configuration/glob.html) - matched twice per app
 # (`app/**/*.ext` and `app/*.ext`) because lefthook's `**` requires at
@@ -29,7 +29,7 @@ pre-commit:
   parallel: true
   commands:
     # One Biome config for the whole web workspace (apps/web/biome.json), run
-    # from apps/web so shared/, app/, admin/ and landing/ are all covered.
+    # from apps/web so shared/, app/, admin/ and marketing/ are all covered.
     # Staged files only, deliberately: `pnpm lint` (whole project) would also
     # fail on any pre-existing violation in a file this commit never touched.
     # `--write` autofixes what Biome can; `stage_fixed` re-stages the result.
@@ -71,17 +71,17 @@ pre-commit:
         - "apps/web/admin/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
         - "apps/web/admin/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
       run: pnpm knip
-    web-landing-typecheck:
-      root: "apps/web/landing/"
+    web-marketing-typecheck:
+      root: "apps/web/marketing/"
       glob:
-        - "apps/web/landing/**/*.{ts,tsx}"
-        - "apps/web/landing/*.{ts,tsx}"
+        - "apps/web/marketing/**/*.{ts,tsx}"
+        - "apps/web/marketing/*.{ts,tsx}"
       run: pnpm typecheck
-    web-landing-knip:
-      root: "apps/web/landing/"
+    web-marketing-knip:
+      root: "apps/web/marketing/"
       glob:
-        - "apps/web/landing/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
-        - "apps/web/landing/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/marketing/**/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
+        - "apps/web/marketing/*.{ts,tsx,js,jsx,mjs,json,jsonc}"
       run: pnpm knip
 
     # Gates hosted by the app project (they scan app/src and shared/): a staged
@@ -103,7 +103,7 @@ pre-commit:
         - "apps/web/shared/**/*.{ts,tsx}"
         - "apps/web/shared/*.{ts,tsx}"
       run: pnpm check:deps
-    # Module and feature boundaries of all three web projects (app, admin, landing).
+    # Module and feature boundaries of all three web projects (app, admin, marketing).
     web-boundaries:
       glob:
         - "apps/web/**/*.{ts,tsx}"
@@ -133,6 +133,10 @@ pre-commit:
     color-literals:
       glob: "apps/**/*.{ts,tsx,js,mjs,css,kt,xml,swift,rs,slint,html,tmpl}"
       run: node scripts/check-color-literals.mjs --staged
+    # UI kit only: no raw button/input/... or raw platform controls in feature code.
+    ui-kit-only:
+      glob: "apps/**/*.{tsx,jsx,kt,swift,slint}"
+      run: node scripts/check-ui-kit-only.mjs --staged
 
     # Go: formatting on staged files, vet on the whole module (a type error can
     # be caused by a change in another package). gen/ is sqlc/buf output

@@ -4,6 +4,13 @@ All notable changes to this repository are documented here. The format follows [
 
 ## [Unreleased]
 
+### Changed (2026-11-25)
+
+- **Server, cache and database**: DragonflyDB is the only in-memory store; the deprecated `AEDST_VALKEY_*` alias (`legacy_env.go`) is removed, go-redis is documented as the RESP protocol client only (no Dragonfly-native Go client exists; decision recorded). Taskfile `up` and `load` now start the `cache` Compose service (they named a nonexistent `valkey`). PostgreSQL 19 features checked against the 19.0 release notes; `uuidv7()` replaces `gen_random_uuid()` in the broadcast query. UNVERIFIED: nothing ran against a PostgreSQL 19 or DragonflyDB server (no Docker).
+- **Web, rename**: `apps/web/landing` is now `apps/web/marketing` (package `@aedst/web-marketing`, tasks `marketing:*`, workflow `marketing-ci.yml`, launch config `marketing-dev`, Docker image `aedst-marketing`); all docs and scripts follow. Older entries keep the old name.
+- **Web, charts**: Apache ECharts 6 (via `shared/ui/chart`) is the only chart library; Recharts is removed from the catalog. Admin and app screens pass an `option` to `Chart`.
+- **Dependencies**: Go modules, the web catalog (pnpm 12.23.0, next-intl 4.16, knip 6.48, jest-dom 8, ...) and the docs site moved to the latest stable. `@sentry/*` and `posthog-js` stay on their bundle-budget pins. Android got only the Sentry BOM patch; Android, Apple and Desktop were not rebuilt (no toolchain here).
+
 ### Changed (server data stack, 2026-11-18)
 
 - **Server, breaking config**: DragonflyDB (BSL 1.1, owner decision) replaces Valkey. `internal/platform/valkey` is now `internal/platform/cache`; `AEDST_VALKEY_*` is `AEDST_CACHE_*` (the old names still work for one release and log a warning, see `internal/platform/config/legacy_env.go`); the readiness check and alert are `cache` / `AedstCacheDegraded`; Helm `config.valkey` is `config.cache` and `secretKeys.valkeyPassword` is `cachePassword` (default Secret key `cache-password`). Compose runs `ghcr.io/dragonflydb/dragonfly:v2.1.0`. The new integration test against the real image was written but not run (no Docker where this was authored).

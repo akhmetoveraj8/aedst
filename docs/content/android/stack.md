@@ -27,7 +27,7 @@ Kotlin / Jetpack Compose (`apps/android`). Versions are pinned in the repository
 | Images | Coil 3 | **3.6.3** |
 | Video / player / compression | AndroidX Media3 (ExoPlayer, Compose UI, Transformer) | **1.11.1** |
 | Push | Firebase Cloud Messaging (Firebase BoM) | BoM **35.2.0** |
-| Errors / performance / tracing | Sentry Android + Gradle plugin | **8.65.0** / 6.27.0 |
+| Errors / performance / tracing | Sentry Android + Gradle plugin | **8.65.1** / 6.27.0 |
 | Analytics + feature flags | PostHog Android | **3.77.1** |
 | Anti-abuse | Play Integrity | 1.6.0 |
 | Leak detection | LeakCanary (debug builds of `app` and `app-tv` only) | **2.14** |

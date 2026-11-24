@@ -43,7 +43,7 @@ mounted through `modulekit.Mount`, which always installs the validation intercep
 
 | Area | Tool | Version |
 |---|---|---|
-| Cache / rate limit | **DragonflyDB** + go-redis client + redis_rate (never a source of correctness) | `ghcr.io/dragonflydb/dragonfly:v2.1.0`, go-redis **9.23.0**, redis_rate 10.0.1 |
+| Cache / rate limit | **DragonflyDB** + go-redis (RESP protocol client only) + redis_rate (never a source of correctness) | `ghcr.io/dragonflydb/dragonfly:v2.1.0`, go-redis **9.23.0**, redis_rate 10.0.1 |
 | Search | **Meilisearch** + `meilisearch-go` (PostgreSQL stays the source of truth; indexing via River jobs; optional) | `getmeili/meilisearch:v1.57.0`, meilisearch-go **0.37.0** |
 | Feature flags | **OpenFeature** SDK + **flagd** (rollout only, never correctness; optional) | `ghcr.io/open-feature/flagd:v0.19.0`, go-sdk **1.20.0**, flagd provider **0.8.1** |
 | Jobs | River (queues `default`, `media`) | **0.51.2** |

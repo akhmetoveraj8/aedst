@@ -38,11 +38,11 @@
       "port": 3101
     },
     {
-      "name": "landing-dev",
+      "name": "marketing-dev",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": [
         "--dir",
-        "apps/web/landing",
+        "apps/web/marketing",
         "dev",
         "--port",
         "3102"

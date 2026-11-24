@@ -18,7 +18,7 @@ Single source of truth for naming and file-size limits across the 5 AEDST platfo
 
 | Platform | Rules | Linter / script |
 |---|---|---|
-| Web (`apps/web`: `shared`, `app`, `admin`, `landing`) | [docs/agent/conventions/web.md](docs/agent/conventions/web.md) | Biome, `scripts/check-naming.sh` |
+| Web (`apps/web`: `shared`, `app`, `admin`, `marketing`) | [docs/agent/conventions/web.md](docs/agent/conventions/web.md) | Biome, `scripts/check-naming.sh` |
 | Server (`apps/server`) | [docs/agent/conventions/server.md](docs/agent/conventions/server.md) | golangci-lint, `architecturetest`, `scripts/check-naming.sh` |
 | Android (`apps/android`) | [docs/agent/conventions/android.md](docs/agent/conventions/android.md) | ktlint + detekt, `scripts/check-naming.sh` |
 | Apple (`apps/apple`) | [docs/agent/conventions/apple.md](docs/agent/conventions/apple.md) | SwiftLint + swift-format, `scripts/check-naming.sh` |

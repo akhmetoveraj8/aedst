@@ -27,7 +27,7 @@ Dates are 2026-11-04 unless stated. "Verified" means run on the authoring machin
 | Platform | Status | Evidence |
 |---|---|---|
 | Server | **Verified** (build, vet, unit tests, architecture test, golangci-lint) / **UNVERIFIED** (integration tests since the auth removal, migration `00004`, image CI job, cluster, `buf breaking`, govulncheck) | `CGO_ENABLED=0 go build ./... && go vet ./... && go test -short ./...` pass; `golangci-lint run ./...` reports 0 issues. First-party auth was removed (ADR-0019): the server is a pure OIDC resource server and requires `AEDST_OIDC_ISSUER` and `AEDST_OIDC_AUDIENCE`. Docker is not available on the authoring machine, so integration tests compile (`go vet -tags integration`) but did not run; they now sign in through an in-process OIDC provider (`internal/platform/auth/authtest`). River was bumped to 0.51.0 (whether it needs a new River schema migration is **UNVERIFIED**). Helm, CloudNativePG and Argo CD manifests are not verified against a cluster |
-| Web | **Verified** (typecheck, Biome, knip, unit and browser tests, `next build`, bundle budget) / **UNVERIFIED** (real IdP, Playwright e2e and Storybook after the 2026-11-04 bumps, visual baselines) | app: 481 unit and 216 browser tests; admin (Vite SPA): 39 unit/browser tests, BFF: 96 server tests, 11 Playwright e2e against the built BFF with the mock IdP; landing: 38. Browser tests were flaky under load and passed on rerun. Bundle (2026-11-05, after tasks `entries/*`, a lazy Sentry browser SDK and on-demand date-fns locales): `/tasks/[id]` first load **352.5 KB** (was 479.0), heaviest tasks route `/tasks/new` 399.6 of 412 KB, largest chunk 101.8 of 110 KB, total JS 876.3 of 905 KB; per-route budgets were lowered to measured + ~3%. Sentry's late init, delivery through `/monitoring` and Replay after consent were not checked in a browser; a `reportError` call made before the SDK chunk loads is dropped (uncaught errors in that window are buffered). The web sign-in is Authorization Code + PKCE (`oauth4webapi`) and has **never been run against a real ZITADEL** |
+| Web | **Verified** (typecheck, Biome, knip, unit and browser tests, `next build`, bundle budget) / **UNVERIFIED** (real IdP, Playwright e2e and Storybook after the 2026-11-04 bumps, visual baselines) | app: 481 unit and 216 browser tests; admin (Vite SPA): 39 unit/browser tests, BFF: 96 server tests, 11 Playwright e2e against the built BFF with the mock IdP; marketing: 38. Browser tests were flaky under load and passed on rerun. Bundle (2026-11-05, after tasks `entries/*`, a lazy Sentry browser SDK and on-demand date-fns locales): `/tasks/[id]` first load **352.5 KB** (was 479.0), heaviest tasks route `/tasks/new` 399.6 of 412 KB, largest chunk 101.8 of 110 KB, total JS 876.3 of 905 KB; per-route budgets were lowered to measured + ~3%. Sentry's late init, delivery through `/monitoring` and Replay after consent were not checked in a browser; a `reportError` call made before the SDK chunk loads is dropped (uncaught errors in that window are buffered). The web sign-in is Authorization Code + PKCE (`oauth4webapi`) and has **never been run against a real ZITADEL** |
 | Android | **Frozen.** Partly compiled 2026-11-21 (Windows, JDK 21, Gradle 9.9.2, AGP 9.5.2, Kotlin 2.5.0-RC): every `core/*` module except `capabilities` and `media`, plus the five `feature/<name>/domain` Kotlin Multiplatform modules (android and jvm targets) / **UNVERIFIED** (`feature/*` Android modules, `core/capabilities`, `core/media`, `app`, `app-tv`, `assembleDebug`, device) | Kotlin Multiplatform structure, steps 2 to 4 ([KMP structure](/android/kmp)): `core/common`, `core/database` (Room 3.0.3, schema identity hash unchanged) and the feature domains compile for both targets and their tests pass; `core/outbox` unit tests pass. `assembleDebug` is blocked by two things outside the code: the generated ConnectRPC client is absent (`make generate` not run) and Compose BOM 2026.11.01 needs compileSdk 37.1 (37.0 installed). Feature modules were edited statically. Default locale is now English (`values/`), Russian is `values-ru/`. Policy scripts pass. Never run on a device |
 | Apple | **Frozen. Not built** (UNVERIFIED) | Nothing compiled. Sign-in is browser-only (`ASWebAuthenticationSession`); password mode and the admin user list were removed without a compiler. The feature packages and the app shell were restructured into shared logic plus one UI layer per platform ("one business logic, two UI builds", 2026-11-21): written, not compiled. Static scripts pass (`check-feature-boundaries`, `check-feature-layers`, `check-apple-swift-policy`). Snapshot reference images are not recorded. Never run on a device |
 | Gateway (`apps/gateway`, Rust) | **Written, NOT compiled or tested** (UNVERIFIED) | Authored 2026-11-18 on a machine without cargo. `cargo fmt`, `clippy`, `test`, `deny`, the crate feature names marked UNVERIFIED in `Cargo.toml`, `Cargo.lock` and the Go to NATS to Rust to WebSocket test (`natsbridge/gateway_e2e_integration_test.go`) have never run. Static pass of 2026-11-21 (still no compiler): every version and feature name in `Cargo.toml` exists on crates.io (the `rust_crypto` and `opentelemetry-*` names are no longer UNVERIFIED; that they are sufficient is), fixes from reading the code against the sources of the pinned crates on docs.rs (test key encoding needs `ed25519-dalek` `alloc`, a socket write timeout, an explicit type in `ws::close`), and a no-cargo dependency gate (`apps/desktop/scripts/check-approved-crates.sh`). Second pass the same day, also not compiled: the bearer token is no longer echoed in the handshake (the gateway answers `aedst.v1` only), browser origins fail closed, header-read timeout and connection caps through a `hyper-util` accept loop, the consumer reconnects with capped backoff and reports its state in `/readyz` and two metrics, `base64` replaces a hand-written encoder in a test, unused `tokio-tungstenite` removed. The source was reformatted by hand towards rustfmt defaults; **rustfmt was not run**, so `cargo fmt --check` may still report differences. The Go side (`internal/platform/natsbridge`) is verified: unit tests against an in-process JetStream server, `architecturetest`, config and cmd tests pass |
@@ -44,9 +44,9 @@ Postgres (no Docker or cluster here), and the cache against a real DragonflyDB. 
 
 **Web performance, SEO and accessibility gates, 2026-11-21.** Ran on the authoring machine (Windows), all
 green: typecheck of the three projects, Biome, knip x3, unit tests (app 506 passed and 30 skipped, admin
-8, admin BFF 97, landing 39), browser tests with one worker (app 222, admin 31), builds of app, landing
+8, admin BFF 97, marketing 39), browser tests with one worker (app 222, admin 31), builds of app, marketing
 and admin, `pnpm check:bundle` x3, `pnpm check:selftest` (56 fixtures), `pnpm check:source` x3,
-Playwright on the builds with Chromium (app 97 tests, landing 25, admin 21) and the root naming,
+Playwright on the builds with Chromium (app 97 tests, marketing 25, admin 21) and the root naming,
 file-size, boundaries, docs and i18n checks.
 
 The bundle regression was two SDK bumps of the 2026-11-18 catalog change, not the bumps of 2026-11-21.
@@ -58,23 +58,23 @@ Lighthouse CI (`lhci autorun`, Chrome found, 3 runs per URL) passes for both pro
 bundles were cut; no assertion was weakened and the script and page-weight limits were lowered to the new
 measurements.
 
-- `landing`, 12 runs (`/en`, `/ru`, `/ar`, `/en/privacy`): performance 0.94 to 0.98, LCP 1.72 to 2.05 s,
+- `marketing`, 12 runs (`/en`, `/ru`, `/ar`, `/en/privacy`): performance 0.94 to 0.98, LCP 1.72 to 2.05 s,
   CLS at most 0.010, TBT 93 to 246 ms (medians 113 to 146 against 150), script 147.8 kB, page weight
   271 kB in 13 requests. Before the cut: script 241.8 kB, performance 0.77 to 0.94, LCP 2.3 to 2.8 s.
   Removed from the client: the base-ui select and accordion, the next-intl client runtime, next-themes,
   `next/link` and the kit button of the error page; fonts preload the Latin subset only; Tailwind scans
-  only the kit files the landing renders (CSS 32.2 to 10.0 KB). First load 223.5 to 136.7 KB.
+  only the kit files the marketing site renders (CSS 32.2 to 10.0 KB). First load 223.5 to 136.7 KB.
 - `app`, 9 runs (`/en`, `/ru`, `/ar`): performance 0.93 to 0.96, LCP 2.18 to 2.31 s, CLS 0, TBT 67 to
   204 ms, script 373.2 kB against 400 kB before (432.5), page weight 602.7 kB in 36 requests. The query,
   URL-state and outbox providers moved from the root layout to the signed-in layout: sign-in first load
   301.5 to 246.1 KB. Side effect: the signed-in routes grew about 7 KB each (total JS 893.7 of 905 KB).
 
-The timing numbers come from a machine with little free memory: single runs still scatter (one `landing`
-run of 12 had TBT 246 ms; `lhci` asserts on the best of the three runs per URL, and the medians pass too). An earlier `landing` attempt stopped twice when
+The timing numbers come from a machine with little free memory: single runs still scatter (one `marketing`
+run of 12 had TBT 246 ms; `lhci` asserts on the best of the three runs per URL, and the medians pass too). An earlier `marketing` attempt stopped twice when
 Chrome failed to launch. Session cookies: an oversized value is now split across numbered cookies and a
 session over the cap is refused ([decisions/web](/decisions/web)); not run against a real ZITADEL.
 
-**UNVERIFIED:** `web-ci.yml`, `landing-ci.yml` and `admin-ci.yml` have never run on GitHub; the
+**UNVERIFIED:** `web-ci.yml`, `marketing-ci.yml` and `admin-ci.yml` have never run on GitHub; the
 signed-in Lighthouse run, the Firefox, WebKit and phone projects of the e2e suites, and Storybook
 (including the `ModeToggle` stories, whose a11y check is on again) were not run in this change.
 
@@ -169,7 +169,7 @@ A pass of these scripts says nothing about whether Apple, Android or Desktop com
 
 - **Server, passed:** `go build`, `go vet` (also `-tags integration`), `go test -short ./...`, `golangci-lint` (0 issues), `buf lint`, `govulncheck` (no vulnerabilities). golangci-lint warns that `exhaustive.ignore-enum-types` was replaced by `ignore-types` in `.golangci.yml` (not changed: the file has uncommitted edits from another session).
 - **Web, found and fixed:** `pnpm typecheck` and `pnpm lint` were failing in admin (`server/security/route-guard.test.ts` passed a `fallbackLocale` that `decideRoute` does not accept and expected `/ru/forbidden`; the documented behaviour is the locale-less `/forbidden`). The test was corrected; lint, typecheck and the test now pass. The "Verified" claim above was therefore not true for admin until this fix.
-- **Web, passed:** app unit 499 passed (30 skipped), admin unit 8, admin BFF 91 (earlier text said 96), landing 38, `pnpm build` for app, admin and landing.
+- **Web, passed:** app unit 499 passed (30 skipped), admin unit 8, admin BFF 91 (earlier text said 96), marketing 38, `pnpm build` for app, admin and marketing.
 - **Browser tests (Chromium installed afterwards):** admin 31 passed; app 216 passed on the second run. The first app run on a cold Vite cache failed 4 suites ("Vite unexpectedly reloaded a test", `use-intl` re-optimized); the rerun was green. Cause found: `apps/web/app/vitest.config.mts` listed a bare `use-intl` in `optimizeDeps.include`, which does not resolve from `app` (pnpm hides it behind `next-intl`), so Vite skipped it and found it mid-run; `next/navigation` was also discovered late. Fixed with `next-intl > use-intl` and `next/navigation`. After the config change (which invalidates Vite's dependency cache) two runs gave 216 passed with no reload. A true cold run on a fresh clone or CI runner was NOT reproduced: deleting `node_modules/.vite` was blocked in this session, so it is UNVERIFIED.
 - **Not run:** Playwright e2e, Storybook, the bundle budget check, Docker integration tests, `task` aggregates (`task` is not installed), and everything on a clean GitHub runner.
 
@@ -192,7 +192,7 @@ frozen: for them only version pins and decision rows changed.
 - **Web.** 140 files renamed to kebab-case, rule inverted in the conventions, `check-naming.sh` and Biome.
   `shared/ui` gained `data-table`, `date-picker`, `sonner`, `typography`, `trace` and `code-block` (61 of
   61 in `ui-kit.yaml`; `toast` is an alias of `sonner`; `code-block` has no highlighter yet, open
-  decision). `admin` serves `robots.txt` (`Disallow: /`). `landing` pages set `og:url` to their own
+  decision). `admin` serves `robots.txt` (`Disallow: /`). `marketing` pages set `og:url` to their own
   canonical. The i18n parity check now covers the `i18n/common` catalogues (11 web bundles, was 8).
 - **Server.** `SELECT *` and `RETURNING *` removed from `sql/media` and gated by
   `architecturetest` (`TestQueriesNameTheirColumns`; generated code is unchanged).
@@ -204,7 +204,7 @@ frozen: for them only version pins and decision rows changed.
   features and the UI kit. **Not run:** `next build`, Storybook's full story suite, Playwright e2e, the
   bundle budget, Docker integration tests, anything on a GitHub runner.
 - **Known gaps, tracked in [roadmap coverage](/engineering/checklists):** the feature level exists on no
-  platform; the UI kit files now cover 61 of 61 on every platform (Android 59 + 2 `native`; Android `core/ui` compiled and unit-tested on the authoring machine, Apple and Desktop written, not compiled); `landing`
+  platform; the UI kit files now cover 61 of 61 on every platform (Android 59 + 2 `native`; Android `core/ui` compiled and unit-tested on the authoring machine, Apple and Desktop written, not compiled); `marketing`
   and `admin` have no performance gate in CI; outbound webhooks were never run against Postgres, River or a real receiver (see the server API
   entry below).
 
@@ -252,7 +252,7 @@ Everything above that says "Verified" was run on the authoring machine. A GitHub
 | Workflow | Observed run on GitHub | Evidence |
 |---|---|---|
 | `server-ci.yml` (including the `image` job: build, Trivy, Syft SBOM, ghcr push, keyless cosign) | none yet | UNVERIFIED |
-| `web-ci.yml`, `admin-ci.yml`, `landing-ci.yml`, `web-mutation-nightly.yml` | none yet | UNVERIFIED |
+| `web-ci.yml`, `admin-ci.yml`, `marketing-ci.yml`, `web-mutation-nightly.yml` | none yet | UNVERIFIED |
 | `android-ci.yml` | none yet | UNVERIFIED |
 | `apple-ci.yml`, `desktop-ci.yml` | none yet | UNVERIFIED; the first run is expected to fail and surface the real problems |
 | `policies-ci.yml`, `docs-ci.yml`, `tokens-ci.yml` | none yet | UNVERIFIED |

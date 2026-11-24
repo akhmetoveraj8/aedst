@@ -8,13 +8,17 @@ Always applicable:
 2. **[docs/content/library-first.md](docs/content/library-first.md)**: Library-First standard; platform stack pages are linked from it.
 3. **[docs/content/decisions.md](docs/content/decisions.md)**: decisions with rationale and "revisit when". If a proposal contradicts one, do not implement or re-propose it.
 4. **[docs/agent/quality-bar.md](docs/agent/quality-bar.md)**: the senior-level bar (modern features of the pinned toolchain, API design, security, performance); full pages in `docs/content/engineering/`. Run the `quality-pass` skill before reporting a change done; start API work with the `api-design` skill.
-5. The `AGENTS.md` of the app you touch (`apps/server`, or `apps/web` and then the one web project `app` / `admin` / `landing` you work in, see [docs/content/web/projects.md](docs/content/web/projects.md)) and platform ADRs (`apps/server/docs/adr/`, `apps/desktop/docs/adr/`).
+5. The `AGENTS.md` of the app you touch (`apps/server`, or `apps/web` and then the one web project `app` / `admin` / `marketing` you work in, see [docs/content/web/projects.md](docs/content/web/projects.md)) and platform ADRs (`apps/server/docs/adr/`, `apps/desktop/docs/adr/`).
 
 ## The one rule that matters most
 
 **Do not write code that an existing library or platform already does.** Before creating a utility, hook, component, service, repository, parser, formatter, validator or other abstraction, check in this order: standard library, platform API, libraries already in this repo's `package.json` / `go.mod` / `build.gradle.kts` / `Package.swift` / `Cargo.toml`, existing code in this repo. Write custom code only for a documented technical reason (missing functionality, unsupported platform, incompatible API, unacceptable performance, security/compliance, project-specific domain logic), never "it is simpler to write myself" or "it is only 50 lines".
 
 Approved stack per platform: Web (React Hook Form, Zod, date-fns, dnd-kit, shadcn/ui via `apps/web/shared/ui/`, TanStack, nuqs, Biome only), Server (net/http ServeMux, ConnectRPC + Protobuf + Buf, pgx + sqlc + Goose, River, DragonflyDB, jwx, OpenTelemetry), Android (Compose, Hilt, connect-kotlin, Keystore + Tink), Apple (SwiftUI + Observation, GRDB, connect-swift, Nuke, Tuist), Desktop (Rust + Slint in `apps/desktop`: connectrpc, openidconnect, keyring-core, velopack, rusqlite; the Qt 6 / C++23 app was deleted, ADR `apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md`). The per-platform tables and the explicit-rejections list are in the Library-First pages.
+
+## UI: kit components only
+
+Build every screen from the UI kit (`docs/content/ui-kit.md`, `ui-kit.yaml`): web `apps/web/shared/ui`, Android `core/ui` (`Aedst*`), Apple `AedstDesignSystem`, Desktop `aedst-ui`. Never write a raw `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>`, `<form>`, `<table>`, `<dialog>` on web, never a raw Material 3 / SwiftUI control or `std-widgets` import in feature code, and never re-create a kit component by hand. If the kit lacks what you need, add it to the kit first (manifest, web, then the other platforms), not to the feature. Gate: `task check:ui-kit-only` (plus Biome `noRestrictedElements` on web).
 
 ## Process rules
 
@@ -38,4 +42,4 @@ Full list with rationale: [docs/agent/rules.md](docs/agent/rules.md) and the pla
 - Apple: XcodeGen, SwiftData, swift-perception, a hand-written image loader, SwiftFormat/Periphery (nicklockwood).
 - Desktop (`apps/desktop`): Qt/C++ (deleted), cxx-qt, Tauri/WebView, a hand-written Connect or OIDC client, hand-mirrored DTOs, committed generated code, `unwrap()` and `unsafe`.
 - Infrastructure as code: Terraform (use OpenTofu only).
-- Kept by owner decision (do not propose replacing): Next.js for `app` and `landing` (`admin` moves to Vite + TanStack Router, planned), React Hook Form, the `cn` package, Goose, Rust + Slint on Desktop (replaced Qt 6 / C++23 on 2026-11-01), Hilt on AGP 9.
+- Kept by owner decision (do not propose replacing): Next.js for `app` and `marketing` (`admin` moves to Vite + TanStack Router, planned), React Hook Form, the `cn` package, Goose, Rust + Slint on Desktop (replaced Qt 6 / C++23 on 2026-11-01), Hilt on AGP 9.

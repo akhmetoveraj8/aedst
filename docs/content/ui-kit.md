@@ -89,6 +89,10 @@ of date. Every platform now covers all 61 entries, so the earlier allowance for
 platform SDK provides (two on Android: `aspect-ratio`, `scroll-area`). The
 parity report is printed on every run.
 
+## Feature code uses the kit only
+
+The kit is closed in one direction: screens are composed from kit components and nothing else. `task check:ui-kit-only` (`scripts/check-ui-kit-only.mjs`, in `task check`, lefthook and `policies-ci`) fails on a raw control in feature code: web `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>`, `<form>`, `<table>`, `<dialog>` and friends, and direct imports of the libraries behind the kit; Android Material 3 controls outside `core/ui`; SwiftUI controls and `.sheet`/`.alert` outside `AedstDesignSystem`; `std-widgets.slint` outside `aedst-ui`. Layout primitives, text and icons are not kit components. Web is also enforced while editing by Biome `noRestrictedElements`. Apple has recorded debt in `scripts/ui-kit-only.baseline` (a per-file ratchet that may only go down; new files get 0). A one-line exemption is a `ui-kit-ignore: <reason>` comment.
+
 ## Component reference
 
 Every component has its own page under [Component reference](/ui-kit/components):

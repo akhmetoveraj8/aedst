@@ -1,6 +1,6 @@
 # AI review prompt: apps/web
 
-Review the pull request diff under `apps/web/` (a workspace of four directories: `shared`, `app`, `admin`, `landing`). Report findings only; do not push fixes.
+Review the pull request diff under `apps/web/` (a workspace of four directories: `shared`, `app`, `admin`, `marketing`). Report findings only; do not push fixes.
 
 ## Read first
 
@@ -11,7 +11,7 @@ Review the pull request diff under `apps/web/` (a workspace of four directories:
 
 ## Also check
 
-- The change lives in the right project: signed-in end-user feature in `app`, staff-only operation in `admin`, anonymous marketing/SEO page in `landing`, code used by two or more projects and not product-specific in `shared`. No project imports another project's `src`; `shared` imports no project (`docs/content/web/projects.md`).
+- The change lives in the right project: signed-in end-user feature in `app`, staff-only operation in `admin`, anonymous marketing/SEO page in `marketing`, code used by two or more projects and not product-specific in `shared`. No project imports another project's `src`; `shared` imports no project (`docs/content/web/projects.md`).
 - Versions are not written in any `package.json`: they say `"catalog:"` and the version lives once in `apps/web/pnpm-workspace.yaml`.
 - Forms use React Hook Form with the protovalidate resolver; server calls go through the generated Connect client and TanStack Query, with no raw `fetch` in modules.
 - No ESLint or Prettier config, no RxJS, no new third-party origin without a CSP update in `apps/web/app/next.config.ts`.

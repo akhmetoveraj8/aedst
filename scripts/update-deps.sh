@@ -101,7 +101,7 @@ update_web() {
     fi
     # --latest crosses semver ranges (majors included) to the `latest` tag;
     # exact pins in package.json stay exact.
-    # apps/web is a pnpm workspace (shared, app, admin, landing) whose versions live in the
+    # apps/web is a pnpm workspace (shared, app, admin, marketing) whose versions live in the
     # `catalog:` of pnpm-workspace.yaml, so it is updated recursively from its root. Whether
     # pnpm rewrites catalog entries is UNVERIFIED here; if not, Renovate bumps the catalog.
     if [[ "$dir" == "$ROOT/apps/web" ]]; then pnpm update -r --latest; else pnpm update --latest; fi
@@ -112,7 +112,7 @@ update_web() {
   done
   if [[ $CHECK_ONLY -eq 0 && $VERIFY -eq 1 ]]; then
     local proj
-    for proj in app admin landing; do
+    for proj in app admin marketing; do
       cd "$ROOT/apps/web/$proj"
       pnpm lint
       pnpm knip

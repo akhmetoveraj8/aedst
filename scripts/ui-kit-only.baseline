@@ -1,0 +1,22 @@
+# UI-kit-only ratchet: raw native controls that predate the gate. A file may not exceed its count;
+# lower the number as you migrate it, delete the line at 0. Never add a line for new code. Web has none.
+apps/apple/App/iOS/Sources/HomeView.swift 6
+apps/apple/App/macOS/Sources/AppCommands.swift 2
+apps/apple/App/macOS/Sources/PreferencesView.swift 4
+apps/apple/App/macOS/Sources/SidebarView.swift 1
+apps/apple/Features/Admin/Sources/AdminUIiOS/AdminViews.swift 2
+apps/apple/Features/Admin/Sources/AdminUIMac/AdminViews.swift 4
+apps/apple/Features/Media/Sources/MediaUIiOS/MediaDetailView.swift 3
+apps/apple/Features/Media/Sources/MediaUIiOS/MediaLibraryView.swift 3
+apps/apple/Features/Media/Sources/MediaUIMac/MediaDetailView.swift 3
+apps/apple/Features/Media/Sources/MediaUIMac/MediaLibraryView.swift 4
+apps/apple/Features/Notifications/Sources/NotificationsUIiOS/NotificationInboxView.swift 5
+apps/apple/Features/Notifications/Sources/NotificationsUIiOS/NotificationPreferencesView.swift 2
+apps/apple/Features/Notifications/Sources/NotificationsUIMac/NotificationInboxView.swift 6
+apps/apple/Features/Notifications/Sources/NotificationsUIMac/NotificationPreferencesView.swift 2
+apps/apple/Features/Search/Sources/SearchUIiOS/SearchView.swift 1
+apps/apple/Features/Search/Sources/SearchUIMac/SearchView.swift 1
+apps/apple/Features/Tasks/Sources/TasksUIiOS/TaskDetailView.swift 3
+apps/apple/Features/Tasks/Sources/TasksUIiOS/TaskListView.swift 4
+apps/apple/Features/Tasks/Sources/TasksUIMac/TaskDetailView.swift 3
+apps/apple/Features/Tasks/Sources/TasksUIMac/TaskListView.swift 4

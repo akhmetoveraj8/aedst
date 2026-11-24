@@ -20,12 +20,12 @@ The same binary runs in all three shapes; only environment variables change. Sta
     { id: "client", label: "Clients", sub: "Web, Android, Apple, Desktop", x: 0, y: 110, kind: "external", desc: "Every client talks to the same ConnectRPC endpoint." },
     { id: "server", label: "aedst-server", sub: "one process, all units", x: 270, y: 110, kind: "process", width: 190, desc: "tasks, media, notifications, search, admin and the rest run here. They reach each other only through their api/ packages." },
     { id: "pg", label: "PostgreSQL", sub: "one database, one schema per unit", x: 560, y: 40, kind: "store", desc: "Each unit owns its own schema; there are no joins across schemas (a test enforces it)." },
-    { id: "valkey", label: "Valkey", sub: "cache and rate limits only", x: 560, y: 190, kind: "store", desc: "Optional. Correctness never depends on it." },
+    { id: "cache", label: "DragonflyDB", sub: "cache and rate limits only", x: 560, y: 190, kind: "store", desc: "Optional. Correctness never depends on it." },
   ]}
   edges={[
     { from: "client", to: "server", label: "ConnectRPC" },
     { from: "server", to: "pg", label: "SQL" },
-    { from: "server", to: "valkey", label: "limits", dashed: true },
+    { from: "server", to: "cache", label: "limits", dashed: true },
   ]}
 />
 

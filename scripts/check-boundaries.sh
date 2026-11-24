@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs every platform's module-boundary check and reports one result per platform.
-#   web      apps/web/app/scripts/check-feature-boundaries.sh, once per project (app, admin, landing)
+#   web      apps/web/app/scripts/check-feature-boundaries.sh, once per project (app, admin, marketing)
 #   android  apps/android/scripts/check-feature-boundaries.sh
 #   apple    apps/apple/scripts/check-feature-boundaries.sh
 #   desktop  apps/desktop/scripts/check-feature-boundaries.sh (bash + node, no cargo; also the Rust
@@ -41,7 +41,7 @@ for p in "${want[@]}"; do
         [[ "$p" == web ]] && script="apps/web/app/scripts/check-feature-boundaries.sh" # web hosts its gate in the app project
         if [[ "$p" == web && -f "$script" ]]; then
           # One run per web project; a project removed by a template profile is skipped.
-          for project in app admin landing; do
+          for project in app admin marketing; do
             if [[ -d "apps/web/$project/src" ]]; then
               run "web/$project" bash "$script" "apps/web/$project"
             else

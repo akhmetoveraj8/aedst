@@ -1,6 +1,6 @@
 ---
 title: "SEO and performance by web project"
-description: "What landing, app and admin must do about indexing, SEO and performance: landing is built for maximum SEO, app for speed with a small public surface, admin is never indexed."
+description: "What marketing, app and admin must do about indexing, SEO and performance: marketing is built for maximum SEO, app for speed with a small public surface, admin is never indexed."
 ---
 
 # SEO and performance by web project
@@ -9,14 +9,14 @@ Three projects, three contracts. The mechanics (helpers, crawler policy, `llms.t
 [SEO and GEO](/web/seo-geo); budgets and gates in [performance](/engineering/performance) and
 [roadmap coverage](/engineering/checklists).
 
-| | `landing` | `app` | `admin` |
+| | `marketing` | `app` | `admin` |
 |---|---|---|---|
 | Indexing | Every page indexable | Public pages only (sign-in); signed-in pages `noindex` | **Never** |
 | Rendering | Static (SSG), no per-request work | Server Components, dynamic HTML (nonce CSP) | SPA behind the BFF |
 | SEO surface | Full | Minimal | None |
 | Performance bar | Lighthouse performance >= 0.95, LCP <= 2 s, CLS <= 0.05, TBT <= 150 ms, script <= 152 kB | performance >= 0.9, LCP <= 3 s, CLS <= 0.1, TBT <= 300 ms, per-route first-load budget | Bundle budget for the entry, the largest chunk, the total, CSS and fonts |
 
-## `landing`: maximum SEO, maximum speed
+## `marketing`: maximum SEO, maximum speed
 
 A page is not done until all of this holds:
 
@@ -34,12 +34,12 @@ A page is not done until all of this holds:
    script; a page ships about 137 KB of JavaScript, 132 KB of it the framework), no third-party script,
    `next/image` with explicit size and `priority` only on the LCP image, `next/font` with at most two
    families, no layout shift from late content.
-6. **Real copy**: no placeholder text in a release build (the placeholder guard must cover `landing`
+6. **Real copy**: no placeholder text in a release build (the placeholder guard must cover `marketing`
    as it covers `app`).
 7. **Answer engines**: the page is listed in `llms.txt`; the crawler policy is the one in `seo.ts`.
 8. **Social card**: a per-locale Open Graph image of 1200 by 630.
 
-Gates in `landing-ci.yml` (2026-11-21): the bundle and font budget (`pnpm check:bundle`), Playwright on
+Gates in `marketing-ci.yml` (2026-11-21): the bundle and font budget (`pnpm check:bundle`), Playwright on
 the built site (`e2e/seo.spec.ts`: for each of the 3 pages in each of the 5 locales, `canonical`, the
 `hreflang` set with `x-default`, `og:url` equal to the canonical, JSON-LD that parses with the expected
 `@type`s, one `h1`; `e2e/accessibility.spec.ts`: axe at WCAG 2.2 AA including right-to-left), Lighthouse CI

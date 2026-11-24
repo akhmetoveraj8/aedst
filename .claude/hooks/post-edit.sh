@@ -4,9 +4,9 @@
 # and remember which apps this session touched so the Stop gate checks only those.
 #
 #   apps/server   -> apps/server/.claude/hooks/post-edit.sh (gofumpt; task gen on .sql/.proto)
-#   apps/web      -> biome check --write from the workspace root (one biome.json for shared, app, admin, landing);
+#   apps/web      -> biome check --write from the workspace root (one biome.json for shared, app, admin, marketing);
 #                    unfixable findings go to stderr, exit 2, so the model sees them. Touched project is recorded
-#                    as web-app / web-admin / web-landing / web-shared so the Stop gate lints the right project(s).
+#                    as web-app / web-admin / web-marketing / web-shared so the Stop gate lints the right project(s).
 #   apps/android  -> ktlint -F
 #   apps/apple    -> swift-format format -i
 #   apps/desktop -> rustfmt (single file, best effort)
@@ -28,7 +28,7 @@ case "$rel" in
   apps/server/*) app=server ;;
   apps/web/app/*) app=web-app ;;
   apps/web/admin/*) app=web-admin ;;
-  apps/web/landing/*) app=web-landing ;;
+  apps/web/marketing/*) app=web-marketing ;;
   apps/web/shared/*) app=web-shared ;;
   apps/web/*) app=web-shared ;;
   apps/android/*) app=android ;;

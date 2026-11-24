@@ -25,18 +25,18 @@ status here in the same change. Rules in full: [performance](/engineering/perfor
 ## Frontend performance
 
 Each project has a `bundle-budget.json` checked by `apps/web/shared/scripts/check-bundle-size.mjs`
-(`pnpm check:bundle`); `app` and `landing` also have a `lighthouserc.json`. The gates run in `web-ci.yml`,
-`landing-ci.yml` and `admin-ci.yml`. "gated" below means all three projects unless a row names fewer
+(`pnpm check:bundle`); `app` and `marketing` also have a `lighthouserc.json`. The gates run in `web-ci.yml`,
+`marketing-ci.yml` and `admin-ci.yml`. "gated" below means all three projects unless a row names fewer
 (`admin` is a signed-in SPA and has no Lighthouse run). No workflow has run on GitHub yet; what ran
 locally, with the Lighthouse numbers per run, is in [status](/status).
 
 | Item | Rule for new code | Status |
 |---|---|---|
-| Page weight under 1500 KB (ideal under 500 KB) | Per-route first-load budget; total transfer budget per page | gated: JS, CSS and fonts per project (`check:bundle`); total page weight in Lighthouse (`resource-summary:total:size`: `app` 621 kB, `landing` 279 kB) |
-| Load under 3 s | Lighthouse LCP <= 3 s (`app`), <= 2 s (`landing`) | gated (`app`, `landing`) |
-| TTFB under 1.3 s | Server response under 600 ms in the lab; static or cached HTML where the page is public | gated (`app`, `landing`): `server-response-time` <= 800 ms; the lab throttling adds 563 ms of latency itself, so the server has about 240 ms |
+| Page weight under 1500 KB (ideal under 500 KB) | Per-route first-load budget; total transfer budget per page | gated: JS, CSS and fonts per project (`check:bundle`); total page weight in Lighthouse (`resource-summary:total:size`: `app` 621 kB, `marketing` 279 kB) |
+| Load under 3 s | Lighthouse LCP <= 3 s (`app`), <= 2 s (`marketing`) | gated (`app`, `marketing`) |
+| TTFB under 1.3 s | Server response under 600 ms in the lab; static or cached HTML where the page is public | gated (`app`, `marketing`): `server-response-time` <= 800 ms; the lab throttling adds 563 ms of latency itself, so the server has about 240 ms |
 | Gzip / Brotli | Next.js and the edge; Hono `compress()` in the admin BFF | implemented |
-| Minimise HTTP requests | Same-origin only, zero third-party requests, no request waterfalls | gated (`app`, `landing`): third-party count 0, total requests per page (`resource-summary:total:count`: `app` 38, `landing` 14) |
+| Minimise HTTP requests | Same-origin only, zero third-party requests, no request waterfalls | gated (`app`, `marketing`): third-party count 0, total requests per page (`resource-summary:total:count`: `app` 38, `marketing` 14) |
 | Compress images, few images, right format | `next/image` only (AVIF/WebP), SVG for icons, `priority` only on the LCP image | implemented; image transfer per public page gated at 20 kB (`resource-summary:image:size`); raw `<img>` in media thumbnails is a recorded exception |
 | HTTP cache headers | Hashed assets immutable; HTML never cached with a session | implemented |
 | Non-blocking JavaScript, minified JS and CSS | Framework loader only; `async`/`defer` for anything else; no inline scripts beyond the nonce'd framework ones | implemented |
@@ -44,18 +44,18 @@ locally, with the Lighthouse numbers per run, is in [status](/status).
 | HTTPS, same protocol | HSTS and CSP `upgrade-insecure-requests` | gated (Lighthouse best-practices) |
 | No 404 requests | No dead asset URLs | gated (Lighthouse best-practices) |
 | Few iframes | None | implemented (CSP `frame-src`) |
-| Stylesheet complexity | One generated stylesheet per project, CSS budget | gated: CSS budget per project (`app` 36 KB, `landing` 10.3 KB, `admin` 31.5 KB) and `resource-summary:stylesheet:size` |
+| Stylesheet complexity | One generated stylesheet per project, CSS budget | gated: CSS budget per project (`app` 36 KB, `marketing` 10.3 KB, `admin` 31.5 KB) and `resource-summary:stylesheet:size` |
 | Minified HTML | Framework output | implemented |
-| CDN | Static assets are CDN-cacheable; `landing` is fully static; `app` HTML is dynamic because of the nonce CSP ([decisions/web](/decisions/web)) | implemented for assets |
+| CDN | Static assets are CDN-cacheable; `marketing` is fully static; `app` HTML is dynamic because of the nonce CSP ([decisions/web](/decisions/web)) | implemented for assets |
 | Vector over bitmap, `width`/`height` on images, no Base64 images, lazy offscreen images, images close to display size | `next/image` enforces size and lazy loading; no `data:` images in source | implemented; Base64 ban gated (`pnpm check:source`, with a negative fixture in `check:selftest`) |
 | No multiple inline scripts | One nonce'd bootstrap at most | implemented |
 | Dependencies up to date | Renovate, `pnpm outdated`, knip allowlist | gated (knip), Renovate has not run on GitHub yet |
 | JavaScript performance problems | React Compiler, `startTransition`, virtualised lists over ~100 rows, TBT budget | TBT gated (`app`) |
-| Service workers | Serwist in `app`; none in `admin` and `landing` by decision | implemented |
+| Service workers | Serwist in `app`; none in `admin` and `marketing` by decision | implemented |
 | Cookie under 4096 bytes, fewer than 20 cookies | Session cookie carries the minimum; a unit test must assert byte size and count | gated: unit tests in `shared/lib/auth/session-cookies.test.ts` (`app`) and `admin/server/session.test.ts` (BFF) with realistic, oversized and over-cap tokens. An oversized value is split across at most 3 numbered cookies and a session over the cap is refused ([decisions/web](/decisions/web)); at most 13 cookies on `app` |
 | Preload, preconnect | `next/font` preloads; no third-party origin to preconnect to | implemented |
 | Concatenated CSS, unused CSS removed | Tailwind emits only used classes | implemented |
-| WOFF2, fonts under 300 KB, no flash of invisible text | `next/font`, `display: swap`, at most two families; `admin` uses `@fontsource` | gated: font files per project (`totalFontKB` in `bundle-budget.json`) and font transfer per page (`resource-summary:font:size`: `app` 187 kB, `landing` 98.8 kB; `landing` preloads only the Latin subset) |
+| WOFF2, fonts under 300 KB, no flash of invisible text | `next/font`, `display: swap`, at most two families; `admin` uses `@fontsource` | gated: font files per project (`totalFontKB` in `bundle-budget.json`) and font transfer per page (`resource-summary:font:size`: `app` 187 kB, `marketing` 98.8 kB; `marketing` preloads only the Latin subset) |
 | Size of dependencies | Check cost before adding; per-route budget | gated |
 
 ## Backend performance
@@ -98,19 +98,19 @@ locally, with the Lighthouse numbers per run, is in [status](/status).
 
 ## SEO
 
-`landing` carries the public content and has the full set; `app` exposes sign-in only; `admin` is never
+`marketing` carries the public content and has the full set; `app` exposes sign-in only; `admin` is never
 indexed. Details per project: [SEO by project](/web/seo-by-project).
 
 | Item | Rule | Status |
 |---|---|---|
-| Crawlable, indexable public pages | Static rendering on `landing`; `robots.ts`; no `noindex` on public pages | implemented |
-| `robots.txt`, XML sitemap | Generated from the route table, with alternates; `admin` serves `Disallow: /` | implemented (`landing`, `app`); `admin` route tested (2026-11-21) |
-| Canonical URLs | `buildAlternates` in every public `generateMetadata` | gated on `landing` (Playwright on the rendered HTML of every page and locale); implemented on `app` |
-| hreflang for en, ru, tg, uz, ar and `x-default` | Same helper | gated on `landing` (same spec); implemented on `app` |
-| Title, meta description, headings | One `h1`, unique title and description per page and locale | gated on `landing` (one `h1`, non-empty unique titles); placeholder guard in `app` and `landing` (`prebuild`, enforced by the release image) |
-| Structured data (JSON-LD) | Organization, WebSite, SoftwareApplication, FAQPage, BreadcrumbList | gated on `landing` (every block parses and carries the expected `@type`s) |
-| Open Graph and social cards | Per-locale OG image; `og:url` equals the page canonical (`buildOpenGraph`) | gated on `landing` (`og:url` equals the canonical in the rendered HTML; unit-tested builder) |
-| Core Web Vitals | LCP <= 2 s, CLS <= 0.05, TBT <= 150 ms on `landing` | gated in `landing-ci.yml` (Lighthouse CI); passes on the authoring machine (2026-11-21: LCP 1.7 to 2.1 s, CLS <= 0.01, median TBT 113 to 146 ms) |
+| Crawlable, indexable public pages | Static rendering on `marketing`; `robots.ts`; no `noindex` on public pages | implemented |
+| `robots.txt`, XML sitemap | Generated from the route table, with alternates; `admin` serves `Disallow: /` | implemented (`marketing`, `app`); `admin` route tested (2026-11-21) |
+| Canonical URLs | `buildAlternates` in every public `generateMetadata` | gated on `marketing` (Playwright on the rendered HTML of every page and locale); implemented on `app` |
+| hreflang for en, ru, tg, uz, ar and `x-default` | Same helper | gated on `marketing` (same spec); implemented on `app` |
+| Title, meta description, headings | One `h1`, unique title and description per page and locale | gated on `marketing` (one `h1`, non-empty unique titles); placeholder guard in `app` and `marketing` (`prebuild`, enforced by the release image) |
+| Structured data (JSON-LD) | Organization, WebSite, SoftwareApplication, FAQPage, BreadcrumbList | gated on `marketing` (every block parses and carries the expected `@type`s) |
+| Open Graph and social cards | Per-locale OG image; `og:url` equals the page canonical (`buildOpenGraph`) | gated on `marketing` (`og:url` equals the canonical in the rendered HTML; unit-tested builder) |
+| Core Web Vitals | LCP <= 2 s, CLS <= 0.05, TBT <= 150 ms on `marketing` | gated in `marketing-ci.yml` (Lighthouse CI); passes on the authoring machine (2026-11-21: LCP 1.7 to 2.1 s, CLS <= 0.01, median TBT 113 to 146 ms) |
 | Mobile friendly, HTTPS, clean URLs, no redirect chains | Responsive layout, one 308 for trailing slashes | implemented |
 | Image SEO | `alt` on every content image, sized images | gated (Biome a11y) |
 | Internal linking, breadcrumbs | Breadcrumb JSON-LD plus visible links | implemented |

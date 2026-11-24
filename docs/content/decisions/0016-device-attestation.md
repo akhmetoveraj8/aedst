@@ -108,7 +108,7 @@ a fresh random nonce or a request digest in `payload`.
 | `ASSERTION_RATE_LIMIT_PER_MINUTE` | `120` | Per user, `VerifyAssertion` |
 | `KEY_RETENTION_DAYS` | `365` | Idle keys are purged |
 
-The rate limiter is Valkey and fails open by design; correctness (single-use challenge, counter) never depends on it.
+The rate limiter is DragonflyDB and fails open by design; correctness (single-use challenge, counter) never depends on it.
 
 ### Library decision (library-first)
 - **CBOR:** `github.com/fxamacker/cbor/v2` v2.9.6 (MIT, version verified with `go list -m -versions`; actively

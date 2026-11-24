@@ -22,7 +22,7 @@ apps/server/bin/
 apps/server/.env
 apps/server/*.local.env
 
-# --- apps/web (workspace: shared, app, admin, landing; Next.js) ---
+# --- apps/web (workspace: shared, app, admin, marketing; Next.js) ---
 # Each project also has its own .gitignore where needed; these patterns cover
 # the workspace root and all four directories.
 apps/web/**/node_modules/

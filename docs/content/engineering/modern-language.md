@@ -70,7 +70,7 @@ compiler API use `@typescript/typescript6` until 7.1.
 
 Use:
 
-- **React Compiler** is on (`reactCompiler: true` in `apps/web/app/next.config.ts` and the landing
+- **React Compiler** is on (`reactCompiler: true` in `apps/web/app/next.config.ts` and the marketing
   config). Do not add `useMemo`, `useCallback` or `memo` for render performance; add them only for
   referential identity a dependency array or external store really needs, with a comment.
 - **Actions**: `<form action>`, `useActionState`, `useOptimistic`, `useFormStatus` for mutations with

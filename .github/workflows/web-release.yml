@@ -1,7 +1,7 @@
 name: web-release
 
 # Tag web-vX.Y.Z (or a manual run) builds the production container image of
-# apps/web/app (the product app; admin and landing have their own images) with the PRODUCTION environment and, only here, uploads Sentry
+# apps/web/app (the product app; admin and marketing have their own images) with the PRODUCTION environment and, only here, uploads Sentry
 # source maps of exactly the build that is deployed. web-ci.yml builds for
 # tests only and never uploads maps (a build nobody deploys would create a
 # Sentry release whose maps belong to no running code).

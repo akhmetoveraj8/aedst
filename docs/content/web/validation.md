@@ -21,7 +21,7 @@ The web has three tools that all look like "validation". Each has exactly one jo
 | A UI-only field of such a form (confirm checkbox, local filter text) | Not validated by a rule; if it must be, it becomes a proto field or the form is client-only (next row) | `omit` lists message fields the form does not collect |
 | A client-only form (no API message) | A Zod schema in the module's `lib/` | `useForm({ resolver: standardSchemaResolver(schema) })` from `@hookform/resolvers/standard-schema` (stock library code, no custom seam; no such form exists yet) |
 | URL and search params (filters, sort, tabs) | nuqs parsers (`parseAsStringLiteral`, ...) in `lib/*-search-params.ts`; Zod only if a parser cannot express it | Parsed identically on server and client |
-| Env variables | Zod in `shared/env/{client,server,edge}.ts`, `landing/src/env.ts`, `admin/src/app/config/env.ts` | Parsed once at startup, fail fast |
+| Env variables | Zod in `shared/env/{client,server,edge}.ts`, `marketing/src/env.ts`, `admin/src/app/config/env.ts` | Parsed once at startup, fail fast |
 | Storage payloads (`localStorage`, cookies the web owns) | Zod schema in `lib/`, parsed with `safeParse` and a fallback | Never trust stored text |
 | Route handlers and Server Actions | Re-validate input (Zod for non-proto input; API calls re-use the server's Protovalidate) | Client validation is a convenience, never a guarantee |
 | Business rules, uniqueness, permissions | The server (Go), nowhere else | The web only displays the resulting `ConnectError` |
@@ -52,7 +52,7 @@ Protovalidate violations carry the rule's `message` (English) and a rule id. The
 | `useForm` without `resolver`, Zod or `standardSchemaResolver` plus `protovalidateResolver` in one file, `validateX` / `isValidX` / `*_REGEX` helpers | nowhere (exceptions: `ALLOWLIST` with a reason) | `apps/web/app/scripts/check-validation.mjs` (`pnpm check:validation`) |
 | `react-hook-form` in every form file | all forms | `pnpm check:forms` |
 
-The Biome plugins and the script cover app, admin and landing (they share `apps/web/biome.json`; the script walks all three plus `shared`). `pnpm check:selftest` proves each gate fails on a broken fixture in `apps/web/app/lint/fixtures`.
+The Biome plugins and the script cover app, admin and marketing (they share `apps/web/biome.json`; the script walks all three plus `shared`). `pnpm check:selftest` proves each gate fails on a broken fixture in `apps/web/app/lint/fixtures`.
 
 ## Adding an exception
 

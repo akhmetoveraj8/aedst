@@ -37,7 +37,7 @@ while IFS= read -r f; do
     apps/server/gen/*)
       ;;
 
-    # --- Web (apps/web: shared, app, admin, landing) ---
+    # --- Web (apps/web: shared, app, admin, marketing) ---
     apps/web/*/src/app/*/page.tsx|apps/web/*/src/app/*/layout.tsx|apps/web/*/src/app/*/loading.tsx|apps/web/*/src/app/*/error.tsx|apps/web/*/src/app/*/not-found.tsx|apps/web/*/src/app/*/route.ts|apps/web/*/src/app/*/global-error.tsx)
       ;; # Next.js framework-mandated literal file names
     apps/web/admin/src/app/routeTree.gen.ts)
@@ -56,7 +56,7 @@ while IFS= read -r f; do
         [[ "$seg" =~ $seg_re ]] || err "$f: route directory '$seg' must be kebab-case, \$param or _pathless (TanStack Router)"
       done
       ;;
-    apps/web/shared/*.tsx|apps/web/app/src/*.tsx|apps/web/admin/src/*.tsx|apps/web/landing/src/*.tsx|apps/web/shared/*.ts|apps/web/app/src/*.ts|apps/web/admin/src/*.ts|apps/web/landing/src/*.ts)
+    apps/web/shared/*.tsx|apps/web/app/src/*.tsx|apps/web/admin/src/*.tsx|apps/web/marketing/src/*.tsx|apps/web/shared/*.ts|apps/web/app/src/*.ts|apps/web/admin/src/*.ts|apps/web/marketing/src/*.ts)
       # Every web source file is kebab-case, React components included (owner decision
       # 2026-11-21): task-list.tsx exports TaskList. Framework names (page, layout,
       # opengraph-image, ...) are kebab-case already, so they need no exception here.

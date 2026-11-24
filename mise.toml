@@ -9,7 +9,7 @@
 [tools]
 go = "1.27.4"   # latest stable, verified 2026-11-18 (go.dev/dl)
 node = "26"        # Node 26.13.1 = latest stable and now LTS ("Lithium"), verified 2026-11-18 (nodejs.org/dist/index.json)
-pnpm = "12.21.0"     # latest stable, verified 2026-11-18 (npm view pnpm version)
+pnpm = "12.23.0"     # latest stable, verified 2026-11-25 (npm view pnpm version)
 java = "temurin-21"      # Android (AGP 9 / Gradle)
 buf = "1.75.0"        # latest stable, verified 2026-10-28 (GitHub releases)
 task = "3.54.0"       # latest stable, verified 2026-10-28 (GitHub releases)

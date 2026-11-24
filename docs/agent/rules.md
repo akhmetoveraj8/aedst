@@ -21,6 +21,10 @@ This applies to every platform in this repo:
 
 Full stack tables, anti-patterns, and the AI Definition-of-Done checklist are in `docs/content/library-first.md`.
 
+## UI kit only
+
+Feature code uses UI kit components only (`docs/content/ui-kit.md`). Web: no raw `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>`, `<form>`, `<table>`, `<dialog>` and no direct import of the primitive libraries behind the kit (radix-ui, @base-ui/react, cmdk, ...) outside `apps/web/shared/ui`. Android: no raw Material 3 controls outside `core/ui`. Apple: no raw SwiftUI controls or `.sheet`/`.alert` outside `AedstDesignSystem`. Desktop: no `std-widgets.slint` outside `aedst-ui`. A missing component is added to the kit first, never built inline. Gate: `task check:ui-kit-only`; the only exemption is a `ui-kit-ignore: <reason>` comment, and the Apple debt in `scripts/ui-kit-only.baseline` may only shrink.
+
 ## Mandatory process rules
 
 - **Versions**: latest stable, verified against the registry. Never invent or guess a version; if you cannot verify it, say `UNVERIFIED`.

@@ -42,8 +42,8 @@ function seed() {
   paths.add('apps/web/app/src/app/config/i18n/common');
   paths.add('apps/web/admin/src/modules');
   paths.add('apps/web/admin/src/app/config/i18n/common');
-  paths.add('apps/web/landing/src/modules');
-  paths.add('apps/web/landing/src/app/config/i18n/common');
+  paths.add('apps/web/marketing/src/modules');
+  paths.add('apps/web/marketing/src/app/config/i18n/common');
   paths.add('apps/apple/scripts');
   paths.add('apps/android/feature');
   paths.add('apps/apple/Features');

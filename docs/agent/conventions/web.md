@@ -1,4 +1,4 @@
-# Naming: Web (TypeScript / React / Next.js, `apps/web`: `shared`, `app`, `admin`, `landing`)
+# Naming: Web (TypeScript / React / Next.js, `apps/web`: `shared`, `app`, `admin`, `marketing`)
 
 Part of [CONVENTIONS.md](../../../CONVENTIONS.md). The same rules apply in all four web directories. Levels: **Must** = enforced (linter/CI), **Should** = needs a one-line PR justification to deviate, **Could** = preference.
 
@@ -23,7 +23,7 @@ Part of [CONVENTIONS.md](../../../CONVENTIONS.md). The same rules apply in all f
 | i18n keys and message JSON files | `camelCase` keys, file named by locale code | `en.json`, `{"titleLabel": "..."}` | Matches the JS object they load into; locale is lowercase BCP-47 (Tajik uses the directory/file `tj`, see docs/content/i18n.md) | Must |
 | CSS classes (Tailwind is an exception) | Utility classes as is, do not rename | `className="flex flex-col gap-2"` | Tailwind is a third-party API, not our naming | Could |
 
-**Enforcement.** Biome `useFilenamingConvention` (`filenameCases: ["kebab-case"]`) and `useNamingConvention` fail `pnpm lint`; `scripts/check-naming.sh` additionally requires a kebab-case name for every `.ts` / `.tsx` source file under `apps/web/shared` and `apps/web/{app,admin,landing}/src`, including `shared/ui` (shadcn/ui primitives: `button.tsx`, `alert-dialog.tsx`, ...), tests and stories (`task-form.test.tsx`, `task-form.stories.tsx`). The only other names are the framework ones in the table (Next.js files, TanStack Router route files, the generated `routeTree.gen.ts`). Provider and boundary components follow the same rule: `auth-provider.tsx`, `error-boundary.tsx`, `query-provider.tsx`.
+**Enforcement.** Biome `useFilenamingConvention` (`filenameCases: ["kebab-case"]`) and `useNamingConvention` fail `pnpm lint`; `scripts/check-naming.sh` additionally requires a kebab-case name for every `.ts` / `.tsx` source file under `apps/web/shared` and `apps/web/{app,admin,marketing}/src`, including `shared/ui` (shadcn/ui primitives: `button.tsx`, `alert-dialog.tsx`, ...), tests and stories (`task-form.test.tsx`, `task-form.stories.tsx`). The only other names are the framework ones in the table (Next.js files, TanStack Router route files, the generated `routeTree.gen.ts`). Provider and boundary components follow the same rule: `auth-provider.tsx`, `error-boundary.tsx`, `query-provider.tsx`.
 
 ## Anti-patterns
 

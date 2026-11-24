@@ -77,7 +77,7 @@ apps/server/
 │   ├── platform/          cross-cutting infrastructure, shared by every module
 │   │   ├── config/        env-driven configuration (caarlos0/env)
 │   │   ├── database/      pgx pool, tx helpers
-│   │   ├── cache/        DragonflyDB client (go-redis): cache + rate limiting only
+│   │   ├── cache/        DragonflyDB RESP client (go-redis): cache + rate limiting only
 │   │   ├── events/        integration events: Publisher (River InsertTx per consumer), Registry, delivery worker (the seam for a broker)
 │   │   ├── idempotency/   Idempotency-Key replay (per-caller scope, advisory-locked)
 │   │   ├── retention/     River periodic purge jobs for append-only tables

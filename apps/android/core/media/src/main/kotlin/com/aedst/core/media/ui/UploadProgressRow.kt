@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.aedst.core.media.R
 import com.aedst.core.media.upload.UploadProgress
+import com.aedst.core.ui.components.AedstIconButton
 import com.aedst.core.ui.components.AedstLinearProgressIndicator
 import com.aedst.core.ui.theme.AedstSpacing
 
@@ -48,8 +48,11 @@ fun UploadProgressRow(upload: UploadProgress, onCancel: () -> Unit, modifier: Mo
             }
         }
         if (upload.state != UploadProgress.State.DONE) {
-            IconButton(onClick = onCancel) {
-                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.media_upload_cancel))
+            AedstIconButton(
+                onClick = onCancel,
+                contentDescription = stringResource(R.string.media_upload_cancel),
+            ) {
+                Icon(Icons.Filled.Close, contentDescription = null)
             }
         }
     }

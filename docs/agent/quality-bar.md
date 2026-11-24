@@ -44,7 +44,7 @@ rule and the decisions; it never overrides them. Open the full page only for the
   import each other ([modules and features](../content/architecture/modules-and-features.md)).
 - UI meets WCAG 2.2 AA: kit components only, named controls, keyboard access, no colour-only state,
   logical (right-to-left safe) properties ([accessibility](../content/engineering/accessibility.md)).
-- Web: `landing` pages ship canonical, hreflang, JSON-LD and stay static; `admin` is never indexed
+- Web: `marketing` pages ship canonical, hreflang, JSON-LD and stay static; `admin` is never indexed
   ([SEO by project](../content/web/seo-by-project.md)).
 - Every roadmap.sh item is a rule for new code even where no gate exists yet; close a gap, update its
   status ([roadmap coverage](../content/engineering/checklists.md)).

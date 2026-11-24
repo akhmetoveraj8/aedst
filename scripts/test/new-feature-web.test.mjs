@@ -54,7 +54,7 @@ describe('new-feature (web)', () => {
     assert.throws(() => scaffoldWebFeature({ module: 'nope', name: 'x1', root, log: quiet }), /does not exist/);
     assert.throws(() => scaffoldWebFeature({ module: 'demo', name: 'BulkEdit', root, log: quiet }), /kebab-case/);
     assert.throws(() => scaffoldWebFeature({ module: 'demo', name: 'ui', root, log: quiet }), /reserved/);
-    assert.throws(() => scaffoldWebFeature({ module: 'demo', name: 'x1', project: 'landing', root, log: quiet }), /unknown web project/);
+    assert.throws(() => scaffoldWebFeature({ module: 'demo', name: 'x1', project: 'marketing', root, log: quiet }), /unknown web project/);
   });
 
   it('--remove restores the module byte for byte', () => {
