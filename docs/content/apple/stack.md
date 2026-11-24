@@ -17,7 +17,7 @@ Minimum OS: **iOS / iPadOS 18.0**, **macOS 15.0** (single source: `Project.swift
 | Persistence | GRDB | **7.12.0** |
 | Observation | Observation (`@Observable`, `@Bindable`) | platform |
 | Navigation | `NavigationStack` + `NavigationPath` | platform |
-| Images | Nuke / NukeUI (only via `Core/AedstMedia`) | **13.2.3** |
+| Images | Nuke / NukeUI (only via `Core/AedstMedia`) | **14.0.0** |
 | Sign-in | `ASWebAuthenticationSession` + PKCE, CryptoKit | platform |
 | Device attestation | App Attest (DeviceCheck), client facade only | platform |
 | Unit / UI tests | Swift Testing / XCUITest (`performAccessibilityAudit`) | Xcode **26.6** |

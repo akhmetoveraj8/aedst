@@ -4,6 +4,9 @@
 # every bump; see docs/content/library-first.md. Last full re-verification: 2026-11-18
 # (new on that pass: AGP 9.5.0, KSP 2.3.13, Room 3.0.3, kotlinx-serialization 1.12.0, Sentry plugin 6.25.0, PostHog 3.75.3; detekt is the one pre-release exception, see "static analysis" below).
 
+# OWNER DECISION 2026-11-25: every version below is the latest published release, pre-releases included (alpha, beta, RC, milestone).
+# Not compiled: this machine has no Gradle build of Android. Expect breakage; the stable-only policy is suspended.
+
 # --- language / build ---
 # EXCEPTION to the stable-only policy (explicit owner decision, 2026-11-21): Kotlin 2.5.0-RC. 2.5.0 final is not
 # published (Maven Central has only 2.5.0-Beta1/Beta2/RC, verified 2026-11-21); 2.4.21 is the latest stable.
@@ -12,7 +15,7 @@
 kotlin = "2.5.0-RC"
 # AGP 9 with built-in Kotlin: no `org.jetbrains.kotlin.android` plugin anywhere
 # (convention plugins, benchmark). 9.5.2 is the latest stable (needs Gradle >= 9.6; the wrapper is 9.9.2).
-agp = "9.5.2"
+agp = "9.6.0-alpha06"
 # KSP versions independently of Kotlin since 2.3.0; 2.3.14 supports Kotlin 2.4.x (Kotlin 2.5.0-RC: UNVERIFIED)
 # and AGP 9.
 ksp = "2.3.14"
@@ -22,8 +25,8 @@ ksp = "2.3.14"
 # (`platform(libs.compose.bom)` in AndroidComposeConventionPlugin) — do not pin
 # them individually. The Compose compiler plugin version == `kotlin`.
 compose-bom = "2026.11.01"
-compose-activity = "1.13.0"
-compose-lifecycle = "2.11.1"
+compose-activity = "1.14.0-alpha03"
+compose-lifecycle = "2.12.0-alpha06"
 
 # --- coroutines / DI / navigation ---
 coroutines = "1.11.0"
@@ -32,7 +35,7 @@ coroutines = "1.11.0"
 # metrox-viewmodel-compose share the Metro version.
 metro = "1.6.0"
 # Navigation 3: the back stack is app-owned state (a list of serializable NavKeys); see docs/content/android/architecture.md.
-navigation3 = "1.2.2"
+navigation3 = "1.3.0-alpha05"
 
 # --- networking ---
 # ConnectRPC/Protobuf generated client (see ../buf.gen.yaml). connect-kotlin
@@ -46,14 +49,14 @@ kotlinx-serialization = "1.13.0"
 # --- persistence ---
 # Room 3 (package androidx.room3, KSP only, SQLiteDriver based, no SupportSQLite): 3.0.3 is the latest stable on Google Maven
 # (3.1.0 is alpha only). Verified 2026-11-04. Migration notes: docs/content/decisions/android.md.
-room = "3.0.3"
-sqlite = "2.6.2"
+room = "3.1.0-alpha04"
+sqlite = "2.8.0-alpha04"
 datastore = "1.3.0"
 protobuf-plugin = "0.10.1"
 # One protobuf runtime version app-wide: core/datastore's local schema and
 # core/network's ConnectRPC gencode both link protobuf-javalite/protobuf-kotlin-lite
 # at this version — see apps/android/buf.gen.yaml's comment on why they must match.
-protobuf-javalite = "4.36.2"
+protobuf-javalite = "4.37.0-RC3"
 
 # --- background work ---
 workmanager = "2.12.0"
@@ -76,7 +79,7 @@ play-integrity = "1.6.0"
 
 # --- media ---
 # Media3 (ExoPlayer + Compose UI + Transformer): one version for every androidx.media3 artifact.
-media3 = "1.11.1"
+media3 = "1.12.0-beta01"
 
 # --- push ---
 # Firebase is used ONLY for Cloud Messaging (FCM). Crash reporting is Sentry and product analytics is PostHog
@@ -87,14 +90,14 @@ google-services-plugin = "4.6.0"
 # --- debug tooling ---
 # LeakCanary: debug builds only (debugImplementation, installed by its own content provider). 2.14 is the latest stable
 # on Maven Central (3.0 is alpha-only); verified 2026-10-09.
-leakcanary = "2.14"
+leakcanary = "3.0-alpha-9"
 
 # --- monitoring ---
 # Sentry: crash/error reporting + OkHttp tracing (every io.sentry artifact aligned through the BOM).
 sentry = "8.65.1"
 sentry-gradle-plugin = "6.27.0"
 # PostHog: product analytics + feature flags; consent-gated and disabled when the project key is empty.
-posthog = "3.77.1"
+posthog = "4.0.3"
 
 # --- static analysis ---
 # EXCEPTION to the stable-only policy (explicit owner decision, 2026-10-08): detekt 2.0.0-alpha.6 (group dev.detekt,
@@ -114,20 +117,20 @@ kover = "0.9.11"
 # equivalent): modules with such tests add `junit-vintage-engine` as testRuntimeOnly so Gradle's JUnit Platform runs
 # them next to the Jupiter tests. Instrumented tests (androidTest) and the benchmark module are JUnit 4 by Android's
 # design. `junit:junit` is therefore not a direct dependency of any module. See library-first.md.
-junit-jupiter = "6.1.3"
+junit-jupiter = "6.2.0-M1"
 roborazzi = "1.79.0" # screenshot (golden image) tests on the JVM through Robolectric native graphics
-androidx-test-junit = "1.3.0"
+androidx-test-junit = "1.4.0-alpha04"
 mockk = "1.14.12"
 turbine = "1.2.1"
-espresso = "3.7.0"
-androidx-test = "1.7.0" # androidx.test:core + runner (both 1.7.0, verified on Google Maven)
+espresso = "3.8.0-alpha04"
+androidx-test = "1.8.0-alpha04" # androidx.test:core + runner (both 1.8.0-alpha04, owner decision 2026-11-25)
 robolectric = "4.18.1" # JVM Android runtime for Compose/Room/Worker tests — see docs/content/library-first.md
 
 # --- benchmark ---
-androidx-benchmark = "1.5.0"
+androidx-benchmark = "1.6.0-alpha02"
 androidx-profileinstaller = "1.4.1"
 
-androidx-core = "1.19.1"
+androidx-core = "1.20.0-alpha01"
 splashscreen = "1.2.0"
 androidx-appcompat = "1.8.0"
 desugar-jdk-libs = "2.1.5"
