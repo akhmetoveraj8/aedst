@@ -21,6 +21,7 @@
     "check:deps": "depcruise src ../shared --config .dependency-cruiser.cjs",
     "check:source": "node ../shared/scripts/check-source-bans.mjs",
     "check:seo": "cross-env AEDST_REQUIRE_REAL_SEO=1 node ../shared/scripts/check-seo-placeholders.mjs",
+    "check:seo:live": "node ../shared/scripts/check-seo-live.mjs --base http://127.0.0.1:3002",
     "check:dates": "node scripts/check-dates.mjs",
     "check:selftest": "node ../app/scripts/check-selftest.mjs",
     "check:feature-boundaries": "bash ../app/scripts/check-feature-boundaries.sh .",
