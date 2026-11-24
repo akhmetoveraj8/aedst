@@ -17,6 +17,7 @@ export function FaqAccordion({ entries }: { entries: readonly FaqEntry[] }) {
           name="faq"
           className="group border-b last:border-b-0"
         >
+          {/* ui-kit-ignore: zero-JS FAQ by decision (header comment); kit Accordion costs ~20 KB */}
           <summary className="flex cursor-pointer list-none items-start justify-between gap-4 rounded-lg py-2.5 text-start font-medium text-sm outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
             {entry.question}
             <svg

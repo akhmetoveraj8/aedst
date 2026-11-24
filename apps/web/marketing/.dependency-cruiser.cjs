@@ -1,5 +1,5 @@
 /**
- * Import-graph gate for apps/web/landing (`pnpm check:deps`, run as
+ * Import-graph gate for apps/web/marketing (`pnpm check:deps`, run as
  * `depcruise src ../shared`). Biome stays the only linter/formatter of code;
  * dependency-cruiser only analyses the import graph.
  * Direction: src/app -> src/modules -> ../shared. Paths are relative to this
@@ -25,7 +25,7 @@ module.exports = {
       name: "no-other-web-project",
       severity: "error",
       comment:
-        "landing is an independent deployable: it never imports the app or admin projects. They meet only in ../shared and over the network.",
+        "marketing is an independent deployable: it never imports the app or admin projects. They meet only in ../shared and over the network.",
       from: { path: "^(src|\\.\\./shared)/" },
       to: { path: "^\\.\\./(app|admin)/" },
     },

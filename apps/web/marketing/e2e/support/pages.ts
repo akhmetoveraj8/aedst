@@ -1,5 +1,5 @@
 /**
- * Every public page of the landing, per locale. Kept as literals on purpose:
+ * Every public page of the marketing, per locale. Kept as literals on purpose:
  * the specs must fail when `config/public-routes.ts` or the locale list
  * changes without the rendered HTML being re-checked.
  */

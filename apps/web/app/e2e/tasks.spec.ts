@@ -33,7 +33,7 @@ test.describe("server-rendered data", () => {
     await logIn(page, user);
     await expect(page.getByText("Seed task 25")).toBeVisible();
 
-    // Hydrated data is fresh (60s staleTime): no client request on landing.
+    // Hydrated data is fresh (60s staleTime): no client request on marketing.
     expect(calls).toEqual([]);
   });
 });

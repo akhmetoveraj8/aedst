@@ -4,7 +4,7 @@ Read the root [AGENTS.md](../../../AGENTS.md), [CONVENTIONS.md](../../../CONVENT
 first; this file only adds what is specific to the admin panel. Reference module: `src/modules/admin`.
 `admin` is a React + Vite + TanStack Router single-page app (`@aedst/web-admin`, dev port 3001, own domain, static `dist/`) behind a Hono BFF in
 `server/` (owned by the BFF step: auth cookies, `/api/**`, CSP). Never use `next/*` or `next-intl` here: use `use-intl` and the `@/shared/i18n/navigation` seam
-(aliased to `src/app/i18n/navigation.tsx` in this project only). It shares only `../shared` with `app` and `landing` (imported as `@/shared/*`).
+(aliased to `src/app/i18n/navigation.tsx` in this project only). It shares only `../shared` with `app` and `marketing` (imported as `@/shared/*`).
 Naming: [conventions/web.md](../../../docs/agent/conventions/web.md). Commands and env table: [README.md](README.md).
 The rules of `../app/AGENTS.md` (forms, UI kit, tokens, dates, errors) apply here unchanged; the table lists the admin specifics.
 
@@ -30,9 +30,10 @@ The rules of `../app/AGENTS.md` (forms, UI kit, tokens, dates, errors) apply her
 - Every admin action needs a server-side RoleInterceptor check in apps/server. The UI role check is cosmetic and never enough.
 - Admin is never indexed: `<meta name="robots">` in `index.html`, `X-Robots-Tag` and `robots.txt` from the BFF. Do not add a sitemap, `llms.txt`, JSON-LD or OpenGraph.
 - No PWA, service worker, offline outbox, PostHog or consent banner here. Do not copy them from `app`.
-- Never import from `../app` or `../landing` (`pnpm check:deps` fails). Need it in two projects: move it to `../shared` (only `@/shared/*` imports inside it).
+- Never import from `../app` or `../marketing` (`pnpm check:deps` fails). Need it in two projects: move it to `../shared` (only `@/shared/*` imports inside it).
 - `@/shared/*` resolves to `../shared/*` and must stay the first `paths` entry in `tsconfig.json` (and the first `@/shared/` alias in `vite.aliases.ts`, shared by `vite.config.ts` and `vitest.config.mts`).
 - Do not hand-edit generated files: `shared/api/connect/generated/**` (`task web:generate`), `shared/ui/tokens.css`, `src/app/routeTree.gen.ts`.
+- Charts: only `shared/ui` `Chart` (Apache ECharts, an `option` object); never import `echarts` or Recharts in a feature (`task check:ui-kit-only`).
 - Biome is the root `../biome.json` (do not create one here). Versions are `catalog:` in `../pnpm-workspace.yaml`; never a literal version.
 - A new dependency: allowlist it in `knip.jsonc` and the Library-First page in the same change.
 - Files stay at or under 300 lines (over 500 fails `task check:file-size`).
@@ -41,10 +42,11 @@ The rules of `../app/AGENTS.md` (forms, UI kit, tokens, dates, errors) apply her
 
 1. In `apps/web/admin`: `pnpm lint`, `pnpm typecheck`, `pnpm knip`, `pnpm check:feature-boundaries` (authoritative; rules in `../app/scripts/check-feature-boundaries.sh`), `pnpm check:deps`, `pnpm test` (browser tests need `pnpm test:browser:install` once).
 2. `task check` from the repo root (naming, file size, colors, i18n parity, boundaries).
-3. `pnpm check:source` (no `ml-`/`pr-`/`left-`/`text-left` utilities, no Base64 images; exceptions only in `../shared/scripts/source-bans-allowlist.json`).
-4. `pnpm build:all`, then `pnpm check:bundle` (`bundle-budget.json`: entry first load, largest chunk, total JS, CSS, font files; a ratchet, never raised to pass) and `pnpm test:e2e` (Playwright against the built BFF and the mock IdP: the flows plus axe at WCAG 2.2 AA in `e2e/accessibility.spec.ts`; a new screen gets an axe test there, including one right-to-left run).
-5. A session or cookie change: `server/session.test.ts` keeps every cookie under 4096 bytes.
-6. Claim only what ran.
+3. `pnpm check` runs the same gate set as `app` (lint, typecheck, knip, file-size, colors, forms, validation, deps, feature-boundaries, source, selftest); the scripts are shared from `../app/scripts` with `AEDST_WEB_ROOT=.`.
+4. `pnpm check:source` (no `ml-`/`pr-`/`left-`/`text-left` utilities, no Base64 images; exceptions only in `../shared/scripts/source-bans-allowlist.json`).
+5. `pnpm build:all`, then `pnpm check:bundle` (`bundle-budget.json`: entry first load, largest chunk, total JS, CSS, font files; a ratchet, never raised to pass) and `pnpm test:e2e` (Playwright against the built BFF and the mock IdP: the flows plus axe at WCAG 2.2 AA in `e2e/accessibility.spec.ts`; a new screen gets an axe test there, including one right-to-left run).
+6. A session or cookie change: `server/session.test.ts` keeps every cookie under 4096 bytes.
+7. Claim only what ran.
 
 ## Seams that replace Next in this project
 

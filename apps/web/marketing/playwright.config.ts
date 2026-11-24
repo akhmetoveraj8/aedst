@@ -2,8 +2,8 @@ import { defineConfig, devices } from "@playwright/test";
 
 // 3102, not the dev port 3002: `reuseExistingServer` must never pick up a dev
 // server (dev HTML is not the HTML crawlers get).
-const LANDING_PORT = Number(process.env.E2E_LANDING_PORT ?? 3102);
-const baseURL = `http://127.0.0.1:${LANDING_PORT}`;
+const MARKETING_PORT = Number(process.env.E2E_MARKETING_PORT ?? 3102);
+const baseURL = `http://127.0.0.1:${MARKETING_PORT}`;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -31,8 +31,8 @@ export default defineConfig({
     // The production build: the specs assert the HTML a crawler receives. CI
     // builds in an earlier step; locally this builds first.
     command: process.env.CI
-      ? `pnpm start --port ${LANDING_PORT}`
-      : `pnpm build && pnpm start --port ${LANDING_PORT}`,
+      ? `pnpm start --port ${MARKETING_PORT}`
+      : `pnpm build && pnpm start --port ${MARKETING_PORT}`,
     url: `${baseURL}/robots.txt`,
     timeout: 240_000,
     reuseExistingServer: !process.env.CI,

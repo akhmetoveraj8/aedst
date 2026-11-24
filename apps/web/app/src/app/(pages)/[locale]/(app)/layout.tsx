@@ -20,7 +20,7 @@ import { CapabilitiesProvider } from "@/shared/lib/capabilities/capabilities-pro
 import { getServerCapabilities } from "@/shared/lib/capabilities/server";
 import { ErrorBoundary } from "@/shared/lib/errors/error-boundary";
 
-/** Routes whose modules own the shell widgets (the sign-in landing `/` ships with every page). */
+/** Routes whose modules own the shell widgets (the sign-in marketing `/` ships with every page). */
 const SHELL_ROUTES = ["/search", "/notifications"];
 
 // Signed-in pages are per-user and gated by `proxy.ts`; keep them out of

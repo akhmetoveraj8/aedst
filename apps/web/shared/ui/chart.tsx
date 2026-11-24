@@ -1,372 +1,170 @@
 "use client";
 
 import { cn } from "cn";
+import { BarChart, LineChart, PieChart } from "echarts/charts";
+import {
+  AriaComponent,
+  DatasetComponent,
+  GridComponent,
+  LegendComponent,
+  TooltipComponent,
+} from "echarts/components";
+import type { EChartsCoreOption } from "echarts/core";
+import * as echarts from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import ReactEChartsCore from "echarts-for-react/lib/core";
 import * as React from "react";
-import type { TooltipValueType } from "recharts";
-import * as RechartsPrimitive from "recharts";
 
-// Format: { THEME_NAME: CSS_SELECTOR }
-const THEMES = { light: "", dark: ".dark" } as const;
+// Tree-shaken ECharts: only the chart types, components and renderer the kit
+// exposes are bundled. Add a chart type here (and to the kit docs) before using it.
+echarts.use([
+  BarChart,
+  LineChart,
+  PieChart,
+  AriaComponent,
+  DatasetComponent,
+  GridComponent,
+  LegendComponent,
+  TooltipComponent,
+  CanvasRenderer,
+]);
 
-const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
-type TooltipNameType = number | string;
+const SERIES_TOKENS = [
+  "--chart-1",
+  "--chart-2",
+  "--chart-3",
+  "--chart-4",
+  "--chart-5",
+] as const;
 
-export type ChartConfig = Record<
-  string,
-  {
-    label?: React.ReactNode;
-    icon?: React.ComponentType;
-  } & (
-    | { color?: string; theme?: never }
-    | { color?: never; theme: Record<keyof typeof THEMES, string> }
-  )
->;
+export type ChartOption = EChartsCoreOption;
 
-type ChartContextProps = {
-  config: ChartConfig;
+export type ChartTheme = {
+  /** Series palette, resolved from `--chart-1..5`. */
+  palette: string[];
+  /** Axis labels and legend text (`--muted-foreground`). */
+  text: string;
+  /** Grid and axis lines (`--border`). */
+  line: string;
+  /** Tooltip surface (`--popover`) and its text (`--popover-foreground`). */
+  surface: string;
+  surfaceText: string;
 };
 
-const ChartContext = React.createContext<ChartContextProps | null>(null);
-
-function useChart() {
-  const context = React.useContext(ChartContext);
-
-  if (!context) {
-    throw new Error("useChart must be used within a <ChartContainer />");
-  }
-
-  return context;
+// Canvas cannot paint `var()` and zrender cannot parse `oklch()`, so every
+// token is flattened to an rgb() string through a 1x1 canvas.
+function toRgb(cssColor: string): string {
+  if (typeof document === "undefined") return cssColor;
+  const context = document.createElement("canvas").getContext("2d");
+  if (!context) return cssColor;
+  context.clearRect(0, 0, 1, 1);
+  context.fillStyle = cssColor;
+  context.fillRect(0, 0, 1, 1);
+  const data = context.getImageData(0, 0, 1, 1).data;
+  const [r = 0, g = 0, b = 0, a = 255] = data;
+  return a === 255
+    ? `rgb(${r} ${g} ${b})`
+    : `rgb(${r} ${g} ${b} / ${(a / 255).toFixed(3)})`;
 }
 
-function ChartContainer({
-  id,
-  className,
-  children,
-  config,
-  initialDimension = INITIAL_DIMENSION,
-  ...props
-}: React.ComponentProps<"div"> & {
-  config: ChartConfig;
-  children: React.ComponentProps<
-    typeof RechartsPrimitive.ResponsiveContainer
-  >["children"];
-  initialDimension?: {
-    width: number;
-    height: number;
+function readToken(style: CSSStyleDeclaration, token: string): string {
+  return toRgb(style.getPropertyValue(token).trim());
+}
+
+function readTheme(): ChartTheme {
+  const style = getComputedStyle(document.documentElement);
+  return {
+    palette: SERIES_TOKENS.map((token) => readToken(style, token)),
+    text: readToken(style, "--muted-foreground"),
+    line: readToken(style, "--border"),
+    surface: readToken(style, "--popover"),
+    surfaceText: readToken(style, "--popover-foreground"),
   };
-}) {
-  const uniqueId = React.useId();
-  const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`;
-
-  return (
-    <ChartContext.Provider value={{ config }}>
-      <div
-        data-slot="chart"
-        data-chart={chartId}
-        className={cn(
-          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
-          className,
-        )}
-        {...props}
-      >
-        <ChartStyle id={chartId} config={config} />
-        <RechartsPrimitive.ResponsiveContainer
-          initialDimension={initialDimension}
-        >
-          {children}
-        </RechartsPrimitive.ResponsiveContainer>
-      </div>
-    </ChartContext.Provider>
-  );
 }
 
-const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colorConfig = Object.entries(config).filter(
-    ([, config]) => config.theme ?? config.color,
-  );
+/**
+ * The kit palette as resolved colors; re-read when the theme class or
+ * attributes of `<html>` change (next-themes, light/dark). `null` until mounted.
+ */
+function useChartTheme(): ChartTheme | null {
+  const [theme, setTheme] = React.useState<ChartTheme | null>(null);
 
-  if (!colorConfig.length) {
-    return null;
-  }
+  React.useEffect(() => {
+    setTheme(readTheme());
+    const observer = new MutationObserver(() => setTheme(readTheme()));
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme", "style"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
-      itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
-  })
-  .join("\n")}
+  return theme;
 }
-`,
-          )
-          .join("\n"),
-      }}
-    />
-  );
+
+function withTheme(option: ChartOption, theme: ChartTheme): ChartOption {
+  return {
+    color: theme.palette,
+    backgroundColor: "transparent",
+    textStyle: { color: theme.text, fontFamily: "inherit" },
+    // The accessible description of the data (aria-label from the series).
+    aria: { enabled: true },
+    tooltip: {
+      backgroundColor: theme.surface,
+      borderColor: theme.line,
+      textStyle: { color: theme.surfaceText, fontSize: 12 },
+    },
+    legend: { textStyle: { color: theme.text } },
+    ...option,
+  };
+}
+
+export type ChartProps = Omit<React.ComponentProps<"div">, "children"> & {
+  /** Standard ECharts option (series, axes, dataset). Colors default to the kit palette. */
+  option: ChartOption;
+  /** Accessible name of the chart, required: a canvas has no text content. */
+  "aria-label": string;
+  /** Pixel height of the plot; the width follows the container. */
+  height?: number;
 };
 
-const ChartTooltip = RechartsPrimitive.Tooltip;
-
-function ChartTooltipContent({
-  active,
-  payload,
+/**
+ * The only chart component of the web clients: Apache ECharts on canvas, themed
+ * from the design tokens. Feature code passes an `option`; it never imports
+ * `echarts` directly (`task check:ui-kit-only`).
+ */
+function Chart({
+  option,
+  height = 240,
   className,
-  indicator = "dot",
-  hideLabel = false,
-  hideIndicator = false,
-  label,
-  labelFormatter,
-  labelClassName,
-  formatter,
-  color,
-  nameKey,
-  labelKey,
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-  React.ComponentProps<"div"> & {
-    hideLabel?: boolean;
-    hideIndicator?: boolean;
-    indicator?: "line" | "dot" | "dashed";
-    nameKey?: string;
-    labelKey?: string;
-  } & Omit<
-    RechartsPrimitive.DefaultTooltipContentProps<
-      TooltipValueType,
-      TooltipNameType
-    >,
-    "accessibilityLayer"
-  >) {
-  const { config } = useChart();
-
-  const tooltipLabel = React.useMemo(() => {
-    if (hideLabel || !payload?.length) {
-      return null;
-    }
-
-    const [item] = payload;
-    const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`;
-    const itemConfig = getPayloadConfigFromPayload(config, item, key);
-    const value =
-      !labelKey && typeof label === "string"
-        ? (config[label]?.label ?? label)
-        : itemConfig?.label;
-
-    if (labelFormatter) {
-      return (
-        <div className={cn("font-medium", labelClassName)}>
-          {labelFormatter(value, payload)}
-        </div>
-      );
-    }
-
-    if (!value) {
-      return null;
-    }
-
-    return <div className={cn("font-medium", labelClassName)}>{value}</div>;
-  }, [
-    label,
-    labelFormatter,
-    payload,
-    hideLabel,
-    labelClassName,
-    config,
-    labelKey,
-  ]);
-
-  if (!active || !payload?.length) {
-    return null;
-  }
-
-  const nestLabel = payload.length === 1 && indicator !== "dot";
+  style,
+  ...props
+}: ChartProps) {
+  const theme = useChartTheme();
+  const themed = React.useMemo(
+    () => (theme ? withTheme(option, theme) : null),
+    [option, theme],
+  );
 
   return (
     <div
-      className={cn(
-        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
-        className,
-      )}
+      data-slot="chart"
+      role="img"
+      className={cn("w-full text-xs", className)}
+      style={{ height, ...style }}
+      {...props}
     >
-      {!nestLabel ? tooltipLabel : null}
-      <div className="grid gap-1.5">
-        {payload
-          .filter((item) => item.type !== "none")
-          .map((item, index) => {
-            const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`;
-            const itemConfig = getPayloadConfigFromPayload(config, item, key);
-            const indicatorColor = color ?? item.payload?.fill ?? item.color;
-
-            return (
-              <div
-                key={index}
-                className={cn(
-                  "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
-                  indicator === "dot" && "items-center",
-                )}
-              >
-                {formatter && item?.value !== undefined && item.name ? (
-                  formatter(item.value, item.name, item, index, item.payload)
-                ) : (
-                  <>
-                    {itemConfig?.icon ? (
-                      <itemConfig.icon />
-                    ) : (
-                      !hideIndicator && (
-                        <div
-                          className={cn(
-                            "shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
-                            {
-                              "h-2.5 w-2.5": indicator === "dot",
-                              "w-1": indicator === "line",
-                              "w-0 border-[1.5px] border-dashed bg-transparent":
-                                indicator === "dashed",
-                              "my-0.5": nestLabel && indicator === "dashed",
-                            },
-                          )}
-                          style={
-                            {
-                              "--color-bg": indicatorColor,
-                              "--color-border": indicatorColor,
-                            } as React.CSSProperties
-                          }
-                        />
-                      )
-                    )}
-                    <div
-                      className={cn(
-                        "flex flex-1 justify-between leading-none",
-                        nestLabel ? "items-end" : "items-center",
-                      )}
-                    >
-                      <div className="grid gap-1.5">
-                        {nestLabel ? tooltipLabel : null}
-                        <span className="text-muted-foreground">
-                          {itemConfig?.label ?? item.name}
-                        </span>
-                      </div>
-                      {item.value != null && (
-                        <span className="font-mono font-medium text-foreground tabular-nums">
-                          {typeof item.value === "number"
-                            ? item.value.toLocaleString()
-                            : String(item.value)}
-                        </span>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-            );
-          })}
-      </div>
+      {themed ? (
+        <ReactEChartsCore
+          echarts={echarts}
+          option={themed}
+          notMerge
+          lazyUpdate
+          style={{ height: "100%", width: "100%" }}
+        />
+      ) : null}
     </div>
   );
 }
 
-const ChartLegend = RechartsPrimitive.Legend;
-
-function ChartLegendContent({
-  className,
-  hideIcon = false,
-  payload,
-  verticalAlign = "bottom",
-  nameKey,
-}: React.ComponentProps<"div"> & {
-  hideIcon?: boolean;
-  nameKey?: string;
-} & RechartsPrimitive.DefaultLegendContentProps) {
-  const { config } = useChart();
-
-  if (!payload?.length) {
-    return null;
-  }
-
-  return (
-    <div
-      className={cn(
-        "flex items-center justify-center gap-4",
-        verticalAlign === "top" ? "pb-3" : "pt-3",
-        className,
-      )}
-    >
-      {payload
-        .filter((item) => item.type !== "none")
-        .map((item, index) => {
-          const key = `${nameKey ?? item.dataKey ?? "value"}`;
-          const itemConfig = getPayloadConfigFromPayload(config, item, key);
-
-          return (
-            <div
-              key={index}
-              className={cn(
-                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
-              )}
-            >
-              {itemConfig?.icon && !hideIcon ? (
-                <itemConfig.icon />
-              ) : (
-                <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
-                  style={{
-                    backgroundColor: item.color,
-                  }}
-                />
-              )}
-              {itemConfig?.label}
-            </div>
-          );
-        })}
-    </div>
-  );
-}
-
-function getPayloadConfigFromPayload(
-  config: ChartConfig,
-  payload: unknown,
-  key: string,
-) {
-  if (typeof payload !== "object" || payload === null) {
-    return undefined;
-  }
-
-  const payloadPayload =
-    "payload" in payload &&
-    typeof payload.payload === "object" &&
-    payload.payload !== null
-      ? payload.payload
-      : undefined;
-
-  let configLabelKey: string = key;
-
-  if (
-    key in payload &&
-    typeof payload[key as keyof typeof payload] === "string"
-  ) {
-    configLabelKey = payload[key as keyof typeof payload] as string;
-  } else if (
-    payloadPayload &&
-    key in payloadPayload &&
-    typeof payloadPayload[key as keyof typeof payloadPayload] === "string"
-  ) {
-    configLabelKey = payloadPayload[
-      key as keyof typeof payloadPayload
-    ] as string;
-  }
-
-  return configLabelKey in config ? config[configLabelKey] : config[key];
-}
-
-export {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartStyle,
-  ChartTooltip,
-  ChartTooltipContent,
-};
+export { Chart };

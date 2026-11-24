@@ -1,4 +1,4 @@
-# apps/web/landing - AI agent instructions
+# apps/web/marketing - AI agent instructions
 
 Read the root [AGENTS.md](../../../AGENTS.md) and [CONVENTIONS.md](../../../CONVENTIONS.md) first. This file only adds what is
 specific to the marketing site: a public, static, SEO/GEO-first Next.js project on its own domain, independent of
@@ -37,7 +37,8 @@ Approved libraries: [library-first/web](../../../docs/content/library-first/web.
 
 ## Gates (run before saying done)
 
-1. `pnpm --filter @aedst/web-landing lint typecheck test knip` (or the matching `task web:*` once wired), then in `apps/web/landing`: `pnpm check:feature-boundaries` (authoritative) and `pnpm check:deps`.
-2. `pnpm check:source` (no `ml-`/`pr-`/`left-`/`text-left` utilities, no Base64 images). Then `pnpm build`, `pnpm check:bundle` (`bundle-budget.json`; a new route needs its own `shell` line), `pnpm test:e2e` (Playwright on the built site: `e2e/seo.spec.ts` checks canonical, hreflang with x-default, `og:url`, JSON-LD types and one `h1` on every page in all five locales, `e2e/accessibility.spec.ts` runs axe at WCAG 2.2 AA including right-to-left; a new page goes into `e2e/support/pages.ts`) and `pnpm lighthouse` (`lighthouserc.json`). The release image sets `AEDST_REQUIRE_REAL_SEO=1`, which makes `prebuild` refuse placeholder copy and a localhost site URL.
-3. `task check` from the repo root (naming, file size, colors, i18n, boundaries).
-4. View `/en`, `/ar` (RTL) and `/robots.txt`, `/sitemap.xml`, `/llms.txt` in the running site.
+1. `pnpm --filter @aedst/web-marketing lint typecheck test knip` (or the matching `task web:*` once wired), then in `apps/web/marketing`: `pnpm check:feature-boundaries` (authoritative) and `pnpm check:deps`.
+2. `pnpm check:source` (no `ml-`/`pr-`/`left-`/`text-left` utilities, no Base64 images), `pnpm check:dates` (sitemap `lastModified` is a real past date and matches the legal pages' "Last updated" line in all five locales) and `pnpm check:selftest` (negative fixtures of the shared gates). Then `pnpm build`, `pnpm check:bundle` (`bundle-budget.json`; a new route needs its own `shell` line), `pnpm test:e2e` (`pnpm test:a11y` runs only the axe spec; Playwright on the built site: `e2e/seo.spec.ts` checks canonical, hreflang with x-default, `og:url`, JSON-LD types and one `h1` on every page in all five locales, `e2e/accessibility.spec.ts` runs axe at WCAG 2.2 AA including right-to-left; a new page goes into `e2e/support/pages.ts`) and `pnpm lighthouse` (`lighthouserc.json`). The release image sets `AEDST_REQUIRE_REAL_SEO=1`, which makes `prebuild` refuse placeholder copy and a localhost site URL; `pnpm check:seo` runs that guard on demand (it fails while the template copy is in place).
+3. `pnpm check` runs the same gate set as `app` (plus `check:dates`); the scripts are shared from `../app/scripts` with `AEDST_WEB_ROOT=.`.
+4. `task check` from the repo root (naming, file size, colors, i18n, boundaries).
+5. View `/en`, `/ar` (RTL) and `/robots.txt`, `/sitemap.xml`, `/llms.txt` in the running site.

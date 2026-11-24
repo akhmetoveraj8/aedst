@@ -17,7 +17,7 @@
 //      they duplicate a proto rule.
 //
 // An exception is a documented entry in ALLOWLIST (file, rule, reason), never
-// a comment in the code. Walks app, admin, landing and shared. Test files,
+// a comment in the code. Walks app, admin, marketing and shared. Test files,
 // stories and generated code are skipped. Uses only node built-ins.
 // AEDST_WEB_ROOT points it at another tree (`pnpm check:selftest`).
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -88,7 +88,7 @@ const roots = [
   join(rootDir, "src"),
   join(webDir, "shared"),
   join(webDir, "admin", "src"),
-  join(webDir, "landing", "src"),
+  join(webDir, "marketing", "src"),
 ];
 const seen = new Set();
 const offenders = [];

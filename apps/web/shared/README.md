@@ -36,9 +36,9 @@ name instead of being physically renamed.
 Node scripts (built-ins only) that two or more projects run from their own `package.json`; each takes the
 project directory from the working directory. They are tooling, not kit code: nothing under `src/` imports them.
 
-- `check-bundle-size.mjs` (+ `bundle-status.mjs`): `pnpm check:bundle` in `app`, `landing` and `admin`,
+- `check-bundle-size.mjs` (+ `bundle-status.mjs`): `pnpm check:bundle` in `app`, `marketing` and `admin`,
   against that project's `bundle-budget.json`.
-- `check-seo-placeholders.mjs`: `prebuild` of `app` and `landing`; enforces when `AEDST_REQUIRE_REAL_SEO=1`.
+- `check-seo-placeholders.mjs`: `prebuild` of `app` and `marketing`; enforces when `AEDST_REQUIRE_REAL_SEO=1`.
 - `check-source-bans.mjs` (+ `source-bans-allowlist.json`): `pnpm check:source` in all three projects; bans
   physical Tailwind direction utilities and Base64 images in the project and in this directory.
 

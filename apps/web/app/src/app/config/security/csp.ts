@@ -139,7 +139,7 @@ export function buildContentSecurityPolicy({
  * Trusted Types, in **report-only** mode: DOM XSS sinks (`innerHTML`,
  * `eval`-like APIs) assigned a plain string are reported, not blocked.
  * Enforcing it needs every dependency that writes HTML (Next's dev overlay,
- * Sentry Replay, Recharts) to use Trusted Types first; watch the reports,
+ * Sentry Replay, ECharts) to use Trusted Types first; watch the reports,
  * then move this into the enforced policy. Chromium-only today; other
  * engines ignore it.
  */

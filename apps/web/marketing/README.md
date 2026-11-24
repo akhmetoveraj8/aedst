@@ -1,12 +1,12 @@
-# @aedst/web-landing
+# @aedst/web-marketing
 
 Public marketing site for AEDST: static, five locales (en, ru, tj, uz, ar), SEO and GEO first. Own domain, port 3002,
 independent of `../app` (the signed-in product) and `../admin`. Shares only `../shared` (source-only kit).
 
 ```
-pnpm --filter @aedst/web-landing dev      # http://localhost:3002
-pnpm --filter @aedst/web-landing build
-pnpm --filter @aedst/web-landing test
+pnpm --filter @aedst/web-marketing dev      # http://localhost:3002
+pnpm --filter @aedst/web-marketing build
+pnpm --filter @aedst/web-marketing test
 ```
 
 Environment (`.env.example`): `NEXT_PUBLIC_SITE_URL` (this site), `NEXT_PUBLIC_APP_URL` (CTA target), optional

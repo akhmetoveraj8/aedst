@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Production-build guard for the indexable web projects (app, landing): fails
+// Production-build guard for the indexable web projects (app, marketing): fails
 // when the template's SEO placeholders are still in place. Run from the
 // project directory as `prebuild` (see its package.json), or pass the project
 // directory as the first argument; it only enforces
@@ -16,7 +16,7 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // Template copy of the app ("...task manager built on the AEDST stack") and
-// of the landing ("AEDST helps teams plan...").
+// of the marketing ("AEDST helps teams plan...").
 export const PLACEHOLDER_PHRASES = [
   "AEDST stack",
   "task manager",

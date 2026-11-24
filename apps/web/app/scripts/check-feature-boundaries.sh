@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Module and feature boundaries for one web project (app, admin or landing;
+# Module and feature boundaries for one web project (app, admin or marketing;
 # layout: docs/content/architecture/modules-and-features.md and
 # docs/content/web/microfrontends.md). Hosted by the app project and run for
 # every project: `check-feature-boundaries.sh [project-dir]` (default: the app
@@ -38,7 +38,7 @@
 #     (src/modules/<m>/features/<feature>/{ui,lib}), or a file sits directly
 #     under features/;
 #  9. a project file imports another web project by path (../app, ../admin,
-#     ../landing): projects meet only in ../shared and over the network.
+#     ../marketing): projects meet only in ../shared and over the network.
 #
 # Rules 6 and 7 (and rule 1 for relative specifiers) resolve `./` and `../`
 # imports, so a relative path cannot bypass them.
@@ -213,7 +213,7 @@ while IFS= read -r hit; do
   file="${hit%%:*}"
   rest="${hit#*:}"
   fail "$file" "${rest%%:*}" "a web project never imports another project (${rest#*:}); share code through ../shared"
-done < <(grep -rnoE "$import_re"'(\.\./)+(app|admin|landing)/(src|server)/[^"'"'"']*' \
+done < <(grep -rnoE "$import_re"'(\.\./)+(app|admin|marketing)/(src|server)/[^"'"'"']*' \
   --include="*.ts" --include="*.tsx" src server 2>/dev/null || true)
 
 # --- 3. manifest + public + registry --------------------------------------

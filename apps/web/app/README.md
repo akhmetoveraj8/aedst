@@ -1,6 +1,6 @@
 # aedst web app
 
-The product app of the `aedst` web workspace (`apps/web`): the Next.js app for signed-in end users (port 3000). The staff admin panel is the separate project `../admin` and the marketing site is `../landing`; code they share lives in `../shared` (see [../README.md](../README.md)). The app reaches
+The product app of the `aedst` web workspace (`apps/web`): the Next.js app for signed-in end users (port 3000). The staff admin panel is the separate project `../admin` and the marketing site is `../marketing`; code they share lives in `../shared` (see [../README.md](../README.md)). The app reaches
 `apps/server`'s ConnectRPC API **only through its own server** (see
 [Architecture](../../../docs/content/web/architecture.md#auth-data-and-security-model)).
 The session lives in httpOnly cookies — page JavaScript never sees a token —
@@ -56,7 +56,7 @@ tokens, and "User Info inside ID Token" if the signed-in email should be shown.
 
 ### Install
 
-One install for the whole web workspace (shared, app, admin, landing), from the repo root:
+One install for the whole web workspace (shared, app, admin, marketing), from the repo root:
 
 ```bash
 pnpm --dir apps/web install --frozen-lockfile   # or: task setup

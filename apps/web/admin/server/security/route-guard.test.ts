@@ -107,7 +107,7 @@ describe("decideRoute", () => {
     ).toEqual({ type: "redirect", location: "/forbidden" });
   });
 
-  it("serves the locale-less forbidden page (auth error landing) without a session", () => {
+  it("serves the locale-less forbidden page (auth error marketing) without a session", () => {
     expect(
       decideRoute({ pathname: "/forbidden", session: "anonymous" }),
     ).toEqual({
@@ -138,7 +138,7 @@ describe("decideRoute", () => {
     });
   });
 
-  it("serves the locale-less forbidden page (auth error landing) without a session", () => {
+  it("serves the locale-less forbidden page (auth error marketing) without a session", () => {
     expect(
       decideRoute({ pathname: "/forbidden", session: "anonymous" }),
     ).toEqual({

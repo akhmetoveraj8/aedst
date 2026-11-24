@@ -100,7 +100,7 @@ export function i18nNamespacesForRoutes(paths: readonly string[]): string[] {
   return [...namespaces];
 }
 
-/** Namespaces of modules with a public route (the sign-in landing): shipped with every page. */
+/** Namespaces of modules with a public route (the sign-in marketing): shipped with every page. */
 export const publicI18nNamespaces: readonly string[] = manifests
   .filter((module) => module.routes.some((route) => route.access === "public"))
   .flatMap((module) => module.i18nNamespaces);

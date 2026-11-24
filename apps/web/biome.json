@@ -361,7 +361,13 @@
                   "select": "Use <Select> from @/shared/ui/select or <NativeSelect> from @/shared/ui/native-select.",
                   "textarea": "Use <Textarea> from @/shared/ui/textarea.",
                   "label": "Use <FieldLabel> inside <Field> (@/shared/ui/field) or <Label> from @/shared/ui/label.",
-                  "form": "Use <Form> from @/shared/ui/form with React Hook Form (docs/content/library-first/web.md)."
+                  "form": "Use <Form> from @/shared/ui/form with React Hook Form (docs/content/library-first/web.md).",
+                  "fieldset": "Use <Field> from @/shared/ui/field.",
+                  "table": "Use <Table> from @/shared/ui/table or <DataTable> from @/shared/ui/data-table.",
+                  "dialog": "Use <Dialog>, <AlertDialog>, <Sheet> or <Drawer> from @/shared/ui.",
+                  "progress": "Use <Progress> from @/shared/ui/progress.",
+                  "hr": "Use <Separator> from @/shared/ui/separator.",
+                  "kbd": "Use <Kbd> from @/shared/ui/kbd."
                 }
               }
             }
@@ -376,7 +382,7 @@
         "*/playwright.config.ts",
         "*/vitest*.ts",
         "*/vitest*.mts",
-        "landing/src/env.ts",
+        "marketing/src/env.ts",
         "admin/src/app/config/env.ts",
         "admin/server/bootstrap.ts",
         "admin/server/test/**",

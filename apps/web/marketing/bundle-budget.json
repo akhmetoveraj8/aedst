@@ -1,0 +1,15 @@
+{
+  "$comment": "Marketing is static pages with two client islands (the language links, which need the current path, and the context that hands three strings to the route error boundary). Gzip KB over every emitted client chunk, checked by ../shared/scripts/check-bundle-size.mjs (`pnpm check:bundle`). Limits are ~3% above the build measured on 2026-11-21: total JS 175.8, largest chunk 70.1 (react-dom), CSS 10.0, fonts on disk 459.4 KB in 12 WOFF2 files (a page downloads only the subsets its text needs; the per-page font transfer is budgeted in lighthouserc.json), first load 136.7 on every page, 132.2 on /_not-found (the Next.js and React runtime alone). History, same day: the first measured build was 262.7 total, 32.1 CSS and 223.5 first load. Removed since: the base-ui select and accordion (FAQ is native <details>, the language picker is plain links), the next-intl client runtime (NextIntlClientProvider), next-themes (an inline script follows the system theme), next/link (plain anchors between three static pages) and the kit button in error.tsx; Tailwind now scans only the three kit files the marketing renders. Budgets are ratchets: never raise them to make CI pass.",
+  "totalJsGzipKB": 181,
+  "largestJsChunkGzipKB": 73,
+  "totalCssGzipKB": 10.3,
+  "totalFontKB": 474,
+  "modules": {},
+  "shell": {
+    "/[locale]": 141,
+    "/[locale]/privacy": 141,
+    "/[locale]/terms": 141,
+    "/[locale]/[...rest]": 141,
+    "/_not-found": 137
+  }
+}

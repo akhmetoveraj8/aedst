@@ -1,6 +1,6 @@
 import { defineConfig } from "vitest/config";
 
-// Landing is static and has no client state worth a browser project: every
+// Marketing is static and has no client state worth a browser project: every
 // test is a pure Node unit test (SEO builders, route tables, i18n parity).
 export default defineConfig({
   resolve: {

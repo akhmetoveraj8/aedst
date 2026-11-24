@@ -37,7 +37,7 @@
     // template: the full component set is kept available on purpose, so
     // unused files/exports here are expected, not dead code.
     // shared/ is a source-only kit used by three projects: a file unused by the
-    // app may be used by admin or landing, so it is not judged from here.
+    // app may be used by admin or marketing, so it is not judged from here.
     "../shared/**",
     // shadcn "utils" alias (components.json); shared/ui imports `cn` directly.
     "../shared/lib/utils/cn.ts"

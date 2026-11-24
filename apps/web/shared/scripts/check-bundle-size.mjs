@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Performance budget for the client bundle of ONE web project. Run from the
-// project directory after its build (`pnpm check:bundle` in app, landing and
+// project directory after its build (`pnpm check:bundle` in app, marketing and
 // admin), or pass the project directory as the first argument:
 //
 //   node ../shared/scripts/check-bundle-size.mjs [project-dir]

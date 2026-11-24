@@ -16,10 +16,13 @@
 //
 // Uses only node built-ins.
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, extname, join, relative, sep } from "node:path";
+import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
+// AEDST_WEB_ROOT points the check at another project (admin, marketing run this script).
+const rootDir = process.env.AEDST_WEB_ROOT
+  ? resolve(process.env.AEDST_WEB_ROOT)
+  : dirname(dirname(fileURLToPath(import.meta.url)));
 
 const YELLOW_FROM = 301;
 const HIGH_FROM = 401;
@@ -46,6 +49,10 @@ const SKIPPED_DIRS = new Set([
   "generated",
   "__screenshots__",
   ".vitest-attachments",
+  "dist",
+  "dist-server",
+  ".tanstack",
+  ".vitest",
 ]);
 const SKIPPED_FILE = /(_pb\.ts|validate_pb\.ts|tokens\.css|\.d\.ts)$/;
 

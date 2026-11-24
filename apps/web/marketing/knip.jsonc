@@ -27,7 +27,7 @@
     "shadcn",
     "tw-animate-css",
     "tailwindcss",
-    // Provided by the shared kit; the landing keeps them for its own tooling.
+    // Provided by the shared kit; the marketing project keeps them for its own tooling.
     "@testing-library/react",
     "@testing-library/jest-dom",
     "@testing-library/dom",

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Two cheap source bans for ONE web project plus the shared kit. Run from the
-// project directory (`pnpm check:source` in app, admin and landing), or pass
+// project directory (`pnpm check:source` in app, admin and marketing), or pass
 // the project directory as the first argument:
 //
 //   node ../shared/scripts/check-source-bans.mjs [project-dir]

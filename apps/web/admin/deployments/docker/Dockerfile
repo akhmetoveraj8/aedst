@@ -25,7 +25,7 @@
 
 FROM node:26.13.1-trixie-slim AS build
 ENV CI=1
-RUN npm install --global pnpm@12.21.0
+RUN npm install --global pnpm@12.23.0
 WORKDIR /repo/apps/web
 
 # Dependency layer: only manifests, so source edits keep the install cached.
@@ -33,7 +33,7 @@ COPY apps/web/package.json apps/web/pnpm-workspace.yaml apps/web/pnpm-lock.yaml 
 COPY apps/web/shared/package.json shared/package.json
 COPY apps/web/app/package.json app/package.json
 COPY apps/web/admin/package.json admin/package.json
-COPY apps/web/landing/package.json landing/package.json
+COPY apps/web/marketing/package.json marketing/package.json
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --filter @aedst/web-admin... --filter @aedst/web-app
 

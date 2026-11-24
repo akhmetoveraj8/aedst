@@ -2,7 +2,7 @@ import { manifest as legal } from "@/modules/legal/manifest";
 import { manifest as marketing } from "@/modules/marketing/manifest";
 
 /**
- * The single registry of the landing project's modules. Adding a module =
+ * The single registry of the marketing project's modules. Adding a module =
  * create its `manifest.ts` and `public.ts`, list it here and add its
  * catalogue loader in `src/app/config/i18n/messages.ts` (the type there fails
  * until you do). Manifests are UI-free data.

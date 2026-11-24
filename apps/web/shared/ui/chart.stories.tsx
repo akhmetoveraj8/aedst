@@ -1,31 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/shared/ui/chart";
+import { Chart } from "@/shared/ui/chart";
 
-const data = [
-  { month: "Jan", desktop: 186, mobile: 80 },
-  { month: "Feb", desktop: 305, mobile: 200 },
-  { month: "Mar", desktop: 237, mobile: 120 },
-  { month: "Apr", desktop: 73, mobile: 190 },
-];
-
-const config = {
-  desktop: { label: "Desktop", color: "var(--chart-1)" },
-  mobile: { label: "Mobile", color: "var(--chart-2)" },
-} satisfies ChartConfig;
+const months = ["Jan", "Feb", "Mar", "Apr"];
 
 const meta = {
   title: "UI/Chart",
-  component: ChartContainer,
-  args: { config, children: <div /> },
+  component: Chart,
+  args: { "aria-label": "Visitors per month", option: {} },
   decorators: [
     (Story) => (
       <div className="w-96">
@@ -33,35 +15,38 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof ChartContainer>;
+} satisfies Meta<typeof Chart>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  render: (args) => (
-    <ChartContainer {...args} role="img" aria-label="Visitors per month">
-      <BarChart data={data} accessibilityLayer>
-        <CartesianGrid vertical={false} />
-        <XAxis dataKey="month" tickLine={false} axisLine={false} />
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
-      </BarChart>
-    </ChartContainer>
-  ),
+export const Bars: Story = {
+  args: {
+    option: {
+      grid: { left: 32, right: 8, top: 16, bottom: 24 },
+      xAxis: { type: "category", data: months },
+      yAxis: { type: "value" },
+      series: [
+        { type: "bar", name: "Desktop", data: [186, 305, 237, 73] },
+        { type: "bar", name: "Mobile", data: [80, 200, 120, 190] },
+      ],
+    },
+  },
 };
 
-export const WithTooltipAndLegend: Story = {
-  render: (args) => (
-    <ChartContainer {...args} role="img" aria-label="Visitors with legend">
-      <BarChart data={data}>
-        <CartesianGrid vertical={false} />
-        <XAxis dataKey="month" tickLine={false} axisLine={false} />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <ChartLegend content={<ChartLegendContent />} />
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
-      </BarChart>
-    </ChartContainer>
-  ),
+export const LineWithTooltipAndLegend: Story = {
+  args: {
+    "aria-label": "Visitors with legend",
+    option: {
+      grid: { left: 32, right: 8, top: 32, bottom: 24 },
+      legend: { top: 0 },
+      tooltip: { trigger: "axis" },
+      xAxis: { type: "category", data: months },
+      yAxis: { type: "value" },
+      series: [
+        { type: "line", name: "Desktop", data: [186, 305, 237, 73] },
+        { type: "line", name: "Mobile", data: [80, 200, 120, 190] },
+      ],
+    },
+  },
 };

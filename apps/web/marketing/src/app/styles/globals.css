@@ -5,7 +5,7 @@
 @import "../../../../shared/ui/tokens.css";
 
 /* The shared kit lives outside this project: Tailwind must be told which of its
-   files to scan. Only the primitives the landing renders are listed: scanning
+   files to scan. Only the primitives the marketing site renders are listed: scanning
    the whole kit emitted the classes of every component (about 25 KB of unused
    CSS, gzip). A new kit import needs its file here. */
 @source "../../../../shared/ui/button.tsx";

@@ -43,7 +43,7 @@ Approved libraries: [library-first/web](../../../docs/content/library-first/web.
 
 ## Gates (run before saying done)
 
-1. `task app:lint` (Biome + `tsc --noEmit`), `task app:knip`, `task app:test`. A change under `shared/` also needs `task web:lint web:test` (admin and landing use it).
+1. `task app:lint` (Biome + `tsc --noEmit`), `task app:knip`, `task app:test`. A change under `shared/` also needs `task web:lint web:test` (admin and marketing use it).
 2. `task check` (naming, file size, colors, i18n, boundaries, features) from the repo root.
 3. A rule or script change: `pnpm check:selftest` (every gate must fail on its fixture in `lint/fixtures`). UI change: `pnpm test:stories` in `apps/web/app`, and `pnpm check:source` (no `ml-`/`pr-`/`left-`/`text-left` utilities, no Base64 images; exceptions only in `../shared/scripts/source-bans-allowlist.json`). Bundle impact: `task app:build` then `task app:check:bundle` (`../shared/scripts/check-bundle-size.mjs` against `bundle-budget.json`; a new route needs its own line, a removed route loses it).
 4. `task app:lighthouse` after a build: `lighthouserc.json` holds the scores, Core Web Vitals, page weight, request count, font, stylesheet and image budgets and `server-response-time`. A session or cookie change: `shared/lib/auth/session-cookies.test.ts` keeps every cookie under 4096 bytes.

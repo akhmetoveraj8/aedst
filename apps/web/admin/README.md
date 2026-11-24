@@ -2,7 +2,7 @@
 
 The AEDST admin panel: a React single-page app (`@aedst/web-admin`) built by Vite with TanStack Router, served as static
 files (`dist/`) by a small Hono BFF (`server/`) on its own domain (for example `admin.<domain>`), next to the product app
-(`../app`) and the marketing site (`../landing`). It shares only the source-only kit in `../shared` (UI, generated Connect
+(`../app`) and the marketing site (`../marketing`). It shares only the source-only kit in `../shared` (UI, generated Connect
 clients, auth helpers, i18n).
 
 - URLs: `/{locale}/admin`, `/tasks`, `/broadcast`, `/audit` (en, ru, tj, uz, ar). `/` and a path without a known locale

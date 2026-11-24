@@ -1,9 +1,9 @@
-# Build context is apps/web. Keep only what the landing image build reads.
+# Build context is apps/web. Keep only what the marketing image build reads.
 *
 !pnpm-workspace.yaml
 !pnpm-lock.yaml
 !shared
-!landing
+!marketing
 
 **/node_modules
 **/.next

@@ -2,7 +2,7 @@
   "name": "@aedst/web",
   "version": "1.0.0",
   "private": true,
-  "description": "Workspace root for the web projects: shared (source-only kit), app, admin, landing.",
+  "description": "Workspace root for the web projects: shared (source-only kit), app, admin, marketing.",
   "scripts": {
     "lint": "biome check --error-on-warnings",
     "lint:fix": "biome check --write",
@@ -12,10 +12,10 @@
     "build": "pnpm -r build",
     "dev:app": "pnpm --filter @aedst/web-app dev",
     "dev:admin": "pnpm --filter @aedst/web-admin dev",
-    "dev:landing": "pnpm --filter @aedst/web-landing dev"
+    "dev:marketing": "pnpm --filter @aedst/web-marketing dev"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:"
   },
-  "packageManager": "pnpm@12.21.0"
+  "packageManager": "pnpm@12.23.0"
 }

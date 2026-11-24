@@ -23,9 +23,9 @@ module.exports = {
       name: "no-other-web-project",
       severity: "error",
       comment:
-        "admin is an independent deployable: it never imports the app or landing projects. They meet only in ../shared and over the network.",
+        "admin is an independent deployable: it never imports the app or marketing projects. They meet only in ../shared and over the network.",
       from: { path: "^(src|\\.\\./shared)/" },
-      to: { path: "^\\.\\./(app|landing)/" },
+      to: { path: "^\\.\\./(app|marketing)/" },
     },
     {
       name: "modules-to-shared-only",

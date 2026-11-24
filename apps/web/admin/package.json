@@ -27,8 +27,13 @@
     "check:deps": "depcruise src ../shared --config .dependency-cruiser.cjs",
     "check:source": "node ../shared/scripts/check-source-bans.mjs",
     "check:feature-boundaries": "bash ../app/scripts/check-feature-boundaries.sh .",
-    "check": "pnpm lint && pnpm typecheck && pnpm knip && pnpm check:deps && pnpm check:feature-boundaries && pnpm check:source",
-    "preview": "vite preview"
+    "check": "pnpm lint && pnpm typecheck && pnpm knip && pnpm check:file-size && pnpm check:colors && pnpm check:forms && pnpm check:validation && pnpm check:deps && pnpm check:feature-boundaries && pnpm check:source && pnpm check:selftest",
+    "preview": "vite preview",
+    "check:file-size": "cross-env AEDST_WEB_ROOT=. node ../app/scripts/check-file-size.mjs",
+    "check:colors": "cross-env AEDST_WEB_ROOT=. node ../app/scripts/check-color-literals.mjs",
+    "check:forms": "cross-env AEDST_WEB_ROOT=. node ../app/scripts/check-forms.mjs",
+    "check:validation": "node ../app/scripts/check-validation.mjs",
+    "check:selftest": "node ../app/scripts/check-selftest.mjs"
   },
   "dependencies": {
     "@base-ui/react": "catalog:",
@@ -57,8 +62,8 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@babel/core": "catalog:",
     "@axe-core/playwright": "catalog:",
+    "@babel/core": "catalog:",
     "@biomejs/biome": "catalog:",
     "@playwright/test": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
@@ -75,6 +80,7 @@
     "@vitejs/plugin-react": "catalog:",
     "@vitest/browser-playwright": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
+    "cross-env": "catalog:",
     "dependency-cruiser": "catalog:",
     "esbuild": "catalog:",
     "knip": "catalog:",

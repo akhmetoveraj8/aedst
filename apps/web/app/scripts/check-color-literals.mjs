@@ -49,6 +49,10 @@ const ALLOWED_FILES = new Map([
     "generated from packages/design-tokens - the single source of every color",
   ],
   [
+    "../shared/ui/chart.tsx",
+    "formats the resolved --chart-*/theme tokens as rgb() for the ECharts canvas (zrender cannot parse oklch or var()); no color is authored here",
+  ],
+  [
     "src/app/(pages)/[locale]/opengraph-image.tsx",
     "rendered by satori (ImageResponse): no CSS variables or stylesheet there",
   ],

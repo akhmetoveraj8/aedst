@@ -1,6 +1,6 @@
 import * as z from "zod/mini";
 
-// Landing-only public environment. `shared/env/client.ts` is app-specific
+// Marketing-only public environment. `shared/env/client.ts` is app-specific
 // (Sentry, PostHog, consent) and has no APP_URL, so this project owns its own
 // schema. Every var is NEXT_PUBLIC_*: inlined into the bundle at build time,
 // so nothing here may ever be a secret.

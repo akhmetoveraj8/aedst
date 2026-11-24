@@ -1,5 +1,5 @@
 {
-  "name": "@aedst/web-landing",
+  "name": "@aedst/web-marketing",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -8,17 +8,27 @@
     "build": "next build",
     "start": "next start -p 3002",
     "lint": "biome check --error-on-warnings",
+    "lint:fix": "biome check --write",
+    "format": "biome format --write",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "knip": "knip",
     "check:bundle": "node ../shared/scripts/check-bundle-size.mjs",
     "lighthouse": "pnpm dlx @lhci/cli@0.15.1 autorun",
     "test:e2e": "playwright test",
+    "test:a11y": "playwright test e2e/accessibility.spec.ts",
     "test:e2e:install": "playwright install chromium",
     "check:deps": "depcruise src ../shared --config .dependency-cruiser.cjs",
     "check:source": "node ../shared/scripts/check-source-bans.mjs",
+    "check:seo": "cross-env AEDST_REQUIRE_REAL_SEO=1 node ../shared/scripts/check-seo-placeholders.mjs",
+    "check:dates": "node scripts/check-dates.mjs",
+    "check:selftest": "node ../app/scripts/check-selftest.mjs",
     "check:feature-boundaries": "bash ../app/scripts/check-feature-boundaries.sh .",
-    "check": "pnpm lint && pnpm typecheck && pnpm knip && pnpm check:deps && pnpm check:feature-boundaries && pnpm check:source"
+    "check": "pnpm lint && pnpm typecheck && pnpm knip && pnpm check:file-size && pnpm check:colors && pnpm check:forms && pnpm check:validation && pnpm check:deps && pnpm check:feature-boundaries && pnpm check:source && pnpm check:dates && pnpm check:selftest",
+    "check:file-size": "cross-env AEDST_WEB_ROOT=. node ../app/scripts/check-file-size.mjs",
+    "check:colors": "cross-env AEDST_WEB_ROOT=. node ../app/scripts/check-color-literals.mjs",
+    "check:forms": "cross-env AEDST_WEB_ROOT=. node ../app/scripts/check-forms.mjs",
+    "check:validation": "node ../app/scripts/check-validation.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "catalog:",
@@ -32,8 +42,7 @@
     "@hugeicons/core-free-icons": "catalog:",
     "@sentry/nextjs": "catalog:",
     "zod": "catalog:",
-    "tw-animate-css": "catalog:",
-    "shadcn": "catalog:"
+    "tw-animate-css": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
@@ -53,6 +62,8 @@
     "dependency-cruiser": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "@playwright/test": "catalog:",
-    "@axe-core/playwright": "catalog:"
+    "@axe-core/playwright": "catalog:",
+    "shadcn": "catalog:",
+    "cross-env": "catalog:"
   }
 }

@@ -95,7 +95,7 @@ module.exports = {
       name: "no-orphans",
       severity: "error",
       comment:
-        "A module nothing imports is dead code (knip covers exports; this covers whole files). shared/ is used by three projects: a file unused here may be used by admin or landing, so it is not judged from here (same rule as knip.jsonc).",
+        "A module nothing imports is dead code (knip covers exports; this covers whole files). shared/ is used by three projects: a file unused here may be used by admin or marketing, so it is not judged from here (same rule as knip.jsonc).",
       from: {
         orphan: true,
         path: "^src/",
