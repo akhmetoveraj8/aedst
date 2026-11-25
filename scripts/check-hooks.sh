@@ -128,9 +128,29 @@ done
 out="$tmp/danger.json"
 node -e 'process.stdout.write(JSON.stringify({tool_name:"Write",tool_input:{file_path:"apps/web/app/src/modules/tasks/ui/task-form.tsx",content:"const v = eval(input);"}}))' | bash "$guard" >"$out" 2>/dev/null
 if json_ok "$out" 'j.hookSpecificOutput.permissionDecision==="deny"&&j.hookSpecificOutput.permissionDecisionReason.includes("js-eval")'; then ok "guard denies eval in a source file"; else bad "guard did not deny eval in a source file"; fi
-out="$tmp/danger-ok.txt"
-node -e 'process.stdout.write(JSON.stringify({tool_name:"Write",tool_input:{file_path:"apps/web/app/src/modules/tasks/ui/task-form.tsx",content:"// security-ignore: reviewed constant\nconst v = eval(1);"}}))' | bash "$guard" >"$out" 2>/dev/null
-if [ -s "$out" ]; then bad "guard denied a waived line"; else ok "guard allows a waived line"; fi
+# Agents may not add waivers: a new well-formed waiver is refused. (The marker is assembled at run time
+# so this script does not itself contain one.)
+out="$tmp/danger-waiver.json"
+node -e 'const w="security-"+"ignore: js-eval -- reviewed constant input only"; process.stdout.write(JSON.stringify({tool_name:"Edit",tool_input:{file_path:"apps/web/app/src/modules/tasks/ui/task-form.tsx",old_string:"const v = 1;",new_string:"// "+w+"\nconst v = eval(1);"}}))' | bash "$guard" >"$out" 2>/dev/null
+if json_ok "$out" 'j.hookSpecificOutput.permissionDecision==="deny"&&j.hookSpecificOutput.permissionDecisionReason.includes("waiver")'; then ok "guard refuses a waiver added by an agent"; else bad "guard accepted a waiver added by an agent"; fi
+# A GENERATED marker in the text no longer switches the scan off.
+out="$tmp/danger-generated.json"
+node -e 'process.stdout.write(JSON.stringify({tool_name:"Write",tool_input:{file_path:"apps/web/app/src/modules/tasks/ui/task-form.tsx",content:"// GENERATED\nconst v = eval(input);"}}))' | bash "$guard" >"$out" 2>/dev/null
+if json_ok "$out" 'j.hookSpecificOutput.permissionDecision==="deny"'; then ok "guard ignores a GENERATED marker"; else bad "guard skipped a file because of a GENERATED marker"; fi
+# The gate's own files cannot be edited by an agent.
+for p in ".claude/settings.json" ".claude/hooks/stop-gate.sh" "scripts/dangerous-code/rules.mjs" "scripts/check-dangerous-code.mjs" "lefthook.yml"; do
+  expect_deny "$p"
+done
+# PostToolUse(Bash): a source file written through the shell after the marker is scanned.
+post_sid="post-$$"
+probe="apps/web/app/src/hook-probe-$$.ts"
+trap 'rm -rf "$tmp"; rm -f "$ROOT/$probe"' EXIT
+touch "$tmp/aedst-claude-bash-$post_sid"
+printf 'const v = %s(input);\n' "eval" >"$ROOT/$probe"
+out="$tmp/post-bash.json"
+printf '{"session_id":"%s"}' "$post_sid" | bash .claude/hooks/post-bash.sh >"$out" 2>/dev/null
+if json_ok "$out" 'j.decision==="block"&&j.reason.includes("js-eval")'; then ok "post-bash flags insecure code written through the shell"; else bad "post-bash missed insecure code written through the shell"; fi
+rm -f "$ROOT/$probe"
 
 # --- 3b. settings.json denies the shell routes to secrets (Read(...) rules do not cover Bash) ----
 if json_ok .claude/settings.json '["Bash(cat *.env.*)","Bash(grep*.env)","Bash(Get-Content*.env*)","Bash(printenv*)","Read(**/.env)","Edit(**/.env)","Bash(git commit*--no-verify*)"].every(r=>j.permissions.deny.includes(r))'; then

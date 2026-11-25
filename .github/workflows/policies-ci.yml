@@ -191,6 +191,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: node --test scripts/test/check-dangerous-code.test.mjs
       - run: node scripts/check-dangerous-code.mjs
+      # Every waiver is listed in the job summary so a reviewer sees each one on every PR.
+      - name: List security waivers
+        if: always()
+        run: |
+          { echo "### Security waivers"; node scripts/check-dangerous-code.mjs --list-waivers; } >> "$GITHUB_STEP_SUMMARY"
 
   sast:
     # Semgrep static analysis (OWASP Top Ten, Go, TypeScript, React, secrets rule packs). Catches data-flow
@@ -204,6 +209,7 @@ jobs:
       - run: >-
           pipx run --spec semgrep==1.186.0 semgrep scan --error --metrics=off --quiet
           --config p/owasp-top-ten --config p/golang --config p/typescript --config p/react --config p/secrets
+          --config .semgrep
           --exclude node_modules --exclude gen --exclude generated --exclude docs --exclude '*.test.*' --exclude '*_test.go'
           apps packages scripts
 

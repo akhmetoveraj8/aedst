@@ -95,14 +95,6 @@ pre-commit:
         - "apps/web/shared/**/*.{ts,tsx}"
         - "apps/web/shared/*.{ts,tsx}"
       run: node scripts/check-forms.mjs
-    web-deps:
-      root: "apps/web/app/"
-      glob:
-        - "apps/web/app/**/*.{ts,tsx}"
-        - "apps/web/app/*.{ts,tsx}"
-        - "apps/web/shared/**/*.{ts,tsx}"
-        - "apps/web/shared/*.{ts,tsx}"
-      run: pnpm check:deps
     # Module and feature boundaries of all three web projects (app, admin, marketing).
     web-boundaries:
       glob:
@@ -168,6 +160,11 @@ pre-commit:
     # UNVERIFIED locally: no gitleaks binary was available when this was written.
     gitleaks:
       run: bash scripts/pre-commit-gitleaks.sh
+
+    # Dangerous-code gate on the STAGED content (what is about to be committed, not the working tree).
+    # Same rules as the Claude Code hooks and CI: scripts/dangerous-code/rules.mjs.
+    dangerous-code:
+      run: node scripts/check-dangerous-code.mjs --staged
 
     # Native clients: cheap, staged-files-only linters, each skipped when its binary is missing.
     # ktlint reads apps/android/.editorconfig. The Gradle-pinned ktlint is the CI authority;

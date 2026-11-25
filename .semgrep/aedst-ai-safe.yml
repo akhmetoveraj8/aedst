@@ -1,0 +1,59 @@
+# AST rules that back up the line-based dangerous-code gate (scripts/dangerous-code/rules.mjs).
+# Semgrep parses the code, so formatting, line breaks and aliases cannot hide these patterns.
+# Run by the `sast` job of .github/workflows/policies-ci.yml together with the registry packs.
+# Suppress one line only after review: `// nosemgrep: <rule-id> - <reason>`.
+rules:
+  - id: aedst-js-dynamic-code
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Strings executed as code (CWE-94). Parse data with JSON.parse or a typed parser instead.
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: $OBJ.eval(...)
+      - pattern: new Function(...)
+      - pattern: Function(...)
+      - pattern: const $X = eval
+      - pattern: let $X = eval
+      - pattern: $X = eval
+      - pattern: setTimeout("...", ...)
+      - pattern: setInterval("...", ...)
+
+  - id: aedst-go-shell-string
+    languages: [go]
+    severity: ERROR
+    message: Shell -c with a command string (CWE-78). Call the program directly with separate arguments.
+    pattern-either:
+      - pattern: exec.Command("sh", "-c", ...)
+      - pattern: exec.Command("bash", "-c", ...)
+      - pattern: exec.CommandContext($CTX, "sh", "-c", ...)
+      - pattern: exec.CommandContext($CTX, "bash", "-c", ...)
+
+  - id: aedst-go-sql-format
+    languages: [go]
+    severity: ERROR
+    message: SQL built with string formatting (CWE-89). Write the query in apps/server/sql and generate it with sqlc.
+    patterns:
+      - pattern-either:
+          - pattern: fmt.Sprintf("$Q", ...)
+          - pattern: fmt.Sprint("$Q", ...)
+      - metavariable-regex:
+          metavariable: $Q
+          regex: (?i)^\s*(select|insert|update|delete|with)\b
+
+  - id: aedst-go-tls-verify-off
+    languages: [go]
+    severity: ERROR
+    message: TLS certificate verification disabled (CWE-295).
+    pattern: "tls.Config{..., InsecureSkipVerify: true, ...}"
+
+  - id: aedst-go-template-unescaped
+    languages: [go]
+    severity: ERROR
+    message: html/template escaping bypassed with a non-constant value (CWE-79).
+    patterns:
+      - pattern-either:
+          - pattern: template.HTML($X)
+          - pattern: template.JS($X)
+          - pattern: template.URL($X)
+          - pattern: template.HTMLAttr($X)
+      - pattern-not: template.$F("...")

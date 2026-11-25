@@ -12,10 +12,24 @@ set -uo pipefail
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 IO="$HOOK_DIR/lib/hook-io.mjs"
 
-command -v node >/dev/null 2>&1 || exit 0
+# Fail closed: without node neither this guard nor the dangerous-code scan can run.
+if ! command -v node >/dev/null 2>&1; then
+  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"node is not on PATH, so the security hooks cannot check this edit. Install the pinned toolchain (mise install) and retry."}}'
+  exit 0
+fi
 input="$(cat)"
 rel="$(printf '%s' "$input" | node "$IO" field file_path 2>/dev/null || true)"
 [ -n "$rel" ] || exit 0
+
+# The security gate's own files are human-maintained, so an agent cannot switch a hook off or loosen a
+# rule (same list as isProtectedGateFile in scripts/dangerous-code/scan.mjs).
+case "$rel" in
+  .claude/settings.json | .claude/hooks/* | apps/server/.claude/settings.json | apps/server/.claude/hooks/* | \
+  scripts/check-dangerous-code.mjs | scripts/dangerous-code/* | scripts/dangerous-code.allowlist | \
+  scripts/test/check-dangerous-code.test.mjs | scripts/check-hooks.sh | .semgrep/* | lefthook.yml)
+    node "$IO" deny "Refusing to edit '$rel': it is part of the security gate (hooks, dangerous-code rules, semgrep rules, pre-commit). These files are human-maintained; describe the change and ask the user to make it."
+    exit 0 ;;
+esac
 
 regen=""
 case "$rel" in

@@ -11,7 +11,8 @@
 # ${TMPDIR:-/tmp}/aedst-claude-touched-<session_id>. A session that edited nothing under apps/ is not gated.
 #
 # Environment:
-#   AEDST_STOP_GATE=off          skip the gate (e.g. while several agents share one working tree)
+#   AEDST_STOP_GATE=off          skip the lint checks (e.g. while several agents share one working tree);
+#                                the dangerous-code scan still runs. Without node the stop is blocked.
 #   AEDST_STOP_GATE_TIMEOUT=<s>  time budget in seconds for all checks together (default 600, below the
 #                                700 s hook timeout in .claude/settings.json; needs `timeout`)
 #   AEDST_STOP_GATE_CMD=<cmd>    replaces the whole check list with one command (used by scripts/check-hooks.sh)
@@ -21,10 +22,13 @@ HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 IO="$HOOK_DIR/lib/hook-io.mjs"
 ROOT="$(cd "$HOOK_DIR/../.." && pwd)"
 
-[ "${AEDST_STOP_GATE:-on}" = "off" ] && exit 0
-command -v node >/dev/null 2>&1 || exit 0
-
 INPUT="$(cat)"
+# Fail closed: without node the gate cannot run, so the stop is blocked with a static JSON message.
+if ! command -v node >/dev/null 2>&1; then
+  case "$INPUT" in *'"stop_hook_active":true'*) exit 0 ;; esac
+  printf '%s\n' '{"decision":"block","reason":"node is not on PATH, so the stop gate (dangerous-code scan, task check) could not run. Install the pinned toolchain (mise install), or tell the user the gate did not run."}'
+  exit 0
+fi
 [ "$(printf '%s' "$INPUT" | node "$IO" field stop_active 2>/dev/null)" = "true" ] && exit 0
 
 sid="$(printf '%s' "$INPUT" | node "$IO" field session_id 2>/dev/null || echo unknown)"
@@ -36,8 +40,11 @@ cd "$ROOT" || exit 0
 cmds=()
 if [ -n "${AEDST_STOP_GATE_CMD:-}" ]; then
   cmds+=("$AEDST_STOP_GATE_CMD")
+elif [ "${AEDST_STOP_GATE:-on}" = "off" ] || ! command -v task >/dev/null 2>&1; then
+  # "off" (a human's switch for shared working trees) and a missing `task` only drop the slow lint
+  # checks; the security scan always runs.
+  cmds+=("node scripts/check-dangerous-code.mjs")
 else
-  command -v task >/dev/null 2>&1 || exit 0
   cmds+=("task check")
   while read -r app; do
     case "$app" in

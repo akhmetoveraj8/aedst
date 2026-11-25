@@ -21,7 +21,7 @@ export async function saveConsentAction(choice: unknown): Promise<void> {
   }
   const effective = isGlobalPrivacyControl(await headers()) ? "denied" : choice;
   (await cookies()).set(CONSENT_COOKIE, serializeConsent(effective), {
-    // security-ignore: the consent choice is not a secret and client code reads it
+    // security-ignore: cookie-flags-off -- the consent choice is not a secret and client code must read it
     httpOnly: false,
     secure: isSecureSite,
     sameSite: "lax",

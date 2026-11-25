@@ -18,10 +18,22 @@ HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 IO="$HOOK_DIR/lib/hook-io.mjs"
 ROOT="$(cd "$HOOK_DIR/../.." && pwd)"
 
-command -v node >/dev/null 2>&1 || exit 0
+if ! command -v node >/dev/null 2>&1; then
+  echo "node is not on PATH: the dangerous-code scan of this edit did not run. Install the pinned toolchain (mise install)." >&2
+  exit 2
+fi
 INPUT="$(cat)"
 rel="$(printf '%s' "$INPUT" | node "$IO" field file_path 2>/dev/null || true)"
 [ -n "$rel" ] || exit 0
+
+# Scan the whole file as it is now on disk (the PreToolUse guard saw only the edited text): catches a
+# pattern assembled from several edits. Exit 2 shows the findings to the model.
+if [ -f "$ROOT/$rel" ]; then
+  scan="$(cd "$ROOT" && node scripts/check-dangerous-code.mjs --files "$rel" 2>&1)" || {
+    printf 'The dangerous-code gate found insecure code in %s after this edit. Fix it now with the safe form:\n%s\n' "$rel" "$scan" >&2
+    exit 2
+  }
+fi
 
 app=""
 case "$rel" in

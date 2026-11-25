@@ -1,15 +1,16 @@
 // Rules of the dangerous-code gate (scripts/check-dangerous-code.mjs). Each rule is a regular
-// expression over one source line of a hand-written file. A rule names the CWE it prevents and the
+// expression applied to every line and to the whole file (scripts/dangerous-code/scan.mjs), so `\s*`
+// also crosses line breaks; use `.` or `[^\n]` for "same line only". A rule names the CWE it prevents and the
 // safe replacement, because the message is what an AI agent reads when the edit is refused.
 //
-// Keep rules narrow: a rule that fires on safe code teaches agents to add waivers. A waiver is a
-// `security-ignore: <reason>` comment on the same or the previous line; the reason is mandatory.
+// Keep rules narrow: a rule that fires on safe code pushes people to add waivers. A waiver is a
+// `security-ignore: <rule-id> -- <reason>` comment on the same or the previous line, added by a human.
 
 const JS = ['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs'];
 
 export const RULES = [
   // ---- Code and command injection (CWE-94, CWE-78) ----
-  { id: 'js-eval', exts: JS, re: /\beval\s*\(|\bnew\s+Function\s*\(/, why: 'eval / new Function runs strings as code (CWE-94)', fix: 'parse data with JSON.parse or a typed parser; never execute strings' },
+  { id: 'js-eval', exts: JS, re: /\beval\s*\(|\bnew\s+Function\s*\(|(?<![\w.])Function\s*\(\s*['"`]|[=:,(]\s*(?:globalThis\.|window\.|self\.)?eval\b(?!\s*\()|\[\s*['"`]eval['"`]\s*\]|\b(?:setTimeout|setInterval)\s*\(\s*['"`]/, why: 'eval, an alias of eval, Function or a string timer runs strings as code (CWE-94)', fix: 'parse data with JSON.parse or a typed parser; never execute strings' },
   { id: 'js-shell-exec', exts: JS, re: /(?:(?<![\w.])|\b(?:cp|child_process|childProcess)\.)(?:exec|execSync)\s*\(\s*(?:`[^`]*\$\{|[^)'"`]*\+)/, why: 'shell command built from a string (CWE-78)', fix: 'use execFile / spawn with an argument array and no shell' },
   { id: 'js-shell-true', exts: JS, re: /\bshell\s*:\s*true\b/, why: 'spawn with shell: true re-parses arguments (CWE-78)', fix: 'pass arguments as an array without a shell' },
   { id: 'go-shell-exec', exts: ['go'], re: /exec\.Command(?:Context)?\([^)]*"(?:sh|bash|cmd|powershell)"\s*,\s*"(?:-c|\/c|-Command)"/, why: 'shell -c with a command string (CWE-78)', fix: 'call the program directly with separate arguments' },
@@ -18,6 +19,8 @@ export const RULES = [
   // ---- Cross-site scripting (CWE-79) ----
   { id: 'web-inner-html', exts: JS, re: /\.(?:inner|outer)HTML\s*=(?!=)|\.insertAdjacentHTML\(|\bdocument\.write(?:ln)?\(/, why: 'raw HTML sink (CWE-79)', fix: 'render through React or use textContent; sanitize with DOMPurify only with a recorded reason' },
   { id: 'react-dangerous-html', exts: ['tsx', 'jsx'], re: /dangerouslySetInnerHTML/, why: 'raw HTML sink (CWE-79)', fix: 'render elements; for JSON-LD use the existing json-ld component' },
+
+  { id: 'go-template-unescaped', exts: ['go'], re: /\btemplate\.(?:HTML|HTMLAttr|JS|JSStr|URL|CSS|Srcset)\(/, why: 'html/template escaping bypassed (CWE-79)', fix: 'pass plain strings and let html/template escape them' },
 
   // ---- Injection into queries (CWE-89) ----
   { id: 'go-sql-concat', exts: ['go'], re: /(?:Sprintf|Sprint|Sprintln)\(\s*(?:`|")\s*(?:SELECT|INSERT|UPDATE|DELETE|WITH)\b/i, why: 'SQL built with string formatting (CWE-89)', fix: 'write the query in apps/server/sql and generate it with sqlc' },
