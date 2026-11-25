@@ -267,7 +267,7 @@ Old app versions stay working through additive-only proto changes, a
 (`AEDST_MIN_CLIENT_VERSIONS`) — see
 [ADR-0009](/decisions/0009-api-compatibility-and-client-versioning). That ADR
 also lists the per-platform build-cache recommendations (Gradle build cache,
-Tuist binary cache, ccache/vcpkg binary caching) to adopt as the feature count
+Tuist binary cache, Cargo build caching) to adopt as the feature count
 grows; they are recommendations and are not enabled yet.
 
 ## Known limits

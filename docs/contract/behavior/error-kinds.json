@@ -2,7 +2,7 @@
   "behavior": "error-kinds",
   "rules": [
     "Every failure a client surfaces is classified into exactly one of the kinds below; UI, retry policy and crash reporting decide by kind, never by parsing a message.",
-    "Platform enum cases use these names (PascalCase on Kotlin and C++, camelCase on Swift and TypeScript). A platform may keep extra local cases (Apple decoding and unsupported) only if they map to kind unknown.",
+    "Platform enum cases use these names (PascalCase on Kotlin and Rust, camelCase on Swift and TypeScript). A platform may keep extra local cases (Apple decoding and unsupported) only if they map to kind unknown.",
     "retryable: the same request may succeed later, so backoff or the outbox may try again. reportable: worth a crash-reporter event (a bug or a storage fault); expected states and definitive server answers are control flow, not incidents.",
     "outbox: the verdict an offline-outbox handler derives from the kind. retry records an attempt and stops the run; permanent parks the item and the run continues; blocked stops the run without counting an attempt (session ended, app must be upgraded). Desktop blocks on both kinds, Apple only on upgradeRequired; Web and Android park such items as permanent today (a known gap, not yet part of the offline-outbox fixture).",
     "A Connect code maps to a kind through connectCodes. Two refinements apply after that: failed_precondition carrying the ErrorInfo reason CLIENT_UPGRADE_REQUIRED is upgradeRequired, and a transport failure with no usable connection is offline (unavailable only when the device is online).",

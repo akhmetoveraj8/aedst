@@ -99,7 +99,7 @@ There is no govips inside imgproxy and no pre-generated generic renditions.
   corresponding domain constants (no production data existed to migrate). All four
   clients now select by the new kinds and fall back to the original only when no
   variant exists: Web (tests and lint run), Android, Apple and Desktop (**not
-  compiled**: no JDK/SDK, Xcode or Qt toolchain was available, so those edits are
+  compiled**: no JDK/SDK, Xcode or Desktop toolchain was available, so those edits are
   unverified until their first build).
 - Operating imgproxy: set `IMGPROXY_MAX_SRC_RESOLUTION`/`MAX_SRC_FILE_SIZE`, keep
   `ALLOWED_SOURCES` to the one bucket, front it with a CDN, and give it read-only

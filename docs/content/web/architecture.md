@@ -5,7 +5,7 @@ description: "apps/web is the parity source of truth the three native clients (a
 
 # Web Architecture
 
-`apps/web` is a workspace of three Next.js projects (`app`, `admin`, `marketing`) and a source-only `shared` kit; see [Web projects](/web/projects) for who owns what. The product app (`apps/web/app`) is the parity source of truth the three native clients
+`apps/web` is a workspace of three projects (`app` and `marketing` on Next.js, `admin` a Vite SPA with TanStack Router and a Hono BFF) and a source-only `shared` kit; see [Web projects](/web/projects) for who owns what. The product app (`apps/web/app`) is the parity source of truth the three native clients
 (`apps/android`, `apps/apple`, `apps/desktop`) are built to match — see
 [architecture-android.md](/android/architecture), [architecture-apple.md](/apple/architecture),
 and [architecture-desktop.md](/desktop/architecture), each of which documents
@@ -146,7 +146,7 @@ browser ──same-origin──▶ Next.js server ──API_BASE_URL──▶ ap
 | Gate | Where | What it enforces |
 |---|---|---|
 | Biome, knip, feature boundaries, naming | `web-ci` lint job; `admin-ci` and `marketing-ci` run the same boundary script for their project | style, unused code, module and feature isolation (the boundary script is the authoritative gate, see [modules and features](/architecture/modules-and-features)) |
-| dependency-cruiser (`pnpm check:deps`, supplementary: it cannot load TypeScript 7.0) | `web-ci` lint job, `admin-ci`, `marketing-ci`, lefthook `web-deps`; svg graph artifact `web-dep-graph` | import direction app -> modules -> shared, public-entry-only, no feature to feature, no module shared code to a feature, manifests import only `@/shared`, no cycles, no orphans, no devDependency in shipped code |
+| Biome `noImportCycles` and knip | `web-ci` lint job, `admin-ci`, `marketing-ci` | no import cycles (Biome), no unused or orphan files (knip); import direction and feature isolation are the boundary script above |
 | Stryker mutation testing (`pnpm test:mutation`) | `web-mutation-nightly` workflow, cron + manual (optional `mutate` globs) only | mutation score of `shared/lib/{errors,auth,forms,outbox}` stays above `thresholds.break` in `stryker.config.mjs` (set to first score minus 5, then ratchet); report artifact `web-mutation-report` |
 | `tsc` | typecheck job | types (after `next typegen`) |
 | Vitest (`unit` Node + `browser` real Chromium), coverage thresholds | unit job | behaviour; coverage cannot fall |

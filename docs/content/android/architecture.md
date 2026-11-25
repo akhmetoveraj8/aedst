@@ -128,7 +128,7 @@ Full rationale and revisit conditions: [decisions](/decisions); stack table:
 - **JDK 21 required** (project toolchain pin). Run `make generate` (buf)
   before the first build; generated stubs are not committed. Versions are
   latest-stable only, with the Compose BOM applied through `platform()`.
-- **DI: Metro 1.6.0** (a Kotlin compiler plugin, replaced Hilt on 2026-11-25; AGP 9 with built-in Kotlin, no explicit
+- **DI: Metro 1.6.0** (a Kotlin compiler plugin and the only DI, owner decision 2026-11-25; AGP 9 with built-in Kotlin, no explicit
   `kotlin-android` plugin). One graph per application module (`AppGraph`, `TvGraph`), aggregation through
   `@Contributes*`, ViewModels through `metrox-viewmodel`. Koin was rejected (no compile-time checks). See
   [decisions/android](/decisions/android) and the "DI" paragraph of [library-first/android](/library-first/android).

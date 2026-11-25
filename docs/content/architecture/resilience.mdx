@@ -5,7 +5,7 @@ description: "What happens when each dependency fails: which parts are required 
 
 # Resilience
 
-Design rule: **only PostgreSQL is required.** Every other dependency is optional or fails open, so a partial outage degrades features instead of stopping the API.
+Design rule: **only PostgreSQL is required.** Every other dependency is optional or degrades (the rate limiter to per-replica limits, the cache to direct loads), so a partial outage degrades features instead of stopping the API.
 
 ## Failure matrix
 
@@ -16,7 +16,7 @@ Design rule: **only PostgreSQL is required.** Every other dependency is optional
   nodes={[
     { id: "api", label: "aedst-server", x: 330, y: 150, kind: "process", desc: "Stays up as long as PostgreSQL answers." },
     { id: "pg", label: "PostgreSQL", sub: "REQUIRED", x: 0, y: 150, kind: "store", desc: "Down: /readyz fails, pods leave rotation, requests return UNAVAILABLE. Clients retry with the same Idempotency-Key." },
-    { id: "cache", label: "DragonflyDB", sub: "limits only", x: 660, y: 0, kind: "store", desc: "Down: rate limiting fails open, /readyz reports degraded, API keeps serving." },
+    { id: "cache", label: "DragonflyDB", sub: "limits only", x: 660, y: 0, kind: "store", desc: "Down: rate limiting falls back to per-replica limits, /readyz reports degraded, API keeps serving." },
     { id: "idp", label: "Identity provider", sub: "JWKS cached", x: 660, y: 100, kind: "external", desc: "Down: tokens keep verifying against cached keys; only sign-in and refresh at the IdP fail." },
     { id: "s3", label: "Object storage", x: 660, y: 200, kind: "store", desc: "Down: uploads and completion fail; the rest of the API is unaffected." },
     { id: "nats", label: "NATS / gateway", sub: "optional", x: 660, y: 300, kind: "store", desc: "Down: forward jobs retry in River; realtime nudges are delayed. Never part of readiness." },

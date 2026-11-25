@@ -49,7 +49,7 @@ Rule: **scale in the cheapest order, and only on a measured trigger.** Operating
     { id: "direct", label: "Direct jobs pool", sub: "LISTEN/NOTIFY, locks", x: 470, y: 250, kind: "feature", desc: "Background work cannot starve the API pool." },
     { id: "pg", label: "PostgreSQL primary", sub: "the shared bottleneck", x: 730, y: 150, kind: "store", desc: "Protected by keyset pagination, bounded tables (retention), rate limits and load shedding." },
     { id: "ro", label: "Read replica", sub: "lag-tolerant reads", x: 990, y: 60, kind: "store" },
-    { id: "cache", label: "DragonflyDB", sub: "limits only, fails open", x: 990, y: 250, kind: "store" },
+    { id: "cache", label: "DragonflyDB", sub: "limits only, per-replica fallback", x: 990, y: 250, kind: "store" },
   ]}
   edges={[
     { from: "edge", to: "pods" }, { from: "pods", to: "pool" }, { from: "pods", to: "direct" },
@@ -62,7 +62,7 @@ Rule: **scale in the cheapest order, and only on a measured trigger.** Operating
 | Protection | Setting | Behaviour |
 |---|---|---|
 | Load shedding | `AEDST_MAX_IN_FLIGHT` (default 1024) | Excess requests get an immediate `429` with `Retry-After` instead of queueing |
-| Per-user rate limit | `AEDST_API_RATE_LIMIT_PER_MINUTE` (default 1200) | Cluster-wide through DragonflyDB; fails open |
+| Per-user rate limit | `AEDST_API_RATE_LIMIT_PER_MINUTE` (default 1200) | Cluster-wide through DragonflyDB; per-replica token bucket while it is down |
 | Unauthenticated rate limit | `AEDST_AUTH_RATE_LIMIT_PER_MINUTE` | Per client address on public procedures |
 | Bounded pools | `AEDST_DATABASE_MAX_CONNS`, `AEDST_DATABASE_JOBS_MAX_CONNS` | Replicas multiplied by pool size must stay under Postgres capacity; the Helm chart fails the render when it does not fit |
 | Keyset pagination | `page_size` capped at 100 | Constant cost per page, no `OFFSET` |

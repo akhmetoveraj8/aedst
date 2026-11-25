@@ -17,6 +17,22 @@ platform's own **Stack** page.
 | Apple | Swift 6 · SwiftUI (iOS 18+, macOS 15+) | connect-swift | GRDB · Keychain | [Apple stack](/apple/stack) |
 | Desktop | Rust · Slint | connectrpc (Rust) | rusqlite | [Desktop stack](/desktop/stack) |
 
+| Gateway (optional) | Rust · axum WebSocket | NATS JetStream in, WebSocket out | none | [Gateway stack](/library-first/gateway) |
+
+Shared infrastructure behind all of them:
+
+| Concern | Choice | Notes |
+|---|---|---|
+| Identity | Any OIDC provider (ZITADEL by default) | The server only verifies tokens |
+| Jobs and events | River in PostgreSQL | Events commit with the change ([ADR-0014](/decisions/0014-river-insert-tx-as-outbox)) |
+| Cache and rate limits | DragonflyDB | Optional |
+| Media | S3-compatible storage, optional imgproxy | Presigned uploads |
+| Observability | OpenTelemetry, optional Prometheus | |
+| Tooling | mise, Task, lefthook, Biome, golangci-lint, Renovate | One entry point: `task` |
+| Deployment | Docker, Helm, Kubernetes manifests, OpenTofu | [Deployment topology](/architecture/deployment-topology) |
+
+New to the stack? [Start here](/start-here) explains how the parts fit; [Glossary](/glossary) defines each tool.
+
 The rules behind these picks (order of preference, approved libraries,
 explicit rejections) are in [Library-First](/library-first).
 
@@ -29,6 +45,6 @@ task deps:update -- web    # one platform
 ```
 
 `scripts/update-deps.sh` uses each ecosystem's own tool (go get, pnpm, Gradle
-version-catalog-update, SwiftPM, vcpkg, mise). Renovate keeps opening PRs between
+version-catalog-update, SwiftPM, Cargo, mise). Renovate keeps opening PRs between
 manual runs. After a bump, update the versions on the platform's Stack page and in
 [library-first](/library-first).

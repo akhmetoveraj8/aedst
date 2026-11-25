@@ -30,10 +30,11 @@ Agent map: `docs/agent/INDEX.md` (read only the rows for your platform and task)
 
 ## Verification status (be honest)
 
-Server and Web (profile Core) build and test and are the default working mode; `task` aggregates run Core only (`PROFILE=full` adds the rest). Android, Apple and Desktop are frozen: Android's Room 3 migration is not compiled, Apple was never compiled, Desktop is verified on Windows only. Do not claim they build. Details and exit criteria: `docs/content/status.md`.
+Server and Web (profile Core) build and test and are the default working mode; `task` aggregates run Core only (`PROFILE=full` adds the rest). Android, Apple and Desktop are frozen: Android compiles (2026-11-25) but `assembleDebug`, part of the tests and device runs are UNVERIFIED, Apple was never compiled, Desktop is verified on Windows only. Gateway is EXPERIMENTAL (off by default, never compiled). Do not claim they build. Details and exit criteria: `docs/content/status.md`.
 
 ## Working rules
 
+- **Core first: Server (backend) and Web first.** Build and verify every feature on Server + Web before any other platform; Android, Apple, Desktop and Gateway follow only after Core is green (`docs/agent/rules.md`, "Core first").
 - Several sessions may share one working tree: do not run git commit, checkout, stash, reset or rebase unless the user asks. When you commit, stage your own files by path (bulk `git add -A` / `git commit -a` is refused by a hook).
 - Never revert or overwrite an uncommitted change another session made, even when it breaks your install or build: stop and tell the user which file and which failure.
 - Verify every version against its registry; write `UNVERIFIED` if you cannot.

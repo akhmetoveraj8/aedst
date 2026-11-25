@@ -27,7 +27,7 @@ assert (observe-only); the Android client is not wired.
 - Android has a `PlayIntegrityFacade` (standard API); its token is opaque to the app and only the backend can decode it.
 - Apple has App Attest (`DCAppAttestService`, framework `DeviceCheck`, iOS 14+/macOS 11+; our floors are higher).
   It is unsupported on simulators and on some Macs and Mac Catalyst setups.
-- Desktop (Qt) and Web have no equivalent; nothing is planned for them.
+- Desktop and Web have no equivalent; nothing is planned for them.
 - Any check done only on the device is worthless: a modified client can simply skip it.
 
 ## Decision
@@ -108,7 +108,7 @@ a fresh random nonce or a request digest in `payload`.
 | `ASSERTION_RATE_LIMIT_PER_MINUTE` | `120` | Per user, `VerifyAssertion` |
 | `KEY_RETENTION_DAYS` | `365` | Idle keys are purged |
 
-The rate limiter is DragonflyDB and fails open by design; correctness (single-use challenge, counter) never depends on it.
+The rate limiter is DragonflyDB and degrades to per-replica limits while it is down; correctness (single-use challenge, counter) never depends on it.
 
 ### Library decision (library-first)
 - **CBOR:** `github.com/fxamacker/cbor/v2` v2.9.6 (MIT, version verified with `go list -m -versions`; actively

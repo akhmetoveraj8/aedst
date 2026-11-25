@@ -1,6 +1,6 @@
 # Brief: building a feature crate in `apps/desktop`
 
-Read first: `apps/desktop/AGENTS.md`, `apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md` (phases 3 to 6), and the reference slice `crates/aedst-feature-tasks` (copy its structure and style; do not reinvent it).
+Read first: `apps/desktop/AGENTS.md`, `apps/desktop/docs/adr/0001-rust-slint-desktop.md` (crate map and Slint specifics), and the reference slice `crates/aedst-feature-tasks` (copy its structure and style; do not reinvent it).
 
 ## Layout of a feature crate `crates/aedst-feature-<name>`
 
@@ -25,5 +25,5 @@ Layers: `domain` is pure (depends only on `aedst-common`, `futures` BoxFuture): 
 - Strings: every user-visible string is `@tr("" => "...")` in the `.slint` file, present in all five catalogs (en is the source text, same msgid); placeholders `{}` must be kept; copy `tests/catalogs.rs` (it fails on missing, stale, empty or placeholder-changed entries). Write the ru, tg (Tajik, Cyrillic), uz (Latin) and ar translations yourself; mark the catalogs "machine-assisted". A script like the one that generated tasks' catalogs is fine, but keep it outside the repo (use your scratchpad). Arabic `Plural-Forms` header as in tasks' catalogs. Error text is chosen by `aedst_common::ErrorKind` (translate the KIND in `.slint`, never a raw server message; `Cancelled` shows nothing).
 - Behaviour parity: unknown enum values map to `Unknown` and are never offered in pickers; a stale response from an older load is dropped (epoch); `total_count`/page tokens are echoed back exactly; no free text in analytics; `Idempotency-Key` (`aedst_api::with_idempotency_key`) on writes; retryable failures of writes go to the outbox only if the spec of the feature says writes are offline (none of the four features below queue writes except where stated).
 - Visual check: render with the demo example (`--snapshot`) in en (light), ar (RTL) and one more locale in dark mode, LOOK at the PNGs (Read tool) and fix layout bugs. Also run it with `--empty` and `--offline`.
-- Do NOT: commit, stash, switch branches, delete directories (recursive deletes are denied), edit `Cargo.toml` at the workspace root (unless your task says so), edit docs or `AGENTS.md` (the lead updates docs), touch `apps/desktop` (the C++ tree), or edit another feature's crate.
+- Do NOT: commit, stash, switch branches, delete directories (recursive deletes are denied), edit `Cargo.toml` at the workspace root (unless your task says so), edit docs or `AGENTS.md` (the lead updates docs), touch crates outside your task, or edit another feature's crate.
 - Final report (short): files created, what the screen supports, what is NOT done, test counts per gate, anything surprising, and any new dependency you needed (with the reason). Do not claim anything you did not run.

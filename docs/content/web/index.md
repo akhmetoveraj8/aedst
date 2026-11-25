@@ -5,7 +5,7 @@ title: Web
 
 # Web
 
-`apps/web` — a workspace of three Next.js 16 / React 19 projects (`app`, `admin`, `marketing`) plus a source-only `shared` kit. The product app is the parity source of truth that the native clients are built to match. Status: **Verified** (see [Platform status](/status)).
+`apps/web` — a workspace of three React 19 projects (`app` and `marketing` on Next.js 16, `admin` a Vite SPA with TanStack Router and a Hono BFF) plus a source-only `shared` kit. The product app is the parity source of truth that the native clients are built to match. Status: **Verified** (see [Platform status](/status)).
 
 | Page | What it covers |
 |---|---|

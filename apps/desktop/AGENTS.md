@@ -1,7 +1,7 @@
 # apps/desktop - AI agent instructions
 
-The Desktop app (Rust + Slint; the Qt 6 / C++23 tree was deleted). Read the root [AGENTS.md](../../AGENTS.md) and
-[CONVENTIONS.md](../../CONVENTIONS.md) first. Why and the module mapping: [ADR-0001](docs/adr/0001-rust-slint-replaces-qt.md).
+The Desktop app (Rust + Slint). Frozen: Core (Server + Web) comes first ([rule](../../docs/agent/rules.md#core-first)). Read the root [AGENTS.md](../../AGENTS.md) and
+[CONVENTIONS.md](../../CONVENTIONS.md) first. Why and the crate map: [ADR-0001](docs/adr/0001-rust-slint-desktop.md).
 Approved crates: [library-first/desktop](../../docs/content/library-first/desktop.md). Decisions: [decisions/desktop](../../docs/content/decisions/desktop.md).
 
 Verification status: built and tested on Windows only; never compiled on Linux; never run against a real server or
@@ -36,7 +36,7 @@ identity provider ([status](../../docs/content/status.md)). Do not claim Linux o
 - Slint-generated code goes in `mod generated { slint::include_modules!(); }` with `#[allow(missing_docs, clippy::all, clippy::unwrap_used, clippy::expect_used)]` on that module only (copy `crates/aedst-ui/src/lib.rs`). Slint does not mirror layouts for Arabic: RTL handling lives in `aedst-ui`, not in features.
 - Generated code (protobuf, tokens) is produced at build time and never committed or hand-edited.
 - Files stay at or under 300 lines (over 500 fails `task check:file-size`).
-- Rejected: PostHog or any third-party analytics SDK, `rusqlite_migration` (rusqlite pin), the `keyring` meta crate, Qt via cxx-qt, Tauri/WebView for this app (owner chose Slint), a second async runtime, a hand-written Connect or OIDC client.
+- Rejected: PostHog or any third-party analytics SDK, `rusqlite_migration` (rusqlite pin), the `keyring` meta crate, any other language or UI toolkit (Rust + Slint only, no FFI UI bindings), Tauri/WebView for this app (owner chose Slint), a second async runtime, a hand-written Connect or OIDC client.
 
 ## Gates (run before saying done)
 

@@ -101,7 +101,7 @@ behaviors:
       web:     { status: verified,    evidence: apps/web/app/src/test/contract/client-version-gate.replay.test.ts, note: "Header is set by the /api/rpc BFF proxy from package.json." }
       android: { status: verified,    evidence: apps/android/core/network/src/test/kotlin/com/aedst/core/network/ClientVersionGateReplayTest.kt }
       apple:   { status: implemented, evidence: apps/apple/Core/AedstNetwork/Tests/AedstNetworkTests/ClientVersionGateReplayTests.swift }
-      desktop: { status: missing, tracking: "desktop has no replay test of docs/contract/behavior/client-version-gate.json yet (the header is set in aedst-api/src/config.rs; the Qt replay test was deleted with the Qt tree)" }
+      desktop: { status: missing, tracking: "desktop has no replay test of docs/contract/behavior/client-version-gate.json yet (the header is set in aedst-api/src/config.rs)" }
   forced-upgrade-ux:
     fixtures: docs/contract/behavior/client-version-gate.json
     platforms:
@@ -109,7 +109,7 @@ behaviors:
       web:     { status: na, reason: Web is always current; a reload fetches the latest build. }
       android: { status: verified, evidence: apps/android/core/network/src/test/kotlin/com/aedst/core/network/ClientUpgradeTest.kt, note: "Phone app only; app-tv does not show the screen yet." }
       apple:   { status: implemented, evidence: apps/apple/App/Shared/Tests/AedstAppCoreTests/UpgradeAndOutboxWiringTests.swift }
-      desktop: { status: missing, tracking: "desktop has no replay test of docs/contract/behavior/client-version-gate.json yet (the header is set in aedst-api/src/config.rs; the Qt replay test was deleted with the Qt tree)" }
+      desktop: { status: missing, tracking: "desktop has no replay test of docs/contract/behavior/client-version-gate.json yet (the header is set in aedst-api/src/config.rs)" }
   capability-negotiation:
     fixtures: docs/contract/behavior/capabilities.json
     platforms:

@@ -1,6 +1,6 @@
 ---
 title: "Web projects"
-description: "The web side is a workspace of three separate Next.js projects (app, admin, marketing) and a source-only shared kit: who owns what, dependency direction, auth between app and admin, deployment and CSP per project."
+description: "The web side is a workspace of three separate projects (app and marketing on Next.js, admin a Vite SPA with a Hono BFF) and a source-only shared kit: who owns what, dependency direction, auth between app and admin, deployment and CSP per project."
 ---
 
 # Web projects
@@ -40,7 +40,7 @@ Paths in the other web pages without a prefix (`src/app/...`, `src/modules/...`,
 - A project imports only itself and `shared` (`@/shared/*`). Projects never import each other's `src`. They meet in `shared/` and over the network.
 - `shared` never imports a project (`@/app/*`, `@/modules/*`). Shared tests may use `@/test/*` of the host project `app`; Storybook of `shared/ui` and the
   Vitest run of `shared/**` tests are hosted by `app`.
-- Inside a project: `app -> modules -> shared`, modules never import each other; inside a module a feature never imports another feature and the module's shared `lib/` and `ui/` import no feature (`apps/web/app/scripts/check-feature-boundaries.sh`, run for `app`, `admin` and `marketing`; dependency-cruiser repeats the graph rules in each project).
+- Inside a project: `app -> modules -> shared`, modules never import each other; inside a module a feature never imports another feature and the module's shared `lib/` and `ui/` import no feature (`apps/web/app/scripts/check-feature-boundaries.sh`, run for `app`, `admin` and `marketing`; import cycles are caught by Biome `noImportCycles`, orphan files by knip).
 - A change in `shared/` can break any project: CI for all three triggers on `apps/web/shared/**`.
 
 ## Why shared is source-only
@@ -80,7 +80,7 @@ Owner decision, 2026-11-04 (implemented the same day, see the UNVERIFIED list in
 
 Status: **DECIDED** (owner, 2026-10-28). `admin` does not share the session of `app`. It is a separate OIDC client at the same IdP and keeps its own host-only cookies.
 
-- `app` and `admin` each run the OIDC Authorization Code + PKCE flow as a backend-for-frontend (see [Architecture](/web/architecture#auth-data-and-security-model)) through their own `/api/auth/{login,callback}` Route Handlers, both built on `shared/lib/auth`. Admin has no copy of the app's pages: an anonymous visitor or an expired session is redirected by the admin BFF to admin's OWN `/api/auth/login?next=<path>`; a relative `next` is honoured after login (`safeRedirectPath`).
+- `app` and `admin` each run the OIDC Authorization Code + PKCE flow as a backend-for-frontend (see [Architecture](/web/architecture#auth-data-and-security-model)) through their own `/api/auth/{login,callback}` routes (Next Route Handlers in `app`, Hono routes in the `admin` BFF), both built on `shared/lib/auth`. Admin has no copy of the app's pages: an anonymous visitor or an expired session is redirected by the admin BFF to admin's OWN `/api/auth/login?next=<path>`; a relative `next` is honoured after login (`safeRedirectPath`).
 - ZITADEL SSO makes the second sign-in seamless: a user already signed in at the IdP is not asked for credentials again.
 - Each project keeps its own `__Host-` cookies (Secure, `Path=/`, no `Domain`) on its own origin, so an XSS in `app` can never read the admin session. A parent-domain cookie (`Domain=.<domain>`) is not used: separate subdomains plus the `__Host-` prefix cannot share cookies, and widening to a parent-domain cookie would weaken staff sessions (any subdomain could set or shadow it).
 - Admin access requires role `admin`. The UI check in `admin` (`server/security/route-guard.ts` and the SPA route guards) is cosmetic; the real check is the server's RoleInterceptor policy per RPC. A signed-in user without the role lands on `/{locale}/forbidden`; login failures also land there (`?auth_error=`), because that page is exempt from the sign-in guard (no redirect loop).

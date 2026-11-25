@@ -40,7 +40,7 @@ which a thin identity/profile pair did not.
   (`users.users`, `profile.profiles`), and the `UserRegistered`/
   `ProfileUpdated` events. Nothing else consumed either event.
 - `apps/android`'s `feature/users`/`feature/profile`, `apps/apple`'s
-  `Features/Users`/`Features/Profile`, and the Qt desktop app's `Modules/Features/Users`/`Modules/Features/Profile` (since deleted with the Qt tree; `apps/desktop` replaced it) were deleted the same
+  `Features/Users`/`Features/Profile`, and the earlier desktop app's `Modules/Features/Users`/`Modules/Features/Profile` (that app was later replaced by the Rust + Slint `apps/desktop`) were deleted the same
   way, keeping only `feature/auth`/`Features/Auth` on the other platforms. None of them gained a `tasks` feature in this change —
   `tasks` is a reference module for server + web only (see
   `docs/content/server/architecture.md`); a mobile/desktop `tasks` feature, if ever built,

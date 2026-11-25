@@ -129,7 +129,7 @@ passes load shedding (`AEDST_MAX_IN_FLIGHT`). An expensive RPC gets its own, tig
 procedures with one `Bucket` share a budget) and a deployment override in
 `AEDST_PROCEDURE_RATE_LIMITS=/pkg.Service/Method=10,/pkg.Service/*=60` (0 switches a default off; an
 unknown or public procedure fails startup). `httpserver.ProcedureRateLimitInterceptor` enforces it
-after authentication and fails open like every limiter. Reference: `appattest` (enrolment 10 per
+after authentication and, like every limiter, degrades to per-replica limits when DragonflyDB is down. Reference: `appattest` (enrolment 10 per
 minute, assertions 120) and `integrity` (10 per minute). Do not inject a limiter into an application
 service. Helm: `config.procedureRateLimits`. Responses are compressed by Connect's gzip negotiation; do not add a second
 compression layer.

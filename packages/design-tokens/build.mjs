@@ -58,10 +58,10 @@ StyleDictionary.registerTransform({
   type: 'name',
   transform: (t) => camel(t.path.slice(isColor(t) ? 2 : 1)),
 });
-// QML singleton member: light/dark palettes share one file, so keep the mode.
+// Slint global member: light/dark palettes share one file, so keep the mode.
 // color.light.background -> lightBackground, spacing.xs -> spacingXs.
 StyleDictionary.registerTransform({
-  name: 'aedst/name/qml',
+  name: 'aedst/name/slint',
   type: 'name',
   transform: (t) => camel(t.path.slice(isColor(t) ? 1 : 0)),
 });
@@ -84,13 +84,6 @@ StyleDictionary.registerTransform({
   type: 'value',
   filter: (t, o) => (o.usesDtcg ? t.$type : t.type) === 'time',
   transform: (t, _c, o) => String(parseFloat(o.usesDtcg ? t.$value : t.value) / 1000),
-});
-// Plain numbers for QML (int/real properties).
-StyleDictionary.registerTransform({
-  name: 'aedst/size/qml-number',
-  type: 'value',
-  filter: (t, o) => ['dimension', 'fontSize'].includes(o.usesDtcg ? t.$type : t.type),
-  transform: (t, _c, o) => String(parseFloat((o.usesDtcg ? t.$value : t.value).value)),
 });
 
 // Web: one CSS file. Light palette + scales on :root, dark palette on .dark.
@@ -271,7 +264,7 @@ const sd = new StyleDictionary({
     },
     desktopRs: {
       buildPath: OUT.desktopRs,
-      transforms: ['aedst/name/qml', 'color/hex'],
+      transforms: ['aedst/name/slint', 'color/hex'],
       files: [{ destination: 'aedst_tokens.slint', format: 'aedst/slint-globals' }],
     },
   }),

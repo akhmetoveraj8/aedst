@@ -39,7 +39,7 @@ Cross-platform summary (details and rationale in the per-platform files):
 
 ## Language policy (Must, repo-wide)
 
-English only. Rule documents, specs, ADRs, README files, code comments, identifiers, commit messages, PR text and CI/workflow files are written in English. Russian (and other non-English text) is allowed only in `docs/archive/` and in locale/translation resources (`i18n` directories, `strings.xml` locale folders, `*.xcstrings`, `*.lproj`, `*.ts` Qt translation files, test fixtures that exercise a locale). Non-English text anywhere else is a defect: translate it.
+English only. Rule documents, specs, ADRs, README files, code comments, identifiers, commit messages, PR text and CI/workflow files are written in English. Russian (and other non-English text) is allowed only in `docs/archive/` and in locale/translation resources (`i18n` directories, `strings.xml` locale folders, `*.xcstrings`, `*.lproj`, gettext `*.po` catalogs, test fixtures that exercise a locale). Non-English text anywhere else is a defect: translate it.
 
 ## File size (Must, repo-wide)
 
@@ -66,7 +66,7 @@ Measured in physical lines of **hand-written** source. Generated, vendored, lock
 | Color literals | `task check:colors` | No hex/rgb/hsl/oklch literals in hand-written UI code; use design tokens |
 | i18n parity | `task check:i18n` | Same keys and placeholders in en/ru/tg/uz/ar on each platform |
 | Module boundaries | `task check:boundaries` | No feature-to-feature imports on Server, Web, Android, Apple and Desktop (Desktop: `apps/desktop/scripts/check-feature-boundaries.sh`, bash + node, no cargo: crate boundaries, feature layout and the approved-crate list, with negative self-tests; per-crate `tests/layers.rs` checks the layers when cargo runs) |
-| Web import graph | `pnpm --dir apps/web/app check:deps` | dependency-cruiser: app -> modules -> shared, public entry only, no cycles/orphans/devDependency leaks (app project; negative fixtures in `apps/web/app/lint/fixtures/deps-*`) |
+| Web import graph | `bash apps/web/app/scripts/check-feature-boundaries.sh <project-dir>` (`task check:boundaries` for all three projects), Biome `noImportCycles`, knip | app -> modules -> shared, public entry only, no feature to feature (boundary script); no cycles (Biome); no unused or orphan files (knip) |
 | Audit backlog | `task audit:status` | Every item of `docs/audit/2026-10-08-backlog.md` has a valid status, none `skipped` (`scripts/check-backlog.mjs`) |
 | Library-First gates | `task check:gates` (+ platform lint) | Mandatory library per concern; each gate has a negative self-test. Per-platform list: `docs/agent/conventions/tooling.md` |
 

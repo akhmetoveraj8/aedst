@@ -69,15 +69,15 @@ own (its repository lives in `core/media`).
 | 3 | `aedst.kmp.library`, `core/common` and each feature domain in `commonMain` | Done |
 | 4 | `core/database` (Room 3) and the outbox to common; WorkManager stays `androidMain` | **Partly.** Database, DAO and the outbox table are common. `core/outbox` (repository, handler contract, WorkManager worker and scheduler) is still an Android library |
 | 5 | Network to common | Not started (blocked, see below) |
-| 6 | Hilt to Metro | **Done 2026-11-25** (owner decision, ahead of step 5): DI wiring stays `androidMain` / Android modules because it needs `Context`, WorkManager and Compose; see below |
+| 6 | DI on Metro | **Done 2026-11-25** (owner decision, ahead of step 5): DI wiring stays `androidMain` / Android modules because it needs `Context`, WorkManager and Compose; see below |
 | 7 | UI | Stays `androidMain` unless Compose Multiplatform is adopted by a separate decision |
 
 ### What was compiled (Windows, JDK 21, Gradle 9.9.2, AGP 9.5.2, Kotlin 2.5.0-RC, 2026-11-21)
 
 | Module | android target | jvm target | Tests |
 |---|---|---|---|
-| `core/common` | compiled (with Hilt KSP) | compiled | 5 tests on each target |
-| `core/database` | compiled (Room + Hilt KSP) | compiled (Room KSP) | 14 Robolectric host tests (1 skipped on Windows), 1 JVM test |
+| `core/common` | compiled | compiled | 5 tests on each target |
+| `core/database` | compiled (Room KSP) | compiled (Room KSP) | 14 Robolectric host tests (1 skipped on Windows), 1 JVM test |
 | `feature/{auth,tasks,admin,notifications,search}/domain` | compiled | compiled | `tasks`: 14 tests on each target |
 | `core/{ui,ui-tv,navigation,datastore,security,network,outbox,analytics,testing}` | compiled against the multiplatform `core/common` and `core/database`; `core/outbox` unit tests pass | n/a | |
 
@@ -106,11 +106,11 @@ the edge evidence; Wire code generation in `buf.gen.yaml`; `core/network` split 
 engines; each repository moved from `feature/<name>/data` to the domain module's sibling or a new common data module.
 Until then repositories are Android code behind common ports, which is why the ports live in the domain modules.
 
-**Step 6, Hilt to Metro.** Done on 2026-11-25 by owner decision, before step 5 (see the Metro row in
+**Step 6, DI on Metro.** Done on 2026-11-25 by owner decision, before step 5 (see the Metro row in
 [decisions/android](/decisions/android)). Metro's annotations and runtime are multiplatform, so the DI wiring can move
 to `commonMain` together with the code it wires once data and network are common (step 5); until then it stays in
 `androidMain` and in the Android modules because it needs `Context`, WorkManager and Compose. Step 6 no longer blocks
-anything: Hilt was the only JVM-only piece of the DI.
+anything: the DI has no JVM-only piece left.
 
 **Step 7, UI.** `core/ui`, every screen and ViewModel stay Android. Compose Multiplatform is a separate decision (it
 would replace `androidx.compose` artifacts with JetBrains ones, Navigation 3, previews and Roborazzi included).

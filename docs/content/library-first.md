@@ -27,7 +27,7 @@ Read only the page you need. Decided items and their revisit conditions are in t
 
 ## Rules every change must respect
 
-1. Check, in order: the standard library, the platform API, the dependencies already in `package.json` / `go.mod` / `build.gradle.kts` / `Package.swift` / `vcpkg.json`, then existing code in this repo.
+1. Check, in order: the standard library, the platform API, the dependencies already in `package.json` / `go.mod` / `build.gradle.kts` / `Package.swift` / `Cargo.toml`, then existing code in this repo.
 2. Versions: latest stable verified against the registry; never guess one.
 3. An allowlist entry (knip `ignoreDependencies`, depguard, `Tuist/Package.swift`, `Cargo.toml`/`deny.toml`, `libs.versions.toml`) requires updating the matching platform page in the same change.
 4. Design tokens come from `packages/design-tokens`; generated token files are never hand-edited.

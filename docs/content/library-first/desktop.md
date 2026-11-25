@@ -11,7 +11,7 @@ Part of the [Library-First standard](../library-first.md). Principles, version p
 
 ## Stack: Rust + Slint (`apps/desktop`)
 
-Owner decision of 2026-11-01, see [ADR-0001](../../../apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md). Rust edition 2024, toolchain in `rust-toolchain.toml`, one Cargo workspace. All versions live once in the root `Cargo.toml` `[workspace.dependencies]`; a crate is approved only when it is listed there, in `apps/desktop/approved-crates.txt` and in this table. `apps/desktop/scripts/check-approved-crates.sh` enforces that for direct dependencies without cargo (and fails when a version shared with `apps/gateway` drifts, see [desktop/boundaries](/desktop/boundaries)); `cargo deny` enforces licences, sources, advisories and the ban list.
+Owner decision of 2026-11-01, see [ADR-0001](../../../apps/desktop/docs/adr/0001-rust-slint-desktop.md). Rust edition 2024, toolchain in `rust-toolchain.toml`, one Cargo workspace. All versions live once in the root `Cargo.toml` `[workspace.dependencies]`; a crate is approved only when it is listed there, in `apps/desktop/approved-crates.txt` and in this table. `apps/desktop/scripts/check-approved-crates.sh` enforces that for direct dependencies without cargo (and fails when a version shared with `apps/gateway` drifts, see [desktop/boundaries](/desktop/boundaries)); `cargo deny` enforces licences, sources, advisories and the ban list.
 
 | Responsibility | Crate / tool |
 |---|---|
@@ -40,4 +40,4 @@ Test-only: **wiremock** (fake identity provider), **chrono**, **rsa** 0.9.10 (`p
 
 Not approved yet (decide with the `add-dependency` skill): packaging tools (`cargo-deb`, `cargo-generate-rpm`), a reachability crate, a video player, a gettext runtime for Slint.
 
-Rejected for this app: cxx-qt, Tauri/WebView, Iced/egui/Dioxus (owner chose Slint), a second async runtime, `sqlx`, `oauth2` alone, a hand-written Connect or OIDC client, **PostHog or any third-party analytics SDK**, **`rusqlite_migration`** (rusqlite pin, see above), the **`keyring` meta crate** (use `keyring-core` plus chosen stores), email/password sign-in.
+Rejected for this app: any other language or UI toolkit (no FFI UI bindings), Tauri/WebView, Iced/egui/Dioxus (owner chose Slint), a second async runtime, `sqlx`, `oauth2` alone, a hand-written Connect or OIDC client, **PostHog or any third-party analytics SDK**, **`rusqlite_migration`** (rusqlite pin, see above), the **`keyring` meta crate** (use `keyring-core` plus chosen stores), email/password sign-in.

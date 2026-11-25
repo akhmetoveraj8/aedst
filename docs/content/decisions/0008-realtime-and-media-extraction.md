@@ -78,7 +78,7 @@ Image renditions are served by imgproxy ([ADR-0015](/decisions/0015-govips-and-i
 - Transport: **ConnectRPC server streaming** wherever the client can use it
   (Connect-ES on web, Connect-Swift, Connect-Kotlin), keeping one contract and one
   auth/interceptor stack. **WebSocket** (or SSE) only for clients that cannot
-  consume Connect streams (for example the Qt desktop client if its stack lacks
+  consume Connect streams (for example a desktop client whose stack lacks
   support), behind the same gateway.
 - Graceful shutdown drains by sending a reconnect hint with jitter so a deploy does
   not cause a thundering herd.

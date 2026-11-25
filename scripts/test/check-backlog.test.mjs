@@ -29,7 +29,7 @@ test("valid statuses pass", () => {
       "- [x] web-1 [medium] A - done (fixed)",
       "- [x] web-2 [low] B - duplicate-of web-1",
       "- [x] apple-1 [low] C - done-UNVERIFIED (check on first build)",
-      "- [ ] desktop-1 [low] D - blocked (needs Qt: run task desktop:test)",
+      "- [ ] desktop-1 [low] D - blocked (needs cargo: run task desktop:test)",
     ].join("\n"),
   );
   assert.equal(result.status, 0, result.stderr);

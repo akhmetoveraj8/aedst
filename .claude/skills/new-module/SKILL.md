@@ -34,7 +34,7 @@ Replace the placeholder entry with the real aggregate, then:
 | Web | Add the primary-nav entry, its `common.nav` label and update `registry.test.ts` (it pins the order); offline outbox handlers only if the spec says offline. Pick ONE project (`app`, `admin`, `marketing`) per `docs/content/web/projects.md`. | `task web:lint web:test` or `task app:lint app:test` |
 | Android | Make the screen reachable (`AedstTab` or `navigator.navigate(<Name>Key)`), real repository behind the domain port, five `strings.xml` locales. | Gates in `apps/android/AGENTS.md`; `task android:lint android:test` if a JDK 21 exists |
 | Apple | Wire the package into the app UI (route registration), not only the package graph. **Never compiled**: say so, do not claim it builds. | `task apple:lint` on macOS only |
-| Desktop | Register the plugin (plugin id equals the feature id) and the QML view. **Never compiled**: say so. | `task desktop:lint` (tools missing print SKIPPED) |
+| Desktop | Not generated and frozen: only after Core is green and the owner unfreezes Desktop, copy `crates/aedst-feature-tasks` to `aedst-feature-<id>` (Slint view in `ui/`, wired in `aedst-desktop/src/services.rs`). Verified on Windows only: say so. | `task desktop:lint` (tools missing print SKIPPED) |
 
 For the same feature on the clients, continue with the `client-recipe` skill (eight steps).
 

@@ -89,13 +89,14 @@ profiles expose process internals.
 ## AedstRateLimiterFailingOpen
 
 **Meaning.** DragonflyDB returned errors for 10 minutes, so every rate-limit decision (per-IP auth, per-user API, the
-failed-authentication throttle) was skipped and the request allowed. The API still serves; nothing is limited.
-`aedst_ratelimit_fail_open_total` counts the skipped decisions.
+failed-authentication throttle) came from the in-process per-replica token bucket instead. The API still serves and
+still limits, but each replica counts on its own, so the effective cluster-wide limit is the configured limit times the
+replica count. `aedst_ratelimit_fail_open_total` counts the fallback decisions.
 
 **Check.** `kubectl logs` for "rate limiter unavailable, failing open"; DragonflyDB pod health; `AEDST_CACHE_ADDR`,
 the TLS settings (`AEDST_CACHE_TLS*`) and the password Secret key; the CA file mounted at `tlsCaFile`.
 
-**Act.** Restore DragonflyDB. Nothing needs a redeploy; the limiters recover on their own. If the outage is long and
+**Act.** Restore DragonflyDB. Nothing needs a redeploy; the limiters return to cluster-wide counting on their own. If the outage is long and
 abuse is visible (`AedstShedding429` quiet while error rates climb), lower `config.maxInFlight` as a stopgap.
 
 ## AedstCacheDegraded
@@ -103,14 +104,14 @@ abuse is visible (`AedstShedding429` quiet while error rates climb), lower `conf
 **Meaning.** `aedst_readiness_degraded{check="cache"}` has been 1 for 10 minutes: the optional dependency fails
 its readiness probe, instances stay in rotation in degraded mode. For `database_read` it means reads fall back to the
 primary. Usually fires together with `AedstRateLimiterFailingOpen`; this one also covers an idle limiter (no
-traffic, so no fail-open counter).
+traffic, so no fallback counter).
 
 **Act.** Same as above; for `database_read` check the replica and `AEDST_DATABASE_READ_URL`.
 
 ## Related non-alerting checks
 
 - **Retention** (`aedst_retention_purged_total`, `retention: purged rows` logs): idempotency keys, notifications, audit entries, search tombstones and dead sessions are purged hourly by River periodic jobs; finished River jobs (event deliveries) by River's own cleaner. If table sizes keep growing, look for failed `platform.retention` jobs: `SELECT state, count(*) FROM river_job WHERE kind = 'platform.retention' GROUP BY 1;`
-- **DragonflyDB down**: `/readyz` reports `degraded`, limiters fail open, one warning per 30 s is logged. Restore DragonflyDB; nothing needs to be redeployed.
+- **DragonflyDB down**: `/readyz` reports `degraded`, limiters fall back to per-replica limits, one warning per 30 s is logged. Restore DragonflyDB; nothing needs to be redeployed.
 
 ## Play Integrity verification
 

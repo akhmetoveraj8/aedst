@@ -5,7 +5,7 @@ description: "apps/desktop: crates, layers, the Slint shell, sign-in, persistenc
 
 # Desktop Architecture
 
-`apps/desktop` is one Cargo workspace of small `aedst-*` crates, the Desktop counterpart of `apps/android` and `apps/apple` (see [Android architecture](/android/architecture) and [Apple architecture](/apple/architecture)). It follows the same "boundaries first" rule as the server ([server architecture](/server/architecture)). Decision record and spike results: [ADR-0001](../../../apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md).
+`apps/desktop` is one Cargo workspace of small `aedst-*` crates, the Desktop counterpart of `apps/android` and `apps/apple` (see [Android architecture](/android/architecture) and [Apple architecture](/apple/architecture)). It follows the same "boundaries first" rule as the server ([server architecture](/server/architecture)). Decision record: [ADR-0001](../../../apps/desktop/docs/adr/0001-rust-slint-desktop.md).
 
 > **Verification status.** Built, linted and tested on Windows (Rust 1.99.1). **Never compiled on Linux**, never run against a real server or identity provider. Not done: packaging (`vpk`, DEB/RPM/Flatpak), the Velopack install path at run time, the licence pipeline, a screen-reader pass, a connectivity monitor, native file picker and toasts. Items marked `UNVERIFIED` below were not exercised. The `connectrpc` conformance suite is a deferred follow-up.
 

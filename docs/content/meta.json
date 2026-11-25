@@ -1,6 +1,9 @@
 {
   "pages": [
     "index",
+    "start-here",
+    "glossary",
+    "indie-quickstart",
     "---System design---",
     "architecture",
     "modules",

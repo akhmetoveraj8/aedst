@@ -25,7 +25,7 @@ stays red until you declare the module by hand.
 | Web | `manifest.ts`, `public.ts`, `entries/<name>-page.ts`, `i18n/{en,ru,tj,uz,ar}.json`, one feature `features/overview/ui/<name>-page.tsx` (`<Name>Page`) + test, the `(app)/<name>/page.tsx` route (imports the entry) | `registry.ts`, `messages.d.ts`, `test/render.tsx`, `bundle-budget.json` |
 | Android | `feature/<name>` (`domain`, `data` with a `@ContributesBinding` class, `presentation`, `navigation`), `strings.xml` in 5 locales, a ViewModel test | `settings.gradle.kts`, `app/build.gradle.kts`, `AppNavHost.kt` (`featureGraphs`), `<Name>Key` in `core/navigation/AedstKey.kt` |
 | Apple | `Features/<Name>` Swift package with five targets (`<Name>Domain`, `<Name>Data`, `<Name>Presentation` with `Localizable.xcstrings`, `<Name>UIiOS`, `<Name>UIMac`) and a Swift Testing test | `App/Shared/Package.swift` (the three shared products), `Tuist/Package.swift`. By hand: `featureNames` in `Project.swift` and the destinations in `App/iOS/Sources/FeatureDestinations.swift` and `App/macOS/Sources/FeatureDestinations.swift` |
-| Desktop | `Modules/Features/<Name>` (Domain, Data, Presentation, Navigation, `i18n/*.ts`, GoogleTest) | `CMakeLists.txt`, `App/CMakeLists.txt` |
+| Desktop | nothing (frozen; write `crates/aedst-feature-<name>` by hand from `aedst-feature-tasks`) | `features.yaml` gets `desktop: ~` |
 | All | | `features.yaml` |
 
 ## Adding a feature to an existing module
@@ -68,8 +68,10 @@ folder is a Go package path element, so hyphens are dropped (`bulk-edit` becomes
 - **Web has no primary-nav entry and no offline outbox handlers.** `registry.test.ts` pins the navigation order; add the
   `nav` entry, its `common.nav` label and update that test when the screen is real.
 - **Android has no way to reach the screen yet** (no tab, no deep link): add an `AedstTab` or a `navigator.navigate(<Name>Key)`.
-- **Apple and Desktop** are wired into the package/CMake graph but not into the app UI (no route registration, no plugin,
-  no QML view). They were never compiled here; the first Mac/Qt build is their acceptance test.
+- **Apple** is wired into the Swift package graph but not into the app UI (no route registration). It was never compiled
+  here; the first Mac build is its acceptance test.
+- **Desktop is not generated** (frozen platform): a `aedst-feature-<id>` crate is written by hand from `aedst-feature-tasks`
+  when Desktop is unfrozen, and `features.yaml` gets `desktop: ~` until then.
 - No integration test, event publisher, River job or idempotency key on the server; copy them from `tasks` when needed.
 
 After stamping: replace the placeholder entry with the real aggregate, write the spec in `apps/server/specs/<name>/`, and run

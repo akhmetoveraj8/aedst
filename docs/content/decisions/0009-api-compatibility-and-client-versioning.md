@@ -140,7 +140,7 @@ implemented today:
   cache in CI.
 - **Apple**: Tuist binary cache (`tuist cache`) so unchanged feature modules are
   not recompiled.
-- **Desktop**: CMake with ccache and vcpkg binary caching in CI.
+- **Desktop**: Cargo build caching in CI (not set up yet; an action must be pinned by SHA first).
 - **Web**: pnpm store caching now; Turborepo-style task caching only if web grows
   into multiple packages.
 - Keep modules independent so each platform's cache hits stay high (see the

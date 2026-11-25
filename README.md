@@ -2,19 +2,24 @@
 
 An empty, AI-friendly project template: a Go backend and four clients in one monorepo, built around one principle — **monolith first, boundaries first, microservices later**. It ships only global modules (tasks as the worked example, search, notifications, media, admin). Identity is not a module: sign-in, MFA and the user directory belong to an OpenID Connect provider (ZITADEL by default). Product domains are added by each product, never by the template.
 
+> **New here?** Read [Start here: AEDST in 15 minutes](docs/content/start-here.md) (what it is, the parts, the stack, how a request travels, where code goes) and keep the [glossary](docs/content/glossary.md) open. Solo builder who wants a running app fast? Follow the [indie quickstart](docs/content/indie-quickstart.md) (Core profile, five commands).
+
 ## Working mode: Core first
+
+**Server (backend) and Web first.** Build and verify every feature on Server + Web before starting any other platform; Android, Apple, Desktop and Gateway follow only after Core is green ([rule](docs/agent/rules.md#core-first)).
 
 The default profile is **Core = Server + Web**. These two are built, tested and gated on every change. Android, Apple and Desktop are **frozen**: they receive bug fixes and the work already scoped in their own tasks, and no new features, until each has had a first green CI run on GitHub. Reason: a feature costs about five times more when it must land on five platforms, and only two of them are verified today.
 
 | App | Stack | Status |
 |---|---|---|
 | [`apps/server`](apps/server/README.md) | Go, net/http ServeMux, ConnectRPC v2, Postgres (pgx/sqlc/Goose), River, DragonflyDB, OpenTelemetry; OIDC resource server | **Core.** Built, vetted, unit-tested |
-| [`apps/web`](apps/web/README.md) (`app`, `admin`, `marketing`, `shared`) | Next.js 16, React 19, TanStack Query, shadcn/ui, next-intl | **Core.** Typechecked, linted, unit- and browser-tested, built |
-| [`apps/android`](apps/android/README.md) | Kotlin, Jetpack Compose, Metro, connect-kotlin, Room 3 | Frozen. JVM gates passed before the Room 3 migration; the migration is **not compiled**; never run on a device |
+| [`apps/web`](apps/web/README.md) (`app`, `admin`, `marketing`, `shared`) | React 19, TanStack Query, shadcn/ui; `app` and `marketing` on Next.js 16 with next-intl, `admin` a Vite SPA with TanStack Router and a Hono BFF | **Core.** Typechecked, linted, unit- and browser-tested, built |
+| [`apps/android`](apps/android/README.md) | Kotlin, Jetpack Compose, Metro, connect-kotlin, Room 3 | Frozen. Compiles (2026-11-25); `assembleDebug`, part of the tests and device runs **UNVERIFIED** |
 | [`apps/apple`](apps/apple/README.md) | SwiftUI, GRDB, connect-swift, Tuist (iOS 18+, macOS 15+) | Frozen. **Never compiled** |
+| [`apps/gateway`](apps/gateway/AGENTS.md) | Rust, axum WebSocket, NATS JetStream consumer; optional realtime "nudge" server | **EXPERIMENTAL.** Off by default (the server's NATS bridge is disabled while `AEDST_NATS_URL` is empty); **never compiled or tested**. Not for production auth paths until it has a green CI run |
 | [`apps/desktop`](apps/desktop/AGENTS.md) | Rust, Slint, connectrpc, openidconnect, keyring-core, rusqlite, Velopack (Windows and Linux) | Frozen. Fmt, clippy, tests and cargo-deny pass on Windows; **never built on Linux**, never run against a real server or IdP |
 
-The previous Qt 6 / C++ desktop app was deleted. See [Platform status](docs/content/status.md) before building on anything but Core, and [ADR-0001](apps/desktop/docs/adr/0001-rust-slint-replaces-qt.md) for why.
+See [Platform status](docs/content/status.md) before building on anything but Core, and [ADR-0001](apps/desktop/docs/adr/0001-rust-slint-desktop.md) for the Desktop stack.
 
 ## For AI agents and contributors
 
@@ -68,7 +73,7 @@ Commands per app (for example `task server:test`, `task web:test`) are listed in
 ## Layout
 
 ```
-apps/        server, web, android, apple, desktop
+apps/        server, web, android, apple, desktop, gateway
 packages/    design-tokens (Style Dictionary; generated token files are never hand-edited)
 docs/        documentation site (Next.js + Nextra), content in docs/content
 scripts/     check-naming.sh, check-file-size.sh, check-color-literals.mjs, check-i18n-parity.mjs, check-boundaries.sh, doctor.sh, update-deps.sh

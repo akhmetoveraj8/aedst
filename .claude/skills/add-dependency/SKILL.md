@@ -1,6 +1,6 @@
 ---
 name: add-dependency
-description: Add or bump a dependency (npm, Go module, Gradle, SwiftPM, vcpkg, GitHub Action, toolchain) the AEDST way: Library-First order, registry-verified version, allowlist and Library-First page updated in the same change. Use before writing any new utility or touching a manifest.
+description: Add or bump a dependency (npm, Go module, Gradle, SwiftPM, Cargo, GitHub Action, toolchain) the AEDST way: Library-First order, registry-verified version, allowlist and Library-First page updated in the same change. Use before writing any new utility or touching a manifest.
 argument-hint: "<platform> <need or package>"
 ---
 
@@ -10,7 +10,7 @@ Source of truth: [`docs/content/library-first/general.md`](../../../docs/content
 
 ## 1. Do you need it at all? (stop at the first yes)
 
-In this order: standard library, platform API, a library already in this repo's manifest (`package.json`, `go.mod`, `libs.versions.toml`, `Package.swift`, `vcpkg.json`), existing code in this repo. Custom code needs a documented technical reason (missing functionality, unsupported platform, incompatible API, unacceptable performance, security or compliance, domain logic). "Simpler" and "only 50 lines" are not reasons.
+In this order: standard library, platform API, a library already in this repo's manifest (`package.json`, `go.mod`, `libs.versions.toml`, `Package.swift`, `Cargo.toml`), existing code in this repo. Custom code needs a documented technical reason (missing functionality, unsupported platform, incompatible API, unacceptable performance, security or compliance, domain logic). "Simpler" and "only 50 lines" are not reasons.
 
 ## 2. Is it allowed?
 
