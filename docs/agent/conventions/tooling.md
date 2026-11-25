@@ -134,7 +134,7 @@ Run together by `task check:gates`; each has a negative self-test. Per-platform 
 | Android | detekt `ForbiddenImport` (+ `/MainThreadAndLogging`, `/OkHttpOutsideNetwork`, `/Material3Raw`), `ForbiddenMethodCall`, coroutines rules, compose-rules, type-resolved `detektDebug`, `lintDebug` with warningsAsErrors, `check-policies.sh`, `check-catalog-allowlist.sh`, `check-ui-tokens.sh`, `check-rpc-contract.sh`, `check-feature-boundaries.sh`, `koverVerifyDebug`, `scripts/test-gates.sh [--full]` |
 | Apple | SwiftLint `custom_rules` + static mirror, `check-dependencies.sh`, `check-apple-sensitive-apis.sh`, `i18n-apple-checks.mjs` |
 | Desktop | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo deny check` (`apps/desktop/deny.toml`), workspace lints (no `unwrap()`, no `unsafe`), `scripts/check-naming.sh`; without cargo: `apps/desktop/scripts/check-feature-boundaries.sh` (crate boundaries D1-D6, feature layout) and `check-approved-crates.sh` (approved direct dependencies, versions shared with the gateway), each with a negative self-test; frozen until its first green CI run |
-| Gateway | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, `cargo deny check` (`apps/gateway/deny.toml`; none has run yet), `scripts/check-naming.sh`; without cargo: `apps/desktop/scripts/check-approved-crates.sh` |
+| Gateway | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, `cargo deny check` (`apps/gateway/deny.toml`; none has run yet), `scripts/check-naming.sh`; without cargo: `scripts/rust/check-approved-crates.sh` |
 
 ## Wiring `scripts/check-naming.sh`
 

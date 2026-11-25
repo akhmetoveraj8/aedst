@@ -4,7 +4,8 @@
 #   - every direct dependency is in that project's approved-crates.txt (next to deny.toml) and named on its
 #     Library-First page; desktop crates take versions from the workspace only; nothing banned in deny.toml;
 #   - a crate both projects declare has the same version requirement; lint levels and the toolchain agree.
-# It lives here because apps/desktop holds the Rust gate scripts; apps/gateway has no scripts folder.
+# It lives in scripts/rust because it serves both Rust projects, so removing one (task template:new)
+# never removes the other's gate.
 #
 # Usage: check-approved-crates.sh                  check the real tree, then the negative self-test
 #        check-approved-crates.sh --self-test      only the negative self-test (fixtures in a temp dir)

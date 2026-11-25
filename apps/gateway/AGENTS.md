@@ -29,6 +29,6 @@ on crates.io (checked 2026-11-21); that they are sufficient is UNVERIFIED. Do no
 ## Gates (run before saying done)
 
 1. `task gateway:lint gateway:test gateway:deny` (`cargo fmt --check`, `clippy --all-targets -- -D warnings`, `cargo test`, `cargo deny check`). Never run yet; the source was reformatted by hand, rustfmt itself was not run, so run `cargo fmt` once first.
-2. `bash ../desktop/scripts/check-approved-crates.sh` (no cargo; also in `task check:boundaries` and CI job `dependency-policy`): approved direct dependencies, versions, lint levels and toolchain equal to Desktop.
+2. `bash ../../scripts/rust/check-approved-crates.sh` (no cargo; also in `task check:boundaries` and CI job `dependency-policy`): approved direct dependencies, versions, lint levels and toolchain equal to Desktop.
 3. `task check` from the repo root.
 4. If step 1 did not run, say that nothing was compiled or tested.

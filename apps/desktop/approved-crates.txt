@@ -1,5 +1,5 @@
 # Approved direct dependencies of apps/desktop (crates.io names), one per line.
-# Machine source of the Library-First rule "approved before first use": scripts/check-approved-crates.mjs
+# Machine source of the Library-First rule "approved before first use": scripts/rust/check-approved-crates.mjs
 # (apps/desktop/scripts) fails when a declared dependency is missing here, when a line here is not named on
 # docs/content/library-first/desktop.md, or when a line is no longer declared in Cargo.toml.
 # Adding a line: add-dependency skill (registry-verified version, the Library-First page in the same change).

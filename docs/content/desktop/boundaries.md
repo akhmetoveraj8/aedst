@@ -65,7 +65,7 @@ D6 fails when: `src/` holds both layer folders and other folders; `src/<feature>
 
 ## Approved crates and shared versions (`check-approved-crates.sh`)
 
-`apps/desktop/scripts/check-approved-crates.sh` covers both Rust projects, `apps/desktop` and `apps/gateway`, without cargo:
+`scripts/rust/check-approved-crates.sh` covers both Rust projects, `apps/desktop` and `apps/gateway`, without cargo:
 
 | Rule | What fails |
 |---|---|
@@ -87,7 +87,7 @@ The two workspaces stay separate (the gateway is a service with its own lock fil
 |---|---|
 | Locally and in `policies-ci.yml` (every PR) | `task check:boundaries` (`scripts/check-boundaries.sh desktop`) |
 | `desktop-ci.yml`, job `boundaries` | `bash scripts/check-feature-boundaries.sh` |
-| `gateway-ci.yml`, job `dependency-policy` | `bash apps/desktop/scripts/check-approved-crates.sh` |
+| `gateway-ci.yml`, job `dependency-policy` | `bash scripts/rust/check-approved-crates.sh` |
 | Pre-commit (`lefthook.yml`, `rust-gates`) | the same entry point with `--no-self-test` |
 
 Each gate has a negative self-test (`--self-test`): fixtures written to a temporary directory, one seeded violation per rule, and a good tree that must pass. The default run executes the real check and both self-tests.

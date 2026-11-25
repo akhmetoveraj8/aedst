@@ -5,7 +5,7 @@ description: "Approved crates of apps/gateway, the Rust realtime WebSocket gatew
 
 # Realtime gateway (Rust) stack
 
-`apps/gateway` (crate `aedst-gateway`) is the one Rust service next to the Go server. Decision and rationale: [ADR-0021](../../../apps/server/docs/adr/0021-nats-jetstream-and-rust-gateway.md). Versions were checked against crates.io on 2026-11-18; on 2026-11-21 every version and every feature name in `Cargo.toml` was checked against the crates.io API and exists. **None of them has been compiled together yet** (no Rust toolchain on the authoring machine): whether the chosen features are sufficient for the code is UNVERIFIED. A crate is approved only when it is in `Cargo.toml`, in `apps/gateway/approved-crates.txt` and in this table; `apps/desktop/scripts/check-approved-crates.sh` enforces that without cargo and fails when a version shared with `apps/desktop` drifts.
+`apps/gateway` (crate `aedst-gateway`) is the one Rust service next to the Go server. Decision and rationale: [ADR-0021](../../../apps/server/docs/adr/0021-nats-jetstream-and-rust-gateway.md). Versions were checked against crates.io on 2026-11-18; on 2026-11-21 every version and every feature name in `Cargo.toml` was checked against the crates.io API and exists. **None of them has been compiled together yet** (no Rust toolchain on the authoring machine): whether the chosen features are sufficient for the code is UNVERIFIED. A crate is approved only when it is in `Cargo.toml`, in `apps/gateway/approved-crates.txt` and in this table; `scripts/rust/check-approved-crates.sh` enforces that without cargo and fails when a version shared with `apps/desktop` drifts.
 
 | Responsibility | Tool | Notes |
 |---|---|---|

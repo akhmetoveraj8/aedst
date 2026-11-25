@@ -23,7 +23,7 @@ Single source of truth for naming and file-size limits across the 5 AEDST platfo
 | Android (`apps/android`) | [docs/agent/conventions/android.md](docs/agent/conventions/android.md) | ktlint + detekt, `scripts/check-naming.sh` |
 | Apple (`apps/apple`) | [docs/agent/conventions/apple.md](docs/agent/conventions/apple.md) | SwiftLint + swift-format, `scripts/check-naming.sh` |
 | Desktop (`apps/desktop`) | [docs/agent/conventions/desktop.md](docs/agent/conventions/desktop.md) | rustfmt + clippy, `scripts/check-naming.sh`, `apps/desktop/scripts/check-feature-boundaries.sh` |
-| Gateway (`apps/gateway`) | [docs/agent/conventions/gateway.md](docs/agent/conventions/gateway.md) | rustfmt + clippy, `scripts/check-naming.sh`, `apps/desktop/scripts/check-approved-crates.sh` |
+| Gateway (`apps/gateway`) | [docs/agent/conventions/gateway.md](docs/agent/conventions/gateway.md) | rustfmt + clippy, `scripts/check-naming.sh`, `scripts/rust/check-approved-crates.sh` |
 | Linter config shapes, wiring | [docs/agent/conventions/tooling.md](docs/agent/conventions/tooling.md) | |
 
 Cross-platform summary (details and rationale in the per-platform files):

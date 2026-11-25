@@ -4,9 +4,9 @@ name: gateway-ci (experimental, non-blocking until first green run)
 on:
   push:
     branches: [main]
-    paths: ["apps/gateway/**", "apps/desktop/Cargo.toml", "apps/desktop/scripts/**", "docs/content/library-first/gateway.md", "apps/server/internal/platform/natsbridge/**", ".github/workflows/gateway-ci.yml"]
+    paths: ["apps/gateway/**", "apps/*/Cargo.toml", "scripts/rust/**", "docs/content/library-first/gateway.md", "apps/server/internal/platform/natsbridge/**", ".github/workflows/gateway-ci.yml"]
   pull_request:
-    paths: ["apps/gateway/**", "apps/desktop/Cargo.toml", "apps/desktop/scripts/**", "docs/content/library-first/gateway.md", "apps/server/internal/platform/natsbridge/**", ".github/workflows/gateway-ci.yml"]
+    paths: ["apps/gateway/**", "apps/*/Cargo.toml", "scripts/rust/**", "docs/content/library-first/gateway.md", "apps/server/internal/platform/natsbridge/**", ".github/workflows/gateway-ci.yml"]
   workflow_dispatch:
 
 permissions:
@@ -28,14 +28,14 @@ env:
 
 jobs:
   # Needs no Rust toolchain (bash + node): every direct dependency is in approved-crates.txt and on the Library-First
-  # page, versions shared with apps/desktop agree, lint levels and the toolchain agree; with a negative self-test.
-  # The script lives in apps/desktop/scripts (the gateway has no scripts folder). Passes locally; never run on GitHub.
+  # page, versions shared with the desktop app (when the profile keeps it) agree, lint levels and the toolchain agree; with a negative self-test.
+  # The script lives in scripts/rust (shared by both Rust projects, kept when desktop is removed). Passes locally; never run on GitHub.
   dependency-policy:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - run: bash apps/desktop/scripts/check-approved-crates.sh
+      - run: bash scripts/rust/check-approved-crates.sh
         working-directory: .
 
   lint:

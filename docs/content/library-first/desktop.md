@@ -11,7 +11,7 @@ Part of the [Library-First standard](../library-first.md). Principles, version p
 
 ## Stack: Rust + Slint (`apps/desktop`)
 
-Owner decision of 2026-11-01, see [ADR-0001](../../../apps/desktop/docs/adr/0001-rust-slint-desktop.md). Rust edition 2024, toolchain in `rust-toolchain.toml`, one Cargo workspace. All versions live once in the root `Cargo.toml` `[workspace.dependencies]`; a crate is approved only when it is listed there, in `apps/desktop/approved-crates.txt` and in this table. `apps/desktop/scripts/check-approved-crates.sh` enforces that for direct dependencies without cargo (and fails when a version shared with `apps/gateway` drifts, see [desktop/boundaries](/desktop/boundaries)); `cargo deny` enforces licences, sources, advisories and the ban list.
+Owner decision of 2026-11-01, see [ADR-0001](../../../apps/desktop/docs/adr/0001-rust-slint-desktop.md). Rust edition 2024, toolchain in `rust-toolchain.toml`, one Cargo workspace. All versions live once in the root `Cargo.toml` `[workspace.dependencies]`; a crate is approved only when it is listed there, in `apps/desktop/approved-crates.txt` and in this table. `scripts/rust/check-approved-crates.sh` enforces that for direct dependencies without cargo (and fails when a version shared with `apps/gateway` drifts, see [desktop/boundaries](/desktop/boundaries)); `cargo deny` enforces licences, sources, advisories and the ban list.
 
 | Responsibility | Crate / tool |
 |---|---|

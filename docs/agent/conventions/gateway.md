@@ -32,7 +32,7 @@ The gateway is one Rust package (`aedst-gateway`), not part of the Desktop works
 | Gate | Needs cargo | Where |
 |---|---|---|
 | `scripts/check-naming.sh` | no | `task check`, `policies-ci.yml` |
-| `apps/desktop/scripts/check-approved-crates.sh` (approved direct dependencies, versions shared with Desktop, lint and toolchain parity; rules in [desktop/boundaries](../../content/desktop/boundaries.md)) | no | `task check:boundaries`, `policies-ci.yml`, `gateway-ci.yml` job `dependency-policy` |
+| `scripts/rust/check-approved-crates.sh` (approved direct dependencies, versions shared with Desktop, lint and toolchain parity; rules in [desktop/boundaries](../../content/desktop/boundaries.md)) | no | `task check:boundaries`, `policies-ci.yml`, `gateway-ci.yml` job `dependency-policy` |
 | `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, `cargo deny check` | yes | `task gateway:lint gateway:test gateway:deny`, `gateway-ci.yml` (never run) |
 
 The gateway has no feature level: it is one service with one capability (forwarding events to sockets).

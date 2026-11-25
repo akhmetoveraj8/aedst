@@ -23,7 +23,7 @@ import {
   stripComments,
   subdirectories,
   walk,
-} from './cargo-manifest.mjs';
+} from '../../../scripts/rust/cargo-manifest.mjs';
 
 const SHELL = 'aedst-desktop';
 const FEATURE = /^aedst-feature-/;

@@ -28,13 +28,13 @@ mode="${1:-}"
 
 if [ "$mode" != "--self-test" ]; then
   node check-feature-boundaries.mjs || status=1
-  bash check-approved-crates.sh --no-self-test || status=1
+  bash ../../../scripts/rust/check-approved-crates.sh --no-self-test || status=1
 fi
 
 if [ "$mode" != "--no-self-test" ]; then
   # A gate that stops failing on its seeded violations is broken.
   node check-feature-boundaries.mjs --self-test >/dev/null || { echo "::error::check-feature-boundaries self-test failed (run with --self-test)"; status=1; }
-  bash check-approved-crates.sh --self-test >/dev/null || { echo "::error::check-approved-crates self-test failed (run with --self-test)"; status=1; }
+  bash ../../../scripts/rust/check-approved-crates.sh --self-test >/dev/null || { echo "::error::check-approved-crates self-test failed (run with --self-test)"; status=1; }
   [ "$status" -eq 0 ] && echo "OK: negative self-tests of both desktop gates pass."
 fi
 

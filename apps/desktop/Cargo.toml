@@ -12,7 +12,7 @@ publish = false
 
 # Versions verified against crates.io on 2026-11-01. A crate may be used only after it is listed here, in
 # approved-crates.txt AND on docs/content/library-first/desktop.md. Enforced without cargo by
-# scripts/check-approved-crates.sh (direct dependencies; it also fails when a version shared with
+# scripts/rust/check-approved-crates.sh (direct dependencies; it also fails when a version shared with
 # apps/gateway/Cargo.toml drifts). cargo-deny (deny.toml) covers licences, advisories, sources and bans.
 [workspace.dependencies]
 slint = "1.19.1"
@@ -81,7 +81,7 @@ missing_docs = "warn"
 [workspace.lints.clippy]
 all = { level = "deny", priority = -1 }
 unwrap_used = "deny"
-# Same level as apps/gateway (scripts/check-approved-crates.sh, rule L1). CI already ran clippy with -D warnings,
+# Same level as apps/gateway (scripts/rust/check-approved-crates.sh, rule L1). CI already ran clippy with -D warnings,
 # so this changes nothing there; plain `cargo clippy` now fails too.
 expect_used = "deny"
 print_stdout = "deny"

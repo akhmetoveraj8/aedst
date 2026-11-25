@@ -299,7 +299,7 @@ tasks:
       - |
         echo "rustup toolchain install <version in apps/gateway/rust-toolchain.toml>"
         echo "task gateway:lint gateway:test gateway:build gateway:deny   # rustfmt, clippy -D warnings, cargo test, cargo build, cargo-deny"
-        echo "bash apps/desktop/scripts/check-approved-crates.sh          # no cargo: approved direct dependencies, versions shared with desktop"
+        echo "bash scripts/rust/check-approved-crates.sh          # no cargo: approved direct dependencies, versions shared with desktop"
         echo "End to end (Docker for Postgres): AEDST_GATEWAY_BIN=apps/gateway/target/debug/aedst-gateway go test -tags integration ./internal/platform/natsbridge/   (in apps/server)"
   verify:desktop:
     desc: Print the commands that verify the Rust + Slint Desktop app (cargo, Windows or Linux).

@@ -55,7 +55,7 @@ allow = [
     "LicenseRef-Slint-Royalty-free-2.0",
 ]
 
-# The approved list of DIRECT dependencies is approved-crates.txt, enforced by scripts/check-approved-crates.sh
+# The approved list of DIRECT dependencies is approved-crates.txt, enforced by scripts/rust/check-approved-crates.sh
 # (no cargo needed). cargo-deny 0.20.2 has no allow-list for direct dependencies only: `[bans] allow` denies every
 # crate that is not listed, transitive ones included (docs/src/checks/bans/cfg.md at tag 0.20.2), so it is not used.
 [bans]

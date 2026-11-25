@@ -160,7 +160,7 @@ async function main() {
     process.exit(selfTest(check) ? 0 : 1);
   }
   const here = path.dirname(fileURLToPath(import.meta.url));
-  const { violations, checked } = check(path.resolve(args[0] ?? path.join(here, '../../..')));
+  const { violations, checked } = check(path.resolve(args[0] ?? path.join(here, '../..')));
   for (const { rule, where, message } of violations) console.log(`::error file=${where}::${rule} ${message}`);
   if (violations.length > 0) {
     console.log(`FAIL: ${violations.length} Rust dependency policy violation(s).`);

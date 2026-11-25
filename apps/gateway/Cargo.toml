@@ -12,7 +12,7 @@ description = "AEDST realtime gateway: NATS JetStream events to authenticated We
 # NOT compiled together yet (no Rust toolchain on the authoring machine): that the features are SUFFICIENT for
 # the code is still UNVERIFIED until the first `cargo build`. A crate must also be in approved-crates.txt and on
 # docs/content/library-first/gateway.md; versions shared with apps/desktop/Cargo.toml must be identical
-# (apps/desktop/scripts/check-approved-crates.sh, no cargo needed).
+# (scripts/rust/check-approved-crates.sh, no cargo needed).
 [dependencies]
 tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros", "net", "signal", "time", "sync"] }
 tokio-util = "0.7.20"
