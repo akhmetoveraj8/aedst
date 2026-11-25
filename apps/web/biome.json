@@ -127,6 +127,9 @@
     "enabled": true,
     "rules": {
       "preset": "recommended",
+      "complexity": {
+        "useLiteralKeys": "off"
+      },
       "suspicious": {
         "noConsole": "warn",
         "noExplicitAny": "error",

@@ -80,7 +80,7 @@ export function TaskForm({
   onSubmit: (values: TaskFormValues) => void;
   isSubmitting: boolean;
   /** Classified failure of the last submit; the server text is never shown. */
-  submitErrorKind?: AppErrorKind;
+  submitErrorKind?: AppErrorKind | undefined;
   /** Shows a Cancel button (edit mode) that leaves the form without saving. */
   onCancel?: () => void;
 }) {

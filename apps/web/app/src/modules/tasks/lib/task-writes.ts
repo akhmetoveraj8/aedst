@@ -14,7 +14,7 @@ export type TaskCreatePayload = {
   description: string;
   priority: number;
   /** `yyyy-mm-dd` from the date input, or absent. */
-  dueDate?: string;
+  dueDate?: string | undefined;
 };
 
 export type TaskUpdatePayload = TaskCreatePayload & { taskId: string };
@@ -79,12 +79,20 @@ function parseRecord(raw: string): Record<string, unknown> | undefined {
   }
 }
 
-function toCreate(value: Record<string, unknown>) {
-  return typeof value.title === "string" &&
-    typeof value.description === "string" &&
-    typeof value.priority === "number" &&
-    (value.dueDate === undefined || typeof value.dueDate === "string")
-    ? (value as TaskCreatePayload)
+function toCreate(
+  value: Record<string, unknown>,
+): TaskCreatePayload | undefined {
+  const { title, description, priority, dueDate } = value;
+  return typeof title === "string" &&
+    typeof description === "string" &&
+    typeof priority === "number" &&
+    (dueDate === undefined || typeof dueDate === "string")
+    ? {
+        title,
+        description,
+        priority,
+        ...(dueDate === undefined ? {} : { dueDate }),
+      }
     : undefined;
 }
 
@@ -97,7 +105,6 @@ export function parseCreatePayload(raw: string): TaskCreatePayload | undefined {
 export function parseUpdatePayload(raw: string): TaskUpdatePayload | undefined {
   const value = parseRecord(raw);
   const base = value && toCreate(value);
-  return base && typeof value?.taskId === "string"
-    ? { ...base, taskId: value.taskId }
-    : undefined;
+  const taskId = value?.["taskId"];
+  return base && typeof taskId === "string" ? { ...base, taskId } : undefined;
 }

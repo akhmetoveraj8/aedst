@@ -31,12 +31,12 @@ describe("buildLanguageAlternates", () => {
 
   it("uses real BCP 47 tags: Tajik is tg, not the country code tj", () => {
     const alternates = buildLanguageAlternates("");
-    expect(alternates.tg).toBe("http://localhost:3002/tj");
-    expect(alternates.tj).toBeUndefined();
+    expect(alternates["tg"]).toBe("http://localhost:3002/tj");
+    expect(alternates["tj"]).toBeUndefined();
   });
 
   it("has no trailing slash on the home page", () => {
-    expect(buildLanguageAlternates("").ru).toBe("http://localhost:3002/ru");
+    expect(buildLanguageAlternates("")["ru"]).toBe("http://localhost:3002/ru");
   });
 });
 

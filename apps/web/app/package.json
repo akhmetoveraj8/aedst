@@ -23,7 +23,7 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
     "test:e2e:prod": "cross-env NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3100 next build && cross-env CI=1 playwright test",
-    "check": "pnpm lint && pnpm typecheck && pnpm knip && pnpm check:file-size && pnpm check:colors && pnpm check:forms && pnpm check:validation && pnpm check:deps && pnpm check:feature-boundaries && pnpm check:source && pnpm check:selftest",
+    "check": "pnpm lint && pnpm typecheck && pnpm knip && pnpm check:file-size && pnpm check:colors && pnpm check:forms && pnpm check:validation && pnpm check:feature-boundaries && pnpm check:source && pnpm check:selftest",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test:stories": "vitest run --config vitest.storybook.config.mts",
@@ -43,8 +43,6 @@
     "check:source": "node ../shared/scripts/check-source-bans.mjs",
     "check:feature-boundaries": "bash scripts/check-feature-boundaries.sh",
     "test:contract": "vitest run src/test/contract",
-    "check:deps": "depcruise src ../shared --config .dependency-cruiser.cjs",
-    "check:deps:graph": "depcruise src ../shared --config .dependency-cruiser.cjs --output-type dot --output-to dep-graph.dot",
     "test:mutation": "stryker run"
   },
   "dependencies": {
@@ -99,7 +97,6 @@
     "axe-core": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "cross-env": "catalog:",
-    "dependency-cruiser": "catalog:",
     "esbuild": "catalog:",
     "knip": "catalog:",
     "shadcn": "catalog:",

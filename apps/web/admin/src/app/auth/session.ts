@@ -16,8 +16,8 @@ const sessionSchema = z.object({
 
 export type Session = {
   email: string;
-  name?: string;
-  sub?: string;
+  name?: string | undefined;
+  sub?: string | undefined;
   roles: readonly string[];
 };
 
@@ -26,7 +26,7 @@ async function fetchSession(signal?: AbortSignal): Promise<Session | null> {
   const response = await fetch("/api/auth/session", {
     credentials: "same-origin",
     headers: { accept: "application/json" },
-    signal,
+    ...(signal ? { signal } : {}),
   });
   if (response.status === 401) {
     return null;

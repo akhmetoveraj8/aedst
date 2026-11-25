@@ -6,5 +6,6 @@
   "largestJsChunkGzipKB": 137,
   "totalCssGzipKB": 31.5,
   "totalFontKB": 549,
-  "entryJsGzipKB": 218
+  "entryJsGzipKB": 218,
+  "increases": []
 }

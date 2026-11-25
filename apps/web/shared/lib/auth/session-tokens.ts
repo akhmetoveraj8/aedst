@@ -36,6 +36,6 @@ export function sessionTokensFromResponse(
         ? Math.floor(expiresIn)
         : FALLBACK_ACCESS_MAX_AGE_SECONDS,
     refreshMaxAgeSeconds: REFRESH_COOKIE_MAX_AGE_SECONDS,
-    idToken: response.id_token || undefined,
+    ...(response.id_token ? { idToken: response.id_token } : {}),
   };
 }

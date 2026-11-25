@@ -14,7 +14,7 @@ export default defineConfig({
 
   retries: process.env.CI ? 2 : 0,
 
-  workers: process.env.CI ? 2 : undefined,
+  ...(process.env.CI ? { workers: 2 } : {}),
 
   reporter: process.env.CI
     ? [["line"], ["html", { open: "never" }]]

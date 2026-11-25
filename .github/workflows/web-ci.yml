@@ -76,26 +76,6 @@ jobs:
       - name: Biome (lint + format check; Biome only, no ESLint/Prettier)
         run: pnpm lint
 
-      # dependency-cruiser: import direction app -> modules -> shared, no cycles,
-      # public entry only, no orphans (apps/web/app/.dependency-cruiser.cjs).
-      - name: Import graph (dependency-cruiser)
-        run: pnpm check:deps
-
-      - name: Import graph artifact
-        if: ${{ !cancelled() }}
-        run: |
-          sudo apt-get install -y --no-install-recommends graphviz >/dev/null
-          pnpm check:deps:graph
-          dot -Tsvg dep-graph.dot -o dep-graph.svg
-
-      - name: Upload import graph
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: web-dep-graph
-          path: apps/web/app/dep-graph.svg
-          retention-days: 7
-
       - name: Feature module boundaries
         run: pnpm check:feature-boundaries
 

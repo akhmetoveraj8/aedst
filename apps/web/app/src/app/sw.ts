@@ -110,8 +110,11 @@ const offlineFallbacks = [
   },
 ];
 
+// Replaced at build time (esbuild `define`); undefined in dev.
+const precacheEntries = self.__SW_MANIFEST;
+
 const serwist = new Serwist({
-  precacheEntries: self.__SW_MANIFEST,
+  ...(precacheEntries ? { precacheEntries } : {}),
   // A new deployment takes over on the next navigation instead of waiting
   // for every tab to close; the app shows a "new version" toast.
   skipWaiting: false,
@@ -159,11 +162,11 @@ self.addEventListener("push", (event) => {
       // Plain badge dot; the open bell replaces it with the exact count.
       setAppBadge(),
       self.registration.showNotification(payload.title, {
-        body: payload.body,
-        tag: payload.tag,
+        ...(payload.body === undefined ? {} : { body: payload.body }),
+        ...(payload.tag === undefined ? {} : { tag: payload.tag }),
         icon: "/icons/icon-192.png",
         badge: "/icons/badge-96.png",
-        lang: payload.lang,
+        ...(payload.lang === undefined ? {} : { lang: payload.lang }),
         data: { url: payload.link, id: payload.id, kind: payload.kind },
       }),
     ]),

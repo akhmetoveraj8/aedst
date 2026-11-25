@@ -5,12 +5,12 @@ import { buildAlternates } from "@/app/config/seo";
 import { graph, webApplication } from "@/app/config/structured-data";
 import { PrivacySettingsButton } from "@/app/providers/privacy-settings-button";
 import { LocaleSwitcherLazy } from "@/app/shell/locale-switcher-lazy";
-import { PageMain } from "@/app/shell/page-main";
 import { AuthGate } from "@/modules/auth/public";
 import { toLanguageTag } from "@/shared/i18n/locales";
 import { requireLocale } from "@/shared/i18n/require-locale";
 import { parseAuthError } from "@/shared/lib/auth/auth-errors";
 import { safeRedirectPath } from "@/shared/lib/auth/safe-redirect";
+import { PageMain } from "@/shared/lib/layout/page-main";
 
 export async function generateMetadata({
   params,
@@ -47,10 +47,10 @@ export default async function LocaleRootPage({
   ]);
   // `proxy.ts` puts the page the visitor was headed to in `?next=`; validated
   // here too, so a crafted link cannot turn sign-in into an open redirect.
-  const next = typeof query.next === "string" ? query.next : undefined;
+  const next = typeof query["next"] === "string" ? query["next"] : undefined;
 
   const authError = parseAuthError(
-    typeof query.auth_error === "string" ? query.auth_error : undefined,
+    typeof query["auth_error"] === "string" ? query["auth_error"] : undefined,
   );
 
   return (

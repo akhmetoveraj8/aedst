@@ -38,8 +38,18 @@ export function httpOptions(config: OidcConfig, deps: OidcDeps = {}) {
     [oauth.allowInsecureRequests]: config.allowInsecureHttp,
     ...(customFetch
       ? {
-          [oauth.customFetch]: (url: string, init: RequestInit) =>
-            customFetch(url, init),
+          [oauth.customFetch]: (
+            url: string,
+            options: oauth.CustomFetchOptions<string, RequestInit["body"]>,
+          ) => {
+            // oauth4webapi sends `body: undefined` on GET; RequestInit wants
+            // the key absent instead.
+            const { body, ...init } = options;
+            return customFetch(
+              url,
+              body === undefined ? init : { ...init, body },
+            );
+          },
         }
       : {}),
   };

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { PageMain } from "@/app/shell/page-main";
 import { Link } from "@/shared/i18n/navigation";
 import { requireLocale } from "@/shared/i18n/require-locale";
+import { PageMain } from "@/shared/lib/layout/page-main";
 import { buttonVariants } from "@/shared/ui/button";
 
 export async function generateMetadata({

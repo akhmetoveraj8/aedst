@@ -43,7 +43,7 @@ export function AuthProvider({
   children,
 }: {
   initialUserId?: string | null;
-  initialRoles?: readonly string[];
+  initialRoles?: readonly string[] | undefined;
   children: React.ReactNode;
 }) {
   const [userId, setUserId] = useState<string | null>(initialUserId);

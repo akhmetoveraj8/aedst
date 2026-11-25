@@ -1,17 +1,4 @@
-import { hasLocale } from "next-intl";
-import { getRequestConfig } from "next-intl/server";
-
 import { loadMessages } from "@/app/config/i18n/messages";
-import { routing } from "@/shared/i18n/routing";
+import { createRequestConfig } from "@/shared/i18n/request-config";
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  const requested = await requestLocale;
-  const locale = hasLocale(routing.locales, requested)
-    ? requested
-    : routing.defaultLocale;
-
-  return {
-    locale,
-    messages: await loadMessages(locale),
-  };
-});
+export default createRequestConfig((locale) => loadMessages(locale));

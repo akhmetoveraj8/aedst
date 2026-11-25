@@ -1,14 +1,15 @@
 # aedst web workspace
 
-`apps/web` is a pnpm workspace of four directories. Three are separate Next.js projects (separate builds, images and
-domains); one is a source-only kit they share.
+`apps/web` is a pnpm workspace of four directories. Three are separate projects (separate builds, images and
+domains): `app` and `marketing` on Next.js, `admin` a Vite SPA with TanStack Router and a Hono BFF; one is a source-only
+kit they share.
 
-| Directory                       | Package              | Purpose                                                                               | Dev port | Domain (deployed)         |
-| ------------------------------- | -------------------- | ------------------------------------------------------------------------------------- | -------- | ------------------------- |
-| [`app/`](app/README.md)         | `@aedst/web-app`     | Product app for signed-in end users                                                   | 3000     | `app.<domain>` (proposed) |
-| [`admin/`](admin/README.md)     | `@aedst/web-admin`   | Staff admin panel (role `admin`), never indexed                                       | 3001     | `admin.<domain>`          |
+| Directory                           | Package                | Purpose                                                                               | Dev port | Domain (deployed)         |
+| ----------------------------------- | ---------------------- | ------------------------------------------------------------------------------------- | -------- | ------------------------- |
+| [`app/`](app/README.md)             | `@aedst/web-app`       | Product app for signed-in end users                                                   | 3000     | `app.<domain>` (proposed) |
+| [`admin/`](admin/README.md)         | `@aedst/web-admin`     | Staff admin panel (role `admin`), never indexed                                       | 3001     | `admin.<domain>`          |
 | [`marketing/`](marketing/README.md) | `@aedst/web-marketing` | Public marketing site, static, SEO/GEO first                                          | 3002     | `<domain>`                |
-| [`shared/`](shared/README.md)   | `@aedst/web-shared`  | Source-only kit: `ui`, `api/connect`, `lib`, `env`, `i18n`, `intl`, `date`, `modules` | none     | not deployed              |
+| [`shared/`](shared/README.md)       | `@aedst/web-shared`    | Source-only kit: `ui`, `api/connect`, `lib`, `env`, `i18n`, `intl`, `date`, `modules` | none     | not deployed              |
 
 Which project owns what, and how not to mix them: [AGENTS.md](AGENTS.md). Architecture, auth flow, CSP and deployment:
 [docs/content/web/projects.md](../../docs/content/web/projects.md).
@@ -43,12 +44,12 @@ Every dependency version is pinned once in the `catalog:` of [pnpm-workspace.yam
 
 ## Gates
 
-| Scope                        | Command (repo root)                                                                                                       |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Scope                        | Command (repo root)                                                                                                             |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | One project                  | `task app:lint app:knip app:test`, `task admin:lint admin:knip admin:test`, `task marketing:lint marketing:knip marketing:test` |
-| All three                    | `task web:lint web:knip web:test web:build`                                                                               |
-| Cross-platform static checks | `task check`                                                                                                              |
-| App extras                   | `task app:build app:check:bundle`, `task app:test:e2e` (Playwright), `task app:lighthouse`                                |
+| All three                    | `task web:lint web:knip web:test web:build`                                                                                     |
+| Cross-platform static checks | `task check`                                                                                                                    |
+| App extras                   | `task app:build app:check:bundle`, `task app:test:e2e` (Playwright), `task app:lighthouse`                                      |
 
 Changing `shared/` affects every project: run the `web:*` gates, not only one project's.
 

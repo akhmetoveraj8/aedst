@@ -98,8 +98,8 @@ describe("NotificationPreferences", () => {
     expect(toggle).toBeChecked();
     await userEvent.click(toggle);
 
-    await waitFor(() => expect(saved()?.taskDueSoon).toBe(false));
-    expect(saved()?.taskCompleted).toBe(true);
+    await waitFor(() => expect(saved()?.["taskDueSoon"]).toBe(false));
+    expect(saved()?.["taskCompleted"]).toBe(true);
   });
 
   it("explains when this browser has no Push API", async () => {
@@ -122,7 +122,10 @@ describe("NotificationPreferences", () => {
   it("subscribes with the server's VAPID key and registers a WEB_PUSH device; turns it off again", async () => {
     servePreferences();
     const { pushManager, unsubscribe } = stubPushApis();
-    const registered: { platform: PushPlatform; endpoint?: string }[] = [];
+    const registered: {
+      platform: PushPlatform;
+      endpoint?: string | undefined;
+    }[] = [];
     const unregistered: string[] = [];
     backend.use(
       rpc(NotificationsService.method.getWebPushConfig, () => ({

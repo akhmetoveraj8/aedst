@@ -58,7 +58,7 @@ export function NotificationsList({
 
   function onKeyDown(event: KeyboardEvent<HTMLUListElement>) {
     const current = Number(
-      (event.target as HTMLElement).closest("li")?.dataset.index,
+      (event.target as HTMLElement).closest("li")?.dataset["index"],
     );
     const last = items.length - 1;
     let next: number;

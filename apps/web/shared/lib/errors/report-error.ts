@@ -15,13 +15,13 @@ type ErrorSource =
 export type ErrorContext = {
   source: ErrorSource;
   /** Connect procedure (`aedst.tasks.v1.TasksService/GetTask`) when known. */
-  procedure?: string;
+  procedure?: string | undefined;
   /** Feature module that owns the failing code (`tasks`, `media`, …). */
-  feature?: string;
+  feature?: string | undefined;
   /** React component stack from an error boundary. */
-  componentStack?: string;
+  componentStack?: string | undefined;
   /** Free-form, non-PII extras. */
-  extra?: Record<string, unknown>;
+  extra?: Record<string, unknown> | undefined;
 };
 
 /**

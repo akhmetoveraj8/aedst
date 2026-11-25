@@ -45,8 +45,9 @@ export function CapabilitiesProvider({
   const { data } = useQuery({
     queryKey: ["capabilities"],
     queryFn: async () => toSnapshot(await client.getCapabilities({})),
-    initialData: initial ?? undefined,
-    initialDataUpdatedAt: initial?.fetchedAt,
+    ...(initial
+      ? { initialData: initial, initialDataUpdatedAt: initial.fetchedAt }
+      : {}),
     staleTime: STALE_MS,
     retry: 1,
     meta: { feature: "capabilities" },

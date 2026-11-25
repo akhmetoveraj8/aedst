@@ -5,7 +5,7 @@ import { routeTree } from "@/app/routeTree.gen";
 export function createAppRouter(history?: RouterHistory) {
   return createRouter({
     routeTree,
-    history,
+    ...(history ? { history } : {}),
     // Hover/focus preloads the route chunk and runs its loader.
     defaultPreload: "intent",
     scrollRestoration: true,

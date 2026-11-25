@@ -103,14 +103,14 @@ test("/ sends the browser to its language, the default otherwise", async ({
     maxRedirects: 0,
   });
   expect(tajik.status()).toBe(302);
-  expect(tajik.headers().location).toBe("/tj");
-  expect(tajik.headers().vary).toContain("Accept-Language");
+  expect(tajik.headers()["location"]).toBe("/tj");
+  expect(tajik.headers()["vary"]).toContain("Accept-Language");
 
   const other = await request.get("/", {
     headers: { "accept-language": "de" },
     maxRedirects: 0,
   });
-  expect(other.headers().location).toBe("/en");
+  expect(other.headers()["location"]).toBe("/en");
 });
 
 test("an unknown path answers 404 in the locale of the URL", async ({

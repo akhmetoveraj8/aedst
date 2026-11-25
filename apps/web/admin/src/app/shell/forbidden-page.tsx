@@ -1,7 +1,7 @@
 import { useLocale, useTranslations } from "use-intl";
 
 import { adminEnv } from "@/app/config/env";
-import { PageMain } from "@/app/shell/page-main";
+import { PageMain } from "@/shared/lib/layout/page-main";
 import { buttonVariants } from "@/shared/ui/button";
 
 /** Where a signed-in user without an operator role (or a failed sign-in) lands. */

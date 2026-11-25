@@ -1,0 +1,21 @@
+//// run: boundaries
+//// expect: imports from another feature module
+//// file: src/modules/a/manifest.ts
+export const manifest = {
+  id: "a",
+};
+//// file: src/modules/a/public.ts
+import { b } from "@/modules/b/public";
+
+export const a = b;
+//// file: src/modules/b/manifest.ts
+export const manifest = {
+  id: "b",
+};
+//// file: src/modules/b/public.ts
+export const b = 1;
+//// file: src/app/config/modules/registry.ts
+import { manifest as a } from "@/modules/a/manifest";
+import { manifest as b } from "@/modules/b/manifest";
+
+export const registry = [a, b];

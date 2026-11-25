@@ -5,4 +5,4 @@ const globals = globalThis as unknown as {
   process?: { env: Record<string, string | undefined> };
 };
 globals.process ??= { env: {} };
-globals.process.env.NODE_ENV ??= "test";
+globals.process.env["NODE_ENV"] ??= "test";

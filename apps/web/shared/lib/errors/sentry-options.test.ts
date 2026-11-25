@@ -5,7 +5,7 @@ import {
   beforeBreadcrumb,
   beforeSend,
   scrubUrl,
-} from "@/app/config/sentry/shared";
+} from "@/shared/lib/errors/sentry-options";
 
 describe("scrubUrl", () => {
   it("filters secrets in query strings, keeping the rest", () => {
@@ -37,10 +37,10 @@ describe("beforeBreadcrumb", () => {
         from: "/a?token=t",
       },
     }) as Breadcrumb;
-    expect(crumb.data?.url).toBe(
+    expect(crumb.data?.["url"]).toBe(
       "https://s3.example/o?X-Amz-Signature=[Filtered]",
     );
-    expect(crumb.data?.from).toBe("/a?token=[Filtered]");
+    expect(crumb.data?.["from"]).toBe("/a?token=[Filtered]");
     expect(crumb.message).toBe("Authorization: Bearer [Filtered]");
   });
 });

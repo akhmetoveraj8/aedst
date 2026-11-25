@@ -26,12 +26,22 @@
 //                        Every route must belong to a budgeted module or the
 //                        `shell` list, so a new route cannot ship without one.
 //
-// Any budget at 95 % or more of its limit prints WARN (the build still passes).
+// Any budget at 95 % or more of its limit prints WARN (the build still passes);
+// one more than 5 % under its limit prints a "can be lowered to X" hint.
+//
+// Ratchet (bundle-ratchet.mjs): a limit higher than at the merge-base with
+// origin/main fails unless the same change adds an `increases` entry
+// { date, limit, old, new, reason } for it.
 // Uses only node built-ins.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join, relative, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 
+import {
+  baseBudget,
+  lowerableTo,
+  unjustifiedRaises,
+} from "./bundle-ratchet.mjs";
 import {
   budgetStatus,
   containsReplayRecorder,
@@ -40,9 +50,10 @@ import {
 } from "./bundle-status.mjs";
 
 const rootDir = resolve(process.argv[2] ?? process.cwd());
-const budget = JSON.parse(
-  readFileSync(join(rootDir, "bundle-budget.json"), "utf8"),
-);
+const budgetPath = join(rootDir, "bundle-budget.json");
+const budget = JSON.parse(readFileSync(budgetPath, "utf8"));
+/** Measured value per limit key (see bundle-ratchet.mjs), for the lowering hints. */
+const measured = new Map();
 const staticDir = join(rootDir, budget.staticDir ?? ".next/static");
 const FONT_EXTENSIONS = new Set([".woff2", ".woff", ".ttf", ".otf"]);
 
@@ -81,19 +92,19 @@ const css = assets.filter((asset) => asset.type === "css");
 const largest = [...js].sort((a, b) => b.gzipBytes - a.gzipBytes)[0];
 
 const checks = [
-  ["total client JS (gzip)", kb(sum(js)), budget.totalJsGzipKB],
+  ["total client JS (gzip)", kb(sum(js)), "totalJsGzipKB"],
   [
     "largest JS chunk (gzip)",
     kb(largest?.gzipBytes ?? 0),
-    budget.largestJsChunkGzipKB,
+    "largestJsChunkGzipKB",
   ],
-  ["total CSS (gzip)", kb(sum(css)), budget.totalCssGzipKB],
+  ["total CSS (gzip)", kb(sum(css)), "totalCssGzipKB"],
 ];
 if (budget.totalFontKB !== undefined) {
   checks.push([
     `fonts on disk (${fonts.length} files)`,
     kb(fonts.reduce((total, path) => total + statSync(path).size, 0)),
-    budget.totalFontKB,
+    "totalFontKB",
   ]);
 }
 
@@ -109,17 +120,15 @@ if (budget.entryHtml) {
     );
     failed = true;
   }
-  checks.push([
-    "entry JS, first load (gzip)",
-    kb(sum(entry)),
-    budget.entryJsGzipKB,
-  ]);
+  checks.push(["entry JS, first load (gzip)", kb(sum(entry)), "entryJsGzipKB"]);
 }
 
 console.log(
   `Client bundle budget (${relative(process.cwd(), rootDir) || "."})`,
 );
-for (const [label, actual, limit] of checks) {
+for (const [label, actual, key] of checks) {
+  const limit = budget[key];
+  measured.set(key, actual);
   const status = budgetStatus(actual, limit);
   failed ||= status === "fail";
   console.log(
@@ -194,7 +203,12 @@ function checkRoutes() {
     const size = firstLoadKB(route);
     const key = owner.exact ? `shell ${owner.prefix}` : owner.id;
     if (size > (worst.get(key)?.size ?? 0)) {
-      worst.set(key, { size, limit: owner.limit, route: route.route });
+      worst.set(key, {
+        size,
+        limit: owner.limit,
+        route: route.route,
+        limitKey: owner.exact ? `shell.${owner.prefix}` : `modules.${owner.id}`,
+      });
     }
     for (const chunk of scripts(route)) {
       if (containsReplayRecorder(readFileSync(chunkFile(chunk), "utf8"))) {
@@ -216,7 +230,8 @@ function checkRoutes() {
       failed = true;
     }
   }
-  for (const [key, { size, limit, route }] of worst) {
+  for (const [key, { size, limit, route, limitKey }] of worst) {
+    measured.set(limitKey, size);
     const status = budgetStatus(size, limit);
     failed ||= status === "fail";
     console.log(
@@ -229,11 +244,56 @@ if (largest) {
   console.log(`  (largest chunk: ${largest.file})`);
 }
 
+// ---- ratchet: a limit only goes up with a recorded reason ----------------
+const ratchet = baseBudget(budgetPath);
+if ("notice" in ratchet) {
+  console.log(`Budget ratchet: ${ratchet.notice}`);
+} else {
+  const problems = unjustifiedRaises(ratchet.base, budget);
+  console.log(
+    problems.length === 0
+      ? "Budget ratchet: ok (no limit above the merge-base with origin/main without an increases entry)"
+      : "Budget ratchet",
+  );
+  for (const problem of problems) {
+    console.log(
+      `  FAIL ${problem.limit} raised ${problem.old} -> ${problem.new}: ${problem.why}`,
+    );
+    failed = true;
+  }
+}
+
+function limitOf(key) {
+  if (key.startsWith("modules.")) {
+    return budget.modules?.[key.slice("modules.".length)]?.firstLoadGzipKB;
+  }
+  if (key.startsWith("shell.")) {
+    return budget.shell?.[key.slice("shell.".length)];
+  }
+  return budget[key];
+}
+
+const hints = [...measured]
+  .map(([key, actual]) => {
+    const limit = limitOf(key);
+    return { key, actual, limit, to: lowerableTo(actual, limit) };
+  })
+  .filter((hint) => hint.to !== null);
+if (hints.length > 0) {
+  console.log("Limits more than 5 % above measured usage (ratchet them down):");
+  for (const { key, actual, limit, to } of hints) {
+    console.log(
+      `  hint ${key}: ${actual.toFixed(1)} KB used of ${limit} KB, can be lowered to ${to}`,
+    );
+  }
+}
+
 if (failed) {
   console.error(
     "\nBudget exceeded. Find what grew (diff the chunk list or analyze the build) and " +
-      "lazy-load it or drop it. Budgets are ratchets: raise bundle-budget.json only " +
-      "with a measured reason in its comment and a row in docs/content/decisions/web.md.",
+      "lazy-load it or drop it. Budgets are ratchets: raise a limit only together with an " +
+      "`increases` entry { date, limit, old, new, reason } in bundle-budget.json " +
+      "(and a row in docs/content/decisions/web.md for a decision).",
   );
   process.exit(1);
 }

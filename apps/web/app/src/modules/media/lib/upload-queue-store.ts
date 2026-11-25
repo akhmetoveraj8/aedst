@@ -21,14 +21,14 @@ type UploadStatus =
 export type UploadItem = {
   id: string;
   file: File;
-  taskId?: string;
+  taskId?: string | undefined;
   status: UploadStatus;
   /** 0..1 */
   progress: number;
-  /** Translation key under `media.uploader.errors`. */
-  errorKey?: string;
-  mediaId?: string;
-  compressed?: boolean;
+  /** Translation key under `media.uploader.errors`; `undefined` clears it. */
+  errorKey?: string | undefined;
+  mediaId?: string | undefined;
+  compressed?: boolean | undefined;
 };
 
 type UploadQueueState = {

@@ -32,10 +32,10 @@ function call(
     ...init.headers,
   };
   if (init.origin !== null) {
-    headers.origin = init.origin ?? ORIGIN;
+    headers["origin"] = init.origin ?? ORIGIN;
   }
   if (init.cookies) {
-    headers.cookie = cookieHeader(init.cookies);
+    headers["cookie"] = cookieHeader(init.cookies);
   }
   return app.request(`/api/rpc/${procedure}`, {
     method: "POST",

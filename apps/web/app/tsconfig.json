@@ -1,16 +1,9 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext", "webworker"],
     "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
@@ -30,7 +23,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "../shared/env/process-env.d.ts",
+    "../shared/i18n/next-intl-app-config.ts"
   ],
   "exclude": ["node_modules"]
 }

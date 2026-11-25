@@ -87,13 +87,10 @@ jobs:
       - name: knip (unused files/exports/deps)
         run: pnpm knip
 
-      # The bash gate is the authoritative one: dependency-cruiser cannot load
-      # TypeScript 7.0 (docs/content/decisions/web.md), so its graph may be incomplete.
-      - name: Module and feature boundaries (authoritative)
+      # Layering, module entries and project isolation; import cycles are Biome's
+      # noImportCycles (pnpm lint), unused files are knip's.
+      - name: Module and feature boundaries
         run: pnpm check:feature-boundaries
-
-      - name: Import graph (dependency-cruiser)
-        run: pnpm check:deps
 
       # Right-to-left: no physical Tailwind utilities (ml-, left-, text-left);
       # no Base64 images. Negative fixtures: apps/web/app `pnpm check:selftest`.

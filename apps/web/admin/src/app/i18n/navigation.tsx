@@ -38,17 +38,16 @@ type LinkProps = Omit<ComponentProps<"a">, "href"> & {
   locale?: Locale;
 };
 
-export function Link({ href, locale, ...props }: LinkProps) {
+export function Link({ href, locale, target, ...props }: LinkProps) {
   const active = useLocale();
-  const target = new URL(localize(href, locale ?? active), "http://local");
+  const url = new URL(localize(href, locale ?? active), "http://local");
   return (
     <RouterLink
-      to={target.pathname as never}
-      search={
-        target.search
-          ? (Object.fromEntries(target.searchParams) as never)
-          : undefined
-      }
+      to={url.pathname as never}
+      {...(url.search
+        ? { search: Object.fromEntries(url.searchParams) as never }
+        : {})}
+      {...(target === undefined ? {} : { target })}
       {...props}
     />
   );

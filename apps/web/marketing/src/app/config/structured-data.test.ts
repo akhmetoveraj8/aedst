@@ -13,7 +13,7 @@ describe("structured data", () => {
     const doc = graph(organization(), webSite({ inLanguage: "en" }));
     expect(doc["@context"]).toBe("https://schema.org");
     expect(doc["@graph"]).toHaveLength(2);
-    expect(doc["@graph"][1]?.publisher).toEqual({
+    expect(doc["@graph"][1]?.["publisher"]).toEqual({
       "@id": "http://localhost:3002/#organization",
     });
   });
@@ -27,14 +27,14 @@ describe("structured data", () => {
       appUrl: "http://localhost:3000/en",
     });
     expect(node["@type"]).toBe("SoftwareApplication");
-    expect(node.url).toBe("http://localhost:3000/en");
-    expect(node.offers).toBeUndefined();
+    expect(node["url"]).toBe("http://localhost:3000/en");
+    expect(node["offers"]).toBeUndefined();
   });
 
   it("builds FAQPage questions with accepted answers", () => {
     const node = faqPage([{ question: "Q?", answer: "A." }]);
     expect(node["@type"]).toBe("FAQPage");
-    expect(node.mainEntity).toEqual([
+    expect(node["mainEntity"]).toEqual([
       {
         "@type": "Question",
         name: "Q?",
@@ -48,7 +48,7 @@ describe("structured data", () => {
       { name: "Home", path: "/en" },
       { name: "Privacy", path: "/en/privacy" },
     ]);
-    expect(node.itemListElement).toMatchObject([
+    expect(node["itemListElement"]).toMatchObject([
       { position: 1, item: "http://localhost:3002/en" },
       { position: 2, item: "http://localhost:3002/en/privacy" },
     ]);

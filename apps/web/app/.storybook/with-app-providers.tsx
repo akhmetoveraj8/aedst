@@ -39,7 +39,9 @@ const messages = {
 export const withAppProviders: Decorator = (Story, context) => {
   const [queryClient] = useState(() => {
     backend.reset();
-    backend.use(...((context.parameters.rpc as MockRpc[] | undefined) ?? []));
+    backend.use(
+      ...((context.parameters["rpc"] as MockRpc[] | undefined) ?? []),
+    );
     const client = makeQueryClient();
     client.setDefaultOptions({
       queries: { retry: false, staleTime: Number.POSITIVE_INFINITY },
@@ -54,11 +56,11 @@ export const withAppProviders: Decorator = (Story, context) => {
         <QueryClientProvider client={queryClient}>
           <NuqsTestingAdapter
             hasMemory
-            searchParams={context.parameters.searchParams ?? ""}
+            searchParams={context.parameters["searchParams"] ?? ""}
           >
             <AuthProvider
               initialUserId="story-user"
-              initialRoles={context.parameters.roles ?? ["user"]}
+              initialRoles={context.parameters["roles"] ?? ["user"]}
             >
               <Story />
             </AuthProvider>

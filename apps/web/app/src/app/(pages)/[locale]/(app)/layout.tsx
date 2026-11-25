@@ -6,7 +6,6 @@ import { SignedInProviders } from "@/app/providers/signed-in-providers";
 import { AppNav } from "@/app/shell/app-nav";
 import { InstallPrompt } from "@/app/shell/install-prompt";
 import { LocaleSwitcherLazy } from "@/app/shell/locale-switcher-lazy";
-import { PageMain } from "@/app/shell/page-main";
 import { SyncStatus } from "@/app/shell/sync-status";
 import { CurrentUser } from "@/modules/auth/entries/current-user";
 import { SignOutButton } from "@/modules/auth/entries/sign-out-button";
@@ -19,6 +18,7 @@ import { requireLocale } from "@/shared/i18n/require-locale";
 import { CapabilitiesProvider } from "@/shared/lib/capabilities/capabilities-provider";
 import { getServerCapabilities } from "@/shared/lib/capabilities/server";
 import { ErrorBoundary } from "@/shared/lib/errors/error-boundary";
+import { PageMain } from "@/shared/lib/layout/page-main";
 
 /** Routes whose modules own the shell widgets (the sign-in marketing `/` ships with every page). */
 const SHELL_ROUTES = ["/search", "/notifications"];

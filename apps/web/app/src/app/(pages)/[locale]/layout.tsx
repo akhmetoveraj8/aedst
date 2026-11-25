@@ -7,16 +7,15 @@ import { Toaster } from "sonner";
 import { requireLocale } from "@/shared/i18n/require-locale";
 
 import "@app/styles/globals.css";
+import { ThemeProvider } from "next-themes";
 import { fontArabic, fontMono, fontSans } from "@/app/config/fonts";
 import { loadMessages } from "@/app/config/i18n/messages";
-import { appIcons } from "@/app/config/icons";
 import { JsonLd } from "@/app/config/json-ld";
 import { publicI18nNamespaces } from "@/app/config/modules/registry";
 import { buildVerification, siteConfig } from "@/app/config/seo";
 import { graph, organization, webSite } from "@/app/config/structured-data";
 import { ConsentLayer } from "@/app/providers/consent-layer";
 import { PwaProvider } from "@/app/providers/pwa-provider";
-import { ThemeProvider } from "@/app/providers/theme-provider";
 import { WebVitals } from "@/app/providers/web-vitals";
 import { OfflineBanner } from "@/app/shell/offline-banner";
 import { getLocaleDirection, toLanguageTag } from "@/shared/i18n/locales";
@@ -29,6 +28,7 @@ import {
   parseConsent,
 } from "@/shared/lib/consent/consent-cookie";
 import { ConsentProvider } from "@/shared/lib/consent/consent-provider";
+import { appIcons } from "@/shared/lib/seo/app-icons";
 import { DirectionProvider } from "@/shared/ui/direction";
 
 export async function generateMetadata({
@@ -126,7 +126,7 @@ export default async function RootLayout({
               defaultTheme="system"
               enableSystem
               disableTransitionOnChange
-              nonce={nonce}
+              {...(nonce === undefined ? {} : { nonce })}
             >
               <ConsentProvider initial={consent} privacySignal={privacySignal}>
                 <PwaProvider>

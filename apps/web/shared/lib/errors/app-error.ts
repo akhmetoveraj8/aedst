@@ -72,10 +72,11 @@ function isUpgradeRequired(error: ConnectError) {
       return false;
     }
     const bytes: Uint8Array = detail.value;
+    const [tag, length] = bytes;
     return (
-      bytes[0] === 0x0a &&
-      decoder.decode(bytes.subarray(2, 2 + bytes[1])) ===
-        UPGRADE_REQUIRED_REASON
+      tag === 0x0a &&
+      length !== undefined &&
+      decoder.decode(bytes.subarray(2, 2 + length)) === UPGRADE_REQUIRED_REASON
     );
   });
 }

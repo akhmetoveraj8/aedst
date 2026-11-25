@@ -5,10 +5,6 @@
   // next.config.ts, proxy.ts, vitest.config.mts and the app router files are
   // detected by knip's Next/Vitest plugins.
   "entry": [
-    // Loaded by path from next.config.ts (next-intl plugin), not imported.
-    "src/app/config/i18n/request.ts",
-    // next-intl `AppConfig` augmentation, picked up by tsc, never imported.
-    "src/app/config/i18n/messages-types.ts",
     // A module's full public surface; pages import the single-export entries/ files.
     "src/modules/*/public.ts"
   ],

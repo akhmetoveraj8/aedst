@@ -6,14 +6,14 @@
 
 export type PushPayload = {
   title: string;
-  body?: string;
+  body?: string | undefined;
   /** In-app relative route, e.g. `/tasks/<id>`. */
   link: string;
   /** Notification id (inbox), used as the OS notification tag. */
-  id?: string;
-  kind?: string;
-  tag?: string;
-  lang?: string;
+  id?: string | undefined;
+  kind?: string | undefined;
+  tag?: string | undefined;
+  lang?: string | undefined;
 };
 
 function str(value: unknown): string | undefined {
@@ -34,21 +34,21 @@ export function parsePushPayload(raw: string | undefined): PushPayload | null {
   if (typeof data !== "object" || data === null) {
     return null;
   }
-  const record = data as Record<string, unknown>;
-  const title = str(record.title);
+  const field = (key: string) => str(Reflect.get(data, key));
+  const title = field("title");
   if (!title) {
     return null;
   }
-  const id = str(record.id) ?? str(record.notificationId);
+  const id = field("id") ?? field("notificationId");
   return {
     title,
-    body: str(record.body),
-    link: str(record.link) ?? str(record.url) ?? "/notifications",
+    body: field("body"),
+    link: field("link") ?? field("url") ?? "/notifications",
     id,
-    kind: str(record.kind),
+    kind: field("kind"),
     // Same notification re-sent (e.g. retried delivery) replaces, not stacks.
-    tag: id ?? str(record.tag),
-    lang: str(record.lang) ?? str(record.locale),
+    tag: id ?? field("tag"),
+    lang: field("lang") ?? field("locale"),
   };
 }
 

@@ -1,0 +1,16 @@
+//// run: ratchet
+//// expect: no new "increases" entry with limit "shell./[locale]"
+//// file: base-budget.json
+{
+  "shell": { "/[locale]": 250 },
+  "increases": [
+    { "date": "2026-11-01", "limit": "shell./[locale]", "old": 240, "new": 250, "reason": "earlier raise" }
+  ]
+}
+//// file: bundle-budget.json
+{
+  "shell": { "/[locale]": 260 },
+  "increases": [
+    { "date": "2026-11-01", "limit": "shell./[locale]", "old": 240, "new": 250, "reason": "earlier raise" }
+  ]
+}

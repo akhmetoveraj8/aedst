@@ -16,7 +16,7 @@
 type FeatureState = {
   enabled: boolean;
   /** Oldest client release that may show the feature (semver). */
-  requiredClientVersion?: string;
+  requiredClientVersion?: string | undefined;
 };
 
 /** JSON-safe, so it can be cached in localStorage and shipped to the client. */

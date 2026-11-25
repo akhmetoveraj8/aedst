@@ -1,0 +1,6 @@
+//// run: ratchet
+//// expect: no new "increases" entry with limit "totalJsGzipKB"
+//// file: base-budget.json
+{ "totalJsGzipKB": 900, "shell": { "/[locale]": 250 } }
+//// file: bundle-budget.json
+{ "totalJsGzipKB": 950, "shell": { "/[locale]": 250 } }

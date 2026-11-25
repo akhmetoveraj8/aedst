@@ -98,7 +98,7 @@ export function protovalidateResolver<
     if (result.kind === "error") {
       // Fail closed: a rule that cannot be evaluated blocks the submit. The
       // server remains the authority and will answer with the real error.
-      errors.root = { type: "protovalidate", message: result.error.message };
+      errors["root"] = { type: "protovalidate", message: result.error.message };
     } else {
       for (const violation of result.violations as Violation[]) {
         const path = violationFieldName(violation.field);

@@ -1,7 +1,7 @@
 /**
  * Public surface of the module: the only code outside `src/modules/<id>`
  * may import (besides `manifest.ts`), enforced by
- * ../app/scripts/check-feature-boundaries.sh and dependency-cruiser.
+ * ../app/scripts/check-feature-boundaries.sh.
  *
  * Pages and layouts import the single-export files in `entries/` instead of
  * this barrel: the layout needs only the header and footer, and a Server

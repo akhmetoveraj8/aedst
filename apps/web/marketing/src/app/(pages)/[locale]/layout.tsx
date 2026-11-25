@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { fontArabic, fontSans } from "@/app/config/fonts";
-import { appIcons } from "@/app/config/icons";
 import { JsonLd } from "@/app/config/json-ld";
 import { buildVerification, siteConfig } from "@/app/config/seo";
 import { graph, organization, webSite } from "@/app/config/structured-data";
@@ -12,6 +11,7 @@ import { SiteHeader } from "@/modules/marketing/entries/site-header";
 import { getLocaleDirection, toLanguageTag } from "@/shared/i18n/locales";
 import { requireLocale } from "@/shared/i18n/require-locale";
 import { routing } from "@/shared/i18n/routing";
+import { appIcons } from "@/shared/lib/seo/app-icons";
 
 import "@app/styles/globals.css";
 

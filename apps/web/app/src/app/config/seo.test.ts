@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { answerEngineBots, trainingBots } from "@/app/config/ai-crawlers";
 import {
   buildAlternates,
   buildLanguageAlternates,
@@ -8,6 +7,7 @@ import {
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
 import { locales, toLanguageTag } from "@/shared/i18n/locales";
+import { answerEngineBots, trainingBots } from "@/shared/lib/seo/ai-crawlers";
 
 describe("buildLanguageAlternates", () => {
   it("emits an absolute hreflang URL for every locale plus x-default", () => {
@@ -24,12 +24,12 @@ describe("buildLanguageAlternates", () => {
   it("uses real BCP 47 tags: Tajik is tg, not the country code tj", () => {
     const alternates = buildLanguageAlternates("");
 
-    expect(alternates.tg).toBe("http://localhost:3000/tj");
-    expect(alternates.tj).toBeUndefined();
+    expect(alternates["tg"]).toBe("http://localhost:3000/tj");
+    expect(alternates["tj"]).toBeUndefined();
   });
 
   it("handles the root path without a trailing slash", () => {
-    expect(buildLanguageAlternates("").ru).toBe("http://localhost:3000/ru");
+    expect(buildLanguageAlternates("")["ru"]).toBe("http://localhost:3000/ru");
     expect(buildLanguageAlternates("")["x-default"]).toBe(
       "http://localhost:3000/en",
     );
@@ -49,7 +49,7 @@ describe("buildAlternates", () => {
     const alternates = buildAlternates("tasks", "ru");
 
     expect(alternates.canonical).toBe("http://localhost:3000/ru/tasks");
-    expect(alternates.languages.en).toBe("http://localhost:3000/en/tasks");
+    expect(alternates.languages["en"]).toBe("http://localhost:3000/en/tasks");
   });
 
   it("has no trailing slash on the home canonical", () => {

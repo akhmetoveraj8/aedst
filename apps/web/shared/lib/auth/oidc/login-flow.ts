@@ -44,7 +44,7 @@ export async function startLogin({
 }: {
   config: OidcConfig;
   /** Untrusted post-login destination; validated here. */
-  next?: string | null;
+  next?: string | null | undefined;
   /** Open the IdP on its registration form (`prompt=create`, ZITADEL). */
   register?: boolean;
   deps?: OidcDeps;

@@ -9,10 +9,6 @@
     // Shared tests run under this project (vitest include); they use the test mocks.
     "../shared/**/*.{test,stories}.{ts,tsx}",
     "../shared/**/*.test-support.ts",
-    // Loaded by path from next.config.ts (next-intl plugin), not imported.
-    "src/app/config/i18n/request.ts",
-    // next-intl `AppConfig` type augmentation (Locale), picked up by tsc, never imported.
-    "src/app/config/i18n/messages-types.ts",
     // Aliased in place of `server-only` by vitest.config.mts, not imported.
     "src/test/mocks/empty-module.ts",
     // Service worker entry, bundled by Serwist (app/serwist/[path]/route.ts),
@@ -61,12 +57,10 @@
     // Approved stack, planned but not imported yet.
     "@dnd-kit/react",
     // Referenced only from CSS (@import) or CLI config, which knip does not
-    // follow: globals.css, shadcn CLI, buf.gen.yaml / scripts/connect-generate.mjs.
+    // follow: globals.css and the shadcn CLI.
     "shadcn",
     "tw-animate-css",
     "tailwindcss",
-    "@bufbuild/buf",
-    "@bufbuild/protoc-gen-es",
     // Marker package that only takes effect via a bare side-effect import.
     "client-only",
     // Peer of @axe-core/playwright.

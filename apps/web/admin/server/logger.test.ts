@@ -28,7 +28,7 @@ describe("logger", () => {
       Object.assign(new Error("x".repeat(500)), { token: "secret" }),
     );
     expect(Object.keys(fields)).toEqual(["errorName", "errorMessage"]);
-    expect(String(fields.errorMessage)).toHaveLength(300);
+    expect(String(fields["errorMessage"])).toHaveLength(300);
     expect(errorFields("str")).toEqual({ errorName: "NonError" });
   });
 });

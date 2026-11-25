@@ -116,8 +116,8 @@ export function useUploader() {
               filename: file.name,
               contentType: file.type || "application/octet-stream",
               sizeBytes: BigInt(file.size),
-              taskId: item.taskId,
-              sha256,
+              ...(item.taskId === undefined ? {} : { taskId: item.taskId }),
+              ...(sha256 === undefined ? {} : { sha256 }),
             });
             mediaId = upload.media?.id ?? "";
             await putToStorage({

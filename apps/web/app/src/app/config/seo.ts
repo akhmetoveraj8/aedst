@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { clientEnv } from "@/shared/env/client";
 import { defaultLocale, locales, toLanguageTag } from "@/shared/i18n/locales";
-import type { AiCrawlerConfig } from "./ai-crawlers";
+import type { AiCrawlerConfig } from "@/shared/lib/seo/ai-crawlers";
 
 /**
  * Central SEO/branding constants. Everything metadata-related (root

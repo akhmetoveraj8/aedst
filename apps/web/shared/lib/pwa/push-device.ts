@@ -16,11 +16,13 @@ export function buildRegisterPushDeviceRequest(
   subscription: PushSubscriptionJSON,
 ): MessageInitShape<typeof RegisterPushDeviceRequestSchema> | null {
   const { endpoint, keys } = subscription;
-  if (!endpoint || !keys?.p256dh || !keys.auth) {
+  const p256dh = keys?.["p256dh"];
+  const auth = keys?.["auth"];
+  if (!endpoint || !p256dh || !auth) {
     return null;
   }
   return {
     platform: PushPlatform.WEB_PUSH,
-    webPush: { endpoint, p256dh: keys.p256dh, auth: keys.auth },
+    webPush: { endpoint, p256dh, auth },
   };
 }

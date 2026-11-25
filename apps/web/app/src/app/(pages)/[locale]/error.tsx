@@ -2,9 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
-import { PageMain } from "@/app/shell/page-main";
-
 import { reportError } from "@/shared/lib/errors/report-error";
+import { PageMain } from "@/shared/lib/layout/page-main";
 import { Button } from "@/shared/ui/button";
 
 type LocaleErrorProps = {

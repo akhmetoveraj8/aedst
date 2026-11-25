@@ -1,6 +1,6 @@
 import { useTranslations } from "use-intl";
-import { PageMain } from "@/app/shell/page-main";
 import { Link } from "@/shared/i18n/navigation";
+import { PageMain } from "@/shared/lib/layout/page-main";
 import { buttonVariants } from "@/shared/ui/button";
 
 export function LocaleNotFound() {

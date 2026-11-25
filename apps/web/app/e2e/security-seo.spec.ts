@@ -187,7 +187,7 @@ test.describe("SEO", () => {
   }) => {
     const response = await request.get("/en/", { maxRedirects: 0 });
     expect(response.status()).toBe(308);
-    expect(response.headers().location).toMatch(/\/en$/);
+    expect(response.headers()["location"]).toMatch(/\/en$/);
   });
 
   test("robots.txt hides private areas, lists the sitemap and sets per-bot AI rules", async ({

@@ -1,17 +1,10 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
     "types": ["vite/client", "node"],
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
     "allowImportingTsExtensions": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
     "paths": {
@@ -22,6 +15,6 @@
       "@sentry/nextjs": ["./node_modules/@sentry/react"]
     }
   },
-  "include": ["src", "e2e", "*.ts", "*.mts"],
+  "include": ["src", "e2e", "*.ts", "*.mts", "../shared/env/process-env.d.ts"],
   "exclude": ["node_modules", "dist", "server"]
 }

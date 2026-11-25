@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
+import { privateDisallowPaths } from "@/app/config/private-paths";
+import { siteConfig } from "@/app/config/seo";
 import {
   answerEngineBots,
   type CrawlerPolicy,
   trainingBots,
-} from "@/app/config/ai-crawlers";
-import { privateDisallowPaths } from "@/app/config/private-paths";
-import { siteConfig } from "@/app/config/seo";
+} from "@/shared/lib/seo/ai-crawlers";
 
 function groupRules(policy: CrawlerPolicy, disallow: string[]) {
   // A bot with its own group ignores the `*` group, so the private paths are

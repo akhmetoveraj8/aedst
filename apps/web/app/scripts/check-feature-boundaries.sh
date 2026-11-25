@@ -5,8 +5,8 @@
 # every project: `check-feature-boundaries.sh [project-dir]` (default: the app
 # project; each project's `pnpm check:feature-boundaries` passes its own
 # directory, scripts/check-boundaries.sh runs all three). This script is the
-# authoritative boundary gate; dependency-cruiser repeats the import-graph
-# rules but cannot load TypeScript 7.0 (docs/content/decisions/web.md).
+# boundary gate; import cycles are Biome's noImportCycles and unused files are
+# knip's (docs/content/decisions/web.md).
 # Fails when:
 #
 #  1. a file under src/modules/<a>/** imports src/modules/<b>/** (modules talk

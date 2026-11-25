@@ -41,7 +41,7 @@ export function usePushKeyRotation() {
     {
       enabled: optedIn,
       staleTime: Number.POSITIVE_INFINITY,
-      meta: { silent: true, feature: "notifications" },
+      meta: { feature: "notifications" },
     },
   );
   const { mutateAsync: register } = useMutation(

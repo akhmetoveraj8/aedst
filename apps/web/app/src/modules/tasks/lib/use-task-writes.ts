@@ -106,6 +106,7 @@ export function useUpdateTask() {
       if (result.status === "sent") {
         return queryClient.invalidateQueries({ queryKey: tasksQueryKey() });
       }
+      return undefined;
     },
   });
 }

@@ -10,7 +10,7 @@ export function PageMain({
   className,
   children,
 }: {
-  className?: string;
+  className?: string | undefined;
   children: React.ReactNode;
 }) {
   return (

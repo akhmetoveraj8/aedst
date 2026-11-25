@@ -1,0 +1,12 @@
+//// run: ratchet
+//// expect: pass
+//// file: base-budget.json
+{ "totalJsGzipKB": 900, "modules": { "tasks": { "routePrefix": "/[locale]/tasks", "firstLoadGzipKB": 400 } } }
+//// file: bundle-budget.json
+{
+  "totalJsGzipKB": 950,
+  "modules": { "tasks": { "routePrefix": "/[locale]/tasks", "firstLoadGzipKB": 390 } },
+  "increases": [
+    { "date": "2026-11-25", "limit": "totalJsGzipKB", "old": 900, "new": 950, "reason": "new lazy chart chunk, measured 941 KB" }
+  ]
+}

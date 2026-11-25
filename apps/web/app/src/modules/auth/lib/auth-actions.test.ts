@@ -55,7 +55,7 @@ describe("logoutAction", () => {
       ["aedst_session_id", ""],
     ]);
     for (const [, , options] of setCalls) {
-      expect(options.maxAge).toBe(0);
+      expect(options["maxAge"]).toBe(0);
     }
   });
 

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { answerEngineBots, trainingBots } from "@/app/config/ai-crawlers";
 import { publicRoutes } from "@/app/config/public-routes";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
 import { locales } from "@/shared/i18n/locales";
+import { answerEngineBots, trainingBots } from "@/shared/lib/seo/ai-crawlers";
 
 function groups() {
   const rules = robots().rules;

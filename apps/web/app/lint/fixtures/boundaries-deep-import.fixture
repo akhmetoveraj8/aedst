@@ -1,0 +1,18 @@
+//// run: boundaries
+//// expect: import a module only through its public.ts or manifest.ts
+//// file: src/modules/demo/manifest.ts
+export const manifest = {
+  id: "demo",
+};
+//// file: src/modules/demo/public.ts
+export const demo = 1;
+//// file: src/modules/demo/lib/internal.ts
+export const internal = 1;
+//// file: src/app/config/modules/registry.ts
+import { manifest } from "@/modules/demo/manifest";
+
+export const registry = [manifest];
+//// file: src/app/page.ts
+import { internal } from "@/modules/demo/lib/internal";
+
+export const page = internal;

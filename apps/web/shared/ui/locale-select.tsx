@@ -16,7 +16,7 @@ type LocaleSelectProps = {
   /** Accessible name of the control (there is no visible label). */
   label: string;
   onValueChange: (value: string) => void;
-  className?: string;
+  className?: string | undefined;
 };
 
 /**

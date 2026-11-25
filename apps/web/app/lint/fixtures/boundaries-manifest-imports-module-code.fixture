@@ -1,0 +1,17 @@
+//// run: boundaries
+//// expect: manifest.ts is UI-free data and may import only @/shared/**
+//// file: src/modules/demo/lib/x.ts
+export const x = 1;
+//// file: src/modules/demo/manifest.ts
+import { x } from "./lib/x";
+
+export const manifest = {
+  id: "demo",
+  x,
+};
+//// file: src/modules/demo/public.ts
+export const demo = 1;
+//// file: src/app/config/modules/registry.ts
+import { manifest } from "@/modules/demo/manifest";
+
+export const registry = [manifest];

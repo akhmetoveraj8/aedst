@@ -82,7 +82,7 @@ describe("capabilities on web", () => {
       }),
       1,
     );
-    expect(mapped.features.tasks?.requiredClientVersion).toBe("999.0.0");
+    expect(mapped.features["tasks"]?.requiredClientVersion).toBe("999.0.0");
     expect(mapped.features["media.uploads"]?.requiredClientVersion).toBe(
       undefined,
     );

@@ -131,10 +131,10 @@ describe("/api/rpc BFF proxy", () => {
         },
       });
 
-      expect(seen.traceparent).toBe("00-abc-def-01");
-      expect(seen.sentryTrace).toBe("abc-def-1");
+      expect(seen["traceparent"]).toBe("00-abc-def-01");
+      expect(seen["sentryTrace"]).toBe("abc-def-1");
       // The session cookie itself never goes upstream.
-      expect(seen.cookie).toBeNull();
+      expect(seen["cookie"]).toBeNull();
     });
 
     it("answers 503 when the API is unreachable", async () => {

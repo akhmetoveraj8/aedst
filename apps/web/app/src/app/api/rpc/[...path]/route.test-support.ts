@@ -29,7 +29,7 @@ export async function call(
     ...init.headers,
   };
   if (init.origin !== null) {
-    headers.origin = init.origin ?? "http://localhost:3000";
+    headers["origin"] = init.origin ?? "http://localhost:3000";
   }
   return POST(
     new Request(`http://localhost:3000/api/rpc/${procedure}`, {

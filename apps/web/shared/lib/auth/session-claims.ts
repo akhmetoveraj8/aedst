@@ -7,7 +7,10 @@ import { edgeEnv } from "@/shared/env/edge";
  * signature on every call; never gate anything sensitive on what this
  * returns.
  */
-export type SessionClaims = { sub?: string; exp?: number };
+export type SessionClaims = {
+  sub?: string | undefined;
+  exp?: number | undefined;
+};
 
 const EXPIRY_SKEW_SECONDS = 30;
 
@@ -119,9 +122,9 @@ export function decodeSessionRoles(
 }
 
 export type SessionIdentity = {
-  email?: string;
-  name?: string;
-  username?: string;
+  email?: string | undefined;
+  name?: string | undefined;
+  username?: string | undefined;
 };
 
 /**
@@ -137,9 +140,9 @@ export function decodeSessionIdentity(idToken: string): SessionIdentity {
   const text = (value: unknown) =>
     typeof value === "string" && value ? value : undefined;
   return {
-    email: text(claims.email),
-    name: text(claims.name),
-    username: text(claims.preferred_username),
+    email: text(claims["email"]),
+    name: text(claims["name"]),
+    username: text(claims["preferred_username"]),
   };
 }
 

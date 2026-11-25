@@ -240,7 +240,7 @@ describe("mock API responses parse strictly as the declared messages", () => {
 
   it("answers errors with real Connect codes", () => {
     const anonymous = { headers: {} };
-    const handler = mocks["aedst.tasks.v1.TasksService"]?.GetTask;
+    const handler = mocks["aedst.tasks.v1.TasksService"]?.["GetTask"];
     expect(() => handler?.({ id: "x" }, anonymous)).toThrow(RpcError);
     for (const [service, name, input] of [
       ["aedst.tasks.v1.TasksService", "GetTask", { id: "missing" }],

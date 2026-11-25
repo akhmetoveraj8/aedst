@@ -2,6 +2,8 @@
 // --watch`, and (with --vite) runs the Vite dev server next to it. Vite
 // (port 3001) proxies /api to the BFF (ADMIN_BFF_PORT, default 3101).
 import { spawn } from "node:child_process";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { context } from "esbuild";
 
 import { bundleOptions } from "./bundle-options.mjs";
@@ -21,10 +23,12 @@ children.push(
   ),
 );
 if (withVite) {
-  children.push(
-    // security-ignore: dev-only launcher, constant arguments; Windows needs a shell to run pnpm.cmd
-    spawn("pnpm", ["exec", "vite"], { stdio: "inherit", shell: true }),
-  );
+  // Run Vite's own JS entry with this Node binary: no shell and no
+  // platform-specific .cmd shim, so it behaves the same on Windows and Unix.
+  const require = createRequire(import.meta.url);
+  const vitePackage = require.resolve("vite/package.json");
+  const viteBin = join(dirname(vitePackage), require(vitePackage).bin.vite);
+  children.push(spawn(process.execPath, [viteBin], { stdio: "inherit" }));
 }
 
 const stop = () => {

@@ -77,7 +77,7 @@ export function renderWithProviders(
             <NuqsTestingAdapter
               hasMemory
               searchParams={searchParams}
-              onUrlUpdate={onUrlUpdate}
+              {...(onUrlUpdate ? { onUrlUpdate } : {})}
             >
               <AuthProvider
                 initialUserId={initialUserId}

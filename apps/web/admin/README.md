@@ -35,7 +35,7 @@ clients, auth helpers, i18n).
 cp .env.example .env.local
 pnpm dev          # Vite on http://localhost:3001, proxies /api/** to ADMIN_BFF_URL (default http://localhost:3101)
 pnpm build        # static files in dist/
-pnpm test && pnpm lint && pnpm typecheck && pnpm knip && pnpm check:deps
+pnpm test && pnpm lint && pnpm typecheck && pnpm knip && pnpm check:feature-boundaries
 ```
 
 Generated Connect clients come from `pnpm --filter @aedst/web-app connect:generate` (they land in `../shared/api/connect/generated`).

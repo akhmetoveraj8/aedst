@@ -4,7 +4,7 @@
 //   pnpm check:selftest
 //
 // Every "mandatory library per concern" rule (Biome rules and GritQL plugins,
-// check-feature-boundaries.sh, check-color-literals, check-source-bans, check-forms, check-validation,
+// check-feature-boundaries.sh, the bundle budget ratchet, check-color-literals, check-source-bans, check-forms, check-validation,
 // check-naming.sh) is run against a deliberately broken fixture and MUST
 // fail with the expected message; the `control-*` fixtures are clean and MUST
 // pass, which proves the harness is not just failing everything.
@@ -38,14 +38,6 @@ const biomeBin = join(
   "biome",
   "bin",
   "biome",
-);
-
-const depcruiseBin = join(
-  webDir,
-  "node_modules",
-  "dependency-cruiser",
-  "bin",
-  "dependency-cruiser.mjs",
 );
 
 function parseFixture(name) {
@@ -83,21 +75,6 @@ function makeTree(fixture, withApp) {
     mkdirSync(dirname(target), { recursive: true });
     writeFileSync(target, `${file.lines.join("\n").trimEnd()}\n`);
   }
-  if (fixture.run === "deps") {
-    cpSync(
-      join(webDir, ".dependency-cruiser.cjs"),
-      join(dir, ".dependency-cruiser.cjs"),
-    );
-    writeFileSync(
-      join(dir, "tsconfig.json"),
-      JSON.stringify({
-        compilerOptions: {
-          baseUrl: ".",
-          paths: { "@/shared/*": ["../shared/*"], "@/*": ["./src/*"] },
-        },
-      }),
-    );
-  }
   if (withApp) {
     const config = JSON.parse(
       readFileSync(join(webDir, "..", "biome.json"), "utf8"),
@@ -126,13 +103,15 @@ const runners = {
     sh("bash", [join(webDir, "scripts", "check-feature-boundaries.sh")], {
       env: { ...process.env, AEDST_WEB_ROOT: dir },
     }),
-  deps: (dir) =>
+  ratchet: (dir) =>
     sh(
       process.execPath,
-      [depcruiseBin, "src", "../shared", "--config", ".dependency-cruiser.cjs"],
-      {
-        cwd: dir,
-      },
+      [
+        join(webDir, "..", "shared", "scripts", "bundle-ratchet.mjs"),
+        join(dir, "base-budget.json"),
+        join(dir, "bundle-budget.json"),
+      ],
+      { cwd: dir },
     ),
   colors: (dir) =>
     sh(

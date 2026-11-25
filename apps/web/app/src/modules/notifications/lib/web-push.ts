@@ -51,8 +51,8 @@ export type WebPushKeys = { endpoint: string; p256dh: string; auth: string };
 
 export function subscriptionKeys(subscription: PushSubscription): WebPushKeys {
   const json = subscription.toJSON();
-  const p256dh = json.keys?.p256dh;
-  const auth = json.keys?.auth;
+  const p256dh = json.keys?.["p256dh"];
+  const auth = json.keys?.["auth"];
   if (!json.endpoint || !p256dh || !auth) {
     throw new Error("push subscription is missing its keys");
   }

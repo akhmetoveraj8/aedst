@@ -1,9 +1,8 @@
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useTranslations } from "use-intl";
-
-import { PageMain } from "@/app/shell/page-main";
 import { reportError } from "@/shared/lib/errors/report-error";
+import { PageMain } from "@/shared/lib/layout/page-main";
 import { Button } from "@/shared/ui/button";
 
 /** Route error screen inside the locale layout (translated, retryable). */

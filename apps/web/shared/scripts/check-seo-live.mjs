@@ -50,30 +50,58 @@ async function locs(xmlUrl) {
     fail(xmlUrl, `sitemap returned ${res.status}`);
     return [];
   }
-  return [...text.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+  return [...text.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) =>
+    m[1].replace(/&amp;/g, "&"),
+  );
 }
 
-const attr = (tag, name) => new RegExp(`${name}=["']([^"']*)["']`, "i").exec(tag)?.[1];
+const attr = (tag, name) =>
+  new RegExp(`${name}=["']([^"']*)["']`, "i").exec(tag)?.[1];
 
 function parse(html) {
-  const tags = (name) => [...html.matchAll(new RegExp(`<${name}\\b[^>]*>`, "gi"))].map((m) => m[0]);
-  const title = [...html.matchAll(/<title[^>]*>([^<]*)<\/title>/gi)].map((m) => m[1]);
+  const tags = (name) =>
+    [...html.matchAll(new RegExp(`<${name}\\b[^>]*>`, "gi"))].map((m) => m[0]);
+  const title = [...html.matchAll(/<title[^>]*>([^<]*)<\/title>/gi)].map(
+    (m) => m[1],
+  );
   const metas = tags("meta");
   const metaContent = (key, val) =>
-    metas.filter((t) => attr(t, key)?.toLowerCase() === val).map((t) => attr(t, "content"));
+    metas
+      .filter((t) => attr(t, key)?.toLowerCase() === val)
+      .map((t) => attr(t, "content"));
   const links = tags("link");
   const alternates = links
     .filter((t) => attr(t, "rel") === "alternate" && attr(t, "hreflang"))
     .map((t) => [attr(t, "hreflang"), attr(t, "href")]);
-  const canonical = links.filter((t) => attr(t, "rel") === "canonical").map((t) => attr(t, "href"));
+  const canonical = links
+    .filter((t) => attr(t, "rel") === "canonical")
+    .map((t) => attr(t, "href"));
   const h1 = [...html.matchAll(/<h1[\s>]/gi)].length;
   const lang = /<html[^>]*\blang=["']([^"']+)["']/i.exec(html)?.[1];
-  const ld = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)].map((m) => m[1]);
-  return { title, description: metaContent("name", "description"), robots: metaContent("name", "robots"), ogTitle: metaContent("property", "og:title"), ogImage: metaContent("property", "og:image"), alternates, canonical, h1, lang, ld };
+  const ld = [
+    ...html.matchAll(
+      /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+    ),
+  ].map((m) => m[1]);
+  return {
+    title,
+    description: metaContent("name", "description"),
+    robots: metaContent("name", "robots"),
+    ogTitle: metaContent("property", "og:title"),
+    ogImage: metaContent("property", "og:image"),
+    alternates,
+    canonical,
+    h1,
+    lang,
+    ld,
+  };
 }
 
 function collectIds(node, ids, refs) {
-  if (Array.isArray(node)) return node.forEach((n) => collectIds(n, ids, refs));
+  if (Array.isArray(node)) {
+    for (const n of node) collectIds(n, ids, refs);
+    return;
+  }
   if (node && typeof node === "object") {
     const keys = Object.keys(node);
     if (keys.length === 1 && keys[0] === "@id") refs.add(node["@id"]);
@@ -91,22 +119,32 @@ async function auditPage(loc) {
   const p = parse(text);
   pages.set(path(url), p);
 
-  if (p.title.length !== 1) fail(loc, `expected 1 <title>, found ${p.title.length}`);
-  else if (p.title[0].length < 10 || p.title[0].length > 70) warn(loc, `title length ${p.title[0].length}: "${p.title[0]}"`);
-  if (p.description.length !== 1) fail(loc, `expected 1 meta description, found ${p.description.length}`);
-  else if (p.description[0].length < 50 || p.description[0].length > 165) warn(loc, `description length ${p.description[0].length}`);
+  if (p.title.length !== 1)
+    fail(loc, `expected 1 <title>, found ${p.title.length}`);
+  else if (p.title[0].length < 10 || p.title[0].length > 70)
+    warn(loc, `title length ${p.title[0].length}: "${p.title[0]}"`);
+  if (p.description.length !== 1)
+    fail(loc, `expected 1 meta description, found ${p.description.length}`);
+  else if (p.description[0].length < 50 || p.description[0].length > 165)
+    warn(loc, `description length ${p.description[0].length}`);
   if (p.h1 !== 1) fail(loc, `expected exactly 1 <h1>, found ${p.h1}`);
   if (!p.lang) fail(loc, "missing <html lang>");
-  if (p.robots.some((r) => /noindex/i.test(r ?? ""))) fail(loc, "noindex on a URL listed in the sitemap");
-  if (!p.ogTitle.length || !p.ogImage.length) fail(loc, "missing og:title / og:image");
+  if (p.robots.some((r) => /noindex/i.test(r ?? "")))
+    fail(loc, "noindex on a URL listed in the sitemap");
+  if (!p.ogTitle.length || !p.ogImage.length)
+    fail(loc, "missing og:title / og:image");
 
-  if (p.canonical.length !== 1) fail(loc, `expected 1 canonical, found ${p.canonical.length}`);
-  else if (path(toBase(p.canonical[0])) !== path(url)) fail(loc, `canonical is not self: ${p.canonical[0]}`);
+  if (p.canonical.length !== 1)
+    fail(loc, `expected 1 canonical, found ${p.canonical.length}`);
+  else if (path(toBase(p.canonical[0])) !== path(url))
+    fail(loc, `canonical is not self: ${p.canonical[0]}`);
 
   if (p.alternates.length > 0) {
     const hrefs = p.alternates.map(([, h]) => path(toBase(h)));
-    if (!hrefs.includes(path(url))) fail(loc, "hreflang cluster does not contain the page itself");
-    if (!p.alternates.some(([l]) => l === "x-default")) fail(loc, "hreflang cluster without x-default");
+    if (!hrefs.includes(path(url)))
+      fail(loc, "hreflang cluster does not contain the page itself");
+    if (!p.alternates.some(([l]) => l === "x-default"))
+      fail(loc, "hreflang cluster without x-default");
   }
 
   const ids = new Set();
@@ -119,7 +157,8 @@ async function auditPage(loc) {
       fail(loc, `JSON-LD does not parse: ${e.message}`);
     }
   }
-  for (const r of refs) if (!ids.has(r)) fail(loc, `JSON-LD references ${r} but never defines it`);
+  for (const r of refs)
+    if (!ids.has(r)) fail(loc, `JSON-LD references ${r} but never defines it`);
 }
 
 async function main() {
@@ -133,7 +172,9 @@ async function main() {
   else urls.push(...index);
   if (urls.length === 0) fail(`${BASE}/sitemap.xml`, "no URLs found");
   const unique = [...new Set(urls)].slice(0, LIMIT);
-  console.log(`seo-audit: ${unique.length} URLs from ${children.length} sitemap(s)`);
+  console.log(
+    `seo-audit: ${unique.length} URLs from ${children.length} sitemap(s)`,
+  );
 
   const queue = [...unique];
   await Promise.all(
@@ -160,17 +201,23 @@ async function main() {
   }
 
   const robots = await get(`${BASE}/robots.txt`);
-  if (robots.res.status !== 200 || !/sitemap:/i.test(robots.text)) fail("/robots.txt", "missing or without a Sitemap line");
+  if (robots.res.status !== 200 || !/sitemap:/i.test(robots.text))
+    fail("/robots.txt", "missing or without a Sitemap line");
   const llms = await get(`${BASE}/llms.txt`);
   if (llms.res.status !== 200) fail("/llms.txt", `HTTP ${llms.res.status}`);
 
   // Advisory only: a static export served by a generic file server may answer the root and
   // unknown paths differently from the production edge (redirect rules live in the host).
   const home = await get(`${BASE}/`, { headers: { "Accept-Language": "en" } });
-  if (![200, 301, 302, 307, 308].includes(home.res.status)) warn("/", `unexpected status ${home.res.status}`);
+  if (![200, 301, 302, 307, 308].includes(home.res.status))
+    warn("/", `unexpected status ${home.res.status}`);
 
   const missing = await get(`${BASE}/en/this-page-does-not-exist`);
-  if (missing.res.status !== 404) warn("/en/this-page-does-not-exist", `expected 404, got ${missing.res.status}`);
+  if (missing.res.status !== 404)
+    warn(
+      "/en/this-page-does-not-exist",
+      `expected 404, got ${missing.res.status}`,
+    );
 
   if (warnings.length) {
     console.warn(
@@ -178,7 +225,10 @@ async function main() {
     );
   }
   if (failures.length) {
-    console.error(`\nseo-audit: ${failures.length} problem(s)\n` + failures.map((f) => `  - ${f}`).join("\n"));
+    console.error(
+      `\nseo-audit: ${failures.length} problem(s)\n` +
+        failures.map((f) => `  - ${f}`).join("\n"),
+    );
     process.exit(1);
   }
   console.log("seo-audit: all checks passed");

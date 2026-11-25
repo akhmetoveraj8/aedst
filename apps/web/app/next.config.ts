@@ -131,20 +131,23 @@ const nextConfig: NextConfig = {
   },
 };
 
+const releaseName =
+  process.env.SENTRY_RELEASE ||
+  process.env.GITHUB_SHA ||
+  process.env.VERCEL_GIT_COMMIT_SHA;
+
 export default withSentryConfig(withSerwist(withNextIntl(nextConfig)), {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  authToken: process.env.SENTRY_AUTH_TOKEN,
+  ...(process.env.SENTRY_ORG ? { org: process.env.SENTRY_ORG } : {}),
+  ...(process.env.SENTRY_PROJECT
+    ? { project: process.env.SENTRY_PROJECT }
+    : {}),
+  ...(process.env.SENTRY_AUTH_TOKEN
+    ? { authToken: process.env.SENTRY_AUTH_TOKEN }
+    : {}),
   // Release = commit SHA in CI (GITHUB_SHA) unless SENTRY_RELEASE overrides
   // it; the SDK injects the same value at runtime, which is what ties an
   // event to its uploaded source maps and to "suspect commits".
-  release: {
-    name:
-      process.env.SENTRY_RELEASE ||
-      process.env.GITHUB_SHA ||
-      process.env.VERCEL_GIT_COMMIT_SHA ||
-      undefined,
-  },
+  release: releaseName ? { name: releaseName } : {},
   sourcemaps: {
     // Without an auth token there's nothing to authenticate the upload with,
     // so skip it entirely instead of failing (or noisily warning) local builds.

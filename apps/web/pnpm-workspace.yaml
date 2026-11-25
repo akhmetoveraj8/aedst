@@ -64,7 +64,6 @@ catalog:
   "cn": "^0.5.2"
   "cross-env": "10.1.0"
   "date-fns": "^4.4.0"
-  "dependency-cruiser": 18.9.0
   "echarts": "^6.1.0"
   "echarts-for-react": "^3.1.0"
   "embla-carousel-react": "^8.6.0"

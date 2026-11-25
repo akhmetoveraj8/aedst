@@ -27,8 +27,8 @@ export function AuthGate({
   redirectTo,
   error,
 }: {
-  redirectTo?: string;
-  error?: AuthErrorCode;
+  redirectTo?: string | undefined;
+  error?: AuthErrorCode | undefined;
 }) {
   const t = useTranslations("auth.login");
 

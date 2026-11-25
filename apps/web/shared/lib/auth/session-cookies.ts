@@ -46,7 +46,7 @@ type CookieOptions = {
 
 /** The subset of `cookies()` / `NextResponse.cookies` this module writes through. */
 export type CookieWriter = {
-  set(name: string, value: string, options?: CookieOptions): unknown;
+  set(name: string, value: string, options: CookieOptions): unknown;
 };
 
 /** Reads one request cookie by name (`undefined` when absent). */

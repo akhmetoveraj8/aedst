@@ -16,6 +16,26 @@ import {
 import { addBreadcrumb } from "@/shared/lib/errors/breadcrumbs";
 import { reportError } from "@/shared/lib/errors/report-error";
 
+/**
+ * The `meta` every query and mutation may carry, typed once for the whole
+ * workspace (TanStack Query's documented `Register` augmentation).
+ */
+type AedstQueryMeta = {
+  /** Owning feature module, tagged on reported errors (`tasks`, `media`). */
+  feature?: string;
+};
+type AedstMutationMeta = AedstQueryMeta & {
+  /** The caller renders its own inline error, so skip the global toast. */
+  silent?: boolean;
+};
+
+declare module "@tanstack/react-query" {
+  interface Register {
+    queryMeta: AedstQueryMeta;
+    mutationMeta: AedstMutationMeta;
+  }
+}
+
 export function isUnauthenticated(error: unknown): boolean {
   return error instanceof ConnectError && error.code === Code.Unauthenticated;
 }
@@ -72,10 +92,6 @@ function hadData(query: Query<unknown, unknown, unknown, readonly unknown[]>) {
   return query.state.data !== undefined;
 }
 
-function featureFromMeta(meta: Record<string, unknown> | undefined) {
-  return typeof meta?.feature === "string" ? meta.feature : undefined;
-}
-
 export function makeQueryClient(callbacks: QueryClientCallbacks = {}) {
   return new QueryClient({
     queryCache: new QueryCache({
@@ -84,7 +100,7 @@ export function makeQueryClient(callbacks: QueryClientCallbacks = {}) {
         reportError(error, {
           source: "query",
           procedure: procedureFromKey(query.queryKey),
-          feature: featureFromMeta(query.meta),
+          feature: query.meta?.feature,
         });
         if (appError.kind === "unauthenticated") {
           callbacks.onUnauthenticated?.();
@@ -111,7 +127,7 @@ export function makeQueryClient(callbacks: QueryClientCallbacks = {}) {
         reportError(error, {
           source: "mutation",
           procedure: procedureFromKey(mutation.options.mutationKey),
-          feature: featureFromMeta(mutation.meta),
+          feature: mutation.meta?.feature,
         });
         if (appError.kind === "unauthenticated") {
           callbacks.onUnauthenticated?.();

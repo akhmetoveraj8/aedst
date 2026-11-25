@@ -21,11 +21,11 @@ export function cookieJar(c: Ctx): CookieWriter {
   return {
     set(name, value, options) {
       setCookie(c, name, value, {
-        httpOnly: options?.httpOnly,
-        secure: options?.secure,
+        httpOnly: options.httpOnly,
+        secure: options.secure,
         sameSite: "Lax",
-        path: options?.path,
-        maxAge: options?.maxAge,
+        path: options.path,
+        maxAge: options.maxAge,
       });
     },
   };

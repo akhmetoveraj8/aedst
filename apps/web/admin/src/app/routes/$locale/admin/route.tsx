@@ -3,11 +3,11 @@ import { useTranslations } from "use-intl";
 
 import { assertOperator } from "@/app/auth/guards";
 import { LocaleSwitcher } from "@/app/shell/locale-switcher";
-import { PageMain } from "@/app/shell/page-main";
 import { AdminNav } from "@/modules/admin/entries/admin-nav";
 import { ADMIN_SECTIONS } from "@/modules/admin/entries/admin-sections";
 import { AdminSignOutButton } from "@/modules/admin/entries/admin-sign-out";
 import { can } from "@/shared/lib/auth/roles";
+import { PageMain } from "@/shared/lib/layout/page-main";
 import { LoadingSkeleton } from "@/shared/ui/loading-skeleton";
 import { ModeToggle } from "@/shared/ui/mode-toggle";
 

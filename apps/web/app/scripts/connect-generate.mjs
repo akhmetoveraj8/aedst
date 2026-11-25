@@ -22,6 +22,7 @@ import { spawnSync } from "node:child_process";
 //      only emits code for files it's explicitly told to generate, so this
 //      dependency needs its own pass into the same output directory.
 import { readdirSync, rmSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -42,17 +43,18 @@ const env = {
   PATH: `${binDir}${process.platform === "win32" ? ";" : ":"}${process.env.PATH ?? ""}`,
 };
 
+// `@bufbuild/buf`'s bin is a Node launcher for the native binary: run it
+// with this Node binary so no shell or Windows .cmd shim is involved. buf
+// still finds protoc-gen-es through PATH (binDir is prepended above).
+const require = createRequire(import.meta.url);
+const bufPackage = require.resolve("@bufbuild/buf/package.json");
+const bufBin = join(dirname(bufPackage), require(bufPackage).bin.buf);
+
 function buf(args) {
-  const bufBin = join(binDir, process.platform === "win32" ? "buf.CMD" : "buf");
-  // shell: true is required on Windows to execute the pnpm-generated .CMD
-  // shim; args are passed as an array (not a single interpolated string) so
-  // they are still safely quoted rather than naively concatenated.
-  const result = spawnSync(bufBin, args, {
+  const result = spawnSync(process.execPath, [bufBin, ...args], {
     cwd: rootDir,
     env,
     stdio: "inherit",
-    // security-ignore: build-time script, arguments are repo constants; Windows needs a shell for .cmd
-    shell: true,
   });
   if (result.status !== 0) {
     process.exit(result.status ?? 1);

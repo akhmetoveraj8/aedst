@@ -39,7 +39,8 @@ export default defineConfig(({ mode }) => {
       ];
     }),
   );
-  const uploadSourcemaps = Boolean(env.SENTRY_AUTH_TOKEN);
+  const uploadSourcemaps = Boolean(env["SENTRY_AUTH_TOKEN"]);
+  const releaseName = env["SENTRY_RELEASE"] || env["GITHUB_SHA"];
 
   return {
     plugins: [
@@ -55,12 +56,14 @@ export default defineConfig(({ mode }) => {
       babel({ presets: [reactCompilerPreset()] }),
       uploadSourcemaps
         ? sentryVitePlugin({
-            org: env.SENTRY_ORG,
-            project: env.SENTRY_PROJECT,
-            authToken: env.SENTRY_AUTH_TOKEN,
-            release: {
-              name: env.SENTRY_RELEASE || env.GITHUB_SHA || undefined,
-            },
+            ...(env["SENTRY_ORG"] ? { org: env["SENTRY_ORG"] } : {}),
+            ...(env["SENTRY_PROJECT"]
+              ? { project: env["SENTRY_PROJECT"] }
+              : {}),
+            ...(env["SENTRY_AUTH_TOKEN"]
+              ? { authToken: env["SENTRY_AUTH_TOKEN"] }
+              : {}),
+            release: releaseName ? { name: releaseName } : {},
             sourcemaps: { filesToDeleteAfterUpload: ["dist/**/*.map"] },
             telemetry: false,
           })
@@ -82,7 +85,7 @@ export default defineConfig(({ mode }) => {
       fs: { allow: [path.resolve(root, "..")] },
       // /api/** (auth, rpc, healthz) is the BFF's.
       proxy: {
-        "/api": { target: env.ADMIN_BFF_URL || "http://localhost:3101" },
+        "/api": { target: env["ADMIN_BFF_URL"] || "http://localhost:3101" },
       },
     },
   };

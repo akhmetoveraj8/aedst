@@ -7,8 +7,9 @@
  * - Training crawlers collect content for model training or bulk datasets.
  *   Blocking them does not affect citations or classic search ranking.
  *
- * Policy per group lives in `siteConfig.aiCrawlers` (config/seo.ts); the
- * rules are emitted by `src/app/robots.ts`. See docs/content/web/seo-geo.md.
+ * Policy per group lives in each project's `siteConfig.aiCrawlers`
+ * (src/app/config/seo.ts); the rules are emitted by its `src/app/robots.ts`.
+ * See docs/content/web/seo-geo.md.
  */
 
 export const answerEngineBots = [

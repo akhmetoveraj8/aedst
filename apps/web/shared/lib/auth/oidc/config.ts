@@ -94,7 +94,9 @@ export function getOidcConfig(
   return {
     issuer,
     clientId: env.OIDC_CLIENT_ID,
-    clientSecret: env.OIDC_CLIENT_SECRET,
+    ...(env.OIDC_CLIENT_SECRET === undefined
+      ? {}
+      : { clientSecret: env.OIDC_CLIENT_SECRET }),
     scope,
     redirectUri: `${origin}${CALLBACK_PATH}`,
     postLogoutRedirectUri: origin,

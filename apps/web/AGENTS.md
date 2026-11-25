@@ -6,12 +6,12 @@ Architecture, auth flow, CSP and deployment per project: [docs/content/web/proje
 
 ## What goes where
 
-| Directory  | Package              | What it is                                                                                                                                                          | Port / domain                    | Read next                              |
-| ---------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------- |
-| `app/`     | `@aedst/web-app`     | The product: everything a signed-in end user does (tasks, media, notifications, search, sign-in)                                                                    | 3000 / `app.<domain>` (proposed) | [app/AGENTS.md](app/AGENTS.md)         |
-| `admin/`   | `@aedst/web-admin`   | Staff panel: operations only staff may do (users, audit log, broadcasts)                                                                                            | 3001 / `admin.<domain>`          | [admin/AGENTS.md](admin/AGENTS.md)     |
+| Directory    | Package                | What it is                                                                                                                                                          | Port / domain                    | Read next                                  |
+| ------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ------------------------------------------ |
+| `app/`       | `@aedst/web-app`       | The product: everything a signed-in end user does (tasks, media, notifications, search, sign-in)                                                                    | 3000 / `app.<domain>` (proposed) | [app/AGENTS.md](app/AGENTS.md)             |
+| `admin/`     | `@aedst/web-admin`     | Staff panel: operations only staff may do (users, audit log, broadcasts)                                                                                            | 3001 / `admin.<domain>`          | [admin/AGENTS.md](admin/AGENTS.md)         |
 | `marketing/` | `@aedst/web-marketing` | Anonymous marketing and SEO/GEO pages, static, no auth                                                                                                              | 3002 / `<domain>`                | [marketing/AGENTS.md](marketing/AGENTS.md) |
-| `shared/`  | `@aedst/web-shared`  | Source-only kit used by 2+ projects: `ui` (shadcn), `api/connect`, `lib` (auth, errors, forms, analytics), `env`, `i18n`, `intl`, `date`, `modules` (manifest type) | none                             | [shared/README.md](shared/README.md)   |
+| `shared/`    | `@aedst/web-shared`    | Source-only kit used by 2+ projects: `ui` (shadcn), `api/connect`, `lib` (auth, errors, forms, analytics), `env`, `i18n`, `intl`, `date`, `modules` (manifest type) | none                             | [shared/README.md](shared/README.md)       |
 
 Decision rule, in this order:
 
@@ -20,7 +20,7 @@ Decision rule, in this order:
    a product screen, a module, a route or a one-project helper stays in its project, even if you expect to reuse it later.
 3. Unsure between two projects: stop and ask the owner. Do not duplicate code across projects to avoid the question.
 
-## Dependency direction (enforced by `task check:boundaries`, dependency-cruiser and Biome)
+## Dependency direction (enforced by `task check:boundaries` and Biome)
 
 - `app`, `admin`, `marketing` -> `shared` only, via the alias `@/shared/*` (maps to `apps/web/shared/*`, a sibling of each `src/`).
 - Auth: `app` and `admin` are SEPARATE OIDC clients (`aedst-web`, `aedst-admin`) with their own `__Host-` cookies and `AUTH_COOKIE_NAME`; never share a session or cookie ([projects.md](../../docs/content/web/projects.md)).
@@ -28,7 +28,7 @@ Decision rule, in this order:
 - `shared` NEVER imports a project (`@/app/*`, `@/modules/*`); in tests only `@/test/*` of the host project `app`.
 - Inside a project: `app -> modules -> shared`; modules never import each other. Code outside a module imports only its `public.ts`, `manifest.ts` or `entries/*`.
 - Inside a module ([modules-and-features](../../docs/content/architecture/modules-and-features.md)): `features/<feature>/{ui,lib}` holds one capability; a feature never imports another feature; code two features share lives in the module's own `lib/` or `ui/`, which import no feature. A module with one capability stays flat (`ui/`, `lib/`).
-- Gate for all of the above in all three projects: `bash apps/web/app/scripts/check-feature-boundaries.sh <project-dir>` (`pnpm check:feature-boundaries` in each project, `task check:boundaries` for all). It is the authoritative one; `pnpm check:deps` (dependency-cruiser) repeats the graph rules but cannot load TypeScript 7.0.
+- Gate for all of the above in all three projects: `bash apps/web/app/scripts/check-feature-boundaries.sh <project-dir>` (`pnpm check:feature-boundaries` in each project, `task check:boundaries` for all). Import cycles: Biome `noImportCycles`; unused (orphan) files: knip. dependency-cruiser was removed on 2026-11-25 ([decisions/web](../../docs/content/decisions/web.md)).
 - Storybook of `shared/ui` and the vitest of `shared/**` tests are hosted by `app`; a `shared/` change must pass all three projects.
 
 ## Validation boundary (mandatory, machine-enforced)
@@ -51,12 +51,12 @@ project's knip allowlist and [library-first/web.md](../../docs/content/library-f
 
 ## Commands (from the repo root; `web:*` runs all three projects)
 
-| Project | Dev                | Gates                                                                                                                               |
-| ------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| app     | `task app:dev`     | `task app:lint app:knip app:test` (+ `app:build`, `app:check:bundle`, `app:test:e2e`)                                               |
-| admin   | `task admin:dev`   | `task admin:lint admin:knip admin:test` (+ `admin:build`, `admin:check:bundle`, `admin:test:e2e`)                                   |
+| Project   | Dev                  | Gates                                                                                                                                             |
+| --------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| app       | `task app:dev`       | `task app:lint app:knip app:test` (+ `app:build`, `app:check:bundle`, `app:test:e2e`)                                                             |
+| admin     | `task admin:dev`     | `task admin:lint admin:knip admin:test` (+ `admin:build`, `admin:check:bundle`, `admin:test:e2e`)                                                 |
 | marketing | `task marketing:dev` | `task marketing:lint marketing:knip marketing:test` (+ `marketing:build`, `marketing:check:bundle`, `marketing:test:e2e`, `marketing:lighthouse`) |
-| all     | `task web:dev`     | `task web:lint web:knip web:test web:build web:check:bundle web:check:source`, then `task check`                                    |
+| all       | `task web:dev`       | `task web:lint web:knip web:test web:build web:check:bundle web:check:source`, then `task check`                                                  |
 
 Build tooling used by two or more projects lives in `shared/scripts/` (bundle budget, SEO placeholder guard, source bans); each project calls it from its own `package.json`.
 
