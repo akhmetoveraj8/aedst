@@ -4,7 +4,18 @@
   "a11y": {
     "skipToContent": "Перейти к содержимому",
     "mainNav": "Основная навигация",
-    "language": "Язык"
+    "language": "Язык",
+    "previousSlide": "Предыдущий слайд",
+    "nextSlide": "Следующий слайд",
+    "toggleSidebar": "Показать или скрыть боковую панель",
+    "sidebar": "Боковая панель",
+    "sidebarDescription": "Панель навигации",
+    "commandPalette": "Палитра команд",
+    "commandPaletteDescription": "Найдите команду для запуска",
+    "loading": "Загрузка",
+    "messages": "Сообщения",
+    "questionnaireProgress": "Прогресс опроса",
+    "questionProgress": "Вопрос {current} из {total}"
   },
   "nav": {
     "features": "Возможности",
@@ -16,7 +27,8 @@
     "signIn": "Войти",
     "getStarted": "Начать",
     "goHome": "На главную",
-    "tryAgain": "Повторить"
+    "tryAgain": "Повторить",
+    "close": "Закрыть"
   },
   "errors": {
     "title": "Что-то пошло не так",

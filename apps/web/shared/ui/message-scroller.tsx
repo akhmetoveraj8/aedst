@@ -10,6 +10,7 @@ import {
 } from "@shadcn/react/message-scroller";
 import { cn } from "cn";
 import type * as React from "react";
+import { useTranslations } from "use-intl";
 import { Button } from "@/shared/ui/button";
 
 function MessageScrollerProvider(
@@ -38,8 +39,11 @@ function MessageScrollerViewport({
   className,
   ...props
 }: React.ComponentProps<typeof MessageScrollerPrimitive.Viewport>) {
+  // The primitive names the region "Messages" in English by default.
+  const t = useTranslations("common.a11y");
   return (
     <MessageScrollerPrimitive.Viewport
+      aria-label={t("messages")}
       data-slot="message-scroller-viewport"
       className={cn(
         "size-full min-h-0 min-w-0 scroll-fade-b scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content data-autoscrolling:scrollbar-thumb-transparent data-autoscrolling:scrollbar-track-transparent data-pending-scroll:invisible",

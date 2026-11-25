@@ -37,7 +37,17 @@
   "a11y": {
     "skipToContent": "Перейти к основному содержимому",
     "loading": "Загрузка",
-    "notifications": "Уведомления"
+    "notifications": "Уведомления",
+    "previousSlide": "Предыдущий слайд",
+    "nextSlide": "Следующий слайд",
+    "toggleSidebar": "Показать или скрыть боковую панель",
+    "sidebar": "Боковая панель",
+    "sidebarDescription": "Панель навигации",
+    "commandPalette": "Палитра команд",
+    "commandPaletteDescription": "Найдите команду для запуска",
+    "messages": "Сообщения",
+    "questionnaireProgress": "Прогресс опроса",
+    "questionProgress": "Вопрос {current} из {total}"
   },
   "locale": {
     "label": "Язык"

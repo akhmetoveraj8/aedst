@@ -7,7 +7,9 @@ import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react";
 import * as React from "react";
+import { useTranslations } from "use-intl";
 import { Button } from "@/shared/ui/button";
+import { useDirection } from "@/shared/ui/direction";
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
@@ -51,8 +53,12 @@ function Carousel({
   children,
   ...props
 }: React.ComponentProps<"div"> & CarouselProps) {
+  // Embla positions slides with transforms, so it must be told the text
+  // direction; without it slides move the wrong way in right-to-left locales.
+  const direction = useDirection();
   const [carouselRef, api] = useEmblaCarousel(
     {
+      direction,
       ...opts,
       axis: orientation === "horizontal" ? "x" : "y",
     },
@@ -77,15 +83,23 @@ function Carousel({
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "ArrowLeft") {
+      // Arrow keys follow the visual order: in right-to-left the previous
+      // slide is on the right; a vertical carousel uses up and down.
+      const [prevKey, nextKey] =
+        orientation === "vertical"
+          ? ["ArrowUp", "ArrowDown"]
+          : direction === "rtl"
+            ? ["ArrowRight", "ArrowLeft"]
+            : ["ArrowLeft", "ArrowRight"];
+      if (event.key === prevKey) {
         event.preventDefault();
         scrollPrev();
-      } else if (event.key === "ArrowRight") {
+      } else if (event.key === nextKey) {
         event.preventDefault();
         scrollNext();
       }
     },
-    [scrollPrev, scrollNext],
+    [orientation, direction, scrollPrev, scrollNext],
   );
 
   React.useEffect(() => {
@@ -178,6 +192,7 @@ function CarouselPrevious({
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel();
+  const t = useTranslations("common.a11y");
 
   return (
     <Button
@@ -198,9 +213,9 @@ function CarouselPrevious({
       <HugeiconsIcon
         icon={ArrowLeft01Icon}
         strokeWidth={2}
-        className="rtl:rotate-180"
+        className={cn(orientation === "horizontal" && "rtl:rotate-180")}
       />
-      <span className="sr-only">Previous slide</span>
+      <span className="sr-only">{t("previousSlide")}</span>
     </Button>
   );
 }
@@ -212,6 +227,7 @@ function CarouselNext({
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { orientation, scrollNext, canScrollNext } = useCarousel();
+  const t = useTranslations("common.a11y");
 
   return (
     <Button
@@ -232,9 +248,9 @@ function CarouselNext({
       <HugeiconsIcon
         icon={ArrowRight01Icon}
         strokeWidth={2}
-        className="rtl:rotate-180"
+        className={cn(orientation === "horizontal" && "rtl:rotate-180")}
       />
-      <span className="sr-only">Next slide</span>
+      <span className="sr-only">{t("nextSlide")}</span>
     </Button>
   );
 }

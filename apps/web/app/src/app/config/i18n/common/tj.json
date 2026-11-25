@@ -37,7 +37,17 @@
   "a11y": {
     "skipToContent": "Гузаштан ба мазмуни асосӣ",
     "loading": "Бор шуда истодааст",
-    "notifications": "Огоҳиномаҳо"
+    "notifications": "Огоҳиномаҳо",
+    "previousSlide": "Слайди қаблӣ",
+    "nextSlide": "Слайди навбатӣ",
+    "toggleSidebar": "Нишон додан ё пинҳон кардани панели паҳлӯӣ",
+    "sidebar": "Панели паҳлӯӣ",
+    "sidebarDescription": "Панели паймоиш",
+    "commandPalette": "Палитраи фармонҳо",
+    "commandPaletteDescription": "Фармонро барои иҷро ҷустуҷӯ кунед",
+    "messages": "Паёмҳо",
+    "questionnaireProgress": "Пешрафти пурсиш",
+    "questionProgress": "Саволи {current} аз {total}"
   },
   "locale": {
     "label": "Забон"

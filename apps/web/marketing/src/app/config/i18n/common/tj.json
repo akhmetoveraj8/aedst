@@ -4,7 +4,18 @@
   "a11y": {
     "skipToContent": "Гузариш ба мундариҷа",
     "mainNav": "Навигатсияи асосӣ",
-    "language": "Забон"
+    "language": "Забон",
+    "previousSlide": "Слайди қаблӣ",
+    "nextSlide": "Слайди навбатӣ",
+    "toggleSidebar": "Нишон додан ё пинҳон кардани панели паҳлӯӣ",
+    "sidebar": "Панели паҳлӯӣ",
+    "sidebarDescription": "Панели паймоиш",
+    "commandPalette": "Палитраи фармонҳо",
+    "commandPaletteDescription": "Фармонро барои иҷро ҷустуҷӯ кунед",
+    "loading": "Бор шуда истодааст",
+    "messages": "Паёмҳо",
+    "questionnaireProgress": "Пешрафти пурсиш",
+    "questionProgress": "Саволи {current} аз {total}"
   },
   "nav": {
     "features": "Имкониятҳо",
@@ -16,7 +27,8 @@
     "signIn": "Ворид шудан",
     "getStarted": "Оғоз кардан",
     "goHome": "Ба саҳифаи асосӣ",
-    "tryAgain": "Бори дигар кӯшиш кунед"
+    "tryAgain": "Бори дигар кӯшиш кунед",
+    "close": "Пӯшидан"
   },
   "errors": {
     "title": "Хатое рух дод",

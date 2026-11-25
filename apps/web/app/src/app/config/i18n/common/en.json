@@ -37,7 +37,17 @@
   "a11y": {
     "skipToContent": "Skip to main content",
     "loading": "Loading",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "previousSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "toggleSidebar": "Toggle sidebar",
+    "sidebar": "Sidebar",
+    "sidebarDescription": "Navigation panel",
+    "commandPalette": "Command palette",
+    "commandPaletteDescription": "Search for a command to run",
+    "messages": "Messages",
+    "questionnaireProgress": "Questionnaire progress",
+    "questionProgress": "Question {current} of {total}"
   },
   "locale": {
     "label": "Language"

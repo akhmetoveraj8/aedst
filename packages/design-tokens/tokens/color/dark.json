@@ -103,13 +103,13 @@
         "$value": {
           "colorSpace": "oklch",
           "components": [1, 0, 0],
-          "alpha": 0.15
+          "alpha": 0.4
         }
       },
       "ring": {
         "$value": {
           "colorSpace": "oklch",
-          "components": [0.556, 0, 0]
+          "components": [0.708, 0, 0]
         }
       },
       "chart1": {
@@ -236,8 +236,8 @@
       "destructiveForeground": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.9804, 0.9804, 0.9804],
-          "hex": "#fafafa"
+          "components": [0.2706, 0.0392, 0.0392],
+          "hex": "#450a0a"
         }
       }
     }

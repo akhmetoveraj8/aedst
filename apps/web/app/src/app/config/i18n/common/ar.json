@@ -37,7 +37,17 @@
   "a11y": {
     "skipToContent": "انتقل إلى المحتوى الرئيسي",
     "loading": "جارٍ التحميل",
-    "notifications": "الإشعارات"
+    "notifications": "الإشعارات",
+    "previousSlide": "الشريحة السابقة",
+    "nextSlide": "الشريحة التالية",
+    "toggleSidebar": "إظهار الشريط الجانبي أو إخفاؤه",
+    "sidebar": "الشريط الجانبي",
+    "sidebarDescription": "لوحة التنقل",
+    "commandPalette": "لوحة الأوامر",
+    "commandPaletteDescription": "ابحث عن أمر لتشغيله",
+    "messages": "الرسائل",
+    "questionnaireProgress": "تقدم الاستبيان",
+    "questionProgress": "السؤال {current} من {total}"
   },
   "locale": {
     "label": "اللغة"

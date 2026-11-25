@@ -13,6 +13,7 @@ import {
 const meta = {
   title: "UI/Pagination",
   component: Pagination,
+  args: { "aria-label": "Pagination" },
 } satisfies Meta<typeof Pagination>;
 
 export default meta;
@@ -23,7 +24,7 @@ export const Default: Story = {
     <Pagination {...args}>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious href="#previous" />
+          <PaginationPrevious href="#previous" text="Previous" />
         </PaginationItem>
         <PaginationItem>
           <PaginationLink href="#1">1</PaginationLink>
@@ -40,7 +41,7 @@ export const Default: Story = {
           <PaginationEllipsis />
         </PaginationItem>
         <PaginationItem>
-          <PaginationNext href="#next" />
+          <PaginationNext href="#next" text="Next" />
         </PaginationItem>
       </PaginationContent>
     </Pagination>
@@ -52,7 +53,7 @@ export const CustomLabels: Story = {
     <Pagination {...args}>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious href="#back" text="Back" aria-label="Back" />
+          <PaginationPrevious href="#back" text="Back" />
         </PaginationItem>
         <PaginationItem>
           <PaginationLink href="#10" isActive aria-label="Page 10">
@@ -60,7 +61,7 @@ export const CustomLabels: Story = {
           </PaginationLink>
         </PaginationItem>
         <PaginationItem>
-          <PaginationNext href="#forward" text="Forward" aria-label="Forward" />
+          <PaginationNext href="#forward" text="Forward" />
         </PaginationItem>
       </PaginationContent>
     </Pagination>
