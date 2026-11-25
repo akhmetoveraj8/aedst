@@ -124,8 +124,11 @@ lock. For leader-only periodic work, River's own leader election/unique jobs.
 
 ## When you need cache or rate limiting
 
-DragonflyDB through `internal/platform/cache` (`RateLimiter`, `Aside`). Rate limiting fails
-open by design; never put correctness (locks, dedup, queues) in DragonflyDB.
+DragonflyDB through `internal/platform/cache` (`RateLimiter`, `Aside`). When DragonflyDB is unreachable the
+`RateLimiter` answers from an in-process per-replica token bucket (`golang.org/x/time/rate`, at most 200k keys)
+and returns the decision together with the error: log the error and honour the decision. A limiter outage
+degrades to per-replica limits, never to no limit and never to an outage (`aedst_ratelimit_fail_open` counts
+fallback decisions). Never put correctness (locks, dedup, queues) in DragonflyDB.
 
 ### When you need cache
 
@@ -257,7 +260,7 @@ metadata (set `Retry-After` on the response header), and interceptors are
 `connect.ServerInterceptor`s that wrap every RPC shape, streaming included. Every authenticated
 RPC is already covered by the per-user rate limit
 (`AEDST_API_RATE_LIMIT_PER_MINUTE`) and every request by load shedding
-(`AEDST_MAX_IN_FLIGHT`); a limiter outage fails open and must stay that way.
+(`AEDST_MAX_IN_FLIGHT`); a limiter outage degrades to per-replica limits and must never block requests.
 DragonflyDB is optional: never add it to a required readiness check or a startup step.
 
 ## Before opening a PR

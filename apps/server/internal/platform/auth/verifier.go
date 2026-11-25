@@ -34,9 +34,16 @@ type Claims struct {
 	Roles     []string
 	// Scopes are the OAuth scopes granted to the token ("scope" / "scp").
 	Scopes []string
+	// TenantID is the caller's tenant (organisation) id from the configured
+	// tenant claim; empty in a single-tenant deployment (ADR-0024).
+	TenantID string
 }
 
 const claimSessionID = "sid"
+
+// ErrMissingTenant is returned when a tenant claim is required
+// (AEDST_OIDC_TENANT_REQUIRED) and the token does not carry one.
+var ErrMissingTenant = errors.New("auth: token has no tenant claim")
 
 // ErrOpaqueToken is returned for a bearer token that is not a JWT. This server
 // verifies JWT access tokens offline (no introspection); an IdP issuing opaque

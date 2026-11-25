@@ -99,8 +99,9 @@ func ProcedureRateLimitInterceptor(limiter RateLimiter, limits map[string]Proced
 			}
 			allowed, err := limiter.Allow(ctx, "rl:proc:"+bucket+":"+identity.UserID.String(), limit.PerMinute, time.Minute)
 			if err != nil {
-				warnFailOpen(ctx, err)
-			} else if !allowed {
+				warnFailOpen(ctx, err) // degraded: the decision came from the in-process fallback
+			}
+			if !allowed {
 				// The budget refills evenly, so one unit is back after 60/N seconds.
 				wait := (59 + limit.PerMinute) / limit.PerMinute
 				return rateLimited(ctx, "rate limit for this operation exceeded, try again later", strconv.Itoa(wait))

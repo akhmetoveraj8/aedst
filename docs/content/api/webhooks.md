@@ -15,7 +15,7 @@ in its own language instead of hand-written HMAC code.
 | Part | State |
 |---|---|
 | Signed delivery job, retries, cancellation rules | implemented and unit-tested: `apps/server/internal/platform/webhooks` (`DeliveryArgs`, `Worker`) |
-| SSRF guard for target URLs | implemented and unit-tested (`NewHTTPClient`, `ValidateURL`, `IsPublicAddress`) |
+| SSRF guard for target URLs | implemented and unit-tested (`NewHTTPClient`, `ValidateURL`, shared `netguard.IsPublic`) |
 | Verification helper for receivers | implemented (`webhooks.Verify`); other languages use the Standard Webhooks libraries |
 | Endpoint registry (schema `webhooks`, goose migration, sqlc queries; signing secrets encrypted at rest with AES-256-GCM) | implemented and unit-tested: `apps/server/internal/modules/webhooks` |
 | Fan-out: one event consumer per offered event type that inserts one delivery row and one job per subscribed endpoint, in one transaction | implemented and unit-tested (`infrastructure/events`) |

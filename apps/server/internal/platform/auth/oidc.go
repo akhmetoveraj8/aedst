@@ -37,6 +37,10 @@ type OIDCConfig struct {
 	// effect on array or string claims, which carry no organisation.
 	RolesOrg  string
 	ClockSkew time.Duration
+	// TenantClaim names the claim with the caller's tenant id ("" = single
+	// tenant); TenantRequired rejects a token without it (ErrMissingTenant).
+	TenantClaim    string
+	TenantRequired bool
 	// HTTPClient is used for discovery; JWKS fetching uses jwkfetch's hardened
 	// default client. nil means a client with a 10s timeout.
 	HTTPClient *http.Client
@@ -129,6 +133,14 @@ func (v *OIDCVerifier) VerifyAccessToken(ctx context.Context, raw string) (Claim
 		return Claims{}, errors.New("auth: oidc token has no subject")
 	}
 
+	tenantID := ""
+	if v.cfg.TenantClaim != "" {
+		tenantID = stringField(token, v.cfg.TenantClaim)
+		if tenantID == "" && v.cfg.TenantRequired {
+			return Claims{}, ErrMissingTenant
+		}
+	}
+
 	sessionID, _ := ids.Parse(stringField(token, claimSessionID))
 	return Claims{
 		Issuer:    v.cfg.Issuer,
@@ -137,6 +149,7 @@ func (v *OIDCVerifier) VerifyAccessToken(ctx context.Context, raw string) (Claim
 		SessionID: sessionID,
 		Roles:     rolesFromToken(token, v.cfg.RolesClaim, v.cfg.RolesOrg),
 		Scopes:    scopesFromToken(token),
+		TenantID:  tenantID,
 	}, nil
 }
 

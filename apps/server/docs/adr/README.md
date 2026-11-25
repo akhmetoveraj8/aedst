@@ -14,6 +14,7 @@ the ones below were written inside the app and keep their files here. Numbers ar
 | 0021 | NATS JetStream bridge and a Rust WebSocket gateway (amends 0014, supersedes the realtime transport of 0008) | [0021-nats-jetstream-and-rust-gateway.md](0021-nats-jetstream-and-rust-gateway.md) |
 | 0022 | Event forwarding across databases, per-database River clients, service identity, media remote hook (completes 0020) | [0022-event-forwarding-and-service-identity.md](0022-event-forwarding-and-service-identity.md) |
 | 0023 | Optional components, enablement criteria and scaling limits (idempotency_keys stays unpartitioned) | [0023-optional-components-and-scaling-limits.md](0023-optional-components-and-scaling-limits.md) |
+| 0024 | Tenant isolation: tenant claim, transaction-local scope and PostgreSQL row-level security | [0024-tenant-isolation-rls.md](0024-tenant-isolation-rls.md) |
 
 The table of recorded decisions with "revisit when" is
-[`docs/content/decisions/server.md`](../../../../docs/content/decisions/server.md). The next ADR is 0024.
+[`docs/content/decisions/server.md`](../../../../docs/content/decisions/server.md). The next ADR is 0025.

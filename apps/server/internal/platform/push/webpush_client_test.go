@@ -8,40 +8,10 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
-	"net/netip"
 	"sync/atomic"
 	"testing"
 	"time"
 )
-
-func TestIsPublicAddr(t *testing.T) {
-	cases := map[string]bool{
-		"142.250.74.106":           true, // a public (Google) address
-		"2a00:1450:4001:82a::200a": true,
-		"127.0.0.1":                false,
-		"::1":                      false,
-		"10.1.2.3":                 false,
-		"172.16.0.1":               false,
-		"192.168.1.1":              false,
-		"169.254.169.254":          false, // cloud metadata
-		"fd00:ec2::254":            false, // AWS IPv6 metadata
-		"100.64.0.1":               false, // CGNAT
-		"0.0.0.0":                  false,
-		"::":                       false,
-		"::ffff:127.0.0.1":         false, // IPv4-mapped loopback
-		"64:ff9b::a00:1":           false, // NAT64 of 10.0.0.1
-		"64:ff9b::8efa:4a6a":       true,  // NAT64 of a public address
-		"fe80::1":                  false,
-		"224.0.0.1":                false,
-		"255.255.255.255":          false,
-		"198.18.0.1":               false,
-	}
-	for in, want := range cases {
-		if got := isPublicAddr(netip.MustParseAddr(in)); got != want {
-			t.Errorf("isPublicAddr(%s) = %v, want %v", in, got, want)
-		}
-	}
-}
 
 // The dial-time guard sees the resolved address, so a host name that resolves
 // to loopback (or a rebinding DNS answer) is refused like the literal is.

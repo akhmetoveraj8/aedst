@@ -107,6 +107,7 @@ func AuthInterceptor(verifier platformauth.Verifier, publicProcedures map[string
 				Scopes:    claims.Scopes,
 				Issuer:    claims.Issuer,
 				Subject:   claims.Subject,
+				TenantID:  claims.TenantID,
 			})
 			ctx = observability.WithUserID(ctx, claims.UserID.String())
 			ctx = platformauth.WithBearer(ctx, raw)
@@ -124,15 +125,17 @@ func bearerToken(header string) string {
 	return strings.TrimSpace(token)
 }
 
-// RateLimiter is satisfied by cache.RateLimiter.
+// RateLimiter is satisfied by cache.RateLimiter. On an error the returned
+// decision is still honoured (the error is only logged): cache.RateLimiter
+// answers from its in-process fallback while Dragonfly is unreachable.
 type RateLimiter interface {
 	Allow(ctx context.Context, key string, limit int, period time.Duration) (bool, error)
 }
 
 // RateLimitInterceptor throttles the listed procedures (typically the public
 // authentication RPCs) per client address, cluster-wide via the shared
-// limiter. It fails open on limiter errors (logged): rate limiting must not
-// become a second way to take the API down.
+// limiter. A limiter outage degrades to per-replica limits (logged), never to
+// no limit and never to an API outage.
 func RateLimitInterceptor(limiter RateLimiter, procedures map[string]bool, perMinute int, logger *slog.Logger) connect.ServerInterceptor {
 	warnFailOpen := failOpenWarner(logger)
 	return func(next connect.ServerFunc) connect.ServerFunc {
@@ -145,8 +148,9 @@ func RateLimitInterceptor(limiter RateLimiter, procedures map[string]bool, perMi
 			key := "rl:" + procedure + ":" + clientAddr(ctx)
 			allowed, err := limiter.Allow(ctx, key, perMinute, time.Minute)
 			if err != nil {
-				warnFailOpen(ctx, err)
-			} else if !allowed {
+				warnFailOpen(ctx, err) // degraded: the decision came from the in-process fallback
+			}
+			if !allowed {
 				return rateLimited(ctx, rateLimitMessage, "1")
 			}
 			return next(ctx, spec, stream)
@@ -176,8 +180,8 @@ func clientHost(addr string) string {
 // exhaust capacity that belongs to everyone else. It must sit after
 // AuthInterceptor; requests with no identity (the public procedures, which
 // RateLimitInterceptor covers per client address) pass through. Like the
-// per-address limiter it fails open: a limiter outage must not become an API
-// outage.
+// per-address limiter it degrades to per-replica limits during a limiter
+// outage: an outage never removes the limit and never becomes an API outage.
 func UserRateLimitInterceptor(limiter RateLimiter, perMinute int, logger *slog.Logger) connect.ServerInterceptor {
 	warnFailOpen := failOpenWarner(logger)
 	return func(next connect.ServerFunc) connect.ServerFunc {
@@ -188,8 +192,9 @@ func UserRateLimitInterceptor(limiter RateLimiter, perMinute int, logger *slog.L
 			}
 			allowed, err := limiter.Allow(ctx, "rl:user:"+identity.UserID.String(), perMinute, time.Minute)
 			if err != nil {
-				warnFailOpen(ctx, err)
-			} else if !allowed {
+				warnFailOpen(ctx, err) // degraded: the decision came from the in-process fallback
+			}
+			if !allowed {
 				return rateLimited(ctx, rateLimitMessage, "1")
 			}
 			return next(ctx, spec, stream)

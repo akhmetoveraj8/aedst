@@ -7,12 +7,12 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"net/netip"
 	"slices"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/aedst/server/internal/platform/netguard"
 	"github.com/aedst/server/internal/platform/resilience"
 )
 
@@ -69,42 +69,13 @@ func NewHTTPClient(cfg ClientConfig) *http.Client {
 	}
 }
 
-// publicAddressOnly is the net.Dialer.Control hook: it sees the literal IP the
-// socket is about to connect to.
-func publicAddressOnly(_, address string, _ syscall.RawConn) error {
-	addrPort, err := netip.ParseAddrPort(address)
-	if err != nil {
-		return fmt.Errorf("%w: %s", ErrForbiddenAddress, address)
-	}
-	if !IsPublicAddress(addrPort.Addr()) {
-		return fmt.Errorf("%w: %s", ErrForbiddenAddress, addrPort.Addr())
+// publicAddressOnly is the net.Dialer.Control hook: the shared SSRF guard
+// (platform/netguard) checks the literal IP the socket is about to connect to.
+func publicAddressOnly(network, address string, c syscall.RawConn) error {
+	if err := netguard.Control(network, address, c); err != nil {
+		return fmt.Errorf("%w: %w", ErrForbiddenAddress, err)
 	}
 	return nil
-}
-
-// Ranges that are not global unicast but that the netip predicates do not cover.
-var nonPublicPrefixes = []netip.Prefix{
-	netip.MustParsePrefix("0.0.0.0/8"),       // "this network"
-	netip.MustParsePrefix("100.64.0.0/10"),   // carrier-grade NAT (RFC 6598)
-	netip.MustParsePrefix("192.0.0.0/24"),    // IETF protocol assignments
-	netip.MustParsePrefix("192.0.2.0/24"),    // documentation
-	netip.MustParsePrefix("198.18.0.0/15"),   // benchmarking
-	netip.MustParsePrefix("198.51.100.0/24"), // documentation
-	netip.MustParsePrefix("203.0.113.0/24"),  // documentation
-	netip.MustParsePrefix("240.0.0.0/4"),     // reserved, broadcast
-	netip.MustParsePrefix("64:ff9b::/96"),    // NAT64: maps to IPv4, checked there
-	netip.MustParsePrefix("2001:db8::/32"),   // documentation
-}
-
-// IsPublicAddress reports whether addr is a public unicast address a webhook
-// may be delivered to. The cloud metadata address 169.254.169.254 is link-local.
-func IsPublicAddress(addr netip.Addr) bool {
-	addr = addr.Unmap()
-	if !addr.IsValid() || addr.IsUnspecified() || addr.IsLoopback() || addr.IsPrivate() ||
-		addr.IsLinkLocalUnicast() || addr.IsLinkLocalMulticast() || addr.IsMulticast() || addr.IsInterfaceLocalMulticast() {
-		return false
-	}
-	return !slices.ContainsFunc(nonPublicPrefixes, func(p netip.Prefix) bool { return p.Contains(addr) })
 }
 
 // hostAllowlist refuses hosts outside the configured list before any dial.

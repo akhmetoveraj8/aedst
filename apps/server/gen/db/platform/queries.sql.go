@@ -138,3 +138,21 @@ func (q *Queries) SaveIdempotencyKey(ctx context.Context, arg SaveIdempotencyKey
 	)
 	return err
 }
+
+const setRequestScope = `-- name: SetRequestScope :exec
+SELECT set_config('app.tenant_id', $1::text, true),
+       set_config('app.user_id', $2::text, true)
+`
+
+type SetRequestScopeParams struct {
+	TenantID string `json:"tenant_id"`
+	UserID   string `json:"user_id"`
+}
+
+// Transaction-local (is_local = true) caller scope that row-level security policies read
+// through platform.current_tenant_id() / platform.current_user_id() (ADR-0024). It ends with the
+// transaction, so a pooled connection never carries one request's scope into another.
+func (q *Queries) SetRequestScope(ctx context.Context, arg SetRequestScopeParams) error {
+	_, err := q.db.Exec(ctx, setRequestScope, arg.TenantID, arg.UserID)
+	return err
+}

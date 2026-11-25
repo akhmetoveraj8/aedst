@@ -23,6 +23,9 @@ func (a *app) buildVerifier(ctx context.Context) error {
 		RolesClaim: cfg.OIDC.RolesClaim,
 		RolesOrg:   cfg.OIDC.RolesOrg,
 		ClockSkew:  time.Duration(cfg.OIDC.ClockSkewSeconds) * time.Second,
+
+		TenantClaim:    cfg.OIDC.TenantClaim,
+		TenantRequired: cfg.OIDC.TenantRequired,
 	})
 	if err != nil {
 		return err

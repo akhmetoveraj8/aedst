@@ -77,3 +77,25 @@ func TestRateLimiter_ExhaustedPeeksWithoutSpending(t *testing.T) {
 		t.Fatalf("after the budget is spent Exhausted = %v, %v; want true", ex, err)
 	}
 }
+
+// During an outage the in-process fallback keeps limiting with the same budget, so a
+// Dragonfly failure neither removes rate limiting nor fails requests.
+func TestRateLimiter_LimitsLocallyWhenDragonflyIsDown(t *testing.T) {
+	l, mr := newLimiter(t)
+	mr.Close()
+	ctx := context.Background()
+	for i := range 2 {
+		if ok, err := l.Allow(ctx, "rl:user:x", 2, time.Minute); !ok || err == nil {
+			t.Fatalf("request %d during an outage = %v, %v; want allowed with the error reported", i+1, ok, err)
+		}
+	}
+	if ok, _ := l.Allow(ctx, "rl:user:x", 2, time.Minute); ok {
+		t.Fatal("the fallback must deny once the per-replica budget is spent")
+	}
+	if ok, _ := l.Allow(ctx, "rl:user:y", 2, time.Minute); !ok {
+		t.Fatal("another key keeps its own fallback budget")
+	}
+	if ex, _ := l.Exhausted(ctx, "rl:user:x", 2, time.Minute); !ex {
+		t.Fatal("Exhausted must answer from the fallback during an outage")
+	}
+}

@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"net/netip"
 	"strings"
 	"testing"
 	"time"
@@ -208,20 +207,6 @@ func TestValidateURL(t *testing.T) {
 	} {
 		if err := webhooks.ValidateURL(raw); (err == nil) != ok {
 			t.Errorf("ValidateURL(%q) = %v, want ok = %v", raw, err, ok)
-		}
-	}
-}
-
-func TestIsPublicAddress(t *testing.T) {
-	for addr, public := range map[string]bool{
-		"93.184.216.34": true, "2606:2800:220:1:248:1893:25c8:1946": true,
-		"127.0.0.1": false, "::1": false, "10.1.2.3": false, "172.16.0.1": false, "192.168.1.1": false,
-		"169.254.169.254": false, "100.64.0.1": false, "0.0.0.0": false, "::": false, "fd00::1": false,
-		"fe80::1": false, "224.0.0.1": false, "255.255.255.255": false, "::ffff:127.0.0.1": false,
-		"::ffff:10.0.0.1": false, "198.18.0.1": false, "64:ff9b::7f00:1": false,
-	} {
-		if got := webhooks.IsPublicAddress(netip.MustParseAddr(addr)); got != public {
-			t.Errorf("IsPublicAddress(%s) = %v, want %v", addr, got, public)
 		}
 	}
 }

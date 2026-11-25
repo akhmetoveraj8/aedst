@@ -254,6 +254,8 @@ config:
     tokenTypes: ["at+jwt", "JWT"] # JOSE typ of an access token; others (ID, logout) are refused
     rolesClaim: urn:zitadel:iam:org:project:roles # ZITADEL (template default); Keycloak: realm_access.roles
     rolesOrg: "" # AEDST_OIDC_ROLES_ORG: ZITADEL organisation id; empty = roles from any organisation
+    tenantClaim: "" # AEDST_OIDC_TENANT_CLAIM: claim with the tenant id (ZITADEL: urn:zitadel:iam:user:resourceowner:id); empty = single tenant (ADR-0024)
+    tenantRequired: false # AEDST_OIDC_TENANT_REQUIRED: reject tokens without the tenant claim
     clockSkewSeconds: 30
   # Integration events are River jobs (ADR-0014): how long River keeps finished
   # jobs. Discarded deliveries are the dead-letter list, so they live longest.

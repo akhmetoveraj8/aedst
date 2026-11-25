@@ -33,3 +33,10 @@ SELECT state::text AS state, count(*)::bigint AS jobs
 FROM river_job
 WHERE state = ANY(sqlc.arg(states)::text[]::river_job_state[])
 GROUP BY state;
+
+-- name: SetRequestScope :exec
+-- Transaction-local (is_local = true) caller scope that row-level security policies read
+-- through platform.current_tenant_id() / platform.current_user_id() (ADR-0024). It ends with the
+-- transaction, so a pooled connection never carries one request's scope into another.
+SELECT set_config('app.tenant_id', sqlc.arg(tenant_id)::text, true),
+       set_config('app.user_id', sqlc.arg(user_id)::text, true);

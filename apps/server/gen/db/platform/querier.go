@@ -21,6 +21,10 @@ type Querier interface {
 	// Acquire serialized concurrent writers, so a conflict here can only mean a
 	// caller skipped Check; keep the first result then.
 	SaveIdempotencyKey(ctx context.Context, arg SaveIdempotencyKeyParams) error
+	// Transaction-local (is_local = true) caller scope that row-level security policies read
+	// through platform.current_tenant_id() / platform.current_user_id() (ADR-0024). It ends with the
+	// transaction, so a pooled connection never carries one request's scope into another.
+	SetRequestScope(ctx context.Context, arg SetRequestScopeParams) error
 }
 
 var _ Querier = (*Queries)(nil)

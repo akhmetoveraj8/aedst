@@ -116,6 +116,8 @@ data:
   AEDST_OIDC_ROLES_CLAIM: {{ .Values.config.oidc.rolesClaim | quote }}
   {{- if .Values.config.oidc.rolesOrg }}
   AEDST_OIDC_ROLES_ORG: {{ .Values.config.oidc.rolesOrg | quote }}
+  AEDST_OIDC_TENANT_CLAIM: {{ .Values.config.oidc.tenantClaim | quote }}
+  AEDST_OIDC_TENANT_REQUIRED: {{ .Values.config.oidc.tenantRequired | quote }}
   {{- end }}
   AEDST_OIDC_CLOCK_SKEW_SECONDS: {{ .Values.config.oidc.clockSkewSeconds | int64 | quote }}
   {{- end }}

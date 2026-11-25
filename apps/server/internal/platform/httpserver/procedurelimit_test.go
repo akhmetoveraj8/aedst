@@ -59,9 +59,13 @@ func TestProcedureRateLimit_KeysBucketsAndFailOpen(t *testing.T) {
 	}
 
 	// A limiter outage fails open; a call without an identity is not counted.
-	limiter.err = errors.New("cache down")
+	limiter.err = errors.New("cache down") // degraded: the stub plays cache.RateLimiter's in-process fallback
+	if err := call(); connect.CodeOf(err) != connect.CodeResourceExhausted {
+		t.Fatalf("during a limiter outage the fallback decision (over budget) must be honoured, got %v", err)
+	}
+	limiter.allowed = true
 	if err := call(); err != nil {
-		t.Fatalf("limiter outage must fail open, got %v", err)
+		t.Fatalf("during a limiter outage a request within the fallback budget must pass, got %v", err)
 	}
 	anonymous := &stubLimiter{allowed: false}
 	if err := serve(t, ok, httpserver.ProcedureRateLimitInterceptor(anonymous, limits, discardLogger()))(); err != nil || len(anonymous.keys) != 0 {

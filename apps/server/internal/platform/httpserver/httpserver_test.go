@@ -132,8 +132,12 @@ func TestRateLimitInterceptor_EndToEnd(t *testing.T) {
 		t.Fatalf("unlisted procedure was throttled: %v", err)
 	}
 
-	limiter.err = errors.New("cache down")
+	limiter.err = errors.New("cache down") // degraded: the stub plays cache.RateLimiter's in-process fallback
+	if err := call(limited); connect.CodeOf(err) != connect.CodeResourceExhausted {
+		t.Fatalf("during a limiter outage the fallback decision (over budget) must be honoured, got %v", err)
+	}
+	limiter.allowed = true
 	if err := call(limited); err != nil {
-		t.Fatalf("limiter outage must fail open, got %v", err)
+		t.Fatalf("during a limiter outage a request within the fallback budget must pass, got %v", err)
 	}
 }

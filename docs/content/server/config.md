@@ -100,6 +100,8 @@ Open-ended family (not listed below): `AEDST_DATABASE_URL_<MODULE>` and `AEDST_D
 | `AEDST_OIDC_TOKEN_TYPES` | list | `at+jwt,JWT` | TokenTypes is the allow-list of the JOSE header typ of an access token: "at+jwt" (RFC 9068) and "JWT" (Keycloak and others). A token with another typ, or none, is rejected, which keeps ID and logout tokens out. |
 | `AEDST_OIDC_ROLES_CLAIM` | string | `roles` | RolesClaim locates roles in the token: a top-level claim name or a dotted path. ZITADEL: "urn:zitadel:iam:org:project:roles" (an object keyed by role name); Keycloak: "realm_access.roles". An array of strings or an object keyed by role name are both understood. |
 | `AEDST_OIDC_ROLES_ORG` | string | (empty) | RolesOrg (optional) is an organisation id. For an object-shaped roles claim ({role: {orgId: domain}}, ZITADEL: roles are bound to an organisation) only roles granted in that organisation count. Empty = any. |
+| `AEDST_OIDC_TENANT_CLAIM` | string | (empty) | TenantClaim (optional) names the claim that carries the caller's tenant (organisation) id, ZITADEL: "urn:zitadel:iam:user:resourceowner:id". It becomes Identity.TenantID and the app.tenant_id setting that row-level security policies read (ADR-0024). TenantRequired refuses tokens without it. |
+| `AEDST_OIDC_TENANT_REQUIRED` | bool | `false` |  |
 | `AEDST_OIDC_CLOCK_SKEW_SECONDS` | int | `30` |  |
 
 ## ServiceIdentity

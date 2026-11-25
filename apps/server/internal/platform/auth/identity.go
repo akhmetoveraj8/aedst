@@ -28,6 +28,10 @@ type Identity struct {
 	// and for linking to an external identity.
 	Issuer  string
 	Subject string
+	// TenantID is the caller's tenant (organisation) id from the configured
+	// tenant claim, empty in a single-tenant deployment. Repositories pass it to
+	// tenancy.Apply so row-level security sees it (ADR-0024).
+	TenantID string
 }
 
 func (i Identity) HasRole(role string) bool {

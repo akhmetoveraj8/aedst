@@ -19,7 +19,7 @@ The parts are already optional in configuration, so the question is only when to
 |---|---|---|
 | NATS JetStream bridge | `AEDST_NATS_URL` empty | no realtime push; River consumers are unaffected |
 | Meilisearch | `AEDST_SEARCH_URL` empty (`search.Disabled`) | `pg_trgm` substring search |
-| DragonflyDB | no cache URL | limiters and cache fail open, `/readyz` reports `degraded` |
+| DragonflyDB | no cache URL | cache fails open; rate limits degrade to per-replica in-process limits; `/readyz` reports `degraded` |
 | Unit topology | `AEDST_MODULES` unset | one process hosts every module |
 | Read pool | `AEDST_DATABASE_READ_URL` unset | reads use the primary |
 

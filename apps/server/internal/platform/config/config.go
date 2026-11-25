@@ -300,7 +300,13 @@ type OIDCConfig struct {
 	// RolesOrg (optional) is an organisation id. For an object-shaped roles
 	// claim ({role: {orgId: domain}}, ZITADEL: roles are bound to an
 	// organisation) only roles granted in that organisation count. Empty = any.
-	RolesOrg         string `env:"AEDST_OIDC_ROLES_ORG" envDefault:""`
+	RolesOrg string `env:"AEDST_OIDC_ROLES_ORG" envDefault:""`
+	// TenantClaim (optional) names the claim that carries the caller's tenant
+	// (organisation) id, ZITADEL: "urn:zitadel:iam:user:resourceowner:id". It
+	// becomes Identity.TenantID and the app.tenant_id setting that row-level
+	// security policies read (ADR-0024). TenantRequired refuses tokens without it.
+	TenantClaim      string `env:"AEDST_OIDC_TENANT_CLAIM" envDefault:""`
+	TenantRequired   bool   `env:"AEDST_OIDC_TENANT_REQUIRED" envDefault:"false"`
 	ClockSkewSeconds int    `env:"AEDST_OIDC_CLOCK_SKEW_SECONDS" envDefault:"30"`
 }
 
@@ -450,6 +456,9 @@ func (c Config) Validate() error {
 		}
 		if c.OIDC.Audience == "" {
 			bad("AEDST_OIDC_AUDIENCE is required when AEDST_OIDC_ISSUER is set (audience validation must not be skipped)")
+		}
+		if c.OIDC.TenantRequired && c.OIDC.TenantClaim == "" {
+			bad("AEDST_OIDC_TENANT_REQUIRED needs AEDST_OIDC_TENANT_CLAIM (the claim that carries the tenant id)")
 		}
 		for _, alg := range c.OIDC.Algorithms {
 			if strings.HasPrefix(strings.ToUpper(alg), "HS") || strings.EqualFold(alg, "none") {

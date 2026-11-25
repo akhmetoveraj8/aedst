@@ -29,9 +29,10 @@ type authConfig struct {
 // cluster-wide: every missing or invalid token spends one unit of the address's
 // budget (key rl:authfail:<ip>), and once perMinute failures have happened a
 // further request from that address is refused with RESOURCE_EXHAUSTED before
-// its token is even looked at. Successful requests spend nothing. It fails open
-// (a limiter error lets the request be verified as usual): like every limiter
-// here it must not become a second way to take the API down. perMinute <= 0
+// its token is even looked at. Successful requests spend nothing. During a
+// limiter outage the budget is kept per replica (cache.RateLimiter's
+// in-process fallback): like every limiter here it must not become a second
+// way to take the API down. perMinute <= 0
 // disables it.
 func WithFailureThrottle(limiter FailureLimiter, perMinute int) AuthOption {
 	return func(c *authConfig) { c.limiter, c.perMinute = limiter, perMinute }
@@ -55,8 +56,7 @@ func (t failureThrottle) refuse(ctx context.Context) error {
 	}
 	exhausted, err := t.limiter.Exhausted(ctx, t.key(ctx), t.perMinute, authFailWindow)
 	if err != nil {
-		t.warn(ctx, err)
-		return nil
+		t.warn(ctx, err) // degraded: the answer came from the in-process fallback
 	}
 	if !exhausted {
 		return nil
