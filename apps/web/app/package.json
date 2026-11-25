@@ -27,6 +27,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test:stories": "vitest run --config vitest.storybook.config.mts",
+    "test:stories:rtl-dark": "cross-env STORYBOOK_DIRECTION=rtl STORYBOOK_THEME=dark vitest run --config vitest.storybook.config.mts",
     "test:visual": "cross-env STORYBOOK_VISUAL=1 vitest run --config vitest.storybook.config.mts",
     "test:visual:update": "cross-env STORYBOOK_VISUAL=1 vitest run --config vitest.storybook.config.mts --update",
     "check:bundle": "node ../shared/scripts/check-bundle-size.mjs",

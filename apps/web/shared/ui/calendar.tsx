@@ -15,6 +15,7 @@ import {
   type Locale,
 } from "react-day-picker";
 import { Button, buttonVariants } from "@/shared/ui/button";
+import { useDirection } from "@/shared/ui/direction";
 
 function Calendar({
   className,
@@ -25,19 +26,22 @@ function Calendar({
   locale,
   formatters,
   components,
+  dir,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
 }) {
   const defaultClassNames = getDefaultClassNames();
+  // DayPicker mirrors its arrow-key grid navigation and swaps the nav chevrons
+  // only when it is told the direction, so the icons need no rtl: rotation.
+  const direction = useDirection();
 
   return (
     <DayPicker
+      dir={dir ?? direction}
       showOutsideDays={showOutsideDays}
       className={cn(
         "group/calendar bg-background p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
-        String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
-        String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className,
       )}
       captionLayout={captionLayout}
@@ -154,7 +158,7 @@ function Calendar({
               <HugeiconsIcon
                 icon={ArrowLeftIcon}
                 strokeWidth={2}
-                className={cn("rtl:rotate-180 size-4", className)}
+                className={cn("size-4", className)}
                 {...props}
               />
             );
@@ -165,7 +169,7 @@ function Calendar({
               <HugeiconsIcon
                 icon={ArrowRightIcon}
                 strokeWidth={2}
-                className={cn("rtl:rotate-180 size-4", className)}
+                className={cn("size-4", className)}
                 {...props}
               />
             );
@@ -228,7 +232,9 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-e-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-s-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
+        // Day cells sit edge to edge, so the button's enlarged touch hit area
+        // is turned off here; it would overlap the neighbouring days.
+        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal pointer-coarse:after:hidden group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-e-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-s-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
         defaultClassNames.day,
         className,
       )}

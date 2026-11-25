@@ -8,10 +8,16 @@ import { cn } from "cn";
 import type * as React from "react";
 import { Button } from "@/shared/ui/button";
 
-function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
+/**
+ * The kit never hardcodes user-facing text: the landmark name (`aria-label`)
+ * and the previous/next labels come from the caller's message catalogue.
+ */
+function Pagination({
+  className,
+  ...props
+}: React.ComponentProps<"nav"> & { "aria-label": string }) {
   return (
     <nav
-      aria-label="pagination"
       data-slot="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
@@ -67,12 +73,12 @@ function PaginationLink({
 
 function PaginationPrevious({
   className,
-  text = "Previous",
+  text,
   ...props
-}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+}: React.ComponentProps<typeof PaginationLink> & { text: string }) {
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={text}
       size="default"
       className={cn("ps-1.5!", className)}
       {...props}
@@ -90,12 +96,12 @@ function PaginationPrevious({
 
 function PaginationNext({
   className,
-  text = "Next",
+  text,
   ...props
-}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+}: React.ComponentProps<typeof PaginationLink> & { text: string }) {
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={text}
       size="default"
       className={cn("pe-1.5!", className)}
       {...props}
@@ -126,7 +132,6 @@ function PaginationEllipsis({
       {...props}
     >
       <HugeiconsIcon icon={MoreHorizontalCircle01Icon} strokeWidth={2} />
-      <span className="sr-only">More pages</span>
     </span>
   );
 }

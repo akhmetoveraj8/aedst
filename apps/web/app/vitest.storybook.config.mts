@@ -43,7 +43,11 @@ export default defineConfig({
         { browser: "chromium", viewport: { width: 800, height: 600 } },
       ],
     },
-    env: { STORYBOOK_VISUAL: process.env.STORYBOOK_VISUAL ?? "" },
+    env: {
+      STORYBOOK_VISUAL: process.env.STORYBOOK_VISUAL ?? "",
+      STORYBOOK_THEME: process.env["STORYBOOK_THEME"] ?? "",
+      STORYBOOK_DIRECTION: process.env["STORYBOOK_DIRECTION"] ?? "",
+    },
     setupFiles: ["./.storybook/vitest.setup.ts"],
   },
 });

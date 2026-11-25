@@ -218,6 +218,9 @@ jobs:
       - name: Story tests (smoke + a11y)
         run: pnpm test:stories
 
+      - name: Story tests right-to-left, dark theme (smoke + a11y)
+        run: pnpm test:stories:rtl-dark
+
   # Known-vulnerable production dependencies (npm advisory DB). Scheduled runs
   # catch advisories published after a merge, not only changes in a PR.
   audit:

@@ -68,7 +68,12 @@ const preview: Preview = {
       },
     },
   },
-  initialGlobals: { theme: "light", direction: "ltr" },
+  // `pnpm test:stories:rtl-dark` re-runs every story (and its axe check)
+  // right-to-left in the dark theme; a story's own `globals` still win.
+  initialGlobals: {
+    theme: import.meta.env["STORYBOOK_THEME"] === "dark" ? "dark" : "light",
+    direction: import.meta.env["STORYBOOK_DIRECTION"] === "rtl" ? "rtl" : "ltr",
+  },
   parameters: {
     layout: "centered",
     controls: { expanded: true },

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect, waitFor } from "storybook/test";
 
 import { Button } from "@/shared/ui/button";
 import {
@@ -45,7 +46,7 @@ export const Left: Story = {
   render: (args) => (
     <Sheet {...args}>
       <SheetTrigger render={<Button variant="outline" />}>Open</SheetTrigger>
-      <SheetContent side="left">
+      <SheetContent side="start">
         <SheetHeader>
           <SheetTitle>Navigation</SheetTitle>
           <SheetDescription>Browse the sections of the app.</SheetDescription>
@@ -70,4 +71,23 @@ export const Bottom: Story = {
       </SheetContent>
     </Sheet>
   ),
+};
+
+/** A `start` sheet sits on the right edge in RTL, with its border facing the content. */
+export const StartRightToLeft: Story = {
+  globals: { direction: "rtl" },
+  render: Left.render,
+  play: async () => {
+    const panel = await waitFor(() => {
+      const el = document.querySelector<HTMLElement>(
+        '[data-slot="sheet-content"]',
+      );
+      if (!el) throw new Error("sheet not open");
+      return el;
+    });
+    const style = getComputedStyle(panel);
+    await expect(style.right).toBe("0px");
+    await expect(style.borderLeftWidth).not.toBe("0px");
+    await expect(style.borderRightWidth).toBe("0px");
+  },
 };

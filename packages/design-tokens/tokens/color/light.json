@@ -71,7 +71,7 @@
       "mutedForeground": {
         "$value": {
           "colorSpace": "oklch",
-          "components": [0.556, 0, 0]
+          "components": [0.53, 0, 0]
         }
       },
       "accent": {
@@ -101,13 +101,13 @@
       "input": {
         "$value": {
           "colorSpace": "oklch",
-          "components": [0.922, 0, 0]
+          "components": [0.62, 0, 0]
         }
       },
       "ring": {
         "$value": {
           "colorSpace": "oklch",
-          "components": [0.708, 0, 0]
+          "components": [0.556, 0, 0]
         }
       },
       "chart1": {

@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Command as CommandPrimitive } from "cmdk";
 import { cn } from "cn";
 import type * as React from "react";
+import { useTranslations } from "use-intl";
 import {
   Dialog,
   DialogContent,
@@ -31,8 +32,8 @@ function Command({
 }
 
 function CommandDialog({
-  title = "Command Palette",
-  description = "Search for a command to run...",
+  title,
+  description,
   children,
   className,
   showCloseButton = false,
@@ -44,11 +45,14 @@ function CommandDialog({
   showCloseButton?: boolean;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("common.a11y");
   return (
     <Dialog {...props}>
       <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
+        <DialogTitle>{title ?? t("commandPalette")}</DialogTitle>
+        <DialogDescription>
+          {description ?? t("commandPaletteDescription")}
+        </DialogDescription>
       </DialogHeader>
       <DialogContent
         className={cn(

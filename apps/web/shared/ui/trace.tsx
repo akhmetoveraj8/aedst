@@ -150,7 +150,7 @@ function TraceItem({
         <CollapsibleTrigger
           className={cn(
             ROW,
-            "group/trace-trigger outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50",
+            "group/trace-trigger outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring",
           )}
         >
           <HugeiconsIcon

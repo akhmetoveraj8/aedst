@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect } from "storybook/test";
 
 import {
   InputOTP,
@@ -51,5 +52,16 @@ export const Invalid: Story = {
         <InputOTPSlot index={3} aria-invalid />
       </InputOTPGroup>
     ),
+  },
+};
+
+/** One-time codes keep left-to-right digit order in Arabic. */
+export const RightToLeft: Story = {
+  globals: { direction: "rtl" },
+  args: { defaultValue: "123456" },
+  play: async ({ canvas }) => {
+    const first = canvas.getByText("1").getBoundingClientRect();
+    const last = canvas.getByText("6").getBoundingClientRect();
+    await expect(first.left).toBeLessThan(last.left);
   },
 };

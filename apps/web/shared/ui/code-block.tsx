@@ -144,7 +144,7 @@ function CodeBlock({
         // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be keyboard reachable
         tabIndex={0}
         data-wrap={wrap}
-        className="overflow-x-auto py-3 font-mono text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset data-[wrap=true]:wrap-anywhere data-[wrap=true]:whitespace-pre-wrap"
+        className="overflow-x-auto py-3 font-mono text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-inset data-[wrap=true]:wrap-anywhere data-[wrap=true]:whitespace-pre-wrap"
       >
         <code className={cn("grid min-w-full", wrap ? "w-full" : "w-max")}>
           {lines.map((line) => (

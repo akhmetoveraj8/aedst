@@ -4,7 +4,18 @@
   "a11y": {
     "skipToContent": "انتقل إلى المحتوى",
     "mainNav": "التنقل الرئيسي",
-    "language": "اللغة"
+    "language": "اللغة",
+    "previousSlide": "الشريحة السابقة",
+    "nextSlide": "الشريحة التالية",
+    "toggleSidebar": "إظهار الشريط الجانبي أو إخفاؤه",
+    "sidebar": "الشريط الجانبي",
+    "sidebarDescription": "لوحة التنقل",
+    "commandPalette": "لوحة الأوامر",
+    "commandPaletteDescription": "ابحث عن أمر لتشغيله",
+    "loading": "جارٍ التحميل",
+    "messages": "الرسائل",
+    "questionnaireProgress": "تقدم الاستبيان",
+    "questionProgress": "السؤال {current} من {total}"
   },
   "nav": {
     "features": "المزايا",
@@ -16,7 +27,8 @@
     "signIn": "تسجيل الدخول",
     "getStarted": "ابدأ الآن",
     "goHome": "العودة إلى الرئيسية",
-    "tryAgain": "حاول مرة أخرى"
+    "tryAgain": "حاول مرة أخرى",
+    "close": "إغلاق"
   },
   "errors": {
     "title": "حدث خطأ ما",

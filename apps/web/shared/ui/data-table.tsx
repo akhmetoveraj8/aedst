@@ -94,7 +94,7 @@ function DataTable<TData extends RowData>({
       // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be keyboard reachable
       tabIndex={0}
       className={cn(
-        "overflow-x-auto rounded-md border outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+        "overflow-x-auto rounded-md border outline-none focus-visible:ring-3 focus-visible:ring-ring",
         className,
       )}
     >

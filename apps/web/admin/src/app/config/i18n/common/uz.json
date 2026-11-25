@@ -36,7 +36,17 @@
   },
   "a11y": {
     "skipToContent": "Asosiy tarkibga o'tish",
-    "loading": "Yuklanmoqda"
+    "loading": "Yuklanmoqda",
+    "previousSlide": "Oldingi slayd",
+    "nextSlide": "Keyingi slayd",
+    "toggleSidebar": "Yon panelni ko'rsatish yoki yashirish",
+    "sidebar": "Yon panel",
+    "sidebarDescription": "Navigatsiya paneli",
+    "commandPalette": "Buyruqlar palitrasi",
+    "commandPaletteDescription": "Bajarish uchun buyruqni qidiring",
+    "messages": "Xabarlar",
+    "questionnaireProgress": "So'rovnoma jarayoni",
+    "questionProgress": "Savol {current} / {total}"
   },
   "locale": {
     "label": "Til"

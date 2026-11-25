@@ -1,6 +1,7 @@
 import { Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect, userEvent } from "storybook/test";
 
 import {
   InputGroup,
@@ -63,4 +64,32 @@ export const WithTextarea: Story = {
       </InputGroupAddon>
     </InputGroup>
   ),
+};
+
+/** An invalid field inside a group still gets a distinct, solid ring on focus. */
+export const InvalidFocusRing: Story = {
+  render: (args) => (
+    <InputGroup {...args}>
+      <InputGroupInput
+        aria-label="Email"
+        aria-invalid
+        defaultValue="not-an-email"
+      />
+    </InputGroup>
+  ),
+  play: async ({ canvas, canvasElement }) => {
+    await userEvent.tab();
+    await expect(canvas.getByRole("textbox")).toHaveFocus();
+    const probe = document.createElement("span");
+    probe.style.color = "var(--destructive)";
+    document.body.append(probe);
+    const destructive = getComputedStyle(probe).color;
+    probe.remove();
+    const group = canvasElement.querySelector<HTMLElement>(
+      '[data-slot="input-group"]',
+    );
+    await expect(getComputedStyle(group as HTMLElement).boxShadow).toContain(
+      destructive,
+    );
+  },
 };

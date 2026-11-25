@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import {
   Carousel,
@@ -79,4 +80,29 @@ export const Looping: Story = {
       <CarouselNext />
     </Carousel>
   ),
+};
+
+/** In RTL the next slide is on the left, so ArrowLeft moves forward. */
+export const RightToLeftKeyboard: Story = {
+  globals: { direction: "rtl" },
+  render: Default.render,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const previous = canvas.getByRole("button", { name: "Previous slide" });
+    const next = canvas.getByRole("button", { name: "Next slide" });
+    await waitFor(() => expect(next).toBeEnabled());
+    await expect(previous).toBeDisabled();
+    next.focus();
+    await userEvent.keyboard("{ArrowLeft}");
+    await waitFor(() => expect(previous).toBeEnabled());
+    const viewport = canvasElement.querySelector<HTMLElement>(
+      '[data-slot="carousel-content"]',
+    );
+    const second = canvas.getByText("Two");
+    await waitFor(() => {
+      const a = viewport?.getBoundingClientRect();
+      const b = second.getBoundingClientRect();
+      expect(Math.abs((a?.right ?? 0) - b.right)).toBeLessThan(2);
+    });
+  },
 };

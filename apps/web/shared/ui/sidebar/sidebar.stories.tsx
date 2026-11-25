@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect, waitFor } from "storybook/test";
 
 import {
   Sidebar,
@@ -91,4 +92,23 @@ export const SmallButtons: Story = {
       </SidebarContent>
     </Sidebar>
   ),
+};
+
+/** A `start` sidebar is pinned to the right edge in RTL, border on its inner side. */
+export const StartRightToLeft: Story = {
+  globals: { direction: "rtl" },
+  args: { collapsible: "offcanvas" },
+  render: Default.render,
+  play: async () => {
+    const container = await waitFor(() => {
+      const el = document.querySelector<HTMLElement>(
+        '[data-slot="sidebar-container"]',
+      );
+      if (!el) throw new Error("sidebar container missing");
+      return el;
+    });
+    const style = getComputedStyle(container);
+    await expect(style.right).toBe("0px");
+    await expect(style.borderLeftWidth).not.toBe("0px");
+  },
 };
