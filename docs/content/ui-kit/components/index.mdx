@@ -7,7 +7,7 @@ description: "One page per UI kit component: status, source file, public API and
 
 # Component reference
 
-One page per entry of `ui-kit.yaml` (61 entries). Each page lists the canonical variants and sizes and, per platform, the status, the source file, the public API extracted from that file and a usage example taken from the source (a story, a preview or the kit gallery) where one exists. The pages are generated: run `task docs:ui-kit` after changing a component or the manifest. The cross-platform rules and the parity matrix are on the [UI kit page](/ui-kit).
+One page per entry of `ui-kit.yaml` (87 entries). Each page lists the canonical variants and sizes and, per platform, the status, the source file, the public API extracted from that file and a usage example taken from the source (a story, a preview or the kit gallery) where one exists. The pages are generated: run `task docs:ui-kit` after changing a component or the manifest. The cross-platform rules and the parity matrix are on the [UI kit page](/ui-kit).
 
 What has been run per platform: **Web** verified: typecheck, lint, unit and browser tests, a story per component; **Android** `core/ui` compiled and unit-tested on the authoring machine; never run on a device or emulator, no green CI run; **Apple** written, not compiled; **Desktop** written, not compiled. Details: [platform status](/status).
 
@@ -40,7 +40,6 @@ Platform names differ from the canonical name in places; search this table for e
 | [`dropdown-menu`](/ui-kit/components/dropdown-menu) | `DropdownMenu` | `AedstDropdownMenu` | `AedstDropdownMenu` | `aedst_dropdown_menu` |
 | [`empty`](/ui-kit/components/empty) | `Empty` | `AedstEmpty` | `AedstEmpty` | `aedst_empty` |
 | [`field`](/ui-kit/components/field) | `Field` | `AedstField` | `AedstField` | `aedst_field` |
-| [`form`](/ui-kit/components/form) | `Form` | `AedstForm` | `AedstForm` | `aedst_form` |
 | [`hover-card`](/ui-kit/components/hover-card) | `HoverCard` | `AedstHoverCard` | `AedstHoverCard` | `aedst_hover_card` |
 | [`input`](/ui-kit/components/input) | `Input` | `AedstTextField` | `AedstTextField` | `aedst_input` |
 | [`input-group`](/ui-kit/components/input-group) | `InputGroup` | `AedstInputGroup` | `AedstInputGroup` | `aedst_input_group` |
@@ -63,16 +62,43 @@ Platform names differ from the canonical name in places; search this table for e
 | [`sidebar`](/ui-kit/components/sidebar) | `Sidebar` | `AedstSidebar` | `AedstSidebar` | `aedst_sidebar` |
 | [`skeleton`](/ui-kit/components/skeleton) | `Skeleton` | `AedstSkeleton` | `AedstSkeleton` | `aedst_skeleton` |
 | [`slider`](/ui-kit/components/slider) | `Slider` | `AedstSlider` | `AedstSlider` | `aedst_slider` |
-| [`sonner`](/ui-kit/components/sonner) | `Toaster` | `AedstSnackbar` | `AedstToast` | `aedst_sonner` |
 | [`spinner`](/ui-kit/components/spinner) | `Spinner` | `AedstSpinner` | `AedstSpinner` | `aedst_spinner` |
 | [`switch`](/ui-kit/components/switch) | `Switch` | `AedstSwitch` | `AedstSwitch` | `aedst_switch` |
 | [`table`](/ui-kit/components/table) | `Table` | `AedstTable` | `AedstTable` | `aedst_table` |
 | [`tabs`](/ui-kit/components/tabs) | `Tabs` | `AedstTabs` | `AedstTabs` | `aedst_tabs` |
 | [`textarea`](/ui-kit/components/textarea) | `Textarea` | `AedstTextArea` | `AedstTextarea` | `aedst_textarea` |
-| [`toast`](/ui-kit/components/toast) (alias of `sonner`) | `Toaster` | `AedstSnackbar` | `AedstToast` | `aedst_sonner` |
+| [`toast`](/ui-kit/components/toast) | `Toaster` | `AedstSnackbar` | `AedstToast` | `aedst_toast` |
 | [`toggle`](/ui-kit/components/toggle) | `Toggle` | `AedstToggle` | `AedstToggle` | `aedst_toggle` |
 | [`toggle-group`](/ui-kit/components/toggle-group) | `ToggleGroup` | `AedstToggleGroup` | `AedstToggleGroup` | `aedst_toggle_group` |
 | [`tooltip`](/ui-kit/components/tooltip) | `Tooltip` | `AedstTooltip` | `AedstTooltip` | `aedst_tooltip` |
 | [`typography`](/ui-kit/components/typography) | `Typography` | `AedstTypography` | `AedstText` | `aedst_typography` |
 | [`trace`](/ui-kit/components/trace) | `Trace` | `AedstTrace` | `AedstTrace` | `aedst_trace` |
 | [`code-block`](/ui-kit/components/code-block) | `CodeBlock` | `AedstCodeBlock` | `AedstCodeBlock` | `aedst_code_block` |
+| [`attachment`](/ui-kit/components/attachment) | `Attachment` | `AedstAttachment` | `AedstAttachment` | `aedst_attachment` |
+| [`bubble`](/ui-kit/components/bubble) | `Bubble` | `AedstBubble` | `AedstBubble` | `aedst_bubble` |
+| [`direction`](/ui-kit/components/direction) | `DirectionProvider` | native: LocalLayoutDirection (CompositionLocal); Compose mirrors layouts from the locale | native: the layoutDirection environment value; SwiftUI mirrors layouts from the locale | native: AedstLayout.rtl global (aedst_layout.slint), set from the locale; Slint itself does not mirror |
+| [`marker`](/ui-kit/components/marker) | `Marker` | `AedstMarker` | `AedstMarker` | `aedst_marker` |
+| [`message`](/ui-kit/components/message) | `Message` | `AedstMessage` | `AedstMessage` | `aedst_message` |
+| [`message-scroller`](/ui-kit/components/message-scroller) | `MessageScroller` | `AedstMessageScroller` | `AedstMessageScroller` | `aedst_message_scroller` |
+| [`questionnaire`](/ui-kit/components/questionnaire) | `Questionnaire` | `AedstQuestionnaire` | `AedstQuestionnaire` | `aedst_questionnaire` |
+| [`ai-chain-of-thought`](/ui-kit/components/ai-chain-of-thought) | `AiChainOfThought` | `AedstAiChainOfThought` | `AedstAiChainOfThought` | `aedst_ai_chain_of_thought` |
+| [`ai-chat`](/ui-kit/components/ai-chat) | `AiChat` | `AedstAiChat` | `AedstAiChat` | `aedst_ai_chat` |
+| [`ai-checkpoint`](/ui-kit/components/ai-checkpoint) | `AiCheckpoint` | `AedstAiCheckpoint` | `AedstAiCheckpoint` | `aedst_ai_checkpoint` |
+| [`ai-confirmation`](/ui-kit/components/ai-confirmation) | `AiConfirmation` | `AedstAiConfirmation` | `AedstAiConfirmation` | `aedst_ai_confirmation` |
+| [`ai-context`](/ui-kit/components/ai-context) | `AiContext` | `AedstAiContext` | `AedstAiContext` | `aedst_ai_context` |
+| [`ai-file-tree`](/ui-kit/components/ai-file-tree) | `AiFileTree` | `AedstAiFileTree` | `AedstAiFileTree` | `aedst_ai_file_tree` |
+| [`ai-inline-citation`](/ui-kit/components/ai-inline-citation) | `AiInlineCitation` | `AedstAiInlineCitation` | `AedstAiInlineCitation` | `aedst_ai_inline_citation` |
+| [`ai-message`](/ui-kit/components/ai-message) | `AiMessage` | `AedstAiMessage` | `AedstAiMessage` | `aedst_ai_message` |
+| [`ai-model-selector`](/ui-kit/components/ai-model-selector) | `AiModelSelector` | `AedstAiModelSelector` | `AedstAiModelSelector` | `aedst_ai_model_selector` |
+| [`ai-plan`](/ui-kit/components/ai-plan) | `AiPlan` | `AedstAiPlan` | `AedstAiPlan` | `aedst_ai_plan` |
+| [`ai-prompt-input`](/ui-kit/components/ai-prompt-input) | `AiPromptInput` | `AedstAiPromptInput` | `AedstAiPromptInput` | `aedst_ai_prompt_input` |
+| [`ai-queue`](/ui-kit/components/ai-queue) | `AiQueue` | `AedstAiQueue` | `AedstAiQueue` | `aedst_ai_queue` |
+| [`ai-reasoning`](/ui-kit/components/ai-reasoning) | `AiReasoning` | `AedstAiReasoning` | `AedstAiReasoning` | `aedst_ai_reasoning` |
+| [`ai-sources`](/ui-kit/components/ai-sources) | `AiSources` | `AedstAiSources` | `AedstAiSources` | `aedst_ai_sources` |
+| [`ai-stack-trace`](/ui-kit/components/ai-stack-trace) | `AiStackTrace` | `AedstAiStackTrace` | `AedstAiStackTrace` | `aedst_ai_stack_trace` |
+| [`ai-subagent`](/ui-kit/components/ai-subagent) | `AiSubagent` | `AedstAiSubagent` | `AedstAiSubagent` | `aedst_ai_subagent` |
+| [`ai-suggestion`](/ui-kit/components/ai-suggestion) | `AiSuggestion` | `AedstAiSuggestion` | `AedstAiSuggestion` | `aedst_ai_suggestion` |
+| [`ai-task`](/ui-kit/components/ai-task) | `AiTask` | `AedstAiTask` | `AedstAiTask` | `aedst_ai_task` |
+| [`ai-terminal`](/ui-kit/components/ai-terminal) | `AiTerminal` | `AedstAiTerminal` | `AedstAiTerminal` | `aedst_ai_terminal` |
+| [`ai-test-results`](/ui-kit/components/ai-test-results) | `AiTestResults` | `AedstAiTestResults` | `AedstAiTestResults` | `aedst_ai_test_results` |
+| [`ai-tool`](/ui-kit/components/ai-tool) | `AiTool` | `AedstAiTool` | `AedstAiTool` | `aedst_ai_tool` |

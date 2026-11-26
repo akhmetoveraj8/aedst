@@ -11,7 +11,9 @@ Canonical name `select` (manifest: `ui-kit.yaml`). [All components](/ui-kit/comp
 
 ## Variants and sizes
 
-No canonical variant or size axis.
+| Axis | Canonical values (every platform) |
+|---|---|
+| `size` | `default`, `sm` |
 
 ## Platforms
 
@@ -129,6 +131,8 @@ function SelectScrollDownButton({
 **Public API** (extracted from the source):
 
 ```kotlin
+enum class AedstSelectSize { DEFAULT, SM }
+
 @Composable
 fun <T> AedstSelect(
     options: List<T>,
@@ -138,7 +142,8 @@ fun <T> AedstSelect(
     modifier: Modifier = Modifier,
     label: String? = null,
     enabled: Boolean = true,
-    placeholder: String = "Select…",
+    placeholder: String = stringResource(R.string.aedst_select_option),
+    size: AedstSelectSize = AedstSelectSize.DEFAULT,
 )
 ```
 
@@ -170,6 +175,8 @@ AedstTheme {
 **Public API** (extracted from the source):
 
 ```swift
+public enum AedstSelectSize { case `default`, sm }
+
 public struct AedstSelectOption: Identifiable, Hashable, Sendable {
     public init(id: String, title: String, systemImage: String? = nil, isDisabled: Bool = false)
 }
@@ -181,6 +188,7 @@ public struct AedstSelect: View {
         selection: Binding<String?>,
         placeholder: String? = nil,
         errorMessage: String? = nil,
+        size: AedstSelectSize = .default,
         isDisabled: Bool = false
     )
 }
@@ -198,6 +206,7 @@ let options = [
 ]
 VStack(alignment: .leading, spacing: AedstSpacing.lg) {
     AedstSelect("Fruit", options: options, selection: $fruit)
+    AedstSelect("Small", options: options, selection: $fruit, size: .sm)
     AedstSelect("Required", options: options, selection: $empty, errorMessage: "Pick one.")
     AedstSelect("Disabled", options: options, selection: $fruit, isDisabled: true)
 }
@@ -215,6 +224,8 @@ VStack(alignment: .leading, spacing: AedstSpacing.lg) {
 **Public API** (extracted from the source):
 
 ```qml title="Slint"
+export enum AedstSelectSize { default, sm }
+
 export component AedstSelect inherits Rectangle {
     in property <[AedstMenuItem]> options;
     in-out property <int> current-index: -1;
@@ -223,6 +234,7 @@ export component AedstSelect inherits Rectangle {
     in property <string> label;
     in property <bool> invalid: false;
     in property <bool> enabled: true;
+    in property <AedstSelectSize> size: AedstSelectSize.default;
     out property <bool> has-focus: focus.has-focus;
     callback selected(string);
     public function show();

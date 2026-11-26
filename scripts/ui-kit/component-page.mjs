@@ -127,7 +127,7 @@ export function renderPage(name, c, sources, extracted) {
   return `${out.join('\n\n')}\n`;
 }
 
-/** Page of an alias entry (`toast` is served by `sonner`). `names`: the target's name per platform. */
+/** Page of an alias entry (one name served by another entry). `names`: the target's name per platform. */
 export function renderAlias(name, target, names) {
   const platforms = Object.keys(PLATFORMS);
   return `${[

@@ -12,6 +12,10 @@
 //                       `deviations:` entry that carries a reason,
 //                   (e) the matrix in docs/content/ui-kit.md is not the one generated from the manifest.
 //                 The parity report (implemented / native / missing per platform) is always printed.
+//                   (f) an implemented component is not exercised on its platform: no story or test (web),
+//                       no unit/UI test (Android, Apple), no compiled gallery page or UI test (Desktop);
+//                       roots per platform under `coverage:`,
+//                   (g) a name in a component's `props:` (its API contract) is not a parameter of a platform's file.
 //   --write-docs  regenerate the matrix between the marker comments of docs/content/ui-kit.md.
 // AEDST_UI_KIT_ROOT points the check at another tree (tests).
 // Docs: docs/content/ui-kit.md
@@ -21,6 +25,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cvaAxes } from './ui-kit/cva.mjs';
 import { DOC_PATH, renderMatrix, spliceMatrix } from './ui-kit/docs.mjs';
+import { coverageText, isCovered, missingProps, propUnion } from './ui-kit/coverage.mjs';
 import { enumAxis, enumDeclarations, normalise } from './ui-kit/enums.mjs';
 
 const { parse } = createRequire(import.meta.url)('yaml');
@@ -83,6 +88,7 @@ export function checkUiKit(root) {
   const reference = platforms.find((p) => doc.platforms[p].reference);
   const report = Object.fromEntries(platforms.map((p) => [p, { implemented: 0, native: 0, missing: 0, missingNames: [] }]));
   const listed = Object.fromEntries(platforms.map((p) => [p, new Set()]));
+  const covered = Object.fromEntries(platforms.map((p) => [p, coverageText(root, doc.coverage?.[p])]));
 
   const resolve = (name, seen = []) => {
     const c = doc.components[name];
@@ -121,8 +127,12 @@ export function checkUiKit(root) {
       listed[p].add(e.file);
       const abs = path.join(root, doc.platforms[p].root, e.file);
       if (!existsSync(abs)) { fail(`${where}: ${doc.platforms[p].root}/${e.file} does not exist`); continue; } // (a)
+      const src = webSources(abs).map((f) => readFileSync(f, 'utf8')).join('\n');
+      if (!isCovered(covered[p], e.file, src)) fail(`${where}: not exercised by any ${p} test, story or gallery page (coverage roots in ui-kit.yaml)`); // (f)
+      const absentProps = missingProps(c.props, src);
+      if (absentProps.length) fail(`${where}: props contract not met, ${e.file} has no ${absentProps.join(', ')}`); // (g)
       if (p !== reference) {
-        if (statSync(abs).isFile()) checkEnumAxes({ c, p, file: e.file, src: readFileSync(abs, 'utf8'), fail, where }); // (d)
+        if (statSync(abs).isFile()) checkEnumAxes({ c, p, file: e.file, src, fail, where }); // (d)
         continue;
       }
       if (doc.kit_files[p].require_story && !hasStory(abs)) fail(`${where}: no .stories.tsx next to ${e.file}`);
@@ -131,11 +141,12 @@ export function checkUiKit(root) {
       for (const f of webSources(abs)) for (const [k, v] of Object.entries(cvaAxes(readFileSync(f, 'utf8')))) axes[k] = [...new Set([...(axes[k] ?? []), ...v])];
       const declared = { variant: c.variants ?? [], size: c.sizes ?? [], ...(c.axes ?? {}) };
       for (const [axis, values] of Object.entries(declared)) {
-        const actual = axes[axis] ?? [];
+        // An axis outside cva may be a string-literal union prop (`size?: "default" | "sm" | "lg"`).
+        const actual = axes[axis] ?? propUnion(src, axis) ?? [];
         if (sameSet(values, actual)) continue;
         const absent = values.filter((v) => !actual.includes(v));
         const extra = actual.filter((v) => !values.includes(v));
-        fail(`${where}: ${axis} differs from cva in ${e.file}${absent.length ? `; declared but not in cva: ${absent.join(', ')}` : ''}${extra.length ? `; in cva but not declared: ${extra.join(', ')}` : ''}`);
+        fail(`${where}: ${axis} differs from cva (or the prop union) in ${e.file}${absent.length ? `; declared but not in cva: ${absent.join(', ')}` : ''}${extra.length ? `; in cva but not declared: ${extra.join(', ')}` : ''}`);
       }
     }
   }

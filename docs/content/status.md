@@ -20,6 +20,12 @@ The exception covers only these; the platforms stay frozen for product features,
 "not verified", and everything written under the exception is reported as "written, not compiled" until
 a compiler has seen it (Apple, Desktop and the Gateway have no toolchain on the authoring machine).
 
+**Owner exception, 2026-11-26.** The owner ordered full UI kit parity on every platform: the 66 shadcn/ui
+components and the 21 shadcn AI Elements (87 entries in `ui-kit.yaml`), the same UX, accessibility and
+variants as web, syntax highlighting in `code-block` (Shiki on web, platform libraries natively, colours from
+the `syntax*` design tokens) and a stronger `check:ui-kit` gate (test coverage, prop-union axes, API contract).
+Same terms as above: kit work only, Apple and Desktop "written, not compiled" until a compiler has seen them.
+
 ## Verification status
 
 Dates are 2026-11-04 unless stated. "Verified" means run on the authoring machine; GitHub runs are recorded separately under "CI evidence".
@@ -191,8 +197,8 @@ frozen: for them only version pins and decision rows changed.
   platforms), and the Rust crates (`Cargo.lock` cannot be regenerated here: no cargo).
 - **Web.** 140 files renamed to kebab-case, rule inverted in the conventions, `check-naming.sh` and Biome.
   `shared/ui` gained `data-table`, `date-picker`, `sonner`, `typography`, `trace` and `code-block` (61 of
-  61 in `ui-kit.yaml`; `toast` is an alias of `sonner`; `code-block` has no highlighter yet, open
-  decision). `admin` serves `robots.txt` (`Disallow: /`). `marketing` pages set `og:url` to their own
+  61 in `ui-kit.yaml`; `toast` is an alias of `sonner`; `code-block` had no highlighter then;
+  Shiki was added 2026-11-26). `admin` serves `robots.txt` (`Disallow: /`). `marketing` pages set `og:url` to their own
   canonical. The i18n parity check now covers the `i18n/common` catalogues (11 web bundles, was 8).
 - **Server.** `SELECT *` and `RETURNING *` removed from `sql/media` and gated by
   `architecturetest` (`TestQueriesNameTheirColumns`; generated code is unchanged).

@@ -11,7 +11,9 @@ Canonical name `native-select` (manifest: `ui-kit.yaml`). [All components](/ui-k
 
 ## Variants and sizes
 
-No canonical variant or size axis.
+| Axis | Canonical values (every platform) |
+|---|---|
+| `size` | `default`, `sm` |
 
 ## Platforms
 
@@ -78,6 +80,8 @@ function NativeSelectOptGroup({
 **Public API** (extracted from the source):
 
 ```kotlin
+enum class AedstNativeSelectSize { DEFAULT, SM }
+
 @Composable
 fun <T> AedstNativeSelect(
     options: List<T>,
@@ -88,6 +92,7 @@ fun <T> AedstNativeSelect(
     placeholder: String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    size: AedstNativeSelectSize = AedstNativeSelectSize.DEFAULT,
 )
 ```
 
@@ -120,6 +125,8 @@ AedstTheme {
 **Public API** (extracted from the source):
 
 ```swift
+public enum AedstNativeSelectSize { case `default`, sm }
+
 public struct AedstNativeSelectGroup: Identifiable, Sendable {
     public init(_ title: String = "", id: String? = nil, options: [AedstSelectOption])
 }
@@ -129,6 +136,7 @@ public struct AedstNativeSelect: View {
         _ label: String,
         groups: [AedstNativeSelectGroup],
         selection: Binding<String>,
+        size: AedstNativeSelectSize = .default,
         isDisabled: Bool = false
     )
 
@@ -136,6 +144,7 @@ public struct AedstNativeSelect: View {
         _ label: String,
         options: [AedstSelectOption],
         selection: Binding<String>,
+        size: AedstNativeSelectSize = .default,
         isDisabled: Bool = false
     )
 }
@@ -155,6 +164,12 @@ VStack(alignment: .leading, spacing: AedstSpacing.lg) {
             AedstSelectOption(id: "done", title: "Done"),
         ],
         selection: $status
+    )
+    AedstNativeSelect(
+        "Compact status",
+        options: [AedstSelectOption(id: "todo", title: "To do"), AedstSelectOption(id: "done", title: "Done")],
+        selection: $status,
+        size: .sm
     )
     AedstNativeSelect(
         "Time zone",
@@ -182,12 +197,15 @@ VStack(alignment: .leading, spacing: AedstSpacing.lg) {
 **Public API** (extracted from the source):
 
 ```qml title="Slint"
+export enum AedstNativeSelectSize { default, sm }
+
 export component AedstNativeSelect inherits Rectangle {
     in property <[string]> options;
     in-out property <int> current-index <=> box.current-index;
     out property <string> current-value: box.current-value;
     in property <string> label;
     in property <bool> enabled: true;
+    in property <AedstNativeSelectSize> size: AedstNativeSelectSize.default;
     out property <bool> has-focus: box.has-focus;
     callback selected(string);
 }

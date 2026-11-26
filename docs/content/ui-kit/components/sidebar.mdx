@@ -222,7 +222,7 @@ function SidebarProvider({
 })
 
 function Sidebar({
-  side = "left",
+  side = "start",
   variant = "sidebar",
   collapsible = "offcanvas",
   className,
@@ -230,7 +230,8 @@ function Sidebar({
   dir,
   ...props
 }: React.ComponentProps<"div"> & {
-  side?: "left" | "right";
+  /** Logical side: `start` is the left edge in LTR and the right edge in RTL. */
+  side?: "start" | "end";
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
 })
