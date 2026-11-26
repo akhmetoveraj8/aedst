@@ -11,7 +11,9 @@ Canonical name `avatar` (manifest: `ui-kit.yaml`). [All components](/ui-kit/comp
 
 ## Variants and sizes
 
-No canonical variant or size axis.
+| Axis | Canonical values (every platform) |
+|---|---|
+| `size` | `default`, `sm`, `lg` |
 
 ## Platforms
 
@@ -21,9 +23,6 @@ No canonical variant or size axis.
 | Android (Jetpack Compose) | implemented | `AedstAvatar` | `apps/android/core/ui/src/main/kotlin/com/aedst/core/ui/components/AedstAvatar.kt` |
 | Apple (SwiftUI) | implemented | `AedstAvatar` | `apps/apple/Core/AedstDesignSystem/Sources/AedstDesignSystem/Components/AedstAvatar.swift` |
 | Desktop (Slint) | implemented | `aedst_avatar` | `apps/desktop/crates/aedst-ui/ui/aedst_avatar.slint` |
-
-- Android deviates on `size`: `sm`, `md`, `lg`. Reason: web has no cva size axis (data-size prop: default, sm, lg); the Compose kit exposes it as AedstAvatarSize and names the default size md.
-- Apple deviates on `size`: `sm`, `md`, `lg`. Reason: web has no cva size axis (data-size prop: default, sm, lg); the SwiftUI kit exposes it as AedstAvatarSize and names the default size md.
 
 <Tabs items={["Web","Android","Apple","Desktop"]}>
 
@@ -86,19 +85,17 @@ function AvatarGroupCount({
 
 **Source:** `apps/android/core/ui/src/main/kotlin/com/aedst/core/ui/components/AedstAvatar.kt`
 
-**Deviation:** `size` is `sm`, `md`, `lg` on Android: web has no cva size axis (data-size prop: default, sm, lg); the Compose kit exposes it as AedstAvatarSize and names the default size md.
-
 **Public API** (extracted from the source):
 
 ```kotlin
-enum class AedstAvatarSize { SM, MD, LG }
+enum class AedstAvatarSize { DEFAULT, SM, LG }
 
 @Composable
 fun AedstAvatar(
     modifier: Modifier = Modifier,
     imageUrl: String? = null,
     initials: String? = null,
-    size: AedstAvatarSize = AedstAvatarSize.MD,
+    size: AedstAvatarSize = AedstAvatarSize.DEFAULT,
 )
 ```
 
@@ -113,9 +110,9 @@ AedstTheme {
             modifier = Modifier.background(MaterialTheme.colorScheme.background),
         ) {
             AedstAvatar(initials = "JD", size = AedstAvatarSize.SM)
-            AedstAvatar(initials = "AK", size = AedstAvatarSize.MD)
+            AedstAvatar(initials = "AK", size = AedstAvatarSize.DEFAULT)
             AedstAvatar(initials = "M", size = AedstAvatarSize.LG)
-            AedstAvatar(initials = "", size = AedstAvatarSize.MD)
+            AedstAvatar(initials = "", size = AedstAvatarSize.DEFAULT)
         }
     }
 }
@@ -129,19 +126,17 @@ AedstTheme {
 
 **Source:** `apps/apple/Core/AedstDesignSystem/Sources/AedstDesignSystem/Components/AedstAvatar.swift`
 
-**Deviation:** `size` is `sm`, `md`, `lg` on Apple: web has no cva size axis (data-size prop: default, sm, lg); the SwiftUI kit exposes it as AedstAvatarSize and names the default size md.
-
 **Public API** (extracted from the source):
 
 ```swift
-public enum AedstAvatarSize { case sm, md, lg }
+public enum AedstAvatarSize { case `default`, sm, lg }
 
 public struct AedstAvatar<ImageContent: View>: View {
-    public init(name: String, size: AedstAvatarSize = .md, @ViewBuilder image: () -> ImageContent)
+    public init(name: String, size: AedstAvatarSize = .default, @ViewBuilder image: () -> ImageContent)
 }
 
 extension AedstAvatar where ImageContent == EmptyView {
-    public init(name: String, size: AedstAvatarSize = .md)
+    public init(name: String, size: AedstAvatarSize = .default)
 }
 ```
 
@@ -173,11 +168,14 @@ HStack(spacing: AedstSpacing.sm) {
 **Public API** (extracted from the source):
 
 ```qml title="Slint"
+export enum AedstAvatarSize { default, sm, lg }
+
 export component AedstAvatar inherits Rectangle {
     in property <image> source;
     in property <string> fallback;
     in property <string> label;
-    in property <length> diameter: 32px;
+    in property <AedstAvatarSize> size: AedstAvatarSize.default;
+    out property <length> diameter: root.size == AedstAvatarSize.sm ? 24px : root.size == AedstAvatarSize.lg ? 40px : 32px;
 }
 ```
 

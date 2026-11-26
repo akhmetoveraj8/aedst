@@ -128,10 +128,17 @@ export component AedstCheckbox inherits Rectangle {
 }
 ```
 
-**Usage** (minimal example built from the signature with the default variant; the component is not used in the kit gallery):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_messages.slint`):
 
 ```qml title="Slint"
-AedstCheckbox { }
+AedstCheckbox {
+    checked: root.accepted;
+    label: "Accept the terms";
+    toggled => {
+        root.accepted = !root.accepted;
+        GalleryState.log(root.accepted ? "checkbox:on" : "checkbox:off");
+    }
+}
 ```
 
 </Tab>

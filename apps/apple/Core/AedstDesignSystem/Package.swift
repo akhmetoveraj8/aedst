@@ -29,13 +29,24 @@ let package = Package(
     dependencies: [
         // Only for `AedstError` in `AedstErrorPresenter` (Foundation-only package, no UI).
         .package(path: "../AedstCore"),
+        // Syntax highlighting in AedstCodeBlock (highlight.js 11 in JavaScriptCore, MIT). Latest tag verified
+        // 2026-11-26 with `git ls-remote --tags`: v1.2.0. No JavaScriptCore on watchOS/tvOS app targets here, so it
+        // is linked on iOS, macOS and visionOS only (`condition` below; the code checks `canImport(HighlightSwift)`).
+        .package(url: "https://github.com/appstefan/HighlightSwift", from: "1.2.0"),
         // Test-only (Point-Free). Latest stable verified 2026-10-28: 1.19.7.
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.19.7"),
     ],
     targets: [
         .target(
             name: "AedstDesignSystem",
-            dependencies: ["AedstCore"],
+            dependencies: [
+                "AedstCore",
+                .product(
+                    name: "HighlightSwift",
+                    package: "HighlightSwift",
+                    condition: .when(platforms: [.iOS, .macOS, .visionOS])
+                ),
+            ],
             resources: [.process("Resources")],
             swiftSettings: swiftSettings
         ),

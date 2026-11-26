@@ -39,9 +39,15 @@ public struct AedstRadioGroup<Option: Hashable & Identifiable>: View {
                 #if os(macOS)
                 .buttonStyle(.plain)
                 #endif
-                .accessibilityAddTraits(selection == option ? [.isButton, .isSelected] : .isButton)
+                .accessibilityAddTraits(Self.traits(isSelected: selection == option))
             }
         }
+        .accessibilityElement(children: .contain)
+    }
+
+    /// Accessibility traits of one option: always a button, plus selected for the current one.
+    static func traits(isSelected: Bool) -> AccessibilityTraits {
+        isSelected ? [.isButton, .isSelected] : .isButton
     }
 }
 

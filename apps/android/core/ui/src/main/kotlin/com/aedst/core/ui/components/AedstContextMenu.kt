@@ -22,6 +22,23 @@ import com.aedst.core.ui.R
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
+/** Tone of an [AedstContextMenuItem], mirroring web's `ContextMenuItem` `variant`. */
+enum class AedstContextMenuItemVariant {
+    DEFAULT,
+
+    /** Label and icon in the destructive color. */
+    DESTRUCTIVE,
+}
+
+/** One entry of an [AedstContextMenu] (web `ContextMenuItem`). */
+data class AedstContextMenuItem<T>(
+    val value: T,
+    val label: String,
+    val icon: (@Composable () -> Unit)? = null,
+    val variant: AedstContextMenuItemVariant = AedstContextMenuItemVariant.DEFAULT,
+    val enabled: Boolean = true,
+)
+
 /**
  * Long-press menu around [content], mirroring web's `context-menu.tsx` (right click there, touch-and-hold here).
  * The menu itself is [AedstDropdownMenu]. Screen-reader and switch users reach it through an "Open menu" custom
@@ -29,13 +46,14 @@ import com.aedst.core.ui.theme.AedstTheme
  */
 @Composable
 fun <T> AedstContextMenu(
-    options: List<AedstDropdownMenuOption<T>>,
+    options: List<AedstContextMenuItem<T>>,
     onOptionSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val menuOptions = remember(options) { options.map { it.toDropdownOption() } }
     val openLabel = stringResource(R.string.aedst_a11y_open_menu)
     val trigger = if (enabled) {
         Modifier
@@ -56,11 +74,22 @@ fun <T> AedstContextMenu(
         AedstDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            options = options,
+            options = menuOptions,
             onOptionSelected = onOptionSelected,
         )
     }
 }
+
+private fun <T> AedstContextMenuItem<T>.toDropdownOption() = AedstDropdownMenuOption(
+    value = value,
+    label = label,
+    icon = icon,
+    variant = when (variant) {
+        AedstContextMenuItemVariant.DEFAULT -> AedstDropdownMenuItemVariant.DEFAULT
+        AedstContextMenuItemVariant.DESTRUCTIVE -> AedstDropdownMenuItemVariant.DESTRUCTIVE
+    },
+    enabled = enabled,
+)
 
 @Preview(name = "Light", showBackground = true)
 @Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
@@ -70,8 +99,12 @@ private fun AedstContextMenuPreview() {
         Surface {
             AedstContextMenu(
                 options = listOf(
-                    AedstDropdownMenuOption(value = "rename", label = "Rename"),
-                    AedstDropdownMenuOption(value = "delete", label = "Delete", isDestructive = true),
+                    AedstContextMenuItem(value = "rename", label = "Rename"),
+                    AedstContextMenuItem(
+                        value = "delete",
+                        label = "Delete",
+                        variant = AedstContextMenuItemVariant.DESTRUCTIVE,
+                    ),
                 ),
                 onOptionSelected = {},
             ) {

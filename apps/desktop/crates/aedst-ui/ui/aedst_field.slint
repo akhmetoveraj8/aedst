@@ -60,3 +60,49 @@ export component AedstField inherits Rectangle {
         wrap: word-wrap;
     }
 }
+
+// Web `FieldLegend` variant: `legend` titles a group of fields (text-base), `label` reads like a
+// field label (text-sm), for a group that answers one question (a radio group).
+export enum AedstFieldLegendVariant { legend, label }
+
+// A group of related fields (web `FieldSet` + `FieldLegend`): the legend, an optional
+// description, then the fields (the children). Exposed to assistive technology as a group named
+// by the legend.
+export component AedstFieldSet inherits Rectangle {
+    in property <string> legend;
+    in property <string> description;
+    in property <AedstFieldLegendVariant> variant: AedstFieldLegendVariant.legend;
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    accessible-role: groupbox;
+    accessible-label: root.legend;
+    accessible-description: root.description;
+
+    VerticalLayout {
+        spacing: AedstTokens.spacing-lg;
+        if root.legend != "" || root.description != "": VerticalLayout {
+            spacing: AedstTokens.spacing-xs;
+            if root.legend != "": Text {
+                text: root.legend;
+                color: AedstTokens.foreground;
+                font-size: root.variant == AedstFieldLegendVariant.label
+                    ? AedstTokens.typography-label-large-font-size
+                    : AedstTokens.typography-title-small-font-size;
+                font-weight: AedstTokens.typography-label-large-font-weight;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+                accessible-role: AccessibleRole.none;
+            }
+            if root.description != "": Text {
+                text: root.description;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+                accessible-role: AccessibleRole.none;
+            }
+        }
+        @children
+    }
+}

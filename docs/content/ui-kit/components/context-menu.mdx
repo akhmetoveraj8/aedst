@@ -11,7 +11,9 @@ Canonical name `context-menu` (manifest: `ui-kit.yaml`). [All components](/ui-ki
 
 ## Variants and sizes
 
-No canonical variant or size axis.
+| Axis | Canonical values (every platform) |
+|---|---|
+| `variant` | `default`, `destructive` |
 
 ## Platforms
 
@@ -21,6 +23,9 @@ No canonical variant or size axis.
 | Android (Jetpack Compose) | implemented | `AedstContextMenu` | `apps/android/core/ui/src/main/kotlin/com/aedst/core/ui/components/AedstContextMenu.kt` |
 | Apple (SwiftUI) | implemented | `AedstContextMenu` | `apps/apple/Core/AedstDesignSystem/Sources/AedstDesignSystem/Components/AedstContextMenu.swift` |
 | Desktop (Slint) | implemented | `aedst_context_menu` | `apps/desktop/crates/aedst-ui/ui/aedst_context_menu.slint` |
+
+- Apple deviates on `variant`: -. Reason: declared once as AedstMenuItemVariant (default, destructive) in AedstDropdownMenu.swift, shared by the context menu.
+- Desktop deviates on `variant`: -. Reason: declared once as AedstMenuItemVariant (default, destructive) in aedst_dropdown_menu.slint, which aedst_context_menu.slint imports.
 
 <Tabs items={["Web","Android","Apple","Desktop"]}>
 
@@ -159,9 +164,19 @@ function ContextMenuShortcut({
 **Public API** (extracted from the source):
 
 ```kotlin
+enum class AedstContextMenuItemVariant { DEFAULT, DESTRUCTIVE }
+
+data class AedstContextMenuItem<T>(
+    val value: T,
+    val label: String,
+    val icon: (@Composable () -> Unit)? = null,
+    val variant: AedstContextMenuItemVariant = AedstContextMenuItemVariant.DEFAULT,
+    val enabled: Boolean = true,
+)
+
 @Composable
 fun <T> AedstContextMenu(
-    options: List<AedstDropdownMenuOption<T>>,
+    options: List<AedstContextMenuItem<T>>,
     onOptionSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -176,8 +191,12 @@ AedstTheme {
     Surface {
         AedstContextMenu(
             options = listOf(
-                AedstDropdownMenuOption(value = "rename", label = "Rename"),
-                AedstDropdownMenuOption(value = "delete", label = "Delete", isDestructive = true),
+                AedstContextMenuItem(value = "rename", label = "Rename"),
+                AedstContextMenuItem(
+                    value = "delete",
+                    label = "Delete",
+                    variant = AedstContextMenuItemVariant.DESTRUCTIVE,
+                ),
             ),
             onOptionSelected = {},
         ) {
@@ -194,6 +213,8 @@ AedstTheme {
 **Status:** implemented (the file exists). **Verification:** written, not compiled.
 
 **Source:** `apps/apple/Core/AedstDesignSystem/Sources/AedstDesignSystem/Components/AedstContextMenu.swift`
+
+**Deviation:** `variant` is - on Apple: declared once as AedstMenuItemVariant (default, destructive) in AedstDropdownMenu.swift, shared by the context menu.
 
 **Public API** (extracted from the source):
 
@@ -221,7 +242,7 @@ Text("Touch and hold, or right-click") // i18n-ok: preview
         .action("Copy", systemImage: "doc.on.doc") {},
         .action("Share", systemImage: "square.and.arrow.up") {},
         .separator,
-        .action("Delete", systemImage: "trash", role: .destructive) {},
+        .action("Delete", systemImage: "trash", variant: .destructive) {},
     ])
     .padding()
 ```
@@ -233,6 +254,8 @@ Text("Touch and hold, or right-click") // i18n-ok: preview
 **Status:** implemented (the file exists). **Verification:** written, not compiled.
 
 **Source:** `apps/desktop/crates/aedst-ui/ui/aedst_context_menu.slint`
+
+**Deviation:** `variant` is - on Desktop: declared once as AedstMenuItemVariant (default, destructive) in aedst_dropdown_menu.slint, which aedst_context_menu.slint imports.
 
 **Public API** (extracted from the source):
 

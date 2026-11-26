@@ -18,7 +18,21 @@
     "sortNone": "Saralanmagan",
     "slide": "{number2} tadan {number1}-slayd",
     "close": "Yopish",
-    "openMenu": "Menyuni ochish"
+    "openMenu": "Menyuni ochish",
+    "messages": "Xabarlar",
+    "scrollToEnd": "Oxiriga o'tish",
+    "questionnaireProgress": "So'rovnoma jarayoni",
+    "questionProgress": "Savol {current} / {total}",
+    "newMessage": "Yangi xabar",
+    "attachmentUploading": "Yuklanmoqda",
+    "attachmentProcessing": "Qayta ishlanmoqda",
+    "attachmentFailed": "Yuklab bo'lmadi",
+    "sendMessage": "Xabarni yuborish",
+    "stop": "To'xtatish",
+    "attachFiles": "Fayllarni biriktirish",
+    "removeAttachment": "{name} ni olib tashlash",
+    "contextUsed": "Ishlatilgan kontekst",
+    "opensInBrowser": "Brauzerda ochiladi"
   },
   "error": {
     "offline": "Internet aloqasi yo‘q. Tarmoqni tekshirib, qayta urinib ko‘ring.",
@@ -45,7 +59,9 @@
     "ok": "OK",
     "cancel": "Bekor qilish",
     "confirm": "Tasdiqlash",
-    "retry": "Qayta urinish"
+    "retry": "Qayta urinish",
+    "skip": "O'tkazib yuborish",
+    "submit": "Yuborish"
   },
   "breadcrumb": "Navigatsiya zanjiri",
   "cancel": "Bekor qilish",

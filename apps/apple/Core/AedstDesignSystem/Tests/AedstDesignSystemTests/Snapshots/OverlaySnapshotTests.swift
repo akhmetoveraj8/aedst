@@ -33,7 +33,7 @@ struct OverlaySnapshotTests {
         [
             .action("Profile", systemImage: "person") {},
             .separator,
-            .action("Delete", systemImage: "trash", role: .destructive) {},
+            .action("Delete", systemImage: "trash", variant: .destructive) {},
         ]
     }
 

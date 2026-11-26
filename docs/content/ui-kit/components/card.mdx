@@ -11,7 +11,9 @@ Canonical name `card` (manifest: `ui-kit.yaml`). [All components](/ui-kit/compon
 
 ## Variants and sizes
 
-No canonical variant or size axis.
+| Axis | Canonical values (every platform) |
+|---|---|
+| `size` | `default`, `sm` |
 
 ## Platforms
 
@@ -85,27 +87,32 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">)
 **Public API** (extracted from the source):
 
 ```kotlin
+enum class AedstCardSize { DEFAULT, SM }
+
+sealed class AedstCardScope
+
 @Composable
 fun AedstCard(
     modifier: Modifier = Modifier,
     elevation: Dp = AedstElevation.level1,
-    content: @Composable ColumnScope.() -> Unit,
+    size: AedstCardSize = AedstCardSize.DEFAULT,
+    content: @Composable AedstCardScope.() -> Unit,
 )
 
 @Composable
-fun AedstCardHeader(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit)
+fun AedstCardScope.AedstCardHeader(modifier: Modifier = Modifier, content: @Composable AedstCardScope.() -> Unit)
 
 @Composable
-fun AedstCardTitle(text: String, modifier: Modifier = Modifier)
+fun AedstCardScope.AedstCardTitle(text: String, modifier: Modifier = Modifier)
 
 @Composable
 fun AedstCardDescription(text: String, modifier: Modifier = Modifier)
 
 @Composable
-fun AedstCardContent(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit)
+fun AedstCardScope.AedstCardContent(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit)
 
 @Composable
-fun AedstCardFooter(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit)
+fun AedstCardScope.AedstCardFooter(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit)
 ```
 
 **Usage** (from the `@Preview` function `AedstCardPreview`):
@@ -140,8 +147,10 @@ AedstTheme {
 **Public API** (extracted from the source):
 
 ```swift
+public enum AedstCardSize { case `default`, sm }
+
 public struct AedstCard<Content: View>: View {
-    public init(@ViewBuilder content: () -> Content)
+    public init(size: AedstCardSize = .default, @ViewBuilder content: () -> Content)
 }
 
 public struct AedstCardHeader: View {
@@ -179,9 +188,12 @@ AedstCard {
 **Public API** (extracted from the source):
 
 ```qml title="Slint"
+export enum AedstCardSize { default, sm }
+
 export component AedstCard inherits Rectangle {
     in property <string> title;
     in property <string> description;
+    in property <AedstCardSize> size: AedstCardSize.default;
 }
 ```
 

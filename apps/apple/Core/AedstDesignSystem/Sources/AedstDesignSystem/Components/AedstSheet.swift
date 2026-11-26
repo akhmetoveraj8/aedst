@@ -8,7 +8,7 @@ public enum AedstSheetDetent: Hashable, Sendable {
     /// Full-height stop.
     case large
 
-    fileprivate var presentationDetent: PresentationDetent {
+    var presentationDetent: PresentationDetent {
         switch self {
         case .medium: .medium
         case .large: .large

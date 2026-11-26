@@ -19,7 +19,7 @@ struct AedstAvatarTests {
 
     @Test("sizes grow in order")
     func sizes() {
-        #expect(AedstAvatarSize.sm.dimension < AedstAvatarSize.md.dimension)
-        #expect(AedstAvatarSize.md.dimension < AedstAvatarSize.lg.dimension)
+        #expect(AedstAvatarSize.sm.dimension < AedstAvatarSize.default.dimension)
+        #expect(AedstAvatarSize.default.dimension < AedstAvatarSize.lg.dimension)
     }
 }

@@ -20,6 +20,16 @@
     <string name="aedst_a11y_slide">Slide %1$s of %2$s</string>
     <string name="aedst_a11y_close">Close</string>
     <string name="aedst_a11y_open_menu">Open menu</string>
+    <string name="aedst_a11y_messages">Messages</string>
+    <string name="aedst_a11y_scroll_to_end">Scroll to end</string>
+    <string name="aedst_a11y_questionnaire_progress">Questionnaire progress</string>
+    <string name="aedst_a11y_question_progress">Question %1$s of %2$s</string>
+    <string name="aedst_a11y_send_message">Send message</string>
+    <string name="aedst_a11y_stop">Stop</string>
+    <string name="aedst_a11y_attach_files">Attach files</string>
+    <string name="aedst_a11y_remove_attachment">Remove %1$s</string>
+    <string name="aedst_a11y_context_used">Context used</string>
+    <string name="aedst_a11y_opens_in_browser">Opens in browser</string>
     <string name="aedst_error_offline">No internet connection. Check your network and try again.</string>
     <string name="aedst_error_network">Couldn’t reach the server. Please try again later.</string>
     <string name="aedst_error_unauthorized">Incorrect details or your session has expired. Please sign in again.</string>
@@ -39,4 +49,8 @@
     <string name="aedst_action_cancel">Cancel</string>
     <string name="aedst_action_confirm">Confirm</string>
     <string name="aedst_action_retry">Retry</string>
+    <string name="aedst_action_skip">Skip</string>
+    <string name="aedst_action_submit">Submit</string>
+    <string name="aedst_required">Required</string>
+    <string name="aedst_select_option">Select an option</string>
 </resources>

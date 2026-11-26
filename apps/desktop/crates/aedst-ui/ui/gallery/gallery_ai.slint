@@ -1,0 +1,197 @@
+import {
+    AedstTokens, AedstLabel, AedstButton, AedstCodeLine, AedstTraceStatus, AedstAiChainOfThought,
+    AedstAiChainOfThoughtSteps, AedstAiChainOfThoughtSearchResults, AedstAiStep, AedstAiReasoning, AedstAiPlan,
+    AedstAiTask, AedstAiTaskItem, AedstAiTool, AedstAiToolState, AedstAiToolApproval, AedstAiSubagent,
+    AedstAiQueue, AedstAiQueueSection, AedstAiQueueItem, AedstAiQueueItemStatus, AedstAiCheckpoint,
+    AedstAiFileTree, AedstAiFileTreeNode, AedstAiStackTrace, AedstAiStackFrame, AedstAiTerminal,
+    AedstAiTestResults, AedstAiTestSuite, AedstAiTestStatus
+} from "../lib.slint";
+import { GalleryState } from "gallery_state.slint";
+
+// Gallery page 6: AI Elements batch A (chain of thought, reasoning, plan, task, tool, subagent,
+// queue, checkpoint, file tree, stack trace, terminal, test results). Driven by tests/ai.rs;
+// every callback writes `GalleryState.last-event`. Labels are unique across all pages.
+export component GalleryAi inherits Rectangle {
+    in-out property <bool> thinking: true;
+    in-out property <string> terminal-output: "> vite build\nbuilt in 2.1 s";
+    in-out property <[AedstCodeLine]> terminal-lines: [{ text: "> vite build" }, { text: "built in 2.1 s" }];
+    private property <[AedstAiStep]> searched: [
+        { id: "s1", label: "Read the kit manifest", status-label: "Done" },
+        { id: "s2", label: "Compare the web stories", status: AedstTraceStatus.running, status-label: "Running" },
+        { id: "s3", label: "Write the summary", status: AedstTraceStatus.pending, status-label: "Waiting" },
+    ];
+
+    Flickable {
+        content-height: column.preferred-height;
+
+        column := VerticalLayout {
+            width: root.width;
+            padding: AedstTokens.spacing-lg;
+            spacing: AedstTokens.spacing-sm;
+
+            AedstLabel { text: "AI elements"; }
+            AedstAiChainOfThought {
+                title: "Searched the docs";
+                status-label: "Done";
+                show-status: true;
+                toggled(open) => { GalleryState.log(open ? "cot:open" : "cot:closed"); }
+                AedstAiChainOfThoughtSteps { steps: root.searched; label: "Search steps"; }
+                AedstAiChainOfThoughtSearchResults { results: ["docs.slint.dev", "ui.shadcn.com"]; }
+            }
+            AedstAiReasoning {
+                streaming: root.thinking;
+                thinking-label: "Thinking";
+                thought-label: "Thought for 3 s";
+                text: "The user wants parity first.\nWeb is the reference.";
+                toggled(open) => { GalleryState.log(open ? "reasoning:open" : "reasoning:closed"); }
+            }
+            AedstButton {
+                text: root.thinking ? "Finish thinking" : "Think again";
+                clicked => { root.thinking = !root.thinking; }
+            }
+            AedstAiPlan {
+                title: "Migrate to Base UI";
+                description: "1 of 3 done";
+                summary: "Swap the primitives one component at a time.";
+                steps: root.searched;
+                steps-label: "Plan steps";
+                action-label: "Edit plan";
+                action => { GalleryState.log("plan:edit"); }
+                AedstButton { text: "Build it"; clicked => { GalleryState.log("plan:build"); } }
+            }
+            AedstAiTask {
+                title: "Found 2 files";
+                items-label: "Task steps";
+                items: [
+                    { id: "t1", label: "Searched for button usages", file: "src/ui/button.tsx", status: AedstTraceStatus.success },
+                    { id: "t2", label: "Reading the story", status: AedstTraceStatus.running, status-label: "Running" },
+                ];
+            }
+            AedstAiTool {
+                state: AedstAiToolState.output-error;
+                title: "Failed to read config";
+                status-label: "Failed";
+                input-label: "Parameters";
+                input-code: "{ \"path\": \"aedst.toml\" }";
+                input-lines: [{ text: "{ \"path\": \"aedst.toml\" }" }];
+                output-label: "Result";
+                error-text: "ENOENT: no such file";
+                copy-label: "Copy parameters";
+                copied-label: "Copied";
+                toggled(open) => { GalleryState.log(open ? "tool:open" : "tool:closed"); }
+            }
+            AedstAiToolApproval {
+                title: "Run ls -la?";
+                description: "Lists the working directory.";
+                approve-label: "Run the command";
+                deny-label: "Skip the command";
+                approve => { GalleryState.log("tool:approve"); }
+                deny => { GalleryState.log("tool:deny"); }
+            }
+            AedstAiSubagent {
+                title: "Ran the research agent";
+                description: "12 s";
+                task: "Find every place that sets a colour literal.";
+                model-label: "Model";
+                model: "claude-opus";
+                tools-label: "Tools";
+                tools: ["grep", "read"];
+                steps: root.searched;
+                steps-label: "Subagent steps";
+                open: true;
+            }
+            AedstAiQueue {
+                label: "Agent todos";
+                AedstAiQueueSection {
+                    label: "2 to do";
+                    items: [
+                        { id: "q1", label: "Update the registry snapshots", status: AedstAiQueueItemStatus.in-progress },
+                        { id: "q2", label: "Add combobox tests" },
+                        { id: "q3", label: "Rename the button", status: AedstAiQueueItemStatus.completed, status-label: "Completed" },
+                    ];
+                    actions: [{ id: "remove", label: "Remove todo" }];
+                    action(item, act) => { GalleryState.log("queue:" + item + ":" + act); }
+                }
+            }
+            AedstAiCheckpoint {
+                text: "Button renamed";
+                restore-label: "Restore";
+                restore-accessible-label: "Restore to Button renamed";
+                tooltip: "Restore the thread to this point";
+                restore => { GalleryState.log("checkpoint:restore"); }
+            }
+            AedstAiFileTree {
+                label: "Changed files";
+                selected-path: "src/lib.rs";
+                nodes: [
+                    { path: "src", name: "src", folder: true, open: true },
+                    { path: "src/app.rs", name: "app.rs", depth: 1, badge: "M" },
+                    { path: "src/lib.rs", name: "lib.rs", depth: 1 },
+                    { path: "Cargo.toml", name: "Cargo.toml", badge: "+2" },
+                ];
+                toggled(path, open) => { GalleryState.log("folder:" + path + (open ? ":open" : ":closed")); }
+                selected(path) => { GalleryState.log("file:" + path); }
+            }
+            AedstAiStackTrace {
+                title: "Failed: TypeError";
+                status-label: "Failed";
+                error: "TypeError: Cannot read properties of undefined (reading 'id')";
+                frames-label: "App frames";
+                frames: [
+                    { function-name: "renderRow", location: "src/table.tsx:42", linked: true },
+                    { location: "src/app.tsx:7" },
+                ];
+                internal-frames-label: "2 framework frames";
+                internal-code: "at commit (node_modules/react-dom/client.js:100:5)\nat node:internal/process/task_queues:95:5";
+                internal-lines: [
+                    { text: "at commit (node_modules/react-dom/client.js:100:5)" },
+                    { text: "at node:internal/process/task_queues:95:5" },
+                ];
+                frame-activated(index) => { GalleryState.log("frame:\{index}"); }
+            }
+            AedstAiTerminal {
+                title: "Ran pnpm build";
+                output: root.terminal-output;
+                output-lines: root.terminal-lines;
+                output-label: "Build output";
+                clear-label: "Clear output";
+                copy-label: "Copy output";
+                copied-label: "Copied";
+                open: true;
+                cleared => {
+                    root.terminal-output = "";
+                    root.terminal-lines = [];
+                    GalleryState.log("terminal:clear");
+                }
+            }
+            AedstAiTestResults {
+                title: "Ran 3 tests, 1 failed";
+                test-status: AedstAiTestStatus.failed;
+                status-label: "Failed";
+                counts: { total: 3, passed: 2, failed: 1, skipped: 0 };
+                progress-label: "Passed";
+                suites-label: "Test suites";
+                copy-label: "Copy error";
+                copied-label: "Copied";
+                open: true;
+                suites: [
+                    {
+                        id: "pay", name: "payment.test.ts, 2 tests, 1 failed", status: AedstAiTestStatus.failed,
+                        status-label: "Failed",
+                        tests: [
+                            { id: "p1", name: "charges the card", status: AedstAiTestStatus.passed, duration: "12 ms" },
+                            {
+                                id: "p2", name: "refunds twice", status: AedstAiTestStatus.failed, status-label: "Failed",
+                                error: "Expected 1 refund, got 2", error-lines: [{ text: "Expected 1 refund, got 2" }],
+                            },
+                        ],
+                    },
+                    {
+                        id: "fmt", name: "format.test.ts, 1 test", status: AedstAiTestStatus.passed,
+                        tests: [{ id: "f1", name: "formats money", status: AedstAiTestStatus.passed }],
+                    },
+                ];
+            }
+        }
+    }
+}

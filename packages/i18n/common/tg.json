@@ -46,6 +46,8 @@
     "commandPalette": "Палитраи фармонҳо",
     "commandPaletteDescription": "Фармонро барои иҷро ҷустуҷӯ кунед",
     "messages": "Паёмҳо",
+    "scrollToEnd": "Ба охир гузаред",
+    "scrollToStart": "Ба аввал гузаред",
     "questionnaireProgress": "Пешрафти пурсиш",
     "questionProgress": "Саволи {current} аз {total}"
   },

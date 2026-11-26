@@ -48,7 +48,7 @@ extension View {
             .action("Copy", systemImage: "doc.on.doc") {},
             .action("Share", systemImage: "square.and.arrow.up") {},
             .separator,
-            .action("Delete", systemImage: "trash", role: .destructive) {},
+            .action("Delete", systemImage: "trash", variant: .destructive) {},
         ])
         .padding()
 }

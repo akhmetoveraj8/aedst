@@ -11,7 +11,9 @@ Canonical name `switch` (manifest: `ui-kit.yaml`). [All components](/ui-kit/comp
 
 ## Variants and sizes
 
-No canonical variant or size axis.
+| Axis | Canonical values (every platform) |
+|---|---|
+| `size` | `default`, `sm` |
 
 ## Platforms
 
@@ -61,6 +63,8 @@ function Switch({
 **Public API** (extracted from the source):
 
 ```kotlin
+enum class AedstSwitchSize { DEFAULT, SM }
+
 @Composable
 fun AedstSwitch(
     checked: Boolean,
@@ -68,6 +72,7 @@ fun AedstSwitch(
     modifier: Modifier = Modifier,
     label: String? = null,
     enabled: Boolean = true,
+    size: AedstSwitchSize = AedstSwitchSize.DEFAULT,
 )
 ```
 
@@ -82,6 +87,7 @@ AedstTheme {
         ) {
             AedstSwitch(checked = true, onCheckedChange = {}, label = "Enable notifications")
             AedstSwitch(checked = false, onCheckedChange = {}, label = "Dark mode")
+            AedstSwitch(checked = true, onCheckedChange = {}, label = "Small", size = AedstSwitchSize.SM)
             AedstSwitch(checked = false, onCheckedChange = {}, label = "Disabled", enabled = false)
         }
     }
@@ -99,8 +105,10 @@ AedstTheme {
 **Public API** (extracted from the source):
 
 ```swift
+public enum AedstSwitchSize { case `default`, sm }
+
 public struct AedstSwitch: View {
-    public init(_ label: String? = nil, isOn: Binding<Bool>, isDisabled: Bool = false)
+    public init(_ label: String? = nil, isOn: Binding<Bool>, size: AedstSwitchSize = .default, isDisabled: Bool = false)
 }
 ```
 
@@ -110,6 +118,7 @@ public struct AedstSwitch: View {
 VStack(alignment: .leading, spacing: AedstSpacing.sm) {
     AedstSwitch("Enable notifications", isOn: .constant(true))
     AedstSwitch("Airplane mode", isOn: .constant(false))
+    AedstSwitch("Compact", isOn: .constant(true), size: .sm)
     AedstSwitch("Disabled", isOn: .constant(true), isDisabled: true)
 }
 .padding()
@@ -126,10 +135,13 @@ VStack(alignment: .leading, spacing: AedstSpacing.sm) {
 **Public API** (extracted from the source):
 
 ```qml title="Slint"
+export enum AedstSwitchSize { default, sm }
+
 export component AedstSwitch inherits Rectangle {
     in property <bool> checked;
     in property <string> label;
     in property <bool> enabled: true;
+    in property <AedstSwitchSize> size: AedstSwitchSize.default;
     callback toggled(bool);
 }
 ```

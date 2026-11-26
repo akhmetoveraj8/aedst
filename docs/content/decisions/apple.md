@@ -10,6 +10,7 @@ Part of the [decisions index](/decisions). Status and verification legends are d
 
 | Decision | Status | Rationale | Revisit when |
 |---|---|---|---|
+| Syntax highlighting in `AedstCodeBlock` uses **HighlightSwift** (highlight.js in JavaScriptCore), mapped to the `syntax*` color tokens; no hand-written tokenizer | Accepted, UNVERIFIED by build (2026-11-26) | Library-first: 50+ languages, MIT, `Sendable` engine; Splash covers Swift only; web keeps a `renderLine` seam | HighlightSwift stops being maintained, or exposes token ranges (drop the marker-color mapping) |
 | Tuist replaces XcodeGen (`Project.swift`, `Tuist.swift`, `Tuist/Package.swift`; `tuist install/generate/build/test`; generated project gitignored) | Accepted, UNVERIFIED by build | Swift manifests, dependency integration | First Xcode build shows Tuist is a poor fit |
 | GRDB 7 (`DatabasePool` / `DatabaseMigrator`, used directly via `AedstDatabase`) replaces SwiftData; today it holds only key-value and preferences (no list is driven by the local DB) | Accepted | Explicit versioned migrations and control (no longer an OS-reach argument) | Owner decides otherwise |
 | Reactive queries in views: **SQLiteData** (Point-Free, on GRDB; 1.12.0 verified 2026-10-08) is the approved choice, GRDBQuery 0.11.0 the lighter alternative. **Not added yet**: no view needs `ValueObservation` (no dependency without a use) | Approved, not added | Library-first: use a library once a DB-driven view exists | First offline-first list/screen (Apple counterpart of Android's Room outbox/sync) |

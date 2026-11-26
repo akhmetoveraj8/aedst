@@ -46,6 +46,8 @@
     "commandPalette": "Buyruqlar palitrasi",
     "commandPaletteDescription": "Bajarish uchun buyruqni qidiring",
     "messages": "Xabarlar",
+    "scrollToEnd": "Oxiriga o‘tish",
+    "scrollToStart": "Boshiga o‘tish",
     "questionnaireProgress": "So'rovnoma jarayoni",
     "questionProgress": "Savol {current} / {total}"
   },

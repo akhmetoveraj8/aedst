@@ -13,7 +13,7 @@ public struct AedstRemoteAvatar: View {
 
     @Environment(\.displayScale) private var displayScale
 
-    public init(name: String, imageURL: URL? = nil, size: AedstAvatarSize = .md) {
+    public init(name: String, imageURL: URL? = nil, size: AedstAvatarSize = .default) {
         self.name = name
         self.imageURL = imageURL
         self.size = size
@@ -47,7 +47,7 @@ public struct AedstRemoteAvatar: View {
 #Preview("AedstRemoteAvatar") {
     HStack(spacing: AedstSpacing.sm) {
         AedstRemoteAvatar(name: "Eraj Akhmetov", size: .sm)
-        AedstRemoteAvatar(name: "Eraj Akhmetov", size: .md)
+        AedstRemoteAvatar(name: "Eraj Akhmetov", size: .default)
         AedstRemoteAvatar(name: "Eraj Akhmetov", size: .lg)
     }
     .padding()

@@ -20,6 +20,16 @@
     <string name="aedst_a11y_slide">%2$s tadan %1$s-slayd</string>
     <string name="aedst_a11y_close">Yopish</string>
     <string name="aedst_a11y_open_menu">Menyuni ochish</string>
+    <string name="aedst_a11y_messages">Xabarlar</string>
+    <string name="aedst_a11y_scroll_to_end">Oxiriga o\'tish</string>
+    <string name="aedst_a11y_questionnaire_progress">So\'rovnoma jarayoni</string>
+    <string name="aedst_a11y_question_progress">Savol %1$s / %2$s</string>
+    <string name="aedst_a11y_send_message">Xabarni yuborish</string>
+    <string name="aedst_a11y_stop">To\'xtatish</string>
+    <string name="aedst_a11y_attach_files">Fayllarni biriktirish</string>
+    <string name="aedst_a11y_remove_attachment">%1$s ni olib tashlash</string>
+    <string name="aedst_a11y_context_used">Ishlatilgan kontekst</string>
+    <string name="aedst_a11y_opens_in_browser">Brauzerda ochiladi</string>
     <string name="aedst_error_offline">Internet aloqasi yo‘q. Tarmoqni tekshirib, qayta urinib ko‘ring.</string>
     <string name="aedst_error_network">Serverga ulanib bo‘lmadi. Keyinroq urinib ko‘ring.</string>
     <string name="aedst_error_unauthorized">Ma’lumotlar noto‘g‘ri yoki seans tugagan. Qayta kiring.</string>
@@ -39,4 +49,8 @@
     <string name="aedst_action_cancel">Bekor qilish</string>
     <string name="aedst_action_confirm">Tasdiqlash</string>
     <string name="aedst_action_retry">Qayta urinish</string>
+    <string name="aedst_action_skip">O\'tkazib yuborish</string>
+    <string name="aedst_action_submit">Yuborish</string>
+    <string name="aedst_required">Majburiy</string>
+    <string name="aedst_select_option">Variantni tanlang</string>
 </resources>

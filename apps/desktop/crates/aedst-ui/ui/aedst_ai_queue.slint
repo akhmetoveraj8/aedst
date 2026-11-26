@@ -1,0 +1,132 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstTraceStatus } from "aedst_trace.slint";
+import { AedstAiChainOfThoughtHeader, AedstAiChainOfThoughtContent, AedstAiChainOfThoughtStep } from "aedst_ai_chain_of_thought.slint";
+
+// Todo state (the agent's `writeTodos` vocabulary, web `AiQueueItemStatus`).
+export enum AedstAiQueueItemStatus { pending, in-progress, completed }
+
+// One todo (web `AiQueueItem`).
+export struct AedstAiQueueItem {
+    id: string,
+    label: string,
+    description: string,
+    status: AedstAiQueueItemStatus,
+    status-label: string,
+}
+
+// An icon button shown on every todo of a section (web `AiQueueItemAction`); `label` is its
+// accessible name.
+export struct AedstAiQueueItemAction {
+    id: string,
+    label: string,
+    icon: image,
+}
+
+// The agent's todo list (web `AiQueue`): the children are `AedstAiQueueSection`s.
+export component AedstAiQueue inherits Rectangle {
+    in property <string> label;
+
+    accessible-role: AccessibleRole.groupbox;
+    accessible-label: root.label;
+
+    VerticalLayout {
+        spacing: AedstTokens.spacing-xs;
+        @children
+    }
+}
+
+// A collapsible group of todos such as "2 to do" or "Completed" (web `AiQueueSection`, open by
+// default; the caller words and pluralises `label`). Completed todos are struck through. The
+// actions are icon buttons beside each todo; unlike web they are always shown (a focus-within
+// reveal is not expressible in Slint, and hidden buttons must not take focus).
+export component AedstAiQueueSection inherits Rectangle {
+    in property <string> label;
+    in property <string> description;
+    in property <image> icon;
+    in property <[AedstAiQueueItem]> items;
+    in property <[AedstAiQueueItemAction]> actions;
+    in-out property <bool> open: true;
+    in property <bool> reduce-motion: false;
+    callback toggled(bool);
+    // (todo id, action id)
+    callback action(string, string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    pure function trace-status(status: AedstAiQueueItemStatus) -> AedstTraceStatus {
+        return status == AedstAiQueueItemStatus.completed ? AedstTraceStatus.success
+            : status == AedstAiQueueItemStatus.in-progress ? AedstTraceStatus.running
+            : AedstTraceStatus.pending;
+    }
+
+    forward-focus: trigger;
+
+    VerticalLayout {
+        trigger := AedstAiChainOfThoughtHeader {
+            title: root.label;
+            description: root.description;
+            icon: root.icon;
+            open: root.open;
+            reduce-motion: root.reduce-motion;
+            toggled => {
+                root.open = !root.open;
+                root.toggled(root.open);
+            }
+        }
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := AedstAiChainOfThoughtContent {
+                Rectangle {
+                    accessible-role: AccessibleRole.list;
+                    accessible-label: root.label;
+                    VerticalLayout {
+                        for item in root.items: Rectangle {
+                            border-radius: AedstTokens.radius-md;
+                            background: row-touch.has-hover ? AedstTokens.muted : transparent;
+                            row-touch := TouchArea { }
+                            HorizontalLayout {
+                                if root.rtl: HorizontalLayout {
+                                    padding-left: AedstTokens.spacing-xs;
+                                    spacing: AedstTokens.spacing-xs;
+                                    alignment: center;
+                                    for act in root.actions: AedstButton {
+                                        label: act.label;
+                                        icon: act.icon;
+                                        variant: AedstButtonVariant.ghost;
+                                        size: AedstButtonSize.icon-sm;
+                                        clicked => { root.action(item.id, act.id); }
+                                    }
+                                }
+                                AedstAiChainOfThoughtStep {
+                                    horizontal-stretch: 1;
+                                    label: item.label;
+                                    description: item.description;
+                                    status: root.trace-status(item.status);
+                                    status-label: item.status-label;
+                                    struck: item.status == AedstAiQueueItemStatus.completed;
+                                    reduce-motion: root.reduce-motion;
+                                }
+                                if !root.rtl: HorizontalLayout {
+                                    padding-right: AedstTokens.spacing-xs;
+                                    spacing: AedstTokens.spacing-xs;
+                                    alignment: center;
+                                    for act in root.actions: AedstButton {
+                                        label: act.label;
+                                        icon: act.icon;
+                                        variant: AedstButtonVariant.ghost;
+                                        size: AedstButtonSize.icon-sm;
+                                        clicked => { root.action(item.id, act.id); }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

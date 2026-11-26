@@ -5,20 +5,54 @@ export { AedstLayout } from "aedst_layout.slint";
 
 export { AedstAccordion, AedstAccordionItem } from "aedst_accordion.slint";
 export { AedstActionRow } from "aedst_action_row.slint";
+// AI Elements, batch A (the collapsible lines: chain of thought and the elements built on it).
+export {
+    AedstAiChainOfThought, AedstAiChainOfThoughtHeader, AedstAiChainOfThoughtContent, AedstAiChainOfThoughtStep,
+    AedstAiChainOfThoughtSteps, AedstAiStep
+} from "aedst_ai_chain_of_thought.slint";
+export { AedstAiChainOfThoughtSearchResults, AedstAiChainOfThoughtImage } from "internal/ai_chain_of_thought_media.slint";
+export { AedstAiCheckpoint } from "aedst_ai_checkpoint.slint";
+export { AedstAiFileTree, AedstAiFileTreeNode } from "aedst_ai_file_tree.slint";
+export { AedstAiPlan, AedstAiPlanDescription } from "aedst_ai_plan.slint";
+export { AedstAiQueue, AedstAiQueueSection, AedstAiQueueItem, AedstAiQueueItemAction, AedstAiQueueItemStatus } from "aedst_ai_queue.slint";
+export { AedstAiReasoning, AedstAiReasoningTrigger, AedstAiReasoningContent } from "aedst_ai_reasoning.slint";
+export {
+    AedstAiStackTrace, AedstAiStackTraceHeader, AedstAiStackTraceError, AedstAiStackTraceFrames, AedstAiStackFrame
+} from "aedst_ai_stack_trace.slint";
+export { AedstAiSubagent, AedstAiSubagentTask, AedstAiSubagentMeta } from "aedst_ai_subagent.slint";
+export { AedstAiTask, AedstAiTaskItem, AedstAiTaskItemFile } from "aedst_ai_task.slint";
+export { AedstAiTerminal } from "aedst_ai_terminal.slint";
+export {
+    AedstAiTestResults, AedstAiTestResultsHeader, AedstAiTestResultsProgress, AedstAiTestSuites, AedstAiTestRow,
+    AedstAiTest, AedstAiTestSuite, AedstAiTestCounts, AedstAiTestStatus
+} from "aedst_ai_test_results.slint";
+export { AedstAiTool, AedstAiToolHeader, AedstAiToolSection, AedstAiToolApproval, AedstAiToolState } from "aedst_ai_tool.slint";
+// AI Elements, batch B (chat, message, prompt input and the parts around them).
+export { AedstAiChat, AedstAiChatItem } from "aedst_ai_chat.slint";
+export { AedstAiConfirmation, AedstAiConfirmationState } from "aedst_ai_confirmation.slint";
+export { AedstAiContext, AedstAiContextUsageRow } from "aedst_ai_context.slint";
+export { AedstAiInlineCitation, AedstAiCitationSource } from "aedst_ai_inline_citation.slint";
+export { AedstAiMessage, AedstAiMessageRole, AedstAiMessageAction, AedstAiMessageActions, AedstAiMessageResponse } from "aedst_ai_message.slint";
+export { AedstAiModelSelector } from "aedst_ai_model_selector.slint";
+export { AedstAiPromptInput, AedstAiPromptInputStatus, AedstAiPromptInputAttachment } from "aedst_ai_prompt_input.slint";
+export { AedstAiSources, AedstAiSource } from "aedst_ai_sources.slint";
+export { AedstAiSuggestion, AedstAiSuggestions } from "aedst_ai_suggestion.slint";
 export { AedstAlert, AedstAlertVariant } from "aedst_alert.slint";
-export { AedstAlertDialog } from "aedst_alert_dialog.slint";
+export { AedstAlertDialog, AedstAlertDialogSize } from "aedst_alert_dialog.slint";
 export { AedstAspectRatio } from "aedst_aspect_ratio.slint";
-export { AedstAvatar } from "aedst_avatar.slint";
+export { AedstAttachment, AedstAttachmentVariant, AedstAttachmentSize, AedstAttachmentOrientation, AedstAttachmentState } from "aedst_attachment.slint";
+export { AedstAvatar, AedstAvatarSize } from "aedst_avatar.slint";
 export { AedstBadge, AedstBadgeVariant } from "aedst_badge.slint";
 export { AedstBreadcrumb } from "aedst_breadcrumb.slint";
+export { AedstBubble, AedstBubbleGroup, AedstBubbleVariant, AedstBubbleSide, AedstBubbleAlign } from "aedst_bubble.slint";
 export { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
 export { AedstButtonGroup, AedstButtonGroupOrientation } from "aedst_button_group.slint";
 export { AedstCalendar } from "aedst_calendar.slint";
-export { AedstCard } from "aedst_card.slint";
+export { AedstCard, AedstCardSize } from "aedst_card.slint";
 export { AedstCarousel } from "aedst_carousel.slint";
 export { AedstChart, AedstChartKind } from "aedst_chart.slint";
 export { AedstCheckbox } from "aedst_checkbox.slint";
-export { AedstCodeBlock, AedstCodeLine } from "aedst_code_block.slint";
+export { AedstCodeBlock, AedstCodeLine, AedstCodeSpan, AedstCodeTokenKind } from "aedst_code_block.slint";
 export { AedstCollapsible, AedstCollapsibleTrigger } from "aedst_collapsible.slint";
 export { AedstCombobox } from "aedst_combobox.slint";
 export { AedstCommand } from "aedst_command.slint";
@@ -27,9 +61,9 @@ export { AedstDataTable, AedstDataTableColumn } from "aedst_data_table.slint";
 export { AedstDatePicker } from "aedst_date_picker.slint";
 export { AedstDialog } from "aedst_dialog.slint";
 export { AedstDrawer } from "aedst_drawer.slint";
-export { AedstDropdownMenu, AedstMenuList, AedstMenuRow, AedstMenuItem } from "aedst_dropdown_menu.slint";
+export { AedstDropdownMenu, AedstMenuList, AedstMenuRow, AedstMenuItem, AedstMenuItemVariant } from "aedst_dropdown_menu.slint";
 export { AedstEmpty, AedstEmptyVariant } from "aedst_empty.slint";
-export { AedstField, AedstFieldOrientation } from "aedst_field.slint";
+export { AedstField, AedstFieldOrientation, AedstFieldSet, AedstFieldLegendVariant } from "aedst_field.slint";
 export { AedstForm } from "aedst_form.slint";
 export { AedstHoverCard } from "aedst_hover_card.slint";
 export { AedstInput } from "aedst_input.slint";
@@ -38,24 +72,28 @@ export { AedstInputOtp } from "aedst_input_otp.slint";
 export { AedstItem, AedstItemVariant, AedstItemMediaVariant, AedstItemSize } from "aedst_item.slint";
 export { AedstKbd } from "aedst_kbd.slint";
 export { AedstLabel } from "aedst_label.slint";
+export { AedstMarker, AedstMarkerVariant } from "aedst_marker.slint";
 export { AedstMenubar, AedstMenubarMenu } from "aedst_menubar.slint";
-export { AedstNativeSelect } from "aedst_native_select.slint";
+export { AedstMessage, AedstMessageGroup, AedstMessageAlign } from "aedst_message.slint";
+export { AedstMessageScroller, AedstMessageScrollerItem } from "aedst_message_scroller.slint";
+export { AedstNativeSelect, AedstNativeSelectSize } from "aedst_native_select.slint";
 export { AedstNavigationMenu, AedstNavigationItem } from "aedst_navigation_menu.slint";
 export { AedstPagination } from "aedst_pagination.slint";
 export { AedstPopover } from "aedst_popover.slint";
 export { AedstProgress } from "aedst_progress.slint";
+export { AedstQuestionnaire, AedstQuestionnaireChoice, AedstQuestionnaireKind } from "aedst_questionnaire.slint";
 export { AedstRadioGroup } from "aedst_radio_group.slint";
 export { AedstResizable } from "aedst_resizable.slint";
 export { AedstScrollArea } from "aedst_scroll_area.slint";
-export { AedstSelect } from "aedst_select.slint";
+export { AedstSelect, AedstSelectSize } from "aedst_select.slint";
 export { AedstSeparator } from "aedst_separator.slint";
 export { AedstSheet, AedstSheetSide } from "aedst_sheet.slint";
 export { AedstSidebar, AedstSidebarItem, AedstSidebarVariant, AedstSidebarSize } from "aedst_sidebar.slint";
 export { AedstSkeleton } from "aedst_skeleton.slint";
 export { AedstSlider } from "aedst_slider.slint";
-export { AedstSonner, AedstToast } from "aedst_sonner.slint";
+export { AedstToaster, AedstToast } from "aedst_toast.slint";
 export { AedstSpinner } from "aedst_spinner.slint";
-export { AedstSwitch } from "aedst_switch.slint";
+export { AedstSwitch, AedstSwitchSize } from "aedst_switch.slint";
 export { AedstTable } from "aedst_table.slint";
 export { AedstTabs, AedstTabsVariant } from "aedst_tabs.slint";
 export { AedstTextarea } from "aedst_textarea.slint";

@@ -18,7 +18,21 @@
     "sortNone": "Мураттаб нашудааст",
     "slide": "Слайди {number1} аз {number2}",
     "close": "Пӯшидан",
-    "openMenu": "Кушодани меню"
+    "openMenu": "Кушодани меню",
+    "messages": "Паёмҳо",
+    "scrollToEnd": "Ба охир гузаштан",
+    "questionnaireProgress": "Пешрафти пурсиш",
+    "questionProgress": "Саволи {current} аз {total}",
+    "newMessage": "Паёми нав",
+    "attachmentUploading": "Боркунӣ",
+    "attachmentProcessing": "Коркард",
+    "attachmentFailed": "Боркунӣ ноком шуд",
+    "sendMessage": "Фиристодани паём",
+    "stop": "Қатъ кардан",
+    "attachFiles": "Замима кардани файлҳо",
+    "removeAttachment": "Нест кардани {name}",
+    "contextUsed": "Контексти истифодашуда",
+    "opensInBrowser": "Дар браузер кушода мешавад"
   },
   "error": {
     "offline": "Пайвастшавӣ ба интернет нест. Шабакаро санҷед ва бори дигар кӯшиш кунед.",
@@ -45,7 +59,9 @@
     "ok": "Хуб",
     "cancel": "Бекор кардан",
     "confirm": "Тасдиқ кардан",
-    "retry": "Такрор кардан"
+    "retry": "Такрор кардан",
+    "skip": "Гузаронидан",
+    "submit": "Фиристодан"
   },
   "breadcrumb": "Занҷири паймоиш",
   "cancel": "Бекор кардан",

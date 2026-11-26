@@ -2,7 +2,7 @@ import {
     AedstTokens, AedstLabel, AedstTabs, AedstTabsVariant, AedstBreadcrumb, AedstPagination, AedstAccordion,
     AedstCollapsible, AedstMenubar, AedstNavigationMenu, AedstDropdownMenu, AedstContextMenu, AedstCommand,
     AedstSidebar, AedstSidebarVariant, AedstTooltip, AedstHoverCard, AedstPopover, AedstButton,
-    AedstButtonVariant, AedstMenuItem
+    AedstButtonVariant, AedstMenuItem, AedstMenuItemVariant
 } from "../lib.slint";
 import { GalleryState } from "gallery_state.slint";
 
@@ -11,7 +11,7 @@ export component GalleryNavigation inherits Rectangle {
     private property <[AedstMenuItem]> file-menu: [
         { id: "new", label: "New task", shortcut: "Ctrl+N" },
         { id: "archive", label: "Archive", disabled: true },
-        { id: "delete", label: "Delete", destructive: true, separator: true },
+        { id: "delete", label: "Delete", variant: AedstMenuItemVariant.destructive, separator: true },
     ];
     private property <string> section: "tasks";
     private property <bool> rail: false;

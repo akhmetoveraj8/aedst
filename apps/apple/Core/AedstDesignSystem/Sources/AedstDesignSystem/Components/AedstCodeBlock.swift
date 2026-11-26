@@ -10,7 +10,9 @@ import AppKit
 
 /// Code display (AEDST kit component, web `code-block`): optional header (file name, language, wrap toggle,
 /// copy button), line numbers and line emphasis. The code is always laid out left-to-right, also in
-/// right-to-left locales, and scrolls horizontally unless wrapped. The kit ships no syntax highlighter.
+/// right-to-left locales, and scrolls horizontally unless wrapped. With a `language` the code is
+/// syntax-highlighted in the `AedstColor.syntax*` tokens (HighlightSwift, computed off the main actor and cached
+/// per code and language); an unknown language or a failure shows plain text.
 ///
 /// Copying writes to the system pasteboard (`UIPasteboard` / `NSPasteboard`) and announces "Copied".
 public struct AedstCodeBlock: View {
@@ -28,7 +30,9 @@ public struct AedstCodeBlock: View {
     private let highlightedLines: Set<Int>
     private let showsWrapToggle: Bool
     private let showsCopyButton: Bool
+    private let highlightsSyntax: Bool
     private let onCopy: (() -> Void)?
+    @State private var highlighted: (code: String, lines: [AttributedString])?
     @State private var wraps: Bool
     @State private var copyCount = 0
     @State private var isCopied = false
@@ -36,9 +40,10 @@ public struct AedstCodeBlock: View {
     /// - Parameters:
     ///   - code: The source text.
     ///   - filename: Shown in the header, always left-to-right.
-    ///   - language: Language label for the header.
+    ///   - language: Language label for the header; also selects the highlighter grammar ("Swift", "TypeScript").
     ///   - highlightedLines: 1-based numbers of the lines to emphasize.
     ///   - wrapsByDefault: Initial state of the wrap toggle.
+    ///   - highlightsSyntax: Colors the code by token kind when `language` is known.
     ///   - onCopy: Called after the code was written to the pasteboard (analytics, a toast).
     public init(
         _ code: String,
@@ -49,6 +54,7 @@ public struct AedstCodeBlock: View {
         wrapsByDefault: Bool = false,
         showsWrapToggle: Bool = true,
         showsCopyButton: Bool = true,
+        highlightsSyntax: Bool = true,
         onCopy: (() -> Void)? = nil
     ) {
         self.code = code
@@ -58,6 +64,7 @@ public struct AedstCodeBlock: View {
         self.highlightedLines = highlightedLines
         self.showsWrapToggle = showsWrapToggle
         self.showsCopyButton = showsCopyButton
+        self.highlightsSyntax = highlightsSyntax
         self.onCopy = onCopy
         self._wraps = State(initialValue: wrapsByDefault)
     }
@@ -98,6 +105,28 @@ public struct AedstCodeBlock: View {
             try? await Task.sleep(for: .seconds(2))
             if !Task.isCancelled { isCopied = false }
         }
+        .task(id: HighlightRequest(code: code, language: highlightsSyntax ? language : nil)) {
+            highlighted = nil
+            guard highlightsSyntax, let language else { return }
+            let lines = await AedstSyntaxHighlighter.shared.highlightedLines(code: code, language: language)
+            if !Task.isCancelled, let lines { highlighted = (code, lines) }
+        }
+    }
+
+    /// Identity of one highlighting job: a new code or language restarts it.
+    private struct HighlightRequest: Equatable {
+        let code: String
+        let language: String?
+    }
+
+    /// The highlighted line when the highlighter delivered one for every line, else the plain text.
+    private func lineText(_ line: Line) -> Text {
+        // Only lines of the code they were computed for: a new `code` shows plain text until its job finishes.
+        if let highlighted, highlighted.code == code, highlighted.lines.indices.contains(line.number - 1), !line.text.isEmpty {
+            return Text(highlighted.lines[line.number - 1])
+        }
+        // An empty line still needs the height of one line.
+        return Text(verbatim: line.text.isEmpty ? " " : line.text)
     }
 
     private var hasHeader: Bool {
@@ -164,8 +193,7 @@ public struct AedstCodeBlock: View {
                             }
                             .accessibilityHidden(true)
                     }
-                    // An empty line still needs the height of one line.
-                    Text(verbatim: line.text.isEmpty ? " " : line.text)
+                    lineText(line)
                         .font(codeFont)
                         .fixedSize(horizontal: !wraps, vertical: true)
                         .textSelection(.enabled)
@@ -219,6 +247,7 @@ public struct AedstCodeBlock: View {
     """
     return VStack(spacing: AedstSpacing.lg) {
         AedstCodeBlock(code, filename: "ContentView.swift", language: "Swift", showsLineNumbers: true, highlightedLines: [5])
+        AedstCodeBlock("let total = items.reduce(0, +) // sum", language: "Swift", showsWrapToggle: false)
         AedstCodeBlock("pnpm --dir packages/design-tokens build", showsWrapToggle: false)
     }
     .padding()

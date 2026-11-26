@@ -15,6 +15,8 @@ export component AedstDialog inherits Rectangle {
     in property <bool> close-on-escape: true;
     in property <bool> close-on-outside-click: true;
     in property <length> panel-width: 420px;
+    // Centres the title and description (AedstAlertDialog size sm, as on web).
+    in property <bool> center-header: false;
     callback closed();
 
     private property <bool> rtl: AedstLayout.rtl;
@@ -82,14 +84,14 @@ export component AedstDialog inherits Rectangle {
                     color: AedstTokens.popover-foreground;
                     font-size: AedstTokens.typography-title-small-font-size;
                     font-weight: AedstTokens.typography-title-small-font-weight;
-                    horizontal-alignment: root.rtl ? right : left;
+                    horizontal-alignment: root.center-header ? center : root.rtl ? right : left;
                     wrap: word-wrap;
                 }
                 if root.description != "": Text {
                     text: root.description;
                     color: AedstTokens.muted-foreground;
                     font-size: AedstTokens.typography-body-medium-font-size;
-                    horizontal-alignment: root.rtl ? right : left;
+                    horizontal-alignment: root.center-header ? center : root.rtl ? right : left;
                     wrap: word-wrap;
                 }
                 @children

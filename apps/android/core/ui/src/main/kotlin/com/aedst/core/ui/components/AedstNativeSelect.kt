@@ -37,6 +37,12 @@ import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
 /**
+ * Density of an [AedstNativeSelect] field, mirroring web's `native-select.tsx` `size`. Both keep the 48dp touch
+ * target (web keeps 44px on coarse pointers); SM uses smaller text, padding and corners.
+ */
+enum class AedstNativeSelectSize { DEFAULT, SM }
+
+/**
  * The platform-style picker, mirroring web's `native-select.tsx` (there the browser's own `<select>`): a field that
  * opens a modal single-choice list, the Android pattern for a system spinner in dialog mode. Prefer it over
  * [AedstSelect] for long option lists and on small screens, where an anchored menu is cramped. [label] titles the
@@ -52,6 +58,7 @@ fun <T> AedstNativeSelect(
     placeholder: String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    size: AedstNativeSelectSize = AedstNativeSelectSize.DEFAULT,
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
     Box(modifier = modifier.fillMaxWidth()) {
@@ -60,6 +67,7 @@ fun <T> AedstNativeSelect(
             label = label,
             isPlaceholder = selected == null,
             enabled = enabled,
+            compact = size == AedstNativeSelectSize.SM,
             onClick = { open = true },
         )
         if (open) {
@@ -90,6 +98,7 @@ private fun NativeSelectField(
     label: String,
     isPlaceholder: Boolean,
     enabled: Boolean,
+    compact: Boolean,
     onClick: () -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -102,19 +111,21 @@ private fun NativeSelectField(
                 contentDescription = label
             },
         enabled = enabled,
-        shape = AedstShapesScale.medium,
+        shape = if (compact) AedstShapesScale.small else AedstShapesScale.medium,
         color = colorScheme.surface,
         contentColor = if (enabled) colorScheme.onSurface else colorScheme.onSurfaceVariant,
         border = BorderStroke(1.dp, colorScheme.outline),
     ) {
         Row(
-            modifier = Modifier.heightIn(min = 48.dp).padding(horizontal = AedstSpacing.md),
+            modifier = Modifier.heightIn(
+                min = 48.dp,
+            ).padding(horizontal = if (compact) AedstSpacing.sm else AedstSpacing.md),
             horizontalArrangement = Arrangement.spacedBy(AedstSpacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge,
+                style = if (compact) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
                 color = if (isPlaceholder) colorScheme.onSurfaceVariant else colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )

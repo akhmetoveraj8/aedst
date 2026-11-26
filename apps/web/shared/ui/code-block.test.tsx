@@ -57,11 +57,47 @@ describe("CodeBlock", () => {
     await vi.waitFor(() => expect(onCopyError).toHaveBeenCalledWith(failure));
   });
 
+  it("highlights a known language with the syntax tokens", async () => {
+    const { container } = render(
+      <CodeBlock code={code} language="TypeScript" />,
+    );
+
+    await vi.waitFor(
+      () =>
+        expect(
+          container.querySelector("[data-slot=code-block-token]"),
+        ).not.toBeNull(),
+      // The first run downloads Shiki and the grammar chunk.
+      { timeout: 10_000 },
+    );
+    const keyword = [
+      ...container.querySelectorAll<HTMLElement>(
+        "[data-slot=code-block-token]",
+      ),
+    ].find((token) => token.textContent === "const");
+    expect(keyword?.style.color).toBe("var(--syntax-keyword)");
+    // The text is unchanged by highlighting.
+    expect(container.querySelector("pre")).toHaveTextContent("const a = 1;");
+  });
+
+  it("keeps unknown languages and disableHighlight as plain text", async () => {
+    const { container } = render(
+      <>
+        <CodeBlock code={code} language="Brainfuck" />
+        <CodeBlock code={code} language="ts" disableHighlight />
+      </>,
+    );
+    // Give a (wrongly) started highlighter time to resolve.
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(container.querySelector("[data-slot=code-block-token]")).toBeNull();
+  });
+
   it("toggles wrapping and uses the highlight render prop", async () => {
     const user = userEvent.setup();
     const { container } = render(
       <CodeBlock
         code={code}
+        language="ts"
         wrapLabel="Wrap lines"
         highlight={(line, number) => <mark>{`${number}:${line}`}</mark>}
       />,
@@ -75,5 +111,7 @@ describe("CodeBlock", () => {
     expect(toggle).toHaveAttribute("aria-pressed", "true");
     expect(pre).toHaveAttribute("data-wrap", "true");
     expect(screen.getByText("2:const b = 2;")).toBeInTheDocument();
+    // The override wins: Shiki tokens are never rendered.
+    expect(container.querySelector("[data-slot=code-block-token]")).toBeNull();
   });
 });

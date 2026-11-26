@@ -1,0 +1,131 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstBadge, AedstBadgeVariant } from "aedst_badge.slint";
+import { AedstTraceStatus } from "aedst_trace.slint";
+import {
+    AedstAiStep, AedstAiChainOfThoughtHeader, AedstAiChainOfThoughtContent, AedstAiChainOfThoughtSteps
+} from "aedst_ai_chain_of_thought.slint";
+
+// The instruction the parent agent gave (web `AiSubagentTask`).
+export component AedstAiSubagentTask inherits Rectangle {
+    in property <string> text;
+
+    HorizontalLayout {
+        padding-left: AedstTokens.spacing-sm;
+        padding-right: AedstTokens.spacing-sm;
+        Text {
+            text: root.text;
+            color: AedstTokens.foreground;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: AedstLayout.rtl ? right : left;
+            wrap: word-wrap;
+        }
+    }
+}
+
+// One row of the description list (web `AiSubagentMeta` + `AiSubagentModel`/`AiSubagentTools`):
+// a term and its values as badges (ids stay left to right). `term-width` lines the rows up.
+export component AedstAiSubagentMeta inherits Rectangle {
+    in property <string> label;
+    in property <[string]> values;
+    in property <AedstBadgeVariant> variant: AedstBadgeVariant.secondary;
+    in property <length> term-width: 56px;
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    accessible-role: AccessibleRole.list;
+    accessible-label: root.label;
+
+    HorizontalLayout {
+        padding-left: AedstTokens.spacing-sm;
+        padding-right: AedstTokens.spacing-sm;
+        spacing: AedstTokens.spacing-md;
+        if !root.rtl: Text {
+            width: root.term-width;
+            text: root.label;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-body-small-font-size;
+            vertical-alignment: center;
+            accessible-role: AccessibleRole.none;
+        }
+        HorizontalLayout {
+            horizontal-stretch: 1;
+            alignment: root.rtl ? end : start;
+            spacing: AedstTokens.spacing-xs;
+            for value in root.values: AedstBadge { text: value; variant: root.variant; }
+        }
+        if root.rtl: Text {
+            width: root.term-width;
+            text: root.label;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-body-small-font-size;
+            horizontal-alignment: right;
+            vertical-alignment: center;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+}
+
+// A delegated agent run (web `AiSubagent`): its task, model and tools, then its own tool calls.
+// `status` is running while it works and error on failure; `description` holds the duration.
+// The panel stays alive while closed so nested lines keep their state; the children go last.
+export component AedstAiSubagent inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <image> icon;
+    in property <bool> show-status: false;
+    in property <AedstTraceStatus> status: AedstTraceStatus.success;
+    in property <string> status-label;
+    in property <string> task;
+    in property <string> model-label;
+    in property <string> model;
+    in property <string> tools-label;
+    in property <[string]> tools;
+    in property <[AedstAiStep]> steps;
+    in property <string> steps-label;
+    in-out property <bool> open: false;
+    in property <bool> reduce-motion: false;
+    callback toggled(bool);
+
+    forward-focus: trigger;
+
+    VerticalLayout {
+        trigger := AedstAiChainOfThoughtHeader {
+            title: root.title;
+            description: root.description;
+            icon: root.icon;
+            show-status: root.show-status;
+            status: root.status;
+            status-label: root.status-label;
+            open: root.open;
+            reduce-motion: root.reduce-motion;
+            toggled => {
+                root.open = !root.open;
+                root.toggled(root.open);
+            }
+        }
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := AedstAiChainOfThoughtContent {
+                if root.task != "": AedstAiSubagentTask { text: root.task; }
+                if root.model != "": AedstAiSubagentMeta {
+                    label: root.model-label;
+                    values: [root.model];
+                    variant: AedstBadgeVariant.outline;
+                }
+                if root.tools.length > 0: AedstAiSubagentMeta {
+                    label: root.tools-label;
+                    values: root.tools;
+                }
+                if root.steps.length > 0: AedstAiChainOfThoughtSteps {
+                    steps: root.steps;
+                    label: root.steps-label;
+                    reduce-motion: root.reduce-motion;
+                }
+                @children
+            }
+        }
+    }
+}

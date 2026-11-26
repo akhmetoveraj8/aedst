@@ -20,6 +20,16 @@
     <string name="aedst_a11y_slide">الشريحة %1$s من %2$s</string>
     <string name="aedst_a11y_close">إغلاق</string>
     <string name="aedst_a11y_open_menu">فتح القائمة</string>
+    <string name="aedst_a11y_messages">الرسائل</string>
+    <string name="aedst_a11y_scroll_to_end">الانتقال إلى النهاية</string>
+    <string name="aedst_a11y_questionnaire_progress">تقدم الاستبيان</string>
+    <string name="aedst_a11y_question_progress">السؤال %1$s من %2$s</string>
+    <string name="aedst_a11y_send_message">إرسال الرسالة</string>
+    <string name="aedst_a11y_stop">إيقاف</string>
+    <string name="aedst_a11y_attach_files">إرفاق ملفات</string>
+    <string name="aedst_a11y_remove_attachment">إزالة %1$s</string>
+    <string name="aedst_a11y_context_used">السياق المستخدم</string>
+    <string name="aedst_a11y_opens_in_browser">يُفتح في المتصفح</string>
     <string name="aedst_error_offline">لا يوجد اتصال بالإنترنت. تحقق من الشبكة وحاول مرة أخرى.</string>
     <string name="aedst_error_network">تعذر الاتصال بالخادم. حاول لاحقًا.</string>
     <string name="aedst_error_unauthorized">بيانات غير صحيحة أو انتهت الجلسة. سجّل الدخول مرة أخرى.</string>
@@ -39,4 +49,8 @@
     <string name="aedst_action_cancel">إلغاء</string>
     <string name="aedst_action_confirm">تأكيد</string>
     <string name="aedst_action_retry">إعادة المحاولة</string>
+    <string name="aedst_action_skip">تخطي</string>
+    <string name="aedst_action_submit">إرسال</string>
+    <string name="aedst_required">مطلوب</string>
+    <string name="aedst_select_option">اختر خيارًا</string>
 </resources>

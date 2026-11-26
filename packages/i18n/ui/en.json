@@ -18,7 +18,21 @@
     "sortNone": "Not sorted",
     "slide": "Slide {number1} of {number2}",
     "close": "Close",
-    "openMenu": "Open menu"
+    "openMenu": "Open menu",
+    "messages": "Messages",
+    "scrollToEnd": "Scroll to end",
+    "questionnaireProgress": "Questionnaire progress",
+    "questionProgress": "Question {current} of {total}",
+    "newMessage": "New message",
+    "attachmentUploading": "Uploading",
+    "attachmentProcessing": "Processing",
+    "attachmentFailed": "Upload failed",
+    "sendMessage": "Send message",
+    "stop": "Stop",
+    "attachFiles": "Attach files",
+    "removeAttachment": "Remove {name}",
+    "contextUsed": "Context used",
+    "opensInBrowser": "Opens in browser"
   },
   "error": {
     "offline": "No internet connection. Check your network and try again.",
@@ -45,7 +59,9 @@
     "ok": "OK",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "retry": "Retry"
+    "retry": "Retry",
+    "skip": "Skip",
+    "submit": "Submit"
   },
   "breadcrumb": "Breadcrumb",
   "cancel": "Cancel",

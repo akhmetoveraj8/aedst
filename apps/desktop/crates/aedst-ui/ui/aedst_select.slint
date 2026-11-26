@@ -2,6 +2,9 @@ import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
 import { AedstMenuItem, AedstMenuList } from "aedst_dropdown_menu.slint";
 
+// Web `size` of the trigger: default 32px, sm 28px high.
+export enum AedstSelectSize { default, sm }
+
 // A token-styled select: a trigger that shows the chosen option and a popup list with a check
 // mark on it. Enter, Space or Down open the list; inside it Up/Down, Home/End, Enter and Escape
 // work (AedstMenuList). `current-index` is the chosen option (-1: none, the placeholder shows).
@@ -13,6 +16,7 @@ export component AedstSelect inherits Rectangle {
     in property <string> label;
     in property <bool> invalid: false;
     in property <bool> enabled: true;
+    in property <AedstSelectSize> size: AedstSelectSize.default;
     out property <bool> has-focus: focus.has-focus;
     // The `id` of the chosen option.
     callback selected(string);
@@ -26,8 +30,8 @@ export component AedstSelect inherits Rectangle {
         }
     }
 
-    min-height: 32px;
-    max-height: 32px;
+    min-height: root.size == AedstSelectSize.sm ? 28px : 32px;
+    max-height: self.min-height;
     min-width: 96px;
     border-radius: AedstTokens.radius-md;
     background: AedstTokens.background;

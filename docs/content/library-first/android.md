@@ -16,6 +16,7 @@ Kotlin, Jetpack Compose (BOM via `platform()`), Metro (DI), Coroutines + Flow, *
 | Local relational DB | **Room 3.0.3** (`androidx.room3`, KSP only, driven by `androidx.sqlite` `AndroidSQLiteDriver`; no SupportSQLite, no KAPT) |
 | Typed key-value settings | DataStore + Protobuf |
 | Image loading | Coil |
+| Code syntax highlighting | **Highlights 1.2.0** (`dev.snipme:highlights`, Kotlin Multiplatform, Apache-2.0, verified on Maven Central 2026-11-26) in `core/ui` only, for `AedstCodeBlock`: its token kinds (keyword, string, literal, comment, annotation, punctuation) map to the `syntax*` design tokens; analysis runs on `DispatcherProvider.default`, plain text is the fallback. No hand-written tokenizer |
 | Secret/token storage | Android Keystore + **Tink AEAD** (`AndroidKeysetManager`), encrypted DataStore serializer |
 | Offline write queue / background delivery | Room (outbox table) + **WorkManager** (`core/outbox`); `AedstWorkerFactory` builds the `@AssistedInject` workers; **not** a custom scheduler, not polling, not `AlarmManager`. A feature adds an `OutboxHandler` per write type (`feature/tasks`: `task.create`, `task.complete`, `task.update`), sends the outbox id as `Idempotency-Key` (`idempotencyHeaders()` in `core/network`), and direct writes send a fresh key per call |
 | Network state | `ConnectivityManager.registerDefaultNetworkCallback` (platform API, `core/network`), no third-party libraries |
@@ -95,6 +96,7 @@ stack table above.
 - DI: `dev.zacsweers.metro:metrox-viewmodel`, `dev.zacsweers.metro:metrox-viewmodel-compose` (the runtime artifact `dev.zacsweers.metro:runtime` is added by the Gradle plugin, not by the catalog)
 - Network and API: `com.connectrpc:connect-kotlin`, `com.connectrpc:connect-kotlin-okhttp`, `com.connectrpc:connect-kotlin-google-javalite-ext`, `com.squareup.okhttp3:okhttp`, `com.squareup.okhttp3:okhttp-coroutines`, `com.squareup.okhttp3:logging-interceptor`, `com.google.protobuf:protobuf-javalite`, `com.google.protobuf:protobuf-kotlin-lite`
 - Storage: `androidx.room3:room3-runtime`, `androidx.room3:room3-compiler` (the Room 3 runtime has no separate ktx artifact), `androidx.sqlite:sqlite-bundled` (2.8.0-alpha04, latest pre-release on Google Maven 2026-11-25 by owner decision; used by the `jvm` target of `core/database` in tests only, Android keeps `AndroidSQLiteDriver`)
+- Code highlighting: `dev.snipme:highlights`
 - Images and media: `io.coil-kt.coil3:coil-compose`, `io.coil-kt.coil3:coil-network-okhttp`, `androidx.media3:media3-common`, `androidx.media3:media3-exoplayer`, `androidx.media3:media3-ui-compose`, `androidx.media3:media3-transformer`, `androidx.media3:media3-effect`
 - Auth, security, attestation, push: `net.openid:appauth`, `com.google.crypto.tink:tink-android`, `com.google.android.play:integrity`, `com.google.firebase:firebase-bom`, `com.google.firebase:firebase-messaging`
 - Debug tooling: `com.squareup.leakcanary:leakcanary-android` (`debugImplementation` of every application module, from the application convention plugin)

@@ -20,10 +20,16 @@
   "a11y.previousSlide": [
     "web"
   ],
+  "a11y.questionProgress": [
+    "web"
+  ],
   "a11y.questionnaireProgress": [
     "web"
   ],
-  "a11y.questionProgress": [
+  "a11y.scrollToEnd": [
+    "web"
+  ],
+  "a11y.scrollToStart": [
     "web"
   ],
   "a11y.sidebar": [

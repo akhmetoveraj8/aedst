@@ -11,7 +11,9 @@ Canonical name `dropdown-menu` (manifest: `ui-kit.yaml`). [All components](/ui-k
 
 ## Variants and sizes
 
-No canonical variant or size axis.
+| Axis | Canonical values (every platform) |
+|---|---|
+| `variant` | `default`, `destructive` |
 
 ## Platforms
 
@@ -159,11 +161,14 @@ function DropdownMenuShortcut({
 **Public API** (extracted from the source):
 
 ```kotlin
+enum class AedstDropdownMenuItemVariant { DEFAULT, DESTRUCTIVE }
+
 data class AedstDropdownMenuOption<T>(
     val value: T,
     val label: String,
     val icon: (@Composable () -> Unit)? = null,
-    val isDestructive: Boolean = false,
+    val variant: AedstDropdownMenuItemVariant = AedstDropdownMenuItemVariant.DEFAULT,
+    val enabled: Boolean = true,
 )
 
 @Composable
@@ -191,7 +196,11 @@ AedstTheme {
                     icon = { androidx.compose.material3.Icon(Icons.Default.Check, contentDescription = null) },
                 ),
                 AedstDropdownMenuOption(value = "duplicate", label = "Duplicate"),
-                AedstDropdownMenuOption(value = "delete", label = "Delete", isDestructive = true),
+                AedstDropdownMenuOption(
+                    value = "delete",
+                    label = "Delete",
+                    variant = AedstDropdownMenuItemVariant.DESTRUCTIVE,
+                ),
             ),
             onOptionSelected = {},
         )
@@ -210,7 +219,7 @@ AedstTheme {
 **Public API** (extracted from the source):
 
 ```swift
-public enum Role { case normal, destructive }
+public enum AedstMenuItemVariant { case `default`, destructive }
 
 public enum Content { case action, checkbox, submenu, section, separator }
 
@@ -219,7 +228,7 @@ public struct AedstMenuItem {
         _ title: String,
         systemImage: String? = nil,
         shortcut: KeyboardShortcut? = nil,
-        role: Role = .normal,
+        variant: AedstMenuItemVariant = .default,
         isDisabled: Bool = false,
         action: @escaping () -> Void
     ) -> AedstMenuItem
@@ -263,7 +272,7 @@ AedstDropdownMenu(
         .checkbox("Status bar", isOn: showsStatusBar) { showsStatusBar.toggle() },
         .submenu("Invite", items: [.action("Email") {}, .action("Message") {}]),
         .separator,
-        .action("Delete", systemImage: "trash", role: .destructive) {},
+        .action("Delete", systemImage: "trash", variant: .destructive) {},
     ]
 )
 .padding()
@@ -280,6 +289,8 @@ AedstDropdownMenu(
 **Public API** (extracted from the source):
 
 ```qml title="Slint"
+export enum AedstMenuItemVariant { default, destructive }
+
 export struct AedstMenuItem {
     id: string,
     label: string,
@@ -288,7 +299,7 @@ export struct AedstMenuItem {
     // Shown at the reading end, for example "Ctrl+K". Informational: the feature binds the key.
     shortcut: string,
     disabled: bool,
-    destructive: bool,
+    variant: AedstMenuItemVariant,
     // Draws a separator line above this entry.
     separator: bool,
 }

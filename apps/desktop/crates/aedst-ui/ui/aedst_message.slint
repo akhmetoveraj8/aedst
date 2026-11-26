@@ -1,0 +1,88 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstAvatar } from "aedst_avatar.slint";
+
+// Web `align`: `start` is the other party (avatar at the reading start), `end` is the user
+// (avatar at the reading end, header and footer at the end).
+export enum AedstMessageAlign { start, end }
+
+// One chat message (web `Message`, `MessageAvatar`, `MessageContent`, `MessageHeader`,
+// `MessageFooter`): an optional avatar beside a column with a header line, the content (the
+// children: AedstBubble, AedstAttachment, ...) and a footer line. Give the bubbles inside an
+// end-aligned message `align: AedstBubbleAlign.end` (Slint has no inherited context). The avatar
+// is shown when `avatar` or `avatar-fallback` is set; it sits at the bottom of the content,
+// level with the last bubble above the footer.
+export component AedstMessage inherits Rectangle {
+    in property <AedstMessageAlign> align: AedstMessageAlign.start;
+    // Who wrote it: the accessible name of the message and of its avatar.
+    in property <string> author;
+    in property <image> avatar;
+    in property <string> avatar-fallback;
+    in property <string> header;
+    in property <string> footer;
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> at-end: root.align == AedstMessageAlign.end;
+    private property <bool> has-avatar: root.avatar.width > 0 || root.avatar-fallback != "";
+    // The avatar column is at the physical left for a start message in LTR and an end message in RTL.
+    private property <bool> avatar-left: root.at-end == root.rtl;
+    private property <TextHorizontalAlignment> line-alignment: root.at-end != root.rtl ? TextHorizontalAlignment.right : TextHorizontalAlignment.left;
+    private property <length> lift: root.footer == "" ? 0px : AedstTokens.typography-label-medium-line-height + AedstTokens.spacing-sm;
+
+    accessible-role: groupbox;
+    accessible-label: root.author;
+
+    HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+
+        if root.has-avatar && root.avatar-left: VerticalLayout {
+            alignment: end;
+            padding-bottom: root.lift;
+            AedstAvatar { source: root.avatar; fallback: root.avatar-fallback; label: root.author; }
+        }
+
+        VerticalLayout {
+            horizontal-stretch: 1;
+            spacing: AedstTokens.spacing-sm;
+            // Web px-3: level with the text inside the bubbles.
+            if root.header != "": HorizontalLayout {
+                padding-left: AedstTokens.spacing-md;
+                padding-right: AedstTokens.spacing-md;
+                Text {
+                    text: root.header;
+                    color: AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-label-medium-font-size;
+                    font-weight: AedstTokens.typography-label-medium-font-weight;
+                    horizontal-alignment: root.line-alignment;
+                    overflow: elide;
+                }
+            }
+            @children
+            // Web px-3: level with the text inside the bubbles.
+            if root.footer != "": HorizontalLayout {
+                padding-left: AedstTokens.spacing-md;
+                padding-right: AedstTokens.spacing-md;
+                Text {
+                    height: AedstTokens.typography-label-medium-line-height;
+                    text: root.footer;
+                    color: AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-label-medium-font-size;
+                    font-weight: AedstTokens.typography-label-medium-font-weight;
+                    horizontal-alignment: root.line-alignment;
+                    overflow: elide;
+                }
+            }
+        }
+
+        if root.has-avatar && !root.avatar-left: VerticalLayout {
+            alignment: end;
+            padding-bottom: root.lift;
+            AedstAvatar { source: root.avatar; fallback: root.avatar-fallback; label: root.author; }
+        }
+    }
+}
+
+// A column of messages (web `MessageGroup`).
+export component AedstMessageGroup inherits VerticalLayout {
+    spacing: AedstTokens.spacing-sm;
+}

@@ -1,6 +1,6 @@
 //! Opens the design-system gallery:
-//! `cargo run -p aedst-ui --example gallery -- [--rtl] [--dark] [--page <0..4>]`
-//! (0 basics, 1 forms, 2 display, 3 navigation, 4 overlays).
+//! `cargo run -p aedst-ui --example gallery -- [--rtl] [--dark] [--page <0..7>]`
+//! (0 basics, 1 forms, 2 display, 3 navigation, 4 overlays, 5 messages, 6 and 7 AI Elements).
 
 use aedst_ui::gallery::Gallery;
 use slint::ComponentHandle;
@@ -16,6 +16,6 @@ fn main() -> Result<(), slint::PlatformError> {
     let ui = Gallery::new()?;
     ui.set_rtl(args.iter().any(|a| a == "--rtl"));
     ui.set_dark(args.iter().any(|a| a == "--dark"));
-    ui.set_page(page.clamp(0, 4));
+    ui.set_page(page.clamp(0, 7));
     ui.run()
 }

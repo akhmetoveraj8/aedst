@@ -1,0 +1,231 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant } from "aedst_button.slint";
+import { AedstInput } from "aedst_input.slint";
+import { AedstQuestionnaireChoice, QuestionnaireChoiceRow } from "internal/questionnaire_choice.slint";
+
+export { AedstQuestionnaireChoice }
+
+// How the current question is answered: one choice (radio), several (checkbox) or free text.
+export enum AedstQuestionnaireKind { single, multiple, text }
+
+// A step-by-step questionnaire (web `Questionnaire`, `QuestionnaireProgress`, `QuestionnaireItem`,
+// `QuestionnaireTitle`, `QuestionnaireDescription`, `QuestionnaireChoices`, `QuestionnaireChoice`,
+// `QuestionnaireInput`, `QuestionnaireError`, `QuestionnaireActions`, `QuestionnairePrevious`,
+// `QuestionnaireSkip`, `QuestionnaireNext`, `QuestionnaireSubmit`). It shows ONE question; the
+// caller owns the answers and the position (data in, callbacks out): it sets `checked` on the
+// choices, validates on `next()` / `submit()` (setting `error`) and moves to another question.
+//
+// Keyboard: the choices are one tab stop; Up/Down move (and choose, for a single choice), Space
+// toggles, the digit keys 1-9 toggle the n-th choice (shown on the rows with `show-shortcuts`),
+// Enter asks for the next question (or submits on the last one). Buttons are hidden while their
+// text is empty; all texts come from the caller.
+export component AedstQuestionnaire inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <AedstQuestionnaireKind> kind: AedstQuestionnaireKind.single;
+    in property <[AedstQuestionnaireChoice]> choices;
+    // Free-text answer (kind text).
+    in-out property <string> text;
+    in property <string> placeholder;
+    in property <string> error;
+    // "Question 2 of 5", formatted and translated by the caller; `progress-label` names it.
+    in property <string> progress-text;
+    in property <string> progress-label;
+    in property <string> previous-text;
+    in property <string> skip-text;
+    in property <string> next-text;
+    in property <string> submit-text;
+    // The last question shows `submit-text` instead of `next-text`.
+    in property <bool> last: false;
+    in property <bool> can-go-back: true;
+    // Shows the digit key of each of the first nine choices (web `QuestionnaireChoiceShortcut`).
+    in property <bool> show-shortcuts: false;
+    out property <bool> has-focus: group.has-focus;
+    // Asks the caller to flip a choice: (choice id, new checked state).
+    callback toggled(string, bool);
+    callback edited(string);
+    callback previous();
+    callback skip();
+    callback next();
+    callback submit();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> multiple: root.kind == AedstQuestionnaireKind.multiple;
+    private property <int> active: 0;
+
+    public function focus-choices() {
+        group.focus();
+    }
+
+    function pick(index: int) {
+        if (index < 0 || index >= root.choices.length || root.choices[index].disabled) {
+            return;
+        }
+        root.active = index;
+        if (root.multiple) {
+            root.toggled(root.choices[index].id, !root.choices[index].checked);
+        } else if (!root.choices[index].checked) {
+            root.toggled(root.choices[index].id, true);
+        }
+    }
+    function move(step: int) {
+        if (root.multiple) {
+            root.active = Math.max(0, Math.min(root.active + step, root.choices.length - 1));
+        } else {
+            root.pick(Math.max(0, Math.min(root.active + step, root.choices.length - 1)));
+        }
+    }
+    function advance() {
+        if (root.last) {
+            root.submit();
+        } else {
+            root.next();
+        }
+    }
+
+    // A new question (a new title): start from its first choice. Not on `choices`, which a caller
+    // may rebuild on every answer.
+    changed title => { root.active = 0; }
+
+    accessible-role: groupbox;
+    accessible-label: root.title;
+    accessible-description: root.description;
+
+    VerticalLayout {
+        spacing: AedstTokens.spacing-lg;
+
+        if root.progress-text != "": Text {
+            text: root.progress-text;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-label-medium-font-size;
+            font-weight: AedstTokens.typography-label-medium-font-weight;
+            horizontal-alignment: root.rtl ? right : left;
+            accessible-role: progress-indicator;
+            accessible-label: root.progress-label;
+            accessible-value: root.progress-text;
+        }
+
+        VerticalLayout {
+            spacing: AedstTokens.spacing-xs;
+            Text {
+                text: root.title;
+                color: AedstTokens.foreground;
+                font-size: AedstTokens.typography-title-small-font-size;
+                font-weight: AedstTokens.typography-title-small-font-weight;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+                accessible-role: AccessibleRole.none;
+            }
+            if root.description != "": Text {
+                text: root.description;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+                accessible-role: AccessibleRole.none;
+            }
+        }
+
+        group := FocusScope {
+            enabled: root.kind != AedstQuestionnaireKind.text;
+            key-pressed(event) => {
+                if (event.text == Key.DownArrow) {
+                    root.move(1);
+                    return accept;
+                }
+                if (event.text == Key.UpArrow) {
+                    root.move(-1);
+                    return accept;
+                }
+                if (event.text == " ") {
+                    root.pick(root.active);
+                    return accept;
+                }
+                if (event.text == "\n") {
+                    root.advance();
+                    return accept;
+                }
+                if (event.text.is-float() && !event.modifiers.control && !event.modifiers.alt) {
+                    // Digit n toggles the n-th choice; pick() ignores numbers out of range.
+                    root.pick(Math.round(event.text.to-float()) - 1);
+                    return accept;
+                }
+                return reject;
+            }
+
+            VerticalLayout {
+                spacing: AedstTokens.spacing-sm;
+                for choice[i] in root.choices: QuestionnaireChoiceRow {
+                    data: choice;
+                    multiple: root.multiple;
+                    active: root.active == i;
+                    focused: group.has-focus;
+                    shortcut: (root.show-shortcuts && i < 9) ? "\{i + 1}" : "";
+                    position: i;
+                    count: root.choices.length;
+                    clicked => {
+                        group.focus();
+                        root.pick(i);
+                    }
+                }
+                // Free text lives in the same slot as the choices (a question has one or the other).
+                if root.kind == AedstQuestionnaireKind.text: AedstInput {
+                    text <=> root.text;
+                    label: root.title;
+                    placeholder: root.placeholder;
+                    invalid: root.error != "";
+                    edited(value) => { root.edited(value); }
+                    accepted => { root.advance(); }
+                }
+            }
+        }
+
+        if root.error != "": Text {
+            text: root.error;
+            color: AedstTokens.destructive;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: root.rtl ? right : left;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: root.error;
+        }
+
+        // Previous at the reading start; Skip and Next/Submit at the reading end.
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            min-height: 44px;
+            if !root.rtl && root.previous-text != "": AedstButton {
+                text: root.previous-text;
+                variant: AedstButtonVariant.outline;
+                enabled: root.can-go-back;
+                clicked => { root.previous(); }
+            }
+            if root.rtl && (root.last ? root.submit-text : root.next-text) != "": AedstButton {
+                text: root.last ? root.submit-text : root.next-text;
+                clicked => { root.advance(); }
+            }
+            if root.rtl && root.skip-text != "": AedstButton {
+                text: root.skip-text;
+                variant: AedstButtonVariant.outline;
+                clicked => { root.skip(); }
+            }
+            Rectangle { horizontal-stretch: 1; }
+            if !root.rtl && root.skip-text != "": AedstButton {
+                text: root.skip-text;
+                variant: AedstButtonVariant.outline;
+                clicked => { root.skip(); }
+            }
+            if !root.rtl && (root.last ? root.submit-text : root.next-text) != "": AedstButton {
+                text: root.last ? root.submit-text : root.next-text;
+                clicked => { root.advance(); }
+            }
+            if root.rtl && root.previous-text != "": AedstButton {
+                text: root.previous-text;
+                variant: AedstButtonVariant.outline;
+                enabled: root.can-go-back;
+                clicked => { root.previous(); }
+            }
+        }
+    }
+}

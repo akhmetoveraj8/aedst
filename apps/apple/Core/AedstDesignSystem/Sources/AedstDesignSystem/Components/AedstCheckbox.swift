@@ -48,7 +48,12 @@ public struct AedstCheckbox: View {
         .opacity(isDisabled ? 0.5 : 1)
         .accessibilityLabel(Text(label ?? AedstStrings.checkbox))
         .accessibilityAddTraits(.isButton)
-        .accessibilityValue(Text(isChecked ? AedstStrings.checked : AedstStrings.unchecked))
+        .accessibilityValue(Text(Self.accessibilityValue(isChecked: isChecked)))
+    }
+
+    /// What VoiceOver says for the state ("Checked" / "Unchecked").
+    static func accessibilityValue(isChecked: Bool) -> String {
+        isChecked ? AedstStrings.checked : AedstStrings.unchecked
     }
 }
 

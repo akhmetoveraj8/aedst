@@ -195,7 +195,8 @@
     "apple"
   ],
   "required": [
-    "apple"
+    "apple",
+    "android"
   ],
   "resizeHandle": [
     "apple"
@@ -210,7 +211,8 @@
     "apple"
   ],
   "selectOption": [
-    "apple"
+    "apple",
+    "android"
   ],
   "selectRow": [
     "apple"
@@ -262,5 +264,58 @@
   ],
   "wrapLines": [
     "apple"
+  ],
+  "a11y.messages": [
+    "android",
+    "apple"
+  ],
+  "a11y.scrollToEnd": [
+    "android",
+    "apple"
+  ],
+  "a11y.questionnaireProgress": [
+    "android",
+    "apple"
+  ],
+  "a11y.questionProgress": [
+    "android"
+  ],
+  "action.skip": [
+    "android",
+    "apple"
+  ],
+  "action.submit": [
+    "android",
+    "apple"
+  ],
+  "a11y.newMessage": [
+    "apple"
+  ],
+  "a11y.attachmentUploading": [
+    "apple"
+  ],
+  "a11y.attachmentProcessing": [
+    "apple"
+  ],
+  "a11y.attachmentFailed": [
+    "apple"
+  ],
+  "a11y.sendMessage": [
+    "android"
+  ],
+  "a11y.stop": [
+    "android"
+  ],
+  "a11y.attachFiles": [
+    "android"
+  ],
+  "a11y.removeAttachment": [
+    "android"
+  ],
+  "a11y.contextUsed": [
+    "android"
+  ],
+  "a11y.opensInBrowser": [
+    "android"
   ]
 }

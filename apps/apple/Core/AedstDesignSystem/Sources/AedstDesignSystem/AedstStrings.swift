@@ -86,6 +86,20 @@ enum AedstStrings {
     static var showDetails: String { String(localized: "dsShowDetails", bundle: .module) }
     static var menu: String { String(localized: "dsMenu", bundle: .module) }
     static var commandPalette: String { String(localized: "dsCommandPalette", bundle: .module) }
+    static var messages: String { String(localized: "dsA11yMessages", bundle: .module) }
+    static var scrollToEnd: String { String(localized: "dsA11yScrollToEnd", bundle: .module) }
+    static var newMessage: String { String(localized: "dsA11yNewMessage", bundle: .module) }
+    static var questionnaireProgress: String { String(localized: "dsA11yQuestionnaireProgress", bundle: .module) }
+    static var skip: String { String(localized: "dsActionSkip", bundle: .module) }
+    static var submit: String { String(localized: "dsActionSubmit", bundle: .module) }
+    static var attachmentUploading: String { String(localized: "dsA11yAttachmentUploading", bundle: .module) }
+    static var attachmentProcessing: String { String(localized: "dsA11yAttachmentProcessing", bundle: .module) }
+    static var attachmentFailed: String { String(localized: "dsA11yAttachmentFailed", bundle: .module) }
+
+    /// "Question 2 of 5".
+    static func questionProgress(_ current: String, _ total: String) -> String {
+        String(localized: "dsQuestionProgress \(current) \(total)", bundle: .module)
+    }
 }
 
 /// Design-system strings other packages may reuse (localized in this package's catalog).

@@ -1,0 +1,162 @@
+import {
+    AedstTokens, AedstLabel, AedstMenuItem, AedstAttachmentState, AedstAttachmentVariant,
+    AedstAiChat, AedstAiChatItem, AedstAiConfirmation, AedstAiConfirmationState, AedstAiContext,
+    AedstAiContextUsageRow, AedstAiInlineCitation, AedstAiCitationSource, AedstAiMessage,
+    AedstAiMessageRole, AedstAiMessageAction, AedstAiModelSelector, AedstAiPromptInput,
+    AedstAiPromptInputStatus, AedstAiPromptInputAttachment, AedstAiSources, AedstAiSource,
+    AedstAiSuggestions
+} from "../lib.slint";
+import { GalleryState } from "gallery_state.slint";
+
+// Gallery page 7: AI Elements batch B (chat, message, prompt input, model selector, suggestion,
+// context, confirmation, inline citation, sources). Driven by tests/ai_2.rs; every callback
+// writes `GalleryState.last-event`. Labels are unique across all pages (tests find by label).
+export component GalleryAi2 inherits Rectangle {
+    in-out property <string> prompt;
+    in-out property <AedstAiPromptInputStatus> status: AedstAiPromptInputStatus.ready;
+    in-out property <int> model: 0;
+    in-out property <bool> liked: false;
+    in-out property <AedstAiConfirmationState> confirmation: AedstAiConfirmationState.approval-requested;
+    in-out property <bool> approved: false;
+    in-out property <bool> sources-open: false;
+    private property <[AedstAiMessageAction]> reply-actions: [
+        { id: "copy", label: "Copy reply", glyph: "\u{29C9}" },
+        { id: "retry", label: "Regenerate reply", glyph: "\u{21BB}" },
+    ];
+    private property <[AedstAiChatItem]> thread: [
+        { id: "t1", from: AedstAiMessageRole.user, author: "You", text: "Summarise the open tasks." },
+        { id: "t2", from: AedstAiMessageRole.assistant, author: "Assistant", text: "There are three open tasks: the export, the summary and the review.", actions: root.reply-actions },
+        { id: "t3", from: AedstAiMessageRole.user, author: "You", text: "Which one is due first?" },
+        { id: "t4", from: AedstAiMessageRole.assistant, author: "Assistant", text: "The export is due", streaming: true },
+    ];
+
+    public function focus-control(name: string) {
+        if (name == "prompt") { input.focus(); }
+    }
+
+    Flickable {
+        content-height: column.preferred-height;
+
+        column := VerticalLayout {
+            width: root.width;
+            padding: AedstTokens.spacing-lg;
+            spacing: AedstTokens.spacing-md;
+
+            AedstLabel { text: "AI conversation"; }
+            AedstAiChat {
+                height: 240px;
+                items: root.thread;
+                label: "Conversation thread";
+                busy: true;
+                busy-label: "Writing a reply";
+                jump-label: "Scroll to latest message";
+                action(turn, id) => { GalleryState.log("chat:" + turn + ":" + id); }
+            }
+            AedstAiChat {
+                height: 120px;
+                label: "Empty thread";
+                empty-title: "Start a conversation";
+                empty-description: "Ask about your tasks.";
+            }
+
+            AedstAiMessage {
+                from: AedstAiMessageRole.assistant;
+                author: "Assistant reply";
+                text: "Done: the summary is in the shared folder.";
+                actions: [
+                    { id: "copy", label: "Copy answer", glyph: "\u{29C9}" },
+                    { id: "like", label: "Good response", glyph: "+", toggle: true, pressed: root.liked },
+                ];
+                action(id) => {
+                    if (id == "like") { root.liked = !root.liked; }
+                    GalleryState.log("message:" + id);
+                }
+                AedstAiSources {
+                    title: "Used 2 sources";
+                    open <=> root.sources-open;
+                    new-tab-label: "(opens in your browser)";
+                    sources: [
+                        { url: "https://www.example.com/tasks", title: "Task guide", host: "example.com" },
+                        { url: "https://docs.example.org/export", host: "docs.example.org" },
+                    ];
+                    opened(url) => { GalleryState.log("source:" + url); }
+                }
+                AedstAiInlineCitation {
+                    text: "Exports finish within a minute for most projects.";
+                    more-label: "and 1 more source";
+                    new-tab-label: "(opens in your browser)";
+                    card-label: "Citation sources";
+                    sources: [
+                        { url: "https://www.example.com/export", host: "example.com", title: "Export limits", description: "How long an export takes.", quote: "Most exports finish in under a minute." },
+                        { url: "https://status.example.net", host: "status.example.net" },
+                    ];
+                    opened(url) => { GalleryState.log("citation:" + url); }
+                }
+            }
+
+            AedstAiConfirmation {
+                state: root.confirmation;
+                approved: root.approved;
+                title: "Delete 3 files?";
+                description: "The agent wants to delete the old exports.";
+                accepted-title: "Deletion approved";
+                rejected-title: "Deletion denied";
+                approve-label: "Approve deletion";
+                deny-label: "Deny deletion";
+                responded(value) => {
+                    root.approved = value;
+                    root.confirmation = AedstAiConfirmationState.approval-responded;
+                    GalleryState.log(value ? "confirm:yes" : "confirm:no");
+                }
+            }
+
+            AedstAiSuggestions {
+                label: "Suggested prompts";
+                suggestions: ["Summarise the thread", "Draft a reply", "List open tasks"];
+                picked(value) => { GalleryState.log("suggestion:" + value); }
+            }
+
+            input := AedstAiPromptInput {
+                text <=> root.prompt;
+                status: root.status;
+                label: "Prompt message";
+                placeholder: "Ask anything";
+                submit-label: "Send message";
+                stop-label: "Stop reply";
+                attach-label: "Attach files";
+                busy-label: "Sending";
+                attachments: [
+                    { id: "f1", title: "report.pdf", description: "1.2 MB", state: AedstAttachmentState.done, remove-label: "Remove report.pdf" },
+                ];
+                submitted(text) => {
+                    GalleryState.log("prompt:" + text);
+                    return true;
+                }
+                stop-requested => { GalleryState.log("stop"); }
+                attach-requested => { GalleryState.log("attach"); }
+                attachment-removed(id) => { GalleryState.log("remove:" + id); }
+
+                AedstAiModelSelector {
+                    current-index <=> root.model;
+                    label: "Model";
+                    items: [
+                        { id: "fast", label: "Fast", description: "Quick answers" },
+                        { id: "deep", label: "Deep", description: "Careful reasoning" },
+                        { id: "local", label: "Local", description: "Runs on this device", separator: true },
+                    ];
+                    selected(id) => { GalleryState.log("model:" + id); }
+                }
+                AedstAiContext {
+                    ratio: 0.42;
+                    percent-text: "42%";
+                    label: "Context used";
+                    title: "Context window";
+                    used-text: "54K / 128K";
+                    usage: [{ label: "Input", value: "40K" }, { label: "Output", value: "12K" }, { label: "Cache", value: "2K" }];
+                    footer-label: "Cost";
+                    footer-value: "$0.04";
+                }
+            }
+        }
+    }
+}

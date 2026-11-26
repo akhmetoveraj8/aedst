@@ -43,6 +43,13 @@ public enum AedstLightPalette {
     public static let sidebarRing = Color(red: 0.631, green: 0.631, blue: 0.631, opacity: 1)
     public static let success = Color(red: 0.082, green: 0.502, blue: 0.239, opacity: 1)
     public static let successForeground = Color(red: 0.980, green: 0.980, blue: 0.980, opacity: 1)
+    public static let syntaxComment = Color(red: 0.365, green: 0.365, blue: 0.365, opacity: 1)
+    public static let syntaxFunction = Color(red: 0.082, green: 0.329, blue: 0.722, opacity: 1)
+    public static let syntaxKeyword = Color(red: 0.435, green: 0.184, blue: 0.718, opacity: 1)
+    public static let syntaxNumber = Color(red: 0.616, green: 0.275, blue: 0.086, opacity: 1)
+    public static let syntaxPunctuation = Color(red: 0.282, green: 0.282, blue: 0.282, opacity: 1)
+    public static let syntaxString = Color(red: 0.125, green: 0.420, blue: 0.220, opacity: 1)
+    public static let syntaxType = Color(red: 0.027, green: 0.420, blue: 0.435, opacity: 1)
     public static let warning = Color(red: 0.706, green: 0.325, blue: 0.035, opacity: 1)
     public static let warningForeground = Color(red: 0.980, green: 0.980, blue: 0.980, opacity: 1)
 }

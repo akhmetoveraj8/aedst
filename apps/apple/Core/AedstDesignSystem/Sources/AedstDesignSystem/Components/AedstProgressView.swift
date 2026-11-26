@@ -12,8 +12,9 @@ public struct AedstProgressView: View {
     private let style: Style
     private let label: String?
 
+    /// - Parameter value: Fraction done, 0...1 (clamped); `nil` for an indeterminate indicator.
     public init(value: Double? = nil, style: Style = .linear, label: String? = nil) {
-        self.value = value
+        self.value = Self.fraction(value)
         self.style = style
         self.label = label
     }
@@ -48,7 +49,18 @@ public struct AedstProgressView: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text(label ?? AedstStrings.progress))
-        .accessibilityValue(value.map { Text(AedstStrings.percent(Int($0 * 100))) } ?? Text(""))
+        .accessibilityValue(Text(Self.percentValue(value) ?? ""))
+    }
+
+    /// The value clamped to 0...1, as web clamps `value` to the track; NaN counts as indeterminate.
+    static func fraction(_ value: Double?) -> Double? {
+        guard let value, !value.isNaN else { return nil }
+        return min(max(value, 0), 1)
+    }
+
+    /// "60 %" for VoiceOver; `nil` while indeterminate.
+    static func percentValue(_ fraction: Double?) -> String? {
+        fraction.map { AedstStrings.percent(Int(($0 * 100).rounded())) }
     }
 }
 

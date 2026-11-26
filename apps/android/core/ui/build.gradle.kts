@@ -34,6 +34,8 @@ dependencies {
     implementation(libs.compose.material.icons.extended)
     // currentWindowAdaptiveInfoV2 (window size class + fold posture) for core.ui.adaptive; BOM-managed (1.3.0).
     implementation(libs.compose.material3.adaptive)
+    // Syntax highlighting of AedstCodeBlock (token kinds -> syntax* design tokens), see library-first/android.md.
+    implementation(libs.highlights)
 
     testImplementation(project(":core:testing"))
     testImplementation(libs.roborazzi)

@@ -1,0 +1,104 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstTraceStatus } from "aedst_trace.slint";
+import {
+    AedstAiStep, AedstAiChainOfThoughtHeader, AedstAiChainOfThoughtContent, AedstAiChainOfThoughtSteps
+} from "aedst_ai_chain_of_thought.slint";
+
+// The summary above the steps (web `AiPlanDescription`).
+export component AedstAiPlanDescription inherits Rectangle {
+    in property <string> text;
+
+    HorizontalLayout {
+        padding-left: AedstTokens.spacing-sm;
+        padding-right: AedstTokens.spacing-sm;
+        Text {
+            text: root.text;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: AedstLayout.rtl ? right : left;
+            wrap: word-wrap;
+        }
+    }
+}
+
+// Every step of the agent's plan, known up front, pending ones included (web `AiPlan`, open by
+// default). Use `AedstAiTask` when the steps appear as the agent takes them. The header row holds
+// the trigger and, beside it (never inside it), an optional action button (`action-label`,
+// web `AiPlanAction`); `description` carries progress such as "2 of 5 done". The children are
+// the footer under the steps (web `AiPlanFooter`), e.g. a "Build it" button.
+export component AedstAiPlan inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <image> icon;
+    in property <bool> streaming: false;
+    // Visually hidden status of the title line while streaming, e.g. "Writing".
+    in property <string> status-label;
+    in property <string> summary;
+    in property <[AedstAiStep]> steps;
+    // Accessible name of the step list, e.g. "Plan steps".
+    in property <string> steps-label;
+    in property <string> action-label;
+    in-out property <bool> open: true;
+    in property <bool> reduce-motion: false;
+    callback toggled(bool);
+    callback action();
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    forward-focus: trigger;
+
+    VerticalLayout {
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-xs;
+            if root.rtl && root.action-label != "": AedstButton {
+                text: root.action-label;
+                variant: AedstButtonVariant.ghost;
+                size: AedstButtonSize.sm;
+                clicked => { root.action(); }
+            }
+            trigger := AedstAiChainOfThoughtHeader {
+                horizontal-stretch: 1;
+                title: root.title;
+                description: root.description;
+                icon: root.icon;
+                show-status: root.streaming;
+                status: AedstTraceStatus.running;
+                status-label: root.streaming ? root.status-label : "";
+                open: root.open;
+                reduce-motion: root.reduce-motion;
+                toggled => {
+                    root.open = !root.open;
+                    root.toggled(root.open);
+                }
+            }
+            if !root.rtl && root.action-label != "": AedstButton {
+                text: root.action-label;
+                variant: AedstButtonVariant.ghost;
+                size: AedstButtonSize.sm;
+                clicked => { root.action(); }
+            }
+        }
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := AedstAiChainOfThoughtContent {
+                if root.summary != "": AedstAiPlanDescription { text: root.summary; }
+                AedstAiChainOfThoughtSteps {
+                    steps: root.steps;
+                    label: root.steps-label;
+                    reduce-motion: root.reduce-motion;
+                }
+                HorizontalLayout {
+                    padding-left: AedstTokens.spacing-sm;
+                    padding-right: AedstTokens.spacing-sm;
+                    spacing: AedstTokens.spacing-sm;
+                    alignment: root.rtl ? end : start;
+                    @children
+                }
+            }
+        }
+    }
+}

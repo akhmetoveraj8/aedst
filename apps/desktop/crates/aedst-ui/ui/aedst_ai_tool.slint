@@ -1,0 +1,167 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstAlert, AedstAlertVariant } from "aedst_alert.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstCodeLine } from "aedst_code_block.slint";
+import { AedstItem, AedstItemVariant, AedstItemMediaVariant, AedstItemSize } from "aedst_item.slint";
+import { AedstTraceStatus } from "aedst_trace.slint";
+import { AedstAiChainOfThoughtHeader, AedstAiChainOfThoughtContent } from "aedst_ai_chain_of_thought.slint";
+import { AiCodePanel } from "internal/ai_code_panel.slint";
+
+// Lifecycle of a tool call (the AI SDK tool-part states, web `AiToolState`).
+export enum AedstAiToolState {
+    input-streaming, input-available, approval-requested, approval-responded, output-available, output-error, output-denied
+}
+
+// The line of a tool call (web `AiToolHeader`). The status follows the state (web `aiToolStatus`):
+// running while the input streams or the tool runs, pending while awaiting approval, success,
+// error, skipped when denied. `title` is tensed by the caller ("Running ls", "Ran ls").
+export component AedstAiToolHeader inherits AedstAiChainOfThoughtHeader {
+    in property <AedstAiToolState> state: AedstAiToolState.input-streaming;
+
+    show-status: true;
+    status: root.state == AedstAiToolState.approval-requested ? AedstTraceStatus.pending
+        : root.state == AedstAiToolState.output-available ? AedstTraceStatus.success
+        : root.state == AedstAiToolState.output-error ? AedstTraceStatus.error
+        : root.state == AedstAiToolState.output-denied ? AedstTraceStatus.skipped
+        : AedstTraceStatus.running;
+}
+
+// A labelled section holding code (web `AiToolInput`; also `AiToolOutput` when it is a value):
+// the arguments or the result, formatted by the caller (JSON pretty-printing included) and
+// split into lines (`aedst_ui::highlight`). Copy button only with `copy-label`.
+export component AedstAiToolSection inherits Rectangle {
+    in property <string> label;
+    in property <[AedstCodeLine]> lines;
+    in property <string> code;
+    in property <bool> wrapped: false;
+    in property <string> copy-label;
+    in property <string> copied-label;
+
+    accessible-role: AccessibleRole.groupbox;
+    accessible-label: root.label;
+
+    VerticalLayout {
+        spacing: AedstTokens.spacing-xs;
+        Text {
+            text: root.label;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-label-medium-font-size;
+            font-weight: AedstTokens.typography-label-medium-font-weight;
+            horizontal-alignment: AedstLayout.rtl ? right : left;
+            accessible-role: AccessibleRole.none;
+        }
+        AiCodePanel {
+            label: root.label;
+            lines: root.lines;
+            code: root.code;
+            wrapped: root.wrapped;
+            copy-label: root.copy-label;
+            copied-label: root.copied-label;
+        }
+    }
+}
+
+// The `approval-requested` state (web `AiToolApproval`): not a line but an outlined item with
+// Deny and Approve. `title` is the question ("Run ls -la?").
+export component AedstAiToolApproval inherits AedstItem {
+    in property <string> approve-label;
+    in property <string> deny-label;
+    callback approve();
+    callback deny();
+
+    variant: AedstItemVariant.outline;
+    size: AedstItemSize.sm;
+    media-variant: AedstItemMediaVariant.icon;
+
+    AedstButton {
+        text: root.deny-label;
+        variant: AedstButtonVariant.outline;
+        size: AedstButtonSize.sm;
+        clicked => { root.deny(); }
+    }
+    AedstButton {
+        text: root.approve-label;
+        size: AedstButtonSize.sm;
+        clicked => { root.approve(); }
+    }
+}
+
+// One tool call as a collapsible line with its input and output (web `AiTool` + parts). The
+// output is code; `error-text` replaces it when the tool failed. Extra content (a rendered
+// result, an `AedstAiToolApproval`) goes in the children, under the output.
+export component AedstAiTool inherits Rectangle {
+    in property <AedstAiToolState> state: AedstAiToolState.input-streaming;
+    in property <string> title;
+    in property <string> description;
+    in property <image> icon;
+    in property <string> status-label;
+    in property <string> input-label;
+    in property <[AedstCodeLine]> input-lines;
+    in property <string> input-code;
+    in property <string> output-label;
+    in property <[AedstCodeLine]> output-lines;
+    in property <string> output-code;
+    in property <string> error-text;
+    in property <string> copy-label;
+    in property <string> copied-label;
+    in-out property <bool> open: false;
+    in property <bool> reduce-motion: false;
+    callback toggled(bool);
+
+    forward-focus: header;
+
+    VerticalLayout {
+        header := AedstAiToolHeader {
+            state: root.state;
+            title: root.title;
+            description: root.description;
+            icon: root.icon;
+            status-label: root.status-label;
+            open: root.open;
+            reduce-motion: root.reduce-motion;
+            toggled => {
+                root.open = !root.open;
+                root.toggled(root.open);
+            }
+        }
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := AedstAiChainOfThoughtContent {
+                if root.input-code != "": AedstAiToolSection {
+                    label: root.input-label;
+                    lines: root.input-lines;
+                    code: root.input-code;
+                    copy-label: root.copy-label;
+                    copied-label: root.copied-label;
+                }
+                if root.error-text != "": Rectangle {
+                    accessible-role: AccessibleRole.groupbox;
+                    accessible-label: root.output-label;
+                    VerticalLayout {
+                        spacing: AedstTokens.spacing-xs;
+                        Text {
+                            text: root.output-label;
+                            color: AedstTokens.muted-foreground;
+                            font-size: AedstTokens.typography-label-medium-font-size;
+                            horizontal-alignment: AedstLayout.rtl ? right : left;
+                            accessible-role: AccessibleRole.none;
+                        }
+                        AedstAlert { title: root.error-text; variant: AedstAlertVariant.destructive; }
+                    }
+                }
+                if root.error-text == "" && root.output-code != "": AedstAiToolSection {
+                    label: root.output-label;
+                    lines: root.output-lines;
+                    code: root.output-code;
+                    wrapped: true;
+                    copy-label: root.copy-label;
+                    copied-label: root.copied-label;
+                }
+                @children
+            }
+        }
+    }
+}

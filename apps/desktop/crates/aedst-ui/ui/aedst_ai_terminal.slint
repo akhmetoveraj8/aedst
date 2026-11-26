@@ -1,0 +1,100 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstCodeLine } from "aedst_code_block.slint";
+import { AedstTraceStatus } from "aedst_trace.slint";
+import { AedstAiChainOfThoughtHeader, AedstAiChainOfThoughtContent } from "aedst_ai_chain_of_thought.slint";
+import { AiCodePanel } from "internal/ai_code_panel.slint";
+
+// A shell command the agent runs (web `AiTerminal` + parts): a line with the command, worded by
+// the caller ("Running pnpm build", "pnpm lint exited with code 1" with `failed`), that opens
+// into its output. Uncontrolled, it opens by itself once the first output arrives while running
+// (`open` starts bound to that); after the user toggles it, it stays as they left it.
+//
+// The output is plain text (ANSI escapes are not interpreted: strip them in Rust), shown wrapped
+// and left to right in a code block at most 256px high that keeps the newest line in view while
+// streaming (`auto-scroll`). Pass the text as `output` (copy button) and as `output-lines`
+// (one `AedstCodeLine` per line, without spans). Slint has no `log` live region or busy state:
+// the line's accessible label carries the running status instead.
+export component AedstAiTerminal inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <image> icon;
+    in property <string> status-label;
+    in property <bool> streaming: false;
+    // The command failed: the line shows the error status (web `status="error"`).
+    in property <bool> failed: false;
+    in property <string> output;
+    in property <[AedstCodeLine]> output-lines;
+    in property <bool> auto-scroll: true;
+    // Accessible name of the clear button (web `AiTerminalClearButton`); hidden without it.
+    in property <string> clear-label;
+    in property <image> clear-icon;
+    in property <string> output-label;
+    in property <string> copy-label;
+    in property <string> copied-label;
+    in-out property <bool> open: root.streaming && root.output != "";
+    in property <bool> reduce-motion: false;
+    callback toggled(bool);
+    callback cleared();
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    forward-focus: title-line;
+
+    VerticalLayout {
+        // The disclosure line plus the actions next to it, never inside it (web `AiTerminalHeader`).
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-xs;
+            if root.rtl && root.clear-label != "": AedstButton {
+                label: root.clear-label;
+                icon: root.clear-icon;
+                text: root.clear-icon.width > 0 ? "" : root.clear-label;
+                variant: AedstButtonVariant.ghost;
+                size: root.clear-icon.width > 0 ? AedstButtonSize.icon-sm : AedstButtonSize.sm;
+                enabled: root.output != "";
+                clicked => { root.cleared(); }
+            }
+            title-line := AedstAiChainOfThoughtHeader {
+                horizontal-stretch: 1;
+                title: root.title;
+                description: root.description;
+                icon: root.icon;
+                show-status: root.failed || root.streaming;
+                status: root.failed ? AedstTraceStatus.error : AedstTraceStatus.running;
+                status-label: root.status-label;
+                open: root.open;
+                reduce-motion: root.reduce-motion;
+                toggled => {
+                    root.open = !root.open;
+                    root.toggled(root.open);
+                }
+            }
+            if !root.rtl && root.clear-label != "": AedstButton {
+                label: root.clear-label;
+                icon: root.clear-icon;
+                text: root.clear-icon.width > 0 ? "" : root.clear-label;
+                variant: AedstButtonVariant.ghost;
+                size: root.clear-icon.width > 0 ? AedstButtonSize.icon-sm : AedstButtonSize.sm;
+                enabled: root.output != "";
+                clicked => { root.cleared(); }
+            }
+        }
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := AedstAiChainOfThoughtContent {
+                AiCodePanel {
+                    label: root.output-label != "" ? root.output-label : root.title;
+                    lines: root.output-lines;
+                    code: root.output;
+                    wrapped: true;
+                    copy-label: root.copy-label;
+                    copied-label: root.copied-label;
+                    follow-end: root.auto-scroll && root.streaming;
+                }
+            }
+        }
+    }
+}

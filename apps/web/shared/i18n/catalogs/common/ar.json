@@ -46,6 +46,8 @@
     "commandPalette": "لوحة الأوامر",
     "commandPaletteDescription": "ابحث عن أمر لتشغيله",
     "messages": "الرسائل",
+    "scrollToEnd": "انتقل إلى النهاية",
+    "scrollToStart": "انتقل إلى البداية",
     "questionnaireProgress": "تقدم الاستبيان",
     "questionProgress": "السؤال {current} من {total}"
   },

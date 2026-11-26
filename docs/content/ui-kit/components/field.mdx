@@ -13,6 +13,7 @@ Canonical name `field` (manifest: `ui-kit.yaml`). [All components](/ui-kit/compo
 
 | Axis | Canonical values (every platform) |
 |---|---|
+| `variant` | `legend`, `label` |
 | `orientation` | `vertical`, `horizontal`, `responsive` |
 
 ## Platforms
@@ -118,6 +119,8 @@ function FieldError({
 ```kotlin
 enum class AedstFieldOrientation { VERTICAL, HORIZONTAL, RESPONSIVE }
 
+enum class AedstFieldLegendVariant { LEGEND, LABEL }
+
 @Composable
 fun AedstField(
     label: String,
@@ -127,6 +130,22 @@ fun AedstField(
     required: Boolean = false,
     orientation: AedstFieldOrientation = AedstFieldOrientation.VERTICAL,
     content: @Composable () -> Unit,
+)
+
+@Composable
+fun AedstFieldLegend(
+    text: String,
+    modifier: Modifier = Modifier,
+    variant: AedstFieldLegendVariant = AedstFieldLegendVariant.LEGEND,
+)
+
+@Composable
+fun AedstFieldSet(
+    legend: String,
+    modifier: Modifier = Modifier,
+    legendVariant: AedstFieldLegendVariant = AedstFieldLegendVariant.LEGEND,
+    description: String? = null,
+    content: @Composable ColumnScope.() -> Unit,
 )
 ```
 
@@ -139,6 +158,9 @@ AedstTheme {
             modifier = Modifier.padding(AedstSpacing.lg),
             verticalArrangement = Arrangement.spacedBy(AedstSpacing.lg),
         ) {
+            AedstFieldSet(legend = "Profile", description = "Shown to your team.") {
+                AedstField(label = "Name") { AedstTextField(value = "Ada", onValueChange = {}) }
+            }
             AedstField(label = "Email", description = "Used for sign-in.", error = "Enter a valid email") {
                 AedstTextField(value = "ada@", onValueChange = {}, isError = true)
             }
@@ -163,6 +185,8 @@ AedstTheme {
 ```swift
 public enum AedstFieldOrientation { case vertical, horizontal, responsive }
 
+public enum AedstFieldLegendVariant { case legend, label }
+
 public struct AedstField<Control: View>: View {
     public init(
         _ label: String,
@@ -175,7 +199,12 @@ public struct AedstField<Control: View>: View {
 }
 
 public struct AedstFieldSet<Content: View>: View {
-    public init(_ legend: String, description: String? = nil, @ViewBuilder content: () -> Content)
+    public init(
+        _ legend: String,
+        description: String? = nil,
+        legendVariant: AedstFieldLegendVariant = .legend,
+        @ViewBuilder content: () -> Content
+    )
 }
 ```
 
@@ -211,11 +240,19 @@ AedstFieldSet("Notifications", description: "Choose what we may send you.") {
 ```qml title="Slint"
 export enum AedstFieldOrientation { vertical, horizontal, responsive }
 
+export enum AedstFieldLegendVariant { legend, label }
+
 export component AedstField inherits Rectangle {
     in property <string> label;
     in property <string> description;
     in property <string> error;
     in property <AedstFieldOrientation> orientation: AedstFieldOrientation.vertical;
+}
+
+export component AedstFieldSet inherits Rectangle {
+    in property <string> legend;
+    in property <string> description;
+    in property <AedstFieldLegendVariant> variant: AedstFieldLegendVariant.legend;
 }
 ```
 

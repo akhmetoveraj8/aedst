@@ -158,3 +158,53 @@ test('renderMatrix lists deviations with their reason', () => {
   const report = { web: { implemented: 1, native: 0, missing: 0 }, android: { implemented: 1, native: 0, missing: 0 } };
   assert.match(renderMatrix(doc, report), /\| \`avatar\` \| Android \| size \| \`sm\`, \`md\` \| because \|/);
 });
+
+/** Like nativeErrors, with a web source, extra manifest keys and extra files (path -> text) under the root. */
+function treeErrors({ web = 'export function Avatar() {}', kotlin = 'fun AedstAvatar() {}', component = {}, manifest = {}, files = {} }) {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'ui-kit-'));
+  try {
+    for (const dir of ['web', 'android']) mkdirSync(path.join(root, dir));
+    writeFileSync(path.join(root, 'web', 'avatar.tsx'), web);
+    writeFileSync(path.join(root, 'android', 'AedstAvatar.kt'), kotlin);
+    for (const [f, text] of Object.entries(files)) {
+      mkdirSync(path.dirname(path.join(root, f)), { recursive: true });
+      writeFileSync(path.join(root, f), text);
+    }
+    const doc = {
+      platforms: { web: { root: 'web', reference: true }, android: { root: 'android' } },
+      kit_files: { web: { ext: '.tsx' }, android: { ext: '.kt' } },
+      components: {
+        avatar: { variants: [], sizes: [], web: { status: 'implemented', file: 'avatar.tsx' }, android: { status: 'implemented', file: 'AedstAvatar.kt' }, ...component },
+      },
+      ...manifest,
+    };
+    writeFileSync(path.join(root, 'ui-kit.yaml'), JSON.stringify(doc));
+    return checkUiKit(root).errors;
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+test('a web axis outside cva is read from a string-literal union prop', () => {
+  const web = 'export function Avatar({ size = "default" }: { size?: "default" | "sm" | "lg" }) {}';
+  const kotlin = 'enum class AedstAvatarSize { DEFAULT, SM, LG }';
+  assert.deepEqual(treeErrors({ web, kotlin, component: { sizes: ['default', 'sm', 'lg'] } }), []);
+  assert.match(treeErrors({ web, kotlin }).join('\n'), /avatar on web: size differs from cva \(or the prop union\) in avatar\.tsx; in cva but not declared: default, sm, lg/);
+});
+
+test('coverage: a component no test, story or gallery names fails; any symbol its file declares counts', () => {
+  const coverage = { coverage: { android: { roots: ['tests'], suffix: ['.kt'] } } };
+  assert.match(treeErrors({ manifest: coverage }).join('\n'), /avatar on android: not exercised/);
+  assert.deepEqual(treeErrors({ manifest: coverage, files: { 'tests/AvatarTest.kt': 'AedstAvatar()' } }), []);
+  const kotlin = 'fun AedstAvatar() {}\nenum class AedstAvatarShape { ROUND }';
+  assert.deepEqual(treeErrors({ kotlin, manifest: coverage, files: { 'tests/T.kt': 'AedstAvatarShape.ROUND' } }), []);
+  assert.match(treeErrors({ manifest: coverage, files: { 'tests/T.txt': 'AedstAvatar()' } }).join('\n'), /not exercised/);
+});
+
+test('props contract: every listed name must be a parameter on every platform, spelling aside', () => {
+  const web = 'export function Avatar({ fallbackText, onLoadingStatusChange }: Props) {}';
+  const kotlin = 'fun AedstAvatar(fallbackText: String, onLoadingStatusChange: (Boolean) -> Unit) {}';
+  const props = { props: ['fallbackText', 'on-loading-status-change'] };
+  assert.deepEqual(treeErrors({ web, kotlin, component: props }), []);
+  assert.match(treeErrors({ web, component: props }).join('\n'), /avatar on android: props contract not met, AedstAvatar\.kt has no fallbackText, on-loading-status-change/);
+});

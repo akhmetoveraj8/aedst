@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aedst.core.ui.R
+import com.aedst.core.ui.components.support.rememberHighlightedCode
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -39,14 +40,16 @@ import com.aedst.core.ui.theme.AedstTypeScale
  * Read-only source code, mirroring web's `code-block.tsx`: an optional header with the [filename] and a copy
  * button, then the code in the mono type token with optional line numbers. Long lines scroll horizontally instead of
  * wrapping; code is always laid out left to right, also in RTL locales; the text is selectable. Copying is hoisted
- * ([onCopy], shown only when set) so the caller owns the clipboard and its confirmation message. No syntax
- * highlighting: that needs a tokenizer library, which is an owner decision.
+ * ([onCopy], shown only when set) so the caller owns the clipboard and its confirmation message. [language] is shown in
+ * the header and selects the syntax highlighting (Highlights library, coloured with the `syntax*` tokens, analysed off
+ * the main thread); an unknown or missing language renders plain text.
  */
 @Composable
 fun AedstCodeBlock(
     code: String,
     modifier: Modifier = Modifier,
     filename: String? = null,
+    language: String? = null,
     showLineNumbers: Boolean = false,
     onCopy: (() -> Unit)? = null,
 ) {
@@ -64,7 +67,7 @@ fun AedstCodeBlock(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column {
-            if (filename != null || onCopy != null) {
+            if (filename != null || language != null || onCopy != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(start = AedstSpacing.md),
                     verticalAlignment = Alignment.CenterVertically,
@@ -75,6 +78,14 @@ fun AedstCodeBlock(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f).padding(vertical = AedstSpacing.sm),
                     )
+                    if (language != null) {
+                        Text(
+                            text = language,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = AedstSpacing.sm),
+                        )
+                    }
                     if (onCopy != null) {
                         AedstIconButton(
                             onClick = onCopy,
@@ -86,6 +97,7 @@ fun AedstCodeBlock(
                 }
                 AedstDivider()
             }
+            val highlighted = rememberHighlightedCode(code, language)
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()).padding(AedstSpacing.md),
@@ -98,7 +110,7 @@ fun AedstCodeBlock(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    SelectionContainer { Text(text = code, style = style, softWrap = false) }
+                    SelectionContainer { Text(text = highlighted, style = style, softWrap = false) }
                 }
             }
         }
@@ -114,6 +126,7 @@ private fun AedstCodeBlockPreview() {
             AedstCodeBlock(
                 code = "fun main() {\n    println(\"Hello\")\n}",
                 filename = "Main.kt",
+                language = "kotlin",
                 showLineNumbers = true,
                 onCopy = {},
                 modifier = Modifier.padding(AedstSpacing.lg),

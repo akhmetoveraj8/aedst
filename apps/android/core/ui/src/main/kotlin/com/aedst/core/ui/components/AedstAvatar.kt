@@ -20,23 +20,23 @@ import androidx.compose.ui.unit.sp
 import com.aedst.core.ui.R
 import com.aedst.core.ui.theme.AedstTheme
 
-/** Diameter of [AedstAvatar], mirroring web's `avatar.tsx` size variants. */
+/** Diameter of [AedstAvatar]: web `avatar.tsx` `size` (sm 24, default 32, lg 40 dp). */
 enum class AedstAvatarSize {
+    DEFAULT,
     SM,
-    MD,
     LG,
 }
 
 private fun AedstAvatarSize.toDp() = when (this) {
     AedstAvatarSize.SM -> 24.dp
-    AedstAvatarSize.MD -> 40.dp
-    AedstAvatarSize.LG -> 56.dp
+    AedstAvatarSize.DEFAULT -> 32.dp
+    AedstAvatarSize.LG -> 40.dp
 }
 
 private fun AedstAvatarSize.toFontSize() = when (this) {
-    AedstAvatarSize.SM -> 10.sp
-    AedstAvatarSize.MD -> 14.sp
-    AedstAvatarSize.LG -> 20.sp
+    AedstAvatarSize.SM -> 12.sp
+    AedstAvatarSize.DEFAULT -> 14.sp
+    AedstAvatarSize.LG -> 14.sp
 }
 
 /**
@@ -50,7 +50,7 @@ fun AedstAvatar(
     modifier: Modifier = Modifier,
     imageUrl: String? = null,
     initials: String? = null,
-    size: AedstAvatarSize = AedstAvatarSize.MD,
+    size: AedstAvatarSize = AedstAvatarSize.DEFAULT,
 ) {
     val diameter = size.toDp()
     val label = initials?.trim()?.take(2)?.uppercase().orEmpty()
@@ -87,9 +87,9 @@ private fun AedstAvatarPreview() {
                 modifier = Modifier.background(MaterialTheme.colorScheme.background),
             ) {
                 AedstAvatar(initials = "JD", size = AedstAvatarSize.SM)
-                AedstAvatar(initials = "AK", size = AedstAvatarSize.MD)
+                AedstAvatar(initials = "AK", size = AedstAvatarSize.DEFAULT)
                 AedstAvatar(initials = "M", size = AedstAvatarSize.LG)
-                AedstAvatar(initials = "", size = AedstAvatarSize.MD)
+                AedstAvatar(initials = "", size = AedstAvatarSize.DEFAULT)
             }
         }
     }

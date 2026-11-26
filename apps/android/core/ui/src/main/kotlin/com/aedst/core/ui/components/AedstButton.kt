@@ -72,6 +72,7 @@ fun AedstButton(
     enabled: Boolean = true,
     loading: Boolean = false,
     leadingIcon: (@Composable RowScope.() -> Unit)? = null,
+    trailingIcon: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val isEnabled = enabled && !loading
     val contentPadding = PaddingValues(horizontal = size.horizontalPadding)
@@ -86,7 +87,12 @@ fun AedstButton(
     }
 
     val label: @Composable () -> Unit = {
-        ButtonContent(text = text.takeUnless { size.iconOnly }, loading = loading, leadingIcon = leadingIcon)
+        ButtonContent(
+            text = text.takeUnless { size.iconOnly },
+            loading = loading,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon.takeUnless { size.iconOnly },
+        )
     }
 
     when (variant) {
@@ -157,7 +163,12 @@ fun AedstButton(
 }
 
 @Composable
-private fun ButtonContent(text: String?, loading: Boolean, leadingIcon: (@Composable RowScope.() -> Unit)?) {
+private fun ButtonContent(
+    text: String?,
+    loading: Boolean,
+    leadingIcon: (@Composable RowScope.() -> Unit)?,
+    trailingIcon: (@Composable RowScope.() -> Unit)? = null,
+) {
     if (loading) {
         CircularProgressIndicator(
             modifier = Modifier.size(16.dp),
@@ -172,5 +183,6 @@ private fun ButtonContent(text: String?, loading: Boolean, leadingIcon: (@Compos
     ) {
         leadingIcon?.invoke(this)
         if (text != null) Text(text)
+        trailingIcon?.invoke(this)
     }
 }

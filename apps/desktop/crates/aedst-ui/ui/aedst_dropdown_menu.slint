@@ -2,6 +2,10 @@ import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
 import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
 
+// Web `DropdownMenuItem` / `ContextMenuItem` variant: destructive draws the entry in the
+// destructive colour (delete, sign out).
+export enum AedstMenuItemVariant { default, destructive }
+
 // One entry of a menu, a select, a combobox or a command list.
 export struct AedstMenuItem {
     id: string,
@@ -11,7 +15,7 @@ export struct AedstMenuItem {
     // Shown at the reading end, for example "Ctrl+K". Informational: the feature binds the key.
     shortcut: string,
     disabled: bool,
-    destructive: bool,
+    variant: AedstMenuItemVariant,
     // Draws a separator line above this entry.
     separator: bool,
 }
@@ -31,7 +35,7 @@ export component AedstMenuRow inherits Rectangle {
     private property <bool> rtl: AedstLayout.rtl;
     private property <length> pad: AedstTokens.spacing-sm;
     private property <length> lead: root.show-check ? 20px : 0px;
-    private property <color> ink: root.data.destructive ? AedstTokens.destructive : AedstTokens.popover-foreground;
+    private property <color> ink: root.data.variant == AedstMenuItemVariant.destructive ? AedstTokens.destructive : AedstTokens.popover-foreground;
 
     min-height: Math.max(28px, texts.preferred-height + AedstTokens.spacing-sm);
     min-width: 2 * root.pad + root.lead + texts.preferred-width + (root.data.shortcut == "" ? 0px : keys.preferred-width + AedstTokens.spacing-lg);

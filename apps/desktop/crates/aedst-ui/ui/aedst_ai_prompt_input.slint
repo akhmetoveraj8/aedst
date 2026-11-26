@@ -1,0 +1,216 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstSpinner } from "aedst_spinner.slint";
+import { AedstTextarea } from "aedst_textarea.slint";
+import { AedstAttachment, AedstAttachmentSize, AedstAttachmentState, AedstAttachmentVariant } from "aedst_attachment.slint";
+
+// Web `AiPromptInputStatus`: submitted and streaming are busy (the send button shows a spinner,
+// or a stop button while streaming when `stop-label` is set); error shows an alert glyph.
+export enum AedstAiPromptInputStatus { ready, submitted, streaming, error }
+
+// One attached file, a chip in the header (web `AiPromptInputHeader`).
+export struct AedstAiPromptInputAttachment {
+    id: string,
+    title: string,
+    // The size or the upload status, formatted by the caller.
+    description: string,
+    state: AedstAttachmentState,
+    variant: AedstAttachmentVariant,
+    source: image,
+    // Accessible name of the chip's remove button, for example "Remove report.pdf".
+    remove-label: string,
+}
+
+// Outline "+" button that asks for the file dialog (web `AiPromptInputAttachButton`).
+component PromptAttach inherits AedstButton {
+    text: "+";
+    variant: AedstButtonVariant.outline;
+    size: AedstButtonSize.icon-sm;
+}
+
+// The send button (web `AiPromptInputSubmit`): an up arrow when ready, a spinner while busy,
+// a stop square while streaming (when stoppable), an alert glyph after an error.
+component PromptSubmit inherits Rectangle {
+    in property <AedstAiPromptInputStatus> status;
+    in property <bool> stoppable;
+    in property <bool> ready;
+    in property <string> submit-label;
+    in property <string> stop-label;
+    in property <string> busy-label;
+    callback submit();
+    callback stop();
+
+    private property <bool> busy: (root.status == AedstAiPromptInputStatus.submitted || root.status == AedstAiPromptInputStatus.streaming) && !root.stoppable;
+
+    width: 28px;
+    height: 28px;
+
+    AedstButton {
+        text: root.stoppable ? "\u{25A0}" : root.busy ? "" : root.status == AedstAiPromptInputStatus.error ? "!" : "\u{2191}";
+        label: root.stoppable ? root.stop-label : root.busy && root.busy-label != "" ? root.busy-label : root.submit-label;
+        enabled: root.stoppable || root.ready;
+        variant: AedstButtonVariant.default;
+        size: AedstButtonSize.icon-sm;
+        clicked => {
+            if (root.stoppable) {
+                root.stop();
+            } else {
+                root.submit();
+            }
+        }
+    }
+    // Decorative: the button carries the busy name. Still while motion is reduced is up to the
+    // feature (Slint 1.19 has no reduced-motion setting); it spins like AedstSpinner everywhere.
+    if root.busy: AedstSpinner {
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        diameter: 14px;
+        tint: AedstTokens.primary-foreground;
+        accessible-role: AccessibleRole.none;
+    }
+}
+
+// The field the person types into to message the agent (web `AiPromptInput`,
+// `AiPromptInputHeader`, `AiPromptInputTextarea`, `AiPromptInputFooter`, `AiPromptInputTools`,
+// `AiPromptInputAttachButton`, `AiPromptInputSubmit`): attachment chips, a growing text area,
+// and a footer with the attach button at the reading start, the tools (the children, for
+// example an AedstAiModelSelector) and the send button at the reading end.
+// Enter sends, Shift+Enter adds a line. `submitted(text)` gets the untrimmed text (Slint has no
+// trim): the Rust side trims, ignores a blank prompt and returns true to clear the field, or
+// false to keep the draft (a failed send). The kit never opens a file dialog: `attach-requested()`
+// asks the Rust side, which opens one off the UI thread and adds to `attachments` (its own model;
+// `attachment-removed(id)` asks it to remove one).
+export component AedstAiPromptInput inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder;
+    // Accessible name of the text area, for example "Message".
+    in property <string> label;
+    in property <AedstAiPromptInputStatus> status: AedstAiPromptInputStatus.ready;
+    in property <[AedstAiPromptInputAttachment]> attachments;
+    in property <bool> enabled: true;
+    // Accessible names of the buttons; the attach button is hidden without `attach-label`, the
+    // stop button needs `stop-label`. `busy-label` names the send button while it waits.
+    in property <string> submit-label;
+    in property <string> stop-label;
+    in property <string> attach-label;
+    in property <string> busy-label;
+    out property <bool> has-focus: field.has-focus;
+    out property <bool> can-submit: root.enabled && !root.busy && (root.text != "" || root.attachments.length > 0);
+    callback submitted(string) -> bool;
+    callback stop-requested();
+    callback attach-requested();
+    callback attachment-removed(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> busy: root.status == AedstAiPromptInputStatus.submitted || root.status == AedstAiPromptInputStatus.streaming;
+    private property <bool> stoppable: root.status == AedstAiPromptInputStatus.streaming && root.stop-label != "";
+
+    public function submit() {
+        if (root.can-submit && root.submitted(root.text)) {
+            root.text = "";
+        }
+    }
+
+    min-width: 240px;
+    border-radius: AedstTokens.radius-lg;
+    background: AedstTokens.background;
+    border-width: field.has-focus ? 2px : 1px;
+    border-color: field.has-focus ? AedstTokens.ring : AedstTokens.input;
+    // Only a disabled text area dims the group, not the idle send button (web).
+    opacity: root.enabled ? 1.0 : 0.5;
+    clip: true;
+    forward-focus: keys;
+
+    VerticalLayout {
+        padding: AedstTokens.spacing-xs;
+        spacing: AedstTokens.spacing-xs;
+
+        // Header: one small chip per file, hidden while empty. Mirrored order in RTL.
+        if root.attachments.length > 0: HorizontalLayout {
+            padding-left: AedstTokens.spacing-xs;
+            padding-right: AedstTokens.spacing-xs;
+            padding-top: AedstTokens.spacing-xs;
+            spacing: AedstTokens.spacing-sm;
+            alignment: root.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+            for slot in root.attachments.length: chip := AedstAttachment {
+                property <AedstAiPromptInputAttachment> file: root.attachments[root.rtl ? root.attachments.length - 1 - slot : slot];
+                size: AedstAttachmentSize.sm;
+                title: chip.file.title;
+                description: chip.file.description;
+                state: chip.file.state;
+                variant: chip.file.variant;
+                source: chip.file.source;
+                remove-label: chip.file.remove-label;
+                busy-label: root.busy-label;
+                removed => { root.attachment-removed(chip.file.id); }
+            }
+        }
+
+        // Web min-h-14, max-h-48: the area grows with the text and then scrolls.
+        keys := FocusScope {
+            min-height: 56px;
+            preferred-height: Math.max(56px, Math.min(192px, field.content-height));
+            max-height: 192px;
+            forward-focus: field;
+            // Runs before the text area sees the key, so Enter does not insert a line.
+            capture-key-pressed(event) => {
+                if (event.text == "\n" && !event.modifiers.shift) {
+                    root.submit();
+                    return accept;
+                }
+                return reject;
+            }
+            field := AedstTextarea {
+                text <=> root.text;
+                placeholder: root.placeholder;
+                label: root.label;
+                enabled: root.enabled;
+                width: parent.width;
+                height: parent.height;
+                embedded: true;
+            }
+        }
+
+        footer := HorizontalLayout {
+            spacing: AedstTokens.spacing-xs;
+            if root.rtl: PromptSubmit {
+                status: root.status;
+                stoppable: root.stoppable;
+                ready: root.can-submit;
+                submit-label: root.submit-label;
+                stop-label: root.stop-label;
+                busy-label: root.busy-label;
+                submit => { root.submit(); }
+                stop => { root.stop-requested(); }
+            }
+            if root.rtl: Rectangle { horizontal-stretch: 1; }
+            if !root.rtl && root.attach-label != "": PromptAttach {
+                label: root.attach-label;
+                enabled: root.enabled;
+                clicked => { root.attach-requested(); }
+            }
+            // The tools (web `AiPromptInputTools`). In RTL the caller lists them in reverse.
+            HorizontalLayout {
+                spacing: AedstTokens.spacing-xs;
+                @children
+            }
+            if root.rtl && root.attach-label != "": PromptAttach {
+                label: root.attach-label;
+                enabled: root.enabled;
+                clicked => { root.attach-requested(); }
+            }
+            if !root.rtl: Rectangle { horizontal-stretch: 1; }
+            if !root.rtl: PromptSubmit {
+                status: root.status;
+                stoppable: root.stoppable;
+                ready: root.can-submit;
+                submit-label: root.submit-label;
+                stop-label: root.stop-label;
+                busy-label: root.busy-label;
+                submit => { root.submit(); }
+                stop => { root.stop-requested(); }
+            }
+        }
+    }
+}

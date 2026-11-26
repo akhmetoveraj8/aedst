@@ -19,12 +19,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import com.aedst.core.ui.R
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
+
+/**
+ * Density of an [AedstSelect] trigger, mirroring web's `SelectTrigger` `size`. On touch screens web keeps a 44px
+ * minimum for both; here both keep the 48dp touch target and SM uses smaller text and corners.
+ */
+enum class AedstSelectSize { DEFAULT, SM }
 
 /**
  * Dropdown select over an arbitrary option type [T], mirroring web's `select.tsx`. Built on
@@ -41,8 +49,11 @@ fun <T> AedstSelect(
     modifier: Modifier = Modifier,
     label: String? = null,
     enabled: Boolean = true,
-    placeholder: String = "Select…",
+    placeholder: String = stringResource(R.string.aedst_select_option),
+    size: AedstSelectSize = AedstSelectSize.DEFAULT,
 ) {
+    val compact = size == AedstSelectSize.SM
+    val textStyle = if (compact) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
@@ -57,9 +68,10 @@ fun <T> AedstSelect(
             readOnly = true,
             enabled = enabled,
             label = label?.let { { Text(it) } },
-            placeholder = { Text(placeholder) },
+            textStyle = textStyle,
+            placeholder = { Text(placeholder, style = textStyle) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            shape = AedstShapesScale.medium,
+            shape = if (compact) AedstShapesScale.small else AedstShapesScale.medium,
         )
         ExposedDropdownMenu(
             expanded = expanded,

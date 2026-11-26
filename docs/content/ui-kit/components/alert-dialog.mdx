@@ -11,7 +11,9 @@ Canonical name `alert-dialog` (manifest: `ui-kit.yaml`). [All components](/ui-ki
 
 ## Variants and sizes
 
-No canonical variant or size axis.
+| Axis | Canonical values (every platform) |
+|---|---|
+| `size` | `default`, `sm` |
 
 ## Platforms
 
@@ -136,6 +138,8 @@ function AlertDialogCancel({
 **Public API** (extracted from the source):
 
 ```kotlin
+enum class AedstAlertDialogSize { DEFAULT, SM }
+
 @Composable
 fun AedstAlertDialog(
     title: String,
@@ -147,6 +151,7 @@ fun AedstAlertDialog(
     dismissLabel: String = stringResource(R.string.aedst_action_cancel),
     isDestructive: Boolean = false,
     confirmEnabled: Boolean = true,
+    size: AedstAlertDialogSize = AedstAlertDialogSize.DEFAULT,
     content: (@Composable () -> Unit)? = null,
 )
 ```
@@ -163,6 +168,7 @@ AedstTheme {
             onDismiss = {},
             confirmLabel = "Delete",
             isDestructive = true,
+            size = AedstAlertDialogSize.SM,
         )
     }
 }
@@ -179,14 +185,20 @@ AedstTheme {
 **Public API** (extracted from the source):
 
 ```swift
+public enum AedstAlertDialogSize { case `default`, sm }
+
+public enum AedstAlertDialogActionLayout { case stacked, row, columns }
+
 public struct AedstAlertDialogModifier: ViewModifier {
     public init(
         isPresented: Binding<Bool>,
         title: String,
         message: String? = nil,
+        systemImage: String? = nil,
         confirmTitle: String = AedstCommonStrings.continueAction,
         cancelTitle: String = AedstCommonStrings.cancel,
         isDestructive: Bool = false,
+        size: AedstAlertDialogSize = .default,
         onConfirm: @escaping () -> Void
     )
 
@@ -198,9 +210,11 @@ extension View {
         isPresented: Binding<Bool>,
         title: String,
         message: String? = nil,
+        systemImage: String? = nil,
         confirmTitle: String = AedstCommonStrings.continueAction,
         cancelTitle: String = AedstCommonStrings.cancel,
         isDestructive: Bool = false,
+        size: AedstAlertDialogSize = .default,
         onConfirm: @escaping () -> Void
     ) -> some View
 }
@@ -232,30 +246,34 @@ AedstButton("Delete account", variant: .destructive) { isPresented = true }
 **Public API** (extracted from the source):
 
 ```qml title="Slint"
+export enum AedstAlertDialogSize { default, sm }
+
 export component AedstAlertDialog inherits Rectangle {
     in-out property <bool> open;
     in property <string> title;
     in property <string> description;
     in property <string> confirm-text;
     in property <string> cancel-text;
+    in property <AedstAlertDialogSize> size: AedstAlertDialogSize.default;
     in property <bool> destructive: false;
     callback confirmed();
     callback cancelled();
 }
 ```
 
-**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_overlays.slint`):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_messages.slint`):
 
 ```qml title="Slint"
 AedstAlertDialog {
-    open <=> GalleryState.alert-open;
-    title: "Delete this project?";
-    description: "This cannot be undone.";
-    confirm-text: "Delete forever";
-    cancel-text: "Keep project";
+    open <=> root.small-alert-open;
+    size: AedstAlertDialogSize.sm;
+    title: "Discard the draft?";
+    description: "Your changes are lost.";
+    confirm-text: "Discard";
+    cancel-text: "Keep editing";
     destructive: true;
-    confirmed => { GalleryState.log("alert:confirmed"); }
-    cancelled => { GalleryState.log("alert:cancelled"); }
+    confirmed => { GalleryState.log("small-alert:confirmed"); }
+    cancelled => { GalleryState.log("small-alert:cancelled"); }
 }
 ```
 

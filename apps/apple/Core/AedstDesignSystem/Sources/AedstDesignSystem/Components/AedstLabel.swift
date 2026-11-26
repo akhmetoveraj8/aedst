@@ -17,11 +17,19 @@ public struct AedstLabel: View {
                 .font(AedstTypography.caption.weight(.medium))
                 .foregroundStyle(AedstColor.mutedForeground)
             if isRequired {
-                Text("*")
+                Text(verbatim: "*")
                     .font(AedstTypography.caption.weight(.medium))
                     .foregroundStyle(AedstColor.destructive)
             }
         }
+        // One element: "Email, Required" instead of "Email" followed by "asterisk".
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(Self.accessibilityText(text, isRequired: isRequired)))
+    }
+
+    /// The label VoiceOver reads.
+    static func accessibilityText(_ text: String, isRequired: Bool) -> String {
+        isRequired ? "\(text), \(AedstStrings.required)" : text
     }
 }
 

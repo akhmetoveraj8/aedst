@@ -1,0 +1,182 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstSpinner } from "aedst_spinner.slint";
+
+// Web `attachmentMediaVariants`: an icon tile or an image thumbnail.
+export enum AedstAttachmentVariant { icon, image }
+// Web `attachmentVariants` size: media 40/32/28px, text-sm or text-xs.
+export enum AedstAttachmentSize { default, sm, xs }
+// Web `attachmentVariants` orientation: a row (media, text, actions) or a 96px tile.
+export enum AedstAttachmentOrientation { horizontal, vertical }
+// Web `state`: uploading and processing show a spinner and dim the thumbnail; error colours it.
+export enum AedstAttachmentState { idle, uploading, processing, error, done }
+
+// A file attached to a message or a prompt (web `Attachment`, `AttachmentMedia`,
+// `AttachmentContent`, `AttachmentTitle`, `AttachmentDescription`, `AttachmentActions`,
+// `AttachmentTrigger`). `description` is the size or the status ("Uploading 40%"). With
+// `remove-label` a remove button sits at the reading end (`removed()`); with `interactive`
+// the whole tile opens the file (`activated()`). Slint has no dashed border: the idle state
+// uses the input border colour instead.
+export component AedstAttachment inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <AedstAttachmentVariant> variant: AedstAttachmentVariant.icon;
+    in property <AedstAttachmentSize> size: AedstAttachmentSize.default;
+    in property <AedstAttachmentOrientation> orientation: AedstAttachmentOrientation.horizontal;
+    in property <AedstAttachmentState> state: AedstAttachmentState.done;
+    // The thumbnail (variant image) or the file-type icon (variant icon; a file glyph without it).
+    in property <image> source;
+    // Accessible name of the remove button; the button is hidden without it.
+    in property <string> remove-label;
+    // Announced while busy, for example "Uploading".
+    in property <string> busy-label;
+    in property <bool> interactive: false;
+    out property <bool> has-focus: focus.has-focus;
+    callback activated();
+    callback removed();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> vertical: root.orientation == AedstAttachmentOrientation.vertical;
+    private property <bool> busy: root.state == AedstAttachmentState.uploading || root.state == AedstAttachmentState.processing;
+    private property <bool> failed: root.state == AedstAttachmentState.error;
+    private property <bool> xs: root.size == AedstAttachmentSize.xs;
+    private property <length> pad: root.xs ? AedstTokens.spacing-xs : root.size == AedstAttachmentSize.sm ? 6px : AedstTokens.spacing-sm;
+    private property <length> gap: root.xs ? 6px : root.size == AedstAttachmentSize.sm ? 10px : AedstTokens.spacing-sm;
+    // The media side in a row; a vertical tile's media fills the tile width.
+    private property <length> row-tile: root.xs ? 28px : root.size == AedstAttachmentSize.sm ? 32px : 40px;
+    private property <length> tile: root.vertical ? root.width - 2 * root.pad : root.row-tile;
+    private property <length> glyph: root.vertical ? 24px : root.xs ? 14px : 16px;
+    private property <length> action-width: root.remove-label == "" ? 0px : 24px + root.gap;
+    private property <length> text-size: root.size == AedstAttachmentSize.default ? AedstTokens.typography-body-medium-font-size : AedstTokens.typography-body-small-font-size;
+    private property <length> text-x: root.vertical ? root.pad + AedstTokens.spacing-xs
+        : root.rtl ? root.pad + root.action-width : root.pad + root.tile + root.gap;
+    private property <length> text-width: root.vertical ? root.width - 2 * (root.pad + AedstTokens.spacing-xs)
+        : root.width - 2 * root.pad - root.tile - root.gap - root.action-width;
+
+    // Web: a vertical tile is 96px wide (120px with text); a row fits its content, at least 160px.
+    preferred-width: root.vertical ? (root.title != "" ? 120px : 96px)
+        : 2 * root.pad + root.row-tile + root.gap + Math.max(title-text.preferred-width, note.preferred-width) + root.action-width;
+    min-width: root.vertical ? self.preferred-width : 160px;
+    max-width: Math.max(self.min-width, self.preferred-width);
+    height: root.vertical ? root.pad + root.tile + (root.title == "" ? root.pad : root.gap + texts.preferred-height + root.pad)
+        : Math.max(root.tile, texts.preferred-height) + 2 * root.pad;
+    border-radius: root.xs ? AedstTokens.radius-lg : AedstTokens.radius-xl;
+    background: (root.interactive && touch.has-hover) ? AedstTokens.muted.transparentize(0.5) : AedstTokens.card;
+    border-width: focus.has-focus ? 2px : 1px;
+    border-color: focus.has-focus ? AedstTokens.ring
+        : root.failed ? AedstTokens.destructive.transparentize(0.7)
+        : root.state == AedstAttachmentState.idle ? AedstTokens.input
+        : AedstTokens.border;
+    accessible-role: root.interactive ? AccessibleRole.button : AccessibleRole.groupbox;
+    accessible-label: root.title;
+    accessible-description: root.busy && root.busy-label != "" ? root.busy-label + ", " + root.description : root.description;
+    accessible-action-default => {
+        if (root.interactive) {
+            root.activated();
+        }
+    }
+
+    touch := TouchArea {
+        enabled: root.interactive;
+        clicked => {
+            focus.focus();
+            root.activated();
+        }
+    }
+    focus := FocusScope {
+        enabled: root.interactive;
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n") {
+                root.activated();
+                return accept;
+            }
+            if (event.text == Key.Delete && root.remove-label != "") {
+                root.removed();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    // Media tile at the reading start (on top in a vertical tile).
+    Rectangle {
+        x: root.vertical ? root.pad : root.rtl ? root.width - root.pad - self.width : root.pad;
+        y: root.vertical ? root.pad : (root.height - self.height) / 2;
+        width: root.tile;
+        height: root.tile;
+        border-radius: root.xs ? AedstTokens.radius-md : AedstTokens.radius-lg;
+        background: root.failed ? AedstTokens.destructive.transparentize(0.9) : AedstTokens.muted;
+        clip: true;
+        if root.variant == AedstAttachmentVariant.image && root.source.width > 0: Image {
+            width: parent.width;
+            height: parent.height;
+            source: root.source;
+            image-fit: cover;
+            opacity: (root.state == AedstAttachmentState.done || root.state == AedstAttachmentState.idle) ? 1.0 : 0.6;
+            accessible-role: AccessibleRole.none;
+        }
+        if root.variant == AedstAttachmentVariant.icon && root.source.width > 0 && !root.busy: Image {
+            width: root.glyph;
+            height: root.glyph;
+            source: root.source;
+            colorize: root.failed ? AedstTokens.destructive : AedstTokens.foreground;
+            accessible-role: AccessibleRole.none;
+        }
+        // A plain file outline when no icon is given.
+        if root.variant == AedstAttachmentVariant.icon && root.source.width == 0 && !root.busy: Path {
+            width: root.glyph;
+            height: root.glyph;
+            viewbox-width: 16;
+            viewbox-height: 16;
+            stroke: root.failed ? AedstTokens.destructive : AedstTokens.foreground;
+            stroke-width: 1.25px;
+            commands: "M 4 1.5 L 9.5 1.5 L 12.5 4.5 L 12.5 14.5 L 4 14.5 Z M 9.5 1.5 L 9.5 4.5 L 12.5 4.5";
+            accessible-role: AccessibleRole.none;
+        }
+        if root.busy: AedstSpinner {
+            diameter: root.glyph;
+            label: root.busy-label;
+            tint: AedstTokens.foreground;
+        }
+    }
+
+    texts := VerticalLayout {
+        x: root.text-x;
+        y: root.vertical ? root.pad + root.tile + root.gap : (root.height - self.height) / 2;
+        width: root.text-width;
+        height: self.preferred-height;
+        spacing: AedstTokens.spacing-xxs;
+        title-text := Text {
+            text: root.title;
+            color: AedstTokens.card-foreground;
+            font-size: root.text-size;
+            font-weight: AedstTokens.typography-label-large-font-weight;
+            horizontal-alignment: root.rtl ? right : left;
+            overflow: elide;
+            accessible-role: AccessibleRole.none;
+        }
+        note := Text {
+            visible: root.description != "";
+            height: root.description == "" ? 0px : self.preferred-height;
+            text: root.description;
+            color: root.failed ? AedstTokens.destructive.transparentize(0.2) : AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-body-small-font-size;
+            horizontal-alignment: root.rtl ? right : left;
+            overflow: elide;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+
+    // Remove action at the reading end (top corner of a vertical tile, as on web).
+    if root.remove-label != "": AedstButton {
+        x: root.vertical ? (root.rtl ? AedstTokens.spacing-md : root.width - self.width - AedstTokens.spacing-md)
+            : root.rtl ? root.pad : root.width - root.pad - self.width;
+        y: root.vertical ? AedstTokens.spacing-md : (root.height - self.height) / 2;
+        text: "\u{00D7}";
+        label: root.remove-label;
+        variant: AedstButtonVariant.ghost;
+        size: AedstButtonSize.icon-xs;
+        clicked => { root.removed(); }
+    }
+}

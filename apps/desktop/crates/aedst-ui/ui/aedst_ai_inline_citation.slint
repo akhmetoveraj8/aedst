@@ -1,0 +1,125 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstPopover } from "aedst_popover.slint";
+import { AiLinkRow } from "internal/ai_link_row.slint";
+
+// One cited source (web `AiInlineCitationSource`, `AiInlineCitationQuote`). `host` is the host
+// name without `www.` (web `citationHostname`), computed by the Rust side: Slint cannot parse a
+// URL. `title` falls back to `host`.
+export struct AedstAiCitationSource {
+    url: string,
+    host: string,
+    title: string,
+    description: string,
+    // The quoted passage the citation supports; hidden when empty.
+    quote: string,
+}
+
+// The trigger: a secondary xs button (web `Button variant="secondary" size="xs"`).
+component CitationTrigger inherits AedstButton {
+    variant: AedstButtonVariant.secondary;
+    size: AedstButtonSize.xs;
+}
+
+// A cited sentence (web `AiInlineCitation`, `AiInlineCitationText`, `AiInlineCitationCard`,
+// `AiInlineCitationCardTrigger`, `AiInlineCitationCardBody`): the text, then a small secondary
+// button with the first source's host name and "+N" for the others. The button (focusable, so
+// the keyboard reaches it) opens a card with each source: title, description, quote and a link
+// row. The kit opens nothing: `opened(url)` asks the feature to open the system browser.
+// Slint has no inline text flow, so the button sits after the text block, not after its last
+// word.
+export component AedstAiInlineCitation inherits Rectangle {
+    in property <string> text;
+    in property <[AedstAiCitationSource]> sources;
+    // Read after the host name when there are more sources, for example "and 2 more sources".
+    in property <string> more-label;
+    // Read after each link text, for example "(opens in your browser)".
+    in property <string> new-tab-label;
+    // Accessible name of the card.
+    in property <string> card-label;
+    in property <length> card-width: 288px;
+    callback opened(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <int> more: root.sources.length - 1;
+    private property <string> first-host: root.sources.length > 0 ? root.sources[0].host : "";
+
+    min-height: row.min-height;
+    preferred-height: row.preferred-height;
+    horizontal-stretch: 1;
+
+    row := HorizontalLayout {
+        spacing: AedstTokens.spacing-xs;
+        if root.rtl && root.sources.length > 0: VerticalLayout {
+            alignment: end;
+            CitationTrigger {
+                text: root.more > 0 ? root.first-host + " +\{root.more}" : root.first-host;
+                label: root.more > 0 && root.more-label != "" ? root.first-host + " " + root.more-label : root.first-host;
+                clicked => { card.show(); }
+            }
+        }
+        Text {
+            horizontal-stretch: 1;
+            text: root.text;
+            color: AedstTokens.foreground;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: root.rtl ? right : left;
+            wrap: word-wrap;
+        }
+        if !root.rtl && root.sources.length > 0: VerticalLayout {
+            alignment: end;
+            CitationTrigger {
+                text: root.more > 0 ? root.first-host + " +\{root.more}" : root.first-host;
+                label: root.more > 0 && root.more-label != "" ? root.first-host + " " + root.more-label : root.first-host;
+                clicked => { card.show(); }
+            }
+        }
+    }
+
+    card := AedstPopover {
+        x: root.rtl ? 0px : root.width - root.card-width;
+        y: root.height + AedstTokens.spacing-xs;
+        width: root.card-width;
+        label: root.card-label;
+
+        for source in root.sources: VerticalLayout {
+            spacing: AedstTokens.spacing-xs;
+            Text {
+                text: source.title != "" ? source.title : source.host;
+                color: AedstTokens.popover-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                font-weight: AedstTokens.typography-label-large-font-weight;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+            }
+            if source.description != "": Text {
+                text: source.description;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+            }
+            // Quote with a 2px line at the reading start (web `border-s-2 ps-3 italic`).
+            if source.quote != "": HorizontalLayout {
+                spacing: AedstTokens.spacing-md;
+                if !root.rtl: Rectangle { width: 2px; background: AedstTokens.border; }
+                Text {
+                    text: source.quote;
+                    color: AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-body-medium-font-size;
+                    font-italic: true;
+                    horizontal-alignment: root.rtl ? right : left;
+                    wrap: word-wrap;
+                }
+                if root.rtl: Rectangle { width: 2px; background: AedstTokens.border; }
+            }
+            AiLinkRow {
+                text: source.host;
+                label: root.new-tab-label == "" ? source.host : source.host + " " + root.new-tab-label;
+                font-size: AedstTokens.typography-body-small-font-size;
+                activated => { root.opened(source.url); }
+            }
+        }
+    }
+}

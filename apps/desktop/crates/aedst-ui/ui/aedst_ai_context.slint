@@ -1,0 +1,144 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstPopover } from "aedst_popover.slint";
+import { AedstProgress } from "aedst_progress.slint";
+
+// One line of the token breakdown (web `AiContextInputUsage`, `AiContextOutputUsage`,
+// `AiContextReasoningUsage`, `AiContextCacheUsage`): leave a count out of the model when the
+// usage lacks it, as web renders nothing for it.
+export struct AedstAiContextUsageRow {
+    label: string,
+    // Formatted by the Rust side for the active locale (compact, for example "12.4K").
+    value: string,
+}
+
+// How much of the model's context window the conversation has used (web `AiContext`,
+// `AiContextTrigger`, `AiContextContent`, `AiContextContentHeader`, `AiContextContentBody`,
+// `AiContextContentFooter`): a small outline button with the percentage that opens a card with
+// a progress bar and the token breakdown. Every number is formatted by the Rust side for the
+// active locale and passed as a string (Slint cannot format numbers per locale); only `ratio`
+// (0..1) is a number, for the bar. Web opens the card on hover and focus; Slint 1.19 tooltips and
+// hover cards are pointer-only, so here the button opens it (click, Enter or Space) and a click
+// outside or Escape closes it.
+export component AedstAiContext inherits Rectangle {
+    // Share of the window used, 0..1 (clamped here).
+    in property <float> ratio;
+    // The trigger text, for example "42%".
+    in property <string> percent-text;
+    // Accessible name read before the percentage (web `label`), for example "Context used".
+    in property <string> label;
+    // Heading of the card and the progress bar's accessible name, for example "Context".
+    in property <string> title;
+    // Used / max, for example "54K / 128K".
+    in property <string> used-text;
+    in property <[AedstAiContextUsageRow]> usage;
+    // Footer line (web `AiContextContentFooter`), for example the cost; hidden when both are empty.
+    in property <string> footer-label;
+    in property <string> footer-value;
+    in property <length> card-width: 256px;
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <float> clamped: Math.max(0, Math.min(1, root.ratio));
+    private property <TextHorizontalAlignment> start: root.rtl ? TextHorizontalAlignment.right : TextHorizontalAlignment.left;
+    private property <TextHorizontalAlignment> end: root.rtl ? TextHorizontalAlignment.left : TextHorizontalAlignment.right;
+
+    min-width: trigger.min-width;
+    min-height: trigger.min-height;
+    max-height: trigger.max-height;
+    preferred-width: trigger.preferred-width;
+    forward-focus: trigger;
+
+    trigger := AedstButton {
+        text: root.percent-text;
+        // Web: an sr-only "label: " before the visible percentage.
+        label: root.label == "" ? root.percent-text : root.label + ": " + root.percent-text;
+        variant: AedstButtonVariant.outline;
+        size: AedstButtonSize.sm;
+        clicked => { card.show(); }
+    }
+
+    card := AedstPopover {
+        x: root.rtl ? root.width - root.card-width : 0px;
+        y: root.height + AedstTokens.spacing-xs;
+        width: root.card-width;
+        label: root.title;
+
+        // Header: heading, used / max and the bar.
+        VerticalLayout {
+            spacing: AedstTokens.spacing-sm;
+            HorizontalLayout {
+                spacing: AedstTokens.spacing-md;
+                Text {
+                    text: root.rtl ? root.used-text : root.title;
+                    horizontal-alignment: root.start;
+                    color: root.rtl ? AedstTokens.muted-foreground : AedstTokens.popover-foreground;
+                    font-size: AedstTokens.typography-body-medium-font-size;
+                    font-weight: root.rtl ? AedstTokens.typography-body-medium-font-weight : AedstTokens.typography-label-large-font-weight;
+                }
+                Text {
+                    text: root.rtl ? root.title : root.used-text;
+                    horizontal-alignment: root.end;
+                    color: root.rtl ? AedstTokens.popover-foreground : AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-body-medium-font-size;
+                    font-weight: root.rtl ? AedstTokens.typography-label-large-font-weight : AedstTokens.typography-body-medium-font-weight;
+                }
+            }
+            AedstProgress {
+                value: Math.round(root.clamped * 100);
+                maximum: 100;
+                label: root.title;
+            }
+        }
+
+        // Body: one row per count, label at the reading start, value at the reading end.
+        if root.usage.length > 0: Rectangle {
+            height: 1px;
+            background: AedstTokens.border;
+        }
+        if root.usage.length > 0: VerticalLayout {
+            spacing: AedstTokens.spacing-xs;
+            for row in root.usage: Rectangle {
+                min-height: name.preferred-height;
+                accessible-role: text;
+                accessible-label: row.label + " " + row.value;
+                name := Text {
+                    text: row.label;
+                    horizontal-alignment: root.start;
+                    color: AedstTokens.muted-foreground;
+                    font-size: AedstTokens.typography-body-medium-font-size;
+                    accessible-role: AccessibleRole.none;
+                }
+                Text {
+                    text: row.value;
+                    horizontal-alignment: root.end;
+                    color: AedstTokens.popover-foreground;
+                    font-size: AedstTokens.typography-body-medium-font-size;
+                    accessible-role: AccessibleRole.none;
+                }
+            }
+        }
+
+        // Footer on the secondary tint (web `bg-secondary`).
+        if root.footer-label != "" || root.footer-value != "": Rectangle {
+            border-radius: AedstTokens.radius-md;
+            background: AedstTokens.secondary;
+            HorizontalLayout {
+                padding: AedstTokens.spacing-sm;
+                spacing: AedstTokens.spacing-md;
+                Text {
+                    text: root.rtl ? root.footer-value : root.footer-label;
+                    horizontal-alignment: root.start;
+                    color: AedstTokens.secondary-foreground;
+                    font-size: AedstTokens.typography-body-small-font-size;
+                }
+                Text {
+                    text: root.rtl ? root.footer-label : root.footer-value;
+                    horizontal-alignment: root.end;
+                    color: AedstTokens.secondary-foreground;
+                    font-size: AedstTokens.typography-body-small-font-size;
+                }
+            }
+        }
+    }
+}

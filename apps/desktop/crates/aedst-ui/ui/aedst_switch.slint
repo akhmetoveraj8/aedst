@@ -1,16 +1,23 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
 
+// Web `size`: default 32x18px, sm 24x14px; the thumb keeps the same inset on every side.
+export enum AedstSwitchSize { default, sm }
+
 // An on/off switch. Controlled, like AedstCheckbox: `toggled(value)` asks for the new state; the caller sets `checked`.
 // The thumb rests at the reading start when off (the right in RTL).
 export component AedstSwitch inherits Rectangle {
     in property <bool> checked;
     in property <string> label;
     in property <bool> enabled: true;
+    in property <AedstSwitchSize> size: AedstSwitchSize.default;
     callback toggled(bool);
 
     private property <bool> rtl: AedstLayout.rtl;
     private property <bool> thumb-at-right: root.checked != root.rtl;
+    private property <bool> small: root.size == AedstSwitchSize.sm;
+    private property <length> thumb: root.small ? 12px : 14px;
+    private property <length> inset: (root.height - root.thumb) / 2;
 
     function flip() {
         if (root.enabled) {
@@ -18,9 +25,9 @@ export component AedstSwitch inherits Rectangle {
         }
     }
 
-    width: 32px;
-    height: 18px;
-    border-radius: 9px;
+    width: root.small ? 24px : 32px;
+    height: root.small ? 14px : 18px;
+    border-radius: self.height / 2;
     background: root.checked ? AedstTokens.primary : AedstTokens.input;
     opacity: root.enabled ? 1.0 : 0.5;
     forward-focus: focus;
@@ -43,11 +50,11 @@ export component AedstSwitch inherits Rectangle {
     }
 
     Rectangle {
-        x: root.thumb-at-right ? parent.width - self.width - 2px : 2px;
-        y: 2px;
-        width: 14px;
-        height: 14px;
-        border-radius: 7px;
+        x: root.thumb-at-right ? parent.width - self.width - root.inset : root.inset;
+        y: (parent.height - self.height) / 2;
+        width: root.thumb;
+        height: root.thumb;
+        border-radius: root.thumb / 2;
         background: AedstTokens.background;
         animate x { duration: AedstTokens.motion-duration-fast; easing: ease-out; }
     }
@@ -56,7 +63,7 @@ export component AedstSwitch inherits Rectangle {
     Rectangle {
         border-width: focus.has-focus ? 2px : 0px;
         border-color: AedstTokens.ring;
-        border-radius: 9px;
+        border-radius: root.height / 2;
     }
 
     TouchArea {

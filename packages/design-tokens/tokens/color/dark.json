@@ -239,6 +239,48 @@
           "components": [0.2706, 0.0392, 0.0392],
           "hex": "#450a0a"
         }
+      },
+      "syntaxComment": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.72, 0, 0]
+        }
+      },
+      "syntaxKeyword": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.78, 0.13, 300]
+        }
+      },
+      "syntaxString": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.8, 0.14, 150]
+        }
+      },
+      "syntaxNumber": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.8, 0.12, 60]
+        }
+      },
+      "syntaxFunction": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.78, 0.1, 250]
+        }
+      },
+      "syntaxType": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.8, 0.1, 200]
+        }
+      },
+      "syntaxPunctuation": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.82, 0, 0]
+        }
       }
     }
   }

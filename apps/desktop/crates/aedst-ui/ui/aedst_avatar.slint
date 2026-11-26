@@ -1,17 +1,25 @@
 import { AedstTokens } from "aedst_tokens.slint";
 
+// The avatar sizes of web (`size` prop): sm 24px, default 32px, lg 40px.
+export enum AedstAvatarSize { default, sm, lg }
+
 // A round user picture. While `source` is empty the `fallback` text (initials) is shown.
 // `label` is the accessible name (the person's name).
 export component AedstAvatar inherits Rectangle {
     in property <image> source;
     in property <string> fallback;
     in property <string> label;
-    in property <length> diameter: 32px;
+    in property <AedstAvatarSize> size: AedstAvatarSize.default;
+
+    out property <length> diameter: root.size == AedstAvatarSize.sm ? 24px
+        : root.size == AedstAvatarSize.lg ? 40px : 32px;
 
     width: root.diameter;
     height: root.diameter;
     border-radius: root.diameter / 2;
     background: AedstTokens.muted;
+    border-width: 1px;
+    border-color: AedstTokens.border;
     clip: true;
     accessible-role: AccessibleRole.image;
     accessible-label: root.label;
@@ -19,7 +27,10 @@ export component AedstAvatar inherits Rectangle {
     if root.source.width == 0: Text {
         text: root.fallback;
         color: AedstTokens.muted-foreground;
-        font-size: root.diameter * 0.4;
+        // Web: text-sm, text-xs for sm.
+        font-size: root.size == AedstAvatarSize.sm
+            ? AedstTokens.typography-body-small-font-size
+            : AedstTokens.typography-body-medium-font-size;
         font-weight: AedstTokens.typography-label-large-font-weight;
         horizontal-alignment: center;
         vertical-alignment: center;

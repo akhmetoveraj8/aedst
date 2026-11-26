@@ -1,6 +1,6 @@
 import {
     AedstTokens, AedstLabel, AedstButton, AedstButtonVariant, AedstDialog, AedstAlertDialog, AedstSheet,
-    AedstSheetSide, AedstDrawer, AedstSonner, AedstInput
+    AedstSheetSide, AedstDrawer, AedstToaster, AedstInput
 } from "../lib.slint";
 import { GalleryState } from "gallery_state.slint";
 
@@ -21,7 +21,7 @@ export component GalleryOverlays inherits Rectangle {
         }
     }
 
-    AedstSonner {
+    AedstToaster {
         toasts: GalleryState.toasts;
         dismiss-label: "Dismiss notification";
         auto-dismiss: 0ms;
@@ -63,6 +63,7 @@ export component GalleryOverlays inherits Rectangle {
         open <=> GalleryState.drawer-open;
         title: "Share";
         close-label: "Close share";
+        handle-label: "Drag down to close share";
         closed => { GalleryState.log("drawer:closed"); }
         AedstLabel { text: "Copy the link to share"; }
     }
