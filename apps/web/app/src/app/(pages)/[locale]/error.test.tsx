@@ -1,9 +1,8 @@
+import commonMessages from "@i18n/common/en.json";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
-
-import commonMessages from "@/app/config/i18n/common/en.json";
 import LocaleError from "./error";
 
 vi.mock("@sentry/nextjs", () => ({

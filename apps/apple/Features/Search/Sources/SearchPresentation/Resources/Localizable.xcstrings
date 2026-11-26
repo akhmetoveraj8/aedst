@@ -7,31 +7,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "اكتب للبحث."
+            "value" : "اكتب حرفين على الأقل."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Type to search."
+            "value" : "Type at least two characters."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Начните вводить запрос."
+            "value" : "Введите хотя бы два символа."
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Барои ҷустуҷӯ нависед."
+            "value" : "Ақаллан ду аломат ворид кунед."
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Qidirish uchun yozing."
+            "value" : "Kamida ikkita belgi kiriting."
           }
         }
       }
@@ -42,31 +42,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "لا توجد نتائج."
+            "value" : "لم يتم العثور على شيء"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No results."
+            "value" : "Nothing found"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ничего не найдено."
+            "value" : "Ничего не найдено"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Натиҷа ёфт нашуд."
+            "value" : "Чизе ёфт нашуд"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Natija topilmadi."
+            "value" : "Hech narsa topilmadi"
           }
         }
       }

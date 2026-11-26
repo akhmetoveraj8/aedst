@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
     <string name="admin_title">الإدارة</string>
+    <string name="admin_tasks_total">المهام</string>
+    <string name="admin_tasks_done">المنجزة</string>
+    <string name="admin_tasks_overdue">المتأخرة</string>
     <string name="admin_forbidden">هذا القسم متاح للمسؤولين فقط.</string>
     <string name="admin_tab_overview">نظرة عامة</string>
     <string name="admin_tab_tasks">المهام</string>
@@ -10,9 +14,6 @@
     <string name="admin_delete_reason">السبب (يُسجَّل في سجل التدقيق)</string>
     <string name="admin_delete_confirm">حذف</string>
     <string name="admin_cancel">إلغاء</string>
-    <string name="admin_tasks_total">المهام</string>
-    <string name="admin_tasks_done">المنجزة</string>
-    <string name="admin_tasks_overdue">المتأخرة</string>
     <string name="admin_media_total">الملفات</string>
     <string name="admin_push_devices">أجهزة الإشعارات</string>
     <string name="admin_outbox_lag">تأخر outbox، ث</string>

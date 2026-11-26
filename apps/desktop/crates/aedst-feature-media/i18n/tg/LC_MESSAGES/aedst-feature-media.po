@@ -1,13 +1,18 @@
-# aedst-feature-media: Media screen strings (tg).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-media\n"
+"Project-Id-Version: media\n"
 "Language: tg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Failed"
+msgstr "Хато"
+
+msgid "Delete"
+msgstr "Нест кардан"
 
 msgid "Upload file"
 msgstr "Бор кардани файл"
@@ -44,9 +49,6 @@ msgstr "Бозгашт"
 
 msgid "View"
 msgstr "Кушодан"
-
-msgid "Delete"
-msgstr "Нест кардан"
 
 msgid "Delete this file?"
 msgstr "Ин файл нест карда шавад?"
@@ -128,9 +130,6 @@ msgstr "Коркард мешавад"
 
 msgid "Ready"
 msgstr "Тайёр"
-
-msgid "Failed"
-msgstr "Хато"
 
 msgid "The uploaded size did not match the file."
 msgstr "Ҳаҷми боршуда ба ҳаҷми файл мувофиқ наомад."

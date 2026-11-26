@@ -1,12 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
-    <string name="app_name" translatable="false">AEDST</string>
     <string name="nav_tasks">Tasks</string>
     <string name="nav_search">Search</string>
     <string name="nav_notifications">Inbox</string>
     <string name="nav_media">Files</string>
     <string name="nav_account">Account</string>
     <string name="nav_admin">Admin</string>
-
     <string name="update_recommended">A new version of AEDST is available.</string>
     <string name="update_recommended_action">Update</string>
     <string name="update_recommended_later">Not now</string>

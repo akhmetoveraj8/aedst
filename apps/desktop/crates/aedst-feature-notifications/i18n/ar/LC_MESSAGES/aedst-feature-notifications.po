@@ -1,13 +1,36 @@
-# aedst-feature-notifications: Notifications views strings (ar).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-notifications\n"
+"Project-Id-Version: notifications\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+msgid "Notifications"
+msgstr "الإشعارات"
+
+msgid "Mark all as read"
+msgstr "تعليم الكل كمقروء"
+
+msgid "All"
+msgstr "الكل"
+
+msgid "Unread"
+msgstr "غير المقروءة"
+
+msgid "Load more"
+msgstr "عرض المزيد"
+
+msgid "Notification preferences"
+msgstr "تفضيلات الإشعارات"
+
+msgid "Task completed"
+msgstr "اكتمال مهمة"
+
+msgid "Task due soon"
+msgstr "اقتراب موعد مهمة"
 
 msgid "You are offline. Try again when you are connected."
 msgstr "أنت غير متصل. حاول مرة أخرى عند الاتصال."
@@ -45,12 +68,6 @@ msgstr "تعذر الحفظ على هذا الجهاز."
 msgid "Something went wrong."
 msgstr "حدث خطأ ما."
 
-msgid "Task completed"
-msgstr "اكتملت المهمة"
-
-msgid "Task due soon"
-msgstr "اقترب موعد المهمة"
-
 msgid "Media ready"
 msgstr "الوسائط جاهزة"
 
@@ -63,23 +80,11 @@ msgstr "أخرى"
 msgid "Unread: {}"
 msgstr "غير مقروء: {}"
 
-msgid "Notifications"
-msgstr "الإشعارات"
-
 msgid "{} unread"
 msgstr "{} غير مقروءة"
 
 msgid "Marking..."
 msgstr "جارٍ التعليم..."
-
-msgid "Mark all as read"
-msgstr "تعليم الكل كمقروء"
-
-msgid "All"
-msgstr "الكل"
-
-msgid "Unread"
-msgstr "غير المقروءة"
 
 msgid "Loading..."
 msgstr "جارٍ التحميل..."
@@ -98,12 +103,6 @@ msgstr "لا توجد إشعارات بعد"
 
 msgid "You are all caught up."
 msgstr "لقد اطلعت على كل شيء."
-
-msgid "Load more"
-msgstr "تحميل المزيد"
-
-msgid "Notification preferences"
-msgstr "تفضيلات الإشعارات"
 
 msgid "Could not load preferences"
 msgstr "تعذر تحميل التفضيلات"

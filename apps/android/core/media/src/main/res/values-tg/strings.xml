@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
     <string name="media_upload_channel_name">Боргузории файлҳо</string>
     <string name="media_upload_notification_title">Файл бор карда мешавад…</string>

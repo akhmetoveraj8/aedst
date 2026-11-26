@@ -1,0 +1,12 @@
+{
+  "conflict": "This was changed elsewhere. Refresh and try again.",
+  "forbidden": "You don't have permission to do that.",
+  "network": "Can't reach the server. Check your connection and try again.",
+  "notFound": "We couldn't find what you were looking for.",
+  "rateLimited": "Too many attempts. Please wait a moment and try again.",
+  "storage": "Couldn't save your data securely on this device.",
+  "unauthorized": "Your session has ended. Please sign in again.",
+  "unknown": "Something went wrong. Please try again.",
+  "upgradeRequired": "This version of the app is no longer supported. Update to continue.",
+  "validation": "Please check the information you entered."
+}

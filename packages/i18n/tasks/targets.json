@@ -1,0 +1,435 @@
+{
+  "a11y.priority": [
+    "web"
+  ],
+  "a11y.status": [
+    "web"
+  ],
+  "adding": [
+    "desktop"
+  ],
+  "addTask": [
+    "desktop"
+  ],
+  "addYourFirstTaskAbove": [
+    "desktop"
+  ],
+  "attach": [
+    "android"
+  ],
+  "attachments": [
+    "android",
+    "apple"
+  ],
+  "back": [
+    "android"
+  ],
+  "cancel": [
+    "apple"
+  ],
+  "complete": [
+    "android",
+    "apple"
+  ],
+  "couldNotLoadTasks": [
+    "desktop"
+  ],
+  "couldNotSaveOnThisDevice": [
+    "desktop"
+  ],
+  "create": [
+    "android",
+    "apple"
+  ],
+  "dashboard.completed": [
+    "web"
+  ],
+  "dashboard.inProgress": [
+    "web",
+    "desktop"
+  ],
+  "dashboard.overdue": [
+    "web"
+  ],
+  "dashboard.title": [
+    "web",
+    "desktop"
+  ],
+  "dashboard.todo": [
+    "web"
+  ],
+  "dashboard.totalTasks": [
+    "web"
+  ],
+  "delete": [
+    "android",
+    "apple"
+  ],
+  "deleteConfirm": [
+    "apple"
+  ],
+  "details.backToList": [
+    "web"
+  ],
+  "details.complete": [
+    "web"
+  ],
+  "details.createdAt": [
+    "web"
+  ],
+  "details.createdBy": [
+    "web"
+  ],
+  "details.delete": [
+    "web"
+  ],
+  "details.deleteCancelAction": [
+    "web"
+  ],
+  "details.deleteConfirmAction": [
+    "web"
+  ],
+  "details.deleteConfirmDescription": [
+    "web"
+  ],
+  "details.deleteConfirmTitle": [
+    "web"
+  ],
+  "details.dueDate": [
+    "web"
+  ],
+  "details.edit": [
+    "web"
+  ],
+  "details.loadErrorTitle": [
+    "web"
+  ],
+  "details.noDueDate": [
+    "web"
+  ],
+  "details.notFoundDescription": [
+    "web"
+  ],
+  "details.notFoundTitle": [
+    "web"
+  ],
+  "details.pageTitle": [
+    "web"
+  ],
+  "details.reopen": [
+    "web"
+  ],
+  "details.updatedAt": [
+    "web"
+  ],
+  "details.you": [
+    "web"
+  ],
+  "detailTitle": [
+    "apple"
+  ],
+  "due": [
+    "android"
+  ],
+  "empty": [
+    "android",
+    "apple"
+  ],
+  "field.description": [
+    "android"
+  ],
+  "field.priority": [
+    "android"
+  ],
+  "field.title": [
+    "android"
+  ],
+  "field.titleRequired": [
+    "android",
+    "desktop"
+  ],
+  "form.cancel": [
+    "web"
+  ],
+  "form.create": [
+    "web"
+  ],
+  "form.createTitle": [
+    "web"
+  ],
+  "form.descriptionLabel": [
+    "web"
+  ],
+  "form.descriptionTooLong": [
+    "web"
+  ],
+  "form.dueDateLabel": [
+    "web"
+  ],
+  "form.dueDateOptional": [
+    "web"
+  ],
+  "form.editTitle": [
+    "web"
+  ],
+  "form.error": [
+    "web"
+  ],
+  "form.priorityLabel": [
+    "web"
+  ],
+  "form.priorityRequired": [
+    "web",
+    "desktop"
+  ],
+  "form.save": [
+    "web"
+  ],
+  "form.titleLabel": [
+    "web"
+  ],
+  "form.titleRequired": [
+    "web"
+  ],
+  "form.titleTooLong": [
+    "web"
+  ],
+  "list.allPriorities": [
+    "web"
+  ],
+  "list.allStatuses": [
+    "web"
+  ],
+  "list.due": [
+    "web"
+  ],
+  "list.emptyDescription": [
+    "web"
+  ],
+  "list.emptyTitle": [
+    "web",
+    "desktop"
+  ],
+  "list.errorTitle": [
+    "web"
+  ],
+  "list.newTask": [
+    "web"
+  ],
+  "list.nextPage": [
+    "web"
+  ],
+  "list.noResultsDescription": [
+    "web"
+  ],
+  "list.noResultsTitle": [
+    "web"
+  ],
+  "list.paginationLabel": [
+    "web"
+  ],
+  "list.previousPage": [
+    "web"
+  ],
+  "list.priorityFilterLabel": [
+    "web"
+  ],
+  "list.resultCount": [
+    "web"
+  ],
+  "list.resultsLabel": [
+    "web"
+  ],
+  "list.retry": [
+    "web"
+  ],
+  "list.searchLabel": [
+    "web"
+  ],
+  "list.searchPlaceholder": [
+    "web"
+  ],
+  "list.sortCreatedAsc": [
+    "web"
+  ],
+  "list.sortCreatedDesc": [
+    "web"
+  ],
+  "list.sortDueAsc": [
+    "web"
+  ],
+  "list.sortDueDesc": [
+    "web"
+  ],
+  "list.sortLabel": [
+    "web"
+  ],
+  "list.statusFilterLabel": [
+    "web"
+  ],
+  "loading": [
+    "desktop"
+  ],
+  "loadMore": [
+    "desktop"
+  ],
+  "markValueAsDone": [
+    "desktop"
+  ],
+  "new": [
+    "apple"
+  ],
+  "newTaskTitle": [
+    "desktop"
+  ],
+  "no.attachments": [
+    "android"
+  ],
+  "pending.sync": [
+    "android",
+    "apple"
+  ],
+  "pending.syncTitle": [
+    "android"
+  ],
+  "pleaseSignInAgain": [
+    "desktop"
+  ],
+  "pleaseUpdateTheAppToContinue": [
+    "desktop"
+  ],
+  "priority.high": [
+    "web",
+    "android",
+    "apple",
+    "desktop"
+  ],
+  "priority.low": [
+    "web",
+    "android",
+    "apple",
+    "desktop"
+  ],
+  "priority.medium": [
+    "web",
+    "android",
+    "apple",
+    "desktop"
+  ],
+  "priority.unknown": [
+    "android"
+  ],
+  "priority.urgent": [
+    "web",
+    "android",
+    "apple",
+    "desktop"
+  ],
+  "refresh": [
+    "apple"
+  ],
+  "reopen": [
+    "android",
+    "apple"
+  ],
+  "save": [
+    "android"
+  ],
+  "select.prompt": [
+    "android"
+  ],
+  "somethingWentWrong": [
+    "desktop"
+  ],
+  "status.done": [
+    "web",
+    "android",
+    "apple",
+    "desktop"
+  ],
+  "status.inProgress": [
+    "web",
+    "android",
+    "apple"
+  ],
+  "status.todo": [
+    "web",
+    "android",
+    "apple"
+  ],
+  "status.unknown": [
+    "android",
+    "desktop"
+  ],
+  "sync.discard": [
+    "web"
+  ],
+  "sync.failedBadge": [
+    "web"
+  ],
+  "sync.pendingBadge": [
+    "web",
+    "desktop"
+  ],
+  "sync.queuedHint": [
+    "web"
+  ],
+  "sync.queuedTitle": [
+    "web"
+  ],
+  "theDescriptionIsTooLong": [
+    "desktop"
+  ],
+  "theRequestTookTooLong": [
+    "desktop"
+  ],
+  "theServerDidNotAcceptThis": [
+    "desktop"
+  ],
+  "theServerIsNotAvailableRight": [
+    "desktop"
+  ],
+  "theTitleIsTooLong200": [
+    "desktop"
+  ],
+  "thisTaskNoLongerExists": [
+    "desktop"
+  ],
+  "thisTaskWasChangedElsewhere": [
+    "desktop"
+  ],
+  "title": [
+    "android",
+    "apple"
+  ],
+  "titleField": [
+    "apple"
+  ],
+  "toDo": [
+    "desktop"
+  ],
+  "tooManyRequestsTryAgainIn": [
+    "desktop"
+  ],
+  "tryAgain": [
+    "desktop"
+  ],
+  "unsynced %lld": [
+    "apple"
+  ],
+  "valueInTotal": [
+    "desktop"
+  ],
+  "waitingToSyncValue": [
+    "desktop"
+  ],
+  "whatNeedsToBeDone": [
+    "desktop"
+  ],
+  "youAreOfflineChangesWillSync": [
+    "desktop"
+  ],
+  "youDoNotHaveAccessTo": [
+    "desktop"
+  ]
+}

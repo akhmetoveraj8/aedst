@@ -1,0 +1,72 @@
+{
+  "notificationsPreferences": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "إعدادات الإشعارات"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Notification settings"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Настройки уведомлений"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Танзимоти огоҳиномаҳо"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Bildirishnoma sozlamalari"
+        }
+      }
+    }
+  },
+  "notificationsUnread": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "غير مقروء"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Unread"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Не прочитано"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Хонда нашуд"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Oʻqilmagan"
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
-    <string name="search_placeholder">Ҷустуҷӯи вазифаҳо ва файлҳо</string>
+    <string name="search_placeholder">Ҷустуҷӯи вазифаҳо ва файлҳо…</string>
+    <string name="search_no_results">Чизе ёфт нашуд</string>
     <string name="search_hint">Ақаллан ду аломат ворид кунед.</string>
-    <string name="search_no_results">Ҳеҷ чиз ёфт нашуд.</string>
 </resources>

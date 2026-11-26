@@ -18,11 +18,14 @@ const PUBLIC = [
 function makeRoot() {
   const root = mkdtempSync(path.join(tmpdir(), 'aedst-new-feature-'));
   const module = path.join(root, 'apps/web/app/src/modules/demo');
-  mkdirSync(path.join(module, 'i18n'), { recursive: true });
+  for (const dir of ['packages/i18n/demo', 'apps/web/shared/i18n/catalogs/demo']) mkdirSync(path.join(root, dir), { recursive: true });
+  mkdirSync(module, { recursive: true });
   writeFileSync(path.join(module, 'manifest.ts'), 'export const manifest = { id: "demo" };\n');
   writeFileSync(path.join(module, 'public.ts'), PUBLIC);
-  for (const locale of ['en', 'ru', 'tj', 'uz', 'ar']) {
-    writeFileSync(path.join(module, 'i18n', `${locale}.json`), '{\n  "title": "Demo"\n}\n');
+  for (const locale of ['en', 'ru', 'tg', 'uz', 'ar']) {
+    for (const dir of ['packages/i18n/demo', 'apps/web/shared/i18n/catalogs/demo']) {
+      writeFileSync(path.join(root, dir, `${locale}.json`), '{\n  "title": "Demo"\n}\n');
+    }
   }
   return { root, module };
 }
@@ -43,9 +46,11 @@ describe('new-feature (web)', () => {
     assert.match(view, /useTranslations\("demo\.bulkEdit"\)/);
     const lines = readFileSync(path.join(module, 'public.ts'), 'utf8').split('\n');
     assert.equal(lines[3], 'export { BulkEditView } from "@/modules/demo/features/bulk-edit/ui/bulk-edit-view";');
-    for (const locale of ['en', 'ru', 'tj', 'uz', 'ar']) {
-      const catalogue = JSON.parse(readFileSync(path.join(module, 'i18n', `${locale}.json`), 'utf8'));
-      assert.deepEqual(catalogue.bulkEdit, { title: 'Bulk edit' });
+    for (const locale of ['en', 'ru', 'tg', 'uz', 'ar']) {
+      for (const dir of ['packages/i18n/demo', 'apps/web/shared/i18n/catalogs/demo']) {
+        const catalogue = JSON.parse(readFileSync(path.join(root, dir, `${locale}.json`), 'utf8'));
+        assert.deepEqual(catalogue.bulkEdit, { title: 'Bulk edit' });
+      }
     }
   });
 
@@ -61,6 +66,6 @@ describe('new-feature (web)', () => {
     scaffoldWebFeature({ module: 'demo', name: 'bulk-edit', root, remove: true, log: quiet });
     assert.equal(existsSync(path.join(module, 'features')), false);
     assert.equal(readFileSync(path.join(module, 'public.ts'), 'utf8'), PUBLIC);
-    assert.equal(readFileSync(path.join(module, 'i18n/ar.json'), 'utf8'), '{\n  "title": "Demo"\n}\n');
+    assert.equal(readFileSync(path.join(root, 'packages/i18n/demo/ar.json'), 'utf8'), '{\n  "title": "Demo"\n}\n');
   });
 });

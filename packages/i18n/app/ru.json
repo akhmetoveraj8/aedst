@@ -1,0 +1,41 @@
+{
+  "nav": {
+    "tasks": "Задачи",
+    "search": "Поиск",
+    "notifications": "Уведомления",
+    "media": "Файлы",
+    "account": "Аккаунт",
+    "admin": "Админ"
+  },
+  "update": {
+    "recommended": "Доступна новая версия AEDST.",
+    "recommendedAction": "Обновить",
+    "recommendedLater": "Не сейчас"
+  },
+  "outbox": {
+    "failedTitle": "Часть изменений не удалось отправить",
+    "failedDescription": "Эти изменения не были отправлены. Повторите отправку или удалите их.",
+    "failedDiscard": "Удалить"
+  },
+  "enableNotifications": "Включить уведомления",
+  "homeAdmin": "Администрирование",
+  "homeFiles": "Файлы",
+  "homeNotifications": "Уведомления",
+  "homeSearch": "Поиск",
+  "homeTasks": "Задачи",
+  "locked": "AEDST заблокирован",
+  "offline": "Нет подключения. Некоторые функции могут быть недоступны.",
+  "requireBiometrics": "Требовать биометрическую разблокировку",
+  "selectSection": "Выберите раздел в боковой панели",
+  "settings": "Настройки",
+  "shareAnalytics": "Отправлять анонимную статистику использования",
+  "signIn": "Войти",
+  "signOut": "Выйти",
+  "signedIn": "Вы вошли в систему.",
+  "unlock": "Разблокировать",
+  "unlockReason": "Разблокируйте AEDST, чтобы продолжить",
+  "upgradeButton": "Открыть App Store",
+  "upgradeMessage": "Эта версия AEDST больше не поддерживается. Обновите приложение, чтобы продолжить.",
+  "upgradeTitle": "Требуется обновление",
+  "preferencesTitle": "Настройки AEDST"
+}

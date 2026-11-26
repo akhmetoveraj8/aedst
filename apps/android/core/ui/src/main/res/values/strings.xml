@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
-    <!-- Accessibility descriptions for design-system components -->
     <string name="aedst_a11y_avatar">Avatar</string>
     <string name="aedst_a11y_avatar_named">Avatar: %1$s</string>
     <string name="aedst_a11y_loading">Loading</string>
@@ -8,7 +8,7 @@
     <string name="aedst_a11y_collapsed">Collapsed</string>
     <string name="aedst_a11y_previous">Previous</string>
     <string name="aedst_a11y_next">Next</string>
-    <string name="aedst_a11y_page">Page %1$d</string>
+    <string name="aedst_a11y_page">Page %1$s</string>
     <string name="aedst_a11y_pagination">Pagination</string>
     <string name="aedst_a11y_more_pages">More pages</string>
     <string name="aedst_a11y_breadcrumb">Breadcrumb</string>
@@ -17,11 +17,9 @@
     <string name="aedst_a11y_sort_ascending">Sorted ascending</string>
     <string name="aedst_a11y_sort_descending">Sorted descending</string>
     <string name="aedst_a11y_sort_none">Not sorted</string>
-    <string name="aedst_a11y_slide">Slide %1$d of %2$d</string>
+    <string name="aedst_a11y_slide">Slide %1$s of %2$s</string>
     <string name="aedst_a11y_close">Close</string>
     <string name="aedst_a11y_open_menu">Open menu</string>
-
-    <!-- User-facing text for each AedstError kind (see AedstError.userMessageRes) -->
     <string name="aedst_error_offline">No internet connection. Check your network and try again.</string>
     <string name="aedst_error_network">Couldn’t reach the server. Please try again later.</string>
     <string name="aedst_error_unauthorized">Incorrect details or your session has expired. Please sign in again.</string>
@@ -33,15 +31,10 @@
     <string name="aedst_error_conflict">This item has changed. Refresh and try again.</string>
     <string name="aedst_error_rate_limited">Too many requests. Wait a moment and try again.</string>
     <string name="aedst_error_upgrade_required">Please update the app to continue.</string>
-
-    <!-- Blocking screen shown when the server rejects this app version (CLIENT_UPGRADE_REQUIRED, ADR-0009) -->
     <string name="aedst_upgrade_title">Update required</string>
     <string name="aedst_upgrade_body">This version of AEDST is no longer supported. Update the app from Google Play to continue.</string>
     <string name="aedst_upgrade_action">Update on Google Play</string>
-
     <string name="aedst_offline_banner">No internet connection</string>
-
-    <!-- Shared dialog actions -->
     <string name="aedst_action_ok">OK</string>
     <string name="aedst_action_cancel">Cancel</string>
     <string name="aedst_action_confirm">Confirm</string>

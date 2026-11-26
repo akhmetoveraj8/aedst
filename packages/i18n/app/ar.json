@@ -1,0 +1,41 @@
+{
+  "nav": {
+    "tasks": "المهام",
+    "search": "بحث",
+    "notifications": "الإشعارات",
+    "media": "الملفات",
+    "account": "الحساب",
+    "admin": "الإدارة"
+  },
+  "update": {
+    "recommended": "يتوفر إصدار جديد من AEDST.",
+    "recommendedAction": "تحديث",
+    "recommendedLater": "ليس الآن"
+  },
+  "outbox": {
+    "failedTitle": "تعذّر إرسال بعض التغييرات",
+    "failedDescription": "لم يتم إرسال هذه التغييرات. أعد المحاولة أو تجاهلها.",
+    "failedDiscard": "تجاهل"
+  },
+  "enableNotifications": "تفعيل الإشعارات",
+  "homeAdmin": "الإدارة",
+  "homeFiles": "الملفات",
+  "homeNotifications": "الإشعارات",
+  "homeSearch": "البحث",
+  "homeTasks": "المهام",
+  "locked": "AEDST مقفل",
+  "offline": "أنت غير متصل بالإنترنت. قد لا تتوفر بعض الميزات.",
+  "requireBiometrics": "طلب فتح القفل بالقياسات الحيوية",
+  "selectSection": "اختر قسمًا من الشريط الجانبي",
+  "settings": "الإعدادات",
+  "shareAnalytics": "مشاركة إحصاءات الاستخدام المجهولة",
+  "signIn": "تسجيل الدخول",
+  "signOut": "تسجيل الخروج",
+  "signedIn": "لقد سجّلت الدخول.",
+  "unlock": "فتح القفل",
+  "unlockReason": "افتح قفل AEDST للمتابعة",
+  "upgradeButton": "فتح App Store",
+  "upgradeMessage": "لم يعد هذا الإصدار من AEDST مدعومًا. حدّث التطبيق للمتابعة.",
+  "upgradeTitle": "التحديث مطلوب",
+  "preferencesTitle": "تفضيلات AEDST"
+}

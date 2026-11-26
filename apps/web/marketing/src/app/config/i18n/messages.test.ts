@@ -8,17 +8,28 @@ import {
   stepKeys,
   tierKeys,
 } from "@/modules/marketing/entries/content-keys";
-import { locales } from "@/shared/i18n/locales";
+import { type Locale, locales, sharedLocale } from "@/shared/i18n/locales";
 
-const srcRoot = path.resolve(import.meta.dirname, "../../..");
+const catalogRoot = path.resolve(
+  import.meta.dirname,
+  "../../../../../shared/i18n/catalogs",
+);
 
 const catalogs = {
   common: (locale: string) =>
-    path.join(srcRoot, "app/config/i18n/common", `${locale}.json`),
+    path.join(
+      catalogRoot,
+      "marketing-common",
+      `${sharedLocale(locale as Locale)}.json`,
+    ),
   marketing: (locale: string) =>
-    path.join(srcRoot, "modules/marketing/i18n", `${locale}.json`),
+    path.join(
+      catalogRoot,
+      "marketing",
+      `${sharedLocale(locale as Locale)}.json`,
+    ),
   legal: (locale: string) =>
-    path.join(srcRoot, "modules/legal/i18n", `${locale}.json`),
+    path.join(catalogRoot, "legal", `${sharedLocale(locale as Locale)}.json`),
 };
 
 type Json = string | { [key: string]: Json };

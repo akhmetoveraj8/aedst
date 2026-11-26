@@ -1,0 +1,351 @@
+{
+  "anUnfinishedUploadMayRemainOn": [
+    "desktop"
+  ],
+  "attach": [
+    "apple"
+  ],
+  "attachments.delete": [
+    "web"
+  ],
+  "attachments.deleteCancelAction": [
+    "web"
+  ],
+  "attachments.deleteConfirmAction": [
+    "web",
+    "desktop"
+  ],
+  "attachments.deleteConfirmDescription": [
+    "web"
+  ],
+  "attachments.deleteConfirmTitle": [
+    "web"
+  ],
+  "attachments.empty": [
+    "web"
+  ],
+  "attachments.loadError": [
+    "web"
+  ],
+  "attachments.open": [
+    "web"
+  ],
+  "attachments.processing": [
+    "web"
+  ],
+  "attachments.retry": [
+    "web"
+  ],
+  "attachments.title": [
+    "web"
+  ],
+  "audio": [
+    "desktop"
+  ],
+  "back": [
+    "web",
+    "android",
+    "desktop"
+  ],
+  "cancel": [
+    "desktop"
+  ],
+  "checkingTheFile": [
+    "desktop"
+  ],
+  "couldNotFinishTheUpload": [
+    "desktop"
+  ],
+  "couldNotLoadMedia": [
+    "desktop"
+  ],
+  "couldNotReadTheFileOn": [
+    "desktop"
+  ],
+  "couldNotSendTheFile": [
+    "desktop"
+  ],
+  "couldNotStartTheUpload": [
+    "desktop"
+  ],
+  "delete": [
+    "web",
+    "android",
+    "apple"
+  ],
+  "deleteConfirm": [
+    "apple"
+  ],
+  "deleteThisFile": [
+    "desktop"
+  ],
+  "dismiss": [
+    "desktop"
+  ],
+  "document": [
+    "desktop"
+  ],
+  "empty": [
+    "web",
+    "android",
+    "apple"
+  ],
+  "failed": [
+    "apple"
+  ],
+  "finishing": [
+    "apple"
+  ],
+  "finishing2": [
+    "desktop"
+  ],
+  "image": [
+    "desktop"
+  ],
+  "loading": [
+    "desktop"
+  ],
+  "loadMore": [
+    "web",
+    "android",
+    "desktop"
+  ],
+  "media": [
+    "desktop"
+  ],
+  "noAttachments": [
+    "apple"
+  ],
+  "noFilesYet": [
+    "desktop"
+  ],
+  "noPreviewIsAvailableForThis": [
+    "desktop"
+  ],
+  "player.failed": [
+    "web"
+  ],
+  "player.imageError": [
+    "web"
+  ],
+  "player.open": [
+    "web"
+  ],
+  "player.processing": [
+    "web"
+  ],
+  "pleaseSignInAgain": [
+    "desktop"
+  ],
+  "pleaseUpdateTheAppToContinue": [
+    "desktop"
+  ],
+  "preparing": [
+    "apple"
+  ],
+  "processing": [
+    "web",
+    "android",
+    "apple"
+  ],
+  "processing2": [
+    "desktop"
+  ],
+  "ready": [
+    "desktop"
+  ],
+  "refresh": [
+    "apple"
+  ],
+  "requestingTheUpload": [
+    "desktop"
+  ],
+  "somethingWentWrong": [
+    "desktop"
+  ],
+  "status.failed": [
+    "android"
+  ],
+  "status.ready": [
+    "android"
+  ],
+  "theContentDidNotMatchThe": [
+    "desktop"
+  ],
+  "theFileCouldNotBeProcessed": [
+    "desktop"
+  ],
+  "theFileIsEmpty": [
+    "desktop"
+  ],
+  "theFileIsTooLarge": [
+    "desktop"
+  ],
+  "theFileNameIsEmptyOr": [
+    "desktop"
+  ],
+  "theRequestTookTooLong": [
+    "desktop"
+  ],
+  "theServerDidNotAcceptThis": [
+    "desktop"
+  ],
+  "theServerIsNotAvailableRight": [
+    "desktop"
+  ],
+  "theTaskForThisFileIs": [
+    "desktop"
+  ],
+  "theUnfinishedUploadWasRemovedFrom": [
+    "desktop"
+  ],
+  "theUploadedSizeDidNotMatch": [
+    "desktop"
+  ],
+  "thisFileCannotBeUploaded": [
+    "desktop"
+  ],
+  "thisFileIsNotReadyYet": [
+    "desktop"
+  ],
+  "thisFileNoLongerExists": [
+    "desktop"
+  ],
+  "thisFileWasChangedElsewhere": [
+    "desktop"
+  ],
+  "thisImageCouldNotBeShown": [
+    "desktop"
+  ],
+  "thisImageIsTooLargeTo": [
+    "desktop"
+  ],
+  "thisTypeOfFileIsNot": [
+    "desktop"
+  ],
+  "title": [
+    "web",
+    "android",
+    "apple"
+  ],
+  "tooManyRequestsTryAgainIn": [
+    "desktop"
+  ],
+  "tryAgain": [
+    "desktop"
+  ],
+  "unknown": [
+    "desktop"
+  ],
+  "upload": [
+    "web",
+    "android",
+    "apple"
+  ],
+  "uploader.cancel": [
+    "web"
+  ],
+  "uploader.clearFinished": [
+    "web"
+  ],
+  "uploader.dropzone": [
+    "web"
+  ],
+  "uploader.errors.forbidden": [
+    "web"
+  ],
+  "uploader.errors.network": [
+    "web"
+  ],
+  "uploader.errors.rejected": [
+    "web"
+  ],
+  "uploader.errors.server": [
+    "web"
+  ],
+  "uploader.errors.storage": [
+    "web"
+  ],
+  "uploader.errors.tooLarge": [
+    "web"
+  ],
+  "uploader.errors.unknown": [
+    "web"
+  ],
+  "uploader.hint": [
+    "web"
+  ],
+  "uploader.progress": [
+    "web"
+  ],
+  "uploader.queueLabel": [
+    "web"
+  ],
+  "uploader.retry": [
+    "web"
+  ],
+  "uploader.status.cancelled": [
+    "web"
+  ],
+  "uploader.status.compressing": [
+    "web"
+  ],
+  "uploader.status.done": [
+    "web"
+  ],
+  "uploader.status.failed": [
+    "web",
+    "desktop"
+  ],
+  "uploader.status.finalizing": [
+    "web"
+  ],
+  "uploader.status.queued": [
+    "web"
+  ],
+  "uploader.status.uploading": [
+    "web"
+  ],
+  "uploadFile": [
+    "desktop"
+  ],
+  "uploading": [
+    "apple"
+  ],
+  "uploading2": [
+    "desktop"
+  ],
+  "uploading3": [
+    "desktop"
+  ],
+  "uploadingValue": [
+    "desktop"
+  ],
+  "uploadYourFirstFileAbove": [
+    "desktop"
+  ],
+  "valueB": [
+    "desktop"
+  ],
+  "valueKb": [
+    "desktop"
+  ],
+  "valueMb": [
+    "desktop"
+  ],
+  "video": [
+    "desktop"
+  ],
+  "videoPlaybackIsNotAvailableYet": [
+    "desktop"
+  ],
+  "view": [
+    "desktop"
+  ],
+  "youAreOfflineTryAgainWhen": [
+    "desktop"
+  ],
+  "youDoNotHaveAccessTo": [
+    "desktop"
+  ]
+}

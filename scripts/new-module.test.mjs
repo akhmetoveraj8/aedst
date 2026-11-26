@@ -39,7 +39,8 @@ function seed() {
   for (const e of registryEdits(forms('probe'))) paths.add(e.file);
   paths.add('apps/server/internal/modules');
   paths.add('apps/web/app/src/modules');
-  paths.add('apps/web/app/src/app/config/i18n/common');
+  paths.add('apps/web/shared/i18n/catalogs');
+  paths.add('packages/i18n');
   paths.add('apps/web/admin/src/modules');
   paths.add('apps/web/admin/src/app/config/i18n/common');
   paths.add('apps/web/marketing/src/modules');

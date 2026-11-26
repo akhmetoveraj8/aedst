@@ -2,9 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { IntlProvider } from "use-intl";
 import { describe, expect, it, vi } from "vitest";
-
-import commonMessages from "@/app/config/i18n/common/en.json";
 import { LocaleError } from "@/app/shell/locale-error";
+import commonMessages from "@/shared/i18n/catalogs/admin-common/en.json";
 
 // The kit imports "@sentry/nextjs" (aliased to @sentry/react); mock that specifier.
 vi.mock("@sentry/nextjs", () => ({

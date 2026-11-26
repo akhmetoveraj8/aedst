@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
     <string name="nav_tasks">Вазифаҳо</string>
     <string name="nav_search">Ҷустуҷӯ</string>
@@ -5,7 +7,6 @@
     <string name="nav_media">Файлҳо</string>
     <string name="nav_account">Ҳисоб</string>
     <string name="nav_admin">Маъмур</string>
-
     <string name="update_recommended">Версияи нави AEDST дастрас аст.</string>
     <string name="update_recommended_action">Навсозӣ</string>
     <string name="update_recommended_later">Ҳоло не</string>

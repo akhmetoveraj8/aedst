@@ -61,7 +61,7 @@ function loadWeb() {
   const dirs = new Map();
   for (const f of files) {
     // A bundle is `i18n/<locale>.json` or a named catalogue below it, `i18n/<name>/<locale>.json` (the shell's `common`).
-    const m = /^apps\/web\/((?:app|admin|marketing)\/src|shared)\/(.*\/)?i18n\/(?:([a-z][a-z0-9-]*)\/)?([a-z]{2})\.json$/.exec(f);
+    const m = /^apps\/web\/((?:app|admin|marketing)\/src|shared)\/(.*\/)?i18n\/(?:catalogs\/)?(?:([a-z][a-z0-9-]*)\/)?([a-z]{2})\.json$/.exec(f);
     if (!m) continue;
     const id = `apps/web/${m[1]}/${m[2] ?? ''}i18n${m[3] ? `/${m[3]}` : ''}`;
     if (!dirs.has(id)) dirs.set(id, new Map());
@@ -77,14 +77,14 @@ function loadWeb() {
   }
   return [...dirs].map(([id, entries]) => ({ id, entries, ph: phWeb, module: webModule(id) }));
 }
-const webModule = (id) => (/modules\/([^/]+)\/i18n$/.exec(id)?.[1] ?? (id.endsWith('/common') ? 'common' : id.split('/').slice(-2)[0]));
+const webModule = (id) => id.startsWith('apps/web/shared/i18n/') ? id.split('/').pop() : (/modules\/([^/]+)\/i18n$/.exec(id)?.[1] ?? (id.endsWith('/common') ? 'common' : id.split('/').slice(-2)[0]));
 
 const unxml = (s) =>
   s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
 function loadAndroid() {
   const dirs = new Map();
   for (const f of files) {
-    const m = /^(apps\/android\/.*\/src\/main\/res)\/values(?:-([a-z]{2}))?\/strings\.xml$/.exec(f);
+    const m = /^(apps\/android\/.*\/src\/main\/res)\/values(?:-([a-z]{2}))?\/strings(?:_local)?\.xml$/.exec(f);
     if (!m) continue;
     // `values/` (no qualifier) is the default locale of the project = English (see docs/content/android/i18n.md);
     // Russian is `values-ru/`, like every other locale.
@@ -101,7 +101,9 @@ function loadAndroid() {
       flat.set(/name\s*=\s*"([^"]+)"/.exec(s[2])[1], items.join('\u0000'));
     }
     if (!dirs.has(m[1])) dirs.set(m[1], new Map());
-    dirs.get(m[1]).set(locale, flat);
+    // `strings.xml` (generated from packages/i18n) and `strings_local.xml` (hand-written leftovers) form one catalogue.
+    const prev = dirs.get(m[1]).get(locale);
+    dirs.get(m[1]).set(locale, prev ? new Map([...prev, ...flat]) : flat);
   }
   return [...dirs].map(([id, entries]) => ({ id, entries, ph: phPrintf, module: null }));
 }

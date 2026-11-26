@@ -38,7 +38,7 @@ Why this default: a product that wants users to find it through AI answers gains
 ## First-clone checklist
 
 1. Set `NEXT_PUBLIC_SITE_URL` to the real https origin (build-time; used by canonical, sitemap, JSON-LD, llms.txt).
-2. Replace the template copy: `siteConfig.description` in `seo.ts` and `common.appDescription` in all five locale catalogues (`src/app/config/i18n/common/*.json`). The guard rejects "AEDST stack" and "task manager".
+2. Replace the template copy: `siteConfig.description` in `seo.ts` and `common.appDescription` in all five locale catalogues (`packages/i18n/common/*.json`, then `node packages/i18n/build.mjs`). The guard rejects "AEDST stack" and "task manager".
 3. Fill `siteConfig.organization`: `legalName`, `logo` (replace the generated icon if you have a brand mark) and `sameAs` (official profiles only; leave empty rather than guess).
 4. Decide the crawler policy (above).
 5. Add the Google and Bing verification tokens (token value only, not the whole meta tag), deploy, then verify the property and submit `/sitemap.xml` in both consoles.

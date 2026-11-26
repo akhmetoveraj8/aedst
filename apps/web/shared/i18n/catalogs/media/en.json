@@ -1,0 +1,55 @@
+{
+  "uploader": {
+    "dropzone": "Drop files here or choose files",
+    "hint": "Images, videos, audio and PDFs. Large photos are compressed before upload.",
+    "queueLabel": "Uploads",
+    "clearFinished": "Clear finished",
+    "cancel": "Cancel upload of {name}",
+    "retry": "Retry upload of {name}",
+    "progress": "Upload progress of {name}",
+    "status": {
+      "queued": "Waiting…",
+      "compressing": "Optimizing…",
+      "uploading": "Uploading…",
+      "finalizing": "Finishing…",
+      "done": "Uploaded",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "errors": {
+      "rejected": "This file type or size isn’t accepted.",
+      "tooLarge": "This file is too large.",
+      "forbidden": "You can’t attach files here.",
+      "network": "The connection dropped. Retry when you’re back online.",
+      "storage": "The storage service refused the upload. Try again.",
+      "server": "The server couldn’t take the upload. Try again.",
+      "unknown": "The upload failed. Try again."
+    }
+  },
+  "attachments": {
+    "title": "Attachments",
+    "empty": "No attachments yet.",
+    "loadError": "Couldn’t load attachments.",
+    "retry": "Retry",
+    "processing": "Processing…",
+    "open": "Open {name}",
+    "delete": "Delete {name}",
+    "deleteConfirmTitle": "Delete this attachment?",
+    "deleteConfirmDescription": "{name} will be removed permanently. This can't be undone.",
+    "deleteCancelAction": "Keep it",
+    "deleteConfirmAction": "Delete"
+  },
+  "player": {
+    "processing": "This file is still being processed.",
+    "failed": "This file couldn’t be processed.",
+    "open": "Open {name}",
+    "imageError": "The image couldn’t be loaded. Its link may have expired."
+  },
+  "delete": "Delete file",
+  "empty": "No files yet.",
+  "processing": "This file is still being processed.",
+  "title": "Files",
+  "upload": "Upload",
+  "loadMore": "Load more",
+  "back": "Back"
+}

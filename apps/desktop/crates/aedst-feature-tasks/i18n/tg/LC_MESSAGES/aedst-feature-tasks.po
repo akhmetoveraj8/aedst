@@ -1,13 +1,48 @@
-# aedst-feature-tasks: Tasks screen strings (tg).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-tasks\n"
+"Project-Id-Version: tasks\n"
 "Language: tg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Tasks"
+msgstr "Вазифаҳо"
+
+msgid "In progress"
+msgstr "Дар ҷараён"
+
+msgid "No tasks yet"
+msgstr "Ҳанӯз вазифае нест"
+
+msgid "Done"
+msgstr "Иҷрошуда"
+
+msgid "Unknown"
+msgstr "Номаълум"
+
+msgid "Low"
+msgstr "Паст"
+
+msgid "Medium"
+msgstr "Миёна"
+
+msgid "High"
+msgstr "Баланд"
+
+msgid "Urgent"
+msgstr "Таъҷилӣ"
+
+msgid "Choose a priority."
+msgstr "Афзалиятро интихоб кунед."
+
+msgid "Pending sync"
+msgstr "Мунтазири ҳамоҳангсозӣ"
+
+msgid "Enter a title."
+msgstr "Номро ворид кунед."
 
 msgid "You are offline. Changes will sync later."
 msgstr "Шумо оффлайн ҳастед. Тағйирот баъдтар ҳамоҳанг мешавад."
@@ -45,44 +80,14 @@ msgstr "Дар ин дастгоҳ захира карда нашуд."
 msgid "Something went wrong."
 msgstr "Чизе нодуруст рафт."
 
-msgid "Enter a title."
-msgstr "Сарлавҳаро ворид кунед."
-
 msgid "The title is too long (200 characters at most)."
 msgstr "Сарлавҳа хеле дароз аст (на зиёда аз 200 аломат)."
 
 msgid "The description is too long."
 msgstr "Тавсиф хеле дароз аст."
 
-msgid "Choose a priority."
-msgstr "Афзалиятро интихоб кунед."
-
 msgid "To do"
 msgstr "Барои иҷро"
-
-msgid "In progress"
-msgstr "Дар ҷараён"
-
-msgid "Done"
-msgstr "Анҷом ёфт"
-
-msgid "Unknown"
-msgstr "Номаълум"
-
-msgid "Low"
-msgstr "Паст"
-
-msgid "Medium"
-msgstr "Миёна"
-
-msgid "High"
-msgstr "Баланд"
-
-msgid "Urgent"
-msgstr "Фаврӣ"
-
-msgid "Tasks"
-msgstr "Вазифаҳо"
 
 msgid "{} in total"
 msgstr "Ҳамагӣ: {}"
@@ -111,17 +116,11 @@ msgstr "Вазифаҳо бор нашуданд"
 msgid "Try again"
 msgstr "Дубора кӯшиш кунед"
 
-msgid "No tasks yet"
-msgstr "Ҳоло вазифае нест"
-
 msgid "Add your first task above."
 msgstr "Вазифаи аввалинро дар боло илова кунед."
 
 msgid "Mark \"{}\" as done"
 msgstr "Вазифаи «{}»-ро иҷрошуда қайд кунед"
-
-msgid "Pending sync"
-msgstr "Мунтазири ҳамоҳангсозӣ"
 
 msgid "Load more"
 msgstr "Бештар бор кардан"

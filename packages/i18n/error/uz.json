@@ -1,0 +1,12 @@
+{
+  "conflict": "Bu boshqa joyda oʻzgartirildi. Yangilang va qayta urinib koʻring.",
+  "forbidden": "Bu amal uchun sizda ruxsat yoʻq.",
+  "network": "Serverga ulanib bo‘lmadi. Ulanishni tekshirib, qayta urinib ko‘ring.",
+  "notFound": "Siz izlagan narsa topilmadi.",
+  "rateLimited": "Urinishlar juda ko‘p. Biroz kutib, qayta urinib ko‘ring.",
+  "storage": "Ma’lumotlaringizni ushbu qurilmada xavfsiz saqlab bo‘lmadi.",
+  "unauthorized": "Seansingiz tugadi. Iltimos, qayta kiring.",
+  "unknown": "Nimadir xato ketdi. Qayta urinib ko‘ring.",
+  "upgradeRequired": "Ilovaning bu versiyasi endi qoʻllab-quvvatlanmaydi. Davom etish uchun yangilang.",
+  "validation": "Kiritilgan ma’lumotlarni tekshiring."
+}

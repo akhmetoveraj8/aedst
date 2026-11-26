@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-written: strings the shared JSON cannot express yet (zero-padded format, non-translatable ids, section/leaf clash). Everything else is generated into strings.xml. -->
+<resources>
+    <string name="notifications_preferences">Notification settings</string>
+    <string name="notifications_channel_system_id" translatable="false">system</string>
+</resources>

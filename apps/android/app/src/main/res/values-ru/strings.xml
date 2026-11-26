@@ -1,12 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
-
     <string name="nav_tasks">Задачи</string>
     <string name="nav_search">Поиск</string>
     <string name="nav_notifications">Уведомления</string>
     <string name="nav_media">Файлы</string>
     <string name="nav_account">Аккаунт</string>
     <string name="nav_admin">Админ</string>
-
     <string name="update_recommended">Доступна новая версия AEDST.</string>
     <string name="update_recommended_action">Обновить</string>
     <string name="update_recommended_later">Не сейчас</string>

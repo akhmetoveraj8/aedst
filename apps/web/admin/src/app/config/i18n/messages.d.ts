@@ -1,7 +1,8 @@
 // Keep this in sync with `i18nModules` in modules.ts: one type-only import
 // per module gives `useTranslations`/`t()` full namespace + key autocompletion.
-import type common from "@/app/config/i18n/common/en.json";
-import type admin from "@/modules/admin/i18n/en.json";
+
+import type admin from "@/shared/i18n/catalogs/admin/en.json";
+import type common from "@/shared/i18n/catalogs/admin-common/en.json";
 
 type Messages = {
   common: typeof common;

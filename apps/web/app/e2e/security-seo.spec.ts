@@ -1,6 +1,4 @@
-import commonMessages from "../src/app/config/i18n/common/en.json" with {
-  type: "json",
-};
+import commonMessages from "@i18n/common/en.json" with { type: "json" };
 import { expect, test, WEB_ORIGIN } from "./support/fixtures";
 
 test.describe("Content-Security-Policy", () => {

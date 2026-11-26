@@ -1,13 +1,21 @@
-# aedst-feature-search: Search screen strings (tg).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-search\n"
+"Project-Id-Version: search\n"
 "Language: tg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Search"
+msgstr "Ҷустуҷӯ"
+
+msgid "Load more"
+msgstr "Боз нишон додан"
+
+msgid "Search tasks and files"
+msgstr "Ҷустуҷӯи вазифаҳо ва файлҳо"
 
 msgid "You are offline. Search needs a connection."
 msgstr "Шумо офлайн ҳастед. Барои ҷустуҷӯ пайвастшавӣ лозим аст."
@@ -54,14 +62,8 @@ msgstr "Файл"
 msgid "Other"
 msgstr "Дигар"
 
-msgid "Search"
-msgstr "Ҷустуҷӯ"
-
 msgid "About {} results"
 msgstr "Тақрибан натиҷаҳо: {}"
-
-msgid "Search tasks and files"
-msgstr "Ҷустуҷӯи вазифаҳо ва файлҳо"
 
 msgid "Suggestions"
 msgstr "Пешниҳодҳо"
@@ -89,6 +91,3 @@ msgstr "Калимаи дигарро санҷед ё имлоро тафтиш 
 
 msgid "Loading..."
 msgstr "Бор шуда истодааст..."
-
-msgid "Load more"
-msgstr "Бештар бор кардан"

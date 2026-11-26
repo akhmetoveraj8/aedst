@@ -9,7 +9,7 @@
 //   NAME     kebab-case feature id (bulk-edit, archive); becomes the folder name
 //
 // Creates  src/modules/<m>/features/<f>/ui/<f>-view.tsx and its test
-// Edits    public.ts (one export line, in Biome's sort order) and i18n/{en,ru,tj,uz,ar}.json (key <featureKey>.title,
+// Edits    public.ts (one export line, in Biome's sort order) and packages/i18n/<module>/{en,ru,tg,uz,ar}.json and its Web copy under apps/web/shared/i18n/catalogs (key <featureKey>.title,
 //          the English text in every locale: translate it before merging)
 //
 // Templates: scripts/templates/web/feature/**/*.ftmpl, relative to the module folder. They end in
@@ -25,7 +25,8 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATES = path.join(HERE, 'templates', 'web', 'feature');
-const LOCALES = ['en', 'ru', 'tj', 'uz', 'ar'];
+// Shared translation files name Tajik `tg` (packages/i18n); the Web copy under apps/web/shared keeps the same names.
+const LOCALES = ['en', 'ru', 'tg', 'uz', 'ar'];
 const PROJECTS = {
   app: { intlPackage: 'next-intl', clientDirective: '"use client";\n\n' },
   admin: { intlPackage: 'use-intl', clientDirective: '' },
@@ -108,7 +109,9 @@ export function scaffoldWebFeature({ module, name, project = 'app', root, dryRun
     });
   const edits = [
     { file: `${moduleRel}/public.ts`, ...publicEdit(c) },
-    ...LOCALES.map((locale) => ({ file: `${moduleRel}/i18n/${locale}.json`, ...catalogEdit(c) })),
+    ...LOCALES.flatMap((locale) =>
+      [`packages/i18n/${module}/${locale}.json`, `apps/web/shared/i18n/catalogs/${module}/${locale}.json`].map((file) => ({ file, ...catalogEdit(c) })),
+    ),
   ];
   for (const edit of edits) {
     if (!existsSync(path.join(root, edit.file))) throw new Error(`missing ${edit.file}`);

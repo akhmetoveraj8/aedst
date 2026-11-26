@@ -1,0 +1,46 @@
+{
+  "appName": "AEDST",
+  "appDescription": "يساعد AEDST الفرق على تخطيط المهام ومتابعتها وإنجازها في تطبيق سريع وسهل الاستخدام يعمل دون اتصال بخمس لغات.",
+  "a11y": {
+    "skipToContent": "انتقل إلى المحتوى",
+    "mainNav": "التنقل الرئيسي",
+    "language": "اللغة",
+    "previousSlide": "الشريحة السابقة",
+    "nextSlide": "الشريحة التالية",
+    "toggleSidebar": "إظهار الشريط الجانبي أو إخفاؤه",
+    "sidebar": "الشريط الجانبي",
+    "sidebarDescription": "لوحة التنقل",
+    "commandPalette": "لوحة الأوامر",
+    "commandPaletteDescription": "ابحث عن أمر لتشغيله",
+    "loading": "جارٍ التحميل",
+    "messages": "الرسائل",
+    "questionnaireProgress": "تقدم الاستبيان",
+    "questionProgress": "السؤال {current} من {total}"
+  },
+  "nav": {
+    "features": "المزايا",
+    "howItWorks": "كيف يعمل",
+    "pricing": "الأسعار",
+    "faq": "الأسئلة الشائعة"
+  },
+  "actions": {
+    "signIn": "تسجيل الدخول",
+    "getStarted": "ابدأ الآن",
+    "goHome": "العودة إلى الرئيسية",
+    "tryAgain": "حاول مرة أخرى",
+    "close": "إغلاق"
+  },
+  "errors": {
+    "title": "حدث خطأ ما",
+    "generic": "تعذّر عرض الصفحة. يرجى المحاولة مرة أخرى.",
+    "notFoundTitle": "الصفحة غير موجودة",
+    "notFoundDescription": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها."
+  },
+  "footer": {
+    "tagline": "خطّط للمهام وتابعها وأنجزها.",
+    "privacy": "الخصوصية",
+    "terms": "الشروط",
+    "legal": "معلومات قانونية",
+    "rights": "© {year} AEDST. جميع الحقوق محفوظة."
+  }
+}

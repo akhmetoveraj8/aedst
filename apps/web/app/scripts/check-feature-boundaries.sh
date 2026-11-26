@@ -104,12 +104,6 @@ while IFS= read -r hit; do
   sub="${sub#*/}"
   case "$sub" in
     public|manifest|outbox|entries/*) ;;
-    i18n/*.json)
-      case "$file" in
-        src/test/*|src/app/config/i18n/messages.d.ts) ;;
-        *) fail "$file" "$line_no" "only src/test and messages.d.ts may import module catalogues: $target" ;;
-      esac
-      ;;
     *) fail "$file" "$line_no" "import a module only through its public.ts or manifest.ts, not: $target" ;;
   esac
 done < <(module_imports src e2e server ../shared)

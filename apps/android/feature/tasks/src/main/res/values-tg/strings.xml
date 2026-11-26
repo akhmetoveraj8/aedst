@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
+    <string name="tasks_status_todo">Бояд иҷро шавад</string>
+    <string name="tasks_status_in_progress">Дар ҷараён</string>
+    <string name="tasks_status_done">Иҷрошуда</string>
+    <string name="tasks_status_unknown">Номаълум</string>
+    <string name="tasks_priority_low">Паст</string>
+    <string name="tasks_priority_medium">Миёна</string>
+    <string name="tasks_priority_high">Баланд</string>
+    <string name="tasks_priority_urgent">Таъҷилӣ</string>
+    <string name="tasks_priority_unknown">Номаълум</string>
     <string name="tasks_title">Вазифаҳо</string>
     <string name="tasks_empty">Ҳоло вазифа нест. Аввалинашро эҷод кунед.</string>
     <string name="tasks_select_prompt">Вазифаро интихоб кунед</string>
@@ -17,15 +27,6 @@
     <string name="tasks_field_description">Тавсиф</string>
     <string name="tasks_field_priority">Афзалият</string>
     <string name="tasks_save">Эҷод кардан</string>
-    <string name="tasks_status_todo">Барои иҷро</string>
-    <string name="tasks_status_in_progress">Дар ҷараён</string>
-    <string name="tasks_status_done">Тайёр</string>
-    <string name="tasks_status_unknown">Номаълум</string>
-    <string name="tasks_priority_low">Паст</string>
-    <string name="tasks_priority_medium">Миёна</string>
-    <string name="tasks_priority_high">Баланд</string>
-    <string name="tasks_priority_urgent">Фаврӣ</string>
-    <string name="tasks_priority_unknown">Номаълум</string>
     <string name="tasks_pending_sync_title">Дар дастгоҳ захира шуд</string>
     <string name="tasks_pending_sync">Он ҳангоми пайвастшавӣ ба шабака фиристода мешавад.</string>
 </resources>

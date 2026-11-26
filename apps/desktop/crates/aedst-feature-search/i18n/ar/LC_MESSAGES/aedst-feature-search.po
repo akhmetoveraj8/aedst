@@ -1,13 +1,21 @@
-# aedst-feature-search: Search screen strings (ar).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-search\n"
+"Project-Id-Version: search\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+msgid "Search"
+msgstr "البحث"
+
+msgid "Load more"
+msgstr "عرض المزيد"
+
+msgid "Search tasks and files"
+msgstr "ابحث في المهام والملفات"
 
 msgid "You are offline. Search needs a connection."
 msgstr "أنت غير متصل. يتطلب البحث اتصالًا."
@@ -54,14 +62,8 @@ msgstr "ملف"
 msgid "Other"
 msgstr "أخرى"
 
-msgid "Search"
-msgstr "بحث"
-
 msgid "About {} results"
 msgstr "حوالي {} نتيجة"
-
-msgid "Search tasks and files"
-msgstr "ابحث في المهام والملفات"
 
 msgid "Suggestions"
 msgstr "اقتراحات"
@@ -89,6 +91,3 @@ msgstr "جرّب كلمة أخرى أو تحقق من الإملاء."
 
 msgid "Loading..."
 msgstr "جارٍ التحميل..."
-
-msgid "Load more"
-msgstr "تحميل المزيد"

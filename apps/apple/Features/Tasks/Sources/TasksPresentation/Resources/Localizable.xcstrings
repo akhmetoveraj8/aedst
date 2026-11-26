@@ -77,31 +77,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "وضع علامة كمنجزة"
+            "value" : "إكمال"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mark as done"
+            "value" : "Complete"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Отметить выполненной"
+            "value" : "Завершить"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ҳамчун иҷрошуда қайд кардан"
+            "value" : "Анҷом додан"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bajarildi deb belgilash"
+            "value" : "Bajarildi"
           }
         }
       }
@@ -112,31 +112,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "إنشاء"
+            "value" : "مهمة جديدة"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create"
+            "value" : "New task"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Создать"
+            "value" : "Новая задача"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Эҷод кардан"
+            "value" : "Вазифаи нав"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yaratish"
+            "value" : "Yangi vazifa"
           }
         }
       }
@@ -171,7 +171,7 @@
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vazifani oʻchirish"
+            "value" : "Vazifani o‘chirish"
           }
         }
       }
@@ -287,31 +287,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "لا توجد مهام بعد."
+            "value" : "لا توجد مهام بعد. أنشئ أول مهمة."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No tasks yet."
+            "value" : "No tasks yet. Create your first one."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Задач пока нет."
+            "value" : "Задач пока нет. Создайте первую."
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ҳоло вазифа нест."
+            "value" : "Ҳоло вазифа нест. Аввалинашро эҷод кунед."
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hozircha vazifalar yoʻq."
+            "value" : "Hozircha vazifalar yo‘q. Birinchisini yarating."
           }
         }
       }
@@ -357,31 +357,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "في انتظار المزامنة"
+            "value" : "سيتم الإرسال عند عودة الاتصال بالإنترنت."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Waiting to sync"
+            "value" : "It will be sent when you are back online."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ожидает синхронизации"
+            "value" : "Изменение отправится, когда появится сеть."
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Интизори ҳамоҳангсозӣ"
+            "value" : "Он ҳангоми пайвастшавӣ ба шабака фиристода мешавад."
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sinxronlash kutilmoqda"
+            "value" : "Internetga ulanganingizda yuboriladi."
           }
         }
       }
@@ -521,7 +521,7 @@
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Oʻrta"
+            "value" : "O'rta"
           }
         }
       }
@@ -550,7 +550,7 @@
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Фаврӣ"
+            "value" : "Таъҷилӣ"
           }
         },
         "uz" : {
@@ -564,6 +564,12 @@
     "tasksRefresh" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تحديث"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -586,12 +592,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yangilash"
-          }
-        },
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تحديث"
           }
         }
       }
@@ -637,7 +637,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "منجزة"
+            "value" : "مكتملة"
           }
         },
         "en" : {
@@ -649,19 +649,19 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Готово"
+            "value" : "Выполнено"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Иҷро шуд"
+            "value" : "Иҷрошуда"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bajarildi"
+            "value" : "Bajarilgan"
           }
         }
       }
@@ -713,7 +713,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "To do"
+            "value" : "Todo"
           }
         },
         "ru" : {
@@ -725,7 +725,7 @@
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Барои иҷро"
+            "value" : "Бояд иҷро шавад"
           }
         },
         "uz" : {
@@ -809,78 +809,6 @@
     "tasksUnsynced %lld" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld change was not synced"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld changes were not synced"
-                }
-              }
-            }
-          }
-        },
-        "ru" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld изменение не синхронизировано"
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld изменения не синхронизированы"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld изменений не синхронизировано"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld изменения не синхронизированы"
-                }
-              }
-            }
-          }
-        },
-        "tg" : {
-          "variations" : {
-            "plural" : {
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld тағйирот ҳамоҳанг нашуд"
-                }
-              }
-            }
-          }
-        },
-        "uz" : {
-          "variations" : {
-            "plural" : {
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld ta oʻzgarish sinxronlanmadi"
-                }
-              }
-            }
-          }
-        },
         "ar" : {
           "variations" : {
             "plural" : {
@@ -905,19 +833,91 @@
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld تغييرات لم تتم مزامنتها"
+                  "value" : "%1$lld تغييرات لم تتم مزامنتها"
                 }
               },
               "many" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld تغييرًا لم تتم مزامنتها"
+                  "value" : "%1$lld تغييرًا لم تتم مزامنتها"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld تغيير لم تتم مزامنتها"
+                  "value" : "%1$lld تغيير لم تتم مزامنتها"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld change was not synced"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld changes were not synced"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld изменение не синхронизировано"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld изменения не синхронизированы"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld изменений не синхронизировано"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld изменения не синхронизированы"
+                }
+              }
+            }
+          }
+        },
+        "tg" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld тағйирот ҳамоҳанг нашуд"
+                }
+              }
+            }
+          }
+        },
+        "uz" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld ta oʻzgarish sinxronlanmadi"
                 }
               }
             }

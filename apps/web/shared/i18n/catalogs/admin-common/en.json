@@ -1,0 +1,60 @@
+{
+  "appName": "AEDST Admin",
+  "appDescription": "Administration panel for AEDST.",
+  "actions": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "back": "Back",
+    "goHome": "Go home",
+    "tryAgain": "Try again",
+    "close": "Close"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "title": "Something went wrong",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The page you’re looking for doesn’t exist or has been moved.",
+    "sessionExpired": "Your session expired. Please sign in again.",
+    "forbiddenTitle": "You don’t have access",
+    "forbiddenDescription": "This area requires a role your account doesn’t have.",
+    "kinds": {
+      "unauthenticated": "Your session expired. Please sign in again.",
+      "forbidden": "You don’t have permission to do that.",
+      "notFound": "That item no longer exists.",
+      "invalidInput": "Some of the information isn’t valid. Check it and try again.",
+      "conflict": "This changed in the meantime. Refresh and try again.",
+      "rateLimited": "Too many requests. Wait a moment and try again.",
+      "unavailable": "The service is temporarily unavailable. Try again shortly.",
+      "timeout": "The request took too long. Try again.",
+      "offline": "You’re offline. Check your connection.",
+      "cancelled": "The request was cancelled.",
+      "upgradeRequired": "Update the app to continue.",
+      "storage": "Couldn’t read or save data on this device.",
+      "unknown": "Something went wrong. Please try again."
+    }
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "loading": "Loading",
+    "previousSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "toggleSidebar": "Toggle sidebar",
+    "sidebar": "Sidebar",
+    "sidebarDescription": "Navigation panel",
+    "commandPalette": "Command palette",
+    "commandPaletteDescription": "Search for a command to run",
+    "messages": "Messages",
+    "questionnaireProgress": "Questionnaire progress",
+    "questionProgress": "Question {current} of {total}"
+  },
+  "locale": {
+    "label": "Language"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  }
+}

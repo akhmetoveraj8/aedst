@@ -1,0 +1,11 @@
+{
+  "name": "@aedst/i18n",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Single source of truth for AEDST translations (shared JSON -> Web / Android / Apple / Desktop).",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs --check"
+  }
+}

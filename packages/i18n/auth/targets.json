@@ -1,0 +1,97 @@
+{
+  "analytics.consent": [
+    "android"
+  ],
+  "browserSignInFailed": [
+    "apple"
+  ],
+  "device.codeDescription": [
+    "android"
+  ],
+  "device.denied": [
+    "android"
+  ],
+  "device.expired": [
+    "android"
+  ],
+  "device.newCode": [
+    "android"
+  ],
+  "device.orOpen": [
+    "android"
+  ],
+  "device.stepEnter": [
+    "android"
+  ],
+  "device.stepOpen": [
+    "android"
+  ],
+  "device.title": [
+    "android"
+  ],
+  "device.waiting": [
+    "android"
+  ],
+  "login.description": [
+    "web"
+  ],
+  "login.errors.config": [
+    "web"
+  ],
+  "login.errors.denied": [
+    "web"
+  ],
+  "login.errors.expired": [
+    "web"
+  ],
+  "login.errors.invalid": [
+    "web"
+  ],
+  "login.errors.opaque_token": [
+    "web"
+  ],
+  "login.errors.unavailable": [
+    "web"
+  ],
+  "login.failedTitle": [
+    "android"
+  ],
+  "login.noBrowser": [
+    "android"
+  ],
+  "login.notConfigured": [
+    "android"
+  ],
+  "login.submit": [
+    "web",
+    "android"
+  ],
+  "login.subtitle": [
+    "android"
+  ],
+  "login.switchAction": [
+    "web"
+  ],
+  "login.switchPrompt": [
+    "web"
+  ],
+  "login.title": [
+    "web",
+    "android",
+    "apple"
+  ],
+  "loginContinue": [
+    "apple"
+  ],
+  "loginContinueHint": [
+    "apple"
+  ],
+  "signedInAs": [
+    "web",
+    "android"
+  ],
+  "signOut": [
+    "web",
+    "android"
+  ]
+}

@@ -1,0 +1,434 @@
+{
+  "apply": [
+    "desktop"
+  ],
+  "audit.action": [
+    "web"
+  ],
+  "audit.actor": [
+    "web"
+  ],
+  "audit.empty": [
+    "web"
+  ],
+  "audit.loadError": [
+    "web"
+  ],
+  "audit.reason": [
+    "web"
+  ],
+  "audit.target": [
+    "web"
+  ],
+  "audit.title": [
+    "web"
+  ],
+  "audit.when": [
+    "web"
+  ],
+  "auditLog": [
+    "apple"
+  ],
+  "broadcast.body": [
+    "web",
+    "apple",
+    "desktop"
+  ],
+  "broadcast.bodyInvalid": [
+    "web"
+  ],
+  "broadcast.link": [
+    "web",
+    "apple",
+    "desktop"
+  ],
+  "broadcast.linkHint": [
+    "web"
+  ],
+  "broadcast.linkInvalid": [
+    "web"
+  ],
+  "broadcast.send": [
+    "web",
+    "apple"
+  ],
+  "broadcast.sent": [
+    "web"
+  ],
+  "broadcast.title": [
+    "web"
+  ],
+  "broadcast.titleLabel": [
+    "web"
+  ],
+  "broadcast.titleRequired": [
+    "web",
+    "desktop"
+  ],
+  "broadcast.titleTooLong": [
+    "web"
+  ],
+  "broadcast.userId": [
+    "web"
+  ],
+  "broadcast.userIdHint": [
+    "web"
+  ],
+  "broadcast.userIdInvalid": [
+    "web"
+  ],
+  "broadcastSent %lld": [
+    "apple"
+  ],
+  "broadcastTitleField": [
+    "apple"
+  ],
+  "broadcastUser": [
+    "apple"
+  ],
+  "broadcastUserHelp": [
+    "apple"
+  ],
+  "byValue": [
+    "desktop"
+  ],
+  "cancel": [
+    "android",
+    "apple"
+  ],
+  "couldNotLoad": [
+    "desktop"
+  ],
+  "delete.confirm": [
+    "android"
+  ],
+  "delete.reason": [
+    "android",
+    "apple"
+  ],
+  "delete.task": [
+    "android",
+    "apple"
+  ],
+  "deleteTaskTitle %@": [
+    "apple"
+  ],
+  "deleteTaskValue": [
+    "desktop"
+  ],
+  "deleting": [
+    "desktop"
+  ],
+  "enterAReason3CharactersAt": [
+    "desktop"
+  ],
+  "enterAValidUserIdOr": [
+    "desktop"
+  ],
+  "forbidden": [
+    "android"
+  ],
+  "jobs.pending": [
+    "android",
+    "apple"
+  ],
+  "jobsPending": [
+    "desktop"
+  ],
+  "linkOptionalForExampleTasks": [
+    "desktop"
+  ],
+  "loading": [
+    "desktop"
+  ],
+  "loadMore": [
+    "desktop"
+  ],
+  "media.total": [
+    "android"
+  ],
+  "mediaFiles": [
+    "desktop"
+  ],
+  "mediaSize": [
+    "desktop"
+  ],
+  "nav.audit": [
+    "web",
+    "desktop"
+  ],
+  "nav.broadcast": [
+    "web",
+    "desktop"
+  ],
+  "nav.label": [
+    "web"
+  ],
+  "nav.overview": [
+    "web",
+    "desktop"
+  ],
+  "nav.tasks": [
+    "web"
+  ],
+  "noAccess": [
+    "desktop"
+  ],
+  "nothingToShowHere": [
+    "desktop"
+  ],
+  "oldestWaitingJobSeconds": [
+    "desktop"
+  ],
+  "outbox.lag": [
+    "android",
+    "apple"
+  ],
+  "overview.loadError": [
+    "web"
+  ],
+  "overview.metrics.jobsPending": [
+    "web"
+  ],
+  "overview.metrics.mediaBytes": [
+    "web"
+  ],
+  "overview.metrics.mediaTotal": [
+    "web"
+  ],
+  "overview.metrics.outboxLagSeconds": [
+    "web"
+  ],
+  "overview.metrics.pushDevices": [
+    "web",
+    "desktop"
+  ],
+  "overview.metrics.tasksDone": [
+    "web"
+  ],
+  "overview.metrics.tasksOverdue": [
+    "web"
+  ],
+  "overview.metrics.tasksTotal": [
+    "web",
+    "desktop"
+  ],
+  "overview.retry": [
+    "web"
+  ],
+  "overview.title": [
+    "web"
+  ],
+  "ownerId": [
+    "desktop"
+  ],
+  "ownerValue": [
+    "desktop"
+  ],
+  "pleaseSignInAgain": [
+    "desktop"
+  ],
+  "pleaseUpdateTheAppToContinue": [
+    "desktop"
+  ],
+  "push.devices": [
+    "android",
+    "apple"
+  ],
+  "reasonForDeleting": [
+    "desktop"
+  ],
+  "recipientId": [
+    "desktop"
+  ],
+  "recipientIdEmptyEveryone": [
+    "desktop"
+  ],
+  "refresh": [
+    "apple"
+  ],
+  "search": [
+    "android"
+  ],
+  "sending": [
+    "desktop"
+  ],
+  "sendNotification": [
+    "desktop"
+  ],
+  "sentRecipientsReachedValue": [
+    "desktop"
+  ],
+  "showOnlyTheTasksOfOne": [
+    "desktop"
+  ],
+  "signOut": [
+    "web"
+  ],
+  "somethingWentWrong": [
+    "desktop"
+  ],
+  "tab.audit": [
+    "android"
+  ],
+  "tab.overview": [
+    "android"
+  ],
+  "tab.tasks": [
+    "android"
+  ],
+  "table.loading": [
+    "web"
+  ],
+  "table.next": [
+    "web"
+  ],
+  "table.pagination": [
+    "web"
+  ],
+  "table.previous": [
+    "web"
+  ],
+  "targetValue": [
+    "desktop"
+  ],
+  "tasks.actions": [
+    "web"
+  ],
+  "tasks.cancel": [
+    "web",
+    "desktop"
+  ],
+  "tasks.confirmDelete": [
+    "web",
+    "desktop"
+  ],
+  "tasks.createdAt": [
+    "web"
+  ],
+  "tasks.delete": [
+    "web",
+    "desktop"
+  ],
+  "tasks.deleteDescription": [
+    "web"
+  ],
+  "tasks.deleteTitle": [
+    "web"
+  ],
+  "tasks.done": [
+    "android",
+    "apple"
+  ],
+  "tasks.empty": [
+    "web"
+  ],
+  "tasks.loadError": [
+    "web"
+  ],
+  "tasks.overdue": [
+    "android",
+    "apple"
+  ],
+  "tasks.owner": [
+    "web"
+  ],
+  "tasks.reason": [
+    "web",
+    "desktop"
+  ],
+  "tasks.reasonInvalid": [
+    "web"
+  ],
+  "tasks.search": [
+    "web"
+  ],
+  "tasks.status": [
+    "web"
+  ],
+  "tasks.statuses.done": [
+    "web",
+    "desktop"
+  ],
+  "tasks.statuses.inProgress": [
+    "web",
+    "desktop"
+  ],
+  "tasks.statuses.todo": [
+    "web"
+  ],
+  "tasks.taskTitle": [
+    "web",
+    "desktop"
+  ],
+  "tasks.title": [
+    "web"
+  ],
+  "tasks.total": [
+    "android",
+    "apple"
+  ],
+  "tasksDone": [
+    "desktop"
+  ],
+  "tasksOverdue": [
+    "desktop"
+  ],
+  "theLinkMustBeAnIn": [
+    "desktop"
+  ],
+  "theMessageIsTooLong1000": [
+    "desktop"
+  ],
+  "theReasonIsRecordedInThe": [
+    "desktop"
+  ],
+  "theReasonIsTooLong500": [
+    "desktop"
+  ],
+  "theRequestTookTooLong": [
+    "desktop"
+  ],
+  "theServerDidNotAcceptThis": [
+    "desktop"
+  ],
+  "theServerIsNotAvailableRight": [
+    "desktop"
+  ],
+  "theTitleIsTooLong120": [
+    "desktop"
+  ],
+  "thisItemNoLongerExists": [
+    "desktop"
+  ],
+  "thisItemWasChangedElsewhere": [
+    "desktop"
+  ],
+  "thisScreenIsForOperatorsOnly": [
+    "desktop"
+  ],
+  "title": [
+    "web",
+    "android",
+    "apple",
+    "desktop"
+  ],
+  "toDo": [
+    "desktop"
+  ],
+  "tooManyRequestsTryAgainIn": [
+    "desktop"
+  ],
+  "tryAgain": [
+    "desktop"
+  ],
+  "unknown": [
+    "desktop"
+  ],
+  "youAreOffline": [
+    "desktop"
+  ],
+  "youDoNotHaveAccessTo": [
+    "desktop"
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "adminBroadcast": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "بث إشعار"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Broadcast"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Рассылка"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Паҳнкунӣ"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Tarqatma"
+        }
+      }
+    }
+  },
+  "adminMedia": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "التخزين"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Storage"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Хранилище"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Анбор"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Xotira"
+        }
+      }
+    }
+  },
+  "adminOverview": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "نظرة عامة"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Overview"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Обзор"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Шарҳи умумӣ"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Umumiy koʻrinish"
+        }
+      }
+    }
+  },
+  "adminTasks": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "المهام"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Tasks"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Задачи"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Вазифаҳо"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Vazifalar"
+        }
+      }
+    }
+  }
+}

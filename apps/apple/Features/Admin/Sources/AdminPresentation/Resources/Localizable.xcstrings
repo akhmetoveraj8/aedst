@@ -112,31 +112,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "رابط داخل التطبيق (اختياري)"
+            "value" : "الرابط"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In-app link (optional)"
+            "value" : "Link"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ссылка в приложении (необязательно)"
+            "value" : "Ссылка"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пайванд дар барнома (ихтиёрӣ)"
+            "value" : "Пайванд"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ilova ichidagi havola (ixtiyoriy)"
+            "value" : "Havola"
           }
         }
       }
@@ -179,78 +179,6 @@
     "adminBroadcastSent %lld" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Sent to %lld recipient."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Sent to %lld recipients."
-                }
-              }
-            }
-          }
-        },
-        "ru" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Отправлено %lld получателю."
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Отправлено %lld получателям."
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Отправлено %lld получателям."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Отправлено %lld получателя."
-                }
-              }
-            }
-          }
-        },
-        "tg" : {
-          "variations" : {
-            "plural" : {
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Ба %lld гиранда фиристода шуд."
-                }
-              }
-            }
-          }
-        },
-        "uz" : {
-          "variations" : {
-            "plural" : {
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld qabul qiluvchiga yuborildi."
-                }
-              }
-            }
-          }
-        },
         "ar" : {
           "variations" : {
             "plural" : {
@@ -275,19 +203,91 @@
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "أُرسل إلى %lld مستلمين."
+                  "value" : "أُرسل إلى %1$lld مستلمين."
                 }
               },
               "many" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "أُرسل إلى %lld مستلمًا."
+                  "value" : "أُرسل إلى %1$lld مستلمًا."
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "أُرسل إلى %lld مستلم."
+                  "value" : "أُرسل إلى %1$lld مستلم."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Sent to %1$lld recipient."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Sent to %1$lld recipients."
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Отправлено %1$lld получателю."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Отправлено %1$lld получателям."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Отправлено %1$lld получателям."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Отправлено %1$lld получателя."
+                }
+              }
+            }
+          }
+        },
+        "tg" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ба %1$lld гиранда фиристода шуд."
+                }
+              }
+            }
+          }
+        },
+        "uz" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%1$lld qabul qiluvchiga yuborildi."
                 }
               }
             }
@@ -453,13 +453,13 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Причина (записывается в журнал аудита)"
+            "value" : "Причина (попадёт в журнал аудита)"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сабаб (дар феҳристи аудит сабт мешавад)"
+            "value" : "Сабаб (дар маҷаллаи аудит сабт мешавад)"
           }
         },
         "uz" : {
@@ -500,7 +500,7 @@
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vazifani oʻchirish"
+            "value" : "Vazifani o‘chirish"
           }
         }
       }
@@ -511,31 +511,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "حذف «%@»؟"
+            "value" : "حذف «%1$@»؟"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Delete “%@”?"
+            "value" : "Delete “%1$@”?"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удалить «%@»?"
+            "value" : "Удалить «%1$@»?"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«%@»-ро нест кунед?"
+            "value" : "«%1$@»-ро нест кунед?"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«%@» oʻchirilsinmi?"
+            "value" : "«%1$@» oʻchirilsinmi?"
           }
         }
       }
@@ -546,31 +546,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "المهام المعلقة"
+            "value" : "المهام الخلفية المعلّقة"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pending jobs"
+            "value" : "Background jobs pending"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Задания в очереди"
+            "value" : "Фоновые задания в очереди"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Корҳои дар навбат"
+            "value" : "Корҳои заминавӣ дар навбат"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Navbatdagi ishlar"
+            "value" : "Navbatdagi fon vazifalari"
           }
         }
       }
@@ -616,31 +616,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "تأخر صندوق الصادر"
+            "value" : "تأخر outbox، ث"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Outbox lag"
+            "value" : "Outbox lag, s"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Задержка outbox"
+            "value" : "Задержка outbox, с"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Таъхири outbox"
+            "value" : "Таъхири outbox, с"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Outbox kechikishi"
+            "value" : "Outbox kechikishi, s"
           }
         }
       }
@@ -698,7 +698,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Устройства push"
+            "value" : "Push-устройства"
           }
         },
         "tg" : {
@@ -715,7 +715,147 @@
         }
       }
     },
+    "adminRefresh" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تحديث"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновить"
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Навсозӣ"
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yangilash"
+          }
+        }
+      }
+    },
     "adminTasks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المهام"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasks"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задачи"
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вазифаҳо"
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vazifalar"
+          }
+        }
+      }
+    },
+    "adminTasksDone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المنجزة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выполнено"
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Иҷрошуда"
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bajarilgan"
+          }
+        }
+      }
+    },
+    "adminTasksOverdue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المتأخرة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overdue"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Просрочено"
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мӯҳлатгузашта"
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muddati o‘tgan"
+          }
+        }
+      }
+    },
+    "adminTasksTotal" : {
       "extractionState" : "manual",
       "localizations" : {
         "ar" : {
@@ -762,7 +902,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Admin"
+            "value" : "Administration"
           }
         },
         "ru" : {
@@ -774,153 +914,13 @@
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Маъмурият"
+            "value" : "Идоракунӣ"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Boshqaruv"
-          }
-        }
-      }
-    },
-    "adminTasksTotal" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tasks total"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Задач всего"
-          }
-        },
-        "tg" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ҳамаи вазифаҳо"
-          }
-        },
-        "uz" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jami vazifalar"
-          }
-        },
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "إجمالي المهام"
-          }
-        }
-      }
-    },
-    "adminTasksDone" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tasks done"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Задач выполнено"
-          }
-        },
-        "tg" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вазифаҳои иҷрошуда"
-          }
-        },
-        "uz" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bajarilgan vazifalar"
-          }
-        },
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "المهام المنجزة"
-          }
-        }
-      }
-    },
-    "adminTasksOverdue" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tasks overdue"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Задач просрочено"
-          }
-        },
-        "tg" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вазифаҳои мӯҳлаташ гузашта"
-          }
-        },
-        "uz" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Muddati oʻtgan vazifalar"
-          }
-        },
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "المهام المتأخرة"
-          }
-        }
-      }
-    },
-    "adminRefresh" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Refresh"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Обновить"
-          }
-        },
-        "tg" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Навсозӣ"
-          }
-        },
-        "uz" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yangilash"
-          }
-        },
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تحديث"
           }
         }
       }

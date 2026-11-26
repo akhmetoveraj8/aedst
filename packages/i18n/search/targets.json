@@ -1,0 +1,178 @@
+{
+  "aboutValueResults": [
+    "desktop"
+  ],
+  "couldNotReadDataOnThis": [
+    "desktop"
+  ],
+  "couldNotSearch": [
+    "desktop"
+  ],
+  "emptyPrompt": [
+    "web"
+  ],
+  "errorTitle": [
+    "web"
+  ],
+  "file": [
+    "desktop"
+  ],
+  "hint": [
+    "android",
+    "apple"
+  ],
+  "kinds.all": [
+    "web"
+  ],
+  "kinds.media": [
+    "web"
+  ],
+  "kinds.task": [
+    "web"
+  ],
+  "kindsLabel": [
+    "web"
+  ],
+  "label": [
+    "web"
+  ],
+  "loading": [
+    "desktop"
+  ],
+  "loadMore": [
+    "web",
+    "desktop"
+  ],
+  "metaTitle": [
+    "web"
+  ],
+  "noResults": [
+    "web",
+    "android",
+    "apple"
+  ],
+  "noResults2": [
+    "desktop"
+  ],
+  "noResultsDescription": [
+    "web"
+  ],
+  "nothingWasFoundAtThisAddress": [
+    "desktop"
+  ],
+  "other": [
+    "desktop"
+  ],
+  "palette.actions": [
+    "web"
+  ],
+  "palette.description": [
+    "web"
+  ],
+  "palette.goNotifications": [
+    "web"
+  ],
+  "palette.goTasks": [
+    "web"
+  ],
+  "palette.newTask": [
+    "web"
+  ],
+  "palette.noResults": [
+    "web"
+  ],
+  "palette.open": [
+    "web"
+  ],
+  "palette.placeholder": [
+    "web"
+  ],
+  "palette.results": [
+    "web"
+  ],
+  "palette.searchAll": [
+    "web"
+  ],
+  "palette.searching": [
+    "web"
+  ],
+  "palette.title": [
+    "web"
+  ],
+  "placeholder": [
+    "web",
+    "android"
+  ],
+  "pleaseSignInAgain": [
+    "desktop"
+  ],
+  "pleaseUpdateTheAppToContinue": [
+    "desktop"
+  ],
+  "prompt": [
+    "apple",
+    "desktop"
+  ],
+  "resultsAppearAsYouType": [
+    "desktop"
+  ],
+  "resultsCount": [
+    "web"
+  ],
+  "resultsLabel": [
+    "web"
+  ],
+  "retry": [
+    "web"
+  ],
+  "searching": [
+    "desktop"
+  ],
+  "searchYourTasksAndFiles": [
+    "desktop"
+  ],
+  "somethingWentWrong": [
+    "desktop"
+  ],
+  "suggestions": [
+    "desktop"
+  ],
+  "task": [
+    "desktop"
+  ],
+  "theDataWasChangedElsewhere": [
+    "desktop"
+  ],
+  "theRequestTookTooLong": [
+    "desktop"
+  ],
+  "theServerDidNotAcceptThis": [
+    "desktop"
+  ],
+  "theServerIsNotAvailableRight": [
+    "desktop"
+  ],
+  "title": [
+    "web",
+    "apple",
+    "desktop"
+  ],
+  "tooManyRequestsTryAgainIn": [
+    "desktop"
+  ],
+  "tryADifferentWordOrCheck": [
+    "desktop"
+  ],
+  "tryAgain": [
+    "desktop"
+  ],
+  "updated": [
+    "web"
+  ],
+  "youAreOfflineSearchNeedsA": [
+    "desktop"
+  ],
+  "youDoNotHaveAccessTo": [
+    "desktop"
+  ]
+}

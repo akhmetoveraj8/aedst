@@ -1,13 +1,36 @@
-# aedst-feature-notifications: Notifications views strings (uz).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-notifications\n"
+"Project-Id-Version: notifications\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Notifications"
+msgstr "Bildirishnomalar"
+
+msgid "Mark all as read"
+msgstr "Hammasini o‘qilgan deb belgilash"
+
+msgid "All"
+msgstr "Hammasi"
+
+msgid "Unread"
+msgstr "O‘qilmagan"
+
+msgid "Load more"
+msgstr "Yana ko‘rsatish"
+
+msgid "Notification preferences"
+msgstr "Bildirishnoma sozlamalari"
+
+msgid "Task completed"
+msgstr "Vazifa bajarildi"
+
+msgid "Task due soon"
+msgstr "Vazifa muddati yaqin"
 
 msgid "You are offline. Try again when you are connected."
 msgstr "Siz oflaynsiz. Ulanganingizda qayta urinib ko'ring."
@@ -45,12 +68,6 @@ msgstr "Bu qurilmada saqlab bo'lmadi."
 msgid "Something went wrong."
 msgstr "Nimadir xato ketdi."
 
-msgid "Task completed"
-msgstr "Vazifa bajarildi"
-
-msgid "Task due soon"
-msgstr "Vazifa muddati yaqin"
-
 msgid "Media ready"
 msgstr "Media tayyor"
 
@@ -63,23 +80,11 @@ msgstr "Boshqa"
 msgid "Unread: {}"
 msgstr "O'qilmagan: {}"
 
-msgid "Notifications"
-msgstr "Bildirishnomalar"
-
 msgid "{} unread"
 msgstr "O'qilmagan: {}"
 
 msgid "Marking..."
 msgstr "Belgilanmoqda..."
-
-msgid "Mark all as read"
-msgstr "Hammasini o'qilgan deb belgilash"
-
-msgid "All"
-msgstr "Hammasi"
-
-msgid "Unread"
-msgstr "O'qilmagan"
 
 msgid "Loading..."
 msgstr "Yuklanmoqda..."
@@ -98,12 +103,6 @@ msgstr "Hozircha bildirishnomalar yo'q"
 
 msgid "You are all caught up."
 msgstr "Hammasi o'qilgan."
-
-msgid "Load more"
-msgstr "Yana yuklash"
-
-msgid "Notification preferences"
-msgstr "Bildirishnoma sozlamalari"
 
 msgid "Could not load preferences"
 msgstr "Sozlamalarni yuklab bo'lmadi"

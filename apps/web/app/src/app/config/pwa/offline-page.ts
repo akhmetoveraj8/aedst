@@ -1,8 +1,8 @@
-import ar from "@/app/config/i18n/common/ar.json";
-import en from "@/app/config/i18n/common/en.json";
-import ru from "@/app/config/i18n/common/ru.json";
-import tj from "@/app/config/i18n/common/tj.json";
-import uz from "@/app/config/i18n/common/uz.json";
+import ar from "@i18n/common/ar.json";
+import en from "@i18n/common/en.json";
+import ru from "@i18n/common/ru.json";
+import tg from "@i18n/common/tg.json";
+import uz from "@i18n/common/uz.json";
 import { siteConfig } from "@/app/config/seo";
 import {
   getLocaleDirection,
@@ -11,7 +11,7 @@ import {
 } from "@/shared/i18n/locales";
 
 /** Localized, script-free offline fallback document (see app/offline/[locale]/route.ts). */
-const COMMON: Record<Locale, typeof en> = { en, ru, tj, uz, ar };
+const COMMON: Record<Locale, typeof en> = { en, ru, tj: tg, uz, ar };
 
 const escapeHtml = (value: string) =>
   value

@@ -1,25 +1,60 @@
-# aedst-feature-admin: Admin screen strings (tg).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-admin\n"
+"Project-Id-Version: admin\n"
 "Language: tg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "Administration"
+msgstr "Идоракунӣ"
+
 msgid "Overview"
 msgstr "Шарҳ"
+
+msgid "Broadcast"
+msgstr "Паёми умумӣ"
+
+msgid "Audit log"
+msgstr "Маҷаллаи аудит"
 
 msgid "Tasks"
 msgstr "Вазифаҳо"
 
-msgid "Audit log"
-msgstr "Сабти аудит"
+msgid "Push devices"
+msgstr "Дастгоҳҳои push"
 
-msgid "Broadcast"
-msgstr "Паёми умумӣ"
+msgid "Title"
+msgstr "Ном"
+
+msgid "In progress"
+msgstr "Дар ҷараён"
+
+msgid "Done"
+msgstr "Иҷро шуд"
+
+msgid "Delete"
+msgstr "Нест кардан"
+
+msgid "Reason"
+msgstr "Сабаб"
+
+msgid "Cancel"
+msgstr "Бекор кардан"
+
+msgid "Delete task"
+msgstr "Нест кардани вазифа"
+
+msgid "Enter a title."
+msgstr "Сарлавҳаро ворид кунед."
+
+msgid "Message"
+msgstr "Паём"
+
+msgid "Link"
+msgstr "Пайванд"
 
 msgid "Owner id"
 msgstr "Идентификатори соҳиб"
@@ -29,9 +64,6 @@ msgstr "Танҳо вазифаҳои як соҳибро нишон диҳед 
 
 msgid "Apply"
 msgstr "Татбиқ кардан"
-
-msgid "Administration"
-msgstr "Маъмурият"
 
 msgid "No access"
 msgstr "Дастрасӣ нест"
@@ -57,9 +89,6 @@ msgstr "Бештар бор кардан"
 msgid "Owner: {}"
 msgstr "Соҳиб: {}"
 
-msgid "Delete"
-msgstr "Нест кардан"
-
 msgid "Target: {}"
 msgstr "Объект: {}"
 
@@ -75,32 +104,14 @@ msgstr "Сабаб дар сабти аудит навишта мешавад (�
 msgid "Reason for deleting"
 msgstr "Сабаби нест кардан"
 
-msgid "Reason"
-msgstr "Сабаб"
-
 msgid "Deleting..."
 msgstr "Нест карда истодааст..."
-
-msgid "Delete task"
-msgstr "Нест кардани вазифа"
-
-msgid "Cancel"
-msgstr "Бекор кардан"
 
 msgid "Recipient id"
 msgstr "Идентификатори гиранда"
 
 msgid "Recipient id (empty: everyone)"
 msgstr "Идентификатори гиранда (холӣ: ҳама)"
-
-msgid "Title"
-msgstr "Сарлавҳа"
-
-msgid "Message"
-msgstr "Паём"
-
-msgid "Link"
-msgstr "Истинод"
 
 msgid "Link (optional, for example /tasks)"
 msgstr "Истинод (ихтиёрӣ, масалан /tasks)"
@@ -150,9 +161,6 @@ msgstr "Чизе нодуруст рафт."
 msgid "Enter a valid user id or leave it empty."
 msgstr "Идентификатори дурусти корбарро ворид кунед ё майдонро холӣ монед."
 
-msgid "Enter a title."
-msgstr "Сарлавҳаро ворид кунед."
-
 msgid "The title is too long (120 characters at most)."
 msgstr "Сарлавҳа хеле дароз аст (на зиёда аз 120 аломат)."
 
@@ -171,12 +179,6 @@ msgstr "Сабаб хеле дароз аст (на зиёда аз 500 алом
 msgid "To do"
 msgstr "Бояд иҷро шавад"
 
-msgid "In progress"
-msgstr "Дар ҷараён"
-
-msgid "Done"
-msgstr "Иҷро шуд"
-
 msgid "Unknown"
 msgstr "Номаълум"
 
@@ -191,9 +193,6 @@ msgstr "Файлҳои медиа"
 
 msgid "Media size"
 msgstr "Ҳаҷми медиа"
-
-msgid "Push devices"
-msgstr "Дастгоҳҳои push"
 
 msgid "Oldest waiting job (seconds)"
 msgstr "Кӯҳнатарин кори интизор (сонияҳо)"

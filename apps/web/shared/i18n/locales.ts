@@ -31,6 +31,14 @@ export function toLanguageTag(locale: Locale): string {
   return LANGUAGE_TAGS[locale];
 }
 
+/**
+ * File name of a locale in the shared translation files (`packages/i18n/<module>/<name>.json`).
+ * Every platform names Tajik `tg` there; only this app keeps `tj` as its internal locale code.
+ */
+export function sharedLocale(locale: Locale): string {
+  return LANGUAGE_TAGS[locale];
+}
+
 export const rtlLocales: readonly Locale[] = ["ar"];
 
 export function getLocaleDirection(locale: Locale): "ltr" | "rtl" {

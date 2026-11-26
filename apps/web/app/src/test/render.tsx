@@ -1,16 +1,15 @@
 import { TransportProvider } from "@connectrpc/connect-query";
+import authMessages from "@i18n/auth/en.json";
+import commonMessages from "@i18n/common/en.json";
+import mediaMessages from "@i18n/media/en.json";
+import notificationsMessages from "@i18n/notifications/en.json";
+import searchMessages from "@i18n/search/en.json";
+import tasksMessages from "@i18n/tasks/en.json";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { type RenderOptions, render } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import type { ReactElement } from "react";
-
-import commonMessages from "@/app/config/i18n/common/en.json";
-import authMessages from "@/modules/auth/i18n/en.json";
-import mediaMessages from "@/modules/media/i18n/en.json";
-import notificationsMessages from "@/modules/notifications/i18n/en.json";
-import searchMessages from "@/modules/search/i18n/en.json";
-import tasksMessages from "@/modules/tasks/i18n/en.json";
 import { AuthProvider } from "@/shared/lib/auth/auth-provider";
 import type { Outbox } from "@/shared/lib/outbox/outbox";
 import { OutboxContext } from "@/shared/lib/outbox/outbox-provider";

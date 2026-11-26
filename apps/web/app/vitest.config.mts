@@ -15,6 +15,7 @@ export default defineConfig({
     alias: {
       // shared/ is a sibling directory (source-only kit); it must win over "@".
       "@/shared": path.resolve(root, "../shared"),
+      "@i18n": path.resolve(root, "../shared/i18n/catalogs"),
       "@": path.resolve(root, "src"),
       "@app": path.resolve(root, "src/app"),
       "server-only": path.resolve(root, "src/test/mocks/empty-module.ts"),

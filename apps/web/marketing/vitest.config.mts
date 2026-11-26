@@ -12,7 +12,10 @@ export default defineConfig({
     tsconfigPaths: true,
     // tsconfig paths apply only to files the tsconfig includes, so a kit file
     // in ../shared importing `@/shared/*` needs the alias spelled out.
-    alias: { "@/shared": path.resolve(root, "../shared") },
+    alias: {
+      "@/shared": path.resolve(root, "../shared"),
+      "@i18n": path.resolve(root, "../shared/i18n/catalogs"),
+    },
   },
   test: {
     environment: "node",

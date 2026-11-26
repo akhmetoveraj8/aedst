@@ -1,0 +1,92 @@
+{
+  "admin": [
+    "desktop"
+  ],
+  "aNewVersionIsAvailable": [
+    "desktop"
+  ],
+  "cancel": [
+    "desktop"
+  ],
+  "continueInBrowser": [
+    "desktop"
+  ],
+  "couldNotReachTheIdentityProvider": [
+    "desktop"
+  ],
+  "downloadingTheUpdateValue": [
+    "desktop"
+  ],
+  "files": [
+    "desktop"
+  ],
+  "inbox": [
+    "desktop"
+  ],
+  "notAvailableInThisBuild": [
+    "desktop"
+  ],
+  "nothingIsSentUnlessYouChoose": [
+    "desktop"
+  ],
+  "notifications": [
+    "desktop"
+  ],
+  "preferences": [
+    "desktop"
+  ],
+  "privacy": [
+    "desktop"
+  ],
+  "restartToUpdate": [
+    "desktop"
+  ],
+  "search": [
+    "desktop"
+  ],
+  "secureStorageIsNotAvailableOn": [
+    "desktop"
+  ],
+  "sendCrashReports": [
+    "desktop"
+  ],
+  "shareAnonymousUsageStatistics": [
+    "desktop"
+  ],
+  "signInFailedPleaseTryAgain": [
+    "desktop"
+  ],
+  "signInIsNotConfigured": [
+    "desktop"
+  ],
+  "signInTimedOut": [
+    "desktop"
+  ],
+  "signInToContinue": [
+    "desktop"
+  ],
+  "signOut": [
+    "desktop"
+  ],
+  "starting": [
+    "desktop"
+  ],
+  "tasks": [
+    "desktop"
+  ],
+  "technicalDetailsAboutAFailureSo": [
+    "desktop"
+  ],
+  "thisVersionOfTheAppIs": [
+    "desktop"
+  ],
+  "updateRequired": [
+    "desktop"
+  ],
+  "waitingForTheBrowser": [
+    "desktop"
+  ],
+  "whichFeaturesAreUsedNeverWhat": [
+    "desktop"
+  ]
+}

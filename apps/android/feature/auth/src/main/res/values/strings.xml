@@ -1,21 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
     <string name="auth_login_title">Sign in</string>
+    <string name="auth_login_submit">Sign in</string>
     <string name="auth_login_subtitle">You will sign in on a secure page in your browser.</string>
-    <string name="auth_login_submit">Continue</string>
     <string name="auth_login_not_configured">Sign-in is not configured in this build of the app.</string>
     <string name="auth_login_no_browser">No browser was found to sign in. Install or enable a browser and try again.</string>
     <string name="auth_login_failed_title">Sign-in failed</string>
-
     <string name="auth_sign_out">Sign out</string>
     <string name="auth_signed_in_as">Signed in as %1$s</string>
     <string name="auth_analytics_consent">Share anonymous usage analytics</string>
-
     <string name="auth_device_title">Sign in on your TV</string>
     <string name="auth_device_step_open">On your phone or computer, open</string>
     <string name="auth_device_step_enter">and enter the code</string>
     <string name="auth_device_code_description">Code: %1$s</string>
     <string name="auth_device_or_open">Or open directly: %1$s</string>
-    <string name="auth_device_expires_in">Code expires in %1$d:%2$02d</string>
     <string name="auth_device_waiting">Waiting for approval…</string>
     <string name="auth_device_denied">Sign-in was declined on the other device.</string>
     <string name="auth_device_expired">The code has expired.</string>

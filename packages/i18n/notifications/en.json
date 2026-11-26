@@ -1,0 +1,105 @@
+{
+  "bell": {
+    "label": "Notifications",
+    "labelWithCount": "Notifications, {count, plural, one {# unread} other {# unread}}"
+  },
+  "inbox": {
+    "title": "Notifications",
+    "preferences": "Preferences",
+    "markAllRead": "Mark all as read",
+    "filterLabel": "Show",
+    "all": "All",
+    "unread": "Unread",
+    "listLabel": "Notifications",
+    "unreadMarker": "Unread",
+    "emptyTitle": "You’re all caught up",
+    "emptyDescription": "New notifications will show up here.",
+    "errorTitle": "Couldn’t load notifications",
+    "retry": "Retry",
+    "loadMore": "Load more"
+  },
+  "preferences": {
+    "title": "Notification preferences",
+    "metaTitle": "Notification preferences",
+    "kindsTitle": "What to notify me about",
+    "toggles": {
+      "pushEnabled": "Push notifications",
+      "taskCompleted": "A task is completed",
+      "taskDueSoon": "A task is due soon",
+      "mediaReady": "An upload finished processing"
+    },
+    "saved": "Preferences saved",
+    "loadError": "Couldn’t load your preferences.",
+    "retry": "Retry"
+  },
+  "push": {
+    "title": "Push notifications on this device",
+    "checking": "Checking this browser…",
+    "unsupported": "This browser doesn’t support push notifications.",
+    "requiresInstall": "On iPhone and iPad, install the app to your Home Screen first (Share → Add to Home Screen), then enable push here.",
+    "notConfigured": "Push notifications aren’t set up on this server.",
+    "blocked": "Notifications are blocked for this site. Allow them in your browser’s site settings.",
+    "off": "Get notified on this device even when the app is closed.",
+    "on": "Push notifications are on for this device.",
+    "enable": "Turn on",
+    "disable": "Turn off",
+    "failed": "Couldn’t change push notifications. Try again."
+  },
+  "title": "Notifications",
+  "empty": "No notifications yet.",
+  "mark": {
+    "allRead": "Mark all as read"
+  },
+  "load": {
+    "more": "Load more"
+  },
+  "back": "Back",
+  "pref": {
+    "push": "Push notifications",
+    "taskCompleted": "Task completed",
+    "taskDueSoon": "Task due soon",
+    "mediaReady": "File processed"
+  },
+  "channel": {
+    "tasks": "Tasks",
+    "media": "Files",
+    "system": "General"
+  },
+  "unread": {
+    "count": "{count, plural, one {Notifications, # unread} other {Notifications, # unread}}"
+  },
+  "filter": "Show",
+  "filterAll": "All",
+  "filterUnread": "Unread",
+  "more": "More",
+  "prefKinds": "Notify me about",
+  "refresh": "Refresh",
+  "youAreOfflineTryAgainWhen": "You are offline. Try again when you are connected.",
+  "theServerIsNotAvailableRight": "The server is not available right now.",
+  "theRequestTookTooLong": "The request took too long.",
+  "tooManyRequestsTryAgainIn": "Too many requests. Try again in a moment.",
+  "pleaseSignInAgain": "Please sign in again.",
+  "youDoNotHaveAccessTo": "You do not have access to this.",
+  "thisNotificationNoLongerExists": "This notification no longer exists.",
+  "theServerDidNotAcceptThis": "The server did not accept this input.",
+  "thisWasChangedElsewhere": "This was changed elsewhere.",
+  "pleaseUpdateTheAppToContinue": "Please update the app to continue.",
+  "couldNotSaveOnThisDevice": "Could not save on this device.",
+  "somethingWentWrong": "Something went wrong.",
+  "mediaReady": "Media ready",
+  "system": "System",
+  "other": "Other",
+  "unreadValue": "Unread: {value}",
+  "valueUnread": "{value} unread",
+  "marking": "Marking...",
+  "loading": "Loading...",
+  "couldNotLoadNotifications": "Could not load notifications",
+  "tryAgain": "Try again",
+  "noUnreadNotifications": "No unread notifications",
+  "noNotificationsYet": "No notifications yet",
+  "youAreAllCaughtUp": "You are all caught up.",
+  "couldNotLoadPreferences": "Could not load preferences",
+  "chooseWhichNotificationsYouReceive": "Choose which notifications you receive.",
+  "showNotifications": "Show notifications",
+  "couldNotSaveTheSettingValue": "Could not save the setting. {value}"
+}

@@ -29,6 +29,10 @@ Full stack tables, anti-patterns, and the AI Definition-of-Done checklist are in
 
 Feature code uses UI kit components only (`docs/content/ui-kit.md`). Web: no raw `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>`, `<form>`, `<table>`, `<dialog>` and no direct import of the primitive libraries behind the kit (radix-ui, @base-ui/react, cmdk, ...) outside `apps/web/shared/ui`. Android: no raw Material 3 controls outside `core/ui`. Apple: no raw SwiftUI controls or `.sheet`/`.alert` outside `AedstDesignSystem`. Desktop: no `std-widgets.slint` outside `aedst-ui`. A missing component is added to the kit first, never built inline. Gate: `task check:ui-kit-only`; the only exemption is a `ui-kit-ignore: <reason>` comment, and the Apple debt in `scripts/ui-kit-only.baseline` may only shrink.
 
+## Translations: one JSON format on every platform
+
+Every app that shows text uses the same JSON translation files (`packages/i18n/<module>/{en,ru,tg,uz,ar}.json`, nested camelCase keys, ICU `{name}` placeholders), so a translation written for one platform works unchanged on every other. Native catalogs (`strings.xml`, `.xcstrings`, `.po`) are generated from them, never hand-edited or hand-copied; a string is written and translated once. Full rule and honest migration status (not yet implemented outside Web): [i18n](../content/i18n.md#one-json-translation-format-on-every-platform-mandatory).
+
 ## Mandatory process rules
 
 - **Versions**: latest stable, verified against the registry. Never invent or guess a version; if you cannot verify it, say `UNVERIFIED`.

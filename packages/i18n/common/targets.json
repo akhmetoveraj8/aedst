@@ -1,0 +1,212 @@
+{
+  "a11y.commandPalette": [
+    "web"
+  ],
+  "a11y.commandPaletteDescription": [
+    "web"
+  ],
+  "a11y.loading": [
+    "web"
+  ],
+  "a11y.messages": [
+    "web"
+  ],
+  "a11y.nextSlide": [
+    "web"
+  ],
+  "a11y.notifications": [
+    "web"
+  ],
+  "a11y.previousSlide": [
+    "web"
+  ],
+  "a11y.questionnaireProgress": [
+    "web"
+  ],
+  "a11y.questionProgress": [
+    "web"
+  ],
+  "a11y.sidebar": [
+    "web"
+  ],
+  "a11y.sidebarDescription": [
+    "web"
+  ],
+  "a11y.skipToContent": [
+    "web"
+  ],
+  "a11y.toggleSidebar": [
+    "web"
+  ],
+  "actions.back": [
+    "web"
+  ],
+  "actions.cancel": [
+    "web"
+  ],
+  "actions.close": [
+    "web"
+  ],
+  "actions.goHome": [
+    "web"
+  ],
+  "actions.save": [
+    "web"
+  ],
+  "actions.submit": [
+    "web"
+  ],
+  "actions.tryAgain": [
+    "web"
+  ],
+  "appDescription": [
+    "web"
+  ],
+  "appName": [
+    "web"
+  ],
+  "consent.accept": [
+    "web"
+  ],
+  "consent.currentlyAllowed": [
+    "web"
+  ],
+  "consent.currentlyDeclined": [
+    "web"
+  ],
+  "consent.decline": [
+    "web"
+  ],
+  "consent.description": [
+    "web"
+  ],
+  "consent.manage": [
+    "web"
+  ],
+  "consent.privacyPolicy": [
+    "web"
+  ],
+  "consent.title": [
+    "web"
+  ],
+  "consent.withdraw": [
+    "web"
+  ],
+  "errors.forbiddenDescription": [
+    "web"
+  ],
+  "errors.forbiddenTitle": [
+    "web"
+  ],
+  "errors.generic": [
+    "web"
+  ],
+  "errors.kinds.cancelled": [
+    "web"
+  ],
+  "errors.kinds.conflict": [
+    "web"
+  ],
+  "errors.kinds.forbidden": [
+    "web"
+  ],
+  "errors.kinds.invalidInput": [
+    "web"
+  ],
+  "errors.kinds.notFound": [
+    "web"
+  ],
+  "errors.kinds.offline": [
+    "web"
+  ],
+  "errors.kinds.rateLimited": [
+    "web"
+  ],
+  "errors.kinds.storage": [
+    "web"
+  ],
+  "errors.kinds.timeout": [
+    "web"
+  ],
+  "errors.kinds.unauthenticated": [
+    "web"
+  ],
+  "errors.kinds.unavailable": [
+    "web"
+  ],
+  "errors.kinds.unknown": [
+    "web"
+  ],
+  "errors.kinds.upgradeRequired": [
+    "web"
+  ],
+  "errors.notFoundDescription": [
+    "web"
+  ],
+  "errors.notFoundTitle": [
+    "web"
+  ],
+  "errors.sessionExpired": [
+    "web"
+  ],
+  "errors.title": [
+    "web"
+  ],
+  "locale.label": [
+    "web"
+  ],
+  "nav.label": [
+    "web"
+  ],
+  "nav.notifications": [
+    "web"
+  ],
+  "nav.search": [
+    "web"
+  ],
+  "nav.tasks": [
+    "web"
+  ],
+  "offline.banner": [
+    "web"
+  ],
+  "offline.description": [
+    "web"
+  ],
+  "offline.queued": [
+    "web"
+  ],
+  "offline.retry": [
+    "web"
+  ],
+  "offline.title": [
+    "web"
+  ],
+  "pwa.dismiss": [
+    "web"
+  ],
+  "pwa.install": [
+    "web"
+  ],
+  "pwa.installDescription": [
+    "web"
+  ],
+  "pwa.installTitle": [
+    "web"
+  ],
+  "pwa.iosInstructions": [
+    "web"
+  ],
+  "pwa.reload": [
+    "web"
+  ],
+  "pwa.updateAvailable": [
+    "web"
+  ],
+  "sync.failed": [
+    "web"
+  ],
+  "sync.pending": [
+    "web"
+  ]
+}

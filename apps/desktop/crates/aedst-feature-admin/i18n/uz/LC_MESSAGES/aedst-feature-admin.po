@@ -1,25 +1,60 @@
-# aedst-feature-admin: Admin screen strings (uz).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-admin\n"
+"Project-Id-Version: admin\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "Overview"
-msgstr "Umumiy ko'rinish"
+msgid "Administration"
+msgstr "Boshqaruv"
 
-msgid "Tasks"
-msgstr "Vazifalar"
+msgid "Overview"
+msgstr "Umumiy ko‘rinish"
+
+msgid "Broadcast"
+msgstr "Xabar tarqatish"
 
 msgid "Audit log"
 msgstr "Audit jurnali"
 
-msgid "Broadcast"
-msgstr "Ommaviy xabar"
+msgid "Tasks"
+msgstr "Vazifalar"
+
+msgid "Push devices"
+msgstr "Push qurilmalari"
+
+msgid "Title"
+msgstr "Nomi"
+
+msgid "In progress"
+msgstr "Jarayonda"
+
+msgid "Done"
+msgstr "Bajarildi"
+
+msgid "Delete"
+msgstr "O‘chirish"
+
+msgid "Reason"
+msgstr "Sabab"
+
+msgid "Cancel"
+msgstr "Bekor qilish"
+
+msgid "Delete task"
+msgstr "Vazifani o‘chirish"
+
+msgid "Enter a title."
+msgstr "Sarlavha kiriting."
+
+msgid "Message"
+msgstr "Xabar"
+
+msgid "Link"
+msgstr "Havola"
 
 msgid "Owner id"
 msgstr "Ega identifikatori"
@@ -29,9 +64,6 @@ msgstr "Faqat bitta eganing vazifalarini ko'rsatish (id)"
 
 msgid "Apply"
 msgstr "Qo'llash"
-
-msgid "Administration"
-msgstr "Boshqaruv"
 
 msgid "No access"
 msgstr "Ruxsat yo'q"
@@ -57,9 +89,6 @@ msgstr "Yana yuklash"
 msgid "Owner: {}"
 msgstr "Egasi: {}"
 
-msgid "Delete"
-msgstr "O'chirish"
-
 msgid "Target: {}"
 msgstr "Obyekt: {}"
 
@@ -75,32 +104,14 @@ msgstr "Sabab audit jurnaliga yoziladi (3 dan 500 gacha belgi)."
 msgid "Reason for deleting"
 msgstr "O'chirish sababi"
 
-msgid "Reason"
-msgstr "Sabab"
-
 msgid "Deleting..."
 msgstr "O'chirilmoqda..."
-
-msgid "Delete task"
-msgstr "Vazifani o'chirish"
-
-msgid "Cancel"
-msgstr "Bekor qilish"
 
 msgid "Recipient id"
 msgstr "Qabul qiluvchi identifikatori"
 
 msgid "Recipient id (empty: everyone)"
 msgstr "Qabul qiluvchi identifikatori (bo'sh: hamma)"
-
-msgid "Title"
-msgstr "Sarlavha"
-
-msgid "Message"
-msgstr "Xabar"
-
-msgid "Link"
-msgstr "Havola"
 
 msgid "Link (optional, for example /tasks)"
 msgstr "Havola (ixtiyoriy, masalan /tasks)"
@@ -150,9 +161,6 @@ msgstr "Nimadir xato ketdi."
 msgid "Enter a valid user id or leave it empty."
 msgstr "To'g'ri foydalanuvchi identifikatorini kiriting yoki maydonni bo'sh qoldiring."
 
-msgid "Enter a title."
-msgstr "Sarlavhani kiriting."
-
 msgid "The title is too long (120 characters at most)."
 msgstr "Sarlavha juda uzun (ko'pi bilan 120 belgi)."
 
@@ -171,12 +179,6 @@ msgstr "Sabab juda uzun (ko'pi bilan 500 belgi)."
 msgid "To do"
 msgstr "Bajarish kerak"
 
-msgid "In progress"
-msgstr "Jarayonda"
-
-msgid "Done"
-msgstr "Bajarildi"
-
 msgid "Unknown"
 msgstr "Noma'lum"
 
@@ -191,9 +193,6 @@ msgstr "Media fayllar"
 
 msgid "Media size"
 msgstr "Media hajmi"
-
-msgid "Push devices"
-msgstr "Push qurilmalar"
 
 msgid "Oldest waiting job (seconds)"
 msgstr "Eng eski kutayotgan ish (soniya)"

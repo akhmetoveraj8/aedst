@@ -1,0 +1,104 @@
+{
+  "a11y.commandPalette": [
+    "web"
+  ],
+  "a11y.commandPaletteDescription": [
+    "web"
+  ],
+  "a11y.language": [
+    "web"
+  ],
+  "a11y.loading": [
+    "web"
+  ],
+  "a11y.mainNav": [
+    "web"
+  ],
+  "a11y.messages": [
+    "web"
+  ],
+  "a11y.nextSlide": [
+    "web"
+  ],
+  "a11y.previousSlide": [
+    "web"
+  ],
+  "a11y.questionnaireProgress": [
+    "web"
+  ],
+  "a11y.questionProgress": [
+    "web"
+  ],
+  "a11y.sidebar": [
+    "web"
+  ],
+  "a11y.sidebarDescription": [
+    "web"
+  ],
+  "a11y.skipToContent": [
+    "web"
+  ],
+  "a11y.toggleSidebar": [
+    "web"
+  ],
+  "actions.close": [
+    "web"
+  ],
+  "actions.getStarted": [
+    "web"
+  ],
+  "actions.goHome": [
+    "web"
+  ],
+  "actions.signIn": [
+    "web"
+  ],
+  "actions.tryAgain": [
+    "web"
+  ],
+  "appDescription": [
+    "web"
+  ],
+  "appName": [
+    "web"
+  ],
+  "errors.generic": [
+    "web"
+  ],
+  "errors.notFoundDescription": [
+    "web"
+  ],
+  "errors.notFoundTitle": [
+    "web"
+  ],
+  "errors.title": [
+    "web"
+  ],
+  "footer.legal": [
+    "web"
+  ],
+  "footer.privacy": [
+    "web"
+  ],
+  "footer.rights": [
+    "web"
+  ],
+  "footer.tagline": [
+    "web"
+  ],
+  "footer.terms": [
+    "web"
+  ],
+  "nav.faq": [
+    "web"
+  ],
+  "nav.features": [
+    "web"
+  ],
+  "nav.howItWorks": [
+    "web"
+  ],
+  "nav.pricing": [
+    "web"
+  ]
+}

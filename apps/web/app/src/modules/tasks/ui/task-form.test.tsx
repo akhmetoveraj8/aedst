@@ -1,9 +1,8 @@
+import tasksMessages from "@i18n/tasks/en.json";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
-
-import tasksMessages from "@/modules/tasks/i18n/en.json";
 import { TaskPriority } from "@/shared/api/connect/generated/aedst/tasks/v1/tasks_pb";
 import { messages } from "@/test/render";
 import { TaskForm } from "./task-form";

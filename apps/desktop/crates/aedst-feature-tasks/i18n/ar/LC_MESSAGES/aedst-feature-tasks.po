@@ -1,13 +1,48 @@
-# aedst-feature-tasks: Tasks screen strings (ar).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-tasks\n"
+"Project-Id-Version: tasks\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+msgid "Tasks"
+msgstr "المهام"
+
+msgid "In progress"
+msgstr "قيد التنفيذ"
+
+msgid "No tasks yet"
+msgstr "لا توجد مهام بعد"
+
+msgid "Done"
+msgstr "مكتملة"
+
+msgid "Unknown"
+msgstr "غير معروفة"
+
+msgid "Low"
+msgstr "منخفضة"
+
+msgid "Medium"
+msgstr "متوسطة"
+
+msgid "High"
+msgstr "عالية"
+
+msgid "Urgent"
+msgstr "عاجلة"
+
+msgid "Choose a priority."
+msgstr "اختر أولوية."
+
+msgid "Pending sync"
+msgstr "في انتظار المزامنة"
+
+msgid "Enter a title."
+msgstr "أدخل عنوانًا."
 
 msgid "You are offline. Changes will sync later."
 msgstr "أنت غير متصل. ستتم مزامنة التغييرات لاحقًا."
@@ -45,44 +80,14 @@ msgstr "تعذر الحفظ على هذا الجهاز."
 msgid "Something went wrong."
 msgstr "حدث خطأ ما."
 
-msgid "Enter a title."
-msgstr "أدخل عنوانًا."
-
 msgid "The title is too long (200 characters at most)."
 msgstr "العنوان طويل جدًا (200 حرف كحد أقصى)."
 
 msgid "The description is too long."
 msgstr "الوصف طويل جدًا."
 
-msgid "Choose a priority."
-msgstr "اختر الأولوية."
-
 msgid "To do"
 msgstr "للتنفيذ"
-
-msgid "In progress"
-msgstr "قيد التنفيذ"
-
-msgid "Done"
-msgstr "منجز"
-
-msgid "Unknown"
-msgstr "غير معروف"
-
-msgid "Low"
-msgstr "منخفضة"
-
-msgid "Medium"
-msgstr "متوسطة"
-
-msgid "High"
-msgstr "عالية"
-
-msgid "Urgent"
-msgstr "عاجلة"
-
-msgid "Tasks"
-msgstr "المهام"
 
 msgid "{} in total"
 msgstr "الإجمالي: {}"
@@ -111,17 +116,11 @@ msgstr "تعذر تحميل المهام"
 msgid "Try again"
 msgstr "حاول مرة أخرى"
 
-msgid "No tasks yet"
-msgstr "لا توجد مهام بعد"
-
 msgid "Add your first task above."
 msgstr "أضف مهمتك الأولى أعلاه."
 
 msgid "Mark \"{}\" as done"
 msgstr "وضع علامة «{}» كمنجزة"
-
-msgid "Pending sync"
-msgstr "بانتظار المزامنة"
 
 msgid "Load more"
 msgstr "تحميل المزيد"

@@ -1,0 +1,105 @@
+{
+  "bell": {
+    "label": "Уведомления",
+    "labelWithCount": "Уведомления, {count, plural, one {# непрочитанное} few {# непрочитанных} many {# непрочитанных} other {# непрочитанного}}"
+  },
+  "inbox": {
+    "title": "Уведомления",
+    "preferences": "Настройки",
+    "markAllRead": "Прочитать все",
+    "filterLabel": "Показать",
+    "all": "Все",
+    "unread": "Непрочитанные",
+    "listLabel": "Уведомления",
+    "unreadMarker": "Не прочитано",
+    "emptyTitle": "Новых уведомлений нет",
+    "emptyDescription": "Новые уведомления появятся здесь.",
+    "errorTitle": "Не удалось загрузить уведомления",
+    "retry": "Повторить",
+    "loadMore": "Показать ещё"
+  },
+  "preferences": {
+    "title": "Настройки уведомлений",
+    "metaTitle": "Настройки уведомлений",
+    "kindsTitle": "О чём уведомлять",
+    "toggles": {
+      "pushEnabled": "Push-уведомления",
+      "taskCompleted": "Задача выполнена",
+      "taskDueSoon": "Скоро срок задачи",
+      "mediaReady": "Загруженный файл обработан"
+    },
+    "saved": "Настройки сохранены",
+    "loadError": "Не удалось загрузить настройки.",
+    "retry": "Повторить"
+  },
+  "push": {
+    "title": "Push-уведомления на этом устройстве",
+    "checking": "Проверяем браузер…",
+    "unsupported": "Этот браузер не поддерживает push-уведомления.",
+    "requiresInstall": "На iPhone и iPad сначала установите приложение на экран «Домой» («Поделиться» → «На экран „Домой“»), затем включите уведомления здесь.",
+    "notConfigured": "Push-уведомления не настроены на сервере.",
+    "blocked": "Уведомления для этого сайта заблокированы. Разрешите их в настройках сайта в браузере.",
+    "off": "Получайте уведомления на этом устройстве, даже когда приложение закрыто.",
+    "on": "Push-уведомления включены на этом устройстве.",
+    "enable": "Включить",
+    "disable": "Выключить",
+    "failed": "Не удалось изменить настройку push-уведомлений. Попробуйте ещё раз."
+  },
+  "title": "Уведомления",
+  "empty": "Уведомлений пока нет.",
+  "mark": {
+    "allRead": "Отметить все как прочитанные"
+  },
+  "load": {
+    "more": "Загрузить ещё"
+  },
+  "back": "Назад",
+  "pref": {
+    "push": "Push-уведомления",
+    "taskCompleted": "Задача завершена",
+    "taskDueSoon": "Скоро срок задачи",
+    "mediaReady": "Файл обработан"
+  },
+  "channel": {
+    "tasks": "Задачи",
+    "media": "Файлы",
+    "system": "Общие"
+  },
+  "unread": {
+    "count": "{count, plural, one {Уведомления, # непрочитанное} few {Уведомления, # непрочитанных} many {Уведомления, # непрочитанных} other {Уведомления, # непрочитанных}}"
+  },
+  "filter": "Показать",
+  "filterAll": "Все",
+  "filterUnread": "Непрочитанные",
+  "more": "Ещё",
+  "prefKinds": "Уведомлять о",
+  "refresh": "Обновить",
+  "youAreOfflineTryAgainWhen": "Вы не в сети. Повторите, когда появится соединение.",
+  "theServerIsNotAvailableRight": "Сервер сейчас недоступен.",
+  "theRequestTookTooLong": "Запрос выполнялся слишком долго.",
+  "tooManyRequestsTryAgainIn": "Слишком много запросов. Повторите чуть позже.",
+  "pleaseSignInAgain": "Войдите снова.",
+  "youDoNotHaveAccessTo": "У вас нет доступа к этому.",
+  "thisNotificationNoLongerExists": "Это уведомление больше не существует.",
+  "theServerDidNotAcceptThis": "Сервер не принял эти данные.",
+  "thisWasChangedElsewhere": "Это было изменено в другом месте.",
+  "pleaseUpdateTheAppToContinue": "Обновите приложение, чтобы продолжить.",
+  "couldNotSaveOnThisDevice": "Не удалось сохранить на этом устройстве.",
+  "somethingWentWrong": "Что-то пошло не так.",
+  "mediaReady": "Медиа готово",
+  "system": "Система",
+  "other": "Другое",
+  "unreadValue": "Не прочитано: {value}",
+  "valueUnread": "Непрочитано: {value}",
+  "marking": "Отмечаем...",
+  "loading": "Загрузка...",
+  "couldNotLoadNotifications": "Не удалось загрузить уведомления",
+  "tryAgain": "Повторить",
+  "noUnreadNotifications": "Нет непрочитанных уведомлений",
+  "noNotificationsYet": "Уведомлений пока нет",
+  "youAreAllCaughtUp": "Всё прочитано.",
+  "couldNotLoadPreferences": "Не удалось загрузить настройки",
+  "chooseWhichNotificationsYouReceive": "Выберите, какие уведомления получать.",
+  "showNotifications": "Показывать уведомления",
+  "couldNotSaveTheSettingValue": "Не удалось сохранить настройку. {value}"
+}

@@ -1,0 +1,40 @@
+{
+  "login": {
+    "title": "Sign in",
+    "description": "Continue to your identity provider to sign in.",
+    "submit": "Sign in",
+    "switchPrompt": "Don't have an account?",
+    "switchAction": "Create one",
+    "errors": {
+      "denied": "Sign-in was cancelled or refused.",
+      "expired": "The sign-in took too long. Please try again.",
+      "invalid": "Sign-in could not be verified. Please try again.",
+      "opaque_token": "The identity provider issued a token this app cannot use (it must be a JWT access token). Contact an administrator.",
+      "unavailable": "The identity provider is unreachable. Please try again shortly.",
+      "config": "Sign-in is not configured. Contact an administrator."
+    },
+    "subtitle": "You will sign in on a secure page in your browser.",
+    "notConfigured": "Sign-in is not configured in this build of the app.",
+    "noBrowser": "No browser was found to sign in. Install or enable a browser and try again.",
+    "failedTitle": "Sign-in failed"
+  },
+  "signOut": "Sign out",
+  "signedInAs": "Signed in as {email}",
+  "analytics": {
+    "consent": "Share anonymous usage analytics"
+  },
+  "device": {
+    "title": "Sign in on your TV",
+    "stepOpen": "On your phone or computer, open",
+    "stepEnter": "and enter the code",
+    "codeDescription": "Code: {value}",
+    "orOpen": "Or open directly: {value}",
+    "waiting": "Waiting for approval…",
+    "denied": "Sign-in was declined on the other device.",
+    "expired": "The code has expired.",
+    "newCode": "Get a new code"
+  },
+  "browserSignInFailed": "Sign-in could not be completed. Please try again.",
+  "loginContinue": "Continue",
+  "loginContinueHint": "You will sign in on a secure page. Passkeys and saved logins are supported."
+}

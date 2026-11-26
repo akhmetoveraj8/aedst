@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
     <string name="admin_title">Администрирование</string>
+    <string name="admin_tasks_total">Задачи</string>
+    <string name="admin_tasks_done">Выполнено</string>
+    <string name="admin_tasks_overdue">Просрочено</string>
     <string name="admin_forbidden">Этот раздел доступен только администраторам.</string>
     <string name="admin_tab_overview">Обзор</string>
     <string name="admin_tab_tasks">Задачи</string>
@@ -10,9 +14,6 @@
     <string name="admin_delete_reason">Причина (попадёт в журнал аудита)</string>
     <string name="admin_delete_confirm">Удалить</string>
     <string name="admin_cancel">Отмена</string>
-    <string name="admin_tasks_total">Задачи</string>
-    <string name="admin_tasks_done">Выполнено</string>
-    <string name="admin_tasks_overdue">Просрочено</string>
     <string name="admin_media_total">Файлы</string>
     <string name="admin_push_devices">Push-устройства</string>
     <string name="admin_outbox_lag">Задержка outbox, с</string>

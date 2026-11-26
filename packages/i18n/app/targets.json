@@ -1,0 +1,101 @@
+{
+  "enableNotifications": [
+    "apple"
+  ],
+  "homeAdmin": [
+    "apple"
+  ],
+  "homeFiles": [
+    "apple"
+  ],
+  "homeNotifications": [
+    "apple"
+  ],
+  "homeSearch": [
+    "apple"
+  ],
+  "homeTasks": [
+    "apple"
+  ],
+  "locked": [
+    "apple"
+  ],
+  "nav.account": [
+    "android"
+  ],
+  "nav.admin": [
+    "android"
+  ],
+  "nav.media": [
+    "android"
+  ],
+  "nav.notifications": [
+    "android"
+  ],
+  "nav.search": [
+    "android"
+  ],
+  "nav.tasks": [
+    "android"
+  ],
+  "offline": [
+    "apple"
+  ],
+  "outbox.failedDescription": [
+    "android"
+  ],
+  "outbox.failedDiscard": [
+    "android"
+  ],
+  "outbox.failedTitle": [
+    "android"
+  ],
+  "preferencesTitle": [
+    "apple"
+  ],
+  "requireBiometrics": [
+    "apple"
+  ],
+  "selectSection": [
+    "apple"
+  ],
+  "settings": [
+    "apple"
+  ],
+  "shareAnalytics": [
+    "apple"
+  ],
+  "signedIn": [
+    "apple"
+  ],
+  "signIn": [
+    "apple"
+  ],
+  "signOut": [
+    "apple"
+  ],
+  "unlock": [
+    "apple"
+  ],
+  "unlockReason": [
+    "apple"
+  ],
+  "update.recommended": [
+    "android"
+  ],
+  "update.recommendedAction": [
+    "android"
+  ],
+  "update.recommendedLater": [
+    "android"
+  ],
+  "upgradeButton": [
+    "apple"
+  ],
+  "upgradeMessage": [
+    "apple"
+  ],
+  "upgradeTitle": [
+    "apple"
+  ]
+}

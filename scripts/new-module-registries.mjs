@@ -110,8 +110,8 @@ export function registryEdits(c) {
 
   const goImport = /^\t_ "github\.com\/aedst\/server\/internal\/modules\/([a-z0-9]+)\/module"$/;
   const mgrImport = /^import \{ manifest as ([a-z0-9]+) \} from "@\/modules\/[a-z0-9]+\/manifest";$/;
-  const dtsImport = /^import type ([a-z0-9]+) from "@\/modules\/[a-z0-9]+\/i18n\/en\.json";$/;
-  const renderImport = /^import ([a-z0-9]+)Messages from "@\/modules\/[a-z0-9]+\/i18n\/en\.json";$/;
+  const dtsImport = /^import type ([a-z0-9]+) from "@i18n\/[a-z0-9]+\/en\.json";$/;
+  const renderImport = /^import ([a-z0-9]+)Messages from "@i18n\/[a-z0-9]+\/en\.json";$/;
   const kotlinImport = /^import com\.aedst\.feature\.([a-z0-9]+)\.navigation\./;
   const featureYaml = /^ {2}([a-z0-9]+): +\{ server: /;
   const cell = (s) => `${s},`.padEnd(14);
@@ -150,9 +150,9 @@ export function registryEdits(c) {
     // --- web ---
     { platform: 'web', file: 'apps/web/app/src/app/config/modules/registry.ts', ...sortedBy(mgrImport, `import { manifest as ${name} } from "@/modules/${name}/manifest";`) },
     { platform: 'web', file: 'apps/web/app/src/app/config/modules/registry.ts', ...beforeClose(/^export const manifests: /, /^\];$/, `  ${name},`) },
-    { platform: 'web', file: 'apps/web/app/src/app/config/i18n/messages.d.ts', ...sortedBy(dtsImport, `import type ${name} from "@/modules/${name}/i18n/en.json";`) },
+    { platform: 'web', file: 'apps/web/app/src/app/config/i18n/messages.d.ts', ...sortedBy(dtsImport, `import type ${name} from "@i18n/${name}/en.json";`) },
     { platform: 'web', file: 'apps/web/app/src/app/config/i18n/messages.d.ts', ...beforeClose(/^type Messages = \{/, /^\};$/, `  ${name}: typeof ${name};`) },
-    { platform: 'web', file: 'apps/web/app/src/test/render.tsx', ...sortedBy(renderImport, `import ${name}Messages from "@/modules/${name}/i18n/en.json";`) },
+    { platform: 'web', file: 'apps/web/app/src/test/render.tsx', ...sortedBy(renderImport, `import ${name}Messages from "@i18n/${name}/en.json";`) },
     { platform: 'web', file: 'apps/web/app/src/test/render.tsx', ...beforeClose(/^export const messages = \{/, /^\};$/, `  ${name}: ${name}Messages,`) },
     {
       platform: 'web',

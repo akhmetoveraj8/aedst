@@ -1,0 +1,105 @@
+{
+  "bell": {
+    "label": "Огоҳиномаҳо",
+    "labelWithCount": "Огоҳиномаҳо, {count, plural, one {# хонданашуда} other {# хонданашуда}}"
+  },
+  "inbox": {
+    "title": "Огоҳиномаҳо",
+    "preferences": "Танзимот",
+    "markAllRead": "Ҳамаро хондашуда қайд кардан",
+    "filterLabel": "Нишон додан",
+    "all": "Ҳама",
+    "unread": "Хонданашуда",
+    "listLabel": "Огоҳиномаҳо",
+    "unreadMarker": "Хонданашуда",
+    "emptyTitle": "Огоҳиномаи нав нест",
+    "emptyDescription": "Огоҳиномаҳои нав дар ин ҷо пайдо мешаванд.",
+    "errorTitle": "Огоҳиномаҳо бор нашуданд",
+    "retry": "Такрор кардан",
+    "loadMore": "Боз нишон додан"
+  },
+  "preferences": {
+    "title": "Танзимоти огоҳиномаҳо",
+    "metaTitle": "Танзимоти огоҳиномаҳо",
+    "kindsTitle": "Дар бораи чӣ огоҳ кунам",
+    "toggles": {
+      "pushEnabled": "Огоҳиномаҳои push",
+      "taskCompleted": "Вазифа иҷро шуд",
+      "taskDueSoon": "Мӯҳлати вазифа наздик аст",
+      "mediaReady": "Файли боршуда коркард шуд"
+    },
+    "saved": "Танзимот захира шуд",
+    "loadError": "Танзимот бор нашуд.",
+    "retry": "Такрор кардан"
+  },
+  "push": {
+    "title": "Огоҳиномаҳои push дар ин дастгоҳ",
+    "checking": "Браузер санҷида мешавад…",
+    "unsupported": "Ин браузер огоҳиномаҳои push-ро дастгирӣ намекунад.",
+    "requiresInstall": "Дар iPhone ва iPad аввал барномаро ба экрани асосӣ насб кунед («Мубодила» → «Ба экрани асосӣ»), баъд огоҳиномаҳоро дар ин ҷо фаъол кунед.",
+    "notConfigured": "Огоҳиномаҳои push дар сервер танзим нашудаанд.",
+    "blocked": "Огоҳиномаҳо барои ин сайт манъ шудаанд. Онҳоро дар танзимоти сайти браузер иҷозат диҳед.",
+    "off": "Ҳатто вақте ки барнома баста аст, дар ин дастгоҳ огоҳинома гиред.",
+    "on": "Огоҳиномаҳои push дар ин дастгоҳ фаъоланд.",
+    "enable": "Фаъол кардан",
+    "disable": "Хомӯш кардан",
+    "failed": "Огоҳиномаҳои push тағйир дода нашуданд. Бори дигар кӯшиш кунед."
+  },
+  "title": "Огоҳиномаҳо",
+  "empty": "Ҳоло огоҳинома нест.",
+  "mark": {
+    "allRead": "Ҳамаро хондашуда қайд кардан"
+  },
+  "load": {
+    "more": "Боз бор кардан"
+  },
+  "back": "Бозгашт",
+  "pref": {
+    "push": "Огоҳиномаҳои push",
+    "taskCompleted": "Вазифа анҷом ёфт",
+    "taskDueSoon": "Мӯҳлати вазифа наздик аст",
+    "mediaReady": "Файл коркард шуд"
+  },
+  "channel": {
+    "tasks": "Вазифаҳо",
+    "media": "Файлҳо",
+    "system": "Умумӣ"
+  },
+  "unread": {
+    "count": "{count, plural, one {Огоҳиномаҳо, # нохонда} other {Огоҳиномаҳо, # нохонда}}"
+  },
+  "filter": "Нишон додан",
+  "filterAll": "Ҳама",
+  "filterUnread": "Хонданашуда",
+  "more": "Бештар",
+  "prefKinds": "Маро огоҳ кунед дар бораи",
+  "refresh": "Навсозӣ",
+  "youAreOfflineTryAgainWhen": "Шумо онлайн нестед. Ҳангоми пайвастшавӣ дубора кӯшиш кунед.",
+  "theServerIsNotAvailableRight": "Сервер ҳоло дастнорас аст.",
+  "theRequestTookTooLong": "Дархост хеле тӯл кашид.",
+  "tooManyRequestsTryAgainIn": "Дархостҳо хеле зиёд аст. Баъди як лаҳза дубора кӯшиш кунед.",
+  "pleaseSignInAgain": "Лутфан, дубора ворид шавед.",
+  "youDoNotHaveAccessTo": "Шумо ба ин дастрасӣ надоред.",
+  "thisNotificationNoLongerExists": "Ин огоҳинома дигар вуҷуд надорад.",
+  "theServerDidNotAcceptThis": "Сервер ин маълумотро қабул накард.",
+  "thisWasChangedElsewhere": "Ин дар ҷои дигар тағйир дода шуд.",
+  "pleaseUpdateTheAppToContinue": "Барои идома додан барномаро навсозӣ кунед.",
+  "couldNotSaveOnThisDevice": "Дар ин дастгоҳ захира карда нашуд.",
+  "somethingWentWrong": "Чизе нодуруст рафт.",
+  "mediaReady": "Медиа тайёр аст",
+  "system": "Низом",
+  "other": "Дигар",
+  "unreadValue": "Хонда нашудааст: {value}",
+  "valueUnread": "Хонда нашуда: {value}",
+  "marking": "Қайд карда истодаем...",
+  "loading": "Бор шуда истодааст...",
+  "couldNotLoadNotifications": "Огоҳиномаҳо бор нашуданд",
+  "tryAgain": "Бори дигар кӯшиш кунед",
+  "noUnreadNotifications": "Огоҳиномаи хонданашуда нест",
+  "noNotificationsYet": "Ҳоло огоҳинома нест",
+  "youAreAllCaughtUp": "Ҳама хонда шудааст.",
+  "couldNotLoadPreferences": "Танзимот бор нашуданд",
+  "chooseWhichNotificationsYouReceive": "Интихоб кунед, кадом огоҳиномаҳоро мегиред.",
+  "showNotifications": "Нишон додани огоҳиномаҳо",
+  "couldNotSaveTheSettingValue": "Танзим захира нашуд. {value}"
+}

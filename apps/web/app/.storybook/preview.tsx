@@ -1,8 +1,7 @@
+import commonMessages from "@i18n/common/en.json";
 import type { Decorator, Preview } from "@storybook/nextjs-vite";
 import { NextIntlClientProvider } from "next-intl";
 import { useEffect } from "react";
-
-import commonMessages from "@/app/config/i18n/common/en.json";
 import { DirectionProvider } from "@/shared/ui/direction";
 import { TooltipProvider } from "@/shared/ui/tooltip";
 

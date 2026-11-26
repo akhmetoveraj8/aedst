@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
+    <string name="tasks_status_todo">قيد الانتظار</string>
+    <string name="tasks_status_in_progress">قيد التنفيذ</string>
+    <string name="tasks_status_done">مكتملة</string>
+    <string name="tasks_status_unknown">غير معروفة</string>
+    <string name="tasks_priority_low">منخفضة</string>
+    <string name="tasks_priority_medium">متوسطة</string>
+    <string name="tasks_priority_high">عالية</string>
+    <string name="tasks_priority_urgent">عاجلة</string>
+    <string name="tasks_priority_unknown">غير معروفة</string>
     <string name="tasks_title">المهام</string>
     <string name="tasks_empty">لا توجد مهام بعد. أنشئ أول مهمة.</string>
     <string name="tasks_select_prompt">اختر مهمة</string>
@@ -17,15 +27,6 @@
     <string name="tasks_field_description">الوصف</string>
     <string name="tasks_field_priority">الأولوية</string>
     <string name="tasks_save">إنشاء</string>
-    <string name="tasks_status_todo">للتنفيذ</string>
-    <string name="tasks_status_in_progress">قيد التنفيذ</string>
-    <string name="tasks_status_done">منجزة</string>
-    <string name="tasks_status_unknown">غير معروفة</string>
-    <string name="tasks_priority_low">منخفضة</string>
-    <string name="tasks_priority_medium">متوسطة</string>
-    <string name="tasks_priority_high">عالية</string>
-    <string name="tasks_priority_urgent">عاجلة</string>
-    <string name="tasks_priority_unknown">غير معروفة</string>
     <string name="tasks_pending_sync_title">تم الحفظ على هذا الجهاز</string>
     <string name="tasks_pending_sync">سيتم الإرسال عند عودة الاتصال بالإنترنت.</string>
 </resources>

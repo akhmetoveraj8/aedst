@@ -1,0 +1,15 @@
+{
+  "upload": {
+    "channelName": "رفع الملفات",
+    "notificationTitle": "جارٍ رفع الملف…",
+    "preparing": "جارٍ التحضير…",
+    "uploading": "جارٍ الرفع…",
+    "finishing": "جارٍ الإنهاء…",
+    "done": "تم الرفع",
+    "failed": "تعذّر الرفع",
+    "cancelled": "أُلغي",
+    "cancel": "إلغاء الرفع"
+  },
+  "play": "تشغيل",
+  "pause": "إيقاف مؤقت"
+}

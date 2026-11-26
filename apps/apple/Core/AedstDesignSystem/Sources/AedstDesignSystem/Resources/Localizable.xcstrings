@@ -1054,6 +1054,18 @@
     "dsPercent %lld" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld بالمئة"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
@@ -1121,18 +1133,6 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld foiz"
-                }
-              }
-            }
-          }
-        },
-        "ar" : {
-          "variations" : {
-            "plural" : {
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld بالمئة"
                 }
               }
             }

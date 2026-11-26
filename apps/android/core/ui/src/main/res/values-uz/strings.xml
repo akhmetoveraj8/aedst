@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
-    <!-- Accessibility descriptions for design-system components -->
     <string name="aedst_a11y_avatar">Avatar</string>
     <string name="aedst_a11y_avatar_named">Avatar: %1$s</string>
     <string name="aedst_a11y_loading">Yuklanmoqda</string>
@@ -8,7 +8,7 @@
     <string name="aedst_a11y_collapsed">Yig‘ilgan</string>
     <string name="aedst_a11y_previous">Oldingi</string>
     <string name="aedst_a11y_next">Keyingi</string>
-    <string name="aedst_a11y_page">%1$d-sahifa</string>
+    <string name="aedst_a11y_page">%1$s-sahifa</string>
     <string name="aedst_a11y_pagination">Sahifalar bo‘yicha navigatsiya</string>
     <string name="aedst_a11y_more_pages">Boshqa sahifalar</string>
     <string name="aedst_a11y_breadcrumb">Navigatsiya zanjiri</string>
@@ -17,11 +17,9 @@
     <string name="aedst_a11y_sort_ascending">O‘sish tartibida saralangan</string>
     <string name="aedst_a11y_sort_descending">Kamayish tartibida saralangan</string>
     <string name="aedst_a11y_sort_none">Saralanmagan</string>
-    <string name="aedst_a11y_slide">%2$d tadan %1$d-slayd</string>
+    <string name="aedst_a11y_slide">%2$s tadan %1$s-slayd</string>
     <string name="aedst_a11y_close">Yopish</string>
     <string name="aedst_a11y_open_menu">Menyuni ochish</string>
-
-    <!-- User-facing text for each AedstError kind (see AedstError.userMessageRes) -->
     <string name="aedst_error_offline">Internet aloqasi yo‘q. Tarmoqni tekshirib, qayta urinib ko‘ring.</string>
     <string name="aedst_error_network">Serverga ulanib bo‘lmadi. Keyinroq urinib ko‘ring.</string>
     <string name="aedst_error_unauthorized">Ma’lumotlar noto‘g‘ri yoki seans tugagan. Qayta kiring.</string>
@@ -33,15 +31,10 @@
     <string name="aedst_error_conflict">Ma’lumotlar o‘zgargan. Yangilab, qayta urinib ko‘ring.</string>
     <string name="aedst_error_rate_limited">So‘rovlar juda ko‘p. Biroz kutib, qayta urinib ko‘ring.</string>
     <string name="aedst_error_upgrade_required">Davom etish uchun ilovani yangilang.</string>
-
-    <!-- Blocking screen shown when the server rejects this app version (CLIENT_UPGRADE_REQUIRED, ADR-0009) -->
     <string name="aedst_upgrade_title">Yangilash talab qilinadi</string>
     <string name="aedst_upgrade_body">AEDST ning bu versiyasi endi qo‘llab-quvvatlanmaydi. Davom etish uchun ilovani Google Play orqali yangilang.</string>
     <string name="aedst_upgrade_action">Google Play’da yangilash</string>
-
     <string name="aedst_offline_banner">Internet aloqasi yo‘q</string>
-
-    <!-- Shared dialog actions -->
     <string name="aedst_action_ok">OK</string>
     <string name="aedst_action_cancel">Bekor qilish</string>
     <string name="aedst_action_confirm">Tasdiqlash</string>

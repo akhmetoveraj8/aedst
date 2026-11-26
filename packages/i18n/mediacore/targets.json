@@ -1,0 +1,35 @@
+{
+  "pause": [
+    "android"
+  ],
+  "play": [
+    "android"
+  ],
+  "upload.cancel": [
+    "android"
+  ],
+  "upload.cancelled": [
+    "android"
+  ],
+  "upload.channelName": [
+    "android"
+  ],
+  "upload.done": [
+    "android"
+  ],
+  "upload.failed": [
+    "android"
+  ],
+  "upload.finishing": [
+    "android"
+  ],
+  "upload.notificationTitle": [
+    "android"
+  ],
+  "upload.preparing": [
+    "android"
+  ],
+  "upload.uploading": [
+    "android"
+  ]
+}

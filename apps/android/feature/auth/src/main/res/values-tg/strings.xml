@@ -1,21 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
     <string name="auth_login_title">Ворид шудан</string>
+    <string name="auth_login_submit">Ворид шудан</string>
     <string name="auth_login_subtitle">Шумо тавассути саҳифаи бехатари браузер ворид мешавед.</string>
-    <string name="auth_login_submit">Идома додан</string>
     <string name="auth_login_not_configured">Ворид шудан дар ин нусхаи барнома танзим нашудааст.</string>
     <string name="auth_login_no_browser">Браузер барои ворид шудан ёфт нашуд. Браузерро насб ё фаъол кунед ва дубора кӯшиш намоед.</string>
     <string name="auth_login_failed_title">Ворид шудан ноком монд</string>
-
     <string name="auth_sign_out">Баромадан</string>
     <string name="auth_signed_in_as">Шумо ҳамчун %1$s ворид шудед</string>
     <string name="auth_analytics_consent">Фиристодани омори беноми истифода</string>
-
     <string name="auth_device_title">Ворид шудан дар телевизор</string>
     <string name="auth_device_step_open">Дар телефон ё компютер кушоед</string>
     <string name="auth_device_step_enter">ва рамзро ворид кунед</string>
     <string name="auth_device_code_description">Рамз: %1$s</string>
     <string name="auth_device_or_open">Ё бевосита кушоед: %1$s</string>
-    <string name="auth_device_expires_in">Рамз баъд аз %1$d:%2$02d кор намекунад</string>
     <string name="auth_device_waiting">Интизори тасдиқ…</string>
     <string name="auth_device_denied">Ворид шудан дар дастгоҳи дигар рад карда шуд.</string>
     <string name="auth_device_expired">Мӯҳлати рамз гузашт.</string>

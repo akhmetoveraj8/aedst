@@ -4,9 +4,8 @@ import { type RenderOptions, render } from "@testing-library/react";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import type { ReactElement } from "react";
 import { IntlProvider } from "use-intl";
-
-import commonMessages from "@/app/config/i18n/common/en.json";
-import adminMessages from "@/modules/admin/i18n/en.json";
+import adminMessages from "@/shared/i18n/catalogs/admin/en.json";
+import commonMessages from "@/shared/i18n/catalogs/admin-common/en.json";
 import { AuthProvider } from "@/shared/lib/auth/auth-provider";
 import {
   makeQueryClient,

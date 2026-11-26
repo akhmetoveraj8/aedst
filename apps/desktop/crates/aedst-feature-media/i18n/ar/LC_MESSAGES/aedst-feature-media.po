@@ -1,13 +1,18 @@
-# aedst-feature-media: Media screen strings (ar).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-media\n"
+"Project-Id-Version: media\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+msgid "Failed"
+msgstr "فشل"
+
+msgid "Delete"
+msgstr "حذف"
 
 msgid "Upload file"
 msgstr "رفع ملف"
@@ -44,9 +49,6 @@ msgstr "رجوع"
 
 msgid "View"
 msgstr "عرض"
-
-msgid "Delete"
-msgstr "حذف"
 
 msgid "Delete this file?"
 msgstr "هل تريد حذف هذا الملف؟"
@@ -128,9 +130,6 @@ msgstr "قيد المعالجة"
 
 msgid "Ready"
 msgstr "جاهز"
-
-msgid "Failed"
-msgstr "فشل"
 
 msgid "The uploaded size did not match the file."
 msgstr "حجم الملف المرفوع لا يطابق حجم الملف."

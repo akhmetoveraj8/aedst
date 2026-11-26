@@ -1,0 +1,266 @@
+{
+  "dsErrorPrefix %@": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "خطأ: %@"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Error: %@"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Ошибка: %@"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Хато: %@"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Xato: %@"
+        }
+      }
+    }
+  },
+  "dsPage %@": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "الصفحة %@"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Page %@"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Страница %@"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Саҳифаи %@"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "%@-sahifa"
+        }
+      }
+    }
+  },
+  "dsPageOf %@ %@": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "الصفحة %1$@ من %2$@"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Page %1$@ of %2$@"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Страница %1$@ из %2$@"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Саҳифаи %1$@ аз %2$@"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "%2$@ sahifadan %1$@-sahifa"
+        }
+      }
+    }
+  },
+  "dsPercent %lld": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "variations": {
+          "plural": {
+            "one": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld percent"
+              }
+            },
+            "other": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld percent"
+              }
+            }
+          }
+        }
+      },
+      "ru": {
+        "variations": {
+          "plural": {
+            "one": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld процент"
+              }
+            },
+            "few": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld процента"
+              }
+            },
+            "many": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld процентов"
+              }
+            },
+            "other": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld процента"
+              }
+            }
+          }
+        }
+      },
+      "tg": {
+        "variations": {
+          "plural": {
+            "other": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld фоиз"
+              }
+            }
+          }
+        }
+      },
+      "uz": {
+        "variations": {
+          "plural": {
+            "other": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld foiz"
+              }
+            }
+          }
+        }
+      },
+      "ar": {
+        "variations": {
+          "plural": {
+            "other": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld بالمئة"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "dsSlideOf %@ %@": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "الشريحة %1$@ من %2$@"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Slide %1$@ of %2$@"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Слайд %1$@ из %2$@"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Слайди %1$@ аз %2$@"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "%2$@ slayddan %1$@-slayd"
+        }
+      }
+    }
+  },
+  "dsSortBy %@": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ترتيب حسب %@"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Sort by %@"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Сортировать по столбцу «%@»"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Мураттабсозӣ аз рӯи «%@»"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "«%@» bo‘yicha saralash"
+        }
+      }
+    }
+  }
+}

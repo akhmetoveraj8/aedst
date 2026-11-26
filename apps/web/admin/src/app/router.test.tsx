@@ -3,8 +3,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { clearSession } from "@/app/auth/session";
-import commonMessages from "@/app/config/i18n/common/en.json";
 import { createAppRouter } from "@/app/router";
+import commonMessages from "@/shared/i18n/catalogs/admin-common/en.json";
 
 function stubSession(roles: string[] | null) {
   vi.stubGlobal(

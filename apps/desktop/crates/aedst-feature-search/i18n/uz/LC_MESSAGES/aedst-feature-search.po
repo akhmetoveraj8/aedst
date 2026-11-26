@@ -1,13 +1,21 @@
-# aedst-feature-search: Search screen strings (uz).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-search\n"
+"Project-Id-Version: search\n"
 "Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Search"
+msgstr "Qidiruv"
+
+msgid "Load more"
+msgstr "Yana ko‘rsatish"
+
+msgid "Search tasks and files"
+msgstr "Vazifalar va fayllarni qidirish"
 
 msgid "You are offline. Search needs a connection."
 msgstr "Siz oflaynsiz. Qidiruv uchun ulanish kerak."
@@ -54,14 +62,8 @@ msgstr "Fayl"
 msgid "Other"
 msgstr "Boshqa"
 
-msgid "Search"
-msgstr "Qidiruv"
-
 msgid "About {} results"
 msgstr "Taxminan natijalar: {}"
-
-msgid "Search tasks and files"
-msgstr "Vazifalar va fayllarni qidirish"
 
 msgid "Suggestions"
 msgstr "Takliflar"
@@ -89,6 +91,3 @@ msgstr "Boshqa so'zni sinab ko'ring yoki imloni tekshiring."
 
 msgid "Loading..."
 msgstr "Yuklanmoqda..."
-
-msgid "Load more"
-msgstr "Yana yuklash"

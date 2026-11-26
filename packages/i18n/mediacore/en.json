@@ -1,0 +1,15 @@
+{
+  "upload": {
+    "channelName": "File uploads",
+    "notificationTitle": "Uploading file…",
+    "preparing": "Preparing…",
+    "uploading": "Uploading…",
+    "finishing": "Finishing…",
+    "done": "Uploaded",
+    "failed": "Upload failed",
+    "cancelled": "Cancelled",
+    "cancel": "Cancel upload"
+  },
+  "play": "Play",
+  "pause": "Pause"
+}

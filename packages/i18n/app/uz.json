@@ -1,0 +1,41 @@
+{
+  "nav": {
+    "tasks": "Vazifalar",
+    "search": "Qidiruv",
+    "notifications": "Xabarlar",
+    "media": "Fayllar",
+    "account": "Hisob",
+    "admin": "Admin"
+  },
+  "update": {
+    "recommended": "AEDST ning yangi versiyasi mavjud.",
+    "recommendedAction": "Yangilash",
+    "recommendedLater": "Hozir emas"
+  },
+  "outbox": {
+    "failedTitle": "Ba’zi o‘zgarishlar yuborilmadi",
+    "failedDescription": "Bu o‘zgarishlar yuborilmadi. Qayta urinib ko‘ring yoki o‘chirib tashlang.",
+    "failedDiscard": "O‘chirish"
+  },
+  "enableNotifications": "Bildirishnomalarni yoqish",
+  "homeAdmin": "Boshqaruv",
+  "homeFiles": "Fayllar",
+  "homeNotifications": "Bildirishnomalar",
+  "homeSearch": "Qidiruv",
+  "homeTasks": "Vazifalar",
+  "locked": "AEDST qulflangan",
+  "offline": "Internet yo‘q. Ba’zi funksiyalar mavjud bo‘lmasligi mumkin.",
+  "requireBiometrics": "Biometrik ochishni talab qilish",
+  "selectSection": "Yon paneldan boʻlimni tanlang",
+  "settings": "Sozlamalar",
+  "shareAnalytics": "Anonim foydalanish statistikasini yuborish",
+  "signIn": "Kirish",
+  "signOut": "Chiqish",
+  "signedIn": "Siz tizimga kirdingiz.",
+  "unlock": "Ochish",
+  "unlockReason": "Davom etish uchun AEDST’ni oching",
+  "upgradeButton": "App Storeʼni oching",
+  "upgradeMessage": "AEDST ilovasining bu versiyasi endi qoʻllab-quvvatlanmaydi. Davom etish uchun ilovani yangilang.",
+  "upgradeTitle": "Yangilash talab qilinadi",
+  "preferencesTitle": "AEDST sozlamalari"
+}

@@ -1,0 +1,72 @@
+{
+  "tasksDue %@": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "الاستحقاق: %@"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Due %@"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Срок: %@"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Мӯҳлат: %@"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Muddat: %@"
+        }
+      }
+    }
+  },
+  "tasksPriority": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "الأولوية"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Priority"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Приоритет"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Афзалият"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Ustuvorlik"
+        }
+      }
+    }
+  }
+}

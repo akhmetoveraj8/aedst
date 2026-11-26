@@ -281,6 +281,41 @@
         }
       }
     },
+    "appPreferencesTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تفضيلات AEDST"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AEDST Preferences"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки AEDST"
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Танзимоти AEDST"
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AEDST sozlamalari"
+          }
+        }
+      }
+    },
     "appRequireBiometrics" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -319,6 +354,12 @@
     "appSelectSection" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختر قسمًا من الشريط الجانبي"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -341,12 +382,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yon paneldan boʻlimni tanlang"
-          }
-        },
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "اختر قسمًا من الشريط الجانبي"
           }
         }
       }
@@ -421,6 +456,41 @@
         }
       }
     },
+    "appSignedIn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لقد سجّلت الدخول."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You're signed in."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы вошли в систему."
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шумо ворид шудед."
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siz tizimga kirdingiz."
+          }
+        }
+      }
+    },
     "appSignIn" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -487,41 +557,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chiqish"
-          }
-        }
-      }
-    },
-    "appSignedIn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "لقد سجّلت الدخول."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You're signed in."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вы вошли в систему."
-          }
-        },
-        "tg" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Шумо ворид шудед."
-          }
-        },
-        "uz" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Siz tizimga kirdingiz."
           }
         }
       }
@@ -599,6 +634,48 @@
     "appUnreadCount %lld" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "variations" : {
+            "plural" : {
+              "zero" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "لا إشعارات غير مقروءة"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "إشعار واحد غير مقروء"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "إشعاران غير مقروءين"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld إشعارات غير مقروءة"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld إشعارًا غير مقروء"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld إشعار غير مقروء"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
@@ -666,48 +743,6 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld ta oʻqilmagan"
-                }
-              }
-            }
-          }
-        },
-        "ar" : {
-          "variations" : {
-            "plural" : {
-              "zero" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "لا إشعارات غير مقروءة"
-                }
-              },
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "إشعار واحد غير مقروء"
-                }
-              },
-              "two" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "إشعاران غير مقروءين"
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld إشعارات غير مقروءة"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld إشعارًا غير مقروء"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld إشعار غير مقروء"
                 }
               }
             }
@@ -816,41 +851,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yangilash talab qilinadi"
-          }
-        }
-      }
-    },
-    "appPreferencesTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تفضيلات AEDST"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AEDST Preferences"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Настройки AEDST"
-          }
-        },
-        "tg" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Танзимоти AEDST"
-          }
-        },
-        "uz" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AEDST sozlamalari"
           }
         }
       }

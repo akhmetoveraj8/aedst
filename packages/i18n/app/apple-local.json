@@ -1,0 +1,121 @@
+{
+  "appUnreadCount %lld": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "variations": {
+          "plural": {
+            "one": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld unread"
+              }
+            },
+            "other": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld unread"
+              }
+            }
+          }
+        }
+      },
+      "ru": {
+        "variations": {
+          "plural": {
+            "one": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld непрочитанное"
+              }
+            },
+            "few": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld непрочитанных"
+              }
+            },
+            "many": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld непрочитанных"
+              }
+            },
+            "other": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld непрочитанных"
+              }
+            }
+          }
+        }
+      },
+      "tg": {
+        "variations": {
+          "plural": {
+            "other": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld хонданашуда"
+              }
+            }
+          }
+        }
+      },
+      "uz": {
+        "variations": {
+          "plural": {
+            "other": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld ta oʻqilmagan"
+              }
+            }
+          }
+        }
+      },
+      "ar": {
+        "variations": {
+          "plural": {
+            "zero": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "لا إشعارات غير مقروءة"
+              }
+            },
+            "one": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "إشعار واحد غير مقروء"
+              }
+            },
+            "two": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "إشعاران غير مقروءين"
+              }
+            },
+            "few": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld إشعارات غير مقروءة"
+              }
+            },
+            "many": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld إشعارًا غير مقروء"
+              }
+            },
+            "other": {
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld إشعار غير مقروء"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,17 +1,18 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
+import common from "@i18n/common/en.json";
 import { describe, expect, it } from "vitest";
-import common from "@/app/config/i18n/common/en.json";
 import {
   i18nNamespaces,
   manifests,
   moduleRoutes,
   navEntriesFor,
 } from "@/app/config/modules/registry";
-import { locales } from "@/shared/i18n/locales";
+import { locales, sharedLocale } from "@/shared/i18n/locales";
 
 const root = path.resolve(import.meta.dirname, "../../../..");
 const modulesDir = path.join(root, "src/modules");
+const sharedI18nDir = path.resolve(root, "../shared/i18n/catalogs");
 const appDir = path.join(root, "src/app/(pages)/[locale]/(app)");
 
 describe("module registry", () => {
@@ -30,7 +31,11 @@ describe("module registry", () => {
         for (const locale of locales) {
           expect(
             existsSync(
-              path.join(modulesDir, module.id, "i18n", `${locale}.json`),
+              path.join(
+                sharedI18nDir,
+                module.id,
+                `${sharedLocale(locale)}.json`,
+              ),
             ),
           ).toBe(true);
         }

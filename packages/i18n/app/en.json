@@ -1,0 +1,41 @@
+{
+  "nav": {
+    "tasks": "Tasks",
+    "search": "Search",
+    "notifications": "Inbox",
+    "media": "Files",
+    "account": "Account",
+    "admin": "Admin"
+  },
+  "update": {
+    "recommended": "A new version of AEDST is available.",
+    "recommendedAction": "Update",
+    "recommendedLater": "Not now"
+  },
+  "outbox": {
+    "failedTitle": "Some changes could not be synced",
+    "failedDescription": "These changes were not sent. Retry or discard them.",
+    "failedDiscard": "Discard"
+  },
+  "enableNotifications": "Turn on notifications",
+  "homeAdmin": "Admin",
+  "homeFiles": "Files",
+  "homeNotifications": "Notifications",
+  "homeSearch": "Search",
+  "homeTasks": "Tasks",
+  "locked": "AEDST is locked",
+  "offline": "You're offline. Some features may be unavailable.",
+  "requireBiometrics": "Require biometric unlock",
+  "selectSection": "Choose a section from the sidebar",
+  "settings": "Settings",
+  "shareAnalytics": "Share anonymous usage analytics",
+  "signIn": "Sign in",
+  "signOut": "Sign out",
+  "signedIn": "You're signed in.",
+  "unlock": "Unlock",
+  "unlockReason": "Unlock AEDST to continue",
+  "upgradeButton": "Open the App Store",
+  "upgradeMessage": "This version of AEDST is no longer supported. Update the app to continue.",
+  "upgradeTitle": "Update required",
+  "preferencesTitle": "AEDST Preferences"
+}

@@ -182,6 +182,7 @@ tasks:
     desc: i18n key and placeholder parity across web, android, apple and desktop (en, ru, tg, uz, ar). Pass --cross for the cross-platform report.
     cmds:
       - node scripts/check-i18n-parity.mjs {{.CLI_ARGS}}
+      - node packages/i18n/build.mjs --check
 
   check:boundaries:
     desc: Feature module boundary checks for all platforms (web, android, apple, desktop scripts + server architecturetest).

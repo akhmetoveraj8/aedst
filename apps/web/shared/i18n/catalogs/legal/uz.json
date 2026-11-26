@@ -1,0 +1,50 @@
+{
+  "privacy": {
+    "title": "Maxfiylik siyosati",
+    "updated": "Oxirgi yangilanish: 2026-yil 28-oktabr",
+    "notice": "Namunaviy matn. Ushbu hujjat ishga tushirishdan oldin operatorning yuristi tomonidan ko'rib chiqilib, almashtirilishi kerak.",
+    "intro": "Ushbu siyosat AEDST marketing sayti qanday ma'lumot yig'ishi va undan qanday foydalanishini tushuntiradi.",
+    "sections": {
+      "s1": {
+        "title": "Nimalarni yig'amiz",
+        "body": "Saytdan foydalanish uchun akkaunt kerak emas va u kuzatuvchi cookie fayllarni o'rnatmaydi. Serverlarimiz IP manzil, vaqt va so'ralgan sahifa kabi oddiy texnik jurnallarni yuritadi."
+      },
+      "s2": {
+        "title": "Tahlil",
+        "body": "Ixtiyoriy tahlil ushbu saytda faol emas. Qo'shilsa, u faqat roziligingizdan keyin ishlaydi."
+      },
+      "s3": {
+        "title": "Ilovadagi akkauntingiz",
+        "body": "AEDST ilovasiga kirganingizda, u yerda saqlanadigan ma'lumotlarga ilovaning o'z maxfiylik siyosati qo'llaniladi."
+      },
+      "s4": {
+        "title": "Aloqa",
+        "body": "Maxfiylik bo'yicha so'rovlar uchun operatorning aloqa ma'lumotlari ishga tushirishdan oldin shu yerda e'lon qilinadi."
+      }
+    }
+  },
+  "terms": {
+    "title": "Foydalanish shartlari",
+    "updated": "Oxirgi yangilanish: 2026-yil 28-oktabr",
+    "notice": "Namunaviy matn. Ushbu shartlar ishga tushirishdan oldin operatorning yuristi tomonidan ko'rib chiqilib, almashtirilishi kerak.",
+    "intro": "Ushbu shartlar AEDST marketing saytidan foydalanishni tartibga soladi.",
+    "sections": {
+      "s1": {
+        "title": "Saytdan foydalanish",
+        "body": "Saytni qonuniy maqsadlarda ko'rishingiz mumkin. Uning ishiga xalaqit berishga yoki ruxsatsiz kirishga urinmang."
+      },
+      "s2": {
+        "title": "Kontent",
+        "body": "Sayt kontenti faqat ma'lumot uchun taqdim etiladi. Ko'rsatilgan tarif va narxlar namunaviy bo'lib, o'zgarishi mumkin."
+      },
+      "s3": {
+        "title": "AEDST ilovasi",
+        "body": "Tizimga kirgandan keyingi ilovadan foydalanish akkaunt yaratishda ko'rsatiladigan shartlar bilan tartibga solinadi."
+      },
+      "s4": {
+        "title": "O'zgarishlar",
+        "body": "Biz ushbu shartlarni yangilashimiz mumkin. Sahifa tepasidagi sana oxirgi tahrirni ko'rsatadi."
+      }
+    }
+  }
+}

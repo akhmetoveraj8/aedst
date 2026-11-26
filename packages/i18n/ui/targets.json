@@ -1,0 +1,266 @@
+{
+  "a11y.avatar": [
+    "android"
+  ],
+  "a11y.avatarNamed": [
+    "android"
+  ],
+  "a11y.breadcrumb": [
+    "android"
+  ],
+  "a11y.close": [
+    "android"
+  ],
+  "a11y.collapsed": [
+    "android"
+  ],
+  "a11y.copyCode": [
+    "android"
+  ],
+  "a11y.expanded": [
+    "android"
+  ],
+  "a11y.loading": [
+    "android"
+  ],
+  "a11y.morePages": [
+    "android"
+  ],
+  "a11y.next": [
+    "android"
+  ],
+  "a11y.openMenu": [
+    "android"
+  ],
+  "a11y.page": [
+    "android"
+  ],
+  "a11y.pagination": [
+    "android"
+  ],
+  "a11y.previous": [
+    "android"
+  ],
+  "a11y.resizeHandle": [
+    "android"
+  ],
+  "a11y.slide": [
+    "android"
+  ],
+  "a11y.sortAscending": [
+    "android"
+  ],
+  "a11y.sortDescending": [
+    "android"
+  ],
+  "a11y.sortNone": [
+    "android"
+  ],
+  "action.cancel": [
+    "android"
+  ],
+  "action.confirm": [
+    "android"
+  ],
+  "action.ok": [
+    "android"
+  ],
+  "action.retry": [
+    "android"
+  ],
+  "breadcrumb": [
+    "apple"
+  ],
+  "cancel": [
+    "apple"
+  ],
+  "chart": [
+    "apple"
+  ],
+  "checkbox": [
+    "apple"
+  ],
+  "checked": [
+    "apple"
+  ],
+  "clear": [
+    "apple"
+  ],
+  "close": [
+    "apple"
+  ],
+  "code": [
+    "apple"
+  ],
+  "collapsed": [
+    "apple"
+  ],
+  "commandPalette": [
+    "apple"
+  ],
+  "continue": [
+    "apple"
+  ],
+  "copied": [
+    "apple"
+  ],
+  "copy": [
+    "apple"
+  ],
+  "error.conflict": [
+    "android"
+  ],
+  "error.forbidden": [
+    "android"
+  ],
+  "error.network": [
+    "android"
+  ],
+  "error.notFound": [
+    "android"
+  ],
+  "error.offline": [
+    "android"
+  ],
+  "error.rateLimited": [
+    "android"
+  ],
+  "error.storage": [
+    "android"
+  ],
+  "error.unauthorized": [
+    "android"
+  ],
+  "error.unknown": [
+    "android"
+  ],
+  "error.upgradeRequired": [
+    "android"
+  ],
+  "error.validation": [
+    "android"
+  ],
+  "errorTitle": [
+    "apple"
+  ],
+  "expanded": [
+    "apple"
+  ],
+  "imageUnavailable": [
+    "apple"
+  ],
+  "loading": [
+    "apple"
+  ],
+  "menu": [
+    "apple"
+  ],
+  "more": [
+    "apple"
+  ],
+  "morePages": [
+    "apple"
+  ],
+  "next": [
+    "apple"
+  ],
+  "nextSlide": [
+    "apple"
+  ],
+  "noData": [
+    "apple"
+  ],
+  "noResults": [
+    "apple"
+  ],
+  "offline.banner": [
+    "android"
+  ],
+  "oK": [
+    "apple"
+  ],
+  "oneTimeCode": [
+    "apple"
+  ],
+  "pagination": [
+    "apple"
+  ],
+  "previous": [
+    "apple"
+  ],
+  "previousSlide": [
+    "apple"
+  ],
+  "progress": [
+    "apple"
+  ],
+  "required": [
+    "apple"
+  ],
+  "resizeHandle": [
+    "apple"
+  ],
+  "retry": [
+    "apple"
+  ],
+  "search": [
+    "apple"
+  ],
+  "selectAllRows": [
+    "apple"
+  ],
+  "selectOption": [
+    "apple"
+  ],
+  "selectRow": [
+    "apple"
+  ],
+  "showDetails": [
+    "apple"
+  ],
+  "sidebar": [
+    "apple"
+  ],
+  "sortAscending": [
+    "apple"
+  ],
+  "sortDescending": [
+    "apple"
+  ],
+  "switch": [
+    "apple"
+  ],
+  "toggleSidebar": [
+    "apple"
+  ],
+  "traceError": [
+    "apple"
+  ],
+  "tracePending": [
+    "apple"
+  ],
+  "traceRunning": [
+    "apple"
+  ],
+  "traceSkipped": [
+    "apple"
+  ],
+  "traceSuccess": [
+    "apple"
+  ],
+  "unchecked": [
+    "apple"
+  ],
+  "upgrade.action": [
+    "android"
+  ],
+  "upgrade.body": [
+    "android"
+  ],
+  "upgrade.title": [
+    "android"
+  ],
+  "wrapLines": [
+    "apple"
+  ]
+}

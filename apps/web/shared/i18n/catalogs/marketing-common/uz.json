@@ -1,0 +1,46 @@
+{
+  "appName": "AEDST",
+  "appDescription": "AEDST jamoalarga vazifalarni tez va qulay, oflayn ishlaydigan va besh tilni qo'llab-quvvatlaydigan ilovada rejalashtirish, kuzatish va yakunlashga yordam beradi.",
+  "a11y": {
+    "skipToContent": "Asosiy mazmunga o'tish",
+    "mainNav": "Asosiy navigatsiya",
+    "language": "Til",
+    "previousSlide": "Oldingi slayd",
+    "nextSlide": "Keyingi slayd",
+    "toggleSidebar": "Yon panelni ko'rsatish yoki yashirish",
+    "sidebar": "Yon panel",
+    "sidebarDescription": "Navigatsiya paneli",
+    "commandPalette": "Buyruqlar palitrasi",
+    "commandPaletteDescription": "Bajarish uchun buyruqni qidiring",
+    "loading": "Yuklanmoqda",
+    "messages": "Xabarlar",
+    "questionnaireProgress": "So'rovnoma jarayoni",
+    "questionProgress": "Savol {current} / {total}"
+  },
+  "nav": {
+    "features": "Imkoniyatlar",
+    "howItWorks": "Qanday ishlaydi",
+    "pricing": "Narxlar",
+    "faq": "Savol-javob"
+  },
+  "actions": {
+    "signIn": "Kirish",
+    "getStarted": "Boshlash",
+    "goHome": "Bosh sahifaga",
+    "tryAgain": "Qayta urinish",
+    "close": "Yopish"
+  },
+  "errors": {
+    "title": "Nimadir xato ketdi",
+    "generic": "Sahifani ko'rsatib bo'lmadi. Iltimos, qayta urinib ko'ring.",
+    "notFoundTitle": "Sahifa topilmadi",
+    "notFoundDescription": "Bunday sahifa mavjud emas yoki ko'chirilgan."
+  },
+  "footer": {
+    "tagline": "Vazifalarni rejalashtiring, kuzating va yakunlang.",
+    "privacy": "Maxfiylik",
+    "terms": "Shartlar",
+    "legal": "Huquqiy ma'lumot",
+    "rights": "© {year} AEDST. Barcha huquqlar himoyalangan."
+  }
+}

@@ -7,31 +7,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "لا توجد إشعارات جديدة."
+            "value" : "لا توجد إشعارات بعد."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You're all caught up."
+            "value" : "No notifications yet."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Новых уведомлений нет."
+            "value" : "Уведомлений пока нет."
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Огоҳиномаи нав нест."
+            "value" : "Ҳоло огоҳинома нест."
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yangi bildirishnomalar yoʻq."
+            "value" : "Hozircha bildirishnomalar yo‘q."
           }
         }
       }
@@ -159,7 +159,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Отметить все прочитанными"
+            "value" : "Отметить все как прочитанные"
           }
         },
         "tg" : {
@@ -171,7 +171,7 @@
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hammasini oʻqilgan deb belgilash"
+            "value" : "Hammasini o‘qilgan deb belgilash"
           }
         }
       }
@@ -207,6 +207,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yana"
+          }
+        }
+      }
+    },
+    "notificationsPreferences" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إعدادات الإشعارات"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification settings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки уведомлений"
+          }
+        },
+        "tg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Танзимоти огоҳиномаҳо"
+          }
+        },
+        "uz" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildirishnoma sozlamalari"
           }
         }
       }
@@ -252,31 +287,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "الملفات المعالجة"
+            "value" : "اكتمال معالجة ملف"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Processed files"
+            "value" : "File processed"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Обработанных файлах"
+            "value" : "Файл обработан"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Файлҳои коркардшуда"
+            "value" : "Файл коркард шуд"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Qayta ishlangan fayllar"
+            "value" : "Fayl qayta ishlandi"
           }
         }
       }
@@ -322,31 +357,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "المهام المنجزة"
+            "value" : "اكتمال مهمة"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Completed tasks"
+            "value" : "Task completed"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выполненных задачах"
+            "value" : "Задача завершена"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Вазифаҳои иҷрошуда"
+            "value" : "Вазифа анҷом ёфт"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bajarilgan vazifalar"
+            "value" : "Vazifa bajarildi"
           }
         }
       }
@@ -357,66 +392,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "المواعيد النهائية القادمة"
+            "value" : "اقتراب موعد مهمة"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Upcoming due dates"
+            "value" : "Task due soon"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Приближающихся сроках"
+            "value" : "Скоро срок задачи"
           }
         },
         "tg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Мӯҳлатҳои наздик"
+            "value" : "Мӯҳлати вазифа наздик аст"
           }
         },
         "uz" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yaqinlashayotgan muddatlar"
-          }
-        }
-      }
-    },
-    "notificationsPreferences" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "إعدادات الإشعارات"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notification settings"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Настройки уведомлений"
-          }
-        },
-        "tg" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Танзимоти огоҳиномаҳо"
-          }
-        },
-        "uz" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bildirishnoma sozlamalari"
+            "value" : "Vazifa muddati yaqin"
           }
         }
       }
@@ -424,6 +424,12 @@
     "notificationsRefresh" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تحديث"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -446,12 +452,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yangilash"
-          }
-        },
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تحديث"
           }
         }
       }

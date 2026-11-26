@@ -1,13 +1,21 @@
-# aedst-feature-search: Search screen strings (en).
-# Source text.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-search\n"
+"Project-Id-Version: search\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Load more"
+msgstr "Load more"
+
+msgid "Search tasks and files"
+msgstr "Search tasks and files"
 
 msgid "You are offline. Search needs a connection."
 msgstr "You are offline. Search needs a connection."
@@ -54,14 +62,8 @@ msgstr "File"
 msgid "Other"
 msgstr "Other"
 
-msgid "Search"
-msgstr "Search"
-
 msgid "About {} results"
 msgstr "About {} results"
-
-msgid "Search tasks and files"
-msgstr "Search tasks and files"
 
 msgid "Suggestions"
 msgstr "Suggestions"
@@ -89,6 +91,3 @@ msgstr "Try a different word or check the spelling."
 
 msgid "Loading..."
 msgstr "Loading..."
-
-msgid "Load more"
-msgstr "Load more"

@@ -1,14 +1,13 @@
 import { i18nModules } from "@/app/config/i18n/modules";
-import type { Locale } from "@/shared/i18n/locales";
+import { type Locale, sharedLocale } from "@/shared/i18n/locales";
 
 type JsonModule = { default: Record<string, unknown> };
 
 // One lazy chunk per catalogue file: only the active locale is ever fetched.
-const commonCatalogues = import.meta.glob<JsonModule>(
-  "/src/app/config/i18n/common/*.json",
-);
+// Module catalogues are generated from packages/i18n into apps/web/shared (see its README).
+const SHARED_CATALOGUES = "../../../../../shared/i18n/catalogs";
 const moduleCatalogues = import.meta.glob<JsonModule>(
-  "/src/modules/*/i18n/*.json",
+  "../../../../../shared/i18n/catalogs/*/*.json",
 );
 
 async function load(
@@ -25,7 +24,7 @@ async function load(
 /**
  * Assembles the `messages` object for a locale by merging:
  * - `common`: cross-cutting strings shared by every module (nav, actions, errors)
- * - one namespace per feature module, from `src/modules/<module>/i18n/<locale>.json`
+ * - one namespace per feature module, from `shared/i18n/catalogs/<module>/<locale>.json` (generated from `packages/i18n`)
  *
  * This keeps translations co-located with the module that owns them instead
  * of a single growing `messages/<locale>.json` file. `namespaces` limits the
@@ -38,14 +37,17 @@ export async function loadMessages(
   const requested = new Set(namespaces);
   const wanted = i18nModules.filter((module) => requested.has(module));
   const [common, ...moduleEntries] = await Promise.all([
-    load(commonCatalogues, `/src/app/config/i18n/common/${locale}.json`),
+    load(
+      moduleCatalogues,
+      `${SHARED_CATALOGUES}/admin-common/${sharedLocale(locale)}.json`,
+    ),
     ...wanted.map(
       async (module) =>
         [
           module,
           await load(
             moduleCatalogues,
-            `/src/modules/${module}/i18n/${locale}.json`,
+            `${SHARED_CATALOGUES}/${module}/${sharedLocale(locale)}.json`,
           ),
         ] as const,
     ),

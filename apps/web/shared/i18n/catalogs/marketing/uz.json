@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "title": "Vazifalarni rejalashtiring va yakunlang, onlayn va oflayn"
+  },
+  "hero": {
+    "eyebrow": "Tez, qulay, oflayn ishlaydi",
+    "title": "Vazifalarni istalgan joyda rejalashtiring, kuzating va yakunlang",
+    "subtitle": "AEDST — sekin tarmoqlarda ham tez ishlaydigan, oflayn rejimni qo'llab-quvvatlaydigan va o'zbek, rus, tojik, ingliz hamda arab tillarida mavjud vazifalar ilovasi.",
+    "primary": "Boshlash",
+    "secondary": "Qanday ishlaydi"
+  },
+  "features": {
+    "title": "Ishni nazorat ostida tutish uchun hamma narsa",
+    "subtitle": "Tezlik, qulaylik va ishonch uchun yaratilgan asosiy imkoniyatlar.",
+    "items": {
+      "offline": {
+        "title": "Oflayn ishlaydi",
+        "description": "Vazifalarni internetsiz yarating va tahrirlang. O'zgarishlar navbatga qo'yiladi va aloqa tiklanganda yuboriladi."
+      },
+      "fast": {
+        "title": "Tezlikka mo'ljallangan",
+        "description": "Sahifalar tez yuklanadi va hatto zaif telefonlar hamda sekin tarmoqlarda ham yengil qoladi."
+      },
+      "accessible": {
+        "title": "Hamma uchun qulay",
+        "description": "Klaviatura bilan qulay, ekran o'qigichlarda sinalgan, yorug' va qorong'i mavzularda o'qish oson."
+      },
+      "secure": {
+        "title": "Maxfiy va xavfsiz",
+        "description": "Kirish tokenlari sahifa skriptlariga o'tmaydi, ma'lumotlaringiz esa o'z nazoratingizda qoladi."
+      },
+      "languages": {
+        "title": "Besh til",
+        "description": "O'zbek, rus, tojik, ingliz va arab tillari, shu jumladan o'ngdan chapga to'liq joylashuv."
+      },
+      "sync": {
+        "title": "Doim sinxron",
+        "description": "Vazifalaringiz telefon, planshet va kompyuterda siz bilan birga."
+      }
+    }
+  },
+  "howItWorks": {
+    "title": "Qanday ishlaydi",
+    "steps": {
+      "create": {
+        "title": "Yarating",
+        "description": "Vazifani bir necha soniyada muddat va eslatmalar bilan yozib oling."
+      },
+      "organize": {
+        "title": "Tartibga soling",
+        "description": "Qidiring, saralang va tartiblang, bugungi muhim ishlarga e'tibor qarating."
+      },
+      "finish": {
+        "title": "Yakunlang",
+        "description": "Vazifalarni bajarilgan deb belgilang va keyingisi haqida xabar oling."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Oddiy narxlar",
+    "subtitle": "Bepul boshlang, jamoangiz kengayganda tarifni oshiring.",
+    "popular": "Eng ommabop",
+    "note": "Tariflar namunaviy: yakuniy nomlar, narxlar va cheklovlar ishga tushirishdan oldin e'lon qilinadi.",
+    "tiers": {
+      "free": {
+        "name": "Bepul",
+        "price": "$0",
+        "description": "Endi boshlayotganlar uchun.",
+        "f1": "Cheksiz shaxsiy vazifalar",
+        "f2": "Oflayn rejim",
+        "f3": "Barcha besh til",
+        "cta": "Bepul boshlash"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "Keyinroq e'lon qilinadi",
+        "description": "Ko'proq istaganlar uchun.",
+        "f1": "Bepul tarifdagi hamma narsa",
+        "f2": "Biriktirmalar va qidiruv",
+        "f3": "Ustuvor yordam",
+        "cta": "Boshlash"
+      },
+      "team": {
+        "name": "Jamoa",
+        "price": "Keyinroq e'lon qilinadi",
+        "description": "Birgalikda ishlaydigan jamoalar uchun.",
+        "f1": "Pro tarifidagi hamma narsa",
+        "f2": "Umumiy ish maydonlari",
+        "f3": "Administrator sozlamalari",
+        "cta": "Boshlash"
+      }
+    }
+  },
+  "faq": {
+    "title": "Ko'p so'raladigan savollar",
+    "items": {
+      "q1": {
+        "question": "AEDST nima?",
+        "answer": "AEDST — vazifalarni rejalashtirish, kuzatish va yakunlash uchun ilova. U tez, qulay va internetsiz ham ishlaydi."
+      },
+      "q2": {
+        "question": "U oflayn ishlaydimi?",
+        "answer": "Ha. Vazifalarni oflayn yaratish va tahrirlash mumkin. O'zgarishlar qurilmada saqlanadi va ulanganingizdan so'ng avtomatik yuboriladi."
+      },
+      "q3": {
+        "question": "Qaysi tillar qo'llab-quvvatlanadi?",
+        "answer": "O'zbek, rus, tojik, ingliz va arab tillari. Arab tili uchun o'ngdan chapga to'liq joylashuv ishlatiladi."
+      },
+      "q4": {
+        "question": "Bepul tarif bormi?",
+        "answer": "Bepul tarif rejalashtirilgan. Ushbu sahifadagi narxlar namunaviy va ishga tushirishdan oldin tasdiqlanadi."
+      },
+      "q5": {
+        "question": "Ma'lumotlarim qanday himoyalanadi?",
+        "answer": "Kirish sessiyalari sahifa skriptlari o'qiy olmaydigan xavfsiz cookie fayllarda saqlanadi, tahlil esa faqat roziligingizdan keyin ishlaydi. Tafsilotlar maxfiylik siyosatida."
+      }
+    }
+  },
+  "cta": {
+    "title": "Ishlarni bitirishga tayyormisiz?",
+    "subtitle": "Bir daqiqada akkaunt yarating va bugunoq rejalashtirishni boshlang.",
+    "button": "Boshlash"
+  }
+}

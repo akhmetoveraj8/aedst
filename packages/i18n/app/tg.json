@@ -1,0 +1,41 @@
+{
+  "nav": {
+    "tasks": "Вазифаҳо",
+    "search": "Ҷустуҷӯ",
+    "notifications": "Огоҳиномаҳо",
+    "media": "Файлҳо",
+    "account": "Ҳисоб",
+    "admin": "Маъмур"
+  },
+  "update": {
+    "recommended": "Версияи нави AEDST дастрас аст.",
+    "recommendedAction": "Навсозӣ",
+    "recommendedLater": "Ҳоло не"
+  },
+  "outbox": {
+    "failedTitle": "Баъзе тағйирот фиристода нашуд",
+    "failedDescription": "Ин тағйирот фиристода нашуд. Такрор кунед ё нест кунед.",
+    "failedDiscard": "Нест кардан"
+  },
+  "enableNotifications": "Фаъол кардани огоҳиномаҳо",
+  "homeAdmin": "Маъмурият",
+  "homeFiles": "Файлҳо",
+  "homeNotifications": "Огоҳиномаҳо",
+  "homeSearch": "Ҷустуҷӯ",
+  "homeTasks": "Вазифаҳо",
+  "locked": "AEDST қулф аст",
+  "offline": "Пайвастшавӣ ба интернет нест. Баъзе функсияҳо дастнорасанд.",
+  "requireBiometrics": "Кушодани биометрӣ талаб карда шавад",
+  "selectSection": "Бахшро дар панели канорӣ интихоб кунед",
+  "settings": "Танзимот",
+  "shareAnalytics": "Мубодилаи омори истифодаи беном",
+  "signIn": "Ворид шудан",
+  "signOut": "Баромад",
+  "signedIn": "Шумо ворид шудед.",
+  "unlock": "Кушодан",
+  "unlockReason": "Барои идома додан AEDST-ро кушоед",
+  "upgradeButton": "App Store-ро кушоед",
+  "upgradeMessage": "Ин нусхаи AEDST дигар дастгирӣ намешавад. Барои идома додан барномаро навсозӣ кунед.",
+  "upgradeTitle": "Навсозӣ лозим аст",
+  "preferencesTitle": "Танзимоти AEDST"
+}

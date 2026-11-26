@@ -1,21 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
     <string name="auth_login_title">Вход</string>
+    <string name="auth_login_submit">Войти</string>
     <string name="auth_login_subtitle">Вы войдёте на защищённой странице входа в браузере.</string>
-    <string name="auth_login_submit">Продолжить</string>
     <string name="auth_login_not_configured">Вход не настроен в этой сборке приложения.</string>
     <string name="auth_login_no_browser">Не найден браузер для входа. Установите или включите браузер и повторите попытку.</string>
     <string name="auth_login_failed_title">Не удалось войти</string>
-
     <string name="auth_sign_out">Выйти</string>
     <string name="auth_signed_in_as">Вы вошли как %1$s</string>
     <string name="auth_analytics_consent">Отправлять анонимную статистику использования</string>
-
     <string name="auth_device_title">Вход на телевизоре</string>
     <string name="auth_device_step_open">На телефоне или компьютере откройте</string>
     <string name="auth_device_step_enter">и введите код</string>
     <string name="auth_device_code_description">Код: %1$s</string>
     <string name="auth_device_or_open">Или откройте сразу: %1$s</string>
-    <string name="auth_device_expires_in">Код действует ещё %1$d:%2$02d</string>
     <string name="auth_device_waiting">Ожидаем подтверждения…</string>
     <string name="auth_device_denied">Вход отклонён на другом устройстве.</string>
     <string name="auth_device_expired">Время действия кода истекло.</string>

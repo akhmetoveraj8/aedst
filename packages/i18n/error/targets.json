@@ -1,0 +1,32 @@
+{
+  "conflict": [
+    "apple"
+  ],
+  "forbidden": [
+    "apple"
+  ],
+  "network": [
+    "apple"
+  ],
+  "notFound": [
+    "apple"
+  ],
+  "rateLimited": [
+    "apple"
+  ],
+  "storage": [
+    "apple"
+  ],
+  "unauthorized": [
+    "apple"
+  ],
+  "unknown": [
+    "apple"
+  ],
+  "upgradeRequired": [
+    "apple"
+  ],
+  "validation": [
+    "apple"
+  ]
+}

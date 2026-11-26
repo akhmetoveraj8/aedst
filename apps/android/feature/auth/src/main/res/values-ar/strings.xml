@@ -1,21 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
     <string name="auth_login_title">تسجيل الدخول</string>
+    <string name="auth_login_submit">تسجيل الدخول</string>
     <string name="auth_login_subtitle">ستسجّل الدخول عبر صفحة آمنة في المتصفح.</string>
-    <string name="auth_login_submit">متابعة</string>
     <string name="auth_login_not_configured">تسجيل الدخول غير مهيأ في هذا الإصدار من التطبيق.</string>
     <string name="auth_login_no_browser">لم يتم العثور على متصفح لتسجيل الدخول. ثبّت متصفحًا أو فعّله وحاول مرة أخرى.</string>
     <string name="auth_login_failed_title">فشل تسجيل الدخول</string>
-
     <string name="auth_sign_out">تسجيل الخروج</string>
     <string name="auth_signed_in_as">تم تسجيل الدخول باسم %1$s</string>
     <string name="auth_analytics_consent">مشاركة إحصاءات استخدام مجهولة الهوية</string>
-
     <string name="auth_device_title">سجّل الدخول على التلفزيون</string>
     <string name="auth_device_step_open">على هاتفك أو حاسوبك، افتح</string>
     <string name="auth_device_step_enter">وأدخل الرمز</string>
     <string name="auth_device_code_description">الرمز: %1$s</string>
     <string name="auth_device_or_open">أو افتح مباشرة: %1$s</string>
-    <string name="auth_device_expires_in">ينتهي الرمز خلال %1$d:%2$02d</string>
     <string name="auth_device_waiting">في انتظار الموافقة…</string>
     <string name="auth_device_denied">تم رفض تسجيل الدخول على الجهاز الآخر.</string>
     <string name="auth_device_expired">انتهت صلاحية الرمز.</string>

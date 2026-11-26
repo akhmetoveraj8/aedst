@@ -1,13 +1,48 @@
-# aedst-feature-tasks: Tasks screen strings (en).
-# Source language.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-tasks\n"
+"Project-Id-Version: tasks\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Tasks"
+msgstr "Tasks"
+
+msgid "In progress"
+msgstr "In progress"
+
+msgid "No tasks yet"
+msgstr "No tasks yet"
+
+msgid "Done"
+msgstr "Done"
+
+msgid "Unknown"
+msgstr "Unknown"
+
+msgid "Low"
+msgstr "Low"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "High"
+msgstr "High"
+
+msgid "Urgent"
+msgstr "Urgent"
+
+msgid "Choose a priority."
+msgstr "Choose a priority."
+
+msgid "Pending sync"
+msgstr "Pending sync"
+
+msgid "Enter a title."
+msgstr "Enter a title."
 
 msgid "You are offline. Changes will sync later."
 msgstr "You are offline. Changes will sync later."
@@ -45,44 +80,14 @@ msgstr "Could not save on this device."
 msgid "Something went wrong."
 msgstr "Something went wrong."
 
-msgid "Enter a title."
-msgstr "Enter a title."
-
 msgid "The title is too long (200 characters at most)."
 msgstr "The title is too long (200 characters at most)."
 
 msgid "The description is too long."
 msgstr "The description is too long."
 
-msgid "Choose a priority."
-msgstr "Choose a priority."
-
 msgid "To do"
 msgstr "To do"
-
-msgid "In progress"
-msgstr "In progress"
-
-msgid "Done"
-msgstr "Done"
-
-msgid "Unknown"
-msgstr "Unknown"
-
-msgid "Low"
-msgstr "Low"
-
-msgid "Medium"
-msgstr "Medium"
-
-msgid "High"
-msgstr "High"
-
-msgid "Urgent"
-msgstr "Urgent"
-
-msgid "Tasks"
-msgstr "Tasks"
 
 msgid "{} in total"
 msgstr "{} in total"
@@ -111,17 +116,11 @@ msgstr "Could not load tasks"
 msgid "Try again"
 msgstr "Try again"
 
-msgid "No tasks yet"
-msgstr "No tasks yet"
-
 msgid "Add your first task above."
 msgstr "Add your first task above."
 
 msgid "Mark \"{}\" as done"
 msgstr "Mark \"{}\" as done"
-
-msgid "Pending sync"
-msgstr "Pending sync"
 
 msgid "Load more"
 msgstr "Load more"

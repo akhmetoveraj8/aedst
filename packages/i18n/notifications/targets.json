@@ -1,0 +1,266 @@
+{
+  "back": [
+    "android"
+  ],
+  "bell.label": [
+    "web",
+    "desktop"
+  ],
+  "bell.labelWithCount": [
+    "web"
+  ],
+  "channel.media": [
+    "android"
+  ],
+  "channel.system": [
+    "android"
+  ],
+  "channel.tasks": [
+    "android"
+  ],
+  "chooseWhichNotificationsYouReceive": [
+    "desktop"
+  ],
+  "couldNotLoadNotifications": [
+    "desktop"
+  ],
+  "couldNotLoadPreferences": [
+    "desktop"
+  ],
+  "couldNotSaveOnThisDevice": [
+    "desktop"
+  ],
+  "couldNotSaveTheSettingValue": [
+    "desktop"
+  ],
+  "empty": [
+    "android",
+    "apple"
+  ],
+  "filter": [
+    "apple"
+  ],
+  "filterAll": [
+    "apple"
+  ],
+  "filterUnread": [
+    "apple"
+  ],
+  "inbox.all": [
+    "web",
+    "desktop"
+  ],
+  "inbox.emptyDescription": [
+    "web"
+  ],
+  "inbox.emptyTitle": [
+    "web"
+  ],
+  "inbox.errorTitle": [
+    "web"
+  ],
+  "inbox.filterLabel": [
+    "web"
+  ],
+  "inbox.listLabel": [
+    "web"
+  ],
+  "inbox.loadMore": [
+    "web",
+    "desktop"
+  ],
+  "inbox.markAllRead": [
+    "web",
+    "desktop"
+  ],
+  "inbox.preferences": [
+    "web"
+  ],
+  "inbox.retry": [
+    "web"
+  ],
+  "inbox.title": [
+    "web"
+  ],
+  "inbox.unread": [
+    "web",
+    "desktop"
+  ],
+  "inbox.unreadMarker": [
+    "web"
+  ],
+  "load.more": [
+    "android"
+  ],
+  "loading": [
+    "desktop"
+  ],
+  "mark.allRead": [
+    "android",
+    "apple"
+  ],
+  "marking": [
+    "desktop"
+  ],
+  "mediaReady": [
+    "desktop"
+  ],
+  "more": [
+    "apple"
+  ],
+  "noNotificationsYet": [
+    "desktop"
+  ],
+  "noUnreadNotifications": [
+    "desktop"
+  ],
+  "other": [
+    "desktop"
+  ],
+  "pleaseSignInAgain": [
+    "desktop"
+  ],
+  "pleaseUpdateTheAppToContinue": [
+    "desktop"
+  ],
+  "pref.mediaReady": [
+    "android",
+    "apple"
+  ],
+  "pref.push": [
+    "android",
+    "apple"
+  ],
+  "pref.taskCompleted": [
+    "android",
+    "apple",
+    "desktop"
+  ],
+  "pref.taskDueSoon": [
+    "android",
+    "apple",
+    "desktop"
+  ],
+  "preferences.kindsTitle": [
+    "web"
+  ],
+  "preferences.loadError": [
+    "web"
+  ],
+  "preferences.metaTitle": [
+    "web"
+  ],
+  "preferences.retry": [
+    "web"
+  ],
+  "preferences.saved": [
+    "web"
+  ],
+  "preferences.title": [
+    "web",
+    "desktop"
+  ],
+  "preferences.toggles.mediaReady": [
+    "web"
+  ],
+  "preferences.toggles.pushEnabled": [
+    "web"
+  ],
+  "preferences.toggles.taskCompleted": [
+    "web"
+  ],
+  "preferences.toggles.taskDueSoon": [
+    "web"
+  ],
+  "prefKinds": [
+    "apple"
+  ],
+  "push.blocked": [
+    "web"
+  ],
+  "push.checking": [
+    "web"
+  ],
+  "push.disable": [
+    "web"
+  ],
+  "push.enable": [
+    "web"
+  ],
+  "push.failed": [
+    "web"
+  ],
+  "push.notConfigured": [
+    "web"
+  ],
+  "push.off": [
+    "web"
+  ],
+  "push.on": [
+    "web"
+  ],
+  "push.requiresInstall": [
+    "web"
+  ],
+  "push.title": [
+    "web"
+  ],
+  "push.unsupported": [
+    "web"
+  ],
+  "refresh": [
+    "apple"
+  ],
+  "showNotifications": [
+    "desktop"
+  ],
+  "somethingWentWrong": [
+    "desktop"
+  ],
+  "system": [
+    "desktop"
+  ],
+  "theRequestTookTooLong": [
+    "desktop"
+  ],
+  "theServerDidNotAcceptThis": [
+    "desktop"
+  ],
+  "theServerIsNotAvailableRight": [
+    "desktop"
+  ],
+  "thisNotificationNoLongerExists": [
+    "desktop"
+  ],
+  "thisWasChangedElsewhere": [
+    "desktop"
+  ],
+  "title": [
+    "android",
+    "apple"
+  ],
+  "tooManyRequestsTryAgainIn": [
+    "desktop"
+  ],
+  "tryAgain": [
+    "desktop"
+  ],
+  "unread.count": [
+    "android"
+  ],
+  "unreadValue": [
+    "desktop"
+  ],
+  "valueUnread": [
+    "desktop"
+  ],
+  "youAreAllCaughtUp": [
+    "desktop"
+  ],
+  "youAreOfflineTryAgainWhen": [
+    "desktop"
+  ],
+  "youDoNotHaveAccessTo": [
+    "desktop"
+  ]
+}

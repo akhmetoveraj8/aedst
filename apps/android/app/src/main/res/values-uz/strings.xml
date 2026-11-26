@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
     <string name="nav_tasks">Vazifalar</string>
     <string name="nav_search">Qidiruv</string>
@@ -5,7 +7,6 @@
     <string name="nav_media">Fayllar</string>
     <string name="nav_account">Hisob</string>
     <string name="nav_admin">Admin</string>
-
     <string name="update_recommended">AEDST ning yangi versiyasi mavjud.</string>
     <string name="update_recommended_action">Yangilash</string>
     <string name="update_recommended_later">Hozir emas</string>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from packages/i18n; do not edit -->
 <resources>
-    <string name="admin_title">Маъмурият</string>
+    <string name="admin_title">Идоракунӣ</string>
+    <string name="admin_tasks_total">Вазифаҳо</string>
+    <string name="admin_tasks_done">Иҷрошуда</string>
+    <string name="admin_tasks_overdue">Мӯҳлатгузашта</string>
     <string name="admin_forbidden">Ин қисмат танҳо барои маъмурон дастрас аст.</string>
     <string name="admin_tab_overview">Шарҳ</string>
     <string name="admin_tab_tasks">Вазифаҳо</string>
@@ -10,9 +14,6 @@
     <string name="admin_delete_reason">Сабаб (дар маҷаллаи аудит сабт мешавад)</string>
     <string name="admin_delete_confirm">Нест кардан</string>
     <string name="admin_cancel">Бекор кардан</string>
-    <string name="admin_tasks_total">Вазифаҳо</string>
-    <string name="admin_tasks_done">Иҷрошуда</string>
-    <string name="admin_tasks_overdue">Мӯҳлатгузашта</string>
     <string name="admin_media_total">Файлҳо</string>
     <string name="admin_push_devices">Дастгоҳҳои push</string>
     <string name="admin_outbox_lag">Таъхири outbox, с</string>

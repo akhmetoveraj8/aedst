@@ -1,0 +1,15 @@
+{
+  "upload": {
+    "channelName": "Fayllarni yuklash",
+    "notificationTitle": "Fayl yuklanmoqda…",
+    "preparing": "Tayyorlanmoqda…",
+    "uploading": "Yuklanmoqda…",
+    "finishing": "Yakunlanmoqda…",
+    "done": "Yuklandi",
+    "failed": "Yuklab bo‘lmadi",
+    "cancelled": "Bekor qilindi",
+    "cancel": "Yuklashni bekor qilish"
+  },
+  "play": "Ijro etish",
+  "pause": "Pauza"
+}

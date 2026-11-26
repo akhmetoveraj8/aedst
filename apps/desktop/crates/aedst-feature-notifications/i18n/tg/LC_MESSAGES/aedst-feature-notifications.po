@@ -1,13 +1,36 @@
-# aedst-feature-notifications: Notifications views strings (tg).
-# Machine-assisted translation; native review is advisable.
+# GENERATED from packages/i18n; do not edit
 msgid ""
 msgstr ""
-"Project-Id-Version: aedst-feature-notifications\n"
+"Project-Id-Version: notifications\n"
 "Language: tg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Notifications"
+msgstr "Огоҳиномаҳо"
+
+msgid "Mark all as read"
+msgstr "Ҳамаро хондашуда қайд кардан"
+
+msgid "All"
+msgstr "Ҳама"
+
+msgid "Unread"
+msgstr "Хонданашуда"
+
+msgid "Load more"
+msgstr "Боз нишон додан"
+
+msgid "Notification preferences"
+msgstr "Танзимоти огоҳиномаҳо"
+
+msgid "Task completed"
+msgstr "Вазифа анҷом ёфт"
+
+msgid "Task due soon"
+msgstr "Мӯҳлати вазифа наздик аст"
 
 msgid "You are offline. Try again when you are connected."
 msgstr "Шумо онлайн нестед. Ҳангоми пайвастшавӣ дубора кӯшиш кунед."
@@ -45,12 +68,6 @@ msgstr "Дар ин дастгоҳ захира карда нашуд."
 msgid "Something went wrong."
 msgstr "Чизе нодуруст рафт."
 
-msgid "Task completed"
-msgstr "Вазифа иҷро шуд"
-
-msgid "Task due soon"
-msgstr "Мӯҳлати вазифа наздик аст"
-
 msgid "Media ready"
 msgstr "Медиа тайёр аст"
 
@@ -63,23 +80,11 @@ msgstr "Дигар"
 msgid "Unread: {}"
 msgstr "Хонда нашудааст: {}"
 
-msgid "Notifications"
-msgstr "Огоҳиномаҳо"
-
 msgid "{} unread"
 msgstr "Хонда нашуда: {}"
 
 msgid "Marking..."
 msgstr "Қайд карда истодаем..."
-
-msgid "Mark all as read"
-msgstr "Ҳамаро хондашуда қайд кардан"
-
-msgid "All"
-msgstr "Ҳама"
-
-msgid "Unread"
-msgstr "Хонда нашуда"
 
 msgid "Loading..."
 msgstr "Бор шуда истодааст..."
@@ -98,12 +103,6 @@ msgstr "Ҳоло огоҳинома нест"
 
 msgid "You are all caught up."
 msgstr "Ҳама хонда шудааст."
-
-msgid "Load more"
-msgstr "Бештар бор кардан"
-
-msgid "Notification preferences"
-msgstr "Танзимоти огоҳиномаҳо"
 
 msgid "Could not load preferences"
 msgstr "Танзимот бор нашуданд"

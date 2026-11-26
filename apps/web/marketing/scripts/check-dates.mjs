@@ -5,7 +5,7 @@
 // Fails when:
 //   - a `lastModified` in src/app/config/public-routes.ts is not a real
 //     YYYY-MM-DD date, or lies in the future (crawlers distrust both);
-//   - a legal page's "updated" line (src/modules/legal/i18n/<locale>.json) names
+//   - a legal page's "updated" line (shared/i18n/catalogs/legal/<locale>.json) names
 //     a different day, month or year than the `lastModified` of that page
 //     (en is compared as a full date, the other locales by day and year).
 // Uses only node built-ins.
@@ -106,7 +106,10 @@ function main() {
       locale,
       JSON.parse(
         readFileSync(
-          join(root, `src/modules/legal/i18n/${locale}.json`),
+          join(
+            root,
+            `../shared/i18n/catalogs/legal/${locale === "tj" ? "tg" : locale}.json`,
+          ),
           "utf8",
         ),
       ),

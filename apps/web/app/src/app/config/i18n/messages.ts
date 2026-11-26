@@ -1,10 +1,10 @@
 import { i18nModules } from "@/app/config/i18n/modules";
-import type { Locale } from "@/shared/i18n/locales";
+import { type Locale, sharedLocale } from "@/shared/i18n/locales";
 
 /**
  * Assembles the request-scoped `messages` object for a locale by merging:
  * - `common`: cross-cutting strings shared by every module (nav, actions, errors)
- * - one namespace per feature module, loaded from `src/modules/<module>/i18n/<locale>.json`
+ * - one namespace per feature module, loaded from `apps/web/shared/i18n/catalogs/<module>/<locale>.json` (alias `@i18n`), generated from `packages/i18n`
  *
  * This keeps translations co-located with the module that owns them instead
  * of a single growing `messages/<locale>.json` file.
@@ -21,9 +21,11 @@ export async function loadMessages(
   const requested = new Set(namespaces);
   const wanted = i18nModules.filter((module) => requested.has(module));
   const [common, ...moduleEntries] = await Promise.all([
-    import(`@/app/config/i18n/common/${locale}.json`).then((m) => m.default),
+    import(`@i18n/common/${sharedLocale(locale)}.json`).then((m) => m.default),
     ...wanted.map(async (module) => {
-      const messages = await import(`@/modules/${module}/i18n/${locale}.json`);
+      const messages = await import(
+        `@i18n/${module}/${sharedLocale(locale)}.json`
+      );
       return [module, messages.default] as const;
     }),
   ]);

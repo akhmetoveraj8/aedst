@@ -1,0 +1,40 @@
+{
+  "login": {
+    "title": "Kirish",
+    "description": "Kirish uchun identifikatsiya provayderiga o'ting.",
+    "submit": "Kirish",
+    "switchPrompt": "Hisobingiz yo'qmi?",
+    "switchAction": "Yaratish",
+    "errors": {
+      "denied": "Kirish bekor qilindi yoki rad etildi.",
+      "expired": "Kirish juda uzoq davom etdi. Qayta urinib ko'ring.",
+      "invalid": "Kirishni tasdiqlab bo'lmadi. Qayta urinib ko'ring.",
+      "opaque_token": "Provayder ilova ishlata olmaydigan token berdi (JWT access token kerak). Administratorga murojaat qiling.",
+      "unavailable": "Identifikatsiya provayderiga ulanib bo'lmadi. Birozdan so'ng qayta urinib ko'ring.",
+      "config": "Kirish sozlanmagan. Administratorga murojaat qiling."
+    },
+    "subtitle": "Siz brauzerdagi xavfsiz sahifa orqali kirasiz.",
+    "notConfigured": "Ushbu ilova versiyasida kirish sozlanmagan.",
+    "noBrowser": "Kirish uchun brauzer topilmadi. Brauzerni o'rnating yoki yoqing va qayta urinib ko'ring.",
+    "failedTitle": "Kirish muvaffaqiyatsiz"
+  },
+  "signOut": "Chiqish",
+  "signedInAs": "{email} sifatida kirdingiz",
+  "analytics": {
+    "consent": "Anonim foydalanish statistikasini yuborish"
+  },
+  "device": {
+    "title": "Televizorda kirish",
+    "stepOpen": "Telefon yoki kompyuterda oching",
+    "stepEnter": "va kodni kiriting",
+    "codeDescription": "Kod: {value}",
+    "orOpen": "Yoki to‘g‘ridan-to‘g‘ri oching: {value}",
+    "waiting": "Tasdiqlash kutilmoqda…",
+    "denied": "Kirish boshqa qurilmada rad etildi.",
+    "expired": "Kodning amal qilish muddati tugadi.",
+    "newCode": "Yangi kod olish"
+  },
+  "browserSignInFailed": "Kirishni yakunlab bo'lmadi. Qaytadan urinib ko'ring.",
+  "loginContinue": "Davom etish",
+  "loginContinueHint": "Kirish xavfsiz sahifada amalga oshiriladi. Passkey va saqlangan kirish ma'lumotlari qo'llab-quvvatlanadi."
+}

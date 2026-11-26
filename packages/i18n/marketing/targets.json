@@ -1,0 +1,200 @@
+{
+  "cta.button": [
+    "web"
+  ],
+  "cta.subtitle": [
+    "web"
+  ],
+  "cta.title": [
+    "web"
+  ],
+  "faq.items.q1.answer": [
+    "web"
+  ],
+  "faq.items.q1.question": [
+    "web"
+  ],
+  "faq.items.q2.answer": [
+    "web"
+  ],
+  "faq.items.q2.question": [
+    "web"
+  ],
+  "faq.items.q3.answer": [
+    "web"
+  ],
+  "faq.items.q3.question": [
+    "web"
+  ],
+  "faq.items.q4.answer": [
+    "web"
+  ],
+  "faq.items.q4.question": [
+    "web"
+  ],
+  "faq.items.q5.answer": [
+    "web"
+  ],
+  "faq.items.q5.question": [
+    "web"
+  ],
+  "faq.title": [
+    "web"
+  ],
+  "features.items.accessible.description": [
+    "web"
+  ],
+  "features.items.accessible.title": [
+    "web"
+  ],
+  "features.items.fast.description": [
+    "web"
+  ],
+  "features.items.fast.title": [
+    "web"
+  ],
+  "features.items.languages.description": [
+    "web"
+  ],
+  "features.items.languages.title": [
+    "web"
+  ],
+  "features.items.offline.description": [
+    "web"
+  ],
+  "features.items.offline.title": [
+    "web"
+  ],
+  "features.items.secure.description": [
+    "web"
+  ],
+  "features.items.secure.title": [
+    "web"
+  ],
+  "features.items.sync.description": [
+    "web"
+  ],
+  "features.items.sync.title": [
+    "web"
+  ],
+  "features.subtitle": [
+    "web"
+  ],
+  "features.title": [
+    "web"
+  ],
+  "hero.eyebrow": [
+    "web"
+  ],
+  "hero.primary": [
+    "web"
+  ],
+  "hero.secondary": [
+    "web"
+  ],
+  "hero.subtitle": [
+    "web"
+  ],
+  "hero.title": [
+    "web"
+  ],
+  "howItWorks.steps.create.description": [
+    "web"
+  ],
+  "howItWorks.steps.create.title": [
+    "web"
+  ],
+  "howItWorks.steps.finish.description": [
+    "web"
+  ],
+  "howItWorks.steps.finish.title": [
+    "web"
+  ],
+  "howItWorks.steps.organize.description": [
+    "web"
+  ],
+  "howItWorks.steps.organize.title": [
+    "web"
+  ],
+  "howItWorks.title": [
+    "web"
+  ],
+  "meta.title": [
+    "web"
+  ],
+  "pricing.note": [
+    "web"
+  ],
+  "pricing.popular": [
+    "web"
+  ],
+  "pricing.subtitle": [
+    "web"
+  ],
+  "pricing.tiers.free.cta": [
+    "web"
+  ],
+  "pricing.tiers.free.description": [
+    "web"
+  ],
+  "pricing.tiers.free.f1": [
+    "web"
+  ],
+  "pricing.tiers.free.f2": [
+    "web"
+  ],
+  "pricing.tiers.free.f3": [
+    "web"
+  ],
+  "pricing.tiers.free.name": [
+    "web"
+  ],
+  "pricing.tiers.free.price": [
+    "web"
+  ],
+  "pricing.tiers.pro.cta": [
+    "web"
+  ],
+  "pricing.tiers.pro.description": [
+    "web"
+  ],
+  "pricing.tiers.pro.f1": [
+    "web"
+  ],
+  "pricing.tiers.pro.f2": [
+    "web"
+  ],
+  "pricing.tiers.pro.f3": [
+    "web"
+  ],
+  "pricing.tiers.pro.name": [
+    "web"
+  ],
+  "pricing.tiers.pro.price": [
+    "web"
+  ],
+  "pricing.tiers.team.cta": [
+    "web"
+  ],
+  "pricing.tiers.team.description": [
+    "web"
+  ],
+  "pricing.tiers.team.f1": [
+    "web"
+  ],
+  "pricing.tiers.team.f2": [
+    "web"
+  ],
+  "pricing.tiers.team.f3": [
+    "web"
+  ],
+  "pricing.tiers.team.name": [
+    "web"
+  ],
+  "pricing.tiers.team.price": [
+    "web"
+  ],
+  "pricing.title": [
+    "web"
+  ]
+}

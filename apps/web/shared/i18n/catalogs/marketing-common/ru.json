@@ -1,0 +1,46 @@
+{
+  "appName": "AEDST",
+  "appDescription": "AEDST помогает командам планировать, отслеживать и завершать задачи в быстром и доступном приложении, которое работает офлайн на пяти языках.",
+  "a11y": {
+    "skipToContent": "Перейти к содержимому",
+    "mainNav": "Основная навигация",
+    "language": "Язык",
+    "previousSlide": "Предыдущий слайд",
+    "nextSlide": "Следующий слайд",
+    "toggleSidebar": "Показать или скрыть боковую панель",
+    "sidebar": "Боковая панель",
+    "sidebarDescription": "Панель навигации",
+    "commandPalette": "Палитра команд",
+    "commandPaletteDescription": "Найдите команду для запуска",
+    "loading": "Загрузка",
+    "messages": "Сообщения",
+    "questionnaireProgress": "Прогресс опроса",
+    "questionProgress": "Вопрос {current} из {total}"
+  },
+  "nav": {
+    "features": "Возможности",
+    "howItWorks": "Как это работает",
+    "pricing": "Тарифы",
+    "faq": "Вопросы и ответы"
+  },
+  "actions": {
+    "signIn": "Войти",
+    "getStarted": "Начать",
+    "goHome": "На главную",
+    "tryAgain": "Повторить",
+    "close": "Закрыть"
+  },
+  "errors": {
+    "title": "Что-то пошло не так",
+    "generic": "Не удалось показать страницу. Попробуйте ещё раз.",
+    "notFoundTitle": "Страница не найдена",
+    "notFoundDescription": "Такой страницы нет или она переехала."
+  },
+  "footer": {
+    "tagline": "Планируйте, отслеживайте и завершайте задачи.",
+    "privacy": "Конфиденциальность",
+    "terms": "Условия",
+    "legal": "Правовая информация",
+    "rights": "© {year} AEDST. Все права защищены."
+  }
+}

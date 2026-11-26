@@ -319,6 +319,12 @@
     "mediaRefresh" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تحديث"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -341,12 +347,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yangilash"
-          }
-        },
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تحديث"
           }
         }
       }

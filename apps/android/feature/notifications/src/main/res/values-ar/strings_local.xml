@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-written: strings the shared JSON cannot express yet (zero-padded format, non-translatable ids, section/leaf clash). Everything else is generated into strings.xml. -->
+<resources>
+    <string name="notifications_preferences">إعدادات الإشعارات</string>
+</resources>
