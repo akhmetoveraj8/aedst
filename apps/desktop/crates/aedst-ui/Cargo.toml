@@ -10,6 +10,7 @@ build = "build.rs"
 
 [dependencies]
 slint = { workspace = true }
+syntect = { workspace = true }
 
 [dev-dependencies]
 i-slint-backend-testing = { workspace = true }

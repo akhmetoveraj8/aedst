@@ -19,6 +19,9 @@ slint = "1.19.1"
 slint-build = "1.19.1"
 # Internal Slint crate (no semver): MUST be pinned with `=` and must equal the slint version. Test-only.
 i-slint-backend-testing = "=1.19.1"
+# Syntax highlighting for AedstCodeBlock (aedst-ui): the bundled Sublime syntaxes on the pure-Rust regex
+# engine (`regex-fancy`), so no Oniguruma C library; no themes (colours are the kit's syntax tokens).
+syntect = { version = "5.3.0", default-features = false, features = ["parsing", "default-syntaxes", "regex-fancy"] }
 tokio = { version = "1.54.1", features = ["rt", "rt-multi-thread", "macros", "net", "io-util", "time", "sync"] }
 tokio-util = "0.7.20"
 futures = "0.3.34"

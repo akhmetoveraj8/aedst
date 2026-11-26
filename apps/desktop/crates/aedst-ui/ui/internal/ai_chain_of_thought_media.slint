@@ -1,0 +1,49 @@
+import { AedstTokens } from "../aedst_tokens.slint";
+import { AedstLayout } from "../aedst_layout.slint";
+import { AedstBadge, AedstBadgeVariant } from "../aedst_badge.slint";
+
+// Parts of `AedstAiChainOfThought` kept outside the kit file for its size; exported from lib.slint.
+
+// Sources the agent looked at, as secondary badges (host names). No wrapping: Slint has no flow
+// layout, so pass a few results per step.
+export component AedstAiChainOfThoughtSearchResults inherits Rectangle {
+    in property <[string]> results;
+
+    HorizontalLayout {
+        alignment: AedstLayout.rtl ? end : start;
+        spacing: AedstTokens.spacing-xs;
+        for result in root.results: AedstBadge { text: result; variant: AedstBadgeVariant.secondary; }
+    }
+}
+
+// An image with an optional caption (web `AiChainOfThoughtImage`); `label` names the image.
+export component AedstAiChainOfThoughtImage inherits Rectangle {
+    in property <image> source;
+    in property <string> caption;
+    in property <string> label;
+    in property <length> image-height: 160px;
+
+    VerticalLayout {
+        spacing: AedstTokens.spacing-xs;
+        Rectangle {
+            height: root.image-height;
+            background: AedstTokens.muted;
+            border-radius: AedstTokens.radius-lg;
+            clip: true;
+            Image {
+                source: root.source;
+                image-fit: contain;
+                accessible-role: AccessibleRole.image;
+                accessible-label: root.label != "" ? root.label : root.caption;
+            }
+        }
+        if root.caption != "": Text {
+            text: root.caption;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-body-small-font-size;
+            horizontal-alignment: AedstLayout.rtl ? right : left;
+            wrap: word-wrap;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+}

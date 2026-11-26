@@ -10,7 +10,11 @@ export component AedstTextarea inherits Rectangle {
     in property <bool> invalid: false;
     in property <bool> enabled: true;
     in property <bool> read-only: false;
+    // Inside a group that draws the border (AedstAiPromptInput): no border, no background.
+    in property <bool> embedded: false;
     out property <bool> has-focus: input.has-focus;
+    // Height of the text plus the padding, for a field that grows with its content.
+    out property <length> content-height: input.preferred-height + 2 * AedstTokens.spacing-xs;
     callback edited(string);
 
     private property <bool> rtl: AedstLayout.rtl;
@@ -20,8 +24,8 @@ export component AedstTextarea inherits Rectangle {
     preferred-height: 80px;
     min-width: 64px;
     border-radius: AedstTokens.radius-md;
-    background: AedstTokens.background;
-    border-width: input.has-focus ? 2px : 1px;
+    background: root.embedded ? transparent : AedstTokens.background;
+    border-width: root.embedded ? 0px : input.has-focus ? 2px : 1px;
     border-color: root.invalid ? AedstTokens.destructive : (input.has-focus ? AedstTokens.ring : AedstTokens.input);
     opacity: root.enabled ? 1.0 : 0.5;
     accessible-role: text-input;

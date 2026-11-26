@@ -1,0 +1,72 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstTraceStatus } from "aedst_trace.slint";
+import { AedstAiChainOfThoughtHeader, AedstAiChainOfThoughtContent } from "aedst_ai_chain_of_thought.slint";
+
+// The title line of `AedstAiReasoning` (web `AiReasoningTrigger`): `thinking-label` while
+// streaming (with a spinner), `thought-label` once done ("Thought for 5 s", formatted by the
+// caller). Slint has no live regions: the switch is exposed through the accessible label only.
+export component AedstAiReasoningTrigger inherits AedstAiChainOfThoughtHeader {
+    in property <bool> streaming: false;
+    in property <string> thinking-label;
+    in property <string> thought-label;
+
+    title: root.streaming ? root.thinking-label : root.thought-label;
+    show-status: root.streaming;
+    status: AedstTraceStatus.running;
+}
+
+// The reasoning text, line breaks kept (web `AiReasoningContent`); Markdown is the caller's.
+export component AedstAiReasoningContent inherits AedstAiChainOfThoughtContent {
+    in property <string> text;
+
+    Text {
+        text: root.text;
+        color: AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-body-medium-font-size;
+        horizontal-alignment: AedstLayout.rtl ? right : left;
+        wrap: word-wrap;
+    }
+}
+
+// Model reasoning as one collapsible line (web `AiReasoning`). It opens while the model thinks
+// and closes when it finishes, until the user opens or closes it: `open` starts bound to
+// `streaming`, and the first toggle replaces that binding with the user's choice. Bind `open`
+// two-way (`<=>`) instead to control it completely.
+export component AedstAiReasoning inherits Rectangle {
+    in property <bool> streaming: false;
+    in property <string> thinking-label;
+    in property <string> thought-label;
+    in property <string> description;
+    in property <image> icon;
+    in property <string> text;
+    in-out property <bool> open: root.streaming;
+    in property <bool> reduce-motion: false;
+    callback toggled(bool);
+
+    forward-focus: trigger;
+    accessible-role: AccessibleRole.groupbox;
+    accessible-label: trigger.title;
+
+    VerticalLayout {
+        trigger := AedstAiReasoningTrigger {
+            streaming: root.streaming;
+            thinking-label: root.thinking-label;
+            thought-label: root.thought-label;
+            description: root.description;
+            icon: root.icon;
+            open: root.open;
+            reduce-motion: root.reduce-motion;
+            toggled => {
+                root.open = !root.open;
+                root.toggled(root.open);
+            }
+        }
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := AedstAiReasoningContent { text: root.text; }
+        }
+    }
+}

@@ -1,0 +1,54 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+
+// A prompt the person sends in one click (web `AiSuggestion`): an outline small button whose
+// text is the prompt; `picked(suggestion)` hands the text back.
+export component AedstAiSuggestion inherits AedstButton {
+    in property <string> suggestion;
+    callback picked(string);
+
+    text: root.suggestion;
+    variant: AedstButtonVariant.outline;
+    size: AedstButtonSize.sm;
+    clicked => { root.picked(root.suggestion); }
+}
+
+// A row of suggestions above the prompt input (web `AiSuggestions`). It scrolls sideways when
+// they do not fit, starting at the reading start (the right in RTL, with the order mirrored).
+// Keyboard: Tab walks the buttons; a focused button outside the view is not scrolled into it
+// (UNVERIFIED in Slint 1.19).
+export component AedstAiSuggestions inherits Rectangle {
+    in property <[string]> suggestions;
+    // Accessible name of the group, for example "Suggested prompts".
+    in property <string> label;
+    callback picked(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    // Web py-1 around 28px buttons.
+    min-height: 28px + 2 * AedstTokens.spacing-xs;
+    max-height: self.min-height;
+    horizontal-stretch: 1;
+    accessible-role: groupbox;
+    accessible-label: root.label;
+
+    flick := Flickable {
+        viewport-width: Math.max(self.width, row.preferred-width);
+        // RTL starts at the right edge; a scroll by the user replaces this binding.
+        viewport-x: root.rtl ? Math.min(0px, self.width - self.viewport-width) : 0px;
+        interactive: true;
+
+        row := HorizontalLayout {
+            y: AedstTokens.spacing-xs;
+            height: 28px;
+            width: flick.viewport-width;
+            spacing: AedstTokens.spacing-sm;
+            alignment: root.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+            for slot in root.suggestions.length: AedstAiSuggestion {
+                suggestion: root.suggestions[root.rtl ? root.suggestions.length - 1 - slot : slot];
+                picked(value) => { root.picked(value); }
+            }
+        }
+    }
+}

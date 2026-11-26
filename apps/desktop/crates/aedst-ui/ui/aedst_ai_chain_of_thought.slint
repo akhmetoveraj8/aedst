@@ -1,0 +1,270 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstTraceStatus } from "aedst_trace.slint";
+import { AiStatusIcon } from "internal/ai_status_icon.slint";
+
+// One line of a step list (web `AiChainOfThoughtStep` props). `status-label` is the status in
+// words for screen readers ("Running"); the icon alone is not enough.
+export struct AedstAiStep {
+    id: string,
+    label: string,
+    description: string,
+    status: AedstTraceStatus,
+    status-label: string,
+    icon: image,
+}
+
+// The disclosure line shared by every AI element (web `AiChainOfThoughtHeader`): the whole line
+// is a button (Enter/Space), the chevron sits at the reading end and turns down when open.
+// `show-status` stands for web's optional `status`: without it only `icon` (if any) is drawn.
+export component AedstAiChainOfThoughtHeader inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <image> icon;
+    in property <bool> show-status: false;
+    in property <AedstTraceStatus> status: AedstTraceStatus.success;
+    in property <string> status-label;
+    in property <bool> open;
+    in property <bool> enabled: true;
+    in property <bool> reduce-motion: false;
+    out property <bool> has-focus: focus.has-focus;
+    callback toggled();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> pad: AedstTokens.spacing-sm;
+    private property <length> gap: AedstTokens.spacing-sm;
+    private property <bool> has-icon: root.show-status || root.icon.width > 0;
+    private property <length> start: root.pad + (root.has-icon ? 16px + root.gap : 0px);
+    private property <length> desc-space: root.description != "" ? desc.preferred-width + root.gap : 0px;
+    private property <length> title-width: Math.max(0px, Math.min(title-text.preferred-width,
+        root.width - root.start - root.desc-space - 16px - root.gap - root.pad));
+
+    min-height: 32px;
+    min-width: 96px;
+    border-radius: AedstTokens.radius-md;
+    opacity: root.enabled ? 1.0 : 0.5;
+    forward-focus: focus;
+    accessible-role: button;
+    accessible-label: root.status-label != "" ? root.title + ", " + root.status-label : root.title;
+    accessible-description: root.description;
+    accessible-enabled: root.enabled;
+    accessible-expandable: true;
+    accessible-expanded: root.open;
+    accessible-action-default => { if (root.enabled) { root.toggled(); } }
+    accessible-action-expand => { if (root.enabled) { root.toggled(); } }
+
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n") {
+                root.toggled();
+                return accept;
+            }
+            return reject;
+        }
+    }
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            focus.focus();
+            root.toggled();
+        }
+    }
+
+    if root.has-icon: AiStatusIcon {
+        x: root.rtl ? parent.width - root.pad - 16px : root.pad;
+        y: (parent.height - 16px) / 2;
+        icon: root.icon;
+        status: root.show-status ? root.status : AedstTraceStatus.success;
+        animated: !root.reduce-motion;
+    }
+    title-text := Text {
+        x: root.rtl ? parent.width - root.start - root.title-width : root.start;
+        width: root.title-width;
+        height: parent.height;
+        text: root.title;
+        color: touch.has-hover ? AedstTokens.foreground : AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-label-large-font-size;
+        font-weight: AedstTokens.typography-label-large-font-weight;
+        horizontal-alignment: root.rtl ? right : left;
+        vertical-alignment: center;
+        overflow: elide;
+        accessible-role: AccessibleRole.none;
+    }
+    desc := Text {
+        visible: root.description != "";
+        x: root.rtl ? title-text.x - root.gap - self.width : root.start + root.title-width + root.gap;
+        width: self.preferred-width;
+        height: parent.height;
+        text: root.description;
+        color: AedstTokens.muted-foreground;
+        font-size: AedstTokens.typography-body-small-font-size;
+        vertical-alignment: center;
+        accessible-role: AccessibleRole.none;
+    }
+    Path {
+        x: root.rtl ? root.pad : parent.width - root.pad - 16px;
+        y: (parent.height - 16px) / 2;
+        width: 16px;
+        height: 16px;
+        viewbox-width: 16;
+        viewbox-height: 16;
+        stroke: AedstTokens.muted-foreground;
+        stroke-width: 1.5px;
+        commands: root.open ? "M 4 6 L 8 10 L 12 6" : root.rtl ? "M 10 4 L 6 8 L 10 12" : "M 6 4 L 10 8 L 6 12";
+    }
+    // Visible keyboard focus ring.
+    Rectangle {
+        border-width: focus.has-focus ? 2px : 0px;
+        border-color: AedstTokens.ring;
+        border-radius: AedstTokens.radius-md;
+    }
+}
+
+// The indented panel under a header (web `AiChainOfThoughtContent`): 16px inset and a rule at
+// the inline start, mirrored in RTL. The children are the content.
+export component AedstAiChainOfThoughtContent inherits Rectangle {
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> inset: AedstTokens.spacing-lg + 1px + AedstTokens.spacing-md;
+
+    VerticalLayout {
+        padding-left: root.rtl ? 0px : root.inset;
+        padding-right: root.rtl ? root.inset : 0px;
+        padding-top: AedstTokens.spacing-xs;
+        spacing: AedstTokens.spacing-sm;
+        @children
+    }
+    Rectangle {
+        x: root.rtl ? parent.width - AedstTokens.spacing-lg - 1px : AedstTokens.spacing-lg;
+        width: 1px;
+        background: AedstTokens.border;
+    }
+}
+
+// One step (web `AiChainOfThoughtStep`): status icon, label, description; the children go under
+// the label (search results, an image, a file). `struck` draws the label struck through (a
+// completed queue item).
+export component AedstAiChainOfThoughtStep inherits Rectangle {
+    in property <string> label;
+    in property <string> description;
+    in property <AedstTraceStatus> status: AedstTraceStatus.success;
+    in property <string> status-label;
+    in property <image> icon;
+    in property <bool> struck: false;
+    in property <bool> reduce-motion: false;
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> quiet: root.struck || root.status == AedstTraceStatus.pending || root.status == AedstTraceStatus.skipped;
+
+    accessible-role: AccessibleRole.list-item;
+    accessible-label: root.status-label != "" ? root.label + ", " + root.status-label : root.label;
+    accessible-description: root.description;
+
+    HorizontalLayout {
+        padding: AedstTokens.spacing-sm;
+        padding-top: AedstTokens.spacing-xs + AedstTokens.spacing-xxs;
+        padding-bottom: AedstTokens.spacing-xs + AedstTokens.spacing-xxs;
+        spacing: AedstTokens.spacing-sm;
+        if !root.rtl: VerticalLayout {
+            alignment: start;
+            padding-top: AedstTokens.spacing-xxs;
+            AiStatusIcon { status: root.status; icon: root.icon; animated: !root.reduce-motion; }
+        }
+        VerticalLayout {
+            horizontal-stretch: 1;
+            spacing: AedstTokens.spacing-xs;
+            Rectangle {
+                label-text := Text {
+                    width: parent.width;
+                    text: root.label;
+                    color: root.quiet ? AedstTokens.muted-foreground : AedstTokens.foreground;
+                    font-size: AedstTokens.typography-body-medium-font-size;
+                    horizontal-alignment: root.rtl ? right : left;
+                    wrap: word-wrap;
+                    accessible-role: AccessibleRole.none;
+                }
+                if root.struck: Rectangle {
+                    x: root.rtl ? parent.width - self.width : 0px;
+                    y: Math.min(parent.height, AedstTokens.typography-mono-line-height) / 2;
+                    width: Math.min(label-text.preferred-width, parent.width);
+                    height: 1px;
+                    background: AedstTokens.muted-foreground;
+                }
+            }
+            if root.description != "": Text {
+                text: root.description;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-small-font-size;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+                accessible-role: AccessibleRole.none;
+            }
+            @children
+        }
+        if root.rtl: VerticalLayout {
+            alignment: start;
+            padding-top: AedstTokens.spacing-xxs;
+            AiStatusIcon { status: root.status; icon: root.icon; animated: !root.reduce-motion; }
+        }
+    }
+}
+
+// The list of steps (web `AiChainOfThoughtSteps`), from a model.
+export component AedstAiChainOfThoughtSteps inherits Rectangle {
+    in property <[AedstAiStep]> steps;
+    in property <string> label;
+    in property <bool> reduce-motion: false;
+
+    accessible-role: AccessibleRole.list;
+    accessible-label: root.label;
+
+    VerticalLayout {
+        for step in root.steps: AedstAiChainOfThoughtStep {
+            label: step.label;
+            description: step.description;
+            status: step.status;
+            status-label: step.status-label;
+            icon: step.icon;
+            reduce-motion: root.reduce-motion;
+        }
+    }
+}
+
+// A collapsible reasoning trail (web `AiChainOfThought` + header + content): the children are
+// the content, kept alive while closed. Bind `open` two-way (`<=>`) to keep the state outside.
+export component AedstAiChainOfThought inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <image> icon;
+    in property <bool> show-status: false;
+    in property <AedstTraceStatus> status: AedstTraceStatus.success;
+    in property <string> status-label;
+    in-out property <bool> open: false;
+    in property <bool> reduce-motion: false;
+    callback toggled(bool);
+
+    forward-focus: header;
+
+    VerticalLayout {
+        header := AedstAiChainOfThoughtHeader {
+            title: root.title;
+            description: root.description;
+            icon: root.icon;
+            show-status: root.show-status;
+            status: root.status;
+            status-label: root.status-label;
+            open: root.open;
+            reduce-motion: root.reduce-motion;
+            toggled => {
+                root.open = !root.open;
+                root.toggled(root.open);
+            }
+        }
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := AedstAiChainOfThoughtContent { @children }
+        }
+    }
+}

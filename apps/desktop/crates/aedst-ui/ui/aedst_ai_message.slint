@@ -1,0 +1,151 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstMessage, AedstMessageAlign } from "aedst_message.slint";
+import { AedstBubble, AedstBubbleVariant, AedstBubbleAlign } from "aedst_bubble.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstToggle, AedstToggleSize } from "aedst_toggle.slint";
+import { AedstTooltip } from "aedst_tooltip.slint";
+
+// Who wrote a turn (web `AiMessageRole`).
+export enum AedstAiMessageRole { user, assistant, system }
+
+// One action under a turn (web `AiMessageAction`): a ghost icon button with a tooltip, or, with
+// `toggle`, a pressed/unpressed button (web `aria-pressed`, for example "Good response").
+export struct AedstAiMessageAction {
+    id: string,
+    // Accessible name, also the tooltip text.
+    label: string,
+    // A text glyph used as the icon when `icon` is empty (Desktop has no icon set yet).
+    glyph: string,
+    icon: image,
+    toggle: bool,
+    pressed: bool,
+    disabled: bool,
+}
+
+// The agent's reply (web `AiMessageResponse`): plain wrapped text. The kit ships no markdown
+// renderer (no new dependency), so markdown shows as written. While `streaming`, `busy-label`
+// (for example "Writing a reply") is the accessible description, the closest Slint 1.19 has to
+// `aria-busy`: Slint has no live regions, so streamed text is not announced.
+export component AedstAiMessageResponse inherits Rectangle {
+    in property <string> text;
+    in property <bool> streaming: false;
+    in property <string> busy-label;
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    horizontal-stretch: 1;
+    accessible-role: text;
+    accessible-label: root.text;
+    accessible-description: root.streaming ? root.busy-label : "";
+
+    VerticalLayout {
+        Text {
+            text: root.text;
+            color: AedstTokens.foreground;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: root.rtl ? right : left;
+            wrap: word-wrap;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+}
+
+// The row of actions under a turn (web `AiMessageActions`), at the reading start, or at the
+// reading end with `at-end` (the user's turn). The order is mirrored in RTL.
+export component AedstAiMessageActions inherits HorizontalLayout {
+    in property <[AedstAiMessageAction]> actions;
+    in property <bool> at-end: false;
+    // The `id` of the action that was clicked or toggled.
+    callback activated(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    alignment: (root.at-end != root.rtl) ? LayoutAlignment.end : LayoutAlignment.start;
+    spacing: AedstTokens.spacing-xs;
+
+    // A visual slot shows the mirrored index in RTL (Slint cannot reverse a layout).
+    for slot in root.actions.length: cell := Rectangle {
+        property <AedstAiMessageAction> action: root.actions[root.rtl ? root.actions.length - 1 - slot : slot];
+        width: 28px;
+        height: 28px;
+        if cell.action.toggle: AedstTooltip {
+            text: cell.action.label;
+            AedstToggle {
+                text: cell.action.glyph;
+                label: cell.action.label;
+                checked: cell.action.pressed;
+                enabled: !cell.action.disabled;
+                size: AedstToggleSize.sm;
+                toggled => { root.activated(cell.action.id); }
+            }
+        }
+        if !cell.action.toggle: AedstTooltip {
+            text: cell.action.label;
+            AedstButton {
+                text: cell.action.icon.width > 0 ? "" : cell.action.glyph;
+                icon: cell.action.icon;
+                label: cell.action.label;
+                enabled: !cell.action.disabled;
+                variant: AedstButtonVariant.ghost;
+                size: AedstButtonSize.icon-sm;
+                clicked => { root.activated(cell.action.id); }
+            }
+        }
+    }
+}
+
+// One turn of a conversation with an agent (web `AiMessage`, `AiMessageHeader`,
+// `AiMessageContent`, `AiMessageResponse`, `AiMessageActions`, `AiMessageAction`). Composes
+// AedstMessage and AedstBubble: the user's turn is a muted bubble at the reading end, the
+// agent's (and a system) turn is free text at the reading start. Actions show once the reply has
+// finished streaming. Extra content (attachments, sources, a confirmation) goes in the children,
+// under the text.
+export component AedstAiMessage inherits Rectangle {
+    in property <AedstAiMessageRole> from: AedstAiMessageRole.assistant;
+    in property <string> text;
+    // Accessible name of the turn, for example "You" or "Assistant".
+    in property <string> author;
+    in property <image> avatar;
+    in property <string> avatar-fallback;
+    in property <string> header;
+    in property <bool> streaming: false;
+    in property <string> busy-label;
+    in property <[AedstAiMessageAction]> actions;
+    // The `id` of the action that was clicked or toggled.
+    callback action(string);
+
+    private property <bool> user: root.from == AedstAiMessageRole.user;
+
+    horizontal-stretch: 1;
+
+    VerticalLayout {
+        AedstMessage {
+            align: root.user ? AedstMessageAlign.end : AedstMessageAlign.start;
+            author: root.author;
+            avatar: root.avatar;
+            avatar-fallback: root.avatar-fallback;
+            header: root.header;
+
+            if root.user: AedstBubble {
+                text: root.text;
+                variant: AedstBubbleVariant.muted;
+                align: AedstBubbleAlign.end;
+            }
+            if !root.user: AedstAiMessageResponse {
+                text: root.text;
+                streaming: root.streaming;
+                busy-label: root.busy-label;
+            }
+            VerticalLayout {
+                spacing: AedstTokens.spacing-sm;
+                @children
+            }
+            if root.actions.length > 0 && !root.streaming: AedstAiMessageActions {
+                actions: root.actions;
+                at-end: root.user;
+                activated(id) => { root.action(id); }
+            }
+        }
+    }
+}

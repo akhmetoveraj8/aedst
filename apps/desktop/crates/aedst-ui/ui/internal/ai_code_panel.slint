@@ -1,0 +1,44 @@
+import { AedstTokens } from "../aedst_tokens.slint";
+import { AedstCodeBlock, AedstCodeLine } from "../aedst_code_block.slint";
+
+// An `AedstCodeBlock` at most 256px high that scrolls vertically (web `max-h-64 overflow-auto`),
+// shared by the AI tool, terminal, stack trace and test results. With `follow-end` the newest
+// line stays in view while the content grows (web terminal `autoScroll`).
+export component AiCodePanel inherits Rectangle {
+    in property <[AedstCodeLine]> lines;
+    in property <string> code;
+    in property <string> label;
+    in property <bool> wrapped: false;
+    in property <string> copy-label;
+    in property <string> copied-label;
+    in property <bool> follow-end: false;
+    in property <length> max-panel-height: 256px;
+
+    min-height: Math.min(block.preferred-height, root.max-panel-height);
+    preferred-height: Math.min(block.preferred-height, root.max-panel-height);
+    max-height: Math.min(block.preferred-height, root.max-panel-height);
+    accessible-role: AccessibleRole.groupbox;
+    accessible-label: root.label;
+
+    scroller := Flickable {
+        width: parent.width;
+        height: parent.height;
+        viewport-width: self.width;
+        viewport-height: block.preferred-height;
+        // Same construct as AedstMessageScroller (UNVERIFIED on Slint 1.19).
+        changed viewport-height => {
+            if (root.follow-end) {
+                self.viewport-y = Math.min(0px, self.height - self.viewport-height);
+            }
+        }
+        block := AedstCodeBlock {
+            width: scroller.width;
+            lines: root.lines;
+            code: root.code;
+            language: "";
+            wrapped: root.wrapped;
+            copy-label: root.code != "" ? root.copy-label : "";
+            copied-label: root.copied-label;
+        }
+    }
+}

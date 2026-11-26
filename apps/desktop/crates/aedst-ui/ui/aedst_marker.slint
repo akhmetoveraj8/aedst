@@ -1,0 +1,77 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// Web `markerVariants`: `default` is a plain line of muted text, `separator` centres the text
+// between two rules ("Today"), `border` underlines the row.
+export enum AedstMarkerVariant { default, separator, border }
+
+// A small annotation inside a conversation or a list (web `Marker`, `MarkerIcon`,
+// `MarkerContent`): an optional 16px icon and the text. The icon sits at the reading start
+// (the right in RTL); the icon is decorative, the text is what a screen reader reads.
+export component AedstMarker inherits Rectangle {
+    in property <string> text;
+    in property <image> icon;
+    in property <AedstMarkerVariant> variant: AedstMarkerVariant.default;
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> separator: root.variant == AedstMarkerVariant.separator;
+    private property <bool> has-icon: root.icon.width > 0;
+
+    accessible-role: text;
+    accessible-label: root.text;
+
+    VerticalLayout {
+        spacing: root.variant == AedstMarkerVariant.border ? AedstTokens.spacing-sm : 0px;
+        HorizontalLayout {
+            min-height: 16px;
+            spacing: AedstTokens.spacing-sm;
+
+            if root.separator: Rectangle {
+                horizontal-stretch: 1;
+                min-width: AedstTokens.spacing-sm;
+                Rectangle {
+                    y: (parent.height - self.height) / 2;
+                    height: 1px;
+                    background: AedstTokens.border;
+                }
+            }
+            if root.has-icon && !root.rtl: Image {
+                source: root.icon;
+                width: 16px;
+                height: 16px;
+                colorize: AedstTokens.muted-foreground;
+                accessible-role: AccessibleRole.none;
+            }
+            Text {
+                horizontal-stretch: root.separator ? 0 : 1;
+                text: root.text;
+                color: AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: root.separator ? center : (root.rtl ? right : left);
+                vertical-alignment: center;
+                wrap: word-wrap;
+                accessible-role: AccessibleRole.none;
+            }
+            if root.has-icon && root.rtl: Image {
+                source: root.icon;
+                width: 16px;
+                height: 16px;
+                colorize: AedstTokens.muted-foreground;
+                accessible-role: AccessibleRole.none;
+            }
+            if root.separator: Rectangle {
+                horizontal-stretch: 1;
+                min-width: AedstTokens.spacing-sm;
+                Rectangle {
+                    y: (parent.height - self.height) / 2;
+                    height: 1px;
+                    background: AedstTokens.border;
+                }
+            }
+        }
+        if root.variant == AedstMarkerVariant.border: Rectangle {
+            height: 1px;
+            background: AedstTokens.border;
+        }
+    }
+}

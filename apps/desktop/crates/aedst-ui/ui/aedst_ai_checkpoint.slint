@@ -1,0 +1,75 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstMarker } from "aedst_marker.slint";
+import { AedstTooltip } from "aedst_tooltip.slint";
+
+// A point in the conversation the user can return to (web `AiCheckpoint`): a separator line with
+// a decorative icon, a label and a Restore button. Restoring is the caller's job (keep that turn,
+// drop every later message). `restore-accessible-label` names the checkpoint when the visible
+// text alone is ambiguous ("Restore to Button renamed"); `tooltip` is an optional pointer hint,
+// also given to the button as its accessible description.
+export component AedstAiCheckpoint inherits Rectangle {
+    in property <string> text;
+    in property <image> icon;
+    in property <string> restore-label;
+    in property <string> restore-accessible-label: root.restore-label;
+    in property <string> tooltip;
+    callback restore();
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    accessible-role: AccessibleRole.groupbox;
+    accessible-label: root.text;
+
+    HorizontalLayout {
+        padding-top: AedstTokens.spacing-xs;
+        padding-bottom: AedstTokens.spacing-xs;
+        spacing: AedstTokens.spacing-sm;
+        Rectangle {
+            horizontal-stretch: 1;
+            min-width: AedstTokens.spacing-sm;
+            Rectangle {
+                y: (parent.height - self.height) / 2;
+                height: 1px;
+                background: AedstTokens.border;
+            }
+        }
+        if root.rtl && root.restore-label != "": AedstTooltip {
+            text: root.tooltip;
+            AedstButton {
+                text: root.restore-label;
+                label: root.restore-accessible-label;
+                accessible-description: root.tooltip;
+                variant: AedstButtonVariant.outline;
+                size: AedstButtonSize.xs;
+                clicked => { root.restore(); }
+            }
+        }
+        AedstMarker {
+            horizontal-stretch: 0;
+            text: root.text;
+            icon: root.icon;
+        }
+        if !root.rtl && root.restore-label != "": AedstTooltip {
+            text: root.tooltip;
+            AedstButton {
+                text: root.restore-label;
+                label: root.restore-accessible-label;
+                accessible-description: root.tooltip;
+                variant: AedstButtonVariant.outline;
+                size: AedstButtonSize.xs;
+                clicked => { root.restore(); }
+            }
+        }
+        Rectangle {
+            horizontal-stretch: 1;
+            min-width: AedstTokens.spacing-sm;
+            Rectangle {
+                y: (parent.height - self.height) / 2;
+                height: 1px;
+                background: AedstTokens.border;
+            }
+        }
+    }
+}

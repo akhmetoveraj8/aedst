@@ -17,12 +17,32 @@ export component AedstSheet inherits Rectangle {
     in property <AedstSheetSide> side: AedstSheetSide.right;
     // Width of a left/right sheet, height of a top/bottom sheet.
     in property <length> extent: 320px;
-    // A grab handle at the top of the panel (the drawer look).
+    // A grab handle at the top of the panel (the drawer look). On a bottom sheet the handle can be
+    // dragged down: released past a quarter of the panel height it closes, otherwise it snaps back.
     in property <bool> show-handle: false;
+    // Accessible name of the handle (its default action closes the sheet), for example "Close".
+    in property <string> handle-label;
+    // Snap back and follow the pointer without animation (the platform's reduced-motion setting,
+    // which the feature reads and passes in).
+    in property <bool> reduce-motion: false;
     callback closed();
 
     private property <bool> rtl: AedstLayout.rtl;
     private property <bool> upright: root.side == AedstSheetSide.left || root.side == AedstSheetSide.right;
+    private property <bool> draggable: root.show-handle && root.side == AedstSheetSide.bottom;
+    // How far the panel has been dragged down from its resting place.
+    private property <length> drag-offset: 0px;
+    private property <bool> dragging: false;
+
+    function end-drag(panel-height: length) {
+        root.dragging = false;
+        if (root.drag-offset > panel-height / 4) {
+            root.drag-offset = 0px;
+            root.close();
+        } else {
+            root.drag-offset = 0px;
+        }
+    }
 
     public function close() {
         if (root.open) {
@@ -33,6 +53,8 @@ export component AedstSheet inherits Rectangle {
 
     visible: root.open;
     changed open => {
+        root.drag-offset = 0px;
+        root.dragging = false;
         if (root.open) {
             focus.focus();
         }
@@ -58,9 +80,9 @@ export component AedstSheet inherits Rectangle {
             return reject;
         }
 
-        Rectangle {
+        panel := Rectangle {
             x: root.side == AedstSheetSide.right ? parent.width - self.width : 0px;
-            y: root.side == AedstSheetSide.bottom ? parent.height - self.height : 0px;
+            y: root.side == AedstSheetSide.bottom ? parent.height - self.height + root.drag-offset : 0px;
             width: root.upright ? Math.min(root.extent, parent.width) : parent.width;
             height: root.upright ? parent.height : Math.min(root.extent, parent.height);
             background: AedstTokens.popover;
@@ -71,6 +93,10 @@ export component AedstSheet inherits Rectangle {
             accessible-role: groupbox;
             accessible-label: root.title;
             accessible-description: root.description;
+            animate y {
+                duration: (root.dragging || root.reduce-motion) ? 0ms : AedstTokens.motion-duration-normal;
+                easing: ease-out;
+            }
 
             // Clicks on the panel must not reach the scrim.
             TouchArea { }
@@ -104,6 +130,27 @@ export component AedstSheet inherits Rectangle {
                     wrap: word-wrap;
                 }
                 @children
+            }
+
+            // Drag zone over the handle: 44px high so it is an adequate pointer and touch target.
+            if root.draggable: TouchArea {
+                y: 0px;
+                height: 44px;
+                mouse-cursor: MouseCursor.grab;
+                accessible-role: button;
+                accessible-label: root.handle-label;
+                accessible-action-default => { root.close(); }
+                moved => {
+                    root.dragging = true;
+                    // The zone moves with the panel, so the pointer's offset from where it was
+                    // pressed is the step since the last event.
+                    root.drag-offset = Math.max(0px, root.drag-offset + self.mouse-y - self.pressed-y);
+                }
+                pointer-event(event) => {
+                    if ((event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) && root.dragging) {
+                        root.end-drag(panel.height);
+                    }
+                }
             }
 
             // The close button sits at the reading end of the header.

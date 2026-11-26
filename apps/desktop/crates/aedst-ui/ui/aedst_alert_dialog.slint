@@ -1,6 +1,12 @@
-import { AedstButtonVariant } from "aedst_button.slint";
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant } from "aedst_button.slint";
 import { AedstActionRow } from "aedst_action_row.slint";
 import { AedstDialog } from "aedst_dialog.slint";
+
+// Web `size`: default is a 384px panel with a start-aligned header and the actions at the end;
+// sm is a 320px panel with a centred header and the two actions side by side at equal width.
+export enum AedstAlertDialogSize { default, sm }
 
 // A confirmation dialog: the user must choose. Escape and the secondary button cancel; a click
 // outside does nothing. Place it as the LAST child of the view's root element (see AedstDialog).
@@ -10,10 +16,23 @@ export component AedstAlertDialog inherits Rectangle {
     in property <string> description;
     in property <string> confirm-text;
     in property <string> cancel-text;
+    in property <AedstAlertDialogSize> size: AedstAlertDialogSize.default;
     // The confirm button uses the destructive variant (delete, sign out everywhere).
     in property <bool> destructive: false;
     callback confirmed();
     callback cancelled();
+
+    private property <bool> small: root.size == AedstAlertDialogSize.sm;
+    private property <AedstButtonVariant> confirm-variant: root.destructive ? AedstButtonVariant.destructive : AedstButtonVariant.default;
+
+    function confirm() {
+        root.open = false;
+        root.confirmed();
+    }
+    function cancel() {
+        root.open = false;
+        root.cancelled();
+    }
 
     visible: root.open;
 
@@ -21,21 +40,28 @@ export component AedstAlertDialog inherits Rectangle {
         open <=> root.open;
         title: root.title;
         description: root.description;
+        panel-width: root.small ? 320px : 384px;
+        center-header: root.small;
         close-on-outside-click: false;
         closed => { root.cancelled(); }
 
-        AedstActionRow {
+        if !root.small: AedstActionRow {
             primary-text: root.confirm-text;
             secondary-text: root.cancel-text;
-            primary-variant: root.destructive ? AedstButtonVariant.destructive : AedstButtonVariant.default;
-            primary-clicked => {
-                root.open = false;
-                root.confirmed();
-            }
-            secondary-clicked => {
-                root.open = false;
-                root.cancelled();
-            }
+            primary-variant: root.confirm-variant;
+            primary-clicked => { root.confirm(); }
+            secondary-clicked => { root.cancel(); }
+        }
+        // sm: two equal columns, cancel first in reading order (Slint cannot reverse a layout).
+        if root.small && !AedstLayout.rtl: HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            AedstButton { horizontal-stretch: 1; text: root.cancel-text; variant: AedstButtonVariant.outline; clicked => { root.cancel(); } }
+            AedstButton { horizontal-stretch: 1; text: root.confirm-text; variant: root.confirm-variant; clicked => { root.confirm(); } }
+        }
+        if root.small && AedstLayout.rtl: HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            AedstButton { horizontal-stretch: 1; text: root.confirm-text; variant: root.confirm-variant; clicked => { root.confirm(); } }
+            AedstButton { horizontal-stretch: 1; text: root.cancel-text; variant: AedstButtonVariant.outline; clicked => { root.cancel(); } }
         }
     }
 }

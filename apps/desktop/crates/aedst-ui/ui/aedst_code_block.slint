@@ -2,8 +2,23 @@ import { AedstTokens } from "aedst_tokens.slint";
 import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
 import { AedstToggle, AedstToggleSize } from "aedst_toggle.slint";
 
-export struct AedstCodeLine {
+// The colour class of a span: the seven syntax tokens (`AedstTokens.syntax-*`) and `plain`
+// (foreground). Rust: `aedst_ui::highlight::TokenKind`.
+export enum AedstCodeTokenKind {
+    plain, comment, keyword, string-literal, number-literal, function-name, type-name, punctuation
+}
+
+// A run of one token kind inside a line.
+export struct AedstCodeSpan {
     text: string,
+    kind: AedstCodeTokenKind,
+}
+
+export struct AedstCodeLine {
+    // The whole line: shown when `spans` is empty, and when the block wraps.
+    text: string,
+    // Highlighted runs that concatenate to `text` (from `aedst_ui::highlight::highlight`).
+    spans: [AedstCodeSpan],
     // Emphasised line (the web `highlightLines`).
     emphasized: bool,
 }
@@ -12,7 +27,9 @@ export struct AedstCodeLine {
 // language, wrap toggle, copy button), line numbers and line emphasis. The code is always left
 // to right and scrolls sideways unless wrapped. Slint cannot split a string, so the caller
 // passes the lines (`lines`) and the whole text (`code`, for the copy button). Copying goes
-// through a hidden `TextInput` (the only clipboard access in Slint). No syntax highlighter.
+// through a hidden `TextInput` (the only clipboard access in Slint). Syntax colours come from
+// the line spans, tokenised in Rust (`aedst_ui::highlight`); a wrapped block shows each line in
+// one colour, because separate runs cannot wrap as one paragraph.
 export component AedstCodeBlock inherits Rectangle {
     in property <[AedstCodeLine]> lines;
     in property <string> code;
@@ -34,6 +51,17 @@ export component AedstCodeBlock inherits Rectangle {
     private property <bool> has-header: root.filename != "" || root.language != "" || root.wrap-label != "" || root.copy-label != "";
     private property <length> gutter: root.show-line-numbers ? 40px : AedstTokens.spacing-md;
     private property <length> line-height: AedstTokens.typography-mono-line-height;
+
+    pure function ink(kind: AedstCodeTokenKind) -> color {
+        return kind == AedstCodeTokenKind.comment ? AedstTokens.syntax-comment
+            : kind == AedstCodeTokenKind.keyword ? AedstTokens.syntax-keyword
+            : kind == AedstCodeTokenKind.string-literal ? AedstTokens.syntax-string
+            : kind == AedstCodeTokenKind.number-literal ? AedstTokens.syntax-number
+            : kind == AedstCodeTokenKind.function-name ? AedstTokens.syntax-function
+            : kind == AedstCodeTokenKind.type-name ? AedstTokens.syntax-type
+            : kind == AedstCodeTokenKind.punctuation ? AedstTokens.syntax-punctuation
+            : AedstTokens.foreground;
+    }
 
     background: AedstTokens.muted;
     border-radius: AedstTokens.radius-lg;
@@ -121,16 +149,35 @@ export component AedstCodeBlock inherits Rectangle {
                         horizontal-alignment: right;
                         accessible-role: AccessibleRole.none;
                     }
-                    content := Text {
+                    content := VerticalLayout {
                         x: root.gutter;
                         y: 0px;
                         width: root.wrapped ? parent.width - root.gutter - AedstTokens.spacing-md : self.preferred-width;
-                        text: entry.text;
-                        color: AedstTokens.foreground;
-                        font-size: AedstTokens.typography-mono-font-size;
-                        font-family: root.mono-family;
-                        horizontal-alignment: left;
-                        wrap: root.wrapped ? word-wrap : no-wrap;
+                        height: self.preferred-height;
+                        if root.wrapped || entry.spans.length == 0: Text {
+                            text: entry.text;
+                            color: AedstTokens.foreground;
+                            font-size: AedstTokens.typography-mono-font-size;
+                            font-family: root.mono-family;
+                            horizontal-alignment: left;
+                            wrap: root.wrapped ? word-wrap : no-wrap;
+                        }
+                        // One text element per run; the line is announced once, as a whole.
+                        if !root.wrapped && entry.spans.length > 0: Rectangle {
+                            accessible-role: text;
+                            accessible-label: entry.text;
+                            HorizontalLayout {
+                                alignment: start;
+                                for span in entry.spans: Text {
+                                    text: span.text;
+                                    color: root.ink(span.kind);
+                                    font-size: AedstTokens.typography-mono-font-size;
+                                    font-family: root.mono-family;
+                                    wrap: no-wrap;
+                                    accessible-role: AccessibleRole.none;
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -1,0 +1,49 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstCollapsible } from "aedst_collapsible.slint";
+import { AiLinkRow } from "internal/ai_link_row.slint";
+
+// One link the agent used (web `AiSource`). `host` is the host name without `www.`, computed
+// by the Rust side (Slint cannot parse a URL); the link text is `title`, or `host` without one.
+export struct AedstAiSource {
+    url: string,
+    title: string,
+    host: string,
+}
+
+// The links the agent used for a reply (web `AiSources`, `AiSourcesTrigger`,
+// `AiSourcesContent`, `AiSource`): a line worded by the caller ("Used 3 sources") that opens
+// into a list of link rows. Built on AedstCollapsible (web builds on the chain-of-thought line
+// parts; Desktop batch B does not depend on that file, and the collapsible gives the same
+// disclosure: button role, expanded state, Enter/Space). The kit opens nothing: `opened(url)`
+// asks the feature to open the system browser. Bind `open` `<=>` to keep it outside.
+export component AedstAiSources inherits Rectangle {
+    in property <string> title;
+    in property <[AedstAiSource]> sources;
+    in-out property <bool> open: false;
+    // Read after each link text, for example "(opens in your browser)".
+    in property <string> new-tab-label;
+    callback opened(string);
+    callback toggled(bool);
+
+    forward-focus: section;
+
+    VerticalLayout {
+        section := AedstCollapsible {
+            title: root.title;
+            open <=> root.open;
+            toggled(value) => { root.toggled(value); }
+
+            Rectangle {
+                accessible-role: list;
+                accessible-label: root.title;
+                VerticalLayout {
+                    for source in root.sources: AiLinkRow {
+                        text: source.title != "" ? source.title : source.host;
+                        label: root.new-tab-label == "" ? self.text : self.text + " " + root.new-tab-label;
+                        activated => { root.opened(source.url); }
+                    }
+                }
+            }
+        }
+    }
+}

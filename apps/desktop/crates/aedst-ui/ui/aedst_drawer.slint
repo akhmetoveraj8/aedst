@@ -1,7 +1,10 @@
 import { AedstSheet, AedstSheetSide } from "aedst_sheet.slint";
 
 // A sheet attached to the bottom edge, with a grab handle. Everything else (title, description,
-// `open`, `close()`, Escape, the scrim) is AedstSheet. Dragging the handle is not implemented.
+// `open`, `close()`, Escape, the scrim) is AedstSheet. Dragging the handle down past a quarter of
+// the panel height closes it (`closed()`), a shorter drag snaps back; `reduce-motion` turns the
+// snap-back animation off. Set `handle-label` so the handle has an accessible name (its default
+// action closes the drawer, the keyboard way is Escape).
 export component AedstDrawer inherits AedstSheet {
     side: AedstSheetSide.bottom;
     show-handle: true;

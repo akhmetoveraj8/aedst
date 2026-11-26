@@ -1,0 +1,128 @@
+import { AedstTokens } from "../aedst_tokens.slint";
+import { AedstLayout } from "../aedst_layout.slint";
+
+// One answer of a question (AedstQuestionnaire). `checked` is owned by the caller.
+export struct AedstQuestionnaireChoice {
+    id: string,
+    label: string,
+    description: string,
+    checked: bool,
+    disabled: bool,
+}
+
+// A choice row (web `QuestionnaireChoice`): a 44px-high bordered row with a radio or check
+// indicator, the label and description, and the shortcut key (`shortcut`, empty for none). Not a tab stop itself: the
+// questionnaire's choice group owns the focus and draws the ring on the `active` row.
+export component QuestionnaireChoiceRow inherits Rectangle {
+    in property <AedstQuestionnaireChoice> data;
+    in property <bool> multiple;
+    in property <bool> active;
+    in property <bool> focused;
+    in property <string> shortcut;
+    in property <int> position;
+    in property <int> count;
+    callback clicked();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> lead: 16px + 10px;
+    private property <length> trail: root.shortcut == "" ? 0px : 20px + 10px;
+
+    min-height: Math.max(44px, texts.preferred-height + 2 * 10px);
+    preferred-width: 2 * AedstTokens.spacing-md + root.lead + texts.preferred-width + root.trail;
+    border-radius: AedstTokens.radius-lg;
+    border-width: (root.focused && root.active) ? 2px : 1px;
+    border-color: (root.focused && root.active) ? AedstTokens.ring
+        : root.data.checked ? AedstTokens.primary.transparentize(0.6) : AedstTokens.input;
+    background: root.data.checked ? AedstTokens.muted
+        : touch.has-hover && !root.data.disabled ? AedstTokens.muted.transparentize(0.5) : transparent;
+    opacity: root.data.disabled ? 0.5 : 1.0;
+    accessible-role: root.multiple ? AccessibleRole.checkbox : AccessibleRole.radio-button;
+    accessible-label: root.data.label;
+    accessible-description: root.data.description;
+    accessible-checkable: true;
+    accessible-checked: root.data.checked;
+    accessible-enabled: !root.data.disabled;
+    accessible-item-index: root.position;
+    accessible-item-count: root.count;
+    accessible-action-default => {
+        if (!root.data.disabled) {
+            root.clicked();
+        }
+    }
+
+    // Indicator: a circle with a dot (single) or a rounded square with a check (multiple).
+    Rectangle {
+        x: root.rtl ? parent.width - AedstTokens.spacing-md - self.width : AedstTokens.spacing-md;
+        y: 12px;
+        width: 16px;
+        height: 16px;
+        border-radius: root.multiple ? AedstTokens.radius-xs : 8px;
+        border-width: 1px;
+        border-color: root.data.checked ? AedstTokens.primary : AedstTokens.input;
+        background: root.data.checked ? AedstTokens.primary : AedstTokens.background;
+        if root.data.checked && !root.multiple: Rectangle {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: AedstTokens.primary-foreground;
+        }
+        if root.data.checked && root.multiple: Text {
+            text: "\u{2713}";
+            color: AedstTokens.primary-foreground;
+            font-size: AedstTokens.typography-label-medium-font-size;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+
+    texts := VerticalLayout {
+        x: root.rtl ? root.trail + AedstTokens.spacing-md : AedstTokens.spacing-md + root.lead;
+        y: (parent.height - self.height) / 2;
+        width: parent.width - 2 * AedstTokens.spacing-md - root.lead - root.trail;
+        height: self.preferred-height;
+        spacing: AedstTokens.spacing-xxs;
+        Text {
+            text: root.data.label;
+            color: AedstTokens.foreground;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: root.rtl ? right : left;
+            wrap: word-wrap;
+            accessible-role: AccessibleRole.none;
+        }
+        if root.data.description != "": Text {
+            text: root.data.description;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: root.rtl ? right : left;
+            wrap: word-wrap;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+
+    // Shortcut key at the reading end.
+    if root.shortcut != "": Rectangle {
+        x: root.rtl ? AedstTokens.spacing-md : parent.width - AedstTokens.spacing-md - self.width;
+        y: 12px;
+        width: 20px;
+        height: 20px;
+        border-radius: AedstTokens.radius-sm;
+        border-width: 1px;
+        border-color: AedstTokens.input;
+        background: AedstTokens.background;
+        Text {
+            text: root.shortcut;
+            color: AedstTokens.muted-foreground;
+            font-size: AedstTokens.typography-label-small-font-size;
+            font-weight: AedstTokens.typography-label-small-font-weight;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+
+    touch := TouchArea {
+        enabled: !root.data.disabled;
+        clicked => { root.clicked(); }
+    }
+}

@@ -1,0 +1,75 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstMenuList, AedstMenuItem } from "aedst_dropdown_menu.slint";
+
+// Picks the model (or effort) the agent runs with (web `AiModelSelector`,
+// `AiModelSelectorTrigger`, `AiModelSelectorContent`, `AiModelSelectorList`,
+// `AiModelSelectorGroup`, `AiModelSelectorItem`, `AiModelSelectorSeparator`,
+// `AiModelSelectorShortcut`, `AiModelSelectorLogo`, `AiModelSelectorName`): a small ghost button
+// (the input-group button, so it sits in the AedstAiPromptInput footer) with the current
+// model's name and a chevron, opening an AedstMenuList with a check mark on the current entry.
+// One entry per model (`AedstMenuItem`: `label` the name, `description` the provider or a note,
+// `shortcut`, `disabled`); a group starts with `separator: true`, because the shared menu list
+// has no heading rows. Searching a long list belongs in AedstCommand, not here.
+// `current-index` is kept here (bind it `<=>` to keep it outside); picking closes the menu.
+export component AedstAiModelSelector inherits Rectangle {
+    in property <[AedstMenuItem]> items;
+    in-out property <int> current-index: -1;
+    // Shown while nothing is picked, for example "Choose a model".
+    in property <string> placeholder;
+    // Accessible name of the trigger and the menu, for example "Model: Fast". Defaults to the
+    // current name; the caller words it (Slint cannot build a translated sentence).
+    in property <string> label: root.current-name;
+    // A provider logo before the name; drawn in the text colour (AedstButton tints icons).
+    in property <image> logo;
+    in property <bool> enabled: true;
+    in property <length> menu-width: 224px;
+    // The `id` of the picked entry.
+    callback selected(string);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <string> current-name: root.current-index >= 0 && root.current-index < root.items.length
+        ? root.items[root.current-index].label : root.placeholder;
+
+    public function show() { popup.show(); }
+
+    min-width: trigger.min-width;
+    min-height: trigger.min-height;
+    max-height: trigger.max-height;
+    preferred-width: trigger.preferred-width;
+    forward-focus: trigger;
+
+    trigger := AedstButton {
+        // The chevron is part of the text so it follows the name in both directions.
+        text: root.current-name + "  \u{25BE}";
+        label: root.label;
+        icon: root.logo;
+        variant: AedstButtonVariant.ghost;
+        size: AedstButtonSize.sm;
+        enabled: root.enabled;
+        clicked => { root.show(); }
+    }
+
+    popup := PopupWindow {
+        x: root.rtl ? root.width - root.menu-width : 0px;
+        y: root.height + AedstTokens.spacing-xs;
+        width: root.menu-width;
+        close-policy: PopupClosePolicy.close-on-click-outside;
+        AedstMenuList {
+            items: root.items;
+            label: root.label;
+            checked-index: root.current-index;
+            activated(index) => {
+                root.current-index = index;
+                popup.close();
+                root.selected(root.items[index].id);
+                trigger.focus();
+            }
+            dismissed => {
+                popup.close();
+                trigger.focus();
+            }
+        }
+    }
+}

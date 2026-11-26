@@ -1,0 +1,52 @@
+import { AedstTokens } from "../aedst_tokens.slint";
+import { AedstSpinner } from "../aedst_spinner.slint";
+import { AedstTraceStatus } from "../aedst_trace.slint";
+
+// Leading 16px icon of an AI line (web `StatusIcon` in ai-chain-of-thought.tsx). Running and failed
+// lines always show the status (spinner, cross); otherwise a caller icon wins over the status
+// mark. Decorative: the line's accessible label carries the status in words.
+export component AiStatusIcon inherits Rectangle {
+    in property <AedstTraceStatus> status: AedstTraceStatus.success;
+    in property <image> icon;
+    // False when the user asked for reduced motion: the spinner stands still.
+    in property <bool> animated: true;
+
+    private property <bool> forced: root.status == AedstTraceStatus.running || root.status == AedstTraceStatus.error;
+    private property <bool> custom: root.icon.width > 0 && !root.forced;
+    // Same colours as `AedstTrace` (web `traceStatusVariants`).
+    private property <color> tint: root.status == AedstTraceStatus.success ? AedstTokens.success
+        : root.status == AedstTraceStatus.error ? AedstTokens.destructive
+        : root.status == AedstTraceStatus.running ? AedstTokens.info
+        : AedstTokens.muted-foreground;
+    // The mark inside the circle: a tick, a cross, a dash, or nothing (pending).
+    private property <string> glyph: root.status == AedstTraceStatus.success ? "M 5 8.2 L 7 10.2 L 11 6"
+        : root.status == AedstTraceStatus.error ? "M 6 6 L 10 10 M 10 6 L 6 10"
+        : root.status == AedstTraceStatus.skipped ? "M 5.5 8 L 10.5 8"
+        : "";
+
+    width: 16px;
+    height: 16px;
+    accessible-role: AccessibleRole.none;
+
+    if root.custom: Image {
+        width: 16px;
+        height: 16px;
+        source: root.icon;
+        colorize: AedstTokens.muted-foreground;
+        accessible-role: AccessibleRole.none;
+    }
+    if !root.custom && root.status == AedstTraceStatus.running: AedstSpinner {
+        diameter: 16px;
+        tint: root.tint;
+        animated: root.animated;
+    }
+    if !root.custom && root.status != AedstTraceStatus.running: Path {
+        width: 16px;
+        height: 16px;
+        viewbox-width: 16;
+        viewbox-height: 16;
+        stroke: root.tint;
+        stroke-width: 1.5px;
+        commands: "M 2 8 A 6 6 0 1 0 14 8 A 6 6 0 1 0 2 8 " + root.glyph;
+    }
+}

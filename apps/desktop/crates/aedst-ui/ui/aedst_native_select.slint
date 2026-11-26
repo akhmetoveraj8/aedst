@@ -4,12 +4,16 @@
 // wrapper, never `std-widgets.slint`.
 import { ComboBox } from "std-widgets.slint";
 
+// Web `size`: default 32px, sm 28px high. The native style may enforce a larger minimum.
+export enum AedstNativeSelectSize { default, sm }
+
 export component AedstNativeSelect inherits Rectangle {
     in property <[string]> options;
     in-out property <int> current-index <=> box.current-index;
     out property <string> current-value: box.current-value;
     in property <string> label;
     in property <bool> enabled: true;
+    in property <AedstNativeSelectSize> size: AedstNativeSelectSize.default;
     out property <bool> has-focus: box.has-focus;
     callback selected(string);
 
@@ -19,6 +23,7 @@ export component AedstNativeSelect inherits Rectangle {
         box := ComboBox {
             model: root.options;
             enabled: root.enabled;
+            height: root.size == AedstNativeSelectSize.sm ? 28px : 32px;
             accessible-label: root.label;
             selected(value) => { root.selected(value); }
         }

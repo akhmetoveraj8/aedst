@@ -10,12 +10,12 @@ export struct AedstToast {
     action-text: string,
 }
 
-// The toast stack (manifest name `sonner`; `toast` is an alias of it). Place it as the LAST
+// The toast stack (manifest name `toast`; web `Toaster`). Place it as the LAST
 // child of the view's root element (not inside a layout): toasts appear at the bottom, at the
 // reading end. The list lives with the caller: the component asks to remove a toast with
 // `dismissed(id)`, from the close button or when `auto-dismiss` elapses for the oldest toast
 // (0ms: never). It does not block the view under it.
-export component AedstSonner inherits Rectangle {
+export component AedstToaster inherits Rectangle {
     in property <[AedstToast]> toasts;
     // Accessible name of the close button of a toast.
     in property <string> dismiss-label;

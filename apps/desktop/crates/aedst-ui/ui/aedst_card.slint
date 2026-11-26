@@ -1,12 +1,17 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
 
+// Web `size`: sm tightens the card spacing from 16px to 12px and sets the title in text-sm.
+export enum AedstCardSize { default, sm }
+
 // A bordered surface with an optional header (title, description) above its content.
 export component AedstCard inherits Rectangle {
     in property <string> title;
     in property <string> description;
+    in property <AedstCardSize> size: AedstCardSize.default;
 
     private property <bool> rtl: AedstLayout.rtl;
+    private property <length> card-spacing: root.size == AedstCardSize.sm ? AedstTokens.spacing-md : AedstTokens.spacing-lg;
 
     background: AedstTokens.card;
     border-radius: AedstTokens.radius-xl;
@@ -14,14 +19,14 @@ export component AedstCard inherits Rectangle {
     border-color: AedstTokens.border;
 
     VerticalLayout {
-        padding: AedstTokens.spacing-lg;
-        spacing: AedstTokens.spacing-md;
+        padding: root.card-spacing;
+        spacing: root.card-spacing;
         if root.title != "" || root.description != "": VerticalLayout {
             spacing: AedstTokens.spacing-xs;
             if root.title != "": Text {
                 text: root.title;
                 color: AedstTokens.card-foreground;
-                font-size: AedstTokens.typography-title-small-font-size;
+                font-size: root.size == AedstCardSize.sm ? AedstTokens.typography-body-medium-font-size : AedstTokens.typography-title-small-font-size;
                 font-weight: AedstTokens.typography-title-small-font-weight;
                 horizontal-alignment: root.rtl ? right : left;
                 wrap: word-wrap;

@@ -1,0 +1,79 @@
+import { AedstTokens } from "../aedst_tokens.slint";
+import { AedstLayout } from "../aedst_layout.slint";
+
+// A row that opens a URL (web `AiSource` link, the link of `AiInlineCitationSource`): the text at
+// the reading start, a decorative arrow pointing up and to the reading end. The kit opens
+// nothing: `activated()` asks the feature, which opens the system browser. Slint 1.19 has no
+// link role, so the row is a button; `label` is the text plus "(opens in your browser)".
+export component AiLinkRow inherits Rectangle {
+    in property <string> text;
+    in property <string> label: root.text;
+    // Muted text that turns to the foreground colour on hover (web `text-muted-foreground`).
+    in property <bool> muted: true;
+    in property <length> font-size: AedstTokens.typography-body-medium-font-size;
+    out property <bool> has-focus: focus.has-focus;
+    callback activated();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <length> pad: AedstTokens.spacing-sm;
+    private property <length> arrow: 16px;
+
+    min-height: 32px;
+    preferred-width: caption.preferred-width + root.arrow + 2 * root.pad + AedstTokens.spacing-sm;
+    border-radius: AedstTokens.radius-md;
+    forward-focus: focus;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-action-default => { root.activated(); }
+
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == " " || event.text == "\n") {
+                root.activated();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    caption := Text {
+        x: root.rtl ? root.pad + root.arrow + AedstTokens.spacing-sm : root.pad;
+        width: parent.width - 2 * root.pad - root.arrow - AedstTokens.spacing-sm;
+        text: root.text;
+        color: (root.muted && !touch.has-hover) ? AedstTokens.muted-foreground : AedstTokens.foreground;
+        font-size: root.font-size;
+        horizontal-alignment: root.rtl ? right : left;
+        vertical-alignment: center;
+        overflow: elide;
+        accessible-role: AccessibleRole.none;
+    }
+
+    // Arrow up and to the reading end (web `rtl:-scale-x-100`).
+    Path {
+        x: root.rtl ? root.pad : parent.width - root.pad - self.width;
+        y: (parent.height - self.height) / 2;
+        width: root.arrow;
+        height: root.arrow;
+        viewbox-width: 16;
+        viewbox-height: 16;
+        stroke: caption.color;
+        stroke-width: 1.5px;
+        commands: root.rtl ? "M 11 11 L 5 5 M 5 10 L 5 5 L 10 5" : "M 5 11 L 11 5 M 6 5 L 11 5 L 11 10";
+        accessible-role: AccessibleRole.none;
+    }
+
+    // Visible keyboard focus ring.
+    Rectangle {
+        border-width: focus.has-focus ? 2px : 0px;
+        border-color: AedstTokens.ring;
+        border-radius: AedstTokens.radius-md;
+    }
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => {
+            focus.focus();
+            root.activated();
+        }
+    }
+}

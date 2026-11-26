@@ -1,0 +1,220 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstCodeLine } from "aedst_code_block.slint";
+import { AedstProgress } from "aedst_progress.slint";
+import { AedstTraceStatus } from "aedst_trace.slint";
+import {
+    AedstAiChainOfThought, AedstAiChainOfThoughtHeader, AedstAiChainOfThoughtContent, AedstAiChainOfThoughtStep
+} from "aedst_ai_chain_of_thought.slint";
+import { AiCodePanel } from "internal/ai_code_panel.slint";
+
+// Web `AiTestStatus`; Rust `aedst_ui::test_results::TestStatus`.
+export enum AedstAiTestStatus { passed, failed, skipped, running }
+
+// Totals from `aedst_ui::test_results::count_tests` (web `countTests`).
+export struct AedstAiTestCounts { total: int, passed: int, failed: int, skipped: int }
+
+// One test (web `AiTest`). A failed test with `error` is a collapsible line, open at first.
+export struct AedstAiTest {
+    id: string,
+    name: string,
+    status: AedstAiTestStatus,
+    error: string,
+    error-lines: [AedstCodeLine],
+    // Already formatted, e.g. "12 ms".
+    duration: string,
+    status-label: string,
+}
+
+// A file of tests (web `AiTestSuite`); `name` carries its counts ("payment.test.ts, 2 tests, 1 failed").
+export struct AedstAiTestSuite {
+    id: string,
+    name: string,
+    status: AedstAiTestStatus,
+    status-label: string,
+    tests: [AedstAiTest],
+}
+
+// The summary line, worded by the caller (web `AiTestResultsHeader`); `failed` shows the error
+// status, `running` the spinner, `skipped` the skipped mark, `passed` only the icon.
+export component AedstAiTestResultsHeader inherits AedstAiChainOfThoughtHeader {
+    in property <AedstAiTestStatus> test-status: AedstAiTestStatus.passed;
+
+    show-status: root.test-status != AedstAiTestStatus.passed;
+    status: root.test-status == AedstAiTestStatus.failed ? AedstTraceStatus.error
+        : root.test-status == AedstAiTestStatus.running ? AedstTraceStatus.running
+        : AedstTraceStatus.skipped;
+}
+
+// Share of passed tests (web `AiTestResultsProgress`): the label, the percentage and a bar.
+export component AedstAiTestResultsProgress inherits Rectangle {
+    in property <AedstAiTestCounts> counts;
+    in property <string> label;
+
+    private property <int> percent: Math.round(100 * root.counts.passed / Math.max(root.counts.total, 1));
+
+    VerticalLayout {
+        padding-left: AedstTokens.spacing-sm;
+        padding-right: AedstTokens.spacing-sm;
+        spacing: AedstTokens.spacing-xs;
+        HorizontalLayout {
+            Text {
+                horizontal-stretch: 1;
+                text: AedstLayout.rtl ? "\{root.percent}%" : root.label;
+                color: AedstLayout.rtl ? AedstTokens.muted-foreground : AedstTokens.foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                accessible-role: AccessibleRole.none;
+            }
+            Text {
+                text: AedstLayout.rtl ? root.label : "\{root.percent}%";
+                color: AedstLayout.rtl ? AedstTokens.foreground : AedstTokens.muted-foreground;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                accessible-role: AccessibleRole.none;
+            }
+        }
+        AedstProgress {
+            label: root.label;
+            value: root.counts.passed;
+            maximum: Math.max(root.counts.total, 1);
+        }
+    }
+}
+
+// One test row (web `AiTest`): a step, or for a failure with a message a collapsible line with
+// the message as code. Keeps its own open state.
+export component AedstAiTestRow inherits Rectangle {
+    in property <AedstAiTest> test;
+    in property <image> failure-icon;
+    in property <string> copy-label;
+    in property <string> copied-label;
+    in property <bool> reduce-motion: false;
+
+    private property <bool> collapsible: root.test.status == AedstAiTestStatus.failed && root.test.error != "";
+
+    VerticalLayout {
+        if root.collapsible: AedstAiChainOfThought {
+            title: root.test.name;
+            description: root.test.duration;
+            icon: root.failure-icon;
+            show-status: true;
+            status: AedstTraceStatus.error;
+            status-label: root.test.status-label;
+            open: true;
+            reduce-motion: root.reduce-motion;
+            AiCodePanel {
+                label: root.test.name;
+                lines: root.test.error-lines;
+                code: root.test.error;
+                wrapped: true;
+                copy-label: root.copy-label;
+                copied-label: root.copied-label;
+            }
+        }
+        if !root.collapsible: AedstAiChainOfThoughtStep {
+            label: root.test.name;
+            description: root.test.duration;
+            status: root.test.status == AedstAiTestStatus.failed ? AedstTraceStatus.error
+                : root.test.status == AedstAiTestStatus.running ? AedstTraceStatus.running
+                : root.test.status == AedstAiTestStatus.skipped ? AedstTraceStatus.skipped
+                : AedstTraceStatus.success;
+            status-label: root.test.status-label;
+            reduce-motion: root.reduce-motion;
+        }
+    }
+}
+
+// The suites of a run (web `AiTestSuites` + `AiTestSuite`). A suite with a failure opens at
+// first; each keeps its own open state afterwards.
+export component AedstAiTestSuites inherits Rectangle {
+    in property <[AedstAiTestSuite]> suites;
+    in property <string> label;
+    in property <image> suite-icon;
+    in property <image> failure-icon;
+    in property <string> copy-label;
+    in property <string> copied-label;
+    in property <bool> reduce-motion: false;
+
+    accessible-role: AccessibleRole.list;
+    accessible-label: root.label;
+
+    VerticalLayout {
+        for suite in root.suites: AedstAiChainOfThought {
+            title: suite.name;
+            icon: root.suite-icon;
+            show-status: suite.status == AedstAiTestStatus.failed || suite.status == AedstAiTestStatus.running;
+            status: suite.status == AedstAiTestStatus.failed ? AedstTraceStatus.error : AedstTraceStatus.running;
+            status-label: suite.status-label;
+            open: suite.status == AedstAiTestStatus.failed;
+            reduce-motion: root.reduce-motion;
+            // Not named `test`: a bare name resolves to the row's own `test` property first.
+            for entry in suite.tests: AedstAiTestRow {
+                test: entry;
+                failure-icon: root.failure-icon;
+                copy-label: root.copy-label;
+                copied-label: root.copied-label;
+                reduce-motion: root.reduce-motion;
+            }
+        }
+    }
+}
+
+// A test run (web `AiTestResults`): a summary line that opens into the pass-rate bar and the
+// suites. Count with `aedst_ui::test_results::count_tests`; the caller words the summary.
+export component AedstAiTestResults inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <image> icon;
+    in property <AedstAiTestStatus> test-status: AedstAiTestStatus.passed;
+    in property <string> status-label;
+    in property <AedstAiTestCounts> counts;
+    // Visible label of the bar, e.g. "Passed"; the bar is hidden without it.
+    in property <string> progress-label;
+    in property <[AedstAiTestSuite]> suites;
+    in property <string> suites-label;
+    in property <image> suite-icon;
+    in property <image> failure-icon;
+    in property <string> copy-label;
+    in property <string> copied-label;
+    in-out property <bool> open: false;
+    in property <bool> reduce-motion: false;
+    callback toggled(bool);
+
+    forward-focus: header;
+
+    VerticalLayout {
+        header := AedstAiTestResultsHeader {
+            title: root.title;
+            description: root.description;
+            icon: root.icon;
+            test-status: root.test-status;
+            status-label: root.status-label;
+            open: root.open;
+            reduce-motion: root.reduce-motion;
+            toggled => {
+                root.open = !root.open;
+                root.toggled(root.open);
+            }
+        }
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := AedstAiChainOfThoughtContent {
+                if root.progress-label != "": AedstAiTestResultsProgress {
+                    counts: root.counts;
+                    label: root.progress-label;
+                }
+                AedstAiTestSuites {
+                    suites: root.suites;
+                    label: root.suites-label;
+                    suite-icon: root.suite-icon;
+                    failure-icon: root.failure-icon;
+                    copy-label: root.copy-label;
+                    copied-label: root.copied-label;
+                    reduce-motion: root.reduce-motion;
+                }
+                @children
+            }
+        }
+    }
+}

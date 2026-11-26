@@ -1,0 +1,136 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+
+// Web `bubbleVariants` (the colours of the bubble content).
+export enum AedstBubbleVariant { default, secondary, muted, tinted, outline, ghost, destructive }
+// Web `BubbleReactions` `side`: the reactions pill overlaps the top or the bottom edge.
+export enum AedstBubbleSide { top, bottom }
+// Web `align`: which edge of the row the bubble (or the reactions pill) keeps to, in reading order.
+export enum AedstBubbleAlign { start, end }
+
+// A chat bubble (web `Bubble`, `BubbleContent`, `BubbleReactions`): the text in a rounded box at
+// most 80% of the row wide (ghost: the full row), at the reading start or end. Children go under
+// the text inside the box (attachments, a code block). `reactions` (for example "👍 2") is drawn
+// as a pill over the top or bottom edge. With `interactive` the box is a button (`clicked()`).
+export component AedstBubble inherits Rectangle {
+    in property <string> text;
+    in property <AedstBubbleVariant> variant: AedstBubbleVariant.default;
+    in property <AedstBubbleAlign> align: AedstBubbleAlign.start;
+    in property <string> reactions;
+    // Accessible name of the reactions, for example "2 people reacted with thumbs up".
+    in property <string> reactions-label: root.reactions;
+    in property <AedstBubbleSide> reactions-side: AedstBubbleSide.bottom;
+    in property <AedstBubbleAlign> reactions-align: AedstBubbleAlign.end;
+    in property <bool> interactive: false;
+    out property <bool> has-focus: focus.has-focus;
+    callback clicked();
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> ghost: root.variant == AedstBubbleVariant.ghost;
+    private property <bool> at-right: (root.align == AedstBubbleAlign.end) != root.rtl;
+    private property <bool> pill-right: (root.reactions-align == AedstBubbleAlign.end) != root.rtl;
+    private property <bool> hot: root.interactive && (touch.has-hover || touch.pressed);
+    private property <length> pad-x: root.ghost ? 0px : AedstTokens.spacing-md;
+    private property <length> pad-y: root.ghost ? 0px : AedstTokens.spacing-sm;
+    private property <length> max-box: root.ghost ? root.width : root.width * 0.8;
+    // How far the pill reaches beyond the box (web translate 3/4 of its height).
+    private property <length> overhang: root.reactions == "" ? 0px : pill.height * 0.75;
+    private property <color> fill: root.variant == AedstBubbleVariant.default ? (root.hot ? AedstTokens.primary.transparentize(0.2) : AedstTokens.primary)
+        : root.variant == AedstBubbleVariant.secondary ? (root.hot ? AedstTokens.secondary.mix(AedstTokens.foreground, 0.95) : AedstTokens.secondary)
+        : root.variant == AedstBubbleVariant.muted ? (root.hot ? AedstTokens.muted.mix(AedstTokens.foreground, 0.95) : AedstTokens.muted)
+        : root.variant == AedstBubbleVariant.tinted ? AedstTokens.primary.transparentize(root.hot ? 0.82 : 0.9)
+        : root.variant == AedstBubbleVariant.outline ? (root.hot ? AedstTokens.muted : AedstTokens.background)
+        : root.variant == AedstBubbleVariant.destructive ? AedstTokens.destructive.transparentize(root.hot ? 0.8 : 0.9)
+        : (root.hot ? AedstTokens.muted : AedstTokens.muted.transparentize(1.0));
+    private property <color> ink: root.variant == AedstBubbleVariant.default ? AedstTokens.primary-foreground
+        : root.variant == AedstBubbleVariant.secondary ? AedstTokens.secondary-foreground
+        : root.variant == AedstBubbleVariant.destructive ? AedstTokens.destructive
+        : AedstTokens.foreground;
+
+    min-height: box.height + root.overhang;
+    preferred-height: box.height + root.overhang;
+    horizontal-stretch: 1;
+
+    box := Rectangle {
+        x: root.at-right ? root.width - self.width : 0px;
+        y: root.reactions-side == AedstBubbleSide.top ? root.overhang : 0px;
+        width: Math.min(root.max-box, body.preferred-width);
+        height: body.preferred-height;
+        background: root.fill;
+        border-radius: root.ghost ? 0px : AedstTokens.radius-xl;
+        border-width: focus.has-focus ? 2px : (root.variant == AedstBubbleVariant.outline ? 1px : 0px);
+        border-color: focus.has-focus ? AedstTokens.ring : AedstTokens.border;
+        clip: true;
+        accessible-role: root.interactive ? AccessibleRole.button : AccessibleRole.text;
+        accessible-label: root.text;
+        accessible-action-default => {
+            if (root.interactive) {
+                root.clicked();
+            }
+        }
+
+        body := VerticalLayout {
+            padding-left: root.pad-x;
+            padding-right: root.pad-x;
+            padding-top: root.pad-y;
+            padding-bottom: root.pad-y;
+            spacing: AedstTokens.spacing-xs;
+            if root.text != "": Text {
+                text: root.text;
+                color: root.ink;
+                font-size: AedstTokens.typography-body-medium-font-size;
+                horizontal-alignment: root.rtl ? right : left;
+                wrap: word-wrap;
+                accessible-role: AccessibleRole.none;
+            }
+            @children
+        }
+
+        touch := TouchArea {
+            enabled: root.interactive;
+            clicked => {
+                focus.focus();
+                root.clicked();
+            }
+        }
+        focus := FocusScope {
+            enabled: root.interactive;
+            key-pressed(event) => {
+                if (event.text == " " || event.text == "\n") {
+                    root.clicked();
+                    return accept;
+                }
+                return reject;
+            }
+        }
+    }
+
+    // Reactions pill, 12px in from the box edge it is aligned to.
+    pill := Rectangle {
+        visible: root.reactions != "";
+        x: root.pill-right ? box.x + box.width - self.width - AedstTokens.spacing-md : box.x + AedstTokens.spacing-md;
+        y: root.reactions-side == AedstBubbleSide.top ? 0px : box.y + box.height - self.height / 4;
+        width: emoji.preferred-width + 2 * AedstTokens.spacing-xs + AedstTokens.spacing-xxs;
+        height: emoji.preferred-height + AedstTokens.spacing-xs;
+        border-radius: self.height / 2;
+        background: AedstTokens.muted;
+        // Web ring-3 ring-card: a gap between the pill and the box.
+        border-width: 2px;
+        border-color: AedstTokens.card;
+        accessible-role: text;
+        accessible-label: root.reactions-label;
+        emoji := Text {
+            text: root.reactions;
+            color: AedstTokens.foreground;
+            font-size: AedstTokens.typography-body-medium-font-size;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+}
+
+// A column of bubbles from one sender (web `BubbleGroup`).
+export component AedstBubbleGroup inherits VerticalLayout {
+    spacing: AedstTokens.spacing-sm;
+}

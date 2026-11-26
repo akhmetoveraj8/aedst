@@ -1,0 +1,222 @@
+import {
+    AedstTokens, AedstLabel, AedstButton, AedstButtonVariant, AedstCheckbox, AedstSwitch, AedstSwitchSize,
+    AedstAvatar, AedstAvatarSize, AedstCard, AedstCardSize, AedstFieldSet, AedstFieldLegendVariant,
+    AedstSelect, AedstSelectSize, AedstNativeSelect, AedstNativeSelectSize, AedstAlertDialog,
+    AedstAlertDialogSize, AedstCodeBlock, AedstCodeTokenKind, AedstMarker, AedstMarkerVariant,
+    AedstBubble, AedstBubbleGroup, AedstBubbleVariant, AedstBubbleSide, AedstBubbleAlign, AedstMessage,
+    AedstMessageGroup, AedstMessageAlign, AedstMessageScroller, AedstMessageScrollerItem, AedstAttachment,
+    AedstAttachmentVariant, AedstAttachmentSize, AedstAttachmentOrientation, AedstAttachmentState,
+    AedstQuestionnaire, AedstQuestionnaireKind
+} from "../lib.slint";
+import { GalleryState } from "gallery_state.slint";
+
+// Gallery page 5: conversation components (marker, bubble, message, message scroller,
+// attachment, questionnaire), the size axes added on 2026-11-26 and the highlighted code block.
+// Driven by tests/messages.rs; labels are unique across all pages (tests find by label).
+export component GalleryMessages inherits Rectangle {
+    in-out property <bool> accepted: false;
+    in-out property <bool> compact: false;
+    in-out property <int> frequency: 0;
+    in-out property <bool> small-alert-open: false;
+    private property <[AedstMessageScrollerItem]> chat: [
+        { id: "m0", marker: "Yesterday" },
+        { id: "m1", author: "Ada", avatar-fallback: "AL", header: "Ada", text: "Did the export finish?", variant: AedstBubbleVariant.muted },
+        { id: "m2", align: AedstMessageAlign.end, author: "You", text: "Yes, the file is in the shared folder.", footer: "Read" },
+        { id: "m3", marker: "Today" },
+        { id: "m4", author: "Ada", avatar-fallback: "AL", text: "Thanks! Can you also send the summary?", variant: AedstBubbleVariant.muted },
+        { id: "m5", align: AedstMessageAlign.end, author: "You", text: "Writing it now.", footer: "Sent" },
+    ];
+
+    public function focus-control(name: string) {
+        if (name == "questionnaire") { survey.focus-choices(); }
+    }
+
+    Flickable {
+        content-height: column.preferred-height;
+
+        column := VerticalLayout {
+            width: root.width;
+            padding: AedstTokens.spacing-lg;
+            spacing: AedstTokens.spacing-md;
+
+            AedstLabel { text: "Conversation"; }
+            HorizontalLayout {
+                spacing: AedstTokens.spacing-md;
+                alignment: start;
+                AedstCheckbox {
+                    checked: root.accepted;
+                    label: "Accept the terms";
+                    toggled => {
+                        root.accepted = !root.accepted;
+                        GalleryState.log(root.accepted ? "checkbox:on" : "checkbox:off");
+                    }
+                }
+                AedstSwitch {
+                    size: AedstSwitchSize.sm;
+                    label: "Compact mode";
+                    checked: root.compact;
+                    toggled(value) => { root.compact = value; }
+                }
+                AedstAvatar { size: AedstAvatarSize.sm; fallback: "GH"; label: "Grace Hopper small"; }
+                AedstAvatar { fallback: "GH"; label: "Grace Hopper default"; }
+                AedstAvatar { size: AedstAvatarSize.lg; fallback: "GH"; label: "Grace Hopper large"; }
+            }
+
+            AedstCard {
+                size: AedstCardSize.sm;
+                title: "Compact card";
+                description: "Card size sm: 12px spacing.";
+                AedstFieldSet {
+                    legend: "Notification settings";
+                    description: "How often we write to you.";
+                    variant: AedstFieldLegendVariant.label;
+                    AedstSelect {
+                        size: AedstSelectSize.sm;
+                        label: "Digest";
+                        placeholder: "Pick a digest";
+                        options: [{ id: "daily", label: "Daily" }, { id: "weekly", label: "Weekly" }];
+                    }
+                    AedstNativeSelect { size: AedstNativeSelectSize.sm; label: "Native digest"; options: ["Daily", "Weekly"]; }
+                }
+            }
+
+            AedstMarker { text: "Conversation started"; }
+            AedstMarker { text: "Today"; variant: AedstMarkerVariant.separator; }
+            AedstMarker { text: "Earlier messages"; variant: AedstMarkerVariant.border; }
+
+            AedstMessageGroup {
+                AedstMessage {
+                    author: "Ada Lovelace";
+                    avatar-fallback: "AL";
+                    header: "Ada Lovelace";
+                    footer: "10:42";
+                    AedstBubbleGroup {
+                        AedstBubble { text: "Here is the draft for review."; variant: AedstBubbleVariant.secondary; reactions: "+2"; reactions-label: "2 reactions"; }
+                        AedstBubble { text: "Muted note"; variant: AedstBubbleVariant.muted; }
+                        AedstBubble { text: "Tinted note"; variant: AedstBubbleVariant.tinted; reactions: "!"; reactions-side: AedstBubbleSide.top; reactions-align: AedstBubbleAlign.start; }
+                        AedstBubble { text: "Outline note"; variant: AedstBubbleVariant.outline; }
+                        AedstBubble { text: "A ghost bubble spans the whole row."; variant: AedstBubbleVariant.ghost; }
+                        AedstBubble {
+                            text: "Tap to retry";
+                            variant: AedstBubbleVariant.destructive;
+                            interactive: true;
+                            clicked => { GalleryState.log("bubble:retry"); }
+                        }
+                    }
+                }
+                AedstMessage {
+                    align: AedstMessageAlign.end;
+                    author: "You";
+                    avatar-fallback: "ME";
+                    footer: "Delivered";
+                    AedstBubble { text: "Looks good, merging now."; align: AedstBubbleAlign.end; }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: AedstTokens.spacing-sm;
+                alignment: start;
+                AedstAttachment {
+                    title: "report.pdf";
+                    description: "2.4 MB";
+                    interactive: true;
+                    remove-label: "Remove report.pdf";
+                    activated => { GalleryState.log("attachment:open"); }
+                    removed => { GalleryState.log("attachment:removed"); }
+                }
+                AedstAttachment {
+                    title: "photo.png";
+                    description: "Uploading 40%";
+                    size: AedstAttachmentSize.sm;
+                    variant: AedstAttachmentVariant.image;
+                    state: AedstAttachmentState.uploading;
+                    busy-label: "Uploading";
+                }
+                AedstAttachment {
+                    title: "notes.txt";
+                    description: "Upload failed";
+                    size: AedstAttachmentSize.xs;
+                    state: AedstAttachmentState.error;
+                }
+                AedstAttachment {
+                    title: "cover.jpg";
+                    variant: AedstAttachmentVariant.image;
+                    orientation: AedstAttachmentOrientation.vertical;
+                    state: AedstAttachmentState.idle;
+                }
+            }
+
+            AedstMessageScroller {
+                height: 220px;
+                items: root.chat;
+                label: "Chat history";
+                jump-label: "Jump to the latest message";
+            }
+
+            AedstCodeBlock {
+                filename: "greet.rs";
+                language: "rust";
+                copy-label: "Copy code";
+                copied-label: "Copied";
+                code: "fn greet() {\n    let n = 42; // count\n}";
+                // What `aedst_ui::highlight::highlight` returns for this code, converted.
+                lines: [
+                    { text: "fn greet() {", spans: [
+                        { text: "fn", kind: AedstCodeTokenKind.keyword }, { text: " " },
+                        { text: "greet", kind: AedstCodeTokenKind.function-name },
+                        { text: "() {", kind: AedstCodeTokenKind.punctuation },
+                    ] },
+                    { text: "    let n = 42; // count", emphasized: true, spans: [
+                        { text: "    " }, { text: "let", kind: AedstCodeTokenKind.keyword }, { text: " n " },
+                        { text: "=", kind: AedstCodeTokenKind.punctuation }, { text: " " },
+                        { text: "42", kind: AedstCodeTokenKind.number-literal },
+                        { text: ";", kind: AedstCodeTokenKind.punctuation }, { text: " " },
+                        { text: "// count", kind: AedstCodeTokenKind.comment },
+                    ] },
+                    { text: "}", spans: [{ text: "}", kind: AedstCodeTokenKind.punctuation }] },
+                ];
+            }
+
+            survey := AedstQuestionnaire {
+                title: "How often should we send the digest?";
+                description: "You can change this later.";
+                progress-text: "Question 1 of 2";
+                progress-label: "Survey progress";
+                show-shortcuts: true;
+                choices: [
+                    { id: "daily", label: "Each day", checked: root.frequency == 0 },
+                    { id: "weekly", label: "Each week", description: "Every Monday", checked: root.frequency == 1 },
+                    { id: "never", label: "Not at all", checked: root.frequency == 2 },
+                ];
+                previous-text: "Back";
+                skip-text: "Skip question";
+                next-text: "Continue";
+                can-go-back: false;
+                toggled(id, on) => {
+                    root.frequency = id == "daily" ? 0 : id == "weekly" ? 1 : 2;
+                    GalleryState.log("questionnaire:" + id);
+                }
+                next => { GalleryState.log("questionnaire:next"); }
+                skip => { GalleryState.log("questionnaire:skip"); }
+            }
+
+            AedstButton {
+                text: "Discard draft";
+                variant: AedstButtonVariant.outline;
+                clicked => { root.small-alert-open = true; }
+            }
+        }
+    }
+
+    AedstAlertDialog {
+        open <=> root.small-alert-open;
+        size: AedstAlertDialogSize.sm;
+        title: "Discard the draft?";
+        description: "Your changes are lost.";
+        confirm-text: "Discard";
+        cancel-text: "Keep editing";
+        destructive: true;
+        confirmed => { GalleryState.log("small-alert:confirmed"); }
+        cancelled => { GalleryState.log("small-alert:cancelled"); }
+    }
+}

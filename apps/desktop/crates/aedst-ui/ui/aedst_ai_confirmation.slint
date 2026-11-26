@@ -1,0 +1,69 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstItem, AedstItemVariant, AedstItemMediaVariant, AedstItemSize } from "aedst_item.slint";
+
+// A tool call's approval lifecycle (web `AiConfirmationState`).
+export enum AedstAiConfirmationState { approval-requested, approval-responded, output-denied, output-available }
+
+// Asks the person for a yes or no before a tool runs (web `AiConfirmation`,
+// `AiConfirmationMedia`, `AiConfirmationContent`, `AiConfirmationTitle`,
+// `AiConfirmationDescription`, `AiConfirmationRequest`, `AiConfirmationAccepted`,
+// `AiConfirmationRejected`, `AiConfirmationActions`, `AiConfirmationAction`): an outline small
+// AedstItem with Deny and Approve buttons at the reading end. While the approval is requested it
+// shows `title` / `description` and the buttons; once answered it shows `accepted-title` /
+// `accepted-description` or `rejected-title` / `rejected-description` and no buttons. Web renders
+// nothing until the tool call carries an approval: the feature sets `visible` the same way.
+// `responded(approved)` reports the answer; the feature then moves `state` on.
+export component AedstAiConfirmation inherits Rectangle {
+    in property <AedstAiConfirmationState> state: AedstAiConfirmationState.approval-requested;
+    // The answer once given (web `approval.approved`); ignored while requested.
+    in property <bool> approved: false;
+    in property <image> media;
+    in property <string> title;
+    in property <string> description;
+    in property <string> accepted-title;
+    in property <string> accepted-description;
+    in property <string> rejected-title;
+    in property <string> rejected-description;
+    in property <string> approve-label;
+    in property <string> deny-label;
+    callback responded(bool);
+
+    private property <bool> rtl: AedstLayout.rtl;
+    private property <bool> requested: root.state == AedstAiConfirmationState.approval-requested;
+    // Web: denied when the output was denied or the answer is no.
+    private property <bool> denied: root.state == AedstAiConfirmationState.output-denied || !root.approved;
+
+    accessible-role: groupbox;
+    accessible-label: item.title;
+
+    VerticalLayout {
+        item := AedstItem {
+            variant: AedstItemVariant.outline;
+            size: AedstItemSize.sm;
+            media: root.media;
+            media-variant: AedstItemMediaVariant.icon;
+            title: root.requested ? root.title : root.denied ? root.rejected-title : root.accepted-title;
+            description: root.requested ? root.description : root.denied ? root.rejected-description : root.accepted-description;
+
+            // Deny then Approve in reading order (mirrored in RTL).
+            if root.requested && root.rtl: AedstButton {
+                text: root.approve-label;
+                size: AedstButtonSize.sm;
+                clicked => { root.responded(true); }
+            }
+            if root.requested: AedstButton {
+                text: root.deny-label;
+                variant: AedstButtonVariant.outline;
+                size: AedstButtonSize.sm;
+                clicked => { root.responded(false); }
+            }
+            if root.requested && !root.rtl: AedstButton {
+                text: root.approve-label;
+                size: AedstButtonSize.sm;
+                clicked => { root.responded(true); }
+            }
+        }
+    }
+}

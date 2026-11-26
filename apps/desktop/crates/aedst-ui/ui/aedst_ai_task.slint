@@ -1,0 +1,123 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstTraceStatus } from "aedst_trace.slint";
+import { AedstAiChainOfThoughtHeader, AedstAiChainOfThoughtContent, AedstAiChainOfThoughtStep } from "aedst_ai_chain_of_thought.slint";
+
+// One step the agent took (web `AiTaskItem`): `status` running, error, or success when done.
+// `file` shows a file chip under the label (web `AiTaskItemFile`).
+export struct AedstAiTaskItem {
+    id: string,
+    label: string,
+    description: string,
+    file: string,
+    status: AedstTraceStatus,
+    status-label: string,
+}
+
+// A file chip (web `AiTaskItemFile`): monospace, secondary background; paths stay left to right.
+export component AedstAiTaskItemFile inherits Rectangle {
+    in property <string> text;
+    in property <image> icon;
+    // No font-family token exists yet (see AedstCodeBlock).
+    in property <string> mono-family: "monospace";
+
+    background: AedstTokens.secondary;
+    border-width: 1px;
+    border-color: AedstTokens.border;
+    border-radius: AedstTokens.radius-md;
+    accessible-role: AccessibleRole.text;
+    accessible-label: root.text;
+
+    HorizontalLayout {
+        padding-left: AedstTokens.spacing-xs + AedstTokens.spacing-xxs;
+        padding-right: AedstTokens.spacing-xs + AedstTokens.spacing-xxs;
+        padding-top: AedstTokens.spacing-xxs;
+        padding-bottom: AedstTokens.spacing-xxs;
+        spacing: AedstTokens.spacing-xs;
+        if root.icon.width > 0: VerticalLayout {
+            alignment: center;
+            Image {
+                width: 12px;
+                height: 12px;
+                source: root.icon;
+                colorize: AedstTokens.secondary-foreground;
+                accessible-role: AccessibleRole.none;
+            }
+        }
+        Text {
+            text: root.text;
+            color: AedstTokens.secondary-foreground;
+            font-size: AedstTokens.typography-body-small-font-size;
+            font-family: root.mono-family;
+            vertical-alignment: center;
+            overflow: elide;
+            accessible-role: AccessibleRole.none;
+        }
+    }
+}
+
+// One unit of agent work whose steps appear as the agent takes them (web `AiTask`, open by
+// default). Present tense while running ("Searching..."), past tense when done; stack several
+// and keep the running one open. Bind `open` two-way (`<=>`) to keep the state outside.
+export component AedstAiTask inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <image> icon;
+    in property <bool> show-status: false;
+    in property <AedstTraceStatus> status: AedstTraceStatus.success;
+    in property <string> status-label;
+    in property <[AedstAiTaskItem]> items;
+    // Accessible name of the step list.
+    in property <string> items-label;
+    in property <image> file-icon;
+    in-out property <bool> open: true;
+    in property <bool> reduce-motion: false;
+    callback toggled(bool);
+
+    private property <bool> rtl: AedstLayout.rtl;
+
+    forward-focus: trigger;
+
+    VerticalLayout {
+        trigger := AedstAiChainOfThoughtHeader {
+            title: root.title;
+            description: root.description;
+            icon: root.icon;
+            show-status: root.show-status;
+            status: root.status;
+            status-label: root.status-label;
+            open: root.open;
+            reduce-motion: root.reduce-motion;
+            toggled => {
+                root.open = !root.open;
+                root.toggled(root.open);
+            }
+        }
+        // Kept alive while closed (web `keepMounted`).
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := AedstAiChainOfThoughtContent {
+                Rectangle {
+                    accessible-role: AccessibleRole.list;
+                    accessible-label: root.items-label;
+                    VerticalLayout {
+                        for item in root.items: AedstAiChainOfThoughtStep {
+                            label: item.label;
+                            description: item.description;
+                            status: item.status;
+                            status-label: item.status-label;
+                            reduce-motion: root.reduce-motion;
+                            if item.file != "": HorizontalLayout {
+                                alignment: root.rtl ? end : start;
+                                AedstAiTaskItemFile { text: item.file; icon: root.file-icon; }
+                            }
+                        }
+                    }
+                }
+                @children
+            }
+        }
+    }
+}

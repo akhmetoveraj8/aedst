@@ -9,6 +9,9 @@ import { GalleryForms } from "gallery/gallery_forms.slint";
 import { GalleryDisplay } from "gallery/gallery_display.slint";
 import { GalleryNavigation } from "gallery/gallery_navigation.slint";
 import { GalleryOverlays } from "gallery/gallery_overlays.slint";
+import { GalleryMessages } from "gallery/gallery_messages.slint";
+import { GalleryAi } from "gallery/gallery_ai.slint";
+import { GalleryAi2 } from "gallery/gallery_ai_2.slint";
 import { GalleryState } from "gallery/gallery_state.slint";
 
 export { GalleryState }
@@ -19,7 +22,7 @@ export { GalleryState }
 export component Gallery inherits Window {
     in-out property <bool> rtl <=> AedstLayout.rtl;
     in-out property <bool> dark <=> AedstTokens.dark;
-    // 0 basics, 1 forms, 2 display, 3 navigation, 4 overlays.
+    // 0 basics, 1 forms, 2 display, 3 navigation, 4 overlays, 5 messages, 6 AI (batch A), 7 AI (batch B).
     in-out property <int> page: 0;
     // Counters let the UI tests (tests/ui.rs) observe which action ran.
     out property <int> primary-count;
@@ -34,6 +37,8 @@ export component Gallery inherits Window {
         forms.focus-control(name);
         display.focus-control(name);
         navigation.focus-control(name);
+        messages.focus-control(name);
+        ai-batch-b.focus-control(name);
     }
 
     VerticalLayout {
@@ -61,4 +66,7 @@ export component Gallery inherits Window {
     display := GalleryDisplay { visible: root.page == 2; }
     navigation := GalleryNavigation { visible: root.page == 3; }
     GalleryOverlays { visible: root.page == 4; }
+    messages := GalleryMessages { visible: root.page == 5; }
+    GalleryAi { visible: root.page == 6; }
+    ai-batch-b := GalleryAi2 { visible: root.page == 7; }
 }

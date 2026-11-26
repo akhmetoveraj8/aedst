@@ -1,0 +1,106 @@
+// `ListView` is the std-widgets list: the only Slint element that creates rows lazily, which a
+// long conversation needs. It is the second place the kit uses std-widgets (after
+// AedstNativeSelect); features still never import std-widgets themselves.
+import { ListView } from "std-widgets.slint";
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstBubble, AedstBubbleAlign, AedstBubbleVariant } from "aedst_bubble.slint";
+import { AedstMarker, AedstMarkerVariant } from "aedst_marker.slint";
+import { AedstMessage, AedstMessageAlign } from "aedst_message.slint";
+
+// One row of the conversation: a message (an AedstMessage with one AedstBubble), or, when
+// `marker` is set, a separator line such as "Today".
+export struct AedstMessageScrollerItem {
+    id: string,
+    align: AedstMessageAlign,
+    author: string,
+    avatar: image,
+    avatar-fallback: string,
+    header: string,
+    text: string,
+    footer: string,
+    variant: AedstBubbleVariant,
+    marker: string,
+}
+
+// A scrolling conversation (web `MessageScroller`, `MessageScrollerViewport`,
+// `MessageScrollerContent`, `MessageScrollerItem`, `MessageScrollerButton`). Rows are created
+// lazily. While the view is at the bottom it stays there as rows are added or the last one grows
+// (streaming); once the user scrolls up it stays put and a jump-to-latest button appears at the
+// bottom centre. The caller replaces or updates `items` (a Rust `VecModel`); the kit never edits it.
+export component AedstMessageScroller inherits Rectangle {
+    in property <[AedstMessageScrollerItem]> items;
+    // Accessible name of the list (web: "Messages", from the `common.a11y` catalogue).
+    in property <string> label;
+    // Accessible name of the jump button, for example "Scroll to the latest message".
+    in property <string> jump-label;
+    // Distance from the bottom that still counts as "at the bottom".
+    in property <length> stick-threshold: 16px;
+    // True while the view follows new content.
+    out property <bool> at-bottom: list.viewport-y <= list.visible-height - list.viewport-height + root.stick-threshold;
+
+    private property <bool> stick: true;
+
+    public function scroll-to-end() {
+        list.viewport-y = Math.min(0px, list.visible-height - list.viewport-height);
+        root.stick = true;
+    }
+
+    list := ListView {
+        width: root.width;
+        height: root.height;
+        accessible-label: root.label;
+
+        // A scroll by the user decides whether the view keeps following new content.
+        changed viewport-y => { root.stick = root.at-bottom; }
+        // New rows or a growing last row: follow them while stuck to the bottom.
+        changed viewport-height => {
+            if (root.stick) {
+                root.scroll-to-end();
+            }
+        }
+        changed visible-height => {
+            if (root.stick) {
+                root.scroll-to-end();
+            }
+        }
+
+        for item in root.items: Rectangle {
+            VerticalLayout {
+                padding-left: AedstTokens.spacing-lg;
+                padding-right: AedstTokens.spacing-lg;
+                // Web gap-6 between rows.
+                padding-top: AedstTokens.spacing-md;
+                padding-bottom: AedstTokens.spacing-md;
+                if item.marker != "": AedstMarker {
+                    text: item.marker;
+                    variant: AedstMarkerVariant.separator;
+                }
+                if item.marker == "": AedstMessage {
+                    align: item.align;
+                    author: item.author;
+                    avatar: item.avatar;
+                    avatar-fallback: item.avatar-fallback;
+                    header: item.header;
+                    footer: item.footer;
+                    AedstBubble {
+                        text: item.text;
+                        variant: item.variant;
+                        align: item.align == AedstMessageAlign.end ? AedstBubbleAlign.end : AedstBubbleAlign.start;
+                    }
+                }
+            }
+        }
+    }
+
+    // Jump to the latest message: bottom centre, only while scrolled away from the bottom.
+    if !root.at-bottom: AedstButton {
+        x: (root.width - self.width) / 2;
+        y: root.height - self.height - AedstTokens.spacing-lg;
+        text: "\u{2193}";
+        label: root.jump-label;
+        variant: AedstButtonVariant.secondary;
+        size: AedstButtonSize.icon-sm;
+        clicked => { root.scroll-to-end(); }
+    }
+}

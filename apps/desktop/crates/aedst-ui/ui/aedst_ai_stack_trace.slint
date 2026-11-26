@@ -1,0 +1,203 @@
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstCodeLine } from "aedst_code_block.slint";
+import { AedstTraceStatus } from "aedst_trace.slint";
+import { AedstAiChainOfThought, AedstAiChainOfThoughtHeader, AedstAiChainOfThoughtContent } from "aedst_ai_chain_of_thought.slint";
+import { AiCodePanel } from "internal/ai_code_panel.slint";
+
+// One app frame (from `aedst_ui::stack_trace::parse_stack_trace`, `ParsedStack::app_frames`).
+// `location` is `file:line` (`StackFrame::location`), or the raw frame when it did not parse.
+export struct AedstAiStackFrame {
+    function-name: string,
+    location: string,
+    // The caller can open this frame (web `getFrameHref`): the row becomes a button.
+    linked: bool,
+}
+
+// The title line of a failed call (web `AiStackTraceHeader`): always the error status.
+export component AedstAiStackTraceHeader inherits AedstAiChainOfThoughtHeader {
+    show-status: true;
+    status: AedstTraceStatus.error;
+}
+
+// The full error line, which the header truncates (web `AiStackTraceError`): left to right.
+export component AedstAiStackTraceError inherits Rectangle {
+    in property <string> text;
+    in property <string> mono-family: "monospace";
+
+    accessible-role: AccessibleRole.text;
+    accessible-label: root.text;
+
+    Text {
+        text: root.text;
+        color: AedstTokens.destructive;
+        font-size: AedstTokens.typography-body-small-font-size;
+        font-family: root.mono-family;
+        horizontal-alignment: left;
+        wrap: word-wrap;
+        accessible-role: AccessibleRole.none;
+    }
+}
+
+// App frames, one per row, left to right; a `linked` frame is a button that reports
+// `activated(index)`. Dependency frames are folded into one collapsible line of their own
+// (`internal-frames-label`, e.g. "4 framework frames") holding their raw text as code.
+export component AedstAiStackTraceFrames inherits Rectangle {
+    in property <[AedstAiStackFrame]> frames;
+    in property <string> label;
+    in property <string> internal-frames-label;
+    in property <[AedstCodeLine]> internal-lines;
+    in property <string> internal-code;
+    in property <image> frame-icon;
+    in property <image> internal-icon;
+    in property <string> copy-label;
+    in property <string> copied-label;
+    in property <string> mono-family: "monospace";
+    in-out property <bool> internal-open: false;
+    callback activated(int);
+
+    VerticalLayout {
+        Rectangle {
+            accessible-role: AccessibleRole.list;
+            accessible-label: root.label;
+            VerticalLayout {
+                for frame[index] in root.frames: Rectangle {
+                    min-height: 32px;
+                    border-radius: AedstTokens.radius-md;
+                    accessible-role: frame.linked ? AccessibleRole.button : AccessibleRole.list-item;
+                    accessible-label: frame.function-name != "" ? frame.function-name + " " + frame.location : frame.location;
+                    accessible-action-default => { if (frame.linked) { root.activated(index); } }
+
+                    row-focus := FocusScope {
+                        enabled: frame.linked;
+                        key-pressed(event) => {
+                            if (event.text == " " || event.text == "\n") {
+                                root.activated(index);
+                                return accept;
+                            }
+                            return reject;
+                        }
+                    }
+                    row-touch := TouchArea {
+                        enabled: frame.linked;
+                        mouse-cursor: frame.linked ? MouseCursor.pointer : MouseCursor.default;
+                        clicked => {
+                            row-focus.focus();
+                            root.activated(index);
+                        }
+                    }
+                    HorizontalLayout {
+                        padding-left: AedstTokens.spacing-sm;
+                        padding-right: AedstTokens.spacing-sm;
+                        spacing: AedstTokens.spacing-sm;
+                        if root.frame-icon.width > 0: VerticalLayout {
+                            alignment: center;
+                            Image {
+                                width: 16px;
+                                height: 16px;
+                                source: root.frame-icon;
+                                colorize: AedstTokens.muted-foreground;
+                                accessible-role: AccessibleRole.none;
+                            }
+                        }
+                        if frame.function-name != "": Text {
+                            text: frame.function-name;
+                            color: AedstTokens.foreground;
+                            font-size: AedstTokens.typography-body-small-font-size;
+                            font-family: root.mono-family;
+                            vertical-alignment: center;
+                            accessible-role: AccessibleRole.none;
+                        }
+                        Text {
+                            horizontal-stretch: 1;
+                            text: frame.location;
+                            color: (frame.linked && row-touch.has-hover) ? AedstTokens.foreground : AedstTokens.muted-foreground;
+                            font-size: AedstTokens.typography-body-small-font-size;
+                            font-family: root.mono-family;
+                            vertical-alignment: center;
+                            overflow: elide;
+                            accessible-role: AccessibleRole.none;
+                        }
+                    }
+                    Rectangle {
+                        border-width: row-focus.has-focus ? 2px : 0px;
+                        border-color: AedstTokens.ring;
+                        border-radius: AedstTokens.radius-md;
+                    }
+                }
+            }
+        }
+        if root.internal-code != "": AedstAiChainOfThought {
+            title: root.internal-frames-label;
+            icon: root.internal-icon;
+            open <=> root.internal-open;
+            AiCodePanel {
+                label: root.internal-frames-label;
+                lines: root.internal-lines;
+                code: root.internal-code;
+                copy-label: root.copy-label;
+                copied-label: root.copied-label;
+            }
+        }
+    }
+}
+
+// A failed tool call (web `AiStackTrace`, open by default): a line with the error that opens
+// into the full error and the frames. Split the stack in Rust with
+// `aedst_ui::stack_trace::parse_stack_trace`.
+export component AedstAiStackTrace inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+    in property <image> icon;
+    in property <string> status-label;
+    in property <string> error;
+    in property <[AedstAiStackFrame]> frames;
+    in property <string> frames-label;
+    in property <string> internal-frames-label;
+    in property <[AedstCodeLine]> internal-lines;
+    in property <string> internal-code;
+    in property <image> frame-icon;
+    in property <image> internal-icon;
+    in property <string> copy-label;
+    in property <string> copied-label;
+    in-out property <bool> open: true;
+    callback toggled(bool);
+    callback frame-activated(int);
+
+    forward-focus: header;
+
+    VerticalLayout {
+        header := AedstAiStackTraceHeader {
+            title: root.title;
+            description: root.description;
+            icon: root.icon;
+            status-label: root.status-label;
+            open: root.open;
+            toggled => {
+                root.open = !root.open;
+                root.toggled(root.open);
+            }
+        }
+        Rectangle {
+            visible: root.open;
+            clip: true;
+            height: root.open ? content.preferred-height : 0px;
+            content := AedstAiChainOfThoughtContent {
+                if root.error != "": AedstAiStackTraceError { text: root.error; }
+                AedstAiStackTraceFrames {
+                    frames: root.frames;
+                    label: root.frames-label;
+                    internal-frames-label: root.internal-frames-label;
+                    internal-lines: root.internal-lines;
+                    internal-code: root.internal-code;
+                    frame-icon: root.frame-icon;
+                    internal-icon: root.internal-icon;
+                    copy-label: root.copy-label;
+                    copied-label: root.copied-label;
+                    activated(index) => { root.frame-activated(index); }
+                }
+                @children
+            }
+        }
+    }
+}
