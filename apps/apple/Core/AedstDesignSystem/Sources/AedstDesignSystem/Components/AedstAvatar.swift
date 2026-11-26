@@ -1,25 +1,24 @@
 import SwiftUI
 
-/// Size of an `AedstAvatar` (an Apple-side convenience; the manifest declares no sizes for `avatar`).
+/// Size of an `AedstAvatar`: web `avatar.tsx` `size` (sm 24, default 32, lg 40 points).
 public enum AedstAvatarSize: Sendable, CaseIterable {
+    case `default`
     case sm
-    case md
     case lg
 
     /// Diameter in points.
     public var dimension: CGFloat {
         switch self {
-        case .sm: 28
-        case .md: 40
-        case .lg: 56
+        case .sm: 24
+        case .default: 32
+        case .lg: 40
         }
     }
 
     var font: Font {
         switch self {
         case .sm: AedstTypography.caption
-        case .md: AedstTypography.body
-        case .lg: AedstTypography.headline
+        case .default, .lg: AedstTypography.body
         }
     }
 }
@@ -40,7 +39,7 @@ public struct AedstAvatar<ImageContent: View>: View {
     ///   - size: Diameter preset.
     ///   - image: Content drawn over the monogram and clipped to the circle; make it fill the frame
     ///     (`resizable().scaledToFill()`).
-    public init(name: String, size: AedstAvatarSize = .md, @ViewBuilder image: () -> ImageContent) {
+    public init(name: String, size: AedstAvatarSize = .default, @ViewBuilder image: () -> ImageContent) {
         self.name = name
         self.size = size
         self.image = image()
@@ -66,7 +65,7 @@ public struct AedstAvatar<ImageContent: View>: View {
 
 extension AedstAvatar where ImageContent == EmptyView {
     /// Monogram-only avatar.
-    public init(name: String, size: AedstAvatarSize = .md) {
+    public init(name: String, size: AedstAvatarSize = .default) {
         self.name = name
         self.size = size
         self.image = nil

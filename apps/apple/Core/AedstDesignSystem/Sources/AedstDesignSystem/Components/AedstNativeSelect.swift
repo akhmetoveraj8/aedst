@@ -3,6 +3,20 @@ import SwiftUI
 // iOS, macOS and visionOS only: tvOS and watchOS are scaffolded package platforms without app targets.
 #if os(iOS) || os(macOS) || os(visionOS)
 
+/// shadcn/ui `NativeSelect` `size`: `sm` is the compact system control (`ControlSize.small`, 28 pt on macOS) for
+/// dense layouts; `default` the regular one. Touch platforms keep the 44 pt minimum tap height for both.
+public enum AedstNativeSelectSize: Sendable, CaseIterable {
+    case `default`
+    case sm
+
+    var controlSize: ControlSize {
+        switch self {
+        case .default: .regular
+        case .sm: .small
+        }
+    }
+}
+
 /// A titled run of options in `AedstNativeSelect` (shadcn/ui `NativeSelectOptGroup`).
 public struct AedstNativeSelectGroup: Identifiable, Sendable {
     public let id: String
@@ -29,6 +43,7 @@ public struct AedstNativeSelect: View {
     private let label: String
     private let groups: [AedstNativeSelectGroup]
     @Binding private var selection: String
+    private let size: AedstNativeSelectSize
     private let isDisabled: Bool
 
     /// - Parameters:
@@ -39,11 +54,13 @@ public struct AedstNativeSelect: View {
         _ label: String,
         groups: [AedstNativeSelectGroup],
         selection: Binding<String>,
+        size: AedstNativeSelectSize = .default,
         isDisabled: Bool = false
     ) {
         self.label = label
         self.groups = groups
         self._selection = selection
+        self.size = size
         self.isDisabled = isDisabled
     }
 
@@ -52,12 +69,14 @@ public struct AedstNativeSelect: View {
         _ label: String,
         options: [AedstSelectOption],
         selection: Binding<String>,
+        size: AedstNativeSelectSize = .default,
         isDisabled: Bool = false
     ) {
         self.init(
             label,
             groups: [AedstNativeSelectGroup(options: options)],
             selection: selection,
+            size: size,
             isDisabled: isDisabled
         )
     }
@@ -81,7 +100,8 @@ public struct AedstNativeSelect: View {
             .pickerStyle(.menu)
             .labelsHidden()
             .tint(AedstColor.foreground)
-            .frame(minHeight: AedstHitTarget.minimum)
+            .controlSize(size.controlSize)
+            .aedstHitTarget()
             .disabled(isDisabled)
             .accessibilityLabel(Text(label))
         }
@@ -108,6 +128,12 @@ public struct AedstNativeSelect: View {
                 AedstSelectOption(id: "done", title: "Done"),
             ],
             selection: $status
+        )
+        AedstNativeSelect(
+            "Compact status",
+            options: [AedstSelectOption(id: "todo", title: "To do"), AedstSelectOption(id: "done", title: "Done")],
+            selection: $status,
+            size: .sm
         )
         AedstNativeSelect(
             "Time zone",

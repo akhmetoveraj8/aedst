@@ -10,3 +10,4 @@ https://github.com/groue/GRDB.swift                       # local persistence; C
 https://github.com/getsentry/sentry-cocoa                 # crash reporting; Core/AedstTelemetry
 https://github.com/PostHog/posthog-ios                    # analytics, flags, replay; Core/AedstTelemetry
 https://github.com/pointfreeco/swift-snapshot-testing     # snapshot tests (test dependency); Core/AedstDesignSystem
+https://github.com/appstefan/HighlightSwift              # syntax highlighting (code block); Core/AedstDesignSystem

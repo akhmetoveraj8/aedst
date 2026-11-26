@@ -3,6 +3,21 @@ import SwiftUI
 // iOS, macOS and visionOS only: tvOS and watchOS are scaffolded package platforms without app targets.
 #if os(iOS) || os(macOS) || os(visionOS)
 
+/// shadcn/ui `DropdownMenuItem` / `ContextMenuItem` `variant`: `destructive` marks a command that deletes or
+/// discards something. It becomes the native destructive role, so the system draws it in red, VoiceOver says so,
+/// and iOS places it last in its group.
+public enum AedstMenuItemVariant: Sendable, CaseIterable {
+    case `default`
+    case destructive
+
+    var buttonRole: ButtonRole? {
+        switch self {
+        case .default: nil
+        case .destructive: .destructive
+        }
+    }
+}
+
 /// One entry of a menu. The same model feeds `AedstDropdownMenu`, `aedstContextMenu(items:)` and
 /// `AedstMenubar`, so a list of commands is declared once and shown in any of them.
 ///
@@ -12,12 +27,6 @@ import SwiftUI
 /// `DropdownMenuShortcut` -> the `shortcut` parameter (a real key equivalent, shown by the system on macOS
 /// and with a hardware keyboard on iPadOS).
 public struct AedstMenuItem {
-    /// Whether an action is an ordinary command or one that deletes something.
-    public enum Role: Sendable {
-        case normal
-        case destructive
-    }
-
     enum Content {
         case action(() -> Void)
         case checkbox(isOn: Bool, toggle: () -> Void)
@@ -29,7 +38,7 @@ public struct AedstMenuItem {
     let title: String
     let systemImage: String?
     let shortcut: KeyboardShortcut?
-    let role: Role
+    let variant: AedstMenuItemVariant
     let isDisabled: Bool
     let content: Content
 
@@ -38,7 +47,7 @@ public struct AedstMenuItem {
         _ title: String,
         systemImage: String? = nil,
         shortcut: KeyboardShortcut? = nil,
-        role: Role = .normal,
+        variant: AedstMenuItemVariant = .default,
         isDisabled: Bool = false,
         action: @escaping () -> Void
     ) -> AedstMenuItem {
@@ -46,7 +55,7 @@ public struct AedstMenuItem {
             title: title,
             systemImage: systemImage,
             shortcut: shortcut,
-            role: role,
+            variant: variant,
             isDisabled: isDisabled,
             content: .action(action)
         )
@@ -64,7 +73,7 @@ public struct AedstMenuItem {
             title: title,
             systemImage: nil,
             shortcut: nil,
-            role: .normal,
+            variant: .default,
             isDisabled: isDisabled,
             content: .checkbox(isOn: isOn, toggle: toggle)
         )
@@ -76,7 +85,7 @@ public struct AedstMenuItem {
             title: title,
             systemImage: systemImage,
             shortcut: nil,
-            role: .normal,
+            variant: .default,
             isDisabled: false,
             content: .submenu(items)
         )
@@ -88,7 +97,7 @@ public struct AedstMenuItem {
             title: title,
             systemImage: nil,
             shortcut: nil,
-            role: .normal,
+            variant: .default,
             isDisabled: false,
             content: .section(items)
         )
@@ -96,7 +105,7 @@ public struct AedstMenuItem {
 
     /// A dividing line.
     public static var separator: AedstMenuItem {
-        AedstMenuItem(title: "", systemImage: nil, shortcut: nil, role: .normal, isDisabled: false, content: .separator)
+        AedstMenuItem(title: "", systemImage: nil, shortcut: nil, variant: .default, isDisabled: false, content: .separator)
     }
 }
 
@@ -122,7 +131,7 @@ struct AedstMenuItemView: View {
         case .separator:
             Divider()
         case .action(let action):
-            Button(role: item.role == .destructive ? .destructive : nil, action: action) {
+            Button(role: item.variant.buttonRole, action: action) {
                 label
             }
             .keyboardShortcut(item.shortcut)
@@ -247,7 +256,7 @@ extension AedstDropdownMenu where Trigger == AedstMenuTriggerLabel {
             .checkbox("Status bar", isOn: showsStatusBar) { showsStatusBar.toggle() },
             .submenu("Invite", items: [.action("Email") {}, .action("Message") {}]),
             .separator,
-            .action("Delete", systemImage: "trash", role: .destructive) {},
+            .action("Delete", systemImage: "trash", variant: .destructive) {},
         ]
     )
     .padding()

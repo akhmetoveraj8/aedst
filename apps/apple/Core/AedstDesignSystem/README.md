@@ -23,7 +23,8 @@ Design tokens are **generated** from `packages/design-tokens/tokens` (single sou
 The kit carries the full manifest set (`ui-kit.yaml`: the 59 shadcn/ui names plus `trace` and `code-block`),
 one component per file, named `Aedst<ShadcnName>.swift`. Variants and sizes are the manifest's, as lowerCamelCase
 enum cases (`.default`, `.iconSm`). Every `.swift` file in `Components/` must be a kit component (the manifest
-checker counts them); shared helpers live one level up (`AedstHitTarget.swift`).
+checker counts them); shared helpers live one level up (`AedstHitTarget.swift`) or in `Components/Support/`
+(`AedstSyntaxHighlighter.swift`, `AedstQuestionnaireModel.swift`), which the checker does not count.
 
 | Group | Components |
 |---|---|
@@ -33,6 +34,9 @@ checker counts them); shared helpers live one level up (`AedstHitTarget.swift`).
 | Feedback | `AedstAlert` (variants `default/destructive`), `.aedstAlertDialog()`, `.aedstToast()` (`sonner`; `AedstToastSeverity`), `AedstProgressView`, `AedstSpinner`, `AedstSkeleton`, `AedstBadge` (9 variants), `AedstEmpty`, `.aedstErrorPresenter()` (extension) |
 | Overlay | `.aedstSheet()`, `.aedstDialog()`, `.aedstDrawer()`, `.aedstPopover()`, `AedstHoverCard`, `.aedstTooltip()`, `AedstDropdownMenu`, `.aedstContextMenu()`, `AedstMenubar`, `AedstNavigationMenu`, `AedstCommand` |
 | Navigation | `AedstTabs`, `AedstBreadcrumb`, `AedstPagination`, `AedstAccordion`, `AedstCollapsible` |
+| Conversation | `AedstMessage` (`align` start/end; `AedstMessageGroup`, `AedstMessageHeader`, `AedstMessageFooter`), `AedstBubble` (7 variants; `AedstBubbleGroup`, `.aedstBubbleReactions(side:align:)`), `AedstMarker` (variants `default/separator/border`), `AedstAttachment` (media variant `icon/image`, sizes `default/sm/xs`, orientation; `AedstAttachmentAction`, `AedstAttachmentGroup`), `AedstMessageScroller`, `AedstQuestionnaire` (+ `AedstQuestionnaireState`) |
+| AI Elements (batch B) | `AedstAiChat` (+ `AedstAiChatItem`, `AedstAiChatEmptyState`; on `AedstMessageScroller`), `AedstAiMessage` (role `user/assistant/system`; `Header`, `Content`, `Response` with opt-in inline Markdown, `Actions`, `Action`), `AedstAiPromptInput` (status `ready/submitted/streaming/error`; `Header`, `Textarea`, `Footer`, `Tools`, `AttachButton` with file importer and `PhotosPicker`, `Submit` with stop; draft in `Support/AedstAiPromptDraft.swift`), `AedstAiModelSelector` (on `AedstDropdownMenu`; `Trigger`, `Logo`, `LogoGroup`, `Name`), `AedstAiSuggestions` / `AedstAiSuggestion`, `AedstAiContext` (FormatStyle compact and percent in the current locale; `Trigger`, `Content`, `ContentHeader/Body/Footer`, `UsageRow`), `AedstAiConfirmation` (on `AedstItem`; `Request`, `Accepted`, `Rejected`, `Actions`, `Action`), `AedstAiInlineCitation` (`Text`, `Card` popover, `Source`, `Quote`), `AedstAiSources` (on `AedstCollapsible`; `Trigger`, `Content`, `AedstAiSource`) |
+| AI Elements (agent work) | `AedstAiChainOfThought` (owns the shared line parts `...Header`, `...Content`, `...Steps`, `...Step`; extras `...SearchResults`, `...SearchResult`, `...Image` in `Support/`), `AedstAiReasoning` (`...Trigger`, `...Content`), `AedstAiPlan` (`...Trigger`, `...Action`, `...Description`, `...Steps`, `...Step`, `...Footer`), `AedstAiTask` (`...Trigger`, `...Item`, `...ItemFile`), `AedstAiTool` (`AedstAiToolState`; `...Header`, `...Input`, `...Output`, `...Approval`), `AedstAiSubagent` (`...Trigger`, `...Task`, `...Meta`, `...Model`, `...Tools`, `...Steps`, `...Step`), `AedstAiQueue` (`AedstAiQueueItemStatus`; `...Section`, `...SectionTrigger`, `...List`, `...Item`, `...ItemActions`, `...ItemAction`), `AedstAiCheckpoint` (`...Trigger`), `AedstAiFileTree` (`@Observable AedstAiFileTreeState`; `...Folder`, `...File`, `...Icon`, `...Name`, `...Actions`), `AedstAiStackTrace` (`...Header`, `...Error`, `...Frames`; parser `AedstAiStackTraceParser` in `Support/`), `AedstAiTerminal` (`...Title`, `...ClearButton`, `...Content`), `AedstAiTestResults` (`AedstAiTestStatus`, `AedstAiTestCounts`; `...Header`, `...Progress`, `...Suites`, `...Suite`, `AedstAiTest`). Status vocabulary is `AedstTraceStatus`; labels are parameters |
 | Data display | `AedstAvatar` (image slot + monogram; the remote-image version is `AedstRemoteAvatar` in `Core/AedstMedia`), `AedstItem`, `AedstTable`, `AedstDataTable`, `AedstChart` (Swift Charts), `AedstText` (`typography`; `AedstTypography` is the font token scale), `AedstKbd`, `AedstTrace`, `AedstCodeBlock` |
 
 Every component has a `#Preview` and accessibility labels/hints/values on interactive
@@ -48,7 +52,12 @@ the smallest `#if os(...)` inside the component: the package stays one shared li
 ## Deliberate adaptations (web concept → SwiftUI/HIG equivalent)
 
 - **Sheet** / **Dialog** / **Drawer** → native `.sheet()` wrappers, not custom overlays.
-- **AlertDialog** → wraps the native `.alert()` (`AedstAlertDialogModifier`).
+- **AlertDialog** → a kit-drawn card (sizes `default`/`sm` as on web: width, header alignment, action layout) presented
+  full-screen over a blurred backdrop on iOS/visionOS and as a window-modal sheet on macOS; it closes only through
+  its buttons (Escape cancels). The native `.alert()` cannot express the sizes or the media slot.
+- **Switch** → `Toggle` with a kit `ToggleStyle` (web track and thumb sizes `default`/`sm`), so VoiceOver still reads a switch.
+- **CodeBlock** syntax highlighting → HighlightSwift (highlight.js in JavaScriptCore) mapped to the `syntax*` color
+  tokens through marker colors; iOS, macOS and visionOS only; plain text when the language is unknown.
 - **DropdownMenu**, **ContextMenu**, **Menubar**, **Select**, **NativeSelect** → native `Menu`, `contextMenu`, `Picker`. `AedstMenubar` is an in-window row of menus; the real macOS menu bar stays `commands` in the app target.
 - **Tooltip** / **HoverCard** → `.help` and `onHover` on macOS, a long press on touch platforms.
 - **Calendar**, **DatePicker**, **ScrollArea**, **AspectRatio**, **Slider**, **Spinner** → thin wrappers over the system control so the kit name exists on every platform.

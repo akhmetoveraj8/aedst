@@ -22,6 +22,44 @@ public struct AedstSelectOption: Identifiable, Hashable, Sendable {
     }
 }
 
+/// shadcn/ui `SelectTrigger` `size`: `default` is 32 pt tall with the `md` radius, `sm` 28 pt with the `sm` radius
+/// and tighter padding (macOS). On touch platforms both stay at least 44 pt tall, as web's `pointer-coarse:min-h-11`.
+public enum AedstSelectSize: Sendable, CaseIterable {
+    case `default`
+    case sm
+
+    /// Height of the drawn trigger on a precise-pointer platform.
+    var pointerHeight: CGFloat {
+        switch self {
+        case .default: 32
+        case .sm: 28
+        }
+    }
+
+    /// Height of the drawn trigger on this platform.
+    var height: CGFloat {
+        #if os(macOS)
+        pointerHeight
+        #else
+        max(pointerHeight, AedstHitTarget.minimum)
+        #endif
+    }
+
+    var cornerRadius: CGFloat {
+        switch self {
+        case .default: AedstRadius.md
+        case .sm: AedstRadius.sm
+        }
+    }
+
+    var horizontalPadding: CGFloat {
+        switch self {
+        case .default: AedstSpacing.sm
+        case .sm: AedstSpacing.xs + AedstSpacing.xxs
+        }
+    }
+}
+
 /// The closed state of a select-like control (shadcn/ui `SelectTrigger` + `SelectValue`): the chosen title or
 /// a muted placeholder, and an up-down chevron. Shared by `AedstSelect` and `AedstCombobox`.
 struct AedstSelectTriggerLabel: View {
@@ -29,6 +67,7 @@ struct AedstSelectTriggerLabel: View {
     let isPlaceholder: Bool
     let systemImage: String?
     let isInvalid: Bool
+    var size: AedstSelectSize = .default
 
     var body: some View {
         HStack(spacing: AedstSpacing.xs) {
@@ -47,12 +86,12 @@ struct AedstSelectTriggerLabel: View {
         }
         .font(AedstTypography.body)
         .foregroundStyle(AedstColor.foreground)
-        .padding(.horizontal, AedstSpacing.sm)
-        .frame(minHeight: AedstHitTarget.minimum)
+        .padding(.horizontal, size.horizontalPadding)
+        .frame(minHeight: size.height)
         .background(AedstColor.background)
-        .clipShape(RoundedRectangle(cornerRadius: AedstRadius.sm, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: size.cornerRadius, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: AedstRadius.sm, style: .continuous)
+            RoundedRectangle(cornerRadius: size.cornerRadius, style: .continuous)
                 .strokeBorder(isInvalid ? AedstColor.destructive : AedstColor.border, lineWidth: 1)
         }
         .contentShape(Rectangle())
@@ -71,6 +110,7 @@ public struct AedstSelect: View {
     @Binding private var selection: String?
     private let placeholder: String
     private let errorMessage: String?
+    private let size: AedstSelectSize
     private let isDisabled: Bool
 
     /// - Parameters:
@@ -79,16 +119,19 @@ public struct AedstSelect: View {
     ///   - selection: `id` of the chosen option, `nil` while nothing is chosen.
     ///   - placeholder: Shown while nothing is chosen; `nil` uses the kit's "Select an option".
     ///   - errorMessage: Validation message; also turns the border destructive.
+    ///   - size: Trigger height and radius (`.sm` for dense toolbars and tables).
     public init(
         _ label: String,
         options: [AedstSelectOption],
         selection: Binding<String?>,
         placeholder: String? = nil,
         errorMessage: String? = nil,
+        size: AedstSelectSize = .default,
         isDisabled: Bool = false
     ) {
         self.label = label
         self.options = options
+        self.size = size
         self._selection = selection
         self.placeholder = placeholder ?? AedstStrings.selectOption
         self.errorMessage = errorMessage
@@ -119,7 +162,8 @@ public struct AedstSelect: View {
                     title: selected?.title ?? placeholder,
                     isPlaceholder: selected == nil,
                     systemImage: selected?.systemImage,
-                    isInvalid: errorMessage != nil
+                    isInvalid: errorMessage != nil,
+                    size: size
                 )
             }
             #if os(macOS)
@@ -165,6 +209,7 @@ public struct AedstSelect: View {
     ]
     VStack(alignment: .leading, spacing: AedstSpacing.lg) {
         AedstSelect("Fruit", options: options, selection: $fruit)
+        AedstSelect("Small", options: options, selection: $fruit, size: .sm)
         AedstSelect("Required", options: options, selection: $empty, errorMessage: "Pick one.")
         AedstSelect("Disabled", options: options, selection: $fruit, isDisabled: true)
     }

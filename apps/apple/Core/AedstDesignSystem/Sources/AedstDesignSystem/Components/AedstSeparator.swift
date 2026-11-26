@@ -16,13 +16,19 @@ public struct AedstSeparator: View {
     }
 
     public var body: some View {
+        let size = Self.frame(for: orientation)
         Rectangle()
             .fill(AedstColor.border)
-            .frame(
-                width: orientation == .vertical ? 1 : nil,
-                height: orientation == .horizontal ? 1 : nil
-            )
+            .frame(width: size.width, height: size.height)
             .accessibilityHidden(true)
+    }
+
+    /// A 1 pt hairline across the main axis; the other dimension follows the container.
+    static func frame(for orientation: Orientation) -> (width: CGFloat?, height: CGFloat?) {
+        switch orientation {
+        case .horizontal: (nil, 1)
+        case .vertical: (1, nil)
+        }
     }
 }
 

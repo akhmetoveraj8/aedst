@@ -75,6 +75,19 @@ public enum AedstColor {
     /// Ordered palette for chart series that need to cycle through colors.
     public static let chartSeries: [Color] = [chart1, chart2, chart3, chart4, chart5]
 
+    // MARK: - Syntax highlighting (code block, AI terminal, stack trace; WCAG AA on background and muted)
+
+    public static let syntaxComment = adaptive(light: AedstLightPalette.syntaxComment, dark: AedstDarkPalette.syntaxComment)
+    public static let syntaxKeyword = adaptive(light: AedstLightPalette.syntaxKeyword, dark: AedstDarkPalette.syntaxKeyword)
+    public static let syntaxString = adaptive(light: AedstLightPalette.syntaxString, dark: AedstDarkPalette.syntaxString)
+    public static let syntaxNumber = adaptive(light: AedstLightPalette.syntaxNumber, dark: AedstDarkPalette.syntaxNumber)
+    public static let syntaxFunction = adaptive(light: AedstLightPalette.syntaxFunction, dark: AedstDarkPalette.syntaxFunction)
+    public static let syntaxType = adaptive(light: AedstLightPalette.syntaxType, dark: AedstDarkPalette.syntaxType)
+    public static let syntaxPunctuation = adaptive(
+        light: AedstLightPalette.syntaxPunctuation,
+        dark: AedstDarkPalette.syntaxPunctuation
+    )
+
     // MARK: - Legacy aliases (kept for `AedstButton`/`AedstTextField` call sites during migration)
 
     @available(*, deprecated, renamed: "primary")
