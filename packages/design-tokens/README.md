@@ -68,6 +68,10 @@ To override the web CSS variable name of a token set
   levels, desktop had a slightly lighter dark popover, chart greys differed). All now derive from web's OKLCH values.
 - `destructiveForeground`, `success*` and `warning*` have no web CSS variable; they exist for the native
   platforms (values taken from the previous Apple implementation) and are also emitted to CSS.
+- `syntaxComment`, `syntaxKeyword`, `syntaxString`, `syntaxNumber`, `syntaxFunction`, `syntaxType` and
+  `syntaxPunctuation` (2026-11-26) colour code in `code-block` and the AI terminal and stack trace on every
+  platform (Shiki theme of CSS variables on web, token-mapped spans natively). Each is in sRGB and measured at
+  5.7:1 or more against `background` and `muted`, light and dark (WCAG AA asks 4.5:1).
 - The spacing scale is Android's 4px scale plus `xxs`. Apple call sites were remapped by name so their pixel values are unchanged.
 - Typography is the Material-style scale used on Android plus `small`/`mono` (desktop). Apple keeps Dynamic Type
   text styles (`AedstTypography`) on purpose; `AedstTypeScale` there is reference-only.

@@ -41,6 +41,13 @@
   --info: oklch(0.4882 0.2172 264.38);
   --info-foreground: oklch(0.9851 0 0);
   --destructive-foreground: oklch(0.9851 0 0);
+  --syntax-comment: oklch(0.48 0 0);
+  --syntax-keyword: oklch(0.47 0.2 300);
+  --syntax-string: oklch(0.47 0.11 150);
+  --syntax-number: oklch(0.5 0.13 45);
+  --syntax-function: oklch(0.47 0.17 260);
+  --syntax-type: oklch(0.48 0.08 200);
+  --syntax-punctuation: oklch(0.4 0 0);
   --aedst-elevation-none: 0px;
   --aedst-elevation-level-1: 1px;
   --aedst-elevation-level-2: 3px;
@@ -156,4 +163,11 @@
   --info: oklch(0.7138 0.1434 254.62);
   --info-foreground: oklch(0.2823 0.0874 267.94);
   --destructive-foreground: oklch(0.2575 0.0886 26.04);
+  --syntax-comment: oklch(0.72 0 0);
+  --syntax-keyword: oklch(0.78 0.13 300);
+  --syntax-string: oklch(0.8 0.14 150);
+  --syntax-number: oklch(0.8 0.12 60);
+  --syntax-function: oklch(0.78 0.1 250);
+  --syntax-type: oklch(0.8 0.1 200);
+  --syntax-punctuation: oklch(0.82 0 0);
 }

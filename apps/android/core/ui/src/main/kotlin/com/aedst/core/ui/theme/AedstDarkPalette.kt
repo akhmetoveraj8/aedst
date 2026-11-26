@@ -41,6 +41,13 @@ object AedstDarkPalette {
     val sidebarRing = Color(0xff737373)
     val success = Color(0xff4ade80)
     val successForeground = Color(0xff052e16)
+    val syntaxComment = Color(0xffa4a4a4)
+    val syntaxFunction = Color(0xff85bcf5)
+    val syntaxKeyword = Color(0xffc4a4fe)
+    val syntaxNumber = Color(0xfff6ab6b)
+    val syntaxPunctuation = Color(0xffc4c4c4)
+    val syntaxString = Color(0xff75d78d)
+    val syntaxType = Color(0xff64d1d7)
     val warning = Color(0xfffbbf24)
     val warningForeground = Color(0xff451a03)
 }
