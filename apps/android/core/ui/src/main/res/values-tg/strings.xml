@@ -20,6 +20,16 @@
     <string name="aedst_a11y_slide">Слайди %1$s аз %2$s</string>
     <string name="aedst_a11y_close">Пӯшидан</string>
     <string name="aedst_a11y_open_menu">Кушодани меню</string>
+    <string name="aedst_a11y_messages">Паёмҳо</string>
+    <string name="aedst_a11y_scroll_to_end">Ба охир гузаштан</string>
+    <string name="aedst_a11y_questionnaire_progress">Пешрафти пурсиш</string>
+    <string name="aedst_a11y_question_progress">Саволи %1$s аз %2$s</string>
+    <string name="aedst_a11y_send_message">Фиристодани паём</string>
+    <string name="aedst_a11y_stop">Қатъ кардан</string>
+    <string name="aedst_a11y_attach_files">Замима кардани файлҳо</string>
+    <string name="aedst_a11y_remove_attachment">Нест кардани %1$s</string>
+    <string name="aedst_a11y_context_used">Контексти истифодашуда</string>
+    <string name="aedst_a11y_opens_in_browser">Дар браузер кушода мешавад</string>
     <string name="aedst_error_offline">Пайвастшавӣ ба интернет нест. Шабакаро санҷед ва бори дигар кӯшиш кунед.</string>
     <string name="aedst_error_network">Пайваст шудан ба сервер имконнопазир аст. Баъдтар кӯшиш кунед.</string>
     <string name="aedst_error_unauthorized">Маълумот нодуруст аст ё сессия ба охир расидааст. Дубора ворид шавед.</string>
@@ -39,4 +49,8 @@
     <string name="aedst_action_cancel">Бекор кардан</string>
     <string name="aedst_action_confirm">Тасдиқ кардан</string>
     <string name="aedst_action_retry">Такрор кардан</string>
+    <string name="aedst_action_skip">Гузаронидан</string>
+    <string name="aedst_action_submit">Фиристодан</string>
+    <string name="aedst_required">Ҳатмӣ</string>
+    <string name="aedst_select_option">Вариантро интихоб кунед</string>
 </resources>

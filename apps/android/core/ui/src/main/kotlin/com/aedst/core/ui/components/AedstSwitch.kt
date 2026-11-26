@@ -13,12 +13,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
+
+/**
+ * Size of an [AedstSwitch], mirroring web's `switch.tsx` `size` (sm is three quarters of the default track). The
+ * smaller switch is drawn scaled; its layout and 48dp touch target stay the same.
+ */
+enum class AedstSwitchSize { DEFAULT, SM }
 
 /**
  * Switch with an optional trailing [label], mirroring web's `switch.tsx`. Tapping the label
@@ -31,12 +38,14 @@ fun AedstSwitch(
     modifier: Modifier = Modifier,
     label: String? = null,
     enabled: Boolean = true,
+    size: AedstSwitchSize = AedstSwitchSize.DEFAULT,
 ) {
+    val scale = if (size == AedstSwitchSize.SM) SM_SCALE else 1f
     if (label == null) {
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            modifier = modifier.semantics { if (!enabled) disabled() },
+            modifier = modifier.scale(scale).semantics { if (!enabled) disabled() },
             enabled = enabled,
         )
         return
@@ -63,9 +72,11 @@ fun AedstSwitch(
             },
             modifier = Modifier.weight(1f, fill = false),
         )
-        Switch(checked = checked, onCheckedChange = null, enabled = enabled)
+        Switch(checked = checked, onCheckedChange = null, modifier = Modifier.scale(scale), enabled = enabled)
     }
 }
+
+private const val SM_SCALE = 0.75f
 
 @Preview(name = "Light")
 @Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -79,6 +90,7 @@ private fun AedstSwitchPreview() {
             ) {
                 AedstSwitch(checked = true, onCheckedChange = {}, label = "Enable notifications")
                 AedstSwitch(checked = false, onCheckedChange = {}, label = "Dark mode")
+                AedstSwitch(checked = true, onCheckedChange = {}, label = "Small", size = AedstSwitchSize.SM)
                 AedstSwitch(checked = false, onCheckedChange = {}, label = "Disabled", enabled = false)
             }
         }

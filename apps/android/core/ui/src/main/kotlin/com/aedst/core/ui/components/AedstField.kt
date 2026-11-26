@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -100,6 +103,64 @@ fun AedstField(
 
 private val RESPONSIVE_BREAKPOINT = 600.dp
 
+/** Size of an [AedstFieldLegend], mirroring web's `FieldLegend` `variant`. */
+enum class AedstFieldLegendVariant {
+    /** The section title of a [AedstFieldSet] (body large, medium weight). */
+    LEGEND,
+
+    /** Label-sized, for a group that reads as one field (a radio or checkbox group). */
+    LABEL,
+}
+
+/** Title of an [AedstFieldSet] (web `FieldLegend`): exposed as a heading so screen readers can jump between groups. */
+@Composable
+fun AedstFieldLegend(
+    text: String,
+    modifier: Modifier = Modifier,
+    variant: AedstFieldLegendVariant = AedstFieldLegendVariant.LEGEND,
+) {
+    val style = when (variant) {
+        AedstFieldLegendVariant.LEGEND -> MaterialTheme.typography.titleSmall
+        AedstFieldLegendVariant.LABEL -> MaterialTheme.typography.labelLarge
+    }
+    Text(
+        text = text,
+        modifier = modifier.padding(bottom = AedstSpacing.xs).semantics { heading() },
+        style = style,
+        color = MaterialTheme.colorScheme.onSurface,
+    )
+}
+
+/**
+ * A group of related fields with a [legend] (web `FieldSet` + `FieldLegend`). The group is one traversal group for
+ * accessibility services, so its fields are read together after the legend.
+ */
+@Composable
+fun AedstFieldSet(
+    legend: String,
+    modifier: Modifier = Modifier,
+    legendVariant: AedstFieldLegendVariant = AedstFieldLegendVariant.LEGEND,
+    description: String? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth().semantics { isTraversalGroup = true },
+        verticalArrangement = Arrangement.spacedBy(AedstSpacing.lg),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(AedstSpacing.xxs)) {
+            AedstFieldLegend(text = legend, variant = legendVariant)
+            if (description != null) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        content()
+    }
+}
+
 @Preview(name = "Light", showBackground = true)
 @Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
@@ -110,6 +171,9 @@ private fun AedstFieldPreview() {
                 modifier = Modifier.padding(AedstSpacing.lg),
                 verticalArrangement = Arrangement.spacedBy(AedstSpacing.lg),
             ) {
+                AedstFieldSet(legend = "Profile", description = "Shown to your team.") {
+                    AedstField(label = "Name") { AedstTextField(value = "Ada", onValueChange = {}) }
+                }
                 AedstField(label = "Email", description = "Used for sign-in.", error = "Enter a valid email") {
                     AedstTextField(value = "ada@", onValueChange = {}, isError = true)
                 }

@@ -63,7 +63,8 @@ object ComponentCatalog {
 
     val entries: List<CatalogEntry> = actionEntries() + inputEntries() + selectionEntries() + feedbackEntries() +
         navigationEntries() + containerEntries() + kitDisplayEntries() + kitDataEntries() + kitFormEntries() +
-        kitNavigationEntries() + kitOverlayEntries()
+        kitNavigationEntries() + kitOverlayEntries() + kitChatEntries() + kitAiAEntries() +
+        kitAiBEntries()
 
     /** Screenshot pages, in a stable order: group id to its entries. */
     val groups: Map<String, List<CatalogEntry>> = entries.groupBy { it.group }

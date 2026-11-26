@@ -18,7 +18,21 @@
     "sortNone": "غير مرتّب",
     "slide": "الشريحة {number1} من {number2}",
     "close": "إغلاق",
-    "openMenu": "فتح القائمة"
+    "openMenu": "فتح القائمة",
+    "messages": "الرسائل",
+    "scrollToEnd": "الانتقال إلى النهاية",
+    "questionnaireProgress": "تقدم الاستبيان",
+    "questionProgress": "السؤال {current} من {total}",
+    "newMessage": "رسالة جديدة",
+    "attachmentUploading": "جارٍ الرفع",
+    "attachmentProcessing": "جارٍ المعالجة",
+    "attachmentFailed": "فشل الرفع",
+    "sendMessage": "إرسال الرسالة",
+    "stop": "إيقاف",
+    "attachFiles": "إرفاق ملفات",
+    "removeAttachment": "إزالة {name}",
+    "contextUsed": "السياق المستخدم",
+    "opensInBrowser": "يُفتح في المتصفح"
   },
   "error": {
     "offline": "لا يوجد اتصال بالإنترنت. تحقق من الشبكة وحاول مرة أخرى.",
@@ -45,7 +59,9 @@
     "ok": "حسنًا",
     "cancel": "إلغاء",
     "confirm": "تأكيد",
-    "retry": "إعادة المحاولة"
+    "retry": "إعادة المحاولة",
+    "skip": "تخطي",
+    "submit": "إرسال"
   },
   "breadcrumb": "مسار التنقل",
   "cancel": "إلغاء",

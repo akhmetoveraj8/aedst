@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -52,7 +53,9 @@ enum class AedstInputGroupButtonSize(internal val buttonSize: AedstButtonSize) {
  * A text input and its addon (an icon, a unit, a button) inside one border, mirroring web's `input-group.tsx`.
  * [label] is the accessible name of the input (there is no floating label; pair it with `AedstField` for a visible
  * one). The addon goes before / after the text ([AedstInputGroupAlign.INLINE_START] / `INLINE_END`, RTL-aware) or on
- * its own row above / below it (`BLOCK_START` / `BLOCK_END`).
+ * its own row above / below it (`BLOCK_START` / `BLOCK_END`). With [maxLines] > 1 the input is a growing text area
+ * (web `InputGroupTextarea`); [header] is an extra top row in the block layouts (attachment chips) and
+ * [textFieldModifier] reaches the text field itself (key handling).
  */
 @Composable
 fun AedstInputGroup(
@@ -60,10 +63,14 @@ fun AedstInputGroup(
     onValueChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
     placeholder: String? = null,
     enabled: Boolean = true,
     align: AedstInputGroupAlign = AedstInputGroupAlign.INLINE_START,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    maxLines: Int = 1,
+    header: (@Composable () -> Unit)? = null,
     addon: @Composable RowScope.() -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -71,12 +78,14 @@ fun AedstInputGroup(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = inputModifier.semantics {
+            modifier = inputModifier.then(textFieldModifier).semantics {
                 contentDescription = label
                 if (!enabled) disabled()
             },
             enabled = enabled,
-            singleLine = true,
+            singleLine = maxLines == 1,
+            maxLines = maxLines,
+            keyboardActions = keyboardActions,
             textStyle = MaterialTheme.typography.bodyLarge.copy(color = LocalContentColor.current),
             keyboardOptions = keyboardOptions,
             cursorBrush = SolidColor(colorScheme.primary),
@@ -124,6 +133,7 @@ fun AedstInputGroup(
                 modifier = padding,
                 verticalArrangement = Arrangement.spacedBy(AedstSpacing.sm, Alignment.CenterVertically),
             ) {
+                header?.invoke()
                 if (align == AedstInputGroupAlign.BLOCK_START) addonRow()
                 input(Modifier.fillMaxWidth())
                 if (align == AedstInputGroupAlign.BLOCK_END) addonRow()

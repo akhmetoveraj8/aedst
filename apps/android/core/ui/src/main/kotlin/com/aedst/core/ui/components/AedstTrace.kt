@@ -112,7 +112,7 @@ private fun TraceItem(step: AedstTraceStep, statusLabel: (AedstTraceStatus) -> S
                     )
                 }
             }
-            StatusIcon(step.status)
+            TraceStatusIcon(step.status)
             Text(text = step.title, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
             Text(
                 text = listOfNotNull(statusLabel(step.status), step.duration).joinToString(SEPARATOR),
@@ -138,8 +138,9 @@ private fun TraceItem(step: AedstTraceStep, statusLabel: (AedstTraceStatus) -> S
     }
 }
 
+/** Decorative 16dp icon of a trace [status] (a spinner while running); shared with the AI Elements line parts. */
 @Composable
-private fun StatusIcon(status: AedstTraceStatus) {
+internal fun TraceStatusIcon(status: AedstTraceStatus) {
     val isDark = LocalAedstDarkTheme.current
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     val tint: Color = when (status) {

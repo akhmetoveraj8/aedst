@@ -6,7 +6,8 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * Tokens that Material3's [androidx.compose.material3.ColorScheme] has no slot for, but web's
- * token set defines: chart series colors and the sidebar surface family.
+ * token set defines: chart series colors, the sidebar surface family and the code syntax colors
+ * (`syntax*`, used by [com.aedst.core.ui.components.AedstCodeBlock]).
  */
 @Immutable
 data class AedstExtendedColors(
@@ -23,6 +24,13 @@ data class AedstExtendedColors(
     val sidebarAccentForeground: Color,
     val sidebarBorder: Color,
     val sidebarRing: Color,
+    val syntaxComment: Color,
+    val syntaxKeyword: Color,
+    val syntaxString: Color,
+    val syntaxNumber: Color,
+    val syntaxFunction: Color,
+    val syntaxType: Color,
+    val syntaxPunctuation: Color,
 ) {
     val chartColors: List<Color> get() = listOf(chart1, chart2, chart3, chart4, chart5)
 }
@@ -41,6 +49,13 @@ val AedstLightExtendedColors = AedstExtendedColors(
     sidebarAccentForeground = AedstLightPalette.sidebarAccentForeground,
     sidebarBorder = AedstLightPalette.sidebarBorder,
     sidebarRing = AedstLightPalette.sidebarRing,
+    syntaxComment = AedstLightPalette.syntaxComment,
+    syntaxKeyword = AedstLightPalette.syntaxKeyword,
+    syntaxString = AedstLightPalette.syntaxString,
+    syntaxNumber = AedstLightPalette.syntaxNumber,
+    syntaxFunction = AedstLightPalette.syntaxFunction,
+    syntaxType = AedstLightPalette.syntaxType,
+    syntaxPunctuation = AedstLightPalette.syntaxPunctuation,
 )
 
 val AedstDarkExtendedColors = AedstExtendedColors(
@@ -57,6 +72,13 @@ val AedstDarkExtendedColors = AedstExtendedColors(
     sidebarAccentForeground = AedstDarkPalette.sidebarAccentForeground,
     sidebarBorder = AedstDarkPalette.sidebarBorder,
     sidebarRing = AedstDarkPalette.sidebarRing,
+    syntaxComment = AedstDarkPalette.syntaxComment,
+    syntaxKeyword = AedstDarkPalette.syntaxKeyword,
+    syntaxString = AedstDarkPalette.syntaxString,
+    syntaxNumber = AedstDarkPalette.syntaxNumber,
+    syntaxFunction = AedstDarkPalette.syntaxFunction,
+    syntaxType = AedstDarkPalette.syntaxType,
+    syntaxPunctuation = AedstDarkPalette.syntaxPunctuation,
 )
 
 val LocalAedstExtendedColors = staticCompositionLocalOf { AedstLightExtendedColors }

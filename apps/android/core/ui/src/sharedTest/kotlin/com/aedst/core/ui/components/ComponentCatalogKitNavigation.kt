@@ -107,7 +107,10 @@ internal fun kitOverlayEntries(): List<CatalogEntry> = listOf(
     },
     CatalogEntry("context_menu", "kit_overlay", setOf("AedstContextMenu")) {
         AedstContextMenu(
-            options = listOf(AedstDropdownMenuOption(value = "rename", label = "Rename")),
+            options = listOf(
+                AedstContextMenuItem(value = "rename", label = "Rename"),
+                AedstContextMenuItem("delete", "Delete", variant = AedstContextMenuItemVariant.DESTRUCTIVE),
+            ),
             onOptionSelected = {},
         ) {
             Text("Touch and hold")

@@ -18,7 +18,21 @@
     "sortNone": "Не отсортировано",
     "slide": "Слайд {number1} из {number2}",
     "close": "Закрыть",
-    "openMenu": "Открыть меню"
+    "openMenu": "Открыть меню",
+    "messages": "Сообщения",
+    "scrollToEnd": "Прокрутить в конец",
+    "questionnaireProgress": "Прогресс опроса",
+    "questionProgress": "Вопрос {current} из {total}",
+    "newMessage": "Новое сообщение",
+    "attachmentUploading": "Загрузка",
+    "attachmentProcessing": "Обработка",
+    "attachmentFailed": "Не удалось загрузить",
+    "sendMessage": "Отправить сообщение",
+    "stop": "Остановить",
+    "attachFiles": "Прикрепить файлы",
+    "removeAttachment": "Удалить {name}",
+    "contextUsed": "Использовано контекста",
+    "opensInBrowser": "Откроется в браузере"
   },
   "error": {
     "offline": "Нет подключения к интернету. Проверьте сеть и повторите попытку.",
@@ -45,7 +59,9 @@
     "ok": "ОК",
     "cancel": "Отмена",
     "confirm": "Подтвердить",
-    "retry": "Повторить"
+    "retry": "Повторить",
+    "skip": "Пропустить",
+    "submit": "Отправить"
   },
   "breadcrumb": "Навигационная цепочка",
   "cancel": "Отмена",
