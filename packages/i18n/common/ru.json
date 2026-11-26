@@ -46,6 +46,8 @@
     "commandPalette": "Палитра команд",
     "commandPaletteDescription": "Найдите команду для запуска",
     "messages": "Сообщения",
+    "scrollToEnd": "Прокрутить в конец",
+    "scrollToStart": "Прокрутить в начало",
     "questionnaireProgress": "Прогресс опроса",
     "questionProgress": "Вопрос {current} из {total}"
   },

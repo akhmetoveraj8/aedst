@@ -46,6 +46,8 @@
     "commandPalette": "Command palette",
     "commandPaletteDescription": "Search for a command to run",
     "messages": "Messages",
+    "scrollToEnd": "Scroll to end",
+    "scrollToStart": "Scroll to start",
     "questionnaireProgress": "Questionnaire progress",
     "questionProgress": "Question {current} of {total}"
   },

@@ -8,18 +8,51 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "cn";
 import * as React from "react";
+import type { ThemedToken } from "shiki/core";
 
+import {
+  tokensForLine,
+  useHighlightedCode,
+} from "@/shared/lib/hooks/use-highlighted-code";
 import { Button } from "@/shared/ui/button";
 import { Toggle } from "@/shared/ui/toggle";
 
 const COPIED_RESET_MS = 2000;
 
+/** One line: coloured Shiki tokens when available, plain text otherwise. */
+function LineTokens({
+  text,
+  tokens,
+}: {
+  text: string;
+  tokens: readonly ThemedToken[] | undefined;
+}) {
+  if (!tokens) {
+    return text;
+  }
+  return tokens.map((token) => (
+    <span
+      key={token.offset}
+      data-slot="code-block-token"
+      // Only `var(--syntax-*)` values (shared/lib/code-highlight/syntax-theme.ts).
+      style={{ color: token.color }}
+    >
+      {token.content}
+    </span>
+  ));
+}
+
 interface CodeBlockProps extends Omit<React.ComponentProps<"div">, "children"> {
   code: string;
   /** Shown in the header, always left-to-right. */
   filename?: string;
-  /** Language label for the header (also passed as `data-language`). */
+  /**
+   * Language label for the header (also passed as `data-language`). A known
+   * name or alias ("TypeScript", "ts", "bash") also selects the grammar.
+   */
   language?: string;
+  /** Turns the built-in highlighting off (the code stays plain text). */
+  disableHighlight?: boolean;
   showLineNumbers?: boolean;
   /** 1-based line numbers to emphasize. */
   highlightLines?: readonly number[];
@@ -33,15 +66,19 @@ interface CodeBlockProps extends Omit<React.ComponentProps<"div">, "children"> {
   /** The clipboard write was refused (permissions, insecure context). */
   onCopyError?: (error: unknown) => void;
   /**
-   * Syntax highlighting seam: returns the content of one line (1-based).
-   * The kit ships no highlighter; a caller plugs one in lazily.
+   * Overrides the built-in highlighter: returns the content of one line
+   * (1-based). When set, Shiki is not loaded.
    */
   highlight?: (line: string, lineNumber: number) => React.ReactNode;
 }
 
 /**
  * Code display: optional header (file name, language, wrap toggle, copy
- * button), line numbers and line emphasis. The code itself is always
+ * button), line numbers, line emphasis and syntax highlighting. Highlighting
+ * is Shiki, loaded lazily on first mount for a known `language` and coloured
+ * with the `--syntax-*` tokens (light and dark); until it arrives, and for
+ * unknown languages, the code is plain text. While code streams in, lines
+ * already highlighted keep their colours. The code itself is always
  * `dir="ltr"` and scrolls horizontally unless wrapped.
  */
 function CodeBlock({
@@ -56,11 +93,17 @@ function CodeBlock({
   copiedLabel,
   onCopyError,
   highlight,
+  disableHighlight = false,
   className,
   ...props
 }: CodeBlockProps) {
   const [wrap, setWrap] = React.useState(defaultWrap);
   const [copied, setCopied] = React.useState(false);
+  const highlighted = useHighlightedCode(
+    code,
+    language,
+    !(disableHighlight || highlight),
+  );
 
   React.useEffect(() => {
     if (!copied) {
@@ -82,7 +125,11 @@ function CodeBlock({
   const lines = code
     .replace(/\n$/, "")
     .split("\n")
-    .map((text, index) => ({ text, number: index + 1 }));
+    .map((text, index) => ({
+      text,
+      number: index + 1,
+      tokens: tokensForLine(highlighted, index, text),
+    }));
   const emphasized = new Set(highlightLines);
   const hasHeader = Boolean(filename || language || wrapLabel || copyLabel);
 
@@ -163,7 +210,11 @@ function CodeBlock({
                 </span>
               ) : null}
               <span className="min-w-0 flex-1">
-                {highlight ? highlight(line.text, line.number) : line.text}
+                {highlight ? (
+                  highlight(line.text, line.number)
+                ) : (
+                  <LineTokens text={line.text} tokens={line.tokens} />
+                )}
                 {"\n"}
               </span>
             </span>
