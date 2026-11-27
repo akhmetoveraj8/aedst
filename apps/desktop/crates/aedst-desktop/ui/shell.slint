@@ -1,7 +1,7 @@
 // The application window: sign-in, the navigation sidebar and the five feature views.
 // Every feature view is compiled in THIS compilation (see build.rs); the Rust glue of each feature is
 // compiled against the types generated here, so every store, row struct and text global the glue uses
-// is re-exported below.
+// is re-exported below (enums included).
 import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstBadge, AedstCheckbox, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
 import { TasksListView } from "../../aedst-feature-tasks/ui/tasks.slint";
 import { SearchListView } from "../../aedst-feature-search/ui/search.slint";
@@ -9,26 +9,34 @@ import { NotificationsListView, NotificationPreferencesView } from "../../aedst-
 import { MediaListView } from "../../aedst-feature-media/ui/media.slint";
 import { AdminListView } from "../../aedst-feature-admin/ui/admin.slint";
 
-export { TasksStore, TaskRowData, TaskTexts } from "../../aedst-feature-tasks/ui/tasks.slint";
-export { HitRowData, SearchStore, SearchTexts } from "../../aedst-feature-search/ui/search.slint";
-export { NotificationRowData, NotificationsStore, NotificationsTexts } from "../../aedst-feature-notifications/ui/notifications.slint";
-export { MediaRowData, MediaStore } from "../../aedst-feature-media/ui/media.slint";
+export { TasksStore, TaskRowData, TaskTexts, TasksPhase, TasksCreateState } from "../../aedst-feature-tasks/ui/tasks.slint";
+export { HitRowData, SearchStore, SearchTexts, SearchPhase } from "../../aedst-feature-search/ui/search.slint";
+export { NotificationRowData, NotificationsStore, NotificationsTexts, NotificationsPhase } from "../../aedst-feature-notifications/ui/notifications.slint";
+export { MediaRowData, MediaStore, MediaPhase, MediaUploadState, MediaUploadStage, MediaUploadCleanup, MediaViewerPhase } from "../../aedst-feature-media/ui/media.slint";
 export { MediaTexts } from "../../aedst-feature-media/ui/media_texts.slint";
-export { AdminStore, OverviewItemData, AdminTaskRowData, AuditRowData } from "../../aedst-feature-admin/ui/admin.slint";
+export { AdminStore, OverviewItemData, AdminTaskRowData, AuditRowData, AdminTab, AdminPhase, AdminDeleteState, AdminBroadcastState } from "../../aedst-feature-admin/ui/admin.slint";
 export { AdminTexts } from "../../aedst-feature-admin/ui/admin_texts.slint";
 export { AedstLayout, AedstTokens } from "@aedst-ui";
 
+// The contract between the shell window and `aedst-desktop`'s Rust code: typed, so a mistyped screen
+// or section is a compile error on both sides instead of a blank window.
+export enum ShellScreen { starting, login, app, upgrade }
+export enum ShellSection { tasks, search, notifications, media, admin, privacy }
+export enum SignInError { no-error, failed, unreachable, keychain, timeout, unconfigured }
+export enum UpdateBanner { hidden, available, downloading, ready }
+enum InboxScreen { inbox, preferences }
+
 export global ShellState {
-    // starting | login | app | upgrade
-    in property <string> screen: "starting";
-    in-out property <string> section: "tasks";
+    in property <ShellScreen> screen: ShellScreen.starting;
+    in-out property <ShellSection> section: ShellSection.tasks;
     in property <bool> busy;
-    // failed | unreachable | keychain | timeout | unconfigured, or empty
-    in property <string> sign-in-error;
+    in property <SignInError> sign-in-error: SignInError.no-error;
+    // False until the services are built (and forever when they could not be): nothing would handle
+    // the sign-in button.
+    in property <bool> sign-in-available;
     in property <bool> show-admin;
     in property <int> unread;
-    // none | available | downloading | ready
-    in property <string> update-phase: "none";
+    in property <UpdateBanner> update-phase: UpdateBanner.hidden;
     in property <int> update-percent;
     // Consent: separate opt-ins, both off until the user says yes; `*-available` is false when the
     // build has no DSN / key, so the switch cannot do anything.
@@ -42,7 +50,7 @@ export global ShellState {
     callback sign-in();
     callback cancel-sign-in();
     callback sign-out();
-    callback select(string);
+    callback select(ShellSection);
 }
 
 component Sidebar inherits Rectangle {
@@ -62,51 +70,51 @@ component Sidebar inherits Rectangle {
             font-weight: AedstTokens.typography-title-large-font-weight;
         }
         AedstButton {
-            text: @tr("" => "Tasks");
-            variant: ShellState.section == "tasks" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
-            clicked => { ShellState.select("tasks"); }
+            text: @tr("desktop" => "Tasks");
+            variant: ShellState.section == ShellSection.tasks ? AedstButtonVariant.default : AedstButtonVariant.secondary;
+            clicked => { ShellState.select(ShellSection.tasks); }
         }
         AedstButton {
-            text: @tr("" => "Search");
-            variant: ShellState.section == "search" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
-            clicked => { ShellState.select("search"); }
+            text: @tr("desktop" => "Search");
+            variant: ShellState.section == ShellSection.search ? AedstButtonVariant.default : AedstButtonVariant.secondary;
+            clicked => { ShellState.select(ShellSection.search); }
         }
         AedstButton {
-            text: @tr("" => "Notifications");
-            variant: ShellState.section == "notifications" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
-            clicked => { ShellState.select("notifications"); }
+            text: @tr("desktop" => "Notifications");
+            variant: ShellState.section == ShellSection.notifications ? AedstButtonVariant.default : AedstButtonVariant.secondary;
+            clicked => { ShellState.select(ShellSection.notifications); }
         }
         if ShellState.unread > 0: AedstBadge { text: "\{ShellState.unread}"; variant: AedstBadgeVariant.destructive; }
         AedstButton {
-            text: @tr("" => "Files");
-            variant: ShellState.section == "media" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
-            clicked => { ShellState.select("media"); }
+            text: @tr("desktop" => "Files");
+            variant: ShellState.section == ShellSection.media ? AedstButtonVariant.default : AedstButtonVariant.secondary;
+            clicked => { ShellState.select(ShellSection.media); }
         }
         if ShellState.show-admin: AedstButton {
-            text: @tr("" => "Admin");
-            variant: ShellState.section == "admin" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
-            clicked => { ShellState.select("admin"); }
+            text: @tr("desktop" => "Admin");
+            variant: ShellState.section == ShellSection.admin ? AedstButtonVariant.default : AedstButtonVariant.secondary;
+            clicked => { ShellState.select(ShellSection.admin); }
         }
         AedstButton {
-            text: @tr("" => "Privacy");
-            variant: ShellState.section == "privacy" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
-            clicked => { ShellState.select("privacy"); }
+            text: @tr("desktop" => "Privacy");
+            variant: ShellState.section == ShellSection.privacy ? AedstButtonVariant.default : AedstButtonVariant.secondary;
+            clicked => { ShellState.select(ShellSection.privacy); }
         }
         Rectangle { vertical-stretch: 1; }
-        if ShellState.update-phase == "available": AedstLabel {
-            text: @tr("" => "A new version is available");
+        if ShellState.update-phase == UpdateBanner.available: AedstLabel {
+            text: @tr("desktop" => "A new version is available");
             color: AedstTokens.muted-foreground;
         }
-        if ShellState.update-phase == "downloading": AedstLabel {
-            text: @tr("" => "Downloading the update: {}%", ShellState.update-percent);
+        if ShellState.update-phase == UpdateBanner.downloading: AedstLabel {
+            text: @tr("desktop" => "Downloading the update: {}%", ShellState.update-percent);
             color: AedstTokens.muted-foreground;
         }
-        if ShellState.update-phase == "ready": AedstButton {
-            text: @tr("" => "Restart to update");
+        if ShellState.update-phase == UpdateBanner.ready: AedstButton {
+            text: @tr("desktop" => "Restart to update");
             clicked => { ShellState.install-update(); }
         }
         AedstButton {
-            text: @tr("" => "Sign out");
+            text: @tr("desktop" => "Sign out");
             variant: AedstButtonVariant.secondary;
             clicked => { ShellState.sign-out(); }
         }
@@ -130,7 +138,7 @@ component ConsentRow inherits Rectangle {
             spacing: AedstTokens.spacing-xs;
             AedstLabel { text: root.title; font-weight: 600; }
             AedstLabel { text: root.detail; color: AedstTokens.muted-foreground; }
-            if !root.available: AedstLabel { text: @tr("" => "Not available in this build."); color: AedstTokens.muted-foreground; }
+            if !root.available: AedstLabel { text: @tr("desktop" => "Not available in this build."); color: AedstTokens.muted-foreground; }
         }
     }
     if AedstLayout.rtl: HorizontalLayout {
@@ -139,7 +147,7 @@ component ConsentRow inherits Rectangle {
             spacing: AedstTokens.spacing-xs;
             AedstLabel { text: root.title; font-weight: 600; }
             AedstLabel { text: root.detail; color: AedstTokens.muted-foreground; }
-            if !root.available: AedstLabel { text: @tr("" => "Not available in this build."); color: AedstTokens.muted-foreground; }
+            if !root.available: AedstLabel { text: @tr("desktop" => "Not available in this build."); color: AedstTokens.muted-foreground; }
         }
         AedstCheckbox { checked: root.checked; enabled: root.available; label: root.title; toggled => { root.toggled(); } }
     }
@@ -152,24 +160,24 @@ component PrivacyView inherits Rectangle {
         spacing: AedstTokens.spacing-md;
         alignment: start;
         AedstLabel {
-            text: @tr("" => "Privacy");
+            text: @tr("desktop" => "Privacy");
             font-size: AedstTokens.typography-title-large-font-size;
             font-weight: AedstTokens.typography-title-large-font-weight;
         }
         AedstLabel {
-            text: @tr("" => "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device.");
+            text: @tr("desktop" => "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device.");
             color: AedstTokens.muted-foreground;
         }
         ConsentRow {
-            title: @tr("" => "Send crash reports");
-            detail: @tr("" => "Technical details about a failure, so it can be fixed.");
+            title: @tr("desktop" => "Send crash reports");
+            detail: @tr("desktop" => "Technical details about a failure, so it can be fixed.");
             checked: ShellState.crash-consent;
             available: ShellState.crash-available;
             toggled => { ShellState.set-crash-consent(!ShellState.crash-consent); }
         }
         ConsentRow {
-            title: @tr("" => "Share anonymous usage statistics");
-            detail: @tr("" => "Which features are used, never what you type.");
+            title: @tr("desktop" => "Share anonymous usage statistics");
+            detail: @tr("desktop" => "Which features are used, never what you type.");
             checked: ShellState.analytics-consent;
             available: ShellState.analytics-available;
             toggled => { ShellState.set-analytics-consent(!ShellState.analytics-consent); }
@@ -179,33 +187,33 @@ component PrivacyView inherits Rectangle {
 
 component Content inherits Rectangle {
     background: AedstTokens.background;
-    property <string> inbox-screen: "inbox"; // inbox | preferences
+    property <InboxScreen> inbox-screen: InboxScreen.inbox;
 
-    if ShellState.section == "tasks": TasksListView {}
-    if ShellState.section == "search": SearchListView {}
-    if ShellState.section == "notifications": VerticalLayout {
+    if ShellState.section == ShellSection.tasks: TasksListView {}
+    if ShellState.section == ShellSection.search: SearchListView {}
+    if ShellState.section == ShellSection.notifications: VerticalLayout {
         HorizontalLayout {
             padding: AedstTokens.spacing-md;
             spacing: AedstTokens.spacing-sm;
             alignment: AedstLayout.rtl ? end : start;
             vertical-stretch: 0;
             AedstButton {
-                text: @tr("" => "Inbox");
-                variant: root.inbox-screen == "inbox" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
-                clicked => { root.inbox-screen = "inbox"; }
+                text: @tr("desktop" => "Inbox");
+                variant: root.inbox-screen == InboxScreen.inbox ? AedstButtonVariant.default : AedstButtonVariant.secondary;
+                clicked => { root.inbox-screen = InboxScreen.inbox; }
             }
             AedstButton {
-                text: @tr("" => "Preferences");
-                variant: root.inbox-screen == "preferences" ? AedstButtonVariant.default : AedstButtonVariant.secondary;
-                clicked => { root.inbox-screen = "preferences"; }
+                text: @tr("desktop" => "Preferences");
+                variant: root.inbox-screen == InboxScreen.preferences ? AedstButtonVariant.default : AedstButtonVariant.secondary;
+                clicked => { root.inbox-screen = InboxScreen.preferences; }
             }
         }
-        if root.inbox-screen == "inbox": NotificationsListView {}
-        if root.inbox-screen == "preferences": NotificationPreferencesView {}
+        if root.inbox-screen == InboxScreen.inbox: NotificationsListView {}
+        if root.inbox-screen == InboxScreen.preferences: NotificationPreferencesView {}
     }
-    if ShellState.section == "media": MediaListView {}
-    if ShellState.section == "admin": AdminListView {}
-    if ShellState.section == "privacy": PrivacyView {}
+    if ShellState.section == ShellSection.media: MediaListView {}
+    if ShellState.section == ShellSection.admin: AdminListView {}
+    if ShellState.section == ShellSection.privacy: PrivacyView {}
 }
 
 component Notice inherits VerticalLayout {
@@ -233,39 +241,39 @@ export component AppWindow inherits Window {
     preferred-width: 1100px;
     preferred-height: 720px;
 
-    if ShellState.screen == "starting": Notice { title: @tr("" => "Starting..."); body: ""; }
+    if ShellState.screen == ShellScreen.starting: Notice { title: @tr("desktop" => "Starting..."); body: ""; }
 
-    if ShellState.screen == "login": Notice {
-        title: @tr("" => "Sign in to continue");
-        body: ShellState.sign-in-error == "failed" ? @tr("" => "Sign-in failed. Please try again.")
-            : ShellState.sign-in-error == "unreachable" ? @tr("" => "Could not reach the identity provider.")
-            : ShellState.sign-in-error == "keychain" ? @tr("" => "Secure storage is not available on this device.")
-            : ShellState.sign-in-error == "timeout" ? @tr("" => "Sign-in timed out.")
-            : ShellState.sign-in-error == "unconfigured" ? @tr("" => "Sign-in is not configured.")
-            : ShellState.busy ? @tr("" => "Waiting for the browser...") : "";
+    if ShellState.screen == ShellScreen.login: Notice {
+        title: @tr("desktop" => "Sign in to continue");
+        body: ShellState.sign-in-error == SignInError.failed ? @tr("desktop" => "Sign-in failed. Please try again.")
+            : ShellState.sign-in-error == SignInError.unreachable ? @tr("desktop" => "Could not reach the identity provider.")
+            : ShellState.sign-in-error == SignInError.keychain ? @tr("desktop" => "Secure storage is not available on this device.")
+            : ShellState.sign-in-error == SignInError.timeout ? @tr("desktop" => "Sign-in timed out.")
+            : ShellState.sign-in-error == SignInError.unconfigured ? @tr("desktop" => "Sign-in is not configured.")
+            : ShellState.busy ? @tr("desktop" => "Waiting for the browser...") : "";
         if !ShellState.busy: AedstButton {
-            text: @tr("" => "Continue in browser");
-            enabled: ShellState.sign-in-error != "unconfigured";
+            text: @tr("desktop" => "Continue in browser");
+            enabled: ShellState.sign-in-available && ShellState.sign-in-error != SignInError.unconfigured;
             clicked => { ShellState.sign-in(); }
         }
         if ShellState.busy: AedstButton {
-            text: @tr("" => "Cancel");
+            text: @tr("desktop" => "Cancel");
             variant: AedstButtonVariant.secondary;
             clicked => { ShellState.cancel-sign-in(); }
         }
     }
 
-    if ShellState.screen == "upgrade": Notice {
-        title: @tr("" => "Update required");
-        body: @tr("" => "This version of the app is too old for the server. Please update it to continue.");
+    if ShellState.screen == ShellScreen.upgrade: Notice {
+        title: @tr("desktop" => "Update required");
+        body: @tr("desktop" => "This version of the app is too old for the server. Please update it to continue.");
     }
 
     // The sidebar sits at the reading start: left in LTR, right in RTL (Slint cannot reverse a layout).
-    if ShellState.screen == "app" && !AedstLayout.rtl: HorizontalLayout {
+    if ShellState.screen == ShellScreen.app && !AedstLayout.rtl: HorizontalLayout {
         Sidebar {}
         Content {}
     }
-    if ShellState.screen == "app" && AedstLayout.rtl: HorizontalLayout {
+    if ShellState.screen == ShellScreen.app && AedstLayout.rtl: HorizontalLayout {
         Content {}
         Sidebar {}
     }

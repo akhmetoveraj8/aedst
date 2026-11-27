@@ -91,6 +91,38 @@ async fn a_slow_older_load_cannot_overwrite_a_newer_one() {
 }
 
 #[tokio::test]
+async fn a_reload_during_load_more_does_not_block_the_next_page() {
+    let rig = rig();
+    rig.repo.pages.lock().unwrap().extend([
+        Ok(page(&["a"], Some("t2"), None)),
+        Ok(page(&["stale"], None, None)),
+        Ok(page(&["a"], Some("t3"), None)),
+        Ok(page(&["c"], None, None)),
+    ]);
+    let controller = TaskListController::new(rig.service.clone());
+    controller.load_first().await;
+
+    let (release, gate) = oneshot::channel();
+    *rig.repo.gate.lock().unwrap() = Some(gate);
+    let stale = tokio::spawn({
+        let controller = controller.clone();
+        async move { controller.load_more().await }
+    });
+    tokio::task::yield_now().await;
+    controller.load_first().await; // the reload makes the page load above stale
+    release.send(()).unwrap();
+    stale.await.unwrap();
+
+    controller.load_more().await;
+    let view = controller.subscribe().borrow().clone();
+    let ids: Vec<&str> = view.rows.iter().map(|r| r.id.as_str()).collect();
+    assert_eq!(ids, ["a", "c"]);
+    assert!(!view.loading_more);
+    let queries = rig.repo.queries.lock().unwrap().clone();
+    assert_eq!(queries[3].page_token.as_deref(), Some("t3"));
+}
+
+#[tokio::test]
 async fn invalid_input_never_reaches_the_repository() {
     let rig = rig();
     let controller = TaskListController::new(rig.service.clone());

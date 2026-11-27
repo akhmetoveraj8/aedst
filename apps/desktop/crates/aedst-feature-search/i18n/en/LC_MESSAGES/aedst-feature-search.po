@@ -8,86 +8,114 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "search"
 msgid "Search"
 msgstr "Search"
 
+msgctxt "search"
 msgid "Load more"
 msgstr "Load more"
 
+msgctxt "search"
 msgid "Search tasks and files"
 msgstr "Search tasks and files"
 
+msgctxt "search"
 msgid "You are offline. Search needs a connection."
 msgstr "You are offline. Search needs a connection."
 
+msgctxt "search"
 msgid "The server is not available right now."
 msgstr "The server is not available right now."
 
+msgctxt "search"
 msgid "The request took too long."
 msgstr "The request took too long."
 
+msgctxt "search"
 msgid "Too many requests. Try again in a moment."
 msgstr "Too many requests. Try again in a moment."
 
+msgctxt "search"
 msgid "Please sign in again."
 msgstr "Please sign in again."
 
+msgctxt "search"
 msgid "You do not have access to this."
 msgstr "You do not have access to this."
 
+msgctxt "search"
 msgid "Nothing was found at this address."
 msgstr "Nothing was found at this address."
 
+msgctxt "search"
 msgid "The server did not accept this search."
 msgstr "The server did not accept this search."
 
+msgctxt "search"
 msgid "The data was changed elsewhere."
 msgstr "The data was changed elsewhere."
 
+msgctxt "search"
 msgid "Please update the app to continue."
 msgstr "Please update the app to continue."
 
+msgctxt "search"
 msgid "Could not read data on this device."
 msgstr "Could not read data on this device."
 
+msgctxt "search"
 msgid "Something went wrong."
 msgstr "Something went wrong."
 
+msgctxt "search"
 msgid "Task"
 msgstr "Task"
 
+msgctxt "search"
 msgid "File"
 msgstr "File"
 
+msgctxt "search"
 msgid "Other"
 msgstr "Other"
 
+msgctxt "search"
 msgid "About {} results"
 msgstr "About {} results"
 
+msgctxt "search"
 msgid "Suggestions"
 msgstr "Suggestions"
 
+msgctxt "search"
 msgid "Search your tasks and files"
 msgstr "Search your tasks and files"
 
+msgctxt "search"
 msgid "Results appear as you type."
 msgstr "Results appear as you type."
 
+msgctxt "search"
 msgid "Searching..."
 msgstr "Searching..."
 
+msgctxt "search"
 msgid "Could not search"
 msgstr "Could not search"
 
+msgctxt "search"
 msgid "Try again"
 msgstr "Try again"
 
+msgctxt "search"
 msgid "No results"
 msgstr "No results"
 
+msgctxt "search"
 msgid "Try a different word or check the spelling."
 msgstr "Try a different word or check the spelling."
 
+msgctxt "search"
 msgid "Loading..."
 msgstr "Loading..."

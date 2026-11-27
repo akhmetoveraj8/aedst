@@ -8,110 +8,146 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "notifications"
 msgid "Notifications"
 msgstr "Bildirishnomalar"
 
+msgctxt "notifications"
 msgid "Mark all as read"
 msgstr "Hammasini o‘qilgan deb belgilash"
 
+msgctxt "notifications"
 msgid "All"
 msgstr "Hammasi"
 
+msgctxt "notifications"
 msgid "Unread"
 msgstr "O‘qilmagan"
 
+msgctxt "notifications"
 msgid "Load more"
 msgstr "Yana ko‘rsatish"
 
+msgctxt "notifications"
 msgid "Notification preferences"
 msgstr "Bildirishnoma sozlamalari"
 
+msgctxt "notifications"
 msgid "Task completed"
 msgstr "Vazifa bajarildi"
 
+msgctxt "notifications"
 msgid "Task due soon"
 msgstr "Vazifa muddati yaqin"
 
+msgctxt "notifications"
 msgid "You are offline. Try again when you are connected."
 msgstr "Siz oflaynsiz. Ulanganingizda qayta urinib ko'ring."
 
+msgctxt "notifications"
 msgid "The server is not available right now."
 msgstr "Server hozir mavjud emas."
 
+msgctxt "notifications"
 msgid "The request took too long."
 msgstr "So'rov juda uzoq davom etdi."
 
+msgctxt "notifications"
 msgid "Too many requests. Try again in a moment."
 msgstr "So'rovlar juda ko'p. Birozdan so'ng qayta urinib ko'ring."
 
+msgctxt "notifications"
 msgid "Please sign in again."
 msgstr "Iltimos, qaytadan kiring."
 
+msgctxt "notifications"
 msgid "You do not have access to this."
 msgstr "Sizda bunga ruxsat yo'q."
 
+msgctxt "notifications"
 msgid "This notification no longer exists."
 msgstr "Bu bildirishnoma endi mavjud emas."
 
+msgctxt "notifications"
 msgid "The server did not accept this input."
 msgstr "Server bu ma'lumotni qabul qilmadi."
 
+msgctxt "notifications"
 msgid "This was changed elsewhere."
 msgstr "Bu boshqa joyda o'zgartirildi."
 
+msgctxt "notifications"
 msgid "Please update the app to continue."
 msgstr "Davom etish uchun ilovani yangilang."
 
+msgctxt "notifications"
 msgid "Could not save on this device."
 msgstr "Bu qurilmada saqlab bo'lmadi."
 
+msgctxt "notifications"
 msgid "Something went wrong."
 msgstr "Nimadir xato ketdi."
 
+msgctxt "notifications"
 msgid "Media ready"
 msgstr "Media tayyor"
 
+msgctxt "notifications"
 msgid "System"
 msgstr "Tizim"
 
+msgctxt "notifications"
 msgid "Other"
 msgstr "Boshqa"
 
+msgctxt "notifications"
 msgid "Unread: {}"
 msgstr "O'qilmagan: {}"
 
+msgctxt "notifications"
 msgid "{} unread"
 msgstr "O'qilmagan: {}"
 
+msgctxt "notifications"
 msgid "Marking..."
 msgstr "Belgilanmoqda..."
 
+msgctxt "notifications"
 msgid "Loading..."
 msgstr "Yuklanmoqda..."
 
+msgctxt "notifications"
 msgid "Could not load notifications"
 msgstr "Bildirishnomalarni yuklab bo'lmadi"
 
+msgctxt "notifications"
 msgid "Try again"
 msgstr "Qayta urinish"
 
+msgctxt "notifications"
 msgid "No unread notifications"
 msgstr "O'qilmagan bildirishnomalar yo'q"
 
+msgctxt "notifications"
 msgid "No notifications yet"
 msgstr "Hozircha bildirishnomalar yo'q"
 
+msgctxt "notifications"
 msgid "You are all caught up."
 msgstr "Hammasi o'qilgan."
 
+msgctxt "notifications"
 msgid "Could not load preferences"
 msgstr "Sozlamalarni yuklab bo'lmadi"
 
+msgctxt "notifications"
 msgid "Choose which notifications you receive."
 msgstr "Qaysi bildirishnomalarni olishni tanlang."
 
+msgctxt "notifications"
 msgid "Show notifications"
 msgstr "Bildirishnomalarni ko'rsatish"
 
+msgctxt "notifications"
 msgid "Could not save the setting. {}"
 msgstr "Sozlamani saqlab bo'lmadi. {}"

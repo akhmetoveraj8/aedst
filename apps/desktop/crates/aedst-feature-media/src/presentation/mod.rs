@@ -7,6 +7,6 @@ pub mod viewer;
 pub use controller::LibraryController;
 pub use list_state::{LibraryView, Phase, Row, UploadView};
 pub use viewer::{
-    DecodeError, DecodedImage, MAX_DOWNLOAD_BYTES, MAX_PIXELS, ViewerController, ViewerPhase,
-    ViewerView, decode,
+    DecodeError, DecodedImage, MAX_DISPLAY_EDGE, MAX_DOWNLOAD_BYTES, MAX_PIXELS, ViewerController,
+    ViewerPhase, ViewerView, decode,
 };

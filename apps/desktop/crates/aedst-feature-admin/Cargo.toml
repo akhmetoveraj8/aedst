@@ -12,6 +12,7 @@ build = "build.rs"
 aedst-api = { path = "../aedst-api" }
 aedst-common = { path = "../aedst-common" }
 aedst-contract = { path = "../aedst-contract" }
+aedst-slint-model = { path = "../aedst-slint-model" }
 buffa = { workspace = true }
 buffa-types = { workspace = true }
 chrono = { workspace = true }
@@ -20,6 +21,20 @@ futures = { workspace = true }
 slint = { workspace = true }
 tokio = { workspace = true }
 uuid = { workspace = true }
+
+[features]
+# `standalone` compiles this crate's own Slint view (the demo window, `ui_glue`, the catalog test). The
+# shell depends on this crate without it and compiles the view once, in its own Slint compilation.
+default = ["standalone"]
+standalone = []
+
+[[example]]
+name = "admin_demo"
+required-features = ["standalone"]
+
+[[test]]
+name = "catalogs"
+required-features = ["standalone"]
 
 [build-dependencies]
 slint-build = { workspace = true }

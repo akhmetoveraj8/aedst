@@ -1,44 +1,44 @@
 // Translated helpers. Every message is the text of a KIND or a key, never a raw server message.
 export global AdminTexts {
     public pure function kind-text(kind: string) -> string {
-        if (kind == "offline") { return @tr("" => "You are offline."); }
-        if (kind == "unavailable") { return @tr("" => "The server is not available right now."); }
-        if (kind == "timeout") { return @tr("" => "The request took too long."); }
-        if (kind == "rateLimited") { return @tr("" => "Too many requests. Try again in a moment."); }
-        if (kind == "unauthenticated") { return @tr("" => "Please sign in again."); }
-        if (kind == "forbidden") { return @tr("" => "You do not have access to this."); }
-        if (kind == "notFound") { return @tr("" => "This item no longer exists."); }
-        if (kind == "invalidInput") { return @tr("" => "The server did not accept this input."); }
-        if (kind == "conflict") { return @tr("" => "This item was changed elsewhere."); }
-        if (kind == "upgradeRequired") { return @tr("" => "Please update the app to continue."); }
-        return @tr("" => "Something went wrong.");
+        if (kind == "offline") { return @tr("admin" => "You are offline."); }
+        if (kind == "unavailable") { return @tr("admin" => "The server is not available right now."); }
+        if (kind == "timeout") { return @tr("admin" => "The request took too long."); }
+        if (kind == "rateLimited") { return @tr("admin" => "Too many requests. Try again in a moment."); }
+        if (kind == "unauthenticated") { return @tr("admin" => "Please sign in again."); }
+        if (kind == "forbidden") { return @tr("admin" => "You do not have access to this."); }
+        if (kind == "notFound") { return @tr("admin" => "This item no longer exists."); }
+        if (kind == "invalidInput") { return @tr("admin" => "The server did not accept this input."); }
+        if (kind == "conflict") { return @tr("admin" => "This item was changed elsewhere."); }
+        if (kind == "upgradeRequired") { return @tr("admin" => "Please update the app to continue."); }
+        return @tr("admin" => "Something went wrong.");
     }
 
     public pure function validation-text(key: string) -> string {
-        if (key == "idInvalid") { return @tr("" => "Enter a valid user id or leave it empty."); }
-        if (key == "titleRequired") { return @tr("" => "Enter a title."); }
-        if (key == "titleTooLong") { return @tr("" => "The title is too long (120 characters at most)."); }
-        if (key == "bodyTooLong") { return @tr("" => "The message is too long (1000 characters at most)."); }
-        if (key == "linkInvalid") { return @tr("" => "The link must be an in-app path such as /tasks."); }
-        if (key == "reasonTooShort") { return @tr("" => "Enter a reason (3 characters at least)."); }
-        return @tr("" => "The reason is too long (500 characters at most).");
+        if (key == "idInvalid") { return @tr("admin" => "Enter a valid user id or leave it empty."); }
+        if (key == "titleRequired") { return @tr("admin" => "Enter a title."); }
+        if (key == "titleTooLong") { return @tr("admin" => "The title is too long (120 characters at most)."); }
+        if (key == "bodyTooLong") { return @tr("admin" => "The message is too long (1000 characters at most)."); }
+        if (key == "linkInvalid") { return @tr("admin" => "The link must be an in-app path such as /tasks."); }
+        if (key == "reasonTooShort") { return @tr("admin" => "Enter a reason (3 characters at least)."); }
+        return @tr("admin" => "The reason is too long (500 characters at most).");
     }
 
     public pure function status-text(status: string) -> string {
-        if (status == "todo") { return @tr("" => "To do"); }
-        if (status == "in-progress") { return @tr("" => "In progress"); }
-        if (status == "done") { return @tr("" => "Done"); }
-        return @tr("" => "Unknown");
+        if (status == "todo") { return @tr("admin" => "To do"); }
+        if (status == "in-progress") { return @tr("admin" => "In progress"); }
+        if (status == "done") { return @tr("admin" => "Done"); }
+        return @tr("admin" => "Unknown");
     }
 
     public pure function overview-label(key: string) -> string {
-        if (key == "tasks") { return @tr("" => "Tasks"); }
-        if (key == "tasksDone") { return @tr("" => "Tasks done"); }
-        if (key == "tasksOverdue") { return @tr("" => "Tasks overdue"); }
-        if (key == "media") { return @tr("" => "Media files"); }
-        if (key == "mediaBytes") { return @tr("" => "Media size"); }
-        if (key == "pushDevices") { return @tr("" => "Push devices"); }
-        if (key == "jobLag") { return @tr("" => "Oldest waiting job (seconds)"); }
-        return @tr("" => "Jobs pending");
+        if (key == "tasks") { return @tr("admin" => "Tasks"); }
+        if (key == "tasksDone") { return @tr("admin" => "Tasks done"); }
+        if (key == "tasksOverdue") { return @tr("admin" => "Tasks overdue"); }
+        if (key == "media") { return @tr("admin" => "Media files"); }
+        if (key == "mediaBytes") { return @tr("admin" => "Media size"); }
+        if (key == "pushDevices") { return @tr("admin" => "Push devices"); }
+        if (key == "jobLag") { return @tr("admin" => "Oldest waiting job (seconds)"); }
+        return @tr("admin" => "Jobs pending");
     }
 }

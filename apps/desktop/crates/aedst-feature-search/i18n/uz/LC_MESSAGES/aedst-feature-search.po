@@ -8,86 +8,114 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "search"
 msgid "Search"
 msgstr "Qidiruv"
 
+msgctxt "search"
 msgid "Load more"
 msgstr "Yana ko‘rsatish"
 
+msgctxt "search"
 msgid "Search tasks and files"
 msgstr "Vazifalar va fayllarni qidirish"
 
+msgctxt "search"
 msgid "You are offline. Search needs a connection."
 msgstr "Siz oflaynsiz. Qidiruv uchun ulanish kerak."
 
+msgctxt "search"
 msgid "The server is not available right now."
 msgstr "Server hozir mavjud emas."
 
+msgctxt "search"
 msgid "The request took too long."
 msgstr "So'rov juda uzoq davom etdi."
 
+msgctxt "search"
 msgid "Too many requests. Try again in a moment."
 msgstr "So'rovlar juda ko'p. Birozdan keyin qayta urinib ko'ring."
 
+msgctxt "search"
 msgid "Please sign in again."
 msgstr "Iltimos, qaytadan kiring."
 
+msgctxt "search"
 msgid "You do not have access to this."
 msgstr "Sizda bunga ruxsat yo'q."
 
+msgctxt "search"
 msgid "Nothing was found at this address."
 msgstr "Bu manzilda hech narsa topilmadi."
 
+msgctxt "search"
 msgid "The server did not accept this search."
 msgstr "Server bu qidiruvni qabul qilmadi."
 
+msgctxt "search"
 msgid "The data was changed elsewhere."
 msgstr "Ma'lumotlar boshqa joyda o'zgartirildi."
 
+msgctxt "search"
 msgid "Please update the app to continue."
 msgstr "Davom etish uchun ilovani yangilang."
 
+msgctxt "search"
 msgid "Could not read data on this device."
 msgstr "Bu qurilmada ma'lumotlarni o'qib bo'lmadi."
 
+msgctxt "search"
 msgid "Something went wrong."
 msgstr "Nimadir xato ketdi."
 
+msgctxt "search"
 msgid "Task"
 msgstr "Vazifa"
 
+msgctxt "search"
 msgid "File"
 msgstr "Fayl"
 
+msgctxt "search"
 msgid "Other"
 msgstr "Boshqa"
 
+msgctxt "search"
 msgid "About {} results"
 msgstr "Taxminan natijalar: {}"
 
+msgctxt "search"
 msgid "Suggestions"
 msgstr "Takliflar"
 
+msgctxt "search"
 msgid "Search your tasks and files"
 msgstr "Vazifalar va fayllaringizdan qidiring"
 
+msgctxt "search"
 msgid "Results appear as you type."
 msgstr "Natijalar yozayotganingizda chiqadi."
 
+msgctxt "search"
 msgid "Searching..."
 msgstr "Qidirilmoqda..."
 
+msgctxt "search"
 msgid "Could not search"
 msgstr "Qidirib bo'lmadi"
 
+msgctxt "search"
 msgid "Try again"
 msgstr "Qayta urinib ko'ring"
 
+msgctxt "search"
 msgid "No results"
 msgstr "Natija yo'q"
 
+msgctxt "search"
 msgid "Try a different word or check the spelling."
 msgstr "Boshqa so'zni sinab ko'ring yoki imloni tekshiring."
 
+msgctxt "search"
 msgid "Loading..."
 msgstr "Yuklanmoqda..."

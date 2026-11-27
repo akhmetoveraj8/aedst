@@ -8,119 +8,158 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
 
+msgctxt "tasks"
 msgid "Tasks"
 msgstr "المهام"
 
+msgctxt "tasks"
 msgid "In progress"
 msgstr "قيد التنفيذ"
 
+msgctxt "tasks"
 msgid "No tasks yet"
 msgstr "لا توجد مهام بعد"
 
+msgctxt "tasks"
 msgid "Done"
 msgstr "مكتملة"
 
+msgctxt "tasks"
 msgid "Unknown"
 msgstr "غير معروفة"
 
+msgctxt "tasks"
 msgid "Low"
 msgstr "منخفضة"
 
+msgctxt "tasks"
 msgid "Medium"
 msgstr "متوسطة"
 
+msgctxt "tasks"
 msgid "High"
 msgstr "عالية"
 
+msgctxt "tasks"
 msgid "Urgent"
 msgstr "عاجلة"
 
+msgctxt "tasks"
 msgid "Choose a priority."
 msgstr "اختر أولوية."
 
+msgctxt "tasks"
 msgid "Pending sync"
 msgstr "في انتظار المزامنة"
 
+msgctxt "tasks"
 msgid "Enter a title."
 msgstr "أدخل عنوانًا."
 
+msgctxt "tasks"
 msgid "You are offline. Changes will sync later."
 msgstr "أنت غير متصل. ستتم مزامنة التغييرات لاحقًا."
 
+msgctxt "tasks"
 msgid "The server is not available right now."
 msgstr "الخادم غير متاح حاليًا."
 
+msgctxt "tasks"
 msgid "The request took too long."
 msgstr "استغرق الطلب وقتًا طويلًا."
 
+msgctxt "tasks"
 msgid "Too many requests. Try again in a moment."
 msgstr "طلبات كثيرة جدًا. حاول مرة أخرى بعد قليل."
 
+msgctxt "tasks"
 msgid "Please sign in again."
 msgstr "يرجى تسجيل الدخول مرة أخرى."
 
+msgctxt "tasks"
 msgid "You do not have access to this."
 msgstr "ليس لديك صلاحية الوصول إلى هذا."
 
+msgctxt "tasks"
 msgid "This task no longer exists."
 msgstr "هذه المهمة لم تعد موجودة."
 
+msgctxt "tasks"
 msgid "The server did not accept this input."
 msgstr "لم يقبل الخادم هذا الإدخال."
 
+msgctxt "tasks"
 msgid "This task was changed elsewhere."
 msgstr "تم تغيير هذه المهمة في مكان آخر."
 
+msgctxt "tasks"
 msgid "Please update the app to continue."
 msgstr "يرجى تحديث التطبيق للمتابعة."
 
+msgctxt "tasks"
 msgid "Could not save on this device."
 msgstr "تعذر الحفظ على هذا الجهاز."
 
+msgctxt "tasks"
 msgid "Something went wrong."
 msgstr "حدث خطأ ما."
 
+msgctxt "tasks"
 msgid "The title is too long (200 characters at most)."
 msgstr "العنوان طويل جدًا (200 حرف كحد أقصى)."
 
+msgctxt "tasks"
 msgid "The description is too long."
 msgstr "الوصف طويل جدًا."
 
+msgctxt "tasks"
 msgid "To do"
 msgstr "للتنفيذ"
 
+msgctxt "tasks"
 msgid "{} in total"
 msgstr "الإجمالي: {}"
 
+msgctxt "tasks"
 msgid "Waiting to sync: {}"
 msgstr "بانتظار المزامنة: {}"
 
+msgctxt "tasks"
 msgid "New task title"
 msgstr "عنوان المهمة الجديدة"
 
+msgctxt "tasks"
 msgid "What needs to be done?"
 msgstr "ما الذي يجب إنجازه؟"
 
+msgctxt "tasks"
 msgid "Adding..."
 msgstr "جارٍ الإضافة..."
 
+msgctxt "tasks"
 msgid "Add task"
 msgstr "إضافة مهمة"
 
+msgctxt "tasks"
 msgid "Loading..."
 msgstr "جارٍ التحميل..."
 
+msgctxt "tasks"
 msgid "Could not load tasks"
 msgstr "تعذر تحميل المهام"
 
+msgctxt "tasks"
 msgid "Try again"
 msgstr "حاول مرة أخرى"
 
+msgctxt "tasks"
 msgid "Add your first task above."
 msgstr "أضف مهمتك الأولى أعلاه."
 
+msgctxt "tasks"
 msgid "Mark \"{}\" as done"
 msgstr "وضع علامة «{}» كمنجزة"
 
+msgctxt "tasks"
 msgid "Load more"
 msgstr "تحميل المزيد"

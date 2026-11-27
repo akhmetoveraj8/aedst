@@ -10,7 +10,7 @@ use std::sync::{
     atomic::{AtomicU8, Ordering},
 };
 
-use aedst_common::ErrorKind;
+use aedst_common::{ErrorKind, PageCursor};
 use tokio::sync::watch;
 
 use super::list_state::{LibraryView, Phase, Row, UploadView};
@@ -23,10 +23,9 @@ use crate::domain::{
 struct Inner {
     view: LibraryView,
     items: Vec<Media>,
-    next_token: Option<String>,
     task_id: Option<String>,
-    /// Bumped by every first-page load; a result carrying an older value is dropped.
-    epoch: u64,
+    /// Epoch, page load in flight and next token; an answer of an older epoch is dropped.
+    cursor: PageCursor,
 }
 
 impl Inner {
@@ -71,6 +70,8 @@ impl LibraryController {
     fn update<T>(&self, work: impl FnOnce(&mut Inner) -> T) -> T {
         let mut inner = self.inner.lock().unwrap_or_else(PoisonError::into_inner);
         let result = work(&mut inner);
+        inner.view.loading_more = inner.cursor.loading_more();
+        inner.view.has_more = inner.cursor.has_more();
         let view = inner.view.clone();
         drop(inner);
         self.published.send_replace(view);
@@ -92,21 +93,19 @@ impl LibraryController {
     /// Loads (or reloads) the first page. Safe to call again: only the latest call wins.
     pub async fn load_first(&self) {
         let (epoch, query) = self.update(|i| {
-            i.epoch += 1;
             i.view.phase = Phase::Loading;
             i.view.action_error = None;
-            (i.epoch, self.query(i, None))
+            (i.cursor.begin_first(), self.query(i, None))
         });
         let result = self.repository.list(&query).await;
         self.update(|i| {
-            if i.epoch != epoch {
+            if !i.cursor.is_current(epoch) {
                 return; // a newer load started while this one was in flight
             }
             match result {
                 Ok(page) => {
                     i.items = page.items;
-                    i.view.has_more = page.next_page_token.is_some();
-                    i.next_token = page.next_page_token;
+                    i.cursor.finish_first(epoch, page.next_page_token);
                     i.rebuild_rows();
                     i.view.phase = Phase::Ready;
                 }
@@ -127,31 +126,27 @@ impl LibraryController {
     /// Loads the next page, if there is one and none is loading.
     pub async fn load_more(&self) {
         let started = self.update(|i| {
-            let token = i.next_token.clone()?;
-            if i.view.loading_more || i.view.phase != Phase::Ready {
+            if i.view.phase != Phase::Ready {
                 return None;
             }
-            i.view.loading_more = true;
-            Some((i.epoch, self.query(i, Some(token))))
+            let (epoch, token) = i.cursor.begin_more()?;
+            Some((epoch, self.query(i, Some(token))))
         });
         let Some((epoch, query)) = started else {
             return;
         };
         let result = self.repository.list(&query).await;
-        self.update(|i| {
-            if i.epoch != epoch {
-                return;
-            }
-            i.view.loading_more = false;
-            match result {
-                Ok(page) => {
+        self.update(|i| match result {
+            Ok(page) => {
+                if i.cursor.finish_more(epoch, page.next_page_token) {
                     i.items.extend(page.items);
-                    i.view.has_more = page.next_page_token.is_some();
-                    i.next_token = page.next_page_token;
                     i.rebuild_rows();
                 }
-                Err(ErrorKind::Cancelled) => {}
-                Err(kind) => i.view.action_error = Some(kind),
+            }
+            Err(kind) => {
+                if i.cursor.fail_more(epoch) && kind != ErrorKind::Cancelled {
+                    i.view.action_error = Some(kind);
+                }
             }
         });
     }
@@ -160,8 +155,9 @@ impl LibraryController {
     /// in place (so processing turns into ready), new ones go on top, later pages stay. Failures
     /// are ignored; the next poll tries again.
     pub async fn refresh(&self) {
-        let started =
-            self.update(|i| (i.view.phase == Phase::Ready).then(|| (i.epoch, self.query(i, None))));
+        let started = self.update(|i| {
+            (i.view.phase == Phase::Ready).then(|| (i.cursor.epoch(), self.query(i, None)))
+        });
         let Some((epoch, query)) = started else {
             return;
         };
@@ -169,7 +165,7 @@ impl LibraryController {
             return;
         };
         self.update(|i| {
-            if i.epoch != epoch {
+            if !i.cursor.is_current(epoch) {
                 return;
             }
             let mut fresh = Vec::new();

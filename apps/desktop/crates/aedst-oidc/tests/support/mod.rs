@@ -45,6 +45,8 @@ pub struct Idp {
     _server: MockServer,
     pub config: OidcConfig,
     pub refresh_calls: Arc<AtomicUsize>,
+    /// The refresh token the client sent with the latest refresh grant.
+    pub last_refresh_token: Arc<Mutex<Option<String>>>,
     nonce: Arc<Mutex<Option<String>>>,
 }
 
@@ -53,6 +55,7 @@ struct Token {
     issuer: String,
     nonce: Arc<Mutex<Option<String>>>,
     refresh_calls: Arc<AtomicUsize>,
+    last_refresh_token: Arc<Mutex<Option<String>>>,
     behavior: TokenBehavior,
 }
 
@@ -83,6 +86,7 @@ impl Respond for Token {
             }
             Some("refresh_token") => {
                 let n = self.refresh_calls.fetch_add(1, Ordering::SeqCst) + 1;
+                *self.last_refresh_token.lock().unwrap() = form.get("refresh_token").cloned();
                 if self.behavior == TokenBehavior::RefreshInvalidGrant {
                     return ResponseTemplate::new(400)
                         .set_body_json(json!({"error": "invalid_grant"}));
@@ -163,6 +167,7 @@ impl Idp {
 
         let nonce = Arc::new(Mutex::new(None));
         let refresh_calls = Arc::new(AtomicUsize::new(0));
+        let last_refresh_token = Arc::new(Mutex::new(None));
         Mock::given(method("POST"))
             .and(path("/token"))
             .respond_with(Token {
@@ -170,6 +175,7 @@ impl Idp {
                 issuer: base.clone(),
                 nonce: nonce.clone(),
                 refresh_calls: refresh_calls.clone(),
+                last_refresh_token: last_refresh_token.clone(),
                 behavior,
             })
             .mount(&server)
@@ -186,6 +192,7 @@ impl Idp {
             _server: server,
             config,
             refresh_calls,
+            last_refresh_token,
             nonce,
         }
     }

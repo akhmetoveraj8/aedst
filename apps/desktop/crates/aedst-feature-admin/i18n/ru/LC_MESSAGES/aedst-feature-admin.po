@@ -8,194 +8,258 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 
+msgctxt "admin"
 msgid "Administration"
 msgstr "Администрирование"
 
+msgctxt "admin"
 msgid "Overview"
 msgstr "Обзор"
 
+msgctxt "admin"
 msgid "Broadcast"
 msgstr "Рассылка"
 
+msgctxt "admin"
 msgid "Audit log"
 msgstr "Журнал аудита"
 
+msgctxt "admin"
 msgid "Tasks"
 msgstr "Задачи"
 
+msgctxt "admin"
 msgid "Push devices"
 msgstr "Push-устройства"
 
+msgctxt "admin"
 msgid "Title"
 msgstr "Название"
 
+msgctxt "admin"
 msgid "In progress"
 msgstr "В работе"
 
+msgctxt "admin"
 msgid "Done"
 msgstr "Выполнена"
 
+msgctxt "admin"
 msgid "Delete"
 msgstr "Удалить"
 
+msgctxt "admin"
 msgid "Reason"
 msgstr "Причина"
 
+msgctxt "admin"
 msgid "Cancel"
 msgstr "Отмена"
 
+msgctxt "admin"
 msgid "Delete task"
 msgstr "Удалить задачу"
 
+msgctxt "admin"
 msgid "Enter a title."
 msgstr "Введите заголовок."
 
+msgctxt "admin"
 msgid "Message"
 msgstr "Сообщение"
 
+msgctxt "admin"
 msgid "Link"
 msgstr "Ссылка"
 
+msgctxt "admin"
 msgid "Owner id"
 msgstr "Идентификатор владельца"
 
+msgctxt "admin"
 msgid "Show only the tasks of one owner (id)"
 msgstr "Показать задачи только одного владельца (id)"
 
+msgctxt "admin"
 msgid "Apply"
 msgstr "Применить"
 
+msgctxt "admin"
 msgid "No access"
 msgstr "Нет доступа"
 
+msgctxt "admin"
 msgid "This screen is for operators only."
 msgstr "Этот экран только для операторов."
 
+msgctxt "admin"
 msgid "Loading..."
 msgstr "Загрузка..."
 
+msgctxt "admin"
 msgid "Could not load"
 msgstr "Не удалось загрузить"
 
+msgctxt "admin"
 msgid "Try again"
 msgstr "Повторить"
 
+msgctxt "admin"
 msgid "Nothing to show here."
 msgstr "Здесь пока ничего нет."
 
+msgctxt "admin"
 msgid "Load more"
 msgstr "Загрузить ещё"
 
+msgctxt "admin"
 msgid "Owner: {}"
 msgstr "Владелец: {}"
 
+msgctxt "admin"
 msgid "Target: {}"
 msgstr "Объект: {}"
 
+msgctxt "admin"
 msgid "By: {}"
 msgstr "Кем: {}"
 
+msgctxt "admin"
 msgid "Delete task \"{}\"?"
 msgstr "Удалить задачу \"{}\"?"
 
+msgctxt "admin"
 msgid "The reason is recorded in the audit log (3 to 500 characters)."
 msgstr "Причина записывается в журнал аудита (от 3 до 500 символов)."
 
+msgctxt "admin"
 msgid "Reason for deleting"
 msgstr "Причина удаления"
 
+msgctxt "admin"
 msgid "Deleting..."
 msgstr "Удаление..."
 
+msgctxt "admin"
 msgid "Recipient id"
 msgstr "Идентификатор получателя"
 
+msgctxt "admin"
 msgid "Recipient id (empty: everyone)"
 msgstr "Идентификатор получателя (пусто: все)"
 
+msgctxt "admin"
 msgid "Link (optional, for example /tasks)"
 msgstr "Ссылка (необязательно, например /tasks)"
 
+msgctxt "admin"
 msgid "Sent. Recipients reached: {}"
 msgstr "Отправлено. Получателей: {}"
 
+msgctxt "admin"
 msgid "Sending..."
 msgstr "Отправка..."
 
+msgctxt "admin"
 msgid "Send notification"
 msgstr "Отправить уведомление"
 
+msgctxt "admin"
 msgid "You are offline."
 msgstr "Нет подключения к сети."
 
+msgctxt "admin"
 msgid "The server is not available right now."
 msgstr "Сервер сейчас недоступен."
 
+msgctxt "admin"
 msgid "The request took too long."
 msgstr "Запрос выполнялся слишком долго."
 
+msgctxt "admin"
 msgid "Too many requests. Try again in a moment."
 msgstr "Слишком много запросов. Попробуйте через минуту."
 
+msgctxt "admin"
 msgid "Please sign in again."
 msgstr "Войдите снова."
 
+msgctxt "admin"
 msgid "You do not have access to this."
 msgstr "У вас нет доступа к этому."
 
+msgctxt "admin"
 msgid "This item no longer exists."
 msgstr "Этого элемента больше нет."
 
+msgctxt "admin"
 msgid "The server did not accept this input."
 msgstr "Сервер не принял эти данные."
 
+msgctxt "admin"
 msgid "This item was changed elsewhere."
 msgstr "Этот элемент был изменён в другом месте."
 
+msgctxt "admin"
 msgid "Please update the app to continue."
 msgstr "Обновите приложение, чтобы продолжить."
 
+msgctxt "admin"
 msgid "Something went wrong."
 msgstr "Что-то пошло не так."
 
+msgctxt "admin"
 msgid "Enter a valid user id or leave it empty."
 msgstr "Введите корректный идентификатор пользователя или оставьте поле пустым."
 
+msgctxt "admin"
 msgid "The title is too long (120 characters at most)."
 msgstr "Заголовок слишком длинный (не более 120 символов)."
 
+msgctxt "admin"
 msgid "The message is too long (1000 characters at most)."
 msgstr "Сообщение слишком длинное (не более 1000 символов)."
 
+msgctxt "admin"
 msgid "The link must be an in-app path such as /tasks."
 msgstr "Ссылка должна быть путём внутри приложения, например /tasks."
 
+msgctxt "admin"
 msgid "Enter a reason (3 characters at least)."
 msgstr "Укажите причину (не менее 3 символов)."
 
+msgctxt "admin"
 msgid "The reason is too long (500 characters at most)."
 msgstr "Причина слишком длинная (не более 500 символов)."
 
+msgctxt "admin"
 msgid "To do"
 msgstr "К выполнению"
 
+msgctxt "admin"
 msgid "Unknown"
 msgstr "Неизвестно"
 
+msgctxt "admin"
 msgid "Tasks done"
 msgstr "Выполнено задач"
 
+msgctxt "admin"
 msgid "Tasks overdue"
 msgstr "Просрочено задач"
 
+msgctxt "admin"
 msgid "Media files"
 msgstr "Медиафайлы"
 
+msgctxt "admin"
 msgid "Media size"
 msgstr "Размер медиа"
 
+msgctxt "admin"
 msgid "Oldest waiting job (seconds)"
 msgstr "Самая старая ожидающая задача (секунды)"
 
+msgctxt "admin"
 msgid "Jobs pending"
 msgstr "Задач в очереди"

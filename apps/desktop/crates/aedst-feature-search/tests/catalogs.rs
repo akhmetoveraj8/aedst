@@ -14,10 +14,10 @@ fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
-/// Every `@tr("" => "text"` source string of the screen, as written in the catalogs.
+/// Every `@tr("search" => "text"` source string (context = the module) of the screen, as written in the catalogs.
 fn source_strings() -> BTreeSet<String> {
     let source = std::fs::read_to_string(root().join("ui/search.slint")).unwrap();
-    let marker = "@tr(\"\" => \"";
+    let marker = "@tr(\"search\" => \"";
     let mut found = BTreeSet::new();
     let mut rest = source.as_str();
     while let Some(start) = rest.find(marker) {

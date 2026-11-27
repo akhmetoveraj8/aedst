@@ -8,110 +8,146 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "notifications"
 msgid "Notifications"
 msgstr "Notifications"
 
+msgctxt "notifications"
 msgid "Mark all as read"
 msgstr "Mark all as read"
 
+msgctxt "notifications"
 msgid "All"
 msgstr "All"
 
+msgctxt "notifications"
 msgid "Unread"
 msgstr "Unread"
 
+msgctxt "notifications"
 msgid "Load more"
 msgstr "Load more"
 
+msgctxt "notifications"
 msgid "Notification preferences"
 msgstr "Notification preferences"
 
+msgctxt "notifications"
 msgid "Task completed"
 msgstr "Task completed"
 
+msgctxt "notifications"
 msgid "Task due soon"
 msgstr "Task due soon"
 
+msgctxt "notifications"
 msgid "You are offline. Try again when you are connected."
 msgstr "You are offline. Try again when you are connected."
 
+msgctxt "notifications"
 msgid "The server is not available right now."
 msgstr "The server is not available right now."
 
+msgctxt "notifications"
 msgid "The request took too long."
 msgstr "The request took too long."
 
+msgctxt "notifications"
 msgid "Too many requests. Try again in a moment."
 msgstr "Too many requests. Try again in a moment."
 
+msgctxt "notifications"
 msgid "Please sign in again."
 msgstr "Please sign in again."
 
+msgctxt "notifications"
 msgid "You do not have access to this."
 msgstr "You do not have access to this."
 
+msgctxt "notifications"
 msgid "This notification no longer exists."
 msgstr "This notification no longer exists."
 
+msgctxt "notifications"
 msgid "The server did not accept this input."
 msgstr "The server did not accept this input."
 
+msgctxt "notifications"
 msgid "This was changed elsewhere."
 msgstr "This was changed elsewhere."
 
+msgctxt "notifications"
 msgid "Please update the app to continue."
 msgstr "Please update the app to continue."
 
+msgctxt "notifications"
 msgid "Could not save on this device."
 msgstr "Could not save on this device."
 
+msgctxt "notifications"
 msgid "Something went wrong."
 msgstr "Something went wrong."
 
+msgctxt "notifications"
 msgid "Media ready"
 msgstr "Media ready"
 
+msgctxt "notifications"
 msgid "System"
 msgstr "System"
 
+msgctxt "notifications"
 msgid "Other"
 msgstr "Other"
 
+msgctxt "notifications"
 msgid "Unread: {}"
 msgstr "Unread: {}"
 
+msgctxt "notifications"
 msgid "{} unread"
 msgstr "{} unread"
 
+msgctxt "notifications"
 msgid "Marking..."
 msgstr "Marking..."
 
+msgctxt "notifications"
 msgid "Loading..."
 msgstr "Loading..."
 
+msgctxt "notifications"
 msgid "Could not load notifications"
 msgstr "Could not load notifications"
 
+msgctxt "notifications"
 msgid "Try again"
 msgstr "Try again"
 
+msgctxt "notifications"
 msgid "No unread notifications"
 msgstr "No unread notifications"
 
+msgctxt "notifications"
 msgid "No notifications yet"
 msgstr "No notifications yet"
 
+msgctxt "notifications"
 msgid "You are all caught up."
 msgstr "You are all caught up."
 
+msgctxt "notifications"
 msgid "Could not load preferences"
 msgstr "Could not load preferences"
 
+msgctxt "notifications"
 msgid "Choose which notifications you receive."
 msgstr "Choose which notifications you receive."
 
+msgctxt "notifications"
 msgid "Show notifications"
 msgstr "Show notifications"
 
+msgctxt "notifications"
 msgid "Could not save the setting. {}"
 msgstr "Could not save the setting. {}"

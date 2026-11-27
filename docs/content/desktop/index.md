@@ -12,6 +12,7 @@ title: Desktop
 | Page | What it covers |
 |---|---|
 | [Architecture](/desktop/architecture) | Crates, layers, shell, sign-in, persistence, offline writes, telemetry, updates, build and verification |
+| [Slint and Rust rules](/desktop/slint-rules) | Official Slint 1.19 and Rust guidance as rules: threads, long lists, images, renderer, performance, UI security, release build; known gaps |
 | [Stack](/desktop/stack) | Every tool and pinned version |
 | [i18n](/desktop/i18n) | Slint `@tr` and gettext `.po` catalogs |
 | [Custom code register](/desktop/custom-code-register) | Hand-written, security-relevant code and when to replace it |

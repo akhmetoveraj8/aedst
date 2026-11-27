@@ -17,20 +17,22 @@ aedst-api = { path = "../aedst-api" }
 aedst-capabilities = { path = "../aedst-capabilities" }
 aedst-common = { path = "../aedst-common" }
 aedst-contract = { path = "../aedst-contract" }
-aedst-feature-admin = { path = "../aedst-feature-admin" }
-aedst-feature-media = { path = "../aedst-feature-media" }
-aedst-feature-notifications = { path = "../aedst-feature-notifications" }
-aedst-feature-search = { path = "../aedst-feature-search" }
-aedst-feature-tasks = { path = "../aedst-feature-tasks" }
+aedst-feature-admin = { path = "../aedst-feature-admin", default-features = false }
+aedst-feature-media = { path = "../aedst-feature-media", default-features = false }
+aedst-feature-notifications = { path = "../aedst-feature-notifications", default-features = false }
+aedst-feature-search = { path = "../aedst-feature-search", default-features = false }
+aedst-feature-tasks = { path = "../aedst-feature-tasks", default-features = false }
 aedst-navigation = { path = "../aedst-navigation" }
 aedst-oidc = { path = "../aedst-oidc" }
 aedst-outbox = { path = "../aedst-outbox" }
 aedst-persistence = { path = "../aedst-persistence" }
+aedst-slint-model = { path = "../aedst-slint-model" }
 aedst-telemetry = { path = "../aedst-telemetry" }
 aedst-update = { path = "../aedst-update" }
 chrono = { workspace = true }
 connectrpc = { workspace = true }
 dirs = { workspace = true }
+keyring-core = { workspace = true }
 futures = { workspace = true }
 thiserror = { workspace = true }
 rustls = { workspace = true }
@@ -44,6 +46,7 @@ tokio-util = { workspace = true }
 tracing = { workspace = true }
 url = { workspace = true }
 uuid = { workspace = true }
+zeroize = { workspace = true }
 
 [dev-dependencies]
 i-slint-backend-testing = { workspace = true }

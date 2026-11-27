@@ -8,194 +8,258 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "admin"
 msgid "Administration"
 msgstr "Administration"
 
+msgctxt "admin"
 msgid "Overview"
 msgstr "Overview"
 
+msgctxt "admin"
 msgid "Broadcast"
 msgstr "Broadcast"
 
+msgctxt "admin"
 msgid "Audit log"
 msgstr "Audit log"
 
+msgctxt "admin"
 msgid "Tasks"
 msgstr "Tasks"
 
+msgctxt "admin"
 msgid "Push devices"
 msgstr "Push devices"
 
+msgctxt "admin"
 msgid "Title"
 msgstr "Title"
 
+msgctxt "admin"
 msgid "In progress"
 msgstr "In progress"
 
+msgctxt "admin"
 msgid "Done"
 msgstr "Done"
 
+msgctxt "admin"
 msgid "Delete"
 msgstr "Delete"
 
+msgctxt "admin"
 msgid "Reason"
 msgstr "Reason"
 
+msgctxt "admin"
 msgid "Cancel"
 msgstr "Cancel"
 
+msgctxt "admin"
 msgid "Delete task"
 msgstr "Delete task"
 
+msgctxt "admin"
 msgid "Enter a title."
 msgstr "Enter a title."
 
+msgctxt "admin"
 msgid "Message"
 msgstr "Message"
 
+msgctxt "admin"
 msgid "Link"
 msgstr "Link"
 
+msgctxt "admin"
 msgid "Owner id"
 msgstr "Owner id"
 
+msgctxt "admin"
 msgid "Show only the tasks of one owner (id)"
 msgstr "Show only the tasks of one owner (id)"
 
+msgctxt "admin"
 msgid "Apply"
 msgstr "Apply"
 
+msgctxt "admin"
 msgid "No access"
 msgstr "No access"
 
+msgctxt "admin"
 msgid "This screen is for operators only."
 msgstr "This screen is for operators only."
 
+msgctxt "admin"
 msgid "Loading..."
 msgstr "Loading..."
 
+msgctxt "admin"
 msgid "Could not load"
 msgstr "Could not load"
 
+msgctxt "admin"
 msgid "Try again"
 msgstr "Try again"
 
+msgctxt "admin"
 msgid "Nothing to show here."
 msgstr "Nothing to show here."
 
+msgctxt "admin"
 msgid "Load more"
 msgstr "Load more"
 
+msgctxt "admin"
 msgid "Owner: {}"
 msgstr "Owner: {}"
 
+msgctxt "admin"
 msgid "Target: {}"
 msgstr "Target: {}"
 
+msgctxt "admin"
 msgid "By: {}"
 msgstr "By: {}"
 
+msgctxt "admin"
 msgid "Delete task \"{}\"?"
 msgstr "Delete task \"{}\"?"
 
+msgctxt "admin"
 msgid "The reason is recorded in the audit log (3 to 500 characters)."
 msgstr "The reason is recorded in the audit log (3 to 500 characters)."
 
+msgctxt "admin"
 msgid "Reason for deleting"
 msgstr "Reason for deleting"
 
+msgctxt "admin"
 msgid "Deleting..."
 msgstr "Deleting..."
 
+msgctxt "admin"
 msgid "Recipient id"
 msgstr "Recipient id"
 
+msgctxt "admin"
 msgid "Recipient id (empty: everyone)"
 msgstr "Recipient id (empty: everyone)"
 
+msgctxt "admin"
 msgid "Link (optional, for example /tasks)"
 msgstr "Link (optional, for example /tasks)"
 
+msgctxt "admin"
 msgid "Sent. Recipients reached: {}"
 msgstr "Sent. Recipients reached: {}"
 
+msgctxt "admin"
 msgid "Sending..."
 msgstr "Sending..."
 
+msgctxt "admin"
 msgid "Send notification"
 msgstr "Send notification"
 
+msgctxt "admin"
 msgid "You are offline."
 msgstr "You are offline."
 
+msgctxt "admin"
 msgid "The server is not available right now."
 msgstr "The server is not available right now."
 
+msgctxt "admin"
 msgid "The request took too long."
 msgstr "The request took too long."
 
+msgctxt "admin"
 msgid "Too many requests. Try again in a moment."
 msgstr "Too many requests. Try again in a moment."
 
+msgctxt "admin"
 msgid "Please sign in again."
 msgstr "Please sign in again."
 
+msgctxt "admin"
 msgid "You do not have access to this."
 msgstr "You do not have access to this."
 
+msgctxt "admin"
 msgid "This item no longer exists."
 msgstr "This item no longer exists."
 
+msgctxt "admin"
 msgid "The server did not accept this input."
 msgstr "The server did not accept this input."
 
+msgctxt "admin"
 msgid "This item was changed elsewhere."
 msgstr "This item was changed elsewhere."
 
+msgctxt "admin"
 msgid "Please update the app to continue."
 msgstr "Please update the app to continue."
 
+msgctxt "admin"
 msgid "Something went wrong."
 msgstr "Something went wrong."
 
+msgctxt "admin"
 msgid "Enter a valid user id or leave it empty."
 msgstr "Enter a valid user id or leave it empty."
 
+msgctxt "admin"
 msgid "The title is too long (120 characters at most)."
 msgstr "The title is too long (120 characters at most)."
 
+msgctxt "admin"
 msgid "The message is too long (1000 characters at most)."
 msgstr "The message is too long (1000 characters at most)."
 
+msgctxt "admin"
 msgid "The link must be an in-app path such as /tasks."
 msgstr "The link must be an in-app path such as /tasks."
 
+msgctxt "admin"
 msgid "Enter a reason (3 characters at least)."
 msgstr "Enter a reason (3 characters at least)."
 
+msgctxt "admin"
 msgid "The reason is too long (500 characters at most)."
 msgstr "The reason is too long (500 characters at most)."
 
+msgctxt "admin"
 msgid "To do"
 msgstr "To do"
 
+msgctxt "admin"
 msgid "Unknown"
 msgstr "Unknown"
 
+msgctxt "admin"
 msgid "Tasks done"
 msgstr "Tasks done"
 
+msgctxt "admin"
 msgid "Tasks overdue"
 msgstr "Tasks overdue"
 
+msgctxt "admin"
 msgid "Media files"
 msgstr "Media files"
 
+msgctxt "admin"
 msgid "Media size"
 msgstr "Media size"
 
+msgctxt "admin"
 msgid "Oldest waiting job (seconds)"
 msgstr "Oldest waiting job (seconds)"
 
+msgctxt "admin"
 msgid "Jobs pending"
 msgstr "Jobs pending"

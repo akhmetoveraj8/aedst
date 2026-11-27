@@ -11,7 +11,7 @@ use std::{
 };
 
 use aedst_common::ErrorKind;
-use image::{ImageReader, Limits};
+use image::{ImageReader, Limits, imageops::FilterType};
 use tokio::sync::watch;
 
 use crate::domain::{ImageFetcher, Media, MediaKind, MediaStatus, Purpose, select_variant};
@@ -24,6 +24,9 @@ pub const MAX_PIXELS: u64 = 40_000_000;
 const MAX_ALLOC: u64 = 400 * 1024 * 1024;
 /// The size the viewer would like; a variant that covers it is preferred.
 const TARGET_PIXELS: i32 = 1600;
+/// Longest edge handed to the UI after decoding (a large window at 2x scale); bigger pictures are
+/// downscaled on the blocking thread, keeping the aspect ratio.
+pub const MAX_DISPLAY_EDGE: u32 = 2560;
 
 /// A decoded picture: tightly packed RGBA8, `width * height * 4` bytes.
 #[derive(Debug)]
@@ -45,8 +48,9 @@ pub enum DecodeError {
     Undecodable,
 }
 
-/// Decodes `bytes` (JPEG, PNG, GIF or WebP) under the pixel and allocation caps. Runs the whole
-/// decode: call it from a blocking thread.
+/// Decodes `bytes` (JPEG, PNG, GIF or WebP) under the pixel and allocation caps and downscales the
+/// result to at most [`MAX_DISPLAY_EDGE`] on its longest edge. Runs the whole decode: call it from a
+/// blocking thread.
 ///
 /// # Errors
 /// [`DecodeError`].
@@ -66,10 +70,14 @@ pub fn decode(bytes: &[u8]) -> Result<DecodedImage, DecodeError> {
     let mut limits = Limits::default();
     limits.max_alloc = Some(MAX_ALLOC);
     reader.limits(limits);
-    let rgba = reader
-        .decode()
-        .map_err(|_| DecodeError::Undecodable)?
-        .into_rgba8();
+    let decoded = reader.decode().map_err(|_| DecodeError::Undecodable)?;
+    // Never hand Slint more pixels than a window can show: a 40 MP photo is 160 MB as a texture.
+    let rgba = if decoded.width() > MAX_DISPLAY_EDGE || decoded.height() > MAX_DISPLAY_EDGE {
+        decoded.resize(MAX_DISPLAY_EDGE, MAX_DISPLAY_EDGE, FilterType::Triangle)
+    } else {
+        decoded
+    }
+    .into_rgba8();
     Ok(DecodedImage {
         width: rgba.width(),
         height: rgba.height(),

@@ -8,86 +8,114 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "search"
 msgid "Search"
 msgstr "Ҷустуҷӯ"
 
+msgctxt "search"
 msgid "Load more"
 msgstr "Боз нишон додан"
 
+msgctxt "search"
 msgid "Search tasks and files"
 msgstr "Ҷустуҷӯи вазифаҳо ва файлҳо"
 
+msgctxt "search"
 msgid "You are offline. Search needs a connection."
 msgstr "Шумо офлайн ҳастед. Барои ҷустуҷӯ пайвастшавӣ лозим аст."
 
+msgctxt "search"
 msgid "The server is not available right now."
 msgstr "Сервер ҳоло дастнорас аст."
 
+msgctxt "search"
 msgid "The request took too long."
 msgstr "Дархост хеле дароз кашид."
 
+msgctxt "search"
 msgid "Too many requests. Try again in a moment."
 msgstr "Дархостҳо аз ҳад зиёданд. Баъди чанде дубора кӯшиш кунед."
 
+msgctxt "search"
 msgid "Please sign in again."
 msgstr "Лутфан, дубора ворид шавед."
 
+msgctxt "search"
 msgid "You do not have access to this."
 msgstr "Шумо ба ин дастрасӣ надоред."
 
+msgctxt "search"
 msgid "Nothing was found at this address."
 msgstr "Дар ин суроға чизе ёфт нашуд."
 
+msgctxt "search"
 msgid "The server did not accept this search."
 msgstr "Сервер ин ҷустуҷӯро қабул накард."
 
+msgctxt "search"
 msgid "The data was changed elsewhere."
 msgstr "Маълумот дар ҷои дигар тағйир ёфт."
 
+msgctxt "search"
 msgid "Please update the app to continue."
 msgstr "Барои идома додан барномаро навсозӣ кунед."
 
+msgctxt "search"
 msgid "Could not read data on this device."
 msgstr "Хондани маълумот дар ин дастгоҳ имконпазир нашуд."
 
+msgctxt "search"
 msgid "Something went wrong."
 msgstr "Чизе нодуруст рафт."
 
+msgctxt "search"
 msgid "Task"
 msgstr "Вазифа"
 
+msgctxt "search"
 msgid "File"
 msgstr "Файл"
 
+msgctxt "search"
 msgid "Other"
 msgstr "Дигар"
 
+msgctxt "search"
 msgid "About {} results"
 msgstr "Тақрибан натиҷаҳо: {}"
 
+msgctxt "search"
 msgid "Suggestions"
 msgstr "Пешниҳодҳо"
 
+msgctxt "search"
 msgid "Search your tasks and files"
 msgstr "Ҷустуҷӯ дар вазифаҳо ва файлҳои шумо"
 
+msgctxt "search"
 msgid "Results appear as you type."
 msgstr "Натиҷаҳо ҳангоми навиштан пайдо мешаванд."
 
+msgctxt "search"
 msgid "Searching..."
 msgstr "Ҷустуҷӯ идома дорад..."
 
+msgctxt "search"
 msgid "Could not search"
 msgstr "Ҷустуҷӯ имконпазир нашуд"
 
+msgctxt "search"
 msgid "Try again"
 msgstr "Дубора кӯшиш кунед"
 
+msgctxt "search"
 msgid "No results"
 msgstr "Натиҷае нест"
 
+msgctxt "search"
 msgid "Try a different word or check the spelling."
 msgstr "Калимаи дигарро санҷед ё имлоро тафтиш кунед."
 
+msgctxt "search"
 msgid "Loading..."
 msgstr "Бор шуда истодааст..."

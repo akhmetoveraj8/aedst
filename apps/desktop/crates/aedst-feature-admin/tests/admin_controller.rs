@@ -296,3 +296,37 @@ async fn broadcast_failures_show_their_kind_and_cancelled_shows_nothing() {
         BroadcastStatus::Idle
     );
 }
+
+#[tokio::test]
+async fn a_reload_during_load_more_does_not_block_the_next_page() {
+    let rig = rig(true);
+    {
+        let mut pages = rig.repo.tasks.lock().unwrap();
+        pages.push_back(Ok(page(vec![task("a")], Some("t2"))));
+        pages.push_back(Ok(page(vec![task("stale")], None)));
+        pages.push_back(Ok(page(vec![task("a")], Some("t3"))));
+        pages.push_back(Ok(page(vec![task("c")], None)));
+    }
+    rig.controller.open_tab(Tab::Tasks).await;
+
+    let (release, gate) = oneshot::channel();
+    *rig.repo.gate.lock().unwrap() = Some(gate);
+    let stale = tokio::spawn({
+        let controller = rig.controller.clone();
+        async move { controller.load_more().await }
+    });
+    tokio::task::yield_now().await;
+    rig.controller.reload().await; // the reload makes the page load above stale
+    release.send(()).unwrap();
+    stale.await.unwrap();
+
+    rig.controller.load_more().await;
+    let view = rig.controller.subscribe().borrow().clone();
+    let ids: Vec<&str> = view.tasks.rows.iter().map(|t| t.id.as_str()).collect();
+    assert_eq!(ids, ["a", "c"]);
+    assert!(!view.tasks.loading_more);
+    assert_eq!(
+        rig.repo.calls(),
+        ["tasks::", "tasks::t2", "tasks::", "tasks::t3"]
+    );
+}

@@ -8,110 +8,146 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
 
+msgctxt "notifications"
 msgid "Notifications"
 msgstr "الإشعارات"
 
+msgctxt "notifications"
 msgid "Mark all as read"
 msgstr "تعليم الكل كمقروء"
 
+msgctxt "notifications"
 msgid "All"
 msgstr "الكل"
 
+msgctxt "notifications"
 msgid "Unread"
 msgstr "غير المقروءة"
 
+msgctxt "notifications"
 msgid "Load more"
 msgstr "عرض المزيد"
 
+msgctxt "notifications"
 msgid "Notification preferences"
 msgstr "تفضيلات الإشعارات"
 
+msgctxt "notifications"
 msgid "Task completed"
 msgstr "اكتمال مهمة"
 
+msgctxt "notifications"
 msgid "Task due soon"
 msgstr "اقتراب موعد مهمة"
 
+msgctxt "notifications"
 msgid "You are offline. Try again when you are connected."
 msgstr "أنت غير متصل. حاول مرة أخرى عند الاتصال."
 
+msgctxt "notifications"
 msgid "The server is not available right now."
 msgstr "الخادم غير متاح حاليًا."
 
+msgctxt "notifications"
 msgid "The request took too long."
 msgstr "استغرق الطلب وقتًا طويلًا."
 
+msgctxt "notifications"
 msgid "Too many requests. Try again in a moment."
 msgstr "طلبات كثيرة جدًا. حاول مرة أخرى بعد قليل."
 
+msgctxt "notifications"
 msgid "Please sign in again."
 msgstr "يرجى تسجيل الدخول مرة أخرى."
 
+msgctxt "notifications"
 msgid "You do not have access to this."
 msgstr "ليس لديك صلاحية الوصول إلى هذا."
 
+msgctxt "notifications"
 msgid "This notification no longer exists."
 msgstr "هذا الإشعار لم يعد موجودًا."
 
+msgctxt "notifications"
 msgid "The server did not accept this input."
 msgstr "لم يقبل الخادم هذا الإدخال."
 
+msgctxt "notifications"
 msgid "This was changed elsewhere."
 msgstr "تم تغيير هذا من مكان آخر."
 
+msgctxt "notifications"
 msgid "Please update the app to continue."
 msgstr "يرجى تحديث التطبيق للمتابعة."
 
+msgctxt "notifications"
 msgid "Could not save on this device."
 msgstr "تعذر الحفظ على هذا الجهاز."
 
+msgctxt "notifications"
 msgid "Something went wrong."
 msgstr "حدث خطأ ما."
 
+msgctxt "notifications"
 msgid "Media ready"
 msgstr "الوسائط جاهزة"
 
+msgctxt "notifications"
 msgid "System"
 msgstr "النظام"
 
+msgctxt "notifications"
 msgid "Other"
 msgstr "أخرى"
 
+msgctxt "notifications"
 msgid "Unread: {}"
 msgstr "غير مقروء: {}"
 
+msgctxt "notifications"
 msgid "{} unread"
 msgstr "{} غير مقروءة"
 
+msgctxt "notifications"
 msgid "Marking..."
 msgstr "جارٍ التعليم..."
 
+msgctxt "notifications"
 msgid "Loading..."
 msgstr "جارٍ التحميل..."
 
+msgctxt "notifications"
 msgid "Could not load notifications"
 msgstr "تعذر تحميل الإشعارات"
 
+msgctxt "notifications"
 msgid "Try again"
 msgstr "حاول مرة أخرى"
 
+msgctxt "notifications"
 msgid "No unread notifications"
 msgstr "لا توجد إشعارات غير مقروءة"
 
+msgctxt "notifications"
 msgid "No notifications yet"
 msgstr "لا توجد إشعارات بعد"
 
+msgctxt "notifications"
 msgid "You are all caught up."
 msgstr "لقد اطلعت على كل شيء."
 
+msgctxt "notifications"
 msgid "Could not load preferences"
 msgstr "تعذر تحميل التفضيلات"
 
+msgctxt "notifications"
 msgid "Choose which notifications you receive."
 msgstr "اختر الإشعارات التي تريد تلقيها."
 
+msgctxt "notifications"
 msgid "Show notifications"
 msgstr "عرض الإشعارات"
 
+msgctxt "notifications"
 msgid "Could not save the setting. {}"
 msgstr "تعذر حفظ الإعداد. {}"

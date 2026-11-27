@@ -22,11 +22,17 @@ export struct AuditRowData {
     created: string,
 }
 
+// The screen's states, typed: a mistyped state is a compile error in Slint and in the glue.
+export enum AdminTab { overview, tasks, audit, broadcast }
+export enum AdminPhase { idle, loading, ready, failed }
+export enum AdminDeleteState { idle, confirming, invalid, deleting, failed }
+export enum AdminBroadcastState { idle, sending, invalid, failed, sent }
+
 export global AdminStore {
-    in-out property <string> tab: "overview";   // overview | tasks | audit | broadcast
+    in-out property <AdminTab> tab: AdminTab.overview;
     in property <bool> no-access: false;
-    // The selected list tab: idle | loading | ready | failed.
-    in property <string> phase: "idle";
+    // The state of the selected list tab.
+    in property <AdminPhase> phase: AdminPhase.idle;
     in property <string> error-kind;            // set when phase == failed, or a later page failed
     in property <bool> has-more;
     in property <bool> loading-more;
@@ -34,16 +40,16 @@ export global AdminStore {
     in property <[AdminTaskRowData]> tasks;
     in property <[AuditRowData]> audit;
     in property <bool> filter-invalid;
-    // The two-step delete: idle | confirming | invalid | deleting | failed.
-    in property <string> delete-state: "idle";
+    // The two-step delete.
+    in property <AdminDeleteState> delete-state: AdminDeleteState.idle;
     in property <string> delete-title;
     in property <string> delete-error;          // a validation key or an error kind
-    // The broadcast form: idle | sending | invalid | failed | sent.
-    in property <string> broadcast-state: "idle";
+    // The broadcast form.
+    in property <AdminBroadcastState> broadcast-state: AdminBroadcastState.idle;
     in property <string> broadcast-error;
     in property <int> recipients;
 
-    callback select-tab(string);
+    callback select-tab(AdminTab);
     callback reload();
     callback load-more();
     callback filter-owner(string);              // owner id; empty: everyone

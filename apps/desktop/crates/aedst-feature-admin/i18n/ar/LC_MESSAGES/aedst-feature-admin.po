@@ -8,194 +8,258 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
 
+msgctxt "admin"
 msgid "Administration"
 msgstr "الإدارة"
 
+msgctxt "admin"
 msgid "Overview"
 msgstr "نظرة عامة"
 
+msgctxt "admin"
 msgid "Broadcast"
 msgstr "بث إشعار"
 
+msgctxt "admin"
 msgid "Audit log"
 msgstr "سجل التدقيق"
 
+msgctxt "admin"
 msgid "Tasks"
 msgstr "المهام"
 
+msgctxt "admin"
 msgid "Push devices"
 msgstr "أجهزة الإشعارات"
 
+msgctxt "admin"
 msgid "Title"
 msgstr "العنوان"
 
+msgctxt "admin"
 msgid "In progress"
 msgstr "قيد التنفيذ"
 
+msgctxt "admin"
 msgid "Done"
 msgstr "مكتملة"
 
+msgctxt "admin"
 msgid "Delete"
 msgstr "حذف"
 
+msgctxt "admin"
 msgid "Reason"
 msgstr "السبب"
 
+msgctxt "admin"
 msgid "Cancel"
 msgstr "إلغاء"
 
+msgctxt "admin"
 msgid "Delete task"
 msgstr "حذف المهمة"
 
+msgctxt "admin"
 msgid "Enter a title."
 msgstr "أدخل عنوانًا."
 
+msgctxt "admin"
 msgid "Message"
 msgstr "الرسالة"
 
+msgctxt "admin"
 msgid "Link"
 msgstr "الرابط"
 
+msgctxt "admin"
 msgid "Owner id"
 msgstr "معرّف المالك"
 
+msgctxt "admin"
 msgid "Show only the tasks of one owner (id)"
 msgstr "عرض مهام مالك واحد فقط (المعرّف)"
 
+msgctxt "admin"
 msgid "Apply"
 msgstr "تطبيق"
 
+msgctxt "admin"
 msgid "No access"
 msgstr "لا يوجد وصول"
 
+msgctxt "admin"
 msgid "This screen is for operators only."
 msgstr "هذه الشاشة للمشغّلين فقط."
 
+msgctxt "admin"
 msgid "Loading..."
 msgstr "جارٍ التحميل..."
 
+msgctxt "admin"
 msgid "Could not load"
 msgstr "تعذّر التحميل"
 
+msgctxt "admin"
 msgid "Try again"
 msgstr "حاول مرة أخرى"
 
+msgctxt "admin"
 msgid "Nothing to show here."
 msgstr "لا يوجد ما يمكن عرضه هنا."
 
+msgctxt "admin"
 msgid "Load more"
 msgstr "تحميل المزيد"
 
+msgctxt "admin"
 msgid "Owner: {}"
 msgstr "المالك: {}"
 
+msgctxt "admin"
 msgid "Target: {}"
 msgstr "الهدف: {}"
 
+msgctxt "admin"
 msgid "By: {}"
 msgstr "بواسطة: {}"
 
+msgctxt "admin"
 msgid "Delete task \"{}\"?"
 msgstr "هل تريد حذف المهمة \"{}\"؟"
 
+msgctxt "admin"
 msgid "The reason is recorded in the audit log (3 to 500 characters)."
 msgstr "يُسجَّل السبب في سجل التدقيق (من 3 إلى 500 حرف)."
 
+msgctxt "admin"
 msgid "Reason for deleting"
 msgstr "سبب الحذف"
 
+msgctxt "admin"
 msgid "Deleting..."
 msgstr "جارٍ الحذف..."
 
+msgctxt "admin"
 msgid "Recipient id"
 msgstr "معرّف المستلم"
 
+msgctxt "admin"
 msgid "Recipient id (empty: everyone)"
 msgstr "معرّف المستلم (فارغ: الجميع)"
 
+msgctxt "admin"
 msgid "Link (optional, for example /tasks)"
 msgstr "الرابط (اختياري، مثل /tasks)"
 
+msgctxt "admin"
 msgid "Sent. Recipients reached: {}"
 msgstr "تم الإرسال. عدد المستلمين: {}"
 
+msgctxt "admin"
 msgid "Sending..."
 msgstr "جارٍ الإرسال..."
 
+msgctxt "admin"
 msgid "Send notification"
 msgstr "إرسال إشعار"
 
+msgctxt "admin"
 msgid "You are offline."
 msgstr "أنت غير متصل."
 
+msgctxt "admin"
 msgid "The server is not available right now."
 msgstr "الخادم غير متاح حاليًا."
 
+msgctxt "admin"
 msgid "The request took too long."
 msgstr "استغرق الطلب وقتًا طويلًا."
 
+msgctxt "admin"
 msgid "Too many requests. Try again in a moment."
 msgstr "طلبات كثيرة جدًا. حاول مرة أخرى بعد قليل."
 
+msgctxt "admin"
 msgid "Please sign in again."
 msgstr "يرجى تسجيل الدخول مرة أخرى."
 
+msgctxt "admin"
 msgid "You do not have access to this."
 msgstr "ليس لديك صلاحية الوصول إلى هذا."
 
+msgctxt "admin"
 msgid "This item no longer exists."
 msgstr "لم يعد هذا العنصر موجودًا."
 
+msgctxt "admin"
 msgid "The server did not accept this input."
 msgstr "لم يقبل الخادم هذا الإدخال."
 
+msgctxt "admin"
 msgid "This item was changed elsewhere."
 msgstr "تم تغيير هذا العنصر في مكان آخر."
 
+msgctxt "admin"
 msgid "Please update the app to continue."
 msgstr "يرجى تحديث التطبيق للمتابعة."
 
+msgctxt "admin"
 msgid "Something went wrong."
 msgstr "حدث خطأ ما."
 
+msgctxt "admin"
 msgid "Enter a valid user id or leave it empty."
 msgstr "أدخل معرّف مستخدم صالحًا أو اترك الحقل فارغًا."
 
+msgctxt "admin"
 msgid "The title is too long (120 characters at most)."
 msgstr "العنوان طويل جدًا (120 حرفًا كحد أقصى)."
 
+msgctxt "admin"
 msgid "The message is too long (1000 characters at most)."
 msgstr "الرسالة طويلة جدًا (1000 حرف كحد أقصى)."
 
+msgctxt "admin"
 msgid "The link must be an in-app path such as /tasks."
 msgstr "يجب أن يكون الرابط مسارًا داخل التطبيق مثل /tasks."
 
+msgctxt "admin"
 msgid "Enter a reason (3 characters at least)."
 msgstr "أدخل سببًا (3 أحرف على الأقل)."
 
+msgctxt "admin"
 msgid "The reason is too long (500 characters at most)."
 msgstr "السبب طويل جدًا (500 حرف كحد أقصى)."
 
+msgctxt "admin"
 msgid "To do"
 msgstr "للتنفيذ"
 
+msgctxt "admin"
 msgid "Unknown"
 msgstr "غير معروف"
 
+msgctxt "admin"
 msgid "Tasks done"
 msgstr "المهام المنجزة"
 
+msgctxt "admin"
 msgid "Tasks overdue"
 msgstr "المهام المتأخرة"
 
+msgctxt "admin"
 msgid "Media files"
 msgstr "ملفات الوسائط"
 
+msgctxt "admin"
 msgid "Media size"
 msgstr "حجم الوسائط"
 
+msgctxt "admin"
 msgid "Oldest waiting job (seconds)"
 msgstr "أقدم مهمة منتظرة (بالثواني)"
 
+msgctxt "admin"
 msgid "Jobs pending"
 msgstr "المهام المعلّقة"

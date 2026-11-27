@@ -1,7 +1,7 @@
 // Row and panel components of the Admin screen. Slint cannot reverse a layout, so every
 // side-by-side pair spells out both orders with `if AedstLayout.rtl`.
 import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstInput, AedstBadge, AedstActionRow, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
-import { AdminStore, AdminTaskRowData, AuditRowData, OverviewItemData } from "admin_store.slint";
+import { AdminStore, AdminTaskRowData, AuditRowData, OverviewItemData, AdminDeleteState, AdminBroadcastState } from "admin_store.slint";
 import { AdminTexts } from "admin_texts.slint";
 
 component Card inherits Rectangle {
@@ -60,12 +60,12 @@ export component TaskRow inherits Card {
             badge: AdminTexts.status-text(root.data.status);
             tone: root.data.status == "done" ? AedstBadgeVariant.success : AedstBadgeVariant.secondary;
         }
-        Muted { text: @tr("" => "Owner: {}", root.data.owner); }
+        Muted { text: @tr("admin" => "Owner: {}", root.data.owner); }
         Muted { text: root.data.created; }
         HorizontalLayout {
             alignment: AedstLayout.rtl ? end : start;
             AedstButton {
-                text: @tr("" => "Delete");
+                text: @tr("admin" => "Delete");
                 variant: AedstButtonVariant.secondary;
                 clicked => { AdminStore.request-delete(root.data.id); }
             }
@@ -80,8 +80,8 @@ export component AuditRow inherits Card {
         padding: AedstTokens.spacing-md;
         spacing: AedstTokens.spacing-xs;
         HeaderLine { title: root.data.action; badge: root.data.created; }
-        Muted { text: @tr("" => "Target: {}", root.data.target); }
-        Muted { text: @tr("" => "By: {}", root.data.actor); }
+        Muted { text: @tr("admin" => "Target: {}", root.data.target); }
+        Muted { text: @tr("admin" => "By: {}", root.data.actor); }
         Muted { text: root.data.reason; }
     }
 }
@@ -93,27 +93,27 @@ export component DeleteConfirm inherits Card {
     VerticalLayout {
         padding: AedstTokens.spacing-md;
         spacing: AedstTokens.spacing-sm;
-        AedstLabel { text: @tr("" => "Delete task \"{}\"?", AdminStore.delete-title); font-weight: 600; }
-        Muted { text: @tr("" => "The reason is recorded in the audit log (3 to 500 characters)."); }
+        AedstLabel { text: @tr("admin" => "Delete task \"{}\"?", AdminStore.delete-title); font-weight: 600; }
+        Muted { text: @tr("admin" => "The reason is recorded in the audit log (3 to 500 characters)."); }
         reason := AedstInput {
-            label: @tr("" => "Reason for deleting");
-            placeholder: @tr("" => "Reason");
-            invalid: AdminStore.delete-state == "invalid";
+            label: @tr("admin" => "Reason for deleting");
+            placeholder: @tr("admin" => "Reason");
+            invalid: AdminStore.delete-state == AdminDeleteState.invalid;
             accepted => { AdminStore.confirm-delete(self.text); }
         }
-        if AdminStore.delete-state == "invalid": AedstLabel {
+        if AdminStore.delete-state == AdminDeleteState.invalid: AedstLabel {
             text: AdminTexts.validation-text(AdminStore.delete-error);
             color: AedstTokens.destructive;
         }
-        if AdminStore.delete-state == "failed": AedstLabel {
+        if AdminStore.delete-state == AdminDeleteState.failed: AedstLabel {
             text: AdminTexts.kind-text(AdminStore.delete-error);
             color: AedstTokens.destructive;
         }
         AedstActionRow {
-            primary-text: AdminStore.delete-state == "deleting" ? @tr("" => "Deleting...") : @tr("" => "Delete task");
-            secondary-text: @tr("" => "Cancel");
+            primary-text: AdminStore.delete-state == AdminDeleteState.deleting ? @tr("admin" => "Deleting...") : @tr("admin" => "Delete task");
+            secondary-text: @tr("admin" => "Cancel");
             primary-clicked => {
-                if (AdminStore.delete-state != "deleting") { AdminStore.confirm-delete(reason.text); }
+                if (AdminStore.delete-state != AdminDeleteState.deleting) { AdminStore.confirm-delete(reason.text); }
             }
             secondary-clicked => { AdminStore.cancel-delete(); }
         }
@@ -123,9 +123,9 @@ export component DeleteConfirm inherits Card {
 export component BroadcastForm inherits VerticalLayout {
     spacing: AedstTokens.spacing-sm;
     alignment: start;
-    property <string> state: AdminStore.broadcast-state;
+    property <AdminBroadcastState> state: AdminStore.broadcast-state;
     changed state => {
-        if (self.state == "sent") {
+        if (self.state == AdminBroadcastState.sent) {
             user.text = "";
             title.text = "";
             body.text = "";
@@ -133,46 +133,46 @@ export component BroadcastForm inherits VerticalLayout {
         }
     }
     user := AedstInput {
-        label: @tr("" => "Recipient id");
-        placeholder: @tr("" => "Recipient id (empty: everyone)");
-        invalid: AdminStore.broadcast-state == "invalid" && AdminStore.broadcast-error == "idInvalid";
+        label: @tr("admin" => "Recipient id");
+        placeholder: @tr("admin" => "Recipient id (empty: everyone)");
+        invalid: AdminStore.broadcast-state == AdminBroadcastState.invalid && AdminStore.broadcast-error == "idInvalid";
         edited => { AdminStore.broadcast-edited(); }
     }
     title := AedstInput {
-        label: @tr("" => "Title");
-        placeholder: @tr("" => "Title");
-        invalid: AdminStore.broadcast-state == "invalid" && (AdminStore.broadcast-error == "titleRequired" || AdminStore.broadcast-error == "titleTooLong");
+        label: @tr("admin" => "Title");
+        placeholder: @tr("admin" => "Title");
+        invalid: AdminStore.broadcast-state == AdminBroadcastState.invalid && (AdminStore.broadcast-error == "titleRequired" || AdminStore.broadcast-error == "titleTooLong");
         edited => { AdminStore.broadcast-edited(); }
     }
     body := AedstInput {
-        label: @tr("" => "Message");
-        placeholder: @tr("" => "Message");
-        invalid: AdminStore.broadcast-state == "invalid" && AdminStore.broadcast-error == "bodyTooLong";
+        label: @tr("admin" => "Message");
+        placeholder: @tr("admin" => "Message");
+        invalid: AdminStore.broadcast-state == AdminBroadcastState.invalid && AdminStore.broadcast-error == "bodyTooLong";
         edited => { AdminStore.broadcast-edited(); }
     }
     link := AedstInput {
-        label: @tr("" => "Link");
-        placeholder: @tr("" => "Link (optional, for example /tasks)");
-        invalid: AdminStore.broadcast-state == "invalid" && AdminStore.broadcast-error == "linkInvalid";
+        label: @tr("admin" => "Link");
+        placeholder: @tr("admin" => "Link (optional, for example /tasks)");
+        invalid: AdminStore.broadcast-state == AdminBroadcastState.invalid && AdminStore.broadcast-error == "linkInvalid";
         edited => { AdminStore.broadcast-edited(); }
     }
-    if AdminStore.broadcast-state == "invalid": AedstLabel {
+    if AdminStore.broadcast-state == AdminBroadcastState.invalid: AedstLabel {
         text: AdminTexts.validation-text(AdminStore.broadcast-error);
         color: AedstTokens.destructive;
     }
-    if AdminStore.broadcast-state == "failed": AedstLabel {
+    if AdminStore.broadcast-state == AdminBroadcastState.failed: AedstLabel {
         text: AdminTexts.kind-text(AdminStore.broadcast-error);
         color: AedstTokens.destructive;
     }
-    if AdminStore.broadcast-state == "sent": AedstLabel {
-        text: @tr("" => "Sent. Recipients reached: {}", AdminStore.recipients);
+    if AdminStore.broadcast-state == AdminBroadcastState.sent: AedstLabel {
+        text: @tr("admin" => "Sent. Recipients reached: {}", AdminStore.recipients);
         color: AedstTokens.success;
     }
     HorizontalLayout {
         alignment: AedstLayout.rtl ? end : start;
         AedstButton {
-            text: AdminStore.broadcast-state == "sending" ? @tr("" => "Sending...") : @tr("" => "Send notification");
-            enabled: AdminStore.broadcast-state != "sending";
+            text: AdminStore.broadcast-state == AdminBroadcastState.sending ? @tr("admin" => "Sending...") : @tr("admin" => "Send notification");
+            enabled: AdminStore.broadcast-state != AdminBroadcastState.sending;
             clicked => { AdminStore.broadcast(user.text, title.text, body.text, link.text); }
         }
     }

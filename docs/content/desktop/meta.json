@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "architecture",
+    "slint-rules",
     "stack",
     "custom-code-register",
     "i18n",

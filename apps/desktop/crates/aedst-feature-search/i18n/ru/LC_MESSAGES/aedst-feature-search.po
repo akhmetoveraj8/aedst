@@ -8,86 +8,114 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 
+msgctxt "search"
 msgid "Search"
 msgstr "Поиск"
 
+msgctxt "search"
 msgid "Load more"
 msgstr "Показать ещё"
 
+msgctxt "search"
 msgid "Search tasks and files"
 msgstr "Поиск по задачам и файлам"
 
+msgctxt "search"
 msgid "You are offline. Search needs a connection."
 msgstr "Вы не в сети. Для поиска нужно подключение."
 
+msgctxt "search"
 msgid "The server is not available right now."
 msgstr "Сервер сейчас недоступен."
 
+msgctxt "search"
 msgid "The request took too long."
 msgstr "Запрос занял слишком много времени."
 
+msgctxt "search"
 msgid "Too many requests. Try again in a moment."
 msgstr "Слишком много запросов. Повторите чуть позже."
 
+msgctxt "search"
 msgid "Please sign in again."
 msgstr "Войдите снова."
 
+msgctxt "search"
 msgid "You do not have access to this."
 msgstr "У вас нет доступа к этому."
 
+msgctxt "search"
 msgid "Nothing was found at this address."
 msgstr "По этому адресу ничего не найдено."
 
+msgctxt "search"
 msgid "The server did not accept this search."
 msgstr "Сервер не принял этот поиск."
 
+msgctxt "search"
 msgid "The data was changed elsewhere."
 msgstr "Данные были изменены в другом месте."
 
+msgctxt "search"
 msgid "Please update the app to continue."
 msgstr "Обновите приложение, чтобы продолжить."
 
+msgctxt "search"
 msgid "Could not read data on this device."
 msgstr "Не удалось прочитать данные на этом устройстве."
 
+msgctxt "search"
 msgid "Something went wrong."
 msgstr "Что-то пошло не так."
 
+msgctxt "search"
 msgid "Task"
 msgstr "Задача"
 
+msgctxt "search"
 msgid "File"
 msgstr "Файл"
 
+msgctxt "search"
 msgid "Other"
 msgstr "Другое"
 
+msgctxt "search"
 msgid "About {} results"
 msgstr "Примерно результатов: {}"
 
+msgctxt "search"
 msgid "Suggestions"
 msgstr "Подсказки"
 
+msgctxt "search"
 msgid "Search your tasks and files"
 msgstr "Поиск по вашим задачам и файлам"
 
+msgctxt "search"
 msgid "Results appear as you type."
 msgstr "Результаты появляются по мере ввода."
 
+msgctxt "search"
 msgid "Searching..."
 msgstr "Идёт поиск..."
 
+msgctxt "search"
 msgid "Could not search"
 msgstr "Не удалось выполнить поиск"
 
+msgctxt "search"
 msgid "Try again"
 msgstr "Повторить"
 
+msgctxt "search"
 msgid "No results"
 msgstr "Ничего не найдено"
 
+msgctxt "search"
 msgid "Try a different word or check the spelling."
 msgstr "Попробуйте другое слово или проверьте написание."
 
+msgctxt "search"
 msgid "Loading..."
 msgstr "Загрузка..."

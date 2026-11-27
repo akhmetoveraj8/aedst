@@ -8,110 +8,146 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "notifications"
 msgid "Notifications"
 msgstr "Огоҳиномаҳо"
 
+msgctxt "notifications"
 msgid "Mark all as read"
 msgstr "Ҳамаро хондашуда қайд кардан"
 
+msgctxt "notifications"
 msgid "All"
 msgstr "Ҳама"
 
+msgctxt "notifications"
 msgid "Unread"
 msgstr "Хонданашуда"
 
+msgctxt "notifications"
 msgid "Load more"
 msgstr "Боз нишон додан"
 
+msgctxt "notifications"
 msgid "Notification preferences"
 msgstr "Танзимоти огоҳиномаҳо"
 
+msgctxt "notifications"
 msgid "Task completed"
 msgstr "Вазифа анҷом ёфт"
 
+msgctxt "notifications"
 msgid "Task due soon"
 msgstr "Мӯҳлати вазифа наздик аст"
 
+msgctxt "notifications"
 msgid "You are offline. Try again when you are connected."
 msgstr "Шумо онлайн нестед. Ҳангоми пайвастшавӣ дубора кӯшиш кунед."
 
+msgctxt "notifications"
 msgid "The server is not available right now."
 msgstr "Сервер ҳоло дастнорас аст."
 
+msgctxt "notifications"
 msgid "The request took too long."
 msgstr "Дархост хеле тӯл кашид."
 
+msgctxt "notifications"
 msgid "Too many requests. Try again in a moment."
 msgstr "Дархостҳо хеле зиёд аст. Баъди як лаҳза дубора кӯшиш кунед."
 
+msgctxt "notifications"
 msgid "Please sign in again."
 msgstr "Лутфан, дубора ворид шавед."
 
+msgctxt "notifications"
 msgid "You do not have access to this."
 msgstr "Шумо ба ин дастрасӣ надоред."
 
+msgctxt "notifications"
 msgid "This notification no longer exists."
 msgstr "Ин огоҳинома дигар вуҷуд надорад."
 
+msgctxt "notifications"
 msgid "The server did not accept this input."
 msgstr "Сервер ин маълумотро қабул накард."
 
+msgctxt "notifications"
 msgid "This was changed elsewhere."
 msgstr "Ин дар ҷои дигар тағйир дода шуд."
 
+msgctxt "notifications"
 msgid "Please update the app to continue."
 msgstr "Барои идома додан барномаро навсозӣ кунед."
 
+msgctxt "notifications"
 msgid "Could not save on this device."
 msgstr "Дар ин дастгоҳ захира карда нашуд."
 
+msgctxt "notifications"
 msgid "Something went wrong."
 msgstr "Чизе нодуруст рафт."
 
+msgctxt "notifications"
 msgid "Media ready"
 msgstr "Медиа тайёр аст"
 
+msgctxt "notifications"
 msgid "System"
 msgstr "Низом"
 
+msgctxt "notifications"
 msgid "Other"
 msgstr "Дигар"
 
+msgctxt "notifications"
 msgid "Unread: {}"
 msgstr "Хонда нашудааст: {}"
 
+msgctxt "notifications"
 msgid "{} unread"
 msgstr "Хонда нашуда: {}"
 
+msgctxt "notifications"
 msgid "Marking..."
 msgstr "Қайд карда истодаем..."
 
+msgctxt "notifications"
 msgid "Loading..."
 msgstr "Бор шуда истодааст..."
 
+msgctxt "notifications"
 msgid "Could not load notifications"
 msgstr "Огоҳиномаҳо бор нашуданд"
 
+msgctxt "notifications"
 msgid "Try again"
 msgstr "Бори дигар кӯшиш кунед"
 
+msgctxt "notifications"
 msgid "No unread notifications"
 msgstr "Огоҳиномаи хонданашуда нест"
 
+msgctxt "notifications"
 msgid "No notifications yet"
 msgstr "Ҳоло огоҳинома нест"
 
+msgctxt "notifications"
 msgid "You are all caught up."
 msgstr "Ҳама хонда шудааст."
 
+msgctxt "notifications"
 msgid "Could not load preferences"
 msgstr "Танзимот бор нашуданд"
 
+msgctxt "notifications"
 msgid "Choose which notifications you receive."
 msgstr "Интихоб кунед, кадом огоҳиномаҳоро мегиред."
 
+msgctxt "notifications"
 msgid "Show notifications"
 msgstr "Нишон додани огоҳиномаҳо"
 
+msgctxt "notifications"
 msgid "Could not save the setting. {}"
 msgstr "Танзим захира нашуд. {}"

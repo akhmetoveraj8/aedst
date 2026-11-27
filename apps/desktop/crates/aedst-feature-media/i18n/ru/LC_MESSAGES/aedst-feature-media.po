@@ -8,188 +8,250 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 
+msgctxt "media"
 msgid "Failed"
 msgstr "Ошибка"
 
+msgctxt "media"
 msgid "Delete"
 msgstr "Удалить"
 
+msgctxt "media"
 msgid "Upload file"
 msgstr "Загрузить файл"
 
+msgctxt "media"
 msgid "Uploading... {}%"
 msgstr "Загрузка... {}%"
 
+msgctxt "media"
 msgid "Dismiss"
 msgstr "Закрыть"
 
+msgctxt "media"
 msgid "Media"
 msgstr "Медиа"
 
+msgctxt "media"
 msgid "Loading..."
 msgstr "Загрузка..."
 
+msgctxt "media"
 msgid "Could not load media"
 msgstr "Не удалось загрузить медиа"
 
+msgctxt "media"
 msgid "Try again"
 msgstr "Повторить"
 
+msgctxt "media"
 msgid "No files yet"
 msgstr "Файлов пока нет"
 
+msgctxt "media"
 msgid "Upload your first file above."
 msgstr "Загрузите первый файл выше."
 
+msgctxt "media"
 msgid "Load more"
 msgstr "Показать ещё"
 
+msgctxt "media"
 msgid "Back"
 msgstr "Назад"
 
+msgctxt "media"
 msgid "View"
 msgstr "Открыть"
 
+msgctxt "media"
 msgid "Delete this file?"
 msgstr "Удалить этот файл?"
 
+msgctxt "media"
 msgid "Cancel"
 msgstr "Отмена"
 
+msgctxt "media"
 msgid "You are offline. Try again when you are connected."
 msgstr "Вы не в сети. Повторите, когда появится соединение."
 
+msgctxt "media"
 msgid "The server is not available right now."
 msgstr "Сервер сейчас недоступен."
 
+msgctxt "media"
 msgid "The request took too long."
 msgstr "Запрос выполнялся слишком долго."
 
+msgctxt "media"
 msgid "Too many requests. Try again in a moment."
 msgstr "Слишком много запросов. Повторите чуть позже."
 
+msgctxt "media"
 msgid "Please sign in again."
 msgstr "Войдите снова."
 
+msgctxt "media"
 msgid "You do not have access to this."
 msgstr "У вас нет доступа к этому."
 
+msgctxt "media"
 msgid "This file no longer exists."
 msgstr "Этого файла больше нет."
 
+msgctxt "media"
 msgid "The server did not accept this file."
 msgstr "Сервер не принял этот файл."
 
+msgctxt "media"
 msgid "This file was changed elsewhere."
 msgstr "Этот файл был изменён в другом месте."
 
+msgctxt "media"
 msgid "Please update the app to continue."
 msgstr "Обновите приложение, чтобы продолжить."
 
+msgctxt "media"
 msgid "Could not read the file on this device."
 msgstr "Не удалось прочитать файл на этом устройстве."
 
+msgctxt "media"
 msgid "Something went wrong."
 msgstr "Что-то пошло не так."
 
+msgctxt "media"
 msgid "The file is empty."
 msgstr "Файл пуст."
 
+msgctxt "media"
 msgid "The file is too large."
 msgstr "Файл слишком большой."
 
+msgctxt "media"
 msgid "This type of file is not supported."
 msgstr "Этот тип файла не поддерживается."
 
+msgctxt "media"
 msgid "The file name is empty or too long."
 msgstr "Имя файла пустое или слишком длинное."
 
+msgctxt "media"
 msgid "The task for this file is not valid."
 msgstr "Задача для этого файла недействительна."
 
+msgctxt "media"
 msgid "Image"
 msgstr "Изображение"
 
+msgctxt "media"
 msgid "Video"
 msgstr "Видео"
 
+msgctxt "media"
 msgid "Audio"
 msgstr "Аудио"
 
+msgctxt "media"
 msgid "Document"
 msgstr "Документ"
 
+msgctxt "media"
 msgid "Unknown"
 msgstr "Неизвестно"
 
+msgctxt "media"
 msgid "Uploading"
 msgstr "Загружается"
 
+msgctxt "media"
 msgid "Processing"
 msgstr "Обработка"
 
+msgctxt "media"
 msgid "Ready"
 msgstr "Готово"
 
+msgctxt "media"
 msgid "The uploaded size did not match the file."
 msgstr "Загруженный размер не совпал с размером файла."
 
+msgctxt "media"
 msgid "The content did not match the file type."
 msgstr "Содержимое не соответствует типу файла."
 
+msgctxt "media"
 msgid "The file could not be processed."
 msgstr "Не удалось обработать файл."
 
+msgctxt "media"
 msgid "{} B"
 msgstr "{} Б"
 
+msgctxt "media"
 msgid "{} KB"
 msgstr "{} КБ"
 
+msgctxt "media"
 msgid "{} MB"
 msgstr "{} МБ"
 
+msgctxt "media"
 msgid "Checking the file..."
 msgstr "Проверка файла..."
 
+msgctxt "media"
 msgid "Requesting the upload..."
 msgstr "Запрос загрузки..."
 
+msgctxt "media"
 msgid "Uploading..."
 msgstr "Загрузка..."
 
+msgctxt "media"
 msgid "Finishing..."
 msgstr "Завершение..."
 
+msgctxt "media"
 msgid "This file cannot be uploaded."
 msgstr "Этот файл нельзя загрузить."
 
+msgctxt "media"
 msgid "Could not start the upload."
 msgstr "Не удалось начать загрузку."
 
+msgctxt "media"
 msgid "Could not send the file."
 msgstr "Не удалось отправить файл."
 
+msgctxt "media"
 msgid "Could not finish the upload."
 msgstr "Не удалось завершить загрузку."
 
+msgctxt "media"
 msgid "The unfinished upload was removed from the server."
 msgstr "Незавершённая загрузка удалена с сервера."
 
+msgctxt "media"
 msgid "An unfinished upload may remain on the server and will expire."
 msgstr "Незавершённая загрузка может остаться на сервере и со временем истечёт."
 
+msgctxt "media"
 msgid "This file is not ready yet."
 msgstr "Этот файл ещё не готов."
 
+msgctxt "media"
 msgid "Video playback is not available yet."
 msgstr "Воспроизведение видео пока недоступно."
 
+msgctxt "media"
 msgid "No preview is available for this kind of file."
 msgstr "Для этого типа файла нет предпросмотра."
 
+msgctxt "media"
 msgid "This image is too large to show."
 msgstr "Это изображение слишком большое для показа."
 
+msgctxt "media"
 msgid "This image could not be shown."
 msgstr "Не удалось показать это изображение."

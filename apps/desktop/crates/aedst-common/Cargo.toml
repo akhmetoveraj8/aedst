@@ -1,7 +1,7 @@
 [package]
 name = "aedst-common"
 version = "0.0.0"
-description = "Shared, UI-free primitives for the AEDST desktop app: the thirteen error kinds"
+description = "Shared, UI-free primitives for the AEDST desktop app: the thirteen error kinds and the paging cursor"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true

@@ -8,110 +8,146 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 
+msgctxt "notifications"
 msgid "Notifications"
 msgstr "Уведомления"
 
+msgctxt "notifications"
 msgid "Mark all as read"
 msgstr "Прочитать все"
 
+msgctxt "notifications"
 msgid "All"
 msgstr "Все"
 
+msgctxt "notifications"
 msgid "Unread"
 msgstr "Непрочитанные"
 
+msgctxt "notifications"
 msgid "Load more"
 msgstr "Показать ещё"
 
+msgctxt "notifications"
 msgid "Notification preferences"
 msgstr "Настройки уведомлений"
 
+msgctxt "notifications"
 msgid "Task completed"
 msgstr "Задача завершена"
 
+msgctxt "notifications"
 msgid "Task due soon"
 msgstr "Скоро срок задачи"
 
+msgctxt "notifications"
 msgid "You are offline. Try again when you are connected."
 msgstr "Вы не в сети. Повторите, когда появится соединение."
 
+msgctxt "notifications"
 msgid "The server is not available right now."
 msgstr "Сервер сейчас недоступен."
 
+msgctxt "notifications"
 msgid "The request took too long."
 msgstr "Запрос выполнялся слишком долго."
 
+msgctxt "notifications"
 msgid "Too many requests. Try again in a moment."
 msgstr "Слишком много запросов. Повторите чуть позже."
 
+msgctxt "notifications"
 msgid "Please sign in again."
 msgstr "Войдите снова."
 
+msgctxt "notifications"
 msgid "You do not have access to this."
 msgstr "У вас нет доступа к этому."
 
+msgctxt "notifications"
 msgid "This notification no longer exists."
 msgstr "Это уведомление больше не существует."
 
+msgctxt "notifications"
 msgid "The server did not accept this input."
 msgstr "Сервер не принял эти данные."
 
+msgctxt "notifications"
 msgid "This was changed elsewhere."
 msgstr "Это было изменено в другом месте."
 
+msgctxt "notifications"
 msgid "Please update the app to continue."
 msgstr "Обновите приложение, чтобы продолжить."
 
+msgctxt "notifications"
 msgid "Could not save on this device."
 msgstr "Не удалось сохранить на этом устройстве."
 
+msgctxt "notifications"
 msgid "Something went wrong."
 msgstr "Что-то пошло не так."
 
+msgctxt "notifications"
 msgid "Media ready"
 msgstr "Медиа готово"
 
+msgctxt "notifications"
 msgid "System"
 msgstr "Система"
 
+msgctxt "notifications"
 msgid "Other"
 msgstr "Другое"
 
+msgctxt "notifications"
 msgid "Unread: {}"
 msgstr "Не прочитано: {}"
 
+msgctxt "notifications"
 msgid "{} unread"
 msgstr "Непрочитано: {}"
 
+msgctxt "notifications"
 msgid "Marking..."
 msgstr "Отмечаем..."
 
+msgctxt "notifications"
 msgid "Loading..."
 msgstr "Загрузка..."
 
+msgctxt "notifications"
 msgid "Could not load notifications"
 msgstr "Не удалось загрузить уведомления"
 
+msgctxt "notifications"
 msgid "Try again"
 msgstr "Повторить"
 
+msgctxt "notifications"
 msgid "No unread notifications"
 msgstr "Нет непрочитанных уведомлений"
 
+msgctxt "notifications"
 msgid "No notifications yet"
 msgstr "Уведомлений пока нет"
 
+msgctxt "notifications"
 msgid "You are all caught up."
 msgstr "Всё прочитано."
 
+msgctxt "notifications"
 msgid "Could not load preferences"
 msgstr "Не удалось загрузить настройки"
 
+msgctxt "notifications"
 msgid "Choose which notifications you receive."
 msgstr "Выберите, какие уведомления получать."
 
+msgctxt "notifications"
 msgid "Show notifications"
 msgstr "Показывать уведомления"
 
+msgctxt "notifications"
 msgid "Could not save the setting. {}"
 msgstr "Не удалось сохранить настройку. {}"

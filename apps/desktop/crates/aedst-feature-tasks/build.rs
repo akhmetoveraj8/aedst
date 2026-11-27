@@ -3,6 +3,11 @@
 use std::{collections::HashMap, path::PathBuf};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Without `standalone` the shell compiles this view in its own Slint compilation (one compile, not two).
+    println!("cargo:rerun-if-env-changed=CARGO_FEATURE_STANDALONE");
+    if std::env::var_os("CARGO_FEATURE_STANDALONE").is_none() {
+        return Ok(());
+    }
     println!("cargo:rerun-if-changed=ui");
     println!("cargo:rerun-if-changed=i18n");
     println!("cargo:rerun-if-changed=../aedst-ui/ui");

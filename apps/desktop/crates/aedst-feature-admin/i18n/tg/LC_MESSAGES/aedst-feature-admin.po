@@ -8,194 +8,258 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "admin"
 msgid "Administration"
 msgstr "Идоракунӣ"
 
+msgctxt "admin"
 msgid "Overview"
 msgstr "Шарҳ"
 
+msgctxt "admin"
 msgid "Broadcast"
 msgstr "Паёми умумӣ"
 
+msgctxt "admin"
 msgid "Audit log"
 msgstr "Маҷаллаи аудит"
 
+msgctxt "admin"
 msgid "Tasks"
 msgstr "Вазифаҳо"
 
+msgctxt "admin"
 msgid "Push devices"
 msgstr "Дастгоҳҳои push"
 
+msgctxt "admin"
 msgid "Title"
 msgstr "Ном"
 
+msgctxt "admin"
 msgid "In progress"
 msgstr "Дар ҷараён"
 
+msgctxt "admin"
 msgid "Done"
 msgstr "Иҷро шуд"
 
+msgctxt "admin"
 msgid "Delete"
 msgstr "Нест кардан"
 
+msgctxt "admin"
 msgid "Reason"
 msgstr "Сабаб"
 
+msgctxt "admin"
 msgid "Cancel"
 msgstr "Бекор кардан"
 
+msgctxt "admin"
 msgid "Delete task"
 msgstr "Нест кардани вазифа"
 
+msgctxt "admin"
 msgid "Enter a title."
 msgstr "Сарлавҳаро ворид кунед."
 
+msgctxt "admin"
 msgid "Message"
 msgstr "Паём"
 
+msgctxt "admin"
 msgid "Link"
 msgstr "Пайванд"
 
+msgctxt "admin"
 msgid "Owner id"
 msgstr "Идентификатори соҳиб"
 
+msgctxt "admin"
 msgid "Show only the tasks of one owner (id)"
 msgstr "Танҳо вазифаҳои як соҳибро нишон диҳед (id)"
 
+msgctxt "admin"
 msgid "Apply"
 msgstr "Татбиқ кардан"
 
+msgctxt "admin"
 msgid "No access"
 msgstr "Дастрасӣ нест"
 
+msgctxt "admin"
 msgid "This screen is for operators only."
 msgstr "Ин экран танҳо барои операторҳост."
 
+msgctxt "admin"
 msgid "Loading..."
 msgstr "Бор шуда истодааст..."
 
+msgctxt "admin"
 msgid "Could not load"
 msgstr "Бор карда нашуд"
 
+msgctxt "admin"
 msgid "Try again"
 msgstr "Боз кӯшиш кунед"
 
+msgctxt "admin"
 msgid "Nothing to show here."
 msgstr "Дар ин ҷо ҳоло ҳеҷ чиз нест."
 
+msgctxt "admin"
 msgid "Load more"
 msgstr "Бештар бор кардан"
 
+msgctxt "admin"
 msgid "Owner: {}"
 msgstr "Соҳиб: {}"
 
+msgctxt "admin"
 msgid "Target: {}"
 msgstr "Объект: {}"
 
+msgctxt "admin"
 msgid "By: {}"
 msgstr "Аз ҷониби: {}"
 
+msgctxt "admin"
 msgid "Delete task \"{}\"?"
 msgstr "Вазифаи \"{}\" нест карда шавад?"
 
+msgctxt "admin"
 msgid "The reason is recorded in the audit log (3 to 500 characters)."
 msgstr "Сабаб дар сабти аудит навишта мешавад (аз 3 то 500 аломат)."
 
+msgctxt "admin"
 msgid "Reason for deleting"
 msgstr "Сабаби нест кардан"
 
+msgctxt "admin"
 msgid "Deleting..."
 msgstr "Нест карда истодааст..."
 
+msgctxt "admin"
 msgid "Recipient id"
 msgstr "Идентификатори гиранда"
 
+msgctxt "admin"
 msgid "Recipient id (empty: everyone)"
 msgstr "Идентификатори гиранда (холӣ: ҳама)"
 
+msgctxt "admin"
 msgid "Link (optional, for example /tasks)"
 msgstr "Истинод (ихтиёрӣ, масалан /tasks)"
 
+msgctxt "admin"
 msgid "Sent. Recipients reached: {}"
 msgstr "Фиристода шуд. Шумораи гирандагон: {}"
 
+msgctxt "admin"
 msgid "Sending..."
 msgstr "Фиристода истодааст..."
 
+msgctxt "admin"
 msgid "Send notification"
 msgstr "Фиристодани огоҳинома"
 
+msgctxt "admin"
 msgid "You are offline."
 msgstr "Шумо ба шабака пайваст нестед."
 
+msgctxt "admin"
 msgid "The server is not available right now."
 msgstr "Сервер ҳоло дастнорас аст."
 
+msgctxt "admin"
 msgid "The request took too long."
 msgstr "Дархост хеле тӯл кашид."
 
+msgctxt "admin"
 msgid "Too many requests. Try again in a moment."
 msgstr "Дархостҳо аз ҳад зиёданд. Баъд аз лаҳзае боз кӯшиш кунед."
 
+msgctxt "admin"
 msgid "Please sign in again."
 msgstr "Лутфан, бори дигар ворид шавед."
 
+msgctxt "admin"
 msgid "You do not have access to this."
 msgstr "Шумо ба ин дастрасӣ надоред."
 
+msgctxt "admin"
 msgid "This item no longer exists."
 msgstr "Ин ҷузъ дигар вуҷуд надорад."
 
+msgctxt "admin"
 msgid "The server did not accept this input."
 msgstr "Сервер ин маълумотро қабул накард."
 
+msgctxt "admin"
 msgid "This item was changed elsewhere."
 msgstr "Ин ҷузъ дар ҷои дигар тағйир дода шуд."
 
+msgctxt "admin"
 msgid "Please update the app to continue."
 msgstr "Барои идома додан барномаро навсозӣ кунед."
 
+msgctxt "admin"
 msgid "Something went wrong."
 msgstr "Чизе нодуруст рафт."
 
+msgctxt "admin"
 msgid "Enter a valid user id or leave it empty."
 msgstr "Идентификатори дурусти корбарро ворид кунед ё майдонро холӣ монед."
 
+msgctxt "admin"
 msgid "The title is too long (120 characters at most)."
 msgstr "Сарлавҳа хеле дароз аст (на зиёда аз 120 аломат)."
 
+msgctxt "admin"
 msgid "The message is too long (1000 characters at most)."
 msgstr "Паём хеле дароз аст (на зиёда аз 1000 аломат)."
 
+msgctxt "admin"
 msgid "The link must be an in-app path such as /tasks."
 msgstr "Истинод бояд роҳи дохили барнома бошад, масалан /tasks."
 
+msgctxt "admin"
 msgid "Enter a reason (3 characters at least)."
 msgstr "Сабабро ворид кунед (ақаллан 3 аломат)."
 
+msgctxt "admin"
 msgid "The reason is too long (500 characters at most)."
 msgstr "Сабаб хеле дароз аст (на зиёда аз 500 аломат)."
 
+msgctxt "admin"
 msgid "To do"
 msgstr "Бояд иҷро шавад"
 
+msgctxt "admin"
 msgid "Unknown"
 msgstr "Номаълум"
 
+msgctxt "admin"
 msgid "Tasks done"
 msgstr "Вазифаҳои иҷрошуда"
 
+msgctxt "admin"
 msgid "Tasks overdue"
 msgstr "Вазифаҳои гузашта"
 
+msgctxt "admin"
 msgid "Media files"
 msgstr "Файлҳои медиа"
 
+msgctxt "admin"
 msgid "Media size"
 msgstr "Ҳаҷми медиа"
 
+msgctxt "admin"
 msgid "Oldest waiting job (seconds)"
 msgstr "Кӯҳнатарин кори интизор (сонияҳо)"
 
+msgctxt "admin"
 msgid "Jobs pending"
 msgstr "Корҳо дар навбат"

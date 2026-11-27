@@ -2,11 +2,12 @@
 // `MediaStore` and call its callbacks; Rust (`ui_glue.rs`) owns the state. Only `aedst-ui`
 // components are used; no raw std-widgets control.
 import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstButtonVariant } from "@aedst-ui";
-import { MediaStore } from "media_store.slint";
+import { ListView } from "std-widgets.slint"; // rows are created lazily only directly inside a ListView (slint-rules M1)
+import { MediaStore, MediaPhase, MediaUploadState, MediaUploadStage, MediaViewerPhase } from "media_store.slint";
 import { MediaTexts } from "media_texts.slint";
 import { MediaRow } from "media_row.slint";
 
-export { MediaRowData, MediaStore } from "media_store.slint";
+export { MediaRowData, MediaStore, MediaPhase, MediaUploadState, MediaUploadStage, MediaUploadCleanup, MediaViewerPhase } from "media_store.slint";
 export { MediaTexts } from "media_texts.slint";
 
 component UploadPanel inherits VerticalLayout {
@@ -16,17 +17,17 @@ component UploadPanel inherits VerticalLayout {
     HorizontalLayout {
         alignment: AedstLayout.rtl ? end : start;
         AedstButton {
-            text: @tr("" => "Upload file");
-            enabled: MediaStore.upload-state != "running";
+            text: @tr("media" => "Upload file");
+            enabled: MediaStore.upload-state != MediaUploadState.running;
             clicked => { MediaStore.pick-upload(); }
         }
     }
-    if MediaStore.upload-state == "running": VerticalLayout {
+    if MediaStore.upload-state == MediaUploadState.running: VerticalLayout {
         spacing: AedstTokens.spacing-xs;
         AedstLabel { text: MediaStore.upload-file-name; font-weight: 600; }
         AedstLabel {
-            text: MediaStore.upload-stage == "uploading"
-                ? @tr("" => "Uploading... {}%", MediaStore.upload-percent)
+            text: MediaStore.upload-stage == MediaUploadStage.uploading
+                ? @tr("media" => "Uploading... {}%", MediaStore.upload-percent)
                 : MediaTexts.stage-text(MediaStore.upload-stage);
             color: AedstTokens.muted-foreground;
         }
@@ -43,7 +44,7 @@ component UploadPanel inherits VerticalLayout {
             }
         }
     }
-    if MediaStore.upload-state == "failed": VerticalLayout {
+    if MediaStore.upload-state == MediaUploadState.failed: VerticalLayout {
         spacing: AedstTokens.spacing-xs;
         AedstLabel { text: MediaStore.upload-file-name; font-weight: 600; }
         AedstLabel { text: MediaTexts.stage-failed-text(MediaStore.upload-stage); color: AedstTokens.destructive; }
@@ -60,7 +61,7 @@ component UploadPanel inherits VerticalLayout {
         HorizontalLayout {
             alignment: AedstLayout.rtl ? end : start;
             AedstButton {
-                text: @tr("" => "Dismiss");
+                text: @tr("media" => "Dismiss");
                 variant: AedstButtonVariant.secondary;
                 clicked => { MediaStore.dismiss-upload(); }
             }
@@ -73,7 +74,7 @@ component Library inherits VerticalLayout {
     spacing: AedstTokens.spacing-md;
 
     AedstLabel {
-        text: @tr("" => "Media");
+        text: @tr("media" => "Media");
         font-size: AedstTokens.typography-title-large-font-size;
         font-weight: AedstTokens.typography-title-large-font-weight;
         vertical-stretch: 0;
@@ -81,45 +82,44 @@ component Library inherits VerticalLayout {
     }
     UploadPanel {}
 
-    if MediaStore.phase == "loading": AedstLabel {
-        text: @tr("" => "Loading...");
+    if MediaStore.phase == MediaPhase.loading: AedstLabel {
+        text: @tr("media" => "Loading...");
         color: AedstTokens.muted-foreground;
     }
-    if MediaStore.phase == "failed": VerticalLayout {
+    if MediaStore.phase == MediaPhase.failed: VerticalLayout {
         spacing: AedstTokens.spacing-sm;
         alignment: start;
         vertical-stretch: 0;
-        AedstLabel { text: @tr("" => "Could not load media"); font-weight: 600; }
+        AedstLabel { text: @tr("media" => "Could not load media"); font-weight: 600; }
         AedstLabel { text: MediaTexts.kind-text(MediaStore.error-kind); color: AedstTokens.destructive; }
         HorizontalLayout {
             alignment: AedstLayout.rtl ? end : start;
-            AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { MediaStore.reload(); } }
+            AedstButton { text: @tr("media" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { MediaStore.reload(); } }
         }
     }
-    if MediaStore.phase == "ready" && MediaStore.rows.length == 0: VerticalLayout {
+    if MediaStore.phase == MediaPhase.ready && MediaStore.rows.length == 0: VerticalLayout {
         alignment: start;
         vertical-stretch: 0;
-        AedstLabel { text: @tr("" => "No files yet"); font-weight: 600; }
-        AedstLabel { text: @tr("" => "Upload your first file above."); color: AedstTokens.muted-foreground; }
+        AedstLabel { text: @tr("media" => "No files yet"); font-weight: 600; }
+        AedstLabel { text: @tr("media" => "Upload your first file above."); color: AedstTokens.muted-foreground; }
     }
-    if MediaStore.phase == "ready" && MediaStore.error-kind != "": AedstLabel {
+    if MediaStore.phase == MediaPhase.ready && MediaStore.error-kind != "": AedstLabel {
         text: MediaTexts.kind-text(MediaStore.error-kind);
         color: AedstTokens.destructive;
         vertical-stretch: 0;
     }
 
-    Flickable {
+    ListView {
         vertical-stretch: 1;
         min-height: 160px;
-        content-height: rows.preferred-height;
-        rows := VerticalLayout {
-            spacing: AedstTokens.spacing-xs;
-            for row in MediaStore.rows: MediaRow { data: row; }
+        for row in MediaStore.rows: VerticalLayout {
+            padding-bottom: AedstTokens.spacing-xs;
+            MediaRow { data: row; }
         }
     }
 
     if MediaStore.has-more: AedstButton {
-        text: @tr("" => "Load more");
+        text: @tr("media" => "Load more");
         variant: AedstButtonVariant.secondary;
         vertical-stretch: 0;
         clicked => { MediaStore.load-more(); }
@@ -134,7 +134,7 @@ component Viewer inherits VerticalLayout {
         spacing: AedstTokens.spacing-sm;
         vertical-stretch: 0;
         height: 40px;
-        AedstButton { text: @tr("" => "Back"); variant: AedstButtonVariant.secondary; clicked => { MediaStore.close-viewer(); } }
+        AedstButton { text: @tr("media" => "Back"); variant: AedstButtonVariant.secondary; clicked => { MediaStore.close-viewer(); } }
         AedstLabel { text: MediaStore.viewer-title; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; }
     }
     if AedstLayout.rtl: HorizontalLayout {
@@ -142,28 +142,28 @@ component Viewer inherits VerticalLayout {
         vertical-stretch: 0;
         height: 40px;
         AedstLabel { text: MediaStore.viewer-title; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; }
-        AedstButton { text: @tr("" => "Back"); variant: AedstButtonVariant.secondary; clicked => { MediaStore.close-viewer(); } }
+        AedstButton { text: @tr("media" => "Back"); variant: AedstButtonVariant.secondary; clicked => { MediaStore.close-viewer(); } }
     }
 
-    if MediaStore.viewer-phase == "ready": Image {
+    if MediaStore.viewer-phase == MediaViewerPhase.ready: Image {
         source: MediaStore.viewer-image;
         image-fit: contain;
         vertical-stretch: 1;
         accessible-role: AccessibleRole.image;
         accessible-label: MediaStore.viewer-title;
     }
-    if MediaStore.viewer-phase == "failed": VerticalLayout {
+    if MediaStore.viewer-phase == MediaViewerPhase.failed: VerticalLayout {
         spacing: AedstTokens.spacing-sm;
         alignment: start;
         vertical-stretch: 1;
         AedstLabel { text: MediaTexts.kind-text(MediaStore.viewer-error-kind); color: AedstTokens.destructive; }
     }
-    if MediaStore.viewer-phase != "ready" && MediaStore.viewer-phase != "failed": VerticalLayout {
+    if MediaStore.viewer-phase != MediaViewerPhase.ready && MediaStore.viewer-phase != MediaViewerPhase.failed: VerticalLayout {
         alignment: start;
         vertical-stretch: 1;
         AedstLabel {
             text: MediaTexts.viewer-text(MediaStore.viewer-phase);
-            color: MediaStore.viewer-phase == "loading" ? AedstTokens.muted-foreground : AedstTokens.foreground;
+            color: MediaStore.viewer-phase == MediaViewerPhase.loading ? AedstTokens.muted-foreground : AedstTokens.foreground;
         }
     }
 }
@@ -171,8 +171,8 @@ component Viewer inherits VerticalLayout {
 // The library, or the viewer on top of it while a file is open.
 export component MediaListView inherits Rectangle {
     background: AedstTokens.background;
-    if MediaStore.viewer-phase == "closed": Library {}
-    if MediaStore.viewer-phase != "closed": Viewer {}
+    if MediaStore.viewer-phase == MediaViewerPhase.closed: Library {}
+    if MediaStore.viewer-phase != MediaViewerPhase.closed: Viewer {}
 }
 
 // A window for running the screens on their own (the example and screenshots). The app shell
@@ -180,7 +180,7 @@ export component MediaListView inherits Rectangle {
 export component MediaDemoWindow inherits Window {
     in-out property <bool> rtl <=> AedstLayout.rtl;
     in-out property <bool> dark <=> AedstTokens.dark;
-    title: @tr("" => "Media");
+    title: @tr("media" => "Media");
     background: AedstTokens.background;
     min-width: 640px;
     min-height: 560px;

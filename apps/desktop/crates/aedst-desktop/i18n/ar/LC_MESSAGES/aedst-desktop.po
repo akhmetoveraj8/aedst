@@ -8,92 +8,122 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
 
+msgctxt "desktop"
 msgid "Tasks"
 msgstr "المهام"
 
+msgctxt "desktop"
 msgid "Search"
 msgstr "بحث"
 
+msgctxt "desktop"
 msgid "Notifications"
 msgstr "الإشعارات"
 
+msgctxt "desktop"
 msgid "Files"
 msgstr "الملفات"
 
+msgctxt "desktop"
 msgid "Admin"
 msgstr "الإدارة"
 
+msgctxt "desktop"
 msgid "Sign out"
 msgstr "تسجيل الخروج"
 
+msgctxt "desktop"
 msgid "Inbox"
 msgstr "الوارد"
 
+msgctxt "desktop"
 msgid "Preferences"
 msgstr "التفضيلات"
 
+msgctxt "desktop"
 msgid "Starting..."
 msgstr "جارٍ البدء..."
 
+msgctxt "desktop"
 msgid "Sign in to continue"
 msgstr "سجّل الدخول للمتابعة"
 
+msgctxt "desktop"
 msgid "Continue in browser"
 msgstr "المتابعة في المتصفح"
 
+msgctxt "desktop"
 msgid "Waiting for the browser..."
 msgstr "بانتظار المتصفح..."
 
+msgctxt "desktop"
 msgid "Cancel"
 msgstr "إلغاء"
 
+msgctxt "desktop"
 msgid "Sign-in failed. Please try again."
 msgstr "فشل تسجيل الدخول. حاول مرة أخرى."
 
+msgctxt "desktop"
 msgid "Could not reach the identity provider."
 msgstr "تعذر الوصول إلى مزود الهوية."
 
+msgctxt "desktop"
 msgid "Secure storage is not available on this device."
 msgstr "التخزين الآمن غير متاح على هذا الجهاز."
 
+msgctxt "desktop"
 msgid "Sign-in timed out."
 msgstr "انتهت مهلة تسجيل الدخول."
 
+msgctxt "desktop"
 msgid "Sign-in is not configured."
 msgstr "تسجيل الدخول غير مهيأ."
 
+msgctxt "desktop"
 msgid "Privacy"
 msgstr "الخصوصية"
 
+msgctxt "desktop"
 msgid "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device."
 msgstr "لا يُرسل شيء ما لم تختر ذلك هنا. تتم إزالة البيانات الشخصية قبل مغادرة أي شيء لهذا الجهاز."
 
+msgctxt "desktop"
 msgid "Send crash reports"
 msgstr "إرسال تقارير الأعطال"
 
+msgctxt "desktop"
 msgid "Technical details about a failure, so it can be fixed."
 msgstr "تفاصيل تقنية عن العطل ليتم إصلاحه."
 
+msgctxt "desktop"
 msgid "Share anonymous usage statistics"
 msgstr "مشاركة إحصاءات الاستخدام المجهولة"
 
+msgctxt "desktop"
 msgid "Which features are used, never what you type."
 msgstr "أي الميزات تُستخدم، وليس ما تكتبه."
 
+msgctxt "desktop"
 msgid "Not available in this build."
 msgstr "غير متاح في هذا الإصدار."
 
+msgctxt "desktop"
 msgid "A new version is available"
 msgstr "يتوفر إصدار جديد"
 
+msgctxt "desktop"
 msgid "Downloading the update: {}%"
 msgstr "جارٍ تنزيل التحديث: {}%"
 
+msgctxt "desktop"
 msgid "Restart to update"
 msgstr "أعد التشغيل للتحديث"
 
+msgctxt "desktop"
 msgid "Update required"
 msgstr "التحديث مطلوب"
 
+msgctxt "desktop"
 msgid "This version of the app is too old for the server. Please update it to continue."
 msgstr "هذا الإصدار من التطبيق قديم جدًا بالنسبة للخادم. يرجى تحديثه للمتابعة."
