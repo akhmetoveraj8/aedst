@@ -26,7 +26,9 @@ public enum AedstAlertDialogSize: Sendable, CaseIterable {
     }
 
     /// How the cancel and confirm buttons are laid out.
-    func actionLayout(isCompact: Bool) -> AedstAlertDialogActionLayout {
+    /// At accessibility text sizes the buttons never sit side by side: their titles would be cut.
+    func actionLayout(isCompact: Bool, isAccessibilitySize: Bool = false) -> AedstAlertDialogActionLayout {
+        if isAccessibilitySize { return .stacked }
         switch self {
         case .sm: .columns
         case .default: isCompact ? .stacked : .row
@@ -63,6 +65,7 @@ private struct AedstAlertDialogCard: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     private var isCompact: Bool { sizeClass == .compact }
     #endif
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         let alignment = size.headerAlignment(isCompact: isCompact)
@@ -71,13 +74,15 @@ private struct AedstAlertDialogCard: View {
                 if let systemImage {
                     Image(systemName: systemImage)
                         .font(AedstTypography.title)
-                        .frame(width: 40, height: 40)
+                        .aedstScaledFrame(width: 40, height: 40, relativeTo: .title)
                         .background(AedstColor.muted, in: RoundedRectangle(cornerRadius: AedstRadius.md, style: .continuous))
                         .accessibilityHidden(true)
                 }
                 Text(title)
                     .font(AedstTypography.headline)
                     .accessibilityAddTraits(.isHeader)
+                    // VoiceOver starts on the question, not on whatever is behind the dialog.
+                    .aedstInitialAccessibilityFocus()
                 if let message {
                     Text(message)
                         .font(AedstTypography.body)
@@ -107,7 +112,7 @@ private struct AedstAlertDialogCard: View {
     }
 
     @ViewBuilder private var actions: some View {
-        switch size.actionLayout(isCompact: isCompact) {
+        switch size.actionLayout(isCompact: isCompact, isAccessibilitySize: AedstLayoutPolicy.prefersStackedLayout(dynamicTypeSize)) {
         case .stacked:
             VStack(spacing: AedstSpacing.sm) {
                 confirmButton(fillsWidth: true)
@@ -150,7 +155,9 @@ public struct AedstAlertDialogModifier: ViewModifier {
     private let cancelTitle: String
     private let isDestructive: Bool
     private let size: AedstAlertDialogSize
+    private let returnFocus: AedstFocusReturn?
     private let onConfirm: () -> Void
+    @State private var confirmCount = 0
 
     public init(
         isPresented: Binding<Bool>,
@@ -161,6 +168,7 @@ public struct AedstAlertDialogModifier: ViewModifier {
         cancelTitle: String = AedstCommonStrings.cancel,
         isDestructive: Bool = false,
         size: AedstAlertDialogSize = .default,
+        returnFocus: AedstFocusReturn? = nil,
         onConfirm: @escaping () -> Void
     ) {
         self._isPresented = isPresented
@@ -171,6 +179,7 @@ public struct AedstAlertDialogModifier: ViewModifier {
         self.cancelTitle = cancelTitle
         self.isDestructive = isDestructive
         self.size = size
+        self.returnFocus = returnFocus
         self.onConfirm = onConfirm
     }
 
@@ -185,6 +194,7 @@ public struct AedstAlertDialogModifier: ViewModifier {
             isDestructive: isDestructive,
             onCancel: { isPresented = false },
             onConfirm: {
+                confirmCount += 1
                 isPresented = false
                 onConfirm()
             }
@@ -193,12 +203,16 @@ public struct AedstAlertDialogModifier: ViewModifier {
     }
 
     public func body(content: Content) -> some View {
+        // The haptic sits on the presenting view: the dialog itself is gone the moment the action runs.
+        let presenter = content
+            .aedstOptionalHaptic(isDestructive ? .impact : nil, trigger: confirmCount)
+            .aedstReturnsFocus(whenPresented: isPresented, to: returnFocus)
         #if os(macOS)
-        content.sheet(isPresented: $isPresented) {
+        presenter.sheet(isPresented: $isPresented) {
             card.padding(AedstSpacing.lg).presentationSizing(.fitted)
         }
         #else
-        content.fullScreenCover(isPresented: $isPresented) {
+        presenter.fullScreenCover(isPresented: $isPresented) {
             card
                 .padding(AedstSpacing.lg)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -220,6 +234,7 @@ extension View {
         cancelTitle: String = AedstCommonStrings.cancel,
         isDestructive: Bool = false,
         size: AedstAlertDialogSize = .default,
+        returnFocus: AedstFocusReturn? = nil,
         onConfirm: @escaping () -> Void
     ) -> some View {
         modifier(
@@ -232,6 +247,7 @@ extension View {
                 cancelTitle: cancelTitle,
                 isDestructive: isDestructive,
                 size: size,
+                returnFocus: returnFocus,
                 onConfirm: onConfirm
             )
         )

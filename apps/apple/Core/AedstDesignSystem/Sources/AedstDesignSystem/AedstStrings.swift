@@ -95,6 +95,15 @@ enum AedstStrings {
     static var attachmentUploading: String { String(localized: "dsA11yAttachmentUploading", bundle: .module) }
     static var attachmentProcessing: String { String(localized: "dsA11yAttachmentProcessing", bundle: .module) }
     static var attachmentFailed: String { String(localized: "dsA11yAttachmentFailed", bundle: .module) }
+    static var dismissNotification: String { String(localized: "dsDismissNotification", bundle: .module) }
+    static var showActions: String { String(localized: "dsShowActions", bundle: .module) }
+    static var increase: String { String(localized: "dsIncrease", bundle: .module) }
+    static var decrease: String { String(localized: "dsDecrease", bundle: .module) }
+
+    /// "3 of 6 digits entered".
+    static func otpDigits(_ entered: String, _ total: String) -> String {
+        String(localized: "dsOTPDigits \(entered) \(total)", bundle: .module)
+    }
 
     /// "Question 2 of 5".
     static func questionProgress(_ current: String, _ total: String) -> String {

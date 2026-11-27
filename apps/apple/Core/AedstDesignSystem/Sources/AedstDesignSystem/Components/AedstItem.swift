@@ -60,7 +60,7 @@ public struct AedstItemMedia<Content: View>: View {
                 .foregroundStyle(AedstColor.foreground)
         case .image:
             content
-                .frame(width: size.imageSide, height: size.imageSide)
+                .aedstScaledFrame(width: size.imageSide, height: size.imageSide)
                 .clipShape(RoundedRectangle(cornerRadius: AedstRadius.sm, style: .continuous))
         case .default, .outline, .muted:
             content

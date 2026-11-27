@@ -74,9 +74,8 @@ public enum AedstButtonSize: Sendable, CaseIterable {
 
 /// The one button every feature uses instead of bare `Button { }`, so hit
 /// targets, corner radius and the loading-spinner-in-place-of-title behavior
-/// stay consistent. Platform-adaptive: `.buttonStyle(.plain)` on macOS to
-/// opt out of the default bordered chrome that would clash with our own
-/// background.
+/// stay consistent. Every platform uses `AedstPressableButtonStyle` (our own chrome, a pressed and hover wash,
+/// a visible focus ring); control heights scale with Dynamic Type.
 public struct AedstButton: View {
     private let title: String
     private let systemImage: String?
@@ -117,15 +116,25 @@ public struct AedstButton: View {
             chrome.aedstHitTarget()
         }
         .disabled(isLoading || isDisabled)
-        .opacity(isDisabled ? 0.5 : 1)
-        #if os(macOS)
-        .buttonStyle(.plain)
-        #endif
+        // Pressed and hover washes and a visible focus ring on every platform (the plain style has none).
+        .buttonStyle(AedstPressableButtonStyle(cornerRadius: size.cornerRadius))
         // `Button` already exposes the button trait; the label is set explicitly
         // because the visible title is hidden (opacity 0) while loading and
         // absent for the `icon*` sizes.
         .accessibilityLabel(Text(title))
+        // While loading the control is disabled; the value tells VoiceOver why ("Loading").
+        .accessibilityValue(Text(Self.accessibilityValue(isLoading: isLoading)))
+        .accessibilityAddTraits(isLoading ? .updatesFrequently : [])
     }
+
+    /// What VoiceOver reads after the label: "Loading" while busy, nothing otherwise.
+    static func accessibilityValue(isLoading: Bool) -> String {
+        isLoading ? AedstStrings.loading : ""
+    }
+
+    /// A disabled button keeps readable contrast: muted token colours instead of a half-transparent copy of the
+    /// enabled colours (which fell below 4.5:1 on muted text). A loading button is not "disabled" visually.
+    private var showsDisabled: Bool { isDisabled && !isLoading }
 
     private var stretches: Bool { fillsWidth && !size.isIconOnly }
 
@@ -148,8 +157,9 @@ public struct AedstButton: View {
                     .tint(foregroundColor)
             }
         }
-        .frame(maxWidth: stretches ? .infinity : nil, minHeight: size.minHeight)
-        .frame(minWidth: size.isIconOnly ? size.minHeight : nil)
+        .aedstScaledMinFrame(minHeight: size.minHeight)
+        .frame(maxWidth: stretches ? .infinity : nil)
+        .aedstScaledMinFrame(minWidth: size.isIconOnly ? size.minHeight : nil)
         .padding(.horizontal, size.horizontalPadding)
         .background(backgroundColor)
         .foregroundStyle(foregroundColor)
@@ -157,12 +167,18 @@ public struct AedstButton: View {
         .overlay {
             if variant == .outline {
                 RoundedRectangle(cornerRadius: size.cornerRadius, style: .continuous)
-                    .strokeBorder(AedstColor.border, lineWidth: 1)
+                    .strokeBorder(showsDisabled ? AedstColor.input : AedstColor.border, lineWidth: 1)
             }
         }
     }
 
     private var backgroundColor: Color {
+        if showsDisabled {
+            switch variant {
+            case .default, .secondary, .destructive: return AedstColor.muted
+            case .outline, .ghost, .link: return .clear
+            }
+        }
         switch variant {
         case .default: AedstColor.primary
         case .secondary: AedstColor.secondary
@@ -172,6 +188,7 @@ public struct AedstButton: View {
     }
 
     private var foregroundColor: Color {
+        if showsDisabled { return AedstColor.mutedForeground }
         switch variant {
         case .default: AedstColor.primaryForeground
         case .secondary: AedstColor.secondaryForeground

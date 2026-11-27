@@ -26,5 +26,13 @@ struct AedstAlertDialogTests {
         #expect(AedstAlertDialogSize.sm.actionLayout(isCompact: true) == .columns)
         #expect(AedstAlertDialogSize.sm.actionLayout(isCompact: false) == .columns)
     }
+
+    @Test("at accessibility text sizes the actions always stack")
+    func accessibilityStacks() {
+        for size in AedstAlertDialogSize.allCases {
+            #expect(size.actionLayout(isCompact: false, isAccessibilitySize: true) == .stacked)
+            #expect(size.actionLayout(isCompact: true, isAccessibilitySize: true) == .stacked)
+        }
+    }
 }
 #endif

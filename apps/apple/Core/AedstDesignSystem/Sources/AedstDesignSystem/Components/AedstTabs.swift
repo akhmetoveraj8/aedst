@@ -87,7 +87,12 @@ public struct AedstTabs<Value: Hashable & Sendable, Content: View>: View {
                 Text(item.title)
             }
             .font(AedstTypography.body.weight(.medium))
-            .foregroundStyle(isSelected ? AedstColor.foreground : AedstColor.mutedForeground)
+            .foregroundStyle(
+                AedstDisabledStyle.foreground(
+                    isSelected ? AedstColor.foreground : AedstColor.mutedForeground,
+                    isDisabled: item.isDisabled
+                )
+            )
             .padding(.horizontal, AedstSpacing.md)
             .padding(.vertical, AedstSpacing.xs)
             .background(variant == .default && isSelected ? AedstColor.background : Color.clear)
@@ -102,8 +107,7 @@ public struct AedstTabs<Value: Hashable & Sendable, Content: View>: View {
             .aedstHitTarget()
         }
         .buttonStyle(.plain)
-        .disabled(item.isDisabled)
-        .opacity(item.isDisabled ? 0.5 : 1)
+        .aedstDisabled(item.isDisabled)
         .aedstAnimation(.easeInOut(duration: AedstMotion.durationFast), value: isSelected)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
     }

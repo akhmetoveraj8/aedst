@@ -80,8 +80,7 @@ public struct AedstCombobox: View {
                 )
             }
             .buttonStyle(.plain)
-            .disabled(isDisabled)
-            .opacity(isDisabled ? 0.5 : 1)
+            .aedstDisabled(isDisabled)
             .accessibilityLabel(Text(label))
             .accessibilityValue(Text(selected?.title ?? placeholder))
             .popover(isPresented: $isPresented, attachmentAnchor: .rect(.bounds), arrowEdge: Edge.top) {
@@ -154,6 +153,7 @@ public struct AedstCombobox: View {
                 }
                 Text(option.title)
                     .font(AedstTypography.body)
+                    .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: option.isDisabled))
                 Spacer(minLength: AedstSpacing.sm)
                 if isSelected {
                     Image(systemName: "checkmark")
@@ -169,8 +169,7 @@ public struct AedstCombobox: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(option.isDisabled)
-        .opacity(option.isDisabled ? 0.5 : 1)
+        .aedstDisabled(option.isDisabled)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 

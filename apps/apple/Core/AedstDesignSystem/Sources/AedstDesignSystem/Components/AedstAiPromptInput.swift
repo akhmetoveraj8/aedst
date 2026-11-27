@@ -224,7 +224,7 @@ public struct AedstAiPromptInputAttachButton: View {
             ]) {
                 Image(systemName: "plus")
                     .font(AedstTypography.caption.weight(.semibold))
-                    .frame(width: 32, height: 32)
+                    .aedstScaledFrame(width: 32, height: 32)
                     .overlay { Circle().strokeBorder(AedstColor.border, lineWidth: 1) }
                     .accessibilityLabel(Text(label))
             }

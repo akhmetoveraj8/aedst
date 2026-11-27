@@ -89,14 +89,17 @@ public struct AedstInputGroup<Input: View, Addon: View>: View {
         .padding(.horizontal, AedstSpacing.sm)
         .padding(.vertical, AedstSpacing.xxs)
         .frame(maxWidth: .infinity, minHeight: AedstHitTarget.minimum, alignment: .leading)
-        .background(AedstColor.background)
+        .background(AedstDisabledStyle.fill(AedstColor.background, isDisabled: isDisabled))
         .clipShape(RoundedRectangle(cornerRadius: AedstRadius.sm, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: AedstRadius.sm, style: .continuous)
-                .strokeBorder(isInvalid ? AedstColor.destructive : AedstColor.input, lineWidth: 1)
+                .strokeBorder(
+                    isInvalid ? AedstColor.destructive : AedstDisabledStyle.border(AedstColor.input, isDisabled: isDisabled),
+                    lineWidth: 1
+                )
         }
-        .disabled(isDisabled)
-        .opacity(isDisabled ? 0.5 : 1)
+        .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: isDisabled))
+        .aedstDisabled(isDisabled)
         .accessibilityElement(children: .contain)
     }
 }

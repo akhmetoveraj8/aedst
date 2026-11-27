@@ -69,8 +69,7 @@ public struct AedstDatePicker: View {
             .datePickerStyle(.compact)
             .labelsHidden()
             .tint(AedstColor.primary)
-            .disabled(isDisabled)
-            .opacity(isDisabled ? 0.5 : 1)
+            .aedstDisabled(isDisabled)
             .frame(minHeight: AedstHitTarget.minimum)
             .accessibilityLabel(Text(label))
 

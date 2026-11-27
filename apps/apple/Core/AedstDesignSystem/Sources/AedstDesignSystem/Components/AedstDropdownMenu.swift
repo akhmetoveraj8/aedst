@@ -196,7 +196,7 @@ public struct AedstMenuTriggerLabel: View {
         .font(AedstTypography.body.weight(.medium))
         .foregroundStyle(AedstColor.foreground)
         .padding(.horizontal, AedstSpacing.md)
-        .frame(minHeight: 36)
+        .aedstScaledMinFrame(minHeight: 36)
         .background(AedstColor.background)
         .clipShape(RoundedRectangle(cornerRadius: AedstRadius.md, style: .continuous))
         .overlay {

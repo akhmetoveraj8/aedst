@@ -48,6 +48,15 @@ Platforms: the components added on 2026-11-21 are compiled for iOS, macOS and vi
 (`#if os(iOS) || os(macOS) || os(visionOS)` around the file); tvOS and watchOS are scaffolded package platforms
 without app targets. Differences between iOS and macOS (hover, menus, sheets against popovers, the sidebar) are
 the smallest `#if os(...)` inside the component: the package stays one shared library for both app targets.
+`AedstSlider` is the first component with a real tvOS and watchOS fallback (a progress bar between minus and plus
+buttons, `AedstSliderLogic`); the other guarded files stay empty there until a tvOS or watchOS app target exists.
+
+Cross-cutting behaviour (all in `Components/Support`): `aedstScaledFrame` / `aedstScaledMinFrame` scale control
+sizes with Dynamic Type (`@ScaledMetric`); `AedstPressableButtonStyle` gives pressed and hover washes and a visible
+focus ring; `aedstHaptic` plays `sensoryFeedback` (not on tvOS); `aedstInitialAccessibilityFocus` and
+`aedstAnnounceScreenChange` move VoiceOver into dialogs, drawers, sheets and the palette; `AedstSafeURL` limits
+links to https, http and mailto. Thumbs and sweeps are placed by alignment or `AedstLayoutPolicy.sweepOffset`, never
+by a bare physical `.offset(x:)`, so they mirror in right-to-left.
 
 ## Deliberate adaptations (web concept → SwiftUI/HIG equivalent)
 

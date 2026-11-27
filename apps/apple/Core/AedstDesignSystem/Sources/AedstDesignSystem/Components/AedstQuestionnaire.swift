@@ -107,7 +107,8 @@ public struct AedstQuestionnaire: View {
             HStack(alignment: .firstTextBaseline, spacing: AedstSpacing.sm + AedstSpacing.xxs) {
                 AedstQuestionnaireIndicator(isSelected: isSelected, multiple: multiple)
                 VStack(alignment: .leading, spacing: AedstSpacing.xxs) {
-                    Text(choice.title).foregroundStyle(AedstColor.foreground)
+                    Text(choice.title)
+                        .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: choice.isDisabled))
                     if let description = choice.description {
                         Text(description).foregroundStyle(AedstColor.mutedForeground)
                     }
@@ -131,8 +132,7 @@ public struct AedstQuestionnaire: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(choice.isDisabled)
-        .opacity(choice.isDisabled ? 0.5 : 1)
+        .aedstDisabled(choice.isDisabled)
         .keyboardShortcut(choice.shortcut.map { KeyboardShortcut(KeyEquivalent($0), modifiers: []) })
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityValue(Text(multiple ? (isSelected ? AedstStrings.checked : AedstStrings.unchecked) : ""))
@@ -169,23 +169,30 @@ public struct AedstQuestionnaire: View {
 private struct AedstQuestionnaireIndicator: View {
     let isSelected: Bool
     let multiple: Bool
+    @Environment(\.isEnabled) private var isEnabled
 
     var body: some View {
+        let isDisabled = !isEnabled
         let shape = RoundedRectangle(cornerRadius: multiple ? AedstRadius.xs : AedstRadius.full, style: .continuous)
         shape
-            .fill(isSelected ? AedstColor.primary : Color.clear)
-            .overlay { shape.strokeBorder(isSelected ? AedstColor.primary : AedstColor.input, lineWidth: 1) }
+            .fill(isSelected ? AedstDisabledStyle.mark(AedstColor.primary, isDisabled: isDisabled) : Color.clear)
+            .overlay {
+                shape.strokeBorder(
+                    AedstDisabledStyle.border(isSelected ? AedstColor.primary : AedstColor.input, isDisabled: isDisabled),
+                    lineWidth: 1
+                )
+            }
             .overlay {
                 if isSelected {
                     if multiple {
                         Image(systemName: "checkmark").font(AedstTypography.caption.weight(.bold))
                     } else {
-                        Circle().frame(width: AedstSpacing.sm, height: AedstSpacing.sm)
+                        Circle().aedstScaledFrame(width: AedstSpacing.sm, height: AedstSpacing.sm)
                     }
                 }
             }
-            .foregroundStyle(AedstColor.primaryForeground)
-            .frame(width: AedstSpacing.lg, height: AedstSpacing.lg)
+            .foregroundStyle(AedstDisabledStyle.onMark(AedstColor.primaryForeground, isDisabled: isDisabled))
+            .aedstScaledFrame(width: AedstSpacing.lg, height: AedstSpacing.lg)
             .accessibilityHidden(true)
     }
 }

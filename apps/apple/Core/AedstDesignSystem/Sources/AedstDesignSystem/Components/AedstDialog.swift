@@ -14,6 +14,7 @@ private struct AedstDialogLayout<DialogContent: View, Footer: View>: View {
     let footer: Footer
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: AedstSpacing.lg) {
@@ -22,6 +23,8 @@ private struct AedstDialogLayout<DialogContent: View, Footer: View>: View {
                     Text(title)
                         .font(AedstTypography.headline)
                         .accessibilityAddTraits(.isHeader)
+                        // VoiceOver starts on the dialog's title when it opens.
+                        .aedstInitialAccessibilityFocus()
                     if let description {
                         Text(description)
                             .font(AedstTypography.caption)
@@ -42,9 +45,16 @@ private struct AedstDialogLayout<DialogContent: View, Footer: View>: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             // Actions end-aligned, the confirming one last (trailing in LTR, leading edge in RTL).
-            HStack(spacing: AedstSpacing.sm) {
-                Spacer(minLength: 0)
-                footer
+            // At accessibility text sizes the actions stack instead of being cut off.
+            if AedstLayoutPolicy.prefersStackedLayout(dynamicTypeSize) {
+                VStack(alignment: .trailing, spacing: AedstSpacing.sm) {
+                    footer
+                }
+            } else {
+                HStack(spacing: AedstSpacing.sm) {
+                    Spacer(minLength: 0)
+                    footer
+                }
             }
         }
         .padding(AedstSpacing.xxl)
@@ -73,6 +83,7 @@ public struct AedstDialogModifier<DialogContent: View, Footer: View>: ViewModifi
     private let description: String?
     private let showsCloseButton: Bool
     private let isDismissDisabled: Bool
+    private let returnFocus: AedstFocusReturn?
     private let dialogContent: DialogContent
     private let footer: Footer
 
@@ -81,6 +92,7 @@ public struct AedstDialogModifier<DialogContent: View, Footer: View>: ViewModifi
     ///   - description: Optional text under the title.
     ///   - showsCloseButton: Shows the close button (also bound to Escape / Command-period).
     ///   - isDismissDisabled: Blocks swipe and outside-click dismissal, for a form with unsaved input.
+    ///   - returnFocus: Where focus goes when it closes (the caller's trigger); see `AedstFocusReturn`.
     ///   - content: Body of the dialog.
     ///   - footer: Action buttons, in reading order, confirming action last.
     public init(
@@ -89,6 +101,7 @@ public struct AedstDialogModifier<DialogContent: View, Footer: View>: ViewModifi
         description: String? = nil,
         showsCloseButton: Bool = true,
         isDismissDisabled: Bool = false,
+        returnFocus: AedstFocusReturn? = nil,
         @ViewBuilder content: () -> DialogContent,
         @ViewBuilder footer: () -> Footer
     ) {
@@ -97,12 +110,13 @@ public struct AedstDialogModifier<DialogContent: View, Footer: View>: ViewModifi
         self.description = description
         self.showsCloseButton = showsCloseButton
         self.isDismissDisabled = isDismissDisabled
+        self.returnFocus = returnFocus
         self.dialogContent = content()
         self.footer = footer()
     }
 
     public func body(content: Content) -> some View {
-        content.sheet(isPresented: $isPresented) {
+        content.aedstReturnsFocus(whenPresented: isPresented, to: returnFocus).sheet(isPresented: $isPresented) {
             AedstDialogLayout(
                 title: title,
                 description: description,
@@ -128,6 +142,7 @@ extension View {
         description: String? = nil,
         showsCloseButton: Bool = true,
         isDismissDisabled: Bool = false,
+        returnFocus: AedstFocusReturn? = nil,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder footer: @escaping () -> Footer
     ) -> some View {
@@ -138,6 +153,7 @@ extension View {
                 description: description,
                 showsCloseButton: showsCloseButton,
                 isDismissDisabled: isDismissDisabled,
+                returnFocus: returnFocus,
                 content: content,
                 footer: footer
             )
@@ -151,6 +167,7 @@ extension View {
         description: String? = nil,
         showsCloseButton: Bool = true,
         isDismissDisabled: Bool = false,
+        returnFocus: AedstFocusReturn? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         aedstDialog(
@@ -159,6 +176,7 @@ extension View {
             description: description,
             showsCloseButton: showsCloseButton,
             isDismissDisabled: isDismissDisabled,
+            returnFocus: returnFocus,
             content: content,
             footer: { EmptyView() }
         )

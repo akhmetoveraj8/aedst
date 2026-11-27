@@ -58,7 +58,7 @@ struct AedstAiLeadingIcon: View {
         }
         .font(AedstTypography.body)
         .imageScale(.small)
-        .frame(width: AedstSpacing.lg, height: AedstSpacing.lg)
+        .aedstScaledFrame(width: AedstSpacing.lg, height: AedstSpacing.lg)
         .accessibilityHidden(true)
     }
 }

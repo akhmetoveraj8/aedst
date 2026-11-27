@@ -80,8 +80,7 @@ public struct AedstCollapsible<Label: View, Content: View>: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .disabled(isDisabled)
-            .opacity(isDisabled ? 0.5 : 1)
+            .aedstDisabled(isDisabled)
             .accessibilityValue(Text(isExpanded ? AedstStrings.expanded : AedstStrings.collapsed))
 
             if isExpanded {

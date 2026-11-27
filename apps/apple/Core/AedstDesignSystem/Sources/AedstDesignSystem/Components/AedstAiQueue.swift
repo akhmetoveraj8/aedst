@@ -91,7 +91,9 @@ public struct AedstAiQueueItem<Actions: View>: View {
     private let statusLabel: String?
     private let actions: Actions
     @State private var isHovered = false
+    @State private var isPinnedOpen = false
     @FocusState private var actionsFocused: Bool
+    @FocusState private var rowFocused: Bool
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
 
     public init(
@@ -123,12 +125,18 @@ public struct AedstAiQueueItem<Actions: View>: View {
             in: RoundedRectangle(cornerRadius: AedstRadius.md, style: .continuous)
         )
         .onHover { isHovered = $0 }
+        // Equivalents of hover: the row takes keyboard focus (Tab), a long press pins the actions open, and
+        // VoiceOver / Switch Control get a "Show actions" action.
+        .focusable()
+        .focused($rowFocused)
+        .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded { _ in isPinnedOpen.toggle() })
+        .accessibilityAction(named: Text(AedstStrings.showActions)) { isPinnedOpen.toggle() }
     }
 
     private var showsActions: Bool {
         AedstAiQueueLogic.showsActions(
-            precisePointer: AedstAiQueueLogic.precisePointer, isHovered: isHovered, isFocused: actionsFocused,
-            voiceOverEnabled: voiceOverEnabled
+            precisePointer: AedstAiQueueLogic.precisePointer, isHovered: isHovered, isFocused: actionsFocused || rowFocused,
+            voiceOverEnabled: voiceOverEnabled, isPinnedOpen: isPinnedOpen
         )
     }
 }
@@ -151,9 +159,12 @@ enum AedstAiQueueLogic {
         #endif
     }
 
-    /// Actions hide only on a precise pointer, and show there on hover, focus or while VoiceOver runs.
-    static func showsActions(precisePointer: Bool, isHovered: Bool, isFocused: Bool, voiceOverEnabled: Bool) -> Bool {
-        !precisePointer || isHovered || isFocused || voiceOverEnabled
+    /// Actions hide only on a precise pointer, and show there on hover, focus, a long press (pinned open) or
+    /// while VoiceOver runs.
+    static func showsActions(
+        precisePointer: Bool, isHovered: Bool, isFocused: Bool, voiceOverEnabled: Bool, isPinnedOpen: Bool = false
+    ) -> Bool {
+        !precisePointer || isHovered || isFocused || voiceOverEnabled || isPinnedOpen
     }
 }
 

@@ -22,6 +22,15 @@ struct AedstInputOTPTests {
         #expect(AedstInputOTPLogic.sanitized("١٢٣4", length: 6) == "4")
     }
 
+    @Test("the field's spoken value counts the filled slots")
+    func spokenValue() {
+        #expect(AedstInputOTPLogic.enteredCount(in: "123", length: 6) == 3)
+        #expect(AedstInputOTPLogic.enteredCount(in: "1234567", length: 6) == 6)
+        #expect(AedstInputOTPLogic.enteredCount(in: "", length: 6) == 0)
+        let spoken = AedstInputOTPLogic.spokenValue(code: "123", length: 6)
+        #expect(spoken.contains("3") && spoken.contains("6"))
+    }
+
     @Test("a slot shows its digit, or nothing past the end of the code")
     func digitPerSlot() {
         #expect(AedstInputOTPLogic.digit(at: 0, in: "12") == "1")

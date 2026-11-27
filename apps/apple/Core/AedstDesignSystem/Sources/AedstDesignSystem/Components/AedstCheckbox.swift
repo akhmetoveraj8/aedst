@@ -20,32 +20,33 @@ public struct AedstCheckbox: View {
         } label: {
             HStack(spacing: AedstSpacing.xs) {
                 RoundedRectangle(cornerRadius: AedstRadius.xs, style: .continuous)
-                    .fill(isChecked ? AedstColor.primary : Color.clear)
-                    .frame(width: 20, height: 20)
+                    .fill(isChecked ? AedstDisabledStyle.mark(AedstColor.primary, isDisabled: isDisabled) : Color.clear)
+                    .aedstScaledFrame(width: 20, height: 20)
                     .overlay {
                         RoundedRectangle(cornerRadius: AedstRadius.xs, style: .continuous)
-                            .strokeBorder(isChecked ? AedstColor.primary : AedstColor.border, lineWidth: 1.5)
+                            .strokeBorder(
+                                AedstDisabledStyle.border(isChecked ? AedstColor.primary : AedstColor.border, isDisabled: isDisabled),
+                                lineWidth: 1.5
+                            )
                     }
                     .overlay {
                         if isChecked {
                             Image(systemName: "checkmark")
                                 .font(.caption.weight(.bold))
-                                .foregroundStyle(AedstColor.primaryForeground)
+                                .foregroundStyle(AedstDisabledStyle.onMark(AedstColor.primaryForeground, isDisabled: isDisabled))
                         }
                     }
 
                 if let label {
                     Text(label)
                         .font(AedstTypography.body)
-                        .foregroundStyle(AedstColor.foreground)
+                        .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: isDisabled))
                 }
             }
         }
-        #if os(macOS)
-        .buttonStyle(.plain)
-        #endif
-        .disabled(isDisabled)
-        .opacity(isDisabled ? 0.5 : 1)
+        .buttonStyle(AedstPressableButtonStyle(cornerRadius: AedstRadius.xs))
+        .aedstHaptic(.selection, trigger: isChecked)
+        .aedstDisabled(isDisabled)
         .accessibilityLabel(Text(label ?? AedstStrings.checkbox))
         .accessibilityAddTraits(.isButton)
         .accessibilityValue(Text(Self.accessibilityValue(isChecked: isChecked)))

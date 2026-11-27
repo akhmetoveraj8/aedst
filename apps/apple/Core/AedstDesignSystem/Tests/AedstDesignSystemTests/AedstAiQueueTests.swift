@@ -25,6 +25,16 @@ struct AedstAiQueueTests {
         #expect(AedstAiQueueLogic.showsActions(precisePointer: true, isHovered: false, isFocused: false, voiceOverEnabled: true))
     }
 
+    @Test("a long press pins the actions open even with a precise pointer")
+    func pinnedOpen() {
+        #expect(AedstAiQueueLogic.showsActions(
+            precisePointer: true, isHovered: false, isFocused: false, voiceOverEnabled: false, isPinnedOpen: true
+        ))
+        #expect(!AedstAiQueueLogic.showsActions(
+            precisePointer: true, isHovered: false, isFocused: false, voiceOverEnabled: false, isPinnedOpen: false
+        ))
+    }
+
     @Test("the queue with sections, items and actions builds")
     @MainActor
     func builds() {

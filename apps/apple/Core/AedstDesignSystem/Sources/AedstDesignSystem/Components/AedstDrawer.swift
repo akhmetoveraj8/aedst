@@ -17,6 +17,8 @@ private struct AedstDrawerLayout<DrawerContent: View, Footer: View>: View {
                 Text(title)
                     .font(AedstTypography.headline)
                     .accessibilityAddTraits(.isHeader)
+                    // VoiceOver starts on the drawer's title when it opens.
+                    .aedstInitialAccessibilityFocus()
                 if let description {
                     Text(description)
                         .font(AedstTypography.caption)
@@ -59,6 +61,7 @@ public struct AedstDrawerModifier<DrawerContent: View, Footer: View>: ViewModifi
     private let title: String
     private let description: String?
     private let detents: Set<AedstSheetDetent>
+    private let returnFocus: AedstFocusReturn?
     private let drawerContent: DrawerContent
     private let footer: Footer
 
@@ -66,6 +69,7 @@ public struct AedstDrawerModifier<DrawerContent: View, Footer: View>: ViewModifi
     ///   - title: Already localized title; also the drawer's accessibility heading.
     ///   - description: Optional text under the title.
     ///   - detents: Heights the drawer may rest at.
+    ///   - returnFocus: Where focus goes when it closes (the caller's trigger); see `AedstFocusReturn`.
     ///   - content: Body of the drawer; it scrolls when it does not fit.
     ///   - footer: Action buttons, stacked top to bottom, primary action first.
     public init(
@@ -73,6 +77,7 @@ public struct AedstDrawerModifier<DrawerContent: View, Footer: View>: ViewModifi
         title: String,
         description: String? = nil,
         detents: Set<AedstSheetDetent> = [.medium, .large],
+        returnFocus: AedstFocusReturn? = nil,
         @ViewBuilder content: () -> DrawerContent,
         @ViewBuilder footer: () -> Footer
     ) {
@@ -80,12 +85,13 @@ public struct AedstDrawerModifier<DrawerContent: View, Footer: View>: ViewModifi
         self.title = title
         self.description = description
         self.detents = detents
+        self.returnFocus = returnFocus
         self.drawerContent = content()
         self.footer = footer()
     }
 
     public func body(content: Content) -> some View {
-        content.aedstSheet(isPresented: $isPresented, detents: detents) {
+        content.aedstSheet(isPresented: $isPresented, detents: detents, returnFocus: returnFocus) {
             AedstDrawerLayout(
                 title: title,
                 description: description,
@@ -103,6 +109,7 @@ extension View {
         title: String,
         description: String? = nil,
         detents: Set<AedstSheetDetent> = [.medium, .large],
+        returnFocus: AedstFocusReturn? = nil,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder footer: @escaping () -> Footer
     ) -> some View {
@@ -112,6 +119,7 @@ extension View {
                 title: title,
                 description: description,
                 detents: detents,
+                returnFocus: returnFocus,
                 content: content,
                 footer: footer
             )

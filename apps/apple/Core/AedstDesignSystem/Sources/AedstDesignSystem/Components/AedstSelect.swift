@@ -68,15 +68,21 @@ struct AedstSelectTriggerLabel: View {
     let systemImage: String?
     let isInvalid: Bool
     var size: AedstSelectSize = .default
+    @Environment(\.isEnabled) private var isEnabled
 
     var body: some View {
+        let isDisabled = !isEnabled
         HStack(spacing: AedstSpacing.xs) {
             if let systemImage {
                 Image(systemName: systemImage)
                     .accessibilityHidden(true)
             }
             Text(title)
-                .foregroundStyle(isPlaceholder ? AedstColor.mutedForeground : AedstColor.foreground)
+                .foregroundStyle(
+                    isPlaceholder
+                        ? AedstColor.mutedForeground
+                        : AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: isDisabled)
+                )
                 .lineLimit(1)
             Spacer(minLength: AedstSpacing.sm)
             Image(systemName: "chevron.up.chevron.down")
@@ -85,14 +91,17 @@ struct AedstSelectTriggerLabel: View {
                 .accessibilityHidden(true)
         }
         .font(AedstTypography.body)
-        .foregroundStyle(AedstColor.foreground)
+        .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: isDisabled))
         .padding(.horizontal, size.horizontalPadding)
-        .frame(minHeight: size.height)
-        .background(AedstColor.background)
+        .aedstScaledMinFrame(minHeight: size.height)
+        .background(AedstDisabledStyle.fill(AedstColor.background, isDisabled: isDisabled))
         .clipShape(RoundedRectangle(cornerRadius: size.cornerRadius, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: size.cornerRadius, style: .continuous)
-                .strokeBorder(isInvalid ? AedstColor.destructive : AedstColor.border, lineWidth: 1)
+                .strokeBorder(
+                    isInvalid ? AedstColor.destructive : AedstDisabledStyle.border(AedstColor.border, isDisabled: isDisabled),
+                    lineWidth: 1
+                )
         }
         .contentShape(Rectangle())
     }
@@ -170,8 +179,7 @@ public struct AedstSelect: View {
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
             #endif
-            .disabled(isDisabled)
-            .opacity(isDisabled ? 0.5 : 1)
+            .aedstDisabled(isDisabled)
             .accessibilityLabel(Text(label))
             .accessibilityValue(Text(selected?.title ?? placeholder))
 

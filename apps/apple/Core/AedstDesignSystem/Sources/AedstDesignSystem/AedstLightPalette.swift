@@ -11,6 +11,8 @@ public enum AedstLightPalette {
     public static let accentForeground = Color(red: 0.090, green: 0.090, blue: 0.090, opacity: 1)
     public static let background = Color(red: 1.000, green: 1.000, blue: 1.000, opacity: 1)
     public static let border = Color(red: 0.898, green: 0.898, blue: 0.898, opacity: 1)
+    public static let bubbleTinted = Color(red: 0.910, green: 0.910, blue: 0.910, opacity: 1)
+    public static let bubbleTintedHover = Color(red: 0.843, green: 0.843, blue: 0.843, opacity: 1)
     public static let card = Color(red: 1.000, green: 1.000, blue: 1.000, opacity: 1)
     public static let cardForeground = Color(red: 0.039, green: 0.039, blue: 0.039, opacity: 1)
     public static let chart1 = Color(red: 0.831, green: 0.831, blue: 0.831, opacity: 1)

@@ -80,7 +80,7 @@ public struct AedstAiInlineCitationCard<Card: View>: View {
                 VStack(alignment: .leading, spacing: AedstSpacing.md) {
                     card
                 }
-                .frame(width: 288, alignment: .leading)
+                .aedstScaledFrame(width: 288, relativeTo: .body, alignment: .leading)
             }
     }
 
@@ -124,15 +124,20 @@ public struct AedstAiInlineCitationSource: View {
                     .foregroundStyle(AedstColor.mutedForeground)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Link(destination: url) {
-                Text(host)
-                    .font(AedstTypography.caption)
-                    .foregroundStyle(AedstColor.mutedForeground)
-                    .underline()
-                    .environment(\.layoutDirection, .leftToRight)
+            // Only https, http and mailto are opened (`AedstSafeURL`); any other scheme shows the host as text.
+            let hostText = Text(host)
+                .font(AedstTypography.caption)
+                .foregroundStyle(AedstColor.mutedForeground)
+                .underline()
+            if let safeURL = AedstSafeURL.validated(url) {
+                Link(destination: safeURL) {
+                    hostText.environment(\.layoutDirection, .leftToRight)
+                }
+                .accessibilityLabel(Text([host, newTabLabel].compactMap(\.self).joined(separator: " ")))
+                .aedstHitTarget()
+            } else {
+                hostText.environment(\.layoutDirection, .leftToRight)
             }
-            .accessibilityLabel(Text([host, newTabLabel].compactMap(\.self).joined(separator: " ")))
-            .aedstHitTarget()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

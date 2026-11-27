@@ -99,7 +99,8 @@ public struct AedstAiStackTraceFrames: View {
             VStack(alignment: .leading, spacing: AedstSpacing.none) {
                 // Frames can repeat (recursion), so the position is the identity.
                 ForEach(Array(split.app.enumerated()), id: \.offset) { _, frame in
-                    if let url = frameURL?(frame) {
+                    // Only https, http and mailto links are opened (`AedstSafeURL`).
+                    if let url = frameURL?(frame).flatMap({ AedstSafeURL.validated($0) }) {
                         Link(destination: url) { AedstAiStackFrameRow(frame: frame) }
                             .buttonStyle(.plain)
                     } else {

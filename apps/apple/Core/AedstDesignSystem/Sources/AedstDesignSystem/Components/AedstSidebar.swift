@@ -128,6 +128,7 @@ public struct AedstSidebarMenuButton: View {
     private let size: AedstSidebarMenuButtonSize
     private let action: () -> Void
     @State private var isHovered = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     /// - Parameters:
     ///   - title: Already localized title.
@@ -156,7 +157,7 @@ public struct AedstSidebarMenuButton: View {
         Button(action: action) {
             row.aedstHitTarget()
         }
-        .buttonStyle(.plain)
+        .buttonStyle(AedstPressableButtonStyle(cornerRadius: AedstRadius.md, showsHover: false))
         #if os(macOS)
         // Pointer feedback; touch platforms show the pressed state of the button instead.
         .onHover { isHovered = $0 }
@@ -175,7 +176,7 @@ public struct AedstSidebarMenuButton: View {
                     .accessibilityHidden(true)
             }
             Text(title)
-                .lineLimit(1)
+                .lineLimit(AedstLayoutPolicy.lineLimit(1, for: dynamicTypeSize))
             Spacer(minLength: AedstSpacing.none)
             if let badge {
                 Text(badge)
@@ -186,7 +187,8 @@ public struct AedstSidebarMenuButton: View {
         .font(size.font.weight(isActive ? .medium : .regular))
         .foregroundStyle(isHighlighted ? AedstColor.sidebarAccentForeground : AedstColor.sidebarForeground)
         .padding(.horizontal, AedstSpacing.sm)
-        .frame(maxWidth: .infinity, minHeight: size.minHeight, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .aedstScaledMinFrame(minHeight: size.minHeight, alignment: .leading)
         .background(background)
         .clipShape(RoundedRectangle(cornerRadius: AedstRadius.md, style: .continuous))
         .overlay {

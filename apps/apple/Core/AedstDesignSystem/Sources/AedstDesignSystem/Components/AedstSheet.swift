@@ -25,6 +25,8 @@ private struct AedstSheetPresentationModifier: ViewModifier {
             .presentationDetents(Set(detents.map(\.presentationDetent)))
             .presentationDragIndicator(.visible)
             .presentationBackground(AedstColor.background)
+            // VoiceOver moves into the sheet when it opens; the system hands focus back to the presenter on close.
+            .aedstAnnounceScreenChange()
     }
 }
 
@@ -34,20 +36,24 @@ private struct AedstSheetPresentationModifier: ViewModifier {
 public struct AedstSheetModifier<SheetContent: View>: ViewModifier {
     @Binding private var isPresented: Bool
     private let detents: Set<AedstSheetDetent>
+    private let returnFocus: AedstFocusReturn?
     private let sheetContent: SheetContent
 
+    /// - Parameter returnFocus: Where focus goes when the sheet closes (the caller's trigger); see `AedstFocusReturn`.
     public init(
         isPresented: Binding<Bool>,
         detents: Set<AedstSheetDetent> = [.medium, .large],
+        returnFocus: AedstFocusReturn? = nil,
         @ViewBuilder content: () -> SheetContent
     ) {
         self._isPresented = isPresented
         self.detents = detents
+        self.returnFocus = returnFocus
         self.sheetContent = content()
     }
 
     public func body(content: Content) -> some View {
-        content.sheet(isPresented: $isPresented) {
+        content.aedstReturnsFocus(whenPresented: isPresented, to: returnFocus).sheet(isPresented: $isPresented) {
             sheetContent
                 .modifier(AedstSheetPresentationModifier(detents: detents))
         }
@@ -58,20 +64,24 @@ public struct AedstSheetModifier<SheetContent: View>: ViewModifier {
 public struct AedstItemSheetModifier<Item: Identifiable, SheetContent: View>: ViewModifier {
     @Binding private var item: Item?
     private let detents: Set<AedstSheetDetent>
+    private let returnFocus: AedstFocusReturn?
     private let sheetContent: (Item) -> SheetContent
 
+    /// - Parameter returnFocus: Where focus goes when the sheet closes (the caller's trigger); see `AedstFocusReturn`.
     public init(
         item: Binding<Item?>,
         detents: Set<AedstSheetDetent> = [.medium, .large],
+        returnFocus: AedstFocusReturn? = nil,
         @ViewBuilder content: @escaping (Item) -> SheetContent
     ) {
         self._item = item
         self.detents = detents
+        self.returnFocus = returnFocus
         self.sheetContent = content
     }
 
     public func body(content: Content) -> some View {
-        content.sheet(item: $item) { item in
+        content.aedstReturnsFocus(whenPresented: item != nil, to: returnFocus).sheet(item: $item) { item in
             sheetContent(item)
                 .modifier(AedstSheetPresentationModifier(detents: detents))
         }
@@ -82,18 +92,20 @@ extension View {
     public func aedstSheet<Content: View>(
         isPresented: Binding<Bool>,
         detents: Set<AedstSheetDetent> = [.medium, .large],
+        returnFocus: AedstFocusReturn? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
-        modifier(AedstSheetModifier(isPresented: isPresented, detents: detents, content: content))
+        modifier(AedstSheetModifier(isPresented: isPresented, detents: detents, returnFocus: returnFocus, content: content))
     }
 
     /// Sheet bound to an optional item (shown while non-nil), with the design system's detents and background.
     public func aedstSheet<Item: Identifiable, Content: View>(
         item: Binding<Item?>,
         detents: Set<AedstSheetDetent> = [.medium, .large],
+        returnFocus: AedstFocusReturn? = nil,
         @ViewBuilder content: @escaping (Item) -> Content
     ) -> some View {
-        modifier(AedstItemSheetModifier(item: item, detents: detents, content: content))
+        modifier(AedstItemSheetModifier(item: item, detents: detents, returnFocus: returnFocus, content: content))
     }
 }
 

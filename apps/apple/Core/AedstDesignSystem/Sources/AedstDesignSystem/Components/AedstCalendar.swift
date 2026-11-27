@@ -39,8 +39,7 @@ public struct AedstCalendar: View {
         .datePickerStyle(.graphical)
         .labelsHidden()
         .tint(AedstColor.primary)
-        .disabled(isDisabled)
-        .opacity(isDisabled ? 0.5 : 1)
+        .aedstDisabled(isDisabled)
         .accessibilityLabel(Text(label))
     }
 }

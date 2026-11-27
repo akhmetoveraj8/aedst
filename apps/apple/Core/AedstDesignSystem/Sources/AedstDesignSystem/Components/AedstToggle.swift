@@ -89,9 +89,9 @@ public struct AedstToggle: View {
             }
             .font(size.font.weight(.medium))
             .padding(.horizontal, size.horizontalPadding)
-            .frame(minWidth: size.minHeight, minHeight: size.minHeight)
+            .aedstScaledMinFrame(minWidth: size.minHeight, minHeight: size.minHeight)
             .background(isOn ? AedstColor.muted : Color.clear)
-            .foregroundStyle(AedstColor.foreground)
+            .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: isDisabled))
             .clipShape(RoundedRectangle(cornerRadius: AedstRadius.md, style: .continuous))
             .overlay {
                 if variant == .outline {
@@ -101,9 +101,9 @@ public struct AedstToggle: View {
             }
             .aedstHitTarget()
         }
-        .buttonStyle(.plain)
-        .disabled(isDisabled)
-        .opacity(isDisabled ? 0.5 : 1)
+        .buttonStyle(AedstPressableButtonStyle(cornerRadius: AedstRadius.md))
+        .aedstHaptic(.selection, trigger: isOn)
+        .aedstDisabled(isDisabled)
         .aedstAnimation(.easeInOut(duration: AedstMotion.durationFast), value: isOn)
         .accessibilityLabel(Text(title))
         .accessibilityAddTraits(isOn ? [.isToggle, .isSelected] : .isToggle)

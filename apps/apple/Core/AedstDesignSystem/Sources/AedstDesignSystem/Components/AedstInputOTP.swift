@@ -11,6 +11,16 @@ enum AedstInputOTPLogic {
         return String(raw.filter { digits.contains($0) }.prefix(max(0, length)))
     }
 
+    /// How many of the `length` slots are filled.
+    static func enteredCount(in code: String, length: Int) -> Int {
+        min(code.count, max(0, length))
+    }
+
+    /// The value VoiceOver reads for the field: "3 of 6 digits entered".
+    static func spokenValue(code: String, length: Int) -> String {
+        AedstStrings.otpDigits(enteredCount(in: code, length: length).formatted(), max(0, length).formatted())
+    }
+
     /// The digit shown in slot `index`, or `nil` for an empty slot.
     static func digit(at index: Int, in code: String) -> String? {
         guard index >= 0, index < code.count else { return nil }
@@ -75,7 +85,6 @@ public struct AedstInputOTP: View {
                     .accessibilityLabel(Text(AedstStrings.errorPrefix(errorMessage)))
             }
         }
-        .opacity(isDisabled ? 0.5 : 1)
         .onChange(of: code) { _, newValue in
             let clean = AedstInputOTPLogic.sanitized(newValue, length: length)
             if clean != newValue {
@@ -101,11 +110,14 @@ public struct AedstInputOTP: View {
             #endif
             .autocorrectionDisabled()
             .focused($isFocused)
-            .disabled(isDisabled)
+            .aedstDisabled(isDisabled)
             .foregroundStyle(Color.clear)
             .tint(Color.clear)
-            .frame(maxWidth: .infinity, minHeight: AedstHitTarget.minimum)
+            .aedstScaledMinFrame(minHeight: AedstHitTarget.minimum)
+            .frame(maxWidth: .infinity)
+            // The real field is what VoiceOver sees: the slots are hidden, so the filled count is its value.
             .accessibilityLabel(Text(label))
+            .accessibilityValue(Text(AedstInputOTPLogic.spokenValue(code: code, length: length)))
     }
 
     private var slots: some View {
@@ -126,9 +138,10 @@ public struct AedstInputOTP: View {
         return Text(AedstInputOTPLogic.digit(at: index, in: code) ?? " ")
             .font(AedstTypography.headline)
             .monospacedDigit()
-            .foregroundStyle(AedstColor.foreground)
-            .frame(minWidth: AedstHitTarget.minimum, minHeight: AedstHitTarget.minimum)
-            .background(AedstColor.background)
+            .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: isDisabled))
+            .frame(minWidth: AedstHitTarget.minimum)
+            .aedstScaledMinFrame(minHeight: AedstHitTarget.minimum)
+            .background(AedstDisabledStyle.fill(AedstColor.background, isDisabled: isDisabled))
             .clipShape(RoundedRectangle(cornerRadius: AedstRadius.sm, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: AedstRadius.sm, style: .continuous)
@@ -138,7 +151,7 @@ public struct AedstInputOTP: View {
 
     private func borderColor(isActive: Bool) -> Color {
         if errorMessage != nil { return AedstColor.destructive }
-        return isActive ? AedstColor.ring : AedstColor.input
+        return AedstDisabledStyle.border(isActive ? AedstColor.ring : AedstColor.input, isDisabled: isDisabled)
     }
 }
 

@@ -73,7 +73,7 @@ public struct AedstAccordion<ID: Hashable & Sendable, Content: View>: View {
                     HStack(spacing: AedstSpacing.sm) {
                         Text(item.title)
                             .font(AedstTypography.body.weight(.medium))
-                            .foregroundStyle(AedstColor.foreground)
+                            .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: item.isDisabled))
                             .multilineTextAlignment(.leading)
                         Spacer(minLength: AedstSpacing.sm)
                         Image(systemName: "chevron.down")
@@ -88,8 +88,7 @@ public struct AedstAccordion<ID: Hashable & Sendable, Content: View>: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .disabled(item.isDisabled)
-                .opacity(item.isDisabled ? 0.5 : 1)
+                .aedstDisabled(item.isDisabled)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityValue(Text(isOpen ? AedstStrings.expanded : AedstStrings.collapsed))
 

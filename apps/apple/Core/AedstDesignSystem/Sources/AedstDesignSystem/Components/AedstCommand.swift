@@ -128,6 +128,8 @@ public struct AedstCommand: View {
         .onChange(of: query) {
             highlightedID = runnableIDs.first
         }
+        // The search field takes keyboard focus on open (typing starts at once).
+        .onAppear { isSearchFocused = true }
     }
 
     private var searchField: some View {
@@ -195,6 +197,7 @@ public struct AedstCommand: View {
                 }
                 Text(item.title)
                     .font(AedstTypography.body)
+                    .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: item.isDisabled))
                 Spacer(minLength: AedstSpacing.sm)
                 if let shortcut = item.shortcut {
                     Text(shortcut)
@@ -209,9 +212,10 @@ public struct AedstCommand: View {
             .clipShape(RoundedRectangle(cornerRadius: AedstRadius.sm, style: .continuous))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .disabled(item.isDisabled)
-        .opacity(item.isDisabled ? 0.5 : 1)
+        // Hover only moves the highlight; touch and click run the row, the arrow keys move the highlight and
+        // Return runs it, and the focus ring shows keyboard focus on the row itself.
+        .buttonStyle(AedstPressableButtonStyle(cornerRadius: AedstRadius.sm, showsHover: false))
+        .aedstDisabled(item.isDisabled)
         .onHover { hovering in
             if hovering, !item.isDisabled { highlightedID = item.id }
         }
@@ -238,13 +242,15 @@ public struct AedstCommand: View {
 extension View {
     /// Presents `AedstCommand` as a palette (shadcn/ui `CommandDialog`): a form-sized sheet that closes after
     /// an entry ran, by Escape or by a swipe. Bind a key equivalent to whatever toggles `isPresented`.
+    /// `returnFocus` names the control that opened it (see `AedstFocusReturn`).
     public func aedstCommandDialog(
         isPresented: Binding<Bool>,
         groups: [AedstCommandGroup],
         placeholder: String? = nil,
-        emptyText: String? = nil
+        emptyText: String? = nil,
+        returnFocus: AedstFocusReturn? = nil
     ) -> some View {
-        sheet(isPresented: isPresented) {
+        aedstReturnsFocus(whenPresented: isPresented.wrappedValue, to: returnFocus).sheet(isPresented: isPresented) {
             AedstCommand(groups: groups, placeholder: placeholder, emptyText: emptyText) {
                 isPresented.wrappedValue = false
             }
@@ -257,6 +263,8 @@ extension View {
             .presentationBackground(AedstColor.background)
             .accessibilityElement(children: .contain)
             .accessibilityLabel(Text(AedstStrings.commandPalette))
+            // VoiceOver moves into the palette when it opens.
+            .aedstAnnounceScreenChange()
         }
     }
 }

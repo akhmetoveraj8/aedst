@@ -106,7 +106,7 @@ public struct AedstAiModelSelectorTrigger: View {
         .font(AedstTypography.caption.weight(.medium))
         .foregroundStyle(AedstColor.foreground)
         .padding(.horizontal, AedstSpacing.sm)
-        .frame(minHeight: 32)
+        .aedstScaledMinFrame(minHeight: 32)
         .contentShape(RoundedRectangle(cornerRadius: AedstRadius.md, style: .continuous))
     }
 }
@@ -123,7 +123,7 @@ public struct AedstAiModelSelectorLogo: View {
         Image(systemName: systemImage)
             .resizable()
             .scaledToFit()
-            .frame(width: AedstSpacing.lg, height: AedstSpacing.lg)
+            .aedstScaledFrame(width: AedstSpacing.lg, height: AedstSpacing.lg)
             .accessibilityHidden(true)
     }
 }

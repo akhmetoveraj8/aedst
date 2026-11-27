@@ -21,6 +21,7 @@ public struct AedstHoverCard<Trigger: View, Card: View>: View {
     @State private var isTriggerHovered = false
     @State private var isCardHovered = false
     @State private var hoverTask: Task<Void, Never>?
+    @FocusState private var isTriggerFocused: Bool
 
     /// - Parameters:
     ///   - openDelay: How long the pointer rests on the trigger before the card opens.
@@ -55,6 +56,12 @@ public struct AedstHoverCard<Trigger: View, Card: View>: View {
             #endif
             .accessibilityAction(named: Text(AedstStrings.showDetails)) {
                 isPresented = true
+            }
+            // Keyboard equivalent of hover (as in Radix): the card opens when the trigger takes focus.
+            .focusable()
+            .focused($isTriggerFocused)
+            .onChange(of: isTriggerFocused) { _, focused in
+                if focused { isPresented = true }
             }
             .popover(isPresented: $isPresented, attachmentAnchor: .rect(.bounds), arrowEdge: Edge.bottom) {
                 AedstPopoverSurface {

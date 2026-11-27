@@ -15,6 +15,7 @@ struct AedstStringsTests {
             AedstStrings.expanded, AedstStrings.collapsed, AedstStrings.required, AedstStrings.oneTimeCode,
             AedstStrings.tracePending, AedstStrings.traceRunning, AedstStrings.traceSuccess, AedstStrings.traceError,
             AedstStrings.traceSkipped, AedstStrings.showDetails, AedstStrings.toggleSidebar,
+            AedstStrings.dismissNotification, AedstStrings.showActions, AedstStrings.increase, AedstStrings.decrease,
         ]
         for text in all {
             #expect(!text.isEmpty)
@@ -32,5 +33,7 @@ struct AedstStringsTests {
         #expect(pageOf.contains("3") && pageOf.contains("10"))
         let slideOf = AedstStrings.slideOf("2", "5")
         #expect(slideOf.contains("2") && slideOf.contains("5"))
+        let digits = AedstStrings.otpDigits("3", "6")
+        #expect(digits.contains("3") && digits.contains("6"))
     }
 }

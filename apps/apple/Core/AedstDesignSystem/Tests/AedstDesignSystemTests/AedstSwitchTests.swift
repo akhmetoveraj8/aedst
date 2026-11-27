@@ -15,7 +15,7 @@ struct AedstSwitchTests {
     func thumb() {
         for size in AedstSwitchSize.allCases {
             #expect(size.thumb < size.track.height)
-            #expect(size.travel + size.thumb + 2 == size.track.width)
+            #expect(size.travel + size.thumb + 2 * AedstSwitchSize.thumbInset == size.track.width)
         }
     }
 }

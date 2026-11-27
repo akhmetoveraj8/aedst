@@ -55,7 +55,7 @@ public struct AedstAvatar<ImageContent: View>: View {
                 image
             }
         }
-        .frame(width: size.dimension, height: size.dimension)
+        .aedstScaledFrame(width: size.dimension, height: size.dimension)
         .clipShape(Circle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(name))

@@ -6,6 +6,7 @@ public struct AedstSkeleton: View {
     private let cornerRadius: CGFloat
     @State private var isAnimating = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.layoutDirection) private var layoutDirection
 
     public init(cornerRadius: CGFloat = AedstRadius.sm) {
         self.cornerRadius = cornerRadius
@@ -15,12 +16,19 @@ public struct AedstSkeleton: View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
             .fill(AedstColor.muted)
             .overlay {
-                LinearGradient(
-                    colors: [.clear, AedstColor.background.opacity(0.4), .clear],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .offset(x: isAnimating ? 200 : -200)
+                // The sweep runs across the real width of the block and follows the layout direction:
+                // left to right in LTR, right to left in RTL.
+                GeometryReader { proxy in
+                    LinearGradient(
+                        colors: [.clear, AedstColor.background.opacity(0.4), .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: proxy.size.width)
+                    .offset(x: AedstLayoutPolicy.sweepOffset(
+                        isAtEnd: isAnimating, width: proxy.size.width, direction: layoutDirection
+                    ))
+                }
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             }
             .onAppear {

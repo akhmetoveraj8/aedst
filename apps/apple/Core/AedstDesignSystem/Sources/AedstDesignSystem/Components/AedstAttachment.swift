@@ -154,7 +154,7 @@ public struct AedstAttachment<Media: View, Actions: View>: View {
         switch orientation {
         case .horizontal:
             HStack(spacing: size.spacing) {
-                mediaTile.frame(width: size.mediaSide, height: size.mediaSide)
+                mediaTile.aedstScaledFrame(width: size.mediaSide, height: size.mediaSide)
                 if title != nil { text.frame(maxWidth: .infinity, alignment: .leading) }
                 actions
             }

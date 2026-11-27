@@ -47,17 +47,20 @@ public struct AedstTextarea: View {
                 .lineLimit(minLines...maxLines)
                 .font(AedstTypography.body)
                 .textFieldStyle(.plain)
-                .disabled(isDisabled)
+                .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: isDisabled))
+                .aedstDisabled(isDisabled)
                 .padding(.horizontal, AedstSpacing.sm)
                 .padding(.vertical, AedstSpacing.sm)
                 .frame(minHeight: AedstHitTarget.minimum, alignment: .topLeading)
-                .background(AedstColor.background)
+                .background(AedstDisabledStyle.fill(AedstColor.background, isDisabled: isDisabled))
                 .clipShape(RoundedRectangle(cornerRadius: AedstRadius.sm, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: AedstRadius.sm, style: .continuous)
-                        .strokeBorder(errorMessage != nil ? AedstColor.destructive : AedstColor.border, lineWidth: 1)
+                        .strokeBorder(
+                            errorMessage != nil ? AedstColor.destructive : AedstDisabledStyle.border(AedstColor.border, isDisabled: isDisabled),
+                            lineWidth: 1
+                        )
                 }
-                .opacity(isDisabled ? 0.5 : 1)
 
             if let errorMessage {
                 Text(errorMessage)

@@ -23,12 +23,12 @@ public struct AedstRadioGroup<Option: Hashable & Identifiable>: View {
                     HStack(spacing: AedstSpacing.xs) {
                         Circle()
                             .strokeBorder(selection == option ? AedstColor.primary : AedstColor.border, lineWidth: 1.5)
-                            .frame(width: 20, height: 20)
+                            .aedstScaledFrame(width: 20, height: 20)
                             .overlay {
                                 if selection == option {
                                     Circle()
                                         .fill(AedstColor.primary)
-                                        .frame(width: 10, height: 10)
+                                        .aedstScaledFrame(width: 10, height: 10)
                                 }
                             }
                         Text(label(option))
@@ -36,9 +36,8 @@ public struct AedstRadioGroup<Option: Hashable & Identifiable>: View {
                             .foregroundStyle(AedstColor.foreground)
                     }
                 }
-                #if os(macOS)
-                .buttonStyle(.plain)
-                #endif
+                .buttonStyle(AedstPressableButtonStyle(cornerRadius: AedstRadius.sm))
+                .aedstHaptic(.selection, trigger: selection == option)
                 .accessibilityAddTraits(Self.traits(isSelected: selection == option))
             }
         }

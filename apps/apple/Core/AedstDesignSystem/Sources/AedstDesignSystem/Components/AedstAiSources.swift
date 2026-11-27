@@ -99,30 +99,41 @@ public struct AedstAiSource: View {
     /// The visible text: the title, or the host name of `href`.
     var displayTitle: String { title ?? AedstAiCitation.hostname(href.absoluteString) }
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     public var body: some View {
-        Link(destination: href) {
-            HStack(spacing: AedstSpacing.sm) {
-                if let systemImage {
-                    Image(systemName: systemImage)
-                        .accessibilityHidden(true)
-                }
-                Text(displayTitle)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Image(systemName: "arrow.up.right")
-                    .flipsForRightToLeftLayoutDirection(true)
+        // Only https, http and mailto are opened (`AedstSafeURL`); any other scheme shows the row as text.
+        if let safeURL = AedstSafeURL.validated(href) {
+            Link(destination: safeURL) { row }
+                .accessibilityLabel(Text([displayTitle, newTabLabel].compactMap(\.self).joined(separator: " ")))
+        } else {
+            row
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(Text(displayTitle))
+        }
+    }
+
+    private var row: some View {
+        HStack(spacing: AedstSpacing.sm) {
+            if let systemImage {
+                Image(systemName: systemImage)
                     .accessibilityHidden(true)
             }
-            .font(AedstTypography.body)
-            .foregroundStyle(AedstColor.mutedForeground)
-            .padding(.horizontal, AedstSpacing.sm)
-            .padding(.vertical, AedstSpacing.xs + AedstSpacing.xxs)
-            .frame(minHeight: 32)
-            .aedstHitTarget()
-            .contentShape(Rectangle())
+            Text(displayTitle)
+                .lineLimit(AedstLayoutPolicy.lineLimit(1, for: dynamicTypeSize))
+                .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Image(systemName: "arrow.up.right")
+                .flipsForRightToLeftLayoutDirection(true)
+                .accessibilityHidden(true)
         }
-        .accessibilityLabel(Text([displayTitle, newTabLabel].compactMap(\.self).joined(separator: " ")))
+        .font(AedstTypography.body)
+        .foregroundStyle(AedstColor.mutedForeground)
+        .padding(.horizontal, AedstSpacing.sm)
+        .padding(.vertical, AedstSpacing.xs + AedstSpacing.xxs)
+        .aedstScaledMinFrame(minHeight: 32)
+        .aedstHitTarget()
+        .contentShape(Rectangle())
     }
 }
 

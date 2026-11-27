@@ -14,39 +14,49 @@ public enum AedstSwitchSize: Sendable, CaseIterable {
         }
     }
 
-    /// Thumb diameter: the track height minus a 1 pt inset on each side.
-    var thumb: CGFloat { track.height - 2 }
+    /// Gap between the track edge and the thumb.
+    static let thumbInset: CGFloat = 1
+
+    /// Thumb diameter: the track height minus the inset on each side.
+    var thumb: CGFloat { track.height - 2 * Self.thumbInset }
 
     /// How far the thumb travels from off to on.
     var travel: CGFloat { track.width - track.height }
 }
 
 /// The kit's switch drawing (web track and thumb, token colors), keeping `Toggle`'s own semantics: VoiceOver reads
-/// it as a switch with its on/off value, and the thumb slides to the trailing edge, mirrored in right-to-left.
+/// it as a switch with its on/off value. The thumb is placed by alignment (leading when off, trailing when on),
+/// not by a physical `.offset(x:)`, so it mirrors by itself in right-to-left layouts. The track and thumb scale
+/// with Dynamic Type; the tappable area stays at least 44 x 44 pt on touch platforms.
 struct AedstSwitchToggleStyle: ToggleStyle {
     let size: AedstSwitchSize
     @Environment(\.isEnabled) private var isEnabled
+    @ScaledMetric(relativeTo: .body) private var scale: CGFloat = 1
 
     func makeBody(configuration: Configuration) -> some View {
+        let track = CGSize(width: size.track.width * scale, height: size.track.height * scale)
+        let thumb = size.thumb * scale
         HStack(spacing: AedstSpacing.sm) {
             configuration.label
+                .foregroundStyle(AedstDisabledStyle.foreground(AedstColor.foreground, isDisabled: !isEnabled))
             Spacer(minLength: AedstSpacing.none)
             Capsule()
-                .fill(configuration.isOn ? AedstColor.primary : AedstColor.input)
-                .frame(width: size.track.width, height: size.track.height)
-                .overlay(alignment: .leading) {
+                .fill(configuration.isOn ? AedstDisabledStyle.mark(AedstColor.primary, isDisabled: !isEnabled) : AedstColor.input)
+                .frame(width: track.width, height: track.height)
+                .overlay {
                     Circle()
                         .fill(AedstColor.background)
-                        .frame(width: size.thumb, height: size.thumb)
-                        .padding(.leading, 1)
-                        .offset(x: configuration.isOn ? size.travel : 0)
+                        .frame(width: thumb, height: thumb)
+                        .padding(AedstSwitchSize.thumbInset)
+                        .frame(maxWidth: .infinity, alignment: configuration.isOn ? .trailing : .leading)
                 }
+                .modifier(AedstFocusRing(cornerRadius: track.height / 2))
                 .aedstAnimation(.easeOut(duration: AedstMotion.durationFast), value: configuration.isOn)
                 .aedstHitTarget()
                 .contentShape(Rectangle())
                 .onTapGesture { configuration.isOn.toggle() }
+                .aedstHaptic(.selection, trigger: configuration.isOn)
         }
-        .opacity(isEnabled ? 1 : 0.5)
     }
 }
 
@@ -72,7 +82,7 @@ public struct AedstSwitch: View {
             }
         }
         .toggleStyle(AedstSwitchToggleStyle(size: size))
-        .disabled(isDisabled)
+        .aedstDisabled(isDisabled)
         .accessibilityLabel(Text(label ?? AedstStrings.switchControl))
     }
 }
