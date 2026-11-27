@@ -56,10 +56,10 @@ export const Default: Story = {
         <QuestionnaireError />
       </QuestionnaireItem>
       <QuestionnaireActions>
-        <QuestionnairePrevious />
-        <QuestionnaireSkip />
-        <QuestionnaireNext />
-        <QuestionnaireSubmit />
+        <QuestionnairePrevious>Previous</QuestionnairePrevious>
+        <QuestionnaireSkip>Skip</QuestionnaireSkip>
+        <QuestionnaireNext>Next</QuestionnaireNext>
+        <QuestionnaireSubmit>Submit</QuestionnaireSubmit>
       </QuestionnaireActions>
     </Questionnaire>
   ),
@@ -81,7 +81,7 @@ export const MultipleChoice: Story = {
         </QuestionnaireChoices>
       </QuestionnaireItem>
       <QuestionnaireActions>
-        <QuestionnaireSubmit />
+        <QuestionnaireSubmit>Submit</QuestionnaireSubmit>
       </QuestionnaireActions>
     </Questionnaire>
   ),

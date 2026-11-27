@@ -157,7 +157,7 @@ function TraceItem({
             icon={ArrowRight01Icon}
             strokeWidth={2}
             aria-hidden="true"
-            className="size-4 shrink-0 text-muted-foreground transition-transform group-aria-expanded/trace-trigger:rotate-90 rtl:rotate-180 rtl:group-aria-expanded/trace-trigger:rotate-90"
+            className="size-4 shrink-0 text-muted-foreground transition-transform group-aria-expanded/trace-trigger:rotate-90 rtl:rotate-180 rtl:group-aria-expanded/trace-trigger:rotate-90 motion-reduce:transition-none"
           />
           <TraceStepRow step={step} statusLabels={statusLabels} />
         </CollapsibleTrigger>

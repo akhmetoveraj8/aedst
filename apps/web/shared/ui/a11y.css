@@ -1,0 +1,48 @@
+/*
+ * Hand-written accessibility layer of the kit. Import it AFTER tokens.css in
+ * every project's globals.css (tokens.css is generated and is never edited).
+ *
+ * 1. Reduced motion. One central rule so every animation and transition in the
+ *    kit (including the ones Base UI, tw-animate-css and third-party parts
+ *    add) is neutralised when the user asks for less motion (WCAG 2.3.3).
+ *    Durations drop to ~0 instead of `none` so `animationend` /
+ *    `transitionend` still fire and overlays still unmount. Components also
+ *    carry `motion-reduce:` utilities next to their own animation, so the
+ *    intent is visible in review and the rule survives a project that forgets
+ *    this file.
+ *
+ * 2. `touch-target`. On coarse pointers (touch) an invisible ::before grows the
+ *    hit area of a small control to at least 44 by 44 CSS pixels (WCAG 2.5.5)
+ *    without changing the layout. Same technique as `button`. The element must
+ *    already be positioned (`relative` or `absolute`).
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    /* biome-ignore lint/complexity/noImportantStyles: must beat every component utility */
+    animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: must beat every component utility */
+    animation-delay: 0s !important;
+    /* biome-ignore lint/complexity/noImportantStyles: must beat every component utility */
+    animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: must beat every component utility */
+    transition-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: must beat every component utility */
+    transition-delay: 0s !important;
+    /* biome-ignore lint/complexity/noImportantStyles: must beat every component utility */
+    scroll-behavior: auto !important;
+  }
+}
+
+@utility touch-target {
+  @media (pointer: coarse) {
+    &::before {
+      content: "";
+      position: absolute;
+      inset-inline: min(0px, calc((100% - 2.75rem) / 2));
+      inset-block: min(0px, calc((100% - 2.75rem) / 2));
+    }
+  }
+}

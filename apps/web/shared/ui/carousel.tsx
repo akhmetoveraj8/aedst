@@ -8,6 +8,7 @@ import useEmblaCarousel, {
 } from "embla-carousel-react";
 import * as React from "react";
 import { useTranslations } from "use-intl";
+import { usePrefersReducedMotion } from "@/shared/lib/hooks/use-prefers-reduced-motion";
 import { Button } from "@/shared/ui/button";
 import { useDirection } from "@/shared/ui/direction";
 
@@ -56,6 +57,8 @@ function Carousel({
   // Embla positions slides with transforms, so it must be told the text
   // direction; without it slides move the wrong way in right-to-left locales.
   const direction = useDirection();
+  // Embla animates with script, so CSS cannot calm it: jump instead of glide.
+  const reducedMotion = usePrefersReducedMotion();
   const [carouselRef, api] = useEmblaCarousel(
     {
       direction,
@@ -74,12 +77,12 @@ function Carousel({
   }, []);
 
   const scrollPrev = React.useCallback(() => {
-    api?.scrollPrev();
-  }, [api]);
+    api?.scrollPrev(reducedMotion);
+  }, [api, reducedMotion]);
 
   const scrollNext = React.useCallback(() => {
-    api?.scrollNext();
-  }, [api]);
+    api?.scrollNext(reducedMotion);
+  }, [api, reducedMotion]);
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {

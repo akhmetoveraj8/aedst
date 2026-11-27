@@ -3,6 +3,8 @@
 @import "shadcn/tailwind.css";
 /* GENERATED design tokens (:root + .dark). Source: packages/design-tokens/tokens */
 @import "../../../../shared/ui/tokens.css";
+/* Hand-written a11y layer: reduced motion + touch-target utility. */
+@import "../../../../shared/ui/a11y.css";
 /* shared/ is a sibling of the project: Tailwind only scans it when told to. */
 @source "../../../../shared";
 

@@ -21,7 +21,8 @@ function LoadingSkeleton({
       role="status"
       aria-busy="true"
       className={cn(
-        !children && "animate-pulse rounded-md bg-muted",
+        !children &&
+          "animate-pulse rounded-md bg-muted motion-reduce:animate-none",
         className,
       )}
       {...props}

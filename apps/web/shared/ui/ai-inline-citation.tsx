@@ -3,6 +3,7 @@
 import { cn } from "cn";
 import type * as React from "react";
 
+import { EXTERNAL_LINK_REL, safeHref } from "@/shared/lib/url/safe-href";
 import { Button } from "@/shared/ui/button";
 import {
   HoverCard,
@@ -40,7 +41,10 @@ function AiInlineCitationText({
   return (
     <span
       data-slot="ai-inline-citation-text"
-      className={cn("transition-colors", className)}
+      className={cn(
+        "transition-colors motion-reduce:transition-none",
+        className,
+      )}
       {...props}
     />
   );
@@ -129,6 +133,9 @@ function AiInlineCitationSource({
   ...props
 }: AiInlineCitationSourceProps) {
   const host = citationHostname(url);
+  const safe = safeHref(url);
+  const linkClass =
+    "self-start text-xs text-muted-foreground underline-offset-4";
   return (
     <div
       data-slot="ai-inline-citation-source"
@@ -139,16 +146,22 @@ function AiInlineCitationSource({
       {description ? (
         <p className="text-muted-foreground">{description}</p>
       ) : null}
-      <a
-        href={url}
-        target="_blank"
-        rel="noreferrer"
-        dir="ltr"
-        className="self-start text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:underline"
-      >
-        {host}
-        {newTabLabel ? <span className="sr-only"> {newTabLabel}</span> : null}
-      </a>
+      {safe ? (
+        <a
+          href={safe}
+          target="_blank"
+          rel={EXTERNAL_LINK_REL}
+          dir="ltr"
+          className={`${linkClass} hover:text-foreground hover:underline focus-visible:underline`}
+        >
+          {host}
+          {newTabLabel ? <span className="sr-only"> {newTabLabel}</span> : null}
+        </a>
+      ) : (
+        <span dir="ltr" className={linkClass}>
+          {host}
+        </span>
+      )}
       {children}
     </div>
   );

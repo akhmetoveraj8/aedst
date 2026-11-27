@@ -48,6 +48,8 @@
   --syntax-function: oklch(0.47 0.17 260);
   --syntax-type: oklch(0.48 0.08 200);
   --syntax-punctuation: oklch(0.4 0 0);
+  --bubble-tinted: oklch(0.93 0 0);
+  --bubble-tinted-hover: oklch(0.88 0 0);
   --aedst-elevation-none: 0px;
   --aedst-elevation-level-1: 1px;
   --aedst-elevation-level-2: 3px;
@@ -170,4 +172,6 @@
   --syntax-function: oklch(0.78 0.1 250);
   --syntax-type: oklch(0.8 0.1 200);
   --syntax-punctuation: oklch(0.82 0 0);
+  --bubble-tinted: oklch(0.3 0 0);
+  --bubble-tinted-hover: oklch(0.35 0 0);
 }

@@ -8,15 +8,16 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "cn";
 import type * as React from "react";
 
-function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
-  return (
-    <nav
-      aria-label="breadcrumb"
-      data-slot="breadcrumb"
-      className={cn(className)}
-      {...props}
-    />
-  );
+/**
+ * The kit never hardcodes user-facing text: the landmark name (`aria-label`,
+ * e.g. "Breadcrumb") comes from the caller's message catalogue, like
+ * `Pagination`.
+ */
+function Breadcrumb({
+  className,
+  ...props
+}: React.ComponentProps<"nav"> & { "aria-label": string }) {
+  return <nav data-slot="breadcrumb" className={cn(className)} {...props} />;
 }
 
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
@@ -51,7 +52,10 @@ function BreadcrumbLink({
     defaultTagName: "a",
     props: mergeProps<"a">(
       {
-        className: cn("transition-colors hover:text-foreground", className),
+        className: cn(
+          "touch-target relative transition-colors hover:text-foreground motion-reduce:transition-none",
+          className,
+        ),
       },
       props,
     ),

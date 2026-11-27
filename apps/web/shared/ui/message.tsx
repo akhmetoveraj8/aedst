@@ -11,6 +11,12 @@ function MessageGroup({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * Which one to use: `Message` is the layout of one chat turn (avatar, header,
+ * content, footer, alignment). `Bubble` is only the coloured shape around a
+ * piece of text. `AiMessage` (ai-message) composes both for an agent chat and
+ * adds markdown, actions and streaming-friendly semantics; prefer it there.
+ */
 function Message({
   className,
   align = "start",

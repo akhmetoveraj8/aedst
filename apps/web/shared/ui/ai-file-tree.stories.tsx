@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import * as React from "react";
+import { expect, userEvent, within } from "storybook/test";
 
 import {
   AiFileTree,
@@ -50,4 +51,31 @@ export const Default: Story = {};
 
 export const Collapsed: Story = {
   args: { defaultExpanded: new Set<string>() },
+};
+
+/** The selected file is the tab stop; Home, Down and Left move and fold. */
+export const Keyboard: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The backward arrow is Left in LTR and Right in RTL.
+    const back =
+      getComputedStyle(canvasElement).direction === "rtl"
+        ? "{ArrowRight}"
+        : "{ArrowLeft}";
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("treeitem", { name: "button.tsx" }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{Home}");
+    await expect(canvas.getByRole("treeitem", { name: "app" })).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(
+      canvas.getByRole("treeitem", { name: "layout.tsx" }),
+    ).toHaveFocus();
+    await userEvent.keyboard(`${back}${back}`);
+    await expect(canvas.getByRole("treeitem", { name: "app" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+  },
 };

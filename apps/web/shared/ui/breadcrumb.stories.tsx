@@ -13,6 +13,7 @@ import {
 const meta = {
   title: "UI/Breadcrumb",
   component: Breadcrumb,
+  args: { "aria-label": "Breadcrumb" },
 } satisfies Meta<typeof Breadcrumb>;
 
 export default meta;

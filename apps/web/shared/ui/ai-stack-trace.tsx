@@ -8,7 +8,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "cn";
 import type * as React from "react";
-
+import { safeHref } from "@/shared/lib/url/safe-href";
 import {
   AiChainOfThought,
   AiChainOfThoughtContent,
@@ -165,7 +165,7 @@ function AiStackTraceFrames({
   const appFrames = frames.filter((frame) => !frame.internal);
   const internalFrames = frames.filter((frame) => frame.internal);
   const row =
-    "flex min-h-8 items-center gap-2 rounded-md px-2 py-1.5 font-mono text-xs text-muted-foreground";
+    "flex min-h-8 pointer-coarse:min-h-11 items-center gap-2 rounded-md px-2 py-1.5 font-mono text-xs text-muted-foreground";
 
   return (
     <div
@@ -175,7 +175,7 @@ function AiStackTraceFrames({
     >
       <ol dir="ltr" className="flex flex-col">
         {appFrames.map((frame, index) => {
-          const href = getFrameHref?.(frame);
+          const href = safeHref(getFrameHref?.(frame));
           const icon = (
             <HugeiconsIcon
               icon={FileCodeIcon}

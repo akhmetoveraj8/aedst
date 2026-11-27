@@ -109,7 +109,7 @@ function AiChainOfThoughtHeader({
       data-slot="ai-chain-of-thought-header"
       data-status={status}
       className={cn(
-        "group/ai-header flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring motion-reduce:transition-none",
+        "group/ai-header flex w-full pointer-coarse:min-h-11 items-center gap-2 rounded-md px-2 py-1.5 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring motion-reduce:transition-none",
         className,
       )}
       {...props}

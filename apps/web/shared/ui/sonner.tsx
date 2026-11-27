@@ -56,7 +56,7 @@ function Toaster({ ...props }: ToasterProps) {
           <HugeiconsIcon
             icon={Loading03Icon}
             strokeWidth={2}
-            className="size-4 animate-spin"
+            className="size-4 animate-spin motion-reduce:animate-none"
           />
         ),
       }}

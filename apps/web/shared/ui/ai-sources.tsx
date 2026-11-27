@@ -4,7 +4,7 @@ import { ArrowUpRight01Icon, Globe02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { cn } from "cn";
 import type * as React from "react";
-
+import { EXTERNAL_LINK_REL, safeHref } from "@/shared/lib/url/safe-href";
 import {
   AiChainOfThought,
   AiChainOfThoughtContent,
@@ -74,37 +74,54 @@ function AiSource({
   className,
   ...props
 }: AiSourceProps) {
-  return (
-    <li data-slot="ai-source">
-      <a
-        href={href}
-        target="_blank"
-        rel="noreferrer"
-        className={cn(
-          "group/ai-source flex min-h-8 items-center gap-2 rounded-md px-2 py-1.5 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring motion-reduce:transition-none",
-          className,
-        )}
-        {...props}
-      >
-        {icon ? (
-          <HugeiconsIcon
-            icon={icon}
-            strokeWidth={2}
-            aria-hidden="true"
-            className="size-4 shrink-0"
-          />
+  const safe = safeHref(href);
+  const content = (
+    <>
+      {icon ? (
+        <HugeiconsIcon
+          icon={icon}
+          strokeWidth={2}
+          aria-hidden="true"
+          className="size-4 shrink-0"
+        />
+      ) : null}
+      <span className="min-w-0 truncate text-start">
+        {title ?? <span dir="ltr">{citationHostname(href)}</span>}
+        {safe && newTabLabel ? (
+          <span className="sr-only"> {newTabLabel}</span>
         ) : null}
-        <span className="min-w-0 truncate text-start">
-          {title ?? <span dir="ltr">{citationHostname(href)}</span>}
-          {newTabLabel ? <span className="sr-only"> {newTabLabel}</span> : null}
-        </span>
+      </span>
+      {safe ? (
         <HugeiconsIcon
           icon={ArrowUpRight01Icon}
           strokeWidth={2}
           aria-hidden="true"
           className="size-4 shrink-0 rtl:-scale-x-100"
         />
-      </a>
+      ) : null}
+    </>
+  );
+  const rowClass =
+    "group/ai-source flex min-h-8 items-center gap-2 rounded-md px-2 py-1.5 text-muted-foreground outline-none transition-colors motion-reduce:transition-none";
+  return (
+    <li data-slot="ai-source">
+      {safe ? (
+        <a
+          href={safe}
+          target="_blank"
+          rel={EXTERNAL_LINK_REL}
+          className={cn(
+            rowClass,
+            "hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring pointer-coarse:min-h-11",
+            className,
+          )}
+          {...props}
+        >
+          {content}
+        </a>
+      ) : (
+        <span className={cn(rowClass, className)}>{content}</span>
+      )}
     </li>
   );
 }

@@ -17,6 +17,11 @@ import {
   usePromptDraft,
 } from "@/shared/lib/hooks/use-prompt-draft";
 import {
+  AiPromptInputContext,
+  type AiPromptInputStatus,
+  useAiPromptInput,
+} from "@/shared/ui/ai-prompt-input-context";
+import {
   Attachment,
   AttachmentAction,
   AttachmentActions,
@@ -39,24 +44,6 @@ import {
 // SDK: `onSubmit({ text, files })` and a `status` prop drive it. There is no
 // form element (forms here are React Hook Form); Enter and the send button
 // call `onSubmit` directly.
-
-type AiPromptInputStatus = "ready" | "submitted" | "streaming" | "error";
-
-type AiPromptInputValue = ReturnType<typeof usePromptDraft> & {
-  status: AiPromptInputStatus;
-};
-
-const AiPromptInputContext = React.createContext<AiPromptInputValue | null>(
-  null,
-);
-
-function useAiPromptInput(): AiPromptInputValue {
-  const value = React.useContext(AiPromptInputContext);
-  if (!value) {
-    throw new Error("AiPromptInput parts must be used inside <AiPromptInput>");
-  }
-  return value;
-}
 
 type AiPromptInputProps = Omit<React.ComponentProps<"div">, "onSubmit"> & {
   /** Gets the trimmed text and files; a rejected promise keeps the draft. */

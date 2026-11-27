@@ -34,7 +34,11 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   render: () => (
     <Combobox items={frameworks} defaultOpen>
-      <ComboboxInput aria-label="Framework" placeholder="Select a framework" />
+      <ComboboxInput
+        aria-label="Framework"
+        triggerLabel="Show options"
+        placeholder="Select a framework"
+      />
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
@@ -55,6 +59,8 @@ export const WithClear: Story = {
       <ComboboxInput
         aria-label="Framework"
         placeholder="Select a framework"
+        triggerLabel="Show options"
+        clearLabel="Clear"
         showClear
       />
       <ComboboxContent>
@@ -85,7 +91,9 @@ function Multiple() {
           {(values: string[]) => (
             <>
               {values.map((value) => (
-                <ComboboxChip key={value}>{value}</ComboboxChip>
+                <ComboboxChip key={value} removeLabel={`Remove ${value}`}>
+                  {value}
+                </ComboboxChip>
               ))}
               <ComboboxChipsInput aria-label="Frameworks" />
             </>

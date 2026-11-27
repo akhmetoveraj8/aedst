@@ -97,7 +97,7 @@ function AiChatItem({ from, className, ...props }: AiChatItemProps) {
       data-from={from}
       className={cn(
         isUser &&
-          "motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-2 motion-safe:duration-200",
+          "motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-2 motion-safe:duration-200 motion-reduce:data-open:animate-none motion-reduce:data-closed:animate-none",
         className,
       )}
       {...props}
