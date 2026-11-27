@@ -1,5 +1,6 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 import { AedstBadge, AedstBadgeVariant } from "aedst_badge.slint";
 
 // One visible row of the tree (web `AiFileTreeFolder` / `AiFileTreeFile`). Slint has no
@@ -18,13 +19,19 @@ export struct AedstAiFileTreeNode {
     badge: string,
 }
 
-// The files the agent changed (web `AiFileTree`). A folder is a disclosure button and a file a
-// button; both are Tab stops activated with Enter/Space. The selected file (`selected-path`) is
-// highlighted and exposed as the selected item. Names are left-to-right paths in a monospace face.
-// The component writes a folder's `open` back into the model and reports it.
+// The files the agent changed (web `AiFileTree`). The tree is ONE tab stop (the rows are not),
+// with the WAI-ARIA tree keys: Up/Down move the current row, Home/End jump to the first/last,
+// Enter/Space select a file or toggle a folder, and Right/Left follow the reading direction
+// (Left/Right in RTL): forward opens a closed folder or enters an open one, back closes an open
+// folder or moves to the parent folder (found among the 8 rows above it). The selected file
+// (`selected-path`) is highlighted and exposed as the selected item; a folder exposes
+// `expanded`. Names are left-to-right paths in a monospace face. The component writes a folder's
+// `open` back into the model and reports it.
 export component AedstAiFileTree inherits Rectangle {
-    in property <[AedstAiFileTreeNode]> nodes;
+    in-out property <[AedstAiFileTreeNode]> nodes;
     in-out property <string> selected-path;
+    // The row the keyboard is on (the focus ring).
+    in-out property <int> current: 0;
     // Accessible name of the tree, e.g. "Changed files".
     in property <string> label;
     in property <image> folder-icon;
@@ -32,6 +39,7 @@ export component AedstAiFileTree inherits Rectangle {
     in property <image> file-icon;
     // No font-family token exists yet (see AedstCodeBlock).
     in property <string> mono-family: "monospace";
+    out property <bool> has-focus: tree-focus.has-focus;
     callback toggled(string, bool);
     callback selected(string);
 
@@ -39,109 +47,170 @@ export component AedstAiFileTree inherits Rectangle {
     private property <length> pad: AedstTokens.spacing-sm;
     private property <length> step: AedstTokens.spacing-lg;
 
-    accessible-role: AccessibleRole.list;
+    // The nearest row above `index` with a smaller depth (the parent folder), or `index` itself.
+    pure function parent-of(index: int) -> int {
+        return (index >= 1 && root.nodes[index - 1].depth < root.nodes[index].depth) ? index - 1
+            : (index >= 2 && root.nodes[index - 2].depth < root.nodes[index].depth) ? index - 2
+            : (index >= 3 && root.nodes[index - 3].depth < root.nodes[index].depth) ? index - 3
+            : (index >= 4 && root.nodes[index - 4].depth < root.nodes[index].depth) ? index - 4
+            : (index >= 5 && root.nodes[index - 5].depth < root.nodes[index].depth) ? index - 5
+            : (index >= 6 && root.nodes[index - 6].depth < root.nodes[index].depth) ? index - 6
+            : (index >= 7 && root.nodes[index - 7].depth < root.nodes[index].depth) ? index - 7
+            : (index >= 8 && root.nodes[index - 8].depth < root.nodes[index].depth) ? index - 8
+            : index;
+    }
+    function set-open(index: int, open: bool) {
+        if (index >= 0 && index < root.nodes.length && root.nodes[index].folder && root.nodes[index].open != open) {
+            root.nodes[index].open = open;
+            root.toggled(root.nodes[index].path, open);
+        }
+    }
+    function activate(index: int) {
+        if (index >= 0 && index < root.nodes.length) {
+            root.current = index;
+            if (root.nodes[index].folder) {
+                root.set-open(index, !root.nodes[index].open);
+            } else {
+                root.selected-path = root.nodes[index].path;
+                root.selected(root.nodes[index].path);
+            }
+        }
+    }
+    function move(index: int) {
+        root.current = Math.max(0, Math.min(index, root.nodes.length - 1));
+    }
+
+    forward-focus: tree-focus;
+    accessible-role: AccessibleRole.tree;
     accessible-label: root.label;
 
-    VerticalLayout {
-        for node in root.nodes: HorizontalLayout {
-            spacing: AedstTokens.spacing-xs;
-            if root.rtl && node.badge != "": VerticalLayout {
-                alignment: center;
-                AedstBadge { text: node.badge; variant: AedstBadgeVariant.outline; }
+    tree-focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.DownArrow) {
+                root.move(root.current + 1);
+                return accept;
             }
-            row := Rectangle {
-                property <bool> chosen: !node.folder && node.path == root.selected-path;
-                property <length> indent: root.pad + node.depth * root.step;
-                // Files leave room for the chevron so their names line up with folder names.
-                property <length> lead: self.indent + 16px + AedstTokens.spacing-xs;
-                horizontal-stretch: 1;
-                min-height: 28px;
-                border-radius: AedstTokens.radius-md;
-                background: self.chosen ? AedstTokens.accent : row-touch.has-hover ? AedstTokens.muted : transparent;
-                accessible-role: AccessibleRole.button;
-                accessible-label: node.name;
-                accessible-description: node.path;
-                accessible-expandable: node.folder;
-                accessible-expanded: node.folder && node.open;
-                accessible-item-selectable: !node.folder;
-                accessible-item-selected: self.chosen;
-                accessible-action-default => { row.activate(); }
+            if (event.text == Key.UpArrow) {
+                root.move(root.current - 1);
+                return accept;
+            }
+            if (event.text == Key.Home) {
+                root.move(0);
+                return accept;
+            }
+            if (event.text == Key.End) {
+                root.move(root.nodes.length - 1);
+                return accept;
+            }
+            if (event.text == " " || event.text == "\n") {
+                root.activate(root.current);
+                return accept;
+            }
+            if (AedstLayout.is-forward(event.text) && root.current >= 0 && root.current < root.nodes.length && root.nodes[root.current].folder) {
+                if (root.nodes[root.current].open) {
+                    root.move(root.current + 1);
+                } else {
+                    root.set-open(root.current, true);
+                }
+                return accept;
+            }
+            if (AedstLayout.is-backward(event.text) && root.current >= 0 && root.current < root.nodes.length) {
+                if (root.nodes[root.current].folder && root.nodes[root.current].open) {
+                    root.set-open(root.current, false);
+                } else {
+                    root.move(root.parent-of(root.current));
+                }
+                return accept;
+            }
+            return reject;
+        }
 
-                function activate() {
-                    if (node.folder) {
-                        root.toggled(node.path, !node.open);
-                        node.open = !node.open;
-                    } else {
-                        root.selected-path = node.path;
-                        root.selected(node.path);
-                    }
+        VerticalLayout {
+            for node[index] in root.nodes: HorizontalLayout {
+                spacing: AedstTokens.spacing-xs;
+                if root.rtl && node.badge != "": VerticalLayout {
+                    alignment: center;
+                    AedstBadge { text: node.badge; variant: AedstBadgeVariant.outline; }
                 }
-
-                row-focus := FocusScope {
-                    key-pressed(event) => {
-                        if (event.text == " " || event.text == "\n") {
-                            row.activate();
-                            return accept;
-                        }
-                        return reject;
-                    }
-                }
-                row-touch := TouchArea {
-                    clicked => {
-                        row-focus.focus();
-                        row.activate();
-                    }
-                }
-                // Guides of the open ancestors at the inline start (web `border-s`).
-                for level in node.depth: Rectangle {
-                    x: root.rtl ? parent.width - root.pad - level * root.step - 8px : root.pad + level * root.step + 8px;
-                    width: 1px;
-                    background: AedstTokens.border;
-                }
-                if node.folder: Path {
-                    x: root.rtl ? parent.width - row.indent - 16px : row.indent;
-                    y: (parent.height - 16px) / 2;
-                    width: 16px;
-                    height: 16px;
-                    viewbox-width: 16;
-                    viewbox-height: 16;
-                    stroke: AedstTokens.muted-foreground;
-                    stroke-width: 1.5px;
-                    commands: node.open ? "M 4 6 L 8 10 L 12 6" : root.rtl ? "M 10 4 L 6 8 L 10 12" : "M 6 4 L 10 8 L 6 12";
-                }
-                Image {
-                    x: root.rtl ? parent.width - row.lead - 16px : row.lead;
-                    y: (parent.height - 16px) / 2;
-                    width: 16px;
-                    height: 16px;
-                    source: node.folder ? (node.open ? root.folder-open-icon : root.folder-icon)
-                        : node.icon.width > 0 ? node.icon : root.file-icon;
-                    colorize: AedstTokens.muted-foreground;
-                    accessible-role: AccessibleRole.none;
-                }
-                Text {
-                    x: root.rtl ? root.pad : row.lead + 16px + AedstTokens.spacing-xs;
-                    width: parent.width - row.lead - 16px - AedstTokens.spacing-xs - root.pad;
-                    height: parent.height;
-                    text: node.name;
-                    color: row.chosen ? AedstTokens.accent-foreground : AedstTokens.foreground;
-                    font-size: AedstTokens.typography-body-small-font-size;
-                    font-family: root.mono-family;
-                    horizontal-alignment: root.rtl ? right : left;
-                    vertical-alignment: center;
-                    overflow: elide;
-                    accessible-role: AccessibleRole.none;
-                }
-                // Visible keyboard focus ring.
-                Rectangle {
-                    border-width: row-focus.has-focus ? 2px : 0px;
-                    border-color: AedstTokens.ring;
+                row := Rectangle {
+                    property <bool> chosen: !node.folder && node.path == root.selected-path;
+                    property <length> indent: root.pad + node.depth * root.step;
+                    // Files leave room for the chevron so their names line up with folder names.
+                    property <length> lead: self.indent + 16px + AedstTokens.spacing-xs;
+                    horizontal-stretch: 1;
+                    min-height: 28px;
                     border-radius: AedstTokens.radius-md;
+                    background: self.chosen ? AedstTokens.accent : row-touch.has-hover ? AedstTokens.muted : transparent;
+                    accessible-role: AccessibleRole.list-item;
+                    accessible-label: node.name;
+                    accessible-description: node.path;
+                    accessible-expandable: node.folder;
+                    accessible-expanded: node.folder && node.open;
+                    accessible-item-selectable: !node.folder;
+                    accessible-item-selected: self.chosen;
+                    accessible-item-index: index;
+                    accessible-item-count: root.nodes.length;
+                    accessible-action-default => { root.activate(index); }
+                    accessible-action-expand => { root.set-open(index, true); }
+
+                    row-touch := TouchArea {
+                        clicked => {
+                            tree-focus.focus();
+                            root.activate(index);
+                        }
+                    }
+                    // Guides of the open ancestors at the inline start (web `border-s`).
+                    for level in node.depth: Rectangle {
+                        x: root.rtl ? parent.width - root.pad - level * root.step - 8px : root.pad + level * root.step + 8px;
+                        width: 1px;
+                        background: AedstA11y.border;
+                    }
+                    if node.folder: Path {
+                        x: root.rtl ? parent.width - row.indent - 16px : row.indent;
+                        y: (parent.height - 16px) / 2;
+                        width: 16px;
+                        height: 16px;
+                        viewbox-width: 16;
+                        viewbox-height: 16;
+                        stroke: AedstA11y.muted-foreground;
+                        stroke-width: 1.5px;
+                        commands: node.open ? "M 4 6 L 8 10 L 12 6" : root.rtl ? "M 10 4 L 6 8 L 10 12" : "M 6 4 L 10 8 L 6 12";
+                        accessible-role: AccessibleRole.none;
+                    }
+                    Image {
+                        x: root.rtl ? parent.width - row.lead - 16px : row.lead;
+                        y: (parent.height - 16px) / 2;
+                        width: 16px;
+                        height: 16px;
+                        source: node.folder ? (node.open ? root.folder-open-icon : root.folder-icon)
+                            : node.icon.width > 0 ? node.icon : root.file-icon;
+                        colorize: AedstTokens.muted-foreground;
+                        accessible-role: AccessibleRole.none;
+                    }
+                    Text {
+                        x: root.rtl ? root.pad : row.lead + 16px + AedstTokens.spacing-xs;
+                        width: parent.width - row.lead - 16px - AedstTokens.spacing-xs - root.pad;
+                        height: parent.height;
+                        text: node.name;
+                        color: row.chosen ? AedstTokens.accent-foreground : AedstTokens.foreground;
+                        font-size: AedstTokens.typography-body-small-font-size;
+                        font-family: root.mono-family;
+                        horizontal-alignment: root.rtl ? right : left;
+                        vertical-alignment: center;
+                        overflow: elide;
+                        accessible-role: AccessibleRole.none;
+                    }
+                    // Visible keyboard focus ring on the current row.
+                    Rectangle {
+                        border-width: (tree-focus.has-focus && root.current == index) ? 2px : 0px;
+                        border-color: AedstA11y.ring;
+                        border-radius: AedstTokens.radius-md;
+                    }
                 }
-            }
-            if !root.rtl && node.badge != "": VerticalLayout {
-                alignment: center;
-                AedstBadge { text: node.badge; variant: AedstBadgeVariant.outline; }
+                if !root.rtl && node.badge != "": VerticalLayout {
+                    alignment: center;
+                    AedstBadge { text: node.badge; variant: AedstBadgeVariant.outline; }
+                }
             }
         }
     }

@@ -43,14 +43,14 @@ export component AedstAiChat inherits Rectangle {
     in property <string> empty-title;
     in property <string> empty-description;
     in property <image> empty-media;
-    out property <bool> at-bottom: list.viewport-y <= list.visible-height - list.viewport-height + root.stick-threshold;
+    out property <bool> at-bottom: list.content-y <= list.visible-height - list.content-height + root.stick-threshold;
     // The `id` of the turn and the `id` of its action.
     callback action(string, string);
 
     private property <bool> stick: true;
 
     public function scroll-to-end() {
-        list.viewport-y = Math.min(0px, list.visible-height - list.viewport-height);
+        list.content-y = Math.min(0px, list.visible-height - list.content-height);
         root.stick = true;
     }
 
@@ -70,8 +70,8 @@ export component AedstAiChat inherits Rectangle {
         accessible-label: root.label;
         accessible-description: root.busy ? root.busy-label : "";
 
-        changed viewport-y => { root.stick = root.at-bottom; }
-        changed viewport-height => {
+        changed content-y => { root.stick = root.at-bottom; }
+        changed content-height => {
             if (root.stick && root.auto-scroll) {
                 root.scroll-to-end();
             }

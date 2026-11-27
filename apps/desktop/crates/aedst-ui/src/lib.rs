@@ -5,7 +5,9 @@
 //! [`highlight`] tokenises source code for `AedstCodeBlock`; [`stack_trace`] parses stacks for
 //! `AedstAiStackTrace`; [`test_results`] counts tests for `AedstAiTestResults`.
 
+pub mod a11y;
 pub mod highlight;
+pub mod safe_url;
 pub mod stack_trace;
 pub mod test_results;
 

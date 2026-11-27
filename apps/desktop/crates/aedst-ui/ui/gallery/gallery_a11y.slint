@@ -1,0 +1,106 @@
+import {
+    AedstTokens, AedstLabel, AedstButton, AedstButtonVariant, AedstDialog, AedstToaster, AedstAiFileTree,
+    AedstToggleGroup, AedstPagination, AedstAccordion, AedstCarousel, AedstInputOtp, AedstCheckbox
+} from "../lib.slint";
+import { GalleryState } from "gallery_state.slint";
+
+// Gallery page 8: the accessibility work of 2026-11-28 (focus trap, toast keys, roving groups, tree
+// keys, masked code, mirrored carousel), driven by tests/a11y.rs. Labels are unique across pages.
+export component GalleryA11y inherits Rectangle {
+    public function focus-control(name: string) {
+        if (name == "a11y-tree") { tree.focus(); }
+        if (name == "a11y-toaster") { toaster.focus-stack(); }
+        if (name == "a11y-align") { align.focus(); }
+        if (name == "a11y-pages") { pager.focus(); }
+        if (name == "a11y-faq") { faq.focus(); }
+        if (name == "a11y-carousel") { slides.focus(); }
+        if (name == "a11y-secret") { secret.focus(); }
+        if (name == "a11y-trap") { trap-dialog.focus-first(); }
+    }
+
+    VerticalLayout {
+        padding: AedstTokens.spacing-lg;
+        spacing: AedstTokens.spacing-sm;
+        alignment: start;
+        AedstLabel { text: "Accessibility"; }
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            alignment: start;
+            AedstButton { text: "Open trap dialog"; clicked => { GalleryState.trap-open = true; } }
+            AedstButton { text: "Behind the dialog"; variant: AedstButtonVariant.outline; clicked => { GalleryState.log("trap:behind"); } }
+            AedstCheckbox { label: "Accept the terms"; checked: true; }
+        }
+        tree := AedstAiFileTree {
+            label: "Tree files";
+            nodes: [
+                { path: "lib", name: "lib", folder: true, open: false },
+                { path: "manuals", name: "manuals", folder: true, open: true },
+                { path: "manuals/guide.md", name: "guide.md", depth: 1 },
+                { path: "Notes.txt", name: "Notes.txt" },
+            ];
+            toggled(path, open) => { GalleryState.log("tree:" + path + (open ? ":open" : ":closed")); }
+            selected(path) => { GalleryState.log("tree:file:" + path); }
+        }
+        align := AedstToggleGroup {
+            label: "Text alignment";
+            items: ["Start", "Center", "End"];
+            current-index <=> GalleryState.align-index;
+            selected(index) => { GalleryState.log("align:\{index}"); }
+        }
+        pager := AedstPagination {
+            label: "Result pages";
+            page-label: "Result page";
+            previous-text: "Back";
+            next-text: "Forward";
+            page-count: 6;
+            page <=> GalleryState.pager-page;
+            page-changed(page) => { GalleryState.log("pager:\{page}"); }
+        }
+        faq := AedstAccordion {
+            items: [{ title: "Shipping", content: "Two days." }, { title: "Refunds", content: "Thirty days." }, { title: "Support", content: "Always." }];
+            open-index <=> GalleryState.faq-index;
+            toggled(index) => { GalleryState.log("faq:\{index}"); }
+        }
+        secret := AedstInputOtp {
+            label: "Secret code";
+            masked: true;
+            digits: 4;
+            completed(code) => { GalleryState.log("secret:" + code); }
+        }
+        // Declared last slide first and `reverse-in-rtl`: in RTL slide one is at the reading start.
+        slides := AedstCarousel {
+            label: "Mirrored slides";
+            count: 3;
+            previous-label: "Earlier slide";
+            next-label: "Later slide";
+            reverse-in-rtl: true;
+            current-index <=> GalleryState.mirror-index;
+            Rectangle { accessible-role: text; accessible-label: "Slide three"; }
+            Rectangle { accessible-role: text; accessible-label: "Slide two"; }
+            Rectangle { accessible-role: text; accessible-label: "Slide one"; }
+        }
+    }
+
+    toaster := AedstToaster {
+        toasts: GalleryState.a11y-toasts;
+        dismiss-label: "Dismiss alert toast";
+        region-label: "Alert notifications";
+        auto-dismiss: 0ms;
+        dismissed(id) => { GalleryState.log("a11y-toast-dismissed:" + id); }
+        action(id) => { GalleryState.log("a11y-toast-action:" + id); }
+    }
+
+    trap-dialog := AedstDialog {
+        open <=> GalleryState.trap-open;
+        title: "Trap dialog";
+        description: "Tab stays in here.";
+        close-label: "Close trap dialog";
+        closed => { GalleryState.log("trap:closed"); }
+        restore-focus => { GalleryState.log("trap:restore"); }
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-sm;
+            AedstButton { text: "First trap action"; clicked => { GalleryState.log("trap:first"); } }
+            AedstButton { text: "Second trap action"; clicked => { GalleryState.log("trap:second"); } }
+        }
+    }
+}

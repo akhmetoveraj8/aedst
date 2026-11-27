@@ -16,6 +16,7 @@ fn main() -> Result<(), slint::PlatformError> {
     let ui = Gallery::new()?;
     ui.set_rtl(args.iter().any(|a| a == "--rtl"));
     ui.set_dark(args.iter().any(|a| a == "--dark"));
-    ui.set_page(page.clamp(0, 7));
+    ui.set_page(page.clamp(0, 8));
+    aedst_ui::a11y::apply(&ui, aedst_ui::a11y::A11yPreferences::from_env());
     ui.run()
 }

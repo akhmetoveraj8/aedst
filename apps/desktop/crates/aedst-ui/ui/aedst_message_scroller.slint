@@ -37,12 +37,12 @@ export component AedstMessageScroller inherits Rectangle {
     // Distance from the bottom that still counts as "at the bottom".
     in property <length> stick-threshold: 16px;
     // True while the view follows new content.
-    out property <bool> at-bottom: list.viewport-y <= list.visible-height - list.viewport-height + root.stick-threshold;
+    out property <bool> at-bottom: list.content-y <= list.visible-height - list.content-height + root.stick-threshold;
 
     private property <bool> stick: true;
 
     public function scroll-to-end() {
-        list.viewport-y = Math.min(0px, list.visible-height - list.viewport-height);
+        list.content-y = Math.min(0px, list.visible-height - list.content-height);
         root.stick = true;
     }
 
@@ -52,9 +52,9 @@ export component AedstMessageScroller inherits Rectangle {
         accessible-label: root.label;
 
         // A scroll by the user decides whether the view keeps following new content.
-        changed viewport-y => { root.stick = root.at-bottom; }
+        changed content-y => { root.stick = root.at-bottom; }
         // New rows or a growing last row: follow them while stuck to the bottom.
-        changed viewport-height => {
+        changed content-height => {
             if (root.stick) {
                 root.scroll-to-end();
             }

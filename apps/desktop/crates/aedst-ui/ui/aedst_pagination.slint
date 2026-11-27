@@ -4,6 +4,9 @@ import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.s
 
 // Page navigation: previous, up to five page numbers around the current page, next. Pages are
 // 1-based. "Previous" sits at the reading start (the right in RTL). The texts come from the caller.
+// Keyboard: the bar is ONE tab stop; Left/Right move along the buttons as they are drawn (so they
+// are already mirrored in RTL), Home/End jump to the first/last button, Enter and Space activate
+// the button the ring is on, and PageUp/PageDown go to the previous/next page directly.
 export component AedstPagination inherits Rectangle {
     in-out property <int> page: 1;
     in property <int> page-count: 1;
@@ -12,11 +15,17 @@ export component AedstPagination inherits Rectangle {
     in property <string> next-text;
     // Prefix of the accessible name of a page button: "Page" gives "Page 3". Translated by the caller.
     in property <string> page-label;
+    out property <bool> has-focus: focus.has-focus;
     callback page-changed(int);
 
     private property <bool> rtl: AedstLayout.rtl;
     private property <int> shown: Math.min(5, root.page-count);
     private property <int> first: Math.max(1, Math.min(root.page - 2, root.page-count - root.shown + 1));
+    // The button the ring is on, as a drawn slot: 0 the left button, 1..shown the numbers, shown + 1
+    // the right button. -1: the slot of the current page.
+    private property <int> active: -1;
+    private property <int> ring: root.active >= 0 ? root.active
+        : 1 + (root.rtl ? root.shown - 1 - (root.page - root.first) : root.page - root.first);
 
     function go(target: int) {
         if (target >= 1 && target <= root.page-count && target != root.page) {
@@ -24,32 +33,98 @@ export component AedstPagination inherits Rectangle {
             root.page-changed(target);
         }
     }
+    // The page number drawn in slot `slot` (1..shown).
+    pure function number-at(slot: int) -> int {
+        return root.first + (root.rtl ? root.shown - slot : slot - 1);
+    }
+    function activate(slot: int) {
+        if (slot == 0) {
+            root.go(root.rtl ? root.page + 1 : root.page - 1);
+        } else if (slot == root.shown + 1) {
+            root.go(root.rtl ? root.page - 1 : root.page + 1);
+        } else {
+            root.go(root.number-at(slot));
+        }
+    }
+    function move(slot: int) {
+        root.active = Math.max(0, Math.min(slot, root.shown + 1));
+    }
 
+    forward-focus: focus;
     accessible-role: groupbox;
     accessible-label: root.label;
 
-    HorizontalLayout {
-        spacing: AedstTokens.spacing-xs;
-        alignment: center;
-        AedstButton {
-            text: root.rtl ? root.next-text : root.previous-text;
-            variant: AedstButtonVariant.ghost;
-            enabled: root.rtl ? root.page < root.page-count : root.page > 1;
-            clicked => { root.go(root.rtl ? root.page + 1 : root.page - 1); }
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.RightArrow) {
+                root.move(root.ring + 1);
+                return accept;
+            }
+            if (event.text == Key.LeftArrow) {
+                root.move(root.ring - 1);
+                return accept;
+            }
+            if (event.text == Key.Home) {
+                root.move(0);
+                return accept;
+            }
+            if (event.text == Key.End) {
+                root.move(root.shown + 1);
+                return accept;
+            }
+            if (event.text == Key.PageDown) {
+                root.go(root.page + 1);
+                return accept;
+            }
+            if (event.text == Key.PageUp) {
+                root.go(root.page - 1);
+                return accept;
+            }
+            if (event.text == " " || event.text == "\n") {
+                root.activate(root.ring);
+                return accept;
+            }
+            return reject;
         }
-        for slot in root.shown: AedstButton {
-            property <int> number: root.first + (root.rtl ? root.shown - 1 - slot : slot);
-            text: "\{self.number}";
-            label: root.page-label == "" ? "\{self.number}" : root.page-label + " \{self.number}";
-            size: AedstButtonSize.icon;
-            variant: self.number == root.page ? AedstButtonVariant.outline : AedstButtonVariant.ghost;
-            clicked => { root.go(self.number); }
-        }
-        AedstButton {
-            text: root.rtl ? root.previous-text : root.next-text;
-            variant: AedstButtonVariant.ghost;
-            enabled: root.rtl ? root.page > 1 : root.page < root.page-count;
-            clicked => { root.go(root.rtl ? root.page - 1 : root.page + 1); }
+
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-xs;
+            alignment: center;
+            AedstButton {
+                text: root.rtl ? root.next-text : root.previous-text;
+                variant: AedstButtonVariant.ghost;
+                enabled: root.rtl ? root.page < root.page-count : root.page > 1;
+                tab-stop: false;
+                show-focus: focus.has-focus && root.ring == 0;
+                clicked => {
+                    root.active = 0;
+                    root.activate(0);
+                }
+            }
+            for slot in root.shown: AedstButton {
+                property <int> number: root.first + (root.rtl ? root.shown - 1 - slot : slot);
+                text: "\{self.number}";
+                label: root.page-label == "" ? "\{self.number}" : root.page-label + " \{self.number}";
+                size: AedstButtonSize.icon;
+                variant: self.number == root.page ? AedstButtonVariant.outline : AedstButtonVariant.ghost;
+                tab-stop: false;
+                show-focus: focus.has-focus && root.ring == slot + 1;
+                clicked => {
+                    root.active = slot + 1;
+                    root.go(self.number);
+                }
+            }
+            AedstButton {
+                text: root.rtl ? root.previous-text : root.next-text;
+                variant: AedstButtonVariant.ghost;
+                enabled: root.rtl ? root.page > 1 : root.page < root.page-count;
+                tab-stop: false;
+                show-focus: focus.has-focus && root.ring == root.shown + 1;
+                clicked => {
+                    root.active = root.shown + 1;
+                    root.activate(root.shown + 1);
+                }
+            }
         }
     }
 }

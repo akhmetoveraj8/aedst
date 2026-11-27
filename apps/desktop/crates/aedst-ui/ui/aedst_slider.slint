@@ -53,11 +53,11 @@ export component AedstSlider inherits Rectangle {
     focus := FocusScope {
         enabled: root.enabled;
         key-pressed(event) => {
-            if (event.text == (root.rtl ? Key.LeftArrow : Key.RightArrow) || event.text == Key.UpArrow) {
+            if (AedstLayout.is-forward(event.text) || event.text == Key.UpArrow) {
                 root.commit(root.value + root.step);
                 return accept;
             }
-            if (event.text == (root.rtl ? Key.RightArrow : Key.LeftArrow) || event.text == Key.DownArrow) {
+            if (AedstLayout.is-backward(event.text) || event.text == Key.DownArrow) {
                 root.commit(root.value - root.step);
                 return accept;
             }

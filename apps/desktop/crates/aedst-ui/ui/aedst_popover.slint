@@ -1,30 +1,49 @@
 import { AedstTokens } from "aedst_tokens.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 
 // A floating panel with free content (the children). It is a `PopupWindow`: declare it next to
 // its anchor, position it with `x` / `y` (relative to the parent element), give it a `width`,
 // and open it with `show()` from the anchor's `clicked`. A click outside or Escape closes it;
 // `close()` closes it from inside. Mirroring of `x` for RTL is the caller's anchor arithmetic:
 // use AedstDropdownMenu, AedstSelect or AedstDatePicker when one of them fits, they do it.
+// Focus: the panel takes the keyboard focus when it opens (Escape then works from any control in
+// it) and Slint keeps Tab inside a popup (UNVERIFIED). `popup-closed()` fires when Escape closes
+// it, the cue to focus the anchor (Slint has no event for an outside click or for `close()`, and
+// cannot say which control had the focus before). A popup is not modal: the window under it stays
+// reachable by pointer. Role: a group named `label`.
 export component AedstPopover inherits PopupWindow {
     in property <string> label;
+    callback popup-closed();
 
     close-policy: PopupClosePolicy.close-on-click-outside;
 
     Rectangle {
         background: AedstTokens.popover;
         border-radius: AedstTokens.radius-lg;
-        border-width: 1px;
-        border-color: AedstTokens.border;
+        border-width: AedstA11y.edge;
+        border-color: AedstA11y.border;
         drop-shadow-blur: AedstTokens.elevation-level-4;
         drop-shadow-offset-y: AedstTokens.elevation-level-1;
         drop-shadow-color: AedstTokens.foreground.transparentize(0.85);
         accessible-role: groupbox;
         accessible-label: root.label;
 
-        VerticalLayout {
-            padding: AedstTokens.spacing-md;
-            spacing: AedstTokens.spacing-sm;
-            @children
+        panel-focus := FocusScope {
+            init => { self.focus(); }
+            key-pressed(event) => {
+                if (event.text == Key.Escape) {
+                    root.close();
+                    root.popup-closed();
+                    return accept;
+                }
+                return reject;
+            }
+
+            VerticalLayout {
+                padding: AedstTokens.spacing-md;
+                spacing: AedstTokens.spacing-sm;
+                @children
+            }
         }
     }
 }

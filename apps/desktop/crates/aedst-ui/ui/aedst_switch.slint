@@ -1,5 +1,7 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
+import { AedstA11y } from "aedst_a11y.slint";
+import { AedstSizes } from "aedst_sizes.slint";
 
 // Web `size`: default 32x18px, sm 24x14px; the thumb keeps the same inset on every side.
 export enum AedstSwitchSize { default, sm }
@@ -28,7 +30,7 @@ export component AedstSwitch inherits Rectangle {
     width: root.small ? 24px : 32px;
     height: root.small ? 14px : 18px;
     border-radius: self.height / 2;
-    background: root.checked ? AedstTokens.primary : AedstTokens.input;
+    background: root.checked ? AedstTokens.primary : AedstA11y.input;
     opacity: root.enabled ? 1.0 : 0.5;
     forward-focus: focus;
     accessible-role: switch;
@@ -56,17 +58,22 @@ export component AedstSwitch inherits Rectangle {
         height: root.thumb;
         border-radius: root.thumb / 2;
         background: AedstTokens.background;
-        animate x { duration: AedstTokens.motion-duration-fast; easing: ease-out; }
+        animate x { duration: AedstA11y.motion(AedstTokens.motion-duration-fast); easing: ease-out; }
     }
 
     // Visible keyboard focus ring.
     Rectangle {
         border-width: focus.has-focus ? 2px : 0px;
-        border-color: AedstTokens.ring;
+        border-color: AedstA11y.ring;
         border-radius: root.height / 2;
     }
 
+    // The visual is 18px high; the hit area is at least the WCAG 2.5.8 minimum (24px) in both directions.
     TouchArea {
+        width: Math.max(parent.width, AedstSizes.target-min);
+        height: Math.max(parent.height, AedstSizes.target-min);
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
         enabled: root.enabled;
         clicked => { root.flip(); }
     }

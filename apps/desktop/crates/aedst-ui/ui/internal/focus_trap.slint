@@ -1,0 +1,61 @@
+// The keyboard half of a modal (AedstDialog, AedstAlertDialog, AedstSheet, AedstDrawer): Tab and
+// Shift+Tab cycle inside the children, Escape is reported from anywhere inside.
+//
+// Slint has no focus-trap primitive and cannot ask which element has the focus, so the trap is
+// two stops around the content: the scope itself (the first stop, where `focus-first()` puts the
+// focus) and an invisible `tail` stop after the content. Tab on `tail` goes to the scope, and
+// Shift+Tab on the scope goes to `tail`; Shift+Tab on `tail` and Tab on the last control are the
+// normal traversal, so the cycle is: scope, the controls in tree order, tail, scope. Both extra
+// stops are announced as an unnamed element by a screen reader (a limit of Slint 1.19.1).
+// The modal must be the last child of the window's root so no control follows it in tab order.
+// A control that handles Tab itself (a multi-line text input) keeps it; Escape bubbles up from
+// controls that do not accept it.
+export component AedstFocusTrap inherits Rectangle {
+    in property <bool> active: true;
+    in property <bool> close-on-escape: true;
+    out property <bool> has-focus: scope.has-focus;
+    callback escape();
+
+    // Puts the focus on the first stop of the trap (on open).
+    public function focus-first() {
+        scope.focus();
+    }
+    // Puts the focus on the last stop of the trap.
+    public function focus-last() {
+        tail.focus();
+    }
+
+    forward-focus: scope;
+
+    scope := FocusScope {
+        enabled: root.active;
+        key-pressed(event) => {
+            if (event.text == Key.Escape && root.close-on-escape) {
+                root.escape();
+                return accept;
+            }
+            // Shift+Tab on the first stop wraps to the last one.
+            if (self.has-focus && (event.text == Key.Backtab || (event.text == Key.Tab && event.modifiers.shift))) {
+                tail.focus();
+                return accept;
+            }
+            return reject;
+        }
+
+        @children
+
+        tail := FocusScope {
+            width: 0px;
+            height: 0px;
+            enabled: root.active;
+            key-pressed(event) => {
+                // Tab on the last stop wraps to the first one; Shift+Tab goes back to the last control.
+                if (event.text == Key.Tab && !event.modifiers.shift) {
+                    scope.focus();
+                    return accept;
+                }
+                return reject;
+            }
+        }
+    }
+}

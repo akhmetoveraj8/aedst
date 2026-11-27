@@ -21,7 +21,10 @@ reference for names, variants and sizes.
 | `ui/lib.slint` | Entry point: features write `import { ... } from "@aedst-ui";` |
 | `ui/aedst_<name>.slint` | One file per manifest entry, exporting `Aedst<Name>` and its enums and structs |
 | `ui/aedst_tokens.slint` | Generated design tokens (`pnpm --dir packages/design-tokens build`); never hand-edited |
-| `ui/aedst_layout.slint` | `AedstLayout.rtl`, the single right-to-left switch |
+| `ui/aedst_layout.slint` | `AedstLayout.rtl`, the single right-to-left switch, plus the shared mirroring helpers (`mirror(slot, count)`, `is-forward(key)`, `is-backward(key)`) |
+| `ui/aedst_a11y.slint` | Hand-written `AedstA11y`: `reduce-motion` and `high-contrast` flags set from Rust (`src/a11y.rs`), high-contrast variants of border, ring, input, muted text and track |
+| `ui/aedst_sizes.slint` | Hand-written stopgap `AedstSizes` (control heights, the 24px minimum target) until `packages/design-tokens` has size tokens |
+| `src/a11y.rs`, `src/safe_url.rs` | `A11yPreferences` (env `AEDST_REDUCE_MOTION` / `AEDST_HIGH_CONTRAST`) and the one validator for URLs that come out of the UI (`http`, `https`, `mailto` only) |
 | `ui/internal/` | Helper components that are not kit entries (`questionnaire_choice.slint`) |
 | `src/highlight.rs` | Syntax highlighting for `AedstCodeBlock` (syntect, scopes mapped to the seven syntax tokens) |
 | `src/stack_trace.rs`, `src/test_results.rs` | `parse_stack_trace` for `AedstAiStackTrace`, `count_tests` for `AedstAiTestResults` (ports of the web helpers, unit-tested) |
@@ -48,7 +51,7 @@ reference for names, variants and sizes.
   catalogue of the crate that compiles the view, and each feature's `tests/catalogs.rs` fails on an
   entry the feature's own `.slint` file does not contain. A `@tr` inside the kit would therefore be
   untranslated and would break those tests. Every text, including accessible names such as "Close" or
-  "Next month", is a property: the feature passes `@tr("" => "...")` from its own catalogue. The kit
+  "Next month", is a property: the feature passes `@tr("<module>" => "...")` from its own catalogue. The kit
   has no `.po` files.
 - **Data in, callbacks out.** Slint has one children slot, no string search and no way to fold or split
   an array, so list-like components take a model (`[string]`, `[AedstMenuItem]`, ...) and the caller
@@ -190,12 +193,38 @@ Extension: `AedstActionRow` (`ui/aedst_action_row.slint`).
 
 ## Known gaps
 
-- No focus trap: with a dialog or sheet open, Tab can still reach controls under the scrim.
+- Focus trap (2026-11-28): `AedstDialog`, `AedstAlertDialog`, `AedstSheet` and `AedstDrawer` trap Tab and
+  Shift+Tab (`internal/focus_trap.slint`: the scope is the first stop, an invisible `tail` stop closes
+  the loop, so a screen reader announces two unnamed stops), move focus in on open, accept Escape from
+  any control inside and emit `restore-focus()` after closing (the feature focuses the opener: Slint
+  cannot tell which control had the focus). Slint 1.19 has no dialog or modal role and no `aria-hidden`:
+  the panel is a group named by the title, and a screen reader's virtual cursor can still leave it.
+  `AedstPopover` focuses its panel and closes on Escape (`popup-closed()`); a click outside gives no event.
+- Slint has no live regions: `AedstToaster` and `AedstMessageScroller` do not announce new content. The
+  toaster is a named group whose value is the newest toast (and `focus-stack()` moves focus to it).
+- Reduced motion and high contrast cannot be read by Slint. `AedstA11y` holds them; Rust sets them
+  (`aedst_ui::a11y::apply`). Detection is the environment only (`AEDST_REDUCE_MOTION=1`,
+  `AEDST_HIGH_CONTRAST=1`) plus a stored user setting passed by the caller: reading the Windows settings
+  needs a crate that is not approved yet. Honoured by carousel, progress, switch, sheet and drawer,
+  spinner and skeleton (motion) and by the edges, rings and tracks that use `AedstA11y.*` (button,
+  checkbox, toggle, toggle group, radio group, accordion, menubar, OTP, progress, popover, toast, file
+  tree, scroll area). The other components still use the normal tokens in high contrast.
+- Groups that are one tab stop with roving arrows: file tree, toggle group, pagination, accordion,
+  menubar, navigation menu (the items are `tab-stop: false` and the group draws the ring through `show-focus`).
+  Opening a menu from the keyboard goes through a `changed` handler on the title (it knows its own x).
+- `AedstCarousel`: `@children` cannot be reversed, so for a mirrored RTL carousel declare the slides last
+  to first and set `reverse-in-rtl`; otherwise the slides keep the declared order and only the buttons,
+  dots and arrow keys are mirrored.
 - `AedstTooltip` and `AedstHoverCard` are pointer-only; give the control an accessible description too.
-- `AedstInputOtp` has no paste; `AedstCarousel` keeps the physical slide order in RTL; the
-  `AedstScrollArea` scrollbar is not draggable.
-- Slint has no live regions: `AedstMessageScroller` does not announce streamed text, and there is no
-  global reduced-motion setting (`AedstSheet`/`AedstDrawer` take `reduce-motion` from the feature).
+- `AedstInputOtp` has no paste; `masked` hides the code from the boxes and the accessibility tree (a count
+  only); the `AedstScrollArea` scrollbar is not draggable.
+- `AedstDataTable` rows are named by "Header: value." for the first eight columns (the next eight go to
+  the description): Slint has no loop in an expression.
+- `AedstAiSources::opened(url)` and `AedstAiInlineCitation::opened(url)` carry model output: the feature
+  must call `aedst_ui::safe_url::validate` / `open_with` before opening anything. The kit and the gallery open nothing.
+- `AedstCodeBlock` copies through a hidden `TextInput` (no clipboard crate is approved); UNVERIFIED.
+- Not every literal pixel size is a token yet (about 150 remain); the tokens needed are listed in the 2026-11-28
+  desktop report, `ui/aedst_sizes.slint` is the stopgap.
 - `context-menu` fails the kit gate's variant check: the gate wants an enum in
   `aedst_context_menu.slint`, but the item variant lives on the shared `AedstMenuItem` struct
   (`AedstMenuItemVariant`, declared in `aedst_dropdown_menu.slint`; a Slint file cannot import from a
@@ -203,9 +232,19 @@ Extension: `AedstActionRow` (`ui/aedst_action_row.slint`).
 - `AedstQuestionnaire` shortcuts are the digits 1-9 (Slint cannot search a model for a key).
 - `AedstMenuList` skips one disabled entry per key press, not a run of them.
 - No font-family token: `AedstCodeBlock` and `AedstTypography` (`inline-code`) ask for `"monospace"`.
-- Icons are `image` properties or text glyphs; there is no icon set for Desktop yet.
+- Icons are `image` properties, `Path` shapes or text glyphs (decorative, inside a labelled button or
+  `accessible-role: none`); there is no icon set for Desktop yet.
 
 ## Unverified
+
+2026-11-28 pass (still no toolchain): `viewport-x/y/width/height` replaced the invalid `content-*` on every
+`Flickable` (kit, gallery and the five feature screens). New and unverified: `AccessibleRole.tree` and
+`accessible-action-expand` (file tree), `Key.Backtab`, a `public pure function` on a global
+(`AedstLayout.mirror`), `changed hovered` / `changed has-focus` on a component's own out property
+(toast, menubar), `changed wanted` on a repeated element's property, `FocusScope` with
+`accessible-role` (toaster), `init => { self.focus(); }` in a `PopupWindow` (popover), `for ...: Timer`
+inside a repeated element (toast), `string.is-float()` (OTP, questionnaire), `root.nodes[i].open = v`
+on an `in-out` model (file tree), a doc-only `@children` forwarded through `AedstFocusTrap`.
 
 Nothing here was compiled. The constructs most likely to need a fix on the first build:
 
@@ -234,9 +273,11 @@ Nothing here was compiled. The constructs most likely to need a fix on the first
 
 ## Gallery and tests
 
-`cargo run -p aedst-ui --example gallery -- [--rtl] [--dark] [--page <0..5>]` (0 basics, 1 forms,
+`cargo run -p aedst-ui --example gallery -- [--rtl] [--dark] [--page <0..8>]` (0 basics, 1 forms,
 2 display, 3 navigation, 4 overlays, 5 messages). `tests/ui.rs` covers the original components;
 `tests/components.rs`, `tests/navigation.rs` and `tests/messages.rs` cover the newer ones through
 accessible actions, key presses and pointer drags (popups are not covered). `src/highlight.rs` has
-unit tests. Page 6 (`ui/gallery/gallery_ai.slint`) holds the AI Elements of batch A, driven by
+unit tests. Page 8 (`ui/gallery/gallery_a11y.slint`, driven by `tests/a11y.rs`) holds the focus trap, toast
+keys, roving groups, tree keys, masked code and mirrored carousel; `src/a11y.rs` and `src/safe_url.rs`
+have unit tests (hostile URLs). Page 6 (`ui/gallery/gallery_ai.slint`) holds the AI Elements of batch A, driven by
 `tests/ai.rs`; `src/stack_trace.rs` and `src/test_results.rs` have unit tests.

@@ -22,6 +22,16 @@ export global GalleryState {
     in-out property <bool> alert-open: false;
     in-out property <bool> sheet-open: false;
     in-out property <bool> drawer-open: false;
+    // Page 8 (accessibility).
+    in-out property <bool> trap-open: false;
+    in-out property <int> align-index: -1;
+    in-out property <int> pager-page: 2;
+    in-out property <int> faq-index: -1;
+    in-out property <int> mirror-index: 0;
+    in-out property <[AedstToast]> a11y-toasts: [
+        { id: "first", title: "First alert", description: "", action-text: "" },
+        { id: "second", title: "Second alert", description: "More detail", action-text: "Retry" },
+    ];
     in-out property <[AedstToast]> toasts: [
         { id: "saved", title: "Changes saved", description: "Synced a moment ago", action-text: "Undo" },
     ];

@@ -1,5 +1,6 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 
 // A determinate progress bar. `value` runs from 0 to `maximum`; the bar fills from the reading
 // start edge (the right in RTL).
@@ -16,7 +17,9 @@ export component AedstProgress inherits Rectangle {
     min-width: 32px;
     horizontal-stretch: 1;
     border-radius: 2px;
-    background: AedstTokens.muted;
+    background: AedstA11y.track;
+    border-width: AedstA11y.high-contrast ? 1px : 0px;
+    border-color: AedstA11y.border;
     clip: true;
     accessible-role: progress-indicator;
     accessible-label: root.label;
@@ -31,6 +34,6 @@ export component AedstProgress inherits Rectangle {
         height: parent.height;
         border-radius: 2px;
         background: AedstTokens.primary;
-        animate width { duration: AedstTokens.motion-duration-normal; easing: ease-out; }
+        animate width { duration: AedstA11y.motion(AedstTokens.motion-duration-normal); easing: ease-out; }
     }
 }

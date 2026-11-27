@@ -29,7 +29,7 @@ function goodTree() {
     'crates/aedst-feature-tasks/src/domain/mod.rs': 'use aedst_common::ErrorKind;\n',
     'crates/aedst-feature-tasks/tests/outbox.rs': 'use aedst_persistence::Database;\n',
     'crates/aedst-feature-tasks/ui/tasks.slint':
-      '// no raw std-widgets control\nimport { AedstButton } from "@aedst-ui";\nimport { Row } from "task_row.slint";\nexport component TasksView {}\n',
+      '// no raw std-widgets control except ListView\nimport { AedstButton } from "@aedst-ui";\nimport { ListView } from "std-widgets.slint";\nimport { Row } from "task_row.slint";\nexport component TasksView {}\n',
     'crates/aedst-feature-tasks/ui/task_row.slint': 'export component Row {}\n',
     'crates/aedst-feature-wallet/Cargo.toml': pkg('aedst-feature-wallet', `[dependencies]\n${dep('aedst-common')}`),
     'crates/aedst-feature-wallet/src/lib.rs': 'pub mod history;\npub mod shared;\npub mod transfer;\nuse crate::transfer::Transfer;\n',
@@ -68,6 +68,7 @@ const CASES = [
   ['core crate uses a feature (Rust)', 'D4', append('crates/aedst-navigation/src/lib.rs', 'use aedst_feature_tasks::TasksController;\n')],
   ['core crate imports a feature view (Slint)', 'D4', append('crates/aedst-ui/ui/lib.slint', 'import { TasksView } from "../../aedst-feature-tasks/ui/tasks.slint";\n')],
   ['feature imports std-widgets', 'D5', append(`${TASKS}/ui/task_row.slint`, 'import { Button } from "std-widgets.slint";\n')],
+  ['feature imports ListView together with another widget', 'D5', append(`${TASKS}/ui/task_row.slint`, 'import { ListView, Button } from "std-widgets.slint";\n')],
   ['feature imports a view of another crate', 'D5', append(`${TASKS}/ui/task_row.slint`, 'import { Amount } from "../../aedst-feature-wallet/ui/shared/amount.slint";\n')],
   ['layer folders mixed with a feature folder', 'D6', append(`${TASKS}/src/reminders/domain/mod.rs`, 'pub struct Reminder;\n')],
   ['ui folder without its Rust module', 'D6', append(`${WALLET}/ui/limits/limits.slint`, 'export component Limits {}\n')],

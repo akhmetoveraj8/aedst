@@ -134,7 +134,7 @@ export component AedstAiPromptInput inherits Rectangle {
             spacing: AedstTokens.spacing-sm;
             alignment: root.rtl ? LayoutAlignment.end : LayoutAlignment.start;
             for slot in root.attachments.length: chip := AedstAttachment {
-                property <AedstAiPromptInputAttachment> file: root.attachments[root.rtl ? root.attachments.length - 1 - slot : slot];
+                property <AedstAiPromptInputAttachment> file: root.attachments[AedstLayout.mirror(slot, root.attachments.length)];
                 size: AedstAttachmentSize.sm;
                 title: chip.file.title;
                 description: chip.file.description;

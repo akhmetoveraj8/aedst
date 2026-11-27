@@ -12,6 +12,7 @@ pub const DISPLAY: i32 = 2;
 pub const NAVIGATION: i32 = 3;
 pub const OVERLAYS: i32 = 4;
 pub const MESSAGES: i32 = 5;
+pub const A11Y: i32 = 8;
 
 pub fn gallery(page: i32, rtl: bool) -> Gallery {
     i_slint_backend_testing::init_no_event_loop();

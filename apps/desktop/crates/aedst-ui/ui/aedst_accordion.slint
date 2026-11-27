@@ -1,5 +1,6 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 import { AedstCollapsibleTrigger } from "aedst_collapsible.slint";
 
 export struct AedstAccordionItem {
@@ -7,39 +8,85 @@ export struct AedstAccordionItem {
     content: string,
 }
 
-// Stacked sections of which one is open at a time (`open-index`, -1: all closed). Each header is
-// a tab stop; Enter and Space open or close it.
+// Stacked sections of which one is open at a time (`open-index`, -1: all closed). WAI-ARIA
+// accordion keys: the headers are ONE tab stop; Up/Down move between them, Home/End jump to the
+// first/last, Enter and Space open or close the one the ring is on.
 export component AedstAccordion inherits Rectangle {
     in property <[AedstAccordionItem]> items;
     in-out property <int> open-index: -1;
+    out property <bool> has-focus: focus.has-focus;
     // The index of the section that was opened or closed.
     callback toggled(int);
 
     private property <bool> rtl: AedstLayout.rtl;
+    // The header the keyboard ring is on.
+    private property <int> active: 0;
 
-    VerticalLayout {
-        for section[index] in root.items: VerticalLayout {
-            AedstCollapsibleTrigger {
-                title: section.title;
-                open: root.open-index == index;
-                toggled => {
-                    root.open-index = root.open-index == index ? -1 : index;
-                    root.toggled(index);
-                }
+    function toggle(index: int) {
+        if (index >= 0 && index < root.items.length) {
+            root.open-index = root.open-index == index ? -1 : index;
+            root.toggled(index);
+        }
+    }
+    function move(index: int) {
+        root.active = Math.max(0, Math.min(index, root.items.length - 1));
+    }
+
+    forward-focus: focus;
+    accessible-role: groupbox;
+
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.DownArrow) {
+                root.move(root.active + 1);
+                return accept;
             }
-            if root.open-index == index: HorizontalLayout {
-                padding: AedstTokens.spacing-sm;
-                Text {
-                    text: section.content;
-                    color: AedstTokens.muted-foreground;
-                    font-size: AedstTokens.typography-body-medium-font-size;
-                    horizontal-alignment: root.rtl ? right : left;
-                    wrap: word-wrap;
-                }
+            if (event.text == Key.UpArrow) {
+                root.move(root.active - 1);
+                return accept;
             }
-            Rectangle {
-                height: 1px;
-                background: AedstTokens.border;
+            if (event.text == Key.Home) {
+                root.move(0);
+                return accept;
+            }
+            if (event.text == Key.End) {
+                root.move(root.items.length - 1);
+                return accept;
+            }
+            if (event.text == " " || event.text == "\n") {
+                root.toggle(root.active);
+                return accept;
+            }
+            return reject;
+        }
+
+        VerticalLayout {
+            for section[index] in root.items: VerticalLayout {
+                AedstCollapsibleTrigger {
+                    title: section.title;
+                    open: root.open-index == index;
+                    tab-stop: false;
+                    show-focus: focus.has-focus && root.active == index;
+                    toggled => {
+                        root.active = index;
+                        focus.focus();
+                        root.toggle(index);
+                    }
+                }
+                if root.open-index == index: HorizontalLayout {
+                    padding: AedstTokens.spacing-sm;
+                    Text {
+                        text: section.content;
+                        color: AedstA11y.muted-foreground;
+                        font-size: AedstTokens.typography-body-medium-font-size;
+                        horizontal-alignment: root.rtl ? right : left;
+                        wrap: word-wrap;
+                    }
+                }
+                Rectangle {
+                    height: 1px;
+                    background: AedstA11y.border;
+                }
             }
         }
     }

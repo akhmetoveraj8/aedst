@@ -13,8 +13,12 @@ import { GalleryMessages } from "gallery/gallery_messages.slint";
 import { GalleryAi } from "gallery/gallery_ai.slint";
 import { GalleryAi2 } from "gallery/gallery_ai_2.slint";
 import { GalleryState } from "gallery/gallery_state.slint";
+import { GalleryA11y } from "gallery/gallery_a11y.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 
 export { GalleryState }
+// Reachable from Rust (`aedst_ui::a11y::apply`): the OS reduced-motion and high-contrast flags.
+export { AedstA11y }
 
 // Every component in one window: compiled by `cargo build`, and used to look at LTR/RTL and
 // light/dark. Page 0 is the original basics page (its focus order is what tests/ui.rs walks);
@@ -22,7 +26,8 @@ export { GalleryState }
 export component Gallery inherits Window {
     in-out property <bool> rtl <=> AedstLayout.rtl;
     in-out property <bool> dark <=> AedstTokens.dark;
-    // 0 basics, 1 forms, 2 display, 3 navigation, 4 overlays, 5 messages, 6 AI (batch A), 7 AI (batch B).
+    // 0 basics, 1 forms, 2 display, 3 navigation, 4 overlays, 5 messages, 6 AI (batch A), 7 AI (batch B),
+    // 8 accessibility (focus trap, toasts, roving groups, masked OTP, mirrored carousel).
     in-out property <int> page: 0;
     // Counters let the UI tests (tests/ui.rs) observe which action ran.
     out property <int> primary-count;
@@ -39,6 +44,7 @@ export component Gallery inherits Window {
         navigation.focus-control(name);
         messages.focus-control(name);
         ai-batch-b.focus-control(name);
+        a11y-page.focus-control(name);
     }
 
     VerticalLayout {
@@ -69,4 +75,5 @@ export component Gallery inherits Window {
     messages := GalleryMessages { visible: root.page == 5; }
     GalleryAi { visible: root.page == 6; }
     ai-batch-b := GalleryAi2 { visible: root.page == 7; }
+    a11y-page := GalleryA11y { visible: root.page == 8; }
 }

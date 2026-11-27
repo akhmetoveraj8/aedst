@@ -12,42 +12,98 @@ export struct AedstNavigationItem {
 
 // Top-level navigation: plain links and links that open a panel of sub-links. `current-id`
 // marks the active destination. The first item sits at the reading start (the right in RTL).
+// Keyboard: the bar is ONE tab stop; Left/Right follow the reading direction (mirrored in RTL)
+// between the items, Home/End jump to the ends, Enter and Space follow a link or open its panel
+// (Down opens a panel too); the panel is an AedstMenuList (Up/Down, Escape).
 export component AedstNavigationMenu inherits Rectangle {
     in property <[AedstNavigationItem]> items;
     in property <string> label;
     in property <string> current-id;
     in property <length> panel-width: 280px;
+    out property <bool> has-focus: focus.has-focus;
     // The `id` of the chosen item or sub-link.
     callback navigate(string);
 
     private property <bool> rtl: AedstLayout.rtl;
     private property <int> open-item: 0;
     private property <length> open-x;
+    // The item index the keyboard ring is on.
+    private property <int> active: 0;
+    // Set by the keyboard or a click to ask the matching item to act at its own position.
+    private property <int> act-request: -1;
 
     // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored item.
     pure function at(slot: int) -> int {
-        return root.rtl ? root.items.length - 1 - slot : slot;
+        return AedstLayout.mirror(slot, root.items.length);
+    }
+    function move(index: int) {
+        root.active = Math.max(0, Math.min(index, root.items.length - 1));
+    }
+    // A plain link navigates now; an item with sub-links asks its button to open the panel.
+    function act(index: int) {
+        if (index >= 0 && index < root.items.length) {
+            if (root.items[index].links.length == 0) {
+                root.navigate(root.items[index].id);
+            } else {
+                root.act-request = index;
+            }
+        }
     }
 
     min-height: 32px;
     max-height: 32px;
+    forward-focus: focus;
     accessible-role: groupbox;
     accessible-label: root.label;
 
-    HorizontalLayout {
-        spacing: AedstTokens.spacing-xs;
-        alignment: root.rtl ? end : start;
-        for slot in root.items.length: link := AedstButton {
-            property <AedstNavigationItem> entry: root.items[root.at(slot)];
-            text: self.entry.title;
-            variant: self.entry.id == root.current-id ? AedstButtonVariant.secondary : AedstButtonVariant.ghost;
-            clicked => {
-                if (self.entry.links.length == 0) {
-                    root.navigate(self.entry.id);
-                } else {
-                    root.open-item = root.at(slot);
-                    root.open-x = root.rtl ? link.x + link.width - root.panel-width : link.x;
-                    popup.show();
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (AedstLayout.is-forward(event.text)) {
+                root.move(root.active + 1);
+                return accept;
+            }
+            if (AedstLayout.is-backward(event.text)) {
+                root.move(root.active - 1);
+                return accept;
+            }
+            if (event.text == Key.Home) {
+                root.move(0);
+                return accept;
+            }
+            if (event.text == Key.End) {
+                root.move(root.items.length - 1);
+                return accept;
+            }
+            if (event.text == " " || event.text == "\n" || (event.text == Key.DownArrow && root.items[root.active].links.length > 0)) {
+                root.act(root.active);
+                return accept;
+            }
+            return reject;
+        }
+
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-xs;
+            alignment: root.rtl ? end : start;
+            for slot in root.items.length: link := AedstButton {
+                property <AedstNavigationItem> entry: root.items[root.at(slot)];
+                property <bool> wanted: root.act-request == root.at(slot);
+                text: self.entry.title;
+                variant: self.entry.id == root.current-id ? AedstButtonVariant.secondary : AedstButtonVariant.ghost;
+                tab-stop: false;
+                show-focus: focus.has-focus && root.active == root.at(slot);
+                accessible-expandable: self.entry.links.length > 0;
+                clicked => {
+                    root.active = root.at(slot);
+                    root.act(root.at(slot));
+                }
+                // A panel opens at the item's own position, which only the item knows.
+                changed wanted => {
+                    if (self.wanted) {
+                        root.act-request = -1;
+                        root.open-item = root.at(slot);
+                        root.open-x = root.rtl ? link.x + link.width - root.panel-width : link.x;
+                        popup.show();
+                    }
                 }
             }
         }

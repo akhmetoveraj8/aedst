@@ -14,7 +14,7 @@ export component AedstBreadcrumb inherits Rectangle {
 
     // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored item.
     pure function at(slot: int) -> int {
-        return root.rtl ? root.items.length - 1 - slot : slot;
+        return AedstLayout.mirror(slot, root.items.length);
     }
 
     accessible-role: groupbox;

@@ -13,7 +13,7 @@ export component AedstTable inherits Rectangle {
 
     // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored column.
     pure function at(slot: int) -> int {
-        return root.rtl ? root.columns.length - 1 - slot : slot;
+        return AedstLayout.mirror(slot, root.columns.length);
     }
 
     min-width: 64px * Math.max(1, root.columns.length);

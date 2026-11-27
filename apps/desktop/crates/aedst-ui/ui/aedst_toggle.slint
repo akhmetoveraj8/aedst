@@ -1,4 +1,6 @@
 import { AedstTokens } from "aedst_tokens.slint";
+import { AedstA11y } from "aedst_a11y.slint";
+import { AedstSizes } from "aedst_sizes.slint";
 
 // Variants and sizes are the ones of ui-kit.yaml (web `toggleVariants`).
 export enum AedstToggleVariant { default, outline }
@@ -12,10 +14,14 @@ export component AedstToggle inherits Rectangle {
     in property <AedstToggleVariant> variant: AedstToggleVariant.default;
     in property <AedstToggleSize> size: AedstToggleSize.default;
     in property <bool> enabled: true;
+    // False when a group owns the keyboard focus for its items (AedstToggleGroup): the toggle is
+    // then not a tab stop and the group draws the ring through `show-focus`.
+    in property <bool> tab-stop: true;
+    in property <bool> show-focus: false;
     out property <bool> has-focus: focus.has-focus;
     callback toggled(bool);
 
-    private property <length> side: root.size == AedstToggleSize.sm ? 28px : root.size == AedstToggleSize.lg ? 36px : 32px;
+    private property <length> side: root.size == AedstToggleSize.sm ? AedstSizes.control-sm : root.size == AedstToggleSize.lg ? AedstSizes.control-lg : AedstSizes.control-md;
 
     function flip() {
         if (root.enabled) {
@@ -29,7 +35,7 @@ export component AedstToggle inherits Rectangle {
     border-radius: AedstTokens.radius-md;
     background: (root.checked || touch.has-hover) ? AedstTokens.muted : transparent;
     border-width: root.variant == AedstToggleVariant.outline ? 1px : 0px;
-    border-color: AedstTokens.input;
+    border-color: AedstA11y.input;
     opacity: root.enabled ? 1.0 : 0.5;
     forward-focus: focus;
     accessible-role: button;
@@ -40,7 +46,7 @@ export component AedstToggle inherits Rectangle {
     accessible-action-default => { root.flip(); }
 
     focus := FocusScope {
-        enabled: root.enabled;
+        enabled: root.enabled && root.tab-stop;
         key-pressed(event) => {
             if (event.text == " " || event.text == "\n") {
                 root.flip();
@@ -60,13 +66,14 @@ export component AedstToggle inherits Rectangle {
             font-weight: AedstTokens.typography-label-large-font-weight;
             horizontal-alignment: center;
             vertical-alignment: center;
+            accessible-role: AccessibleRole.none;
         }
     }
 
     // Visible keyboard focus ring.
     Rectangle {
-        border-width: focus.has-focus ? 2px : 0px;
-        border-color: AedstTokens.ring;
+        border-width: (focus.has-focus || root.show-focus) ? 2px : 0px;
+        border-color: AedstA11y.ring;
         border-radius: AedstTokens.radius-md;
     }
 

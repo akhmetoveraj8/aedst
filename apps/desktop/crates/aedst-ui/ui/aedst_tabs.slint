@@ -20,7 +20,7 @@ export component AedstTabs inherits Rectangle {
 
     // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored item.
     pure function at(slot: int) -> int {
-        return root.rtl ? root.items.length - 1 - slot : slot;
+        return AedstLayout.mirror(slot, root.items.length);
     }
     function choose(index: int) {
         if (index >= 0 && index < root.items.length && index != root.current-index) {
@@ -43,11 +43,11 @@ export component AedstTabs inherits Rectangle {
 
                 focus := FocusScope {
                     key-pressed(event) => {
-                        if (event.text == (root.rtl ? Key.LeftArrow : Key.RightArrow)) {
+                        if (AedstLayout.is-forward(event.text)) {
                             root.choose(Math.min(root.current-index + 1, root.items.length - 1));
                             return accept;
                         }
-                        if (event.text == (root.rtl ? Key.RightArrow : Key.LeftArrow)) {
+                        if (AedstLayout.is-backward(event.text)) {
                             root.choose(Math.max(root.current-index - 1, 0));
                             return accept;
                         }

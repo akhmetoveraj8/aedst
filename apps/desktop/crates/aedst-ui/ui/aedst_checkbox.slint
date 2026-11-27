@@ -1,17 +1,22 @@
 import { AedstTokens } from "aedst_tokens.slint";
+import { AedstA11y } from "aedst_a11y.slint";
+import { AedstSizes } from "aedst_sizes.slint";
 
-// A checkbox. `label` is announced by screen readers together with the checked state.
+// A checkbox. `label` is announced by screen readers together with the checked state. The box is
+// the WCAG 2.5.8 minimum target (24px, `AedstSizes.target-min`); the check mark is a symmetric
+// path, decorative (the state is `accessible-checked`) and needs no mirroring in RTL.
 export component AedstCheckbox inherits Rectangle {
     in property <bool> checked;
     in property <string> label;
     in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
     callback toggled();
 
-    width: 24px;
-    height: 24px;
+    width: AedstSizes.target-min;
+    height: AedstSizes.target-min;
     border-radius: AedstTokens.radius-sm;
-    border-width: focus.has-focus ? 2px : 1px;
-    border-color: focus.has-focus ? AedstTokens.ring : AedstTokens.input;
+    border-width: focus.has-focus ? 2px : AedstA11y.edge;
+    border-color: focus.has-focus ? AedstA11y.ring : AedstA11y.input;
     background: root.checked ? AedstTokens.primary : AedstTokens.background;
     opacity: root.enabled ? 1.0 : 0.5;
     forward-focus: focus;
@@ -32,11 +37,17 @@ export component AedstCheckbox inherits Rectangle {
         }
     }
 
-    if root.checked: Text {
-        text: "✓";
-        color: AedstTokens.primary-foreground;
-        horizontal-alignment: center;
-        vertical-alignment: center;
+    if root.checked: Path {
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        width: 14px;
+        height: 14px;
+        viewbox-width: 14;
+        viewbox-height: 14;
+        stroke: AedstTokens.primary-foreground;
+        stroke-width: 2px;
+        commands: "M 2.5 7.5 L 5.5 10.5 L 11.5 3.5";
+        accessible-role: AccessibleRole.none;
     }
 
     TouchArea {

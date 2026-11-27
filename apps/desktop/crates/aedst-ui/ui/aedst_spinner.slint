@@ -1,4 +1,5 @@
 import { AedstTokens } from "aedst_tokens.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 
 // An indeterminate activity indicator: a three-quarter arc that turns once per second.
 // `label` is announced by screen readers (for example "Loading").
@@ -8,7 +9,8 @@ export component AedstSpinner inherits Rectangle {
     in property <bool> animated: true;
     in property <color> tint: AedstTokens.muted-foreground;
 
-    private property <angle> turn: root.animated ? 360deg * (Math.mod(animation-tick() / 1ms, 1000) / 1000) : 0deg;
+    // Static (a fixed arc) when `animated` is off or the user reduces motion (`AedstA11y.reduce-motion`).
+    private property <angle> turn: (root.animated && !AedstA11y.reduce-motion) ? 360deg * (Math.mod(animation-tick() / 1ms, 1000) / 1000) : 0deg;
 
     width: root.diameter;
     height: root.diameter;

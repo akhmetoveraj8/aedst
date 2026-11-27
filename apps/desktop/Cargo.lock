@@ -208,6 +208,7 @@ dependencies = [
  "aedst-oidc",
  "aedst-outbox",
  "aedst-persistence",
+ "aedst-slint-model",
  "aedst-telemetry",
  "aedst-update",
  "chrono",
@@ -237,6 +238,7 @@ dependencies = [
  "aedst-api",
  "aedst-common",
  "aedst-contract",
+ "aedst-slint-model",
  "buffa",
  "buffa-types",
  "chrono",
@@ -256,6 +258,7 @@ dependencies = [
  "aedst-api",
  "aedst-common",
  "aedst-contract",
+ "aedst-slint-model",
  "buffa",
  "buffa-types",
  "connectrpc",
@@ -278,6 +281,7 @@ dependencies = [
  "aedst-api",
  "aedst-common",
  "aedst-contract",
+ "aedst-slint-model",
  "buffa",
  "buffa-types",
  "connectrpc",
@@ -296,6 +300,7 @@ dependencies = [
  "aedst-api",
  "aedst-common",
  "aedst-contract",
+ "aedst-slint-model",
  "buffa",
  "buffa-types",
  "connectrpc",
@@ -315,6 +320,7 @@ dependencies = [
  "aedst-contract",
  "aedst-outbox",
  "aedst-persistence",
+ "aedst-slint-model",
  "buffa",
  "buffa-types",
  "connectrpc",
@@ -402,6 +408,13 @@ dependencies = [
  "url",
  "uuid",
  "zeroize",
+]
+
+[[package]]
+name = "aedst-slint-model"
+version = "0.0.0"
+dependencies = [
+ "slint",
 ]
 
 [[package]]

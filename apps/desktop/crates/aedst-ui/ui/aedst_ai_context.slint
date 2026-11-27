@@ -55,10 +55,14 @@ export component AedstAiContext inherits Rectangle {
         label: root.label == "" ? root.percent-text : root.label + ": " + root.percent-text;
         variant: AedstButtonVariant.outline;
         size: AedstButtonSize.sm;
+        // The button opens the card; Slint has no event for the popup closing by a click outside,
+        // so only the expandable role is exposed, not the expanded state.
+        accessible-expandable: true;
         clicked => { card.show(); }
     }
 
     card := AedstPopover {
+        popup-closed => { trigger.focus(); }
         x: root.rtl ? root.width - root.card-width : 0px;
         y: root.height + AedstTokens.spacing-xs;
         width: root.card-width;

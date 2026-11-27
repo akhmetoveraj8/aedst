@@ -1,5 +1,6 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
 
 export struct AedstToast {
@@ -13,95 +14,147 @@ export struct AedstToast {
 // The toast stack (manifest name `toast`; web `Toaster`). Place it as the LAST
 // child of the view's root element (not inside a layout): toasts appear at the bottom, at the
 // reading end. The list lives with the caller: the component asks to remove a toast with
-// `dismissed(id)`, from the close button or when `auto-dismiss` elapses for the oldest toast
-// (0ms: never). It does not block the view under it.
+// `dismissed(id)`, from the close button, Escape, or when `auto-dismiss` elapses (0ms: never).
+// It does not block the view under it.
+//
+// Timing (WCAG 2.2.1): every toast has its OWN timer, started when the toast appears, so a new
+// toast gets the full time and never shortens an older one. A toast is paused while the pointer is
+// over it or keyboard focus is on its buttons, and restarts with the full time when released.
+//
+// Keyboard: the stack is one named group (`region-label`) and a Tab stop; its buttons follow in
+// Tab order, so close and the action are reachable. Escape, from the group or any button in it,
+// dismisses the newest toast.
+//
+// Announcements: Slint 1.19 has no live regions, so a new toast is NOT spoken by a screen reader
+// by itself. Best available: the group's `accessible-value` is the newest toast's text, so a
+// screen reader that is on the group reads it; the feature may also move focus to the group
+// (`focus-stack()`) for an urgent message.
 export component AedstToaster inherits Rectangle {
     in property <[AedstToast]> toasts;
     // Accessible name of the close button of a toast.
     in property <string> dismiss-label;
+    // Accessible name of the whole stack, for example "Notifications".
+    in property <string> region-label;
     in property <duration> auto-dismiss: 4s;
+    out property <bool> has-focus: stack-focus.has-focus;
     callback dismissed(string);
     callback action(string);
 
     private property <bool> rtl: AedstLayout.rtl;
+    private property <string> newest: root.toasts.length == 0 ? ""
+        : root.toasts[root.toasts.length - 1].description == "" ? root.toasts[root.toasts.length - 1].title
+        : root.toasts[root.toasts.length - 1].title + ". " + root.toasts[root.toasts.length - 1].description;
 
-    Timer {
-        interval: root.auto-dismiss > 0ms ? root.auto-dismiss : 1s;
-        running: root.auto-dismiss > 0ms && root.toasts.length > 0;
-        triggered => { root.dismissed(root.toasts[0].id); }
+    // Puts the keyboard focus on the stack (urgent messages).
+    public function focus-stack() {
+        stack-focus.focus();
     }
 
-    VerticalLayout {
-        padding: AedstTokens.spacing-lg;
-        spacing: AedstTokens.spacing-sm;
-        alignment: end;
-        for toast in root.toasts: HorizontalLayout {
-            alignment: root.rtl ? start : end;
-            Rectangle {
-                width: Math.min(360px, root.width - 2 * AedstTokens.spacing-lg);
-                background: AedstTokens.popover;
-                border-radius: AedstTokens.radius-lg;
-                border-width: 1px;
-                border-color: AedstTokens.border;
-                drop-shadow-blur: AedstTokens.elevation-level-4;
-                drop-shadow-offset-y: AedstTokens.elevation-level-1;
-                drop-shadow-color: AedstTokens.foreground.transparentize(0.85);
-                accessible-role: AccessibleRole.text;
-                accessible-label: toast.description == "" ? toast.title : toast.title + ". " + toast.description;
+    stack-focus := FocusScope {
+        enabled: root.toasts.length > 0;
+        accessible-role: groupbox;
+        accessible-label: root.region-label;
+        accessible-value: root.newest;
+        key-pressed(event) => {
+            if (event.text == Key.Escape && root.toasts.length > 0) {
+                root.dismissed(root.toasts[root.toasts.length - 1].id);
+                return accept;
+            }
+            return reject;
+        }
 
-                // Clicks on a toast do not reach the view under it.
-                TouchArea { }
+        VerticalLayout {
+            padding: AedstTokens.spacing-lg;
+            spacing: AedstTokens.spacing-sm;
+            alignment: end;
+            for toast in root.toasts: HorizontalLayout {
+                alignment: root.rtl ? start : end;
+                card := Rectangle {
+                    // Buttons of this toast that hold the keyboard focus or the pointer (each reports on
+                    // change); the card's own hover is `card-touch`, which a button's pointer area hides.
+                    property <int> focus-held: 0;
+                    property <bool> paused: card-touch.has-hover || self.focus-held > 0;
+                    width: Math.min(360px, root.width - 2 * AedstTokens.spacing-lg);
+                    background: AedstTokens.popover;
+                    border-radius: AedstTokens.radius-lg;
+                    border-width: AedstA11y.edge;
+                    border-color: AedstA11y.border;
+                    drop-shadow-blur: AedstTokens.elevation-level-4;
+                    drop-shadow-offset-y: AedstTokens.elevation-level-1;
+                    drop-shadow-color: AedstTokens.foreground.transparentize(0.85);
+                    accessible-role: AccessibleRole.text;
+                    accessible-label: toast.description == "" ? toast.title : toast.title + ". " + toast.description;
 
-                HorizontalLayout {
-                    padding: AedstTokens.spacing-md;
-                    spacing: AedstTokens.spacing-sm;
-                    if root.rtl: AedstButton {
-                        text: "\u{00D7}";
-                        label: root.dismiss-label;
-                        variant: AedstButtonVariant.ghost;
-                        size: AedstButtonSize.icon-xs;
-                        clicked => { root.dismissed(toast.id); }
+                    // One timer per toast: runs from the toast's creation, pauses (and later restarts
+                    // from zero) while the toast is hovered or focused.
+                    Timer {
+                        interval: root.auto-dismiss > 0ms ? root.auto-dismiss : 1s;
+                        running: root.auto-dismiss > 0ms && !card.paused;
+                        triggered => { root.dismissed(toast.id); }
                     }
-                    if root.rtl && toast.action-text != "": AedstButton {
-                        text: toast.action-text;
-                        variant: AedstButtonVariant.outline;
-                        size: AedstButtonSize.xs;
-                        clicked => { root.action(toast.id); }
-                    }
-                    VerticalLayout {
-                        horizontal-stretch: 1;
-                        spacing: AedstTokens.spacing-xxs;
-                        alignment: center;
-                        Text {
-                            text: toast.title;
-                            color: AedstTokens.popover-foreground;
-                            font-size: AedstTokens.typography-label-large-font-size;
-                            font-weight: AedstTokens.typography-label-large-font-weight;
-                            horizontal-alignment: root.rtl ? right : left;
-                            wrap: word-wrap;
-                            accessible-role: AccessibleRole.none;
+
+                    // Hover over the toast pauses it; clicks on it do not reach the view under it.
+                    card-touch := TouchArea { }
+
+                    HorizontalLayout {
+                        padding: AedstTokens.spacing-md;
+                        spacing: AedstTokens.spacing-sm;
+                        if root.rtl: AedstButton {
+                            text: "\u{00D7}";
+                            label: root.dismiss-label;
+                            variant: AedstButtonVariant.ghost;
+                            size: AedstButtonSize.icon-xs;
+                            clicked => { root.dismissed(toast.id); }
+                            changed has-focus => { card.focus-held += self.has-focus ? 1 : -1; }
+                            changed hovered => { card.focus-held += self.hovered ? 1 : -1; }
                         }
-                        if toast.description != "": Text {
-                            text: toast.description;
-                            color: AedstTokens.muted-foreground;
-                            font-size: AedstTokens.typography-body-medium-font-size;
-                            horizontal-alignment: root.rtl ? right : left;
-                            wrap: word-wrap;
-                            accessible-role: AccessibleRole.none;
+                        if root.rtl && toast.action-text != "": AedstButton {
+                            text: toast.action-text;
+                            variant: AedstButtonVariant.outline;
+                            size: AedstButtonSize.xs;
+                            clicked => { root.action(toast.id); }
+                            changed has-focus => { card.focus-held += self.has-focus ? 1 : -1; }
+                            changed hovered => { card.focus-held += self.hovered ? 1 : -1; }
                         }
-                    }
-                    if !root.rtl && toast.action-text != "": AedstButton {
-                        text: toast.action-text;
-                        variant: AedstButtonVariant.outline;
-                        size: AedstButtonSize.xs;
-                        clicked => { root.action(toast.id); }
-                    }
-                    if !root.rtl: AedstButton {
-                        text: "\u{00D7}";
-                        label: root.dismiss-label;
-                        variant: AedstButtonVariant.ghost;
-                        size: AedstButtonSize.icon-xs;
-                        clicked => { root.dismissed(toast.id); }
+                        VerticalLayout {
+                            horizontal-stretch: 1;
+                            spacing: AedstTokens.spacing-xxs;
+                            alignment: center;
+                            Text {
+                                text: toast.title;
+                                color: AedstTokens.popover-foreground;
+                                font-size: AedstTokens.typography-label-large-font-size;
+                                font-weight: AedstTokens.typography-label-large-font-weight;
+                                horizontal-alignment: root.rtl ? right : left;
+                                wrap: word-wrap;
+                                accessible-role: AccessibleRole.none;
+                            }
+                            if toast.description != "": Text {
+                                text: toast.description;
+                                color: AedstA11y.muted-foreground;
+                                font-size: AedstTokens.typography-body-medium-font-size;
+                                horizontal-alignment: root.rtl ? right : left;
+                                wrap: word-wrap;
+                                accessible-role: AccessibleRole.none;
+                            }
+                        }
+                        if !root.rtl && toast.action-text != "": AedstButton {
+                            text: toast.action-text;
+                            variant: AedstButtonVariant.outline;
+                            size: AedstButtonSize.xs;
+                            clicked => { root.action(toast.id); }
+                            changed has-focus => { card.focus-held += self.has-focus ? 1 : -1; }
+                            changed hovered => { card.focus-held += self.hovered ? 1 : -1; }
+                        }
+                        if !root.rtl: AedstButton {
+                            text: "\u{00D7}";
+                            label: root.dismiss-label;
+                            variant: AedstButtonVariant.ghost;
+                            size: AedstButtonSize.icon-xs;
+                            clicked => { root.dismissed(toast.id); }
+                            changed has-focus => { card.focus-held += self.has-focus ? 1 : -1; }
+                            changed hovered => { card.focus-held += self.hovered ? 1 : -1; }
+                        }
                     }
                 }
             }

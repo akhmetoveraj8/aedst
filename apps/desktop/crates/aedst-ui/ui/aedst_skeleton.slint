@@ -1,15 +1,19 @@
 import { AedstTokens } from "aedst_tokens.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 
-// A placeholder block shown while content loads. Set `animated: false` for reduced motion.
+// A placeholder block shown while content loads. Set `animated: false` for reduced motion; the
+// pulse also stops by itself when `AedstA11y.reduce-motion` is set (the OS setting, set from Rust).
 // `label` (for example "Loading") is announced once; leave it empty for purely decorative blocks.
 export component AedstSkeleton inherits Rectangle {
     in property <bool> animated: true;
     in property <string> label;
 
-    background: AedstTokens.muted;
+    private property <bool> pulsing: root.animated && !AedstA11y.reduce-motion;
+
+    background: AedstA11y.track;
     border-radius: AedstTokens.radius-md;
     min-height: AedstTokens.spacing-lg;
-    opacity: root.animated ? 0.5 + 0.5 * Math.abs(Math.sin(180deg * (animation-tick() / 1s))) : 1.0;
+    opacity: root.pulsing ? 0.5 + 0.5 * Math.abs(Math.sin(180deg * (animation-tick() / 1s))) : 1.0;
     accessible-role: root.label == "" ? AccessibleRole.none : AccessibleRole.progress-indicator;
     accessible-label: root.label;
 }

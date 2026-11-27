@@ -1,5 +1,7 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
+import { AedstA11y } from "aedst_a11y.slint";
+import { AedstSizes } from "aedst_sizes.slint";
 
 // One choice out of `items`. The group is a single tab stop: arrow keys move the selection
 // (Up/Down, and Left/Right following the reading direction), Home/End jump to the ends.
@@ -28,11 +30,11 @@ export component AedstRadioGroup inherits Rectangle {
     focus := FocusScope {
         enabled: root.enabled;
         key-pressed(event) => {
-            if (event.text == Key.DownArrow || event.text == (root.rtl ? Key.LeftArrow : Key.RightArrow)) {
+            if (event.text == Key.DownArrow || AedstLayout.is-forward(event.text)) {
                 root.choose(Math.min(root.current-index + 1, root.items.length - 1));
                 return accept;
             }
-            if (event.text == Key.UpArrow || event.text == (root.rtl ? Key.RightArrow : Key.LeftArrow)) {
+            if (event.text == Key.UpArrow || AedstLayout.is-backward(event.text)) {
                 root.choose(Math.max(root.current-index - 1, 0));
                 return accept;
             }
@@ -51,7 +53,7 @@ export component AedstRadioGroup inherits Rectangle {
     VerticalLayout {
         spacing: AedstTokens.spacing-sm;
         for entry[index] in root.items: Rectangle {
-            min-height: 20px;
+            min-height: AedstSizes.target-min;
             preferred-width: 24px + caption.preferred-width;
             accessible-role: radio-button;
             accessible-label: entry;
@@ -68,7 +70,7 @@ export component AedstRadioGroup inherits Rectangle {
                 border-radius: 8px;
                 // The focus ring is drawn on the selected item (or the first one when nothing is selected).
                 border-width: (focus.has-focus && (root.current-index == index || (root.current-index < 0 && index == 0))) ? 2px : 1px;
-                border-color: focus.has-focus ? AedstTokens.ring : AedstTokens.input;
+                border-color: focus.has-focus ? AedstA11y.ring : AedstA11y.input;
                 background: AedstTokens.background;
                 if root.current-index == index: Rectangle {
                     width: 8px;

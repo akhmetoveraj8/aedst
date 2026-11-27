@@ -177,7 +177,10 @@ fn data_table_sorts_and_selects_by_action() {
     let ui = gallery(DISPLAY, false);
     element(&ui, "Amount").invoke_accessible_default_action();
     assert_eq!(state(&ui).get_last_event(), "sort:1");
-    element(&ui, "INV-2").invoke_accessible_default_action();
+    // The row is named by every cell with its column header, not by the first cell alone.
+    let row = element(&ui, "Number: INV-2. Amount: 80.");
+    assert_eq!(row.accessible_role(), Some(AccessibleRole::ListItem));
+    row.invoke_accessible_default_action();
     assert_eq!(state(&ui).get_table_row(), 1);
 }
 

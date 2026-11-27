@@ -1,0 +1,29 @@
+// Hand-written (not generated): user accessibility preferences that Slint cannot read from the OS.
+// Slint has no media query for "reduce motion" or "high contrast", so Rust sets these two flags at
+// startup and on a settings change (see `src/a11y.rs`: `A11yPreferences::apply`). The high-contrast
+// colours are design tokens (`contrast.*` in packages/design-tokens, generated into AedstContrast).
+import { AedstTokens } from "aedst_tokens.slint";
+import { AedstContrast } from "aedst_contrast.slint";
+
+export global AedstA11y {
+    // True when the user asked the OS for less motion: animations are skipped, spinners are static.
+    in-out property <bool> reduce-motion: false;
+    // True when the user asked the OS for high contrast: borders, rings and muted text are maximal.
+    in-out property <bool> high-contrast: false;
+
+    // Use for every `animate` duration: zero when motion is reduced.
+    public pure function motion(normal: duration) -> duration {
+        return root.reduce-motion ? 0ms : normal;
+    }
+
+    // High-contrast variants of the tokens that carry component edges and secondary text. Each falls
+    // back to the normal token, so a component can use these names unconditionally.
+    out property <color> border: root.high-contrast ? AedstContrast.border : AedstTokens.border;
+    out property <color> input: root.high-contrast ? AedstContrast.input : AedstTokens.input;
+    out property <color> ring: root.high-contrast ? AedstContrast.ring : AedstTokens.ring;
+    out property <color> muted-foreground: root.high-contrast ? AedstContrast.muted-foreground : AedstTokens.muted-foreground;
+    // The empty part of a progress bar or slider track and a skeleton block.
+    out property <color> track: root.high-contrast ? AedstContrast.track : AedstTokens.muted;
+    // The edge width for controls that are borderless at normal contrast.
+    out property <length> edge: root.high-contrast ? 2px : 1px;
+}

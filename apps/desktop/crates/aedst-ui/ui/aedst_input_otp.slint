@@ -1,4 +1,6 @@
 import { AedstTokens } from "aedst_tokens.slint";
+import { AedstA11y } from "aedst_a11y.slint";
+import { AedstSizes } from "aedst_sizes.slint";
 
 // A one-time-code input of up to eight characters, one box per character. Typing fills the
 // boxes, Backspace removes the last character; `completed` fires when every box is filled.
@@ -10,6 +12,9 @@ export component AedstInputOtp inherits Rectangle {
     in property <bool> numeric-only: true;
     in property <bool> invalid: false;
     in property <bool> enabled: true;
+    // For a secret code (an authenticator or backup code): the boxes show bullets and the accessible
+    // value is only the count of typed characters. `value` and `completed` still carry the code to Rust.
+    in property <bool> masked: false;
     out property <string> value: root.cells[0] + root.cells[1] + root.cells[2] + root.cells[3]
         + root.cells[4] + root.cells[5] + root.cells[6] + root.cells[7];
     out property <bool> has-focus: focus.has-focus;
@@ -45,7 +50,9 @@ export component AedstInputOtp inherits Rectangle {
     forward-focus: focus;
     accessible-role: text-input;
     accessible-label: root.label;
-    accessible-value: root.value;
+    // A masked code is never handed to the accessibility tree (screen readers, the testing
+    // backend, UI automation): only how many characters are typed, "3 / 6".
+    accessible-value: root.masked ? "\{root.cursor} / \{root.count}" : root.value;
     accessible-enabled: root.enabled;
 
     focus := FocusScope {
@@ -80,13 +87,13 @@ export component AedstInputOtp inherits Rectangle {
         alignment: start;
         for slot in root.count: Rectangle {
             property <bool> current: focus.has-focus && (slot == root.cursor || (root.cursor == root.count && slot == root.count - 1));
-            width: 32px;
+            width: AedstSizes.control-md;
             border-radius: AedstTokens.radius-md;
             background: AedstTokens.background;
-            border-width: self.current ? 2px : 1px;
-            border-color: root.invalid ? AedstTokens.destructive : self.current ? AedstTokens.ring : AedstTokens.input;
+            border-width: self.current ? 2px : AedstA11y.edge;
+            border-color: root.invalid ? AedstTokens.destructive : self.current ? AedstA11y.ring : AedstA11y.input;
             Text {
-                text: root.cells[slot];
+                text: (root.masked && root.cells[slot] != "") ? "\u{2022}" : root.cells[slot];
                 color: AedstTokens.foreground;
                 font-size: AedstTokens.typography-title-small-font-size;
                 horizontal-alignment: center;

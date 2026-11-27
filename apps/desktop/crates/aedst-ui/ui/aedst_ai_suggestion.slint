@@ -34,19 +34,19 @@ export component AedstAiSuggestions inherits Rectangle {
     accessible-label: root.label;
 
     flick := Flickable {
-        viewport-width: Math.max(self.width, row.preferred-width);
+        content-width: Math.max(self.width, row.preferred-width);
         // RTL starts at the right edge; a scroll by the user replaces this binding.
-        viewport-x: root.rtl ? Math.min(0px, self.width - self.viewport-width) : 0px;
+        content-x: root.rtl ? Math.min(0px, self.width - self.content-width) : 0px;
         interactive: true;
 
         row := HorizontalLayout {
             y: AedstTokens.spacing-xs;
             height: 28px;
-            width: flick.viewport-width;
+            width: flick.content-width;
             spacing: AedstTokens.spacing-sm;
             alignment: root.rtl ? LayoutAlignment.end : LayoutAlignment.start;
             for slot in root.suggestions.length: AedstAiSuggestion {
-                suggestion: root.suggestions[root.rtl ? root.suggestions.length - 1 - slot : slot];
+                suggestion: root.suggestions[AedstLayout.mirror(slot, root.suggestions.length)];
                 picked(value) => { root.picked(value); }
             }
         }

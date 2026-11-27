@@ -1,13 +1,17 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
+import { AedstFocusTrap } from "internal/focus_trap.slint";
 
 // The edge the panel is attached to (web `side`). The sides are physical, as on web.
 export enum AedstSheetSide { top, right, bottom, left }
 
 // A panel that slides over the view from one edge, with a scrim. Place it as the LAST child of
 // the view's root element (not inside a layout). Escape and a click on the scrim close it.
-// Slint has no focus trap: Tab can still reach controls under the scrim (known gap).
+// Modal like AedstDialog: focus moves in on open, Tab / Shift+Tab cycle inside (`AedstFocusTrap`),
+// `restore-focus()` fires on close, and the role is a group (Slint 1.19 has no dialog role).
+// The slide is instant when `reduce-motion` or `AedstA11y.reduce-motion` is set.
 export component AedstSheet inherits Rectangle {
     in-out property <bool> open;
     in property <string> title;
@@ -26,6 +30,8 @@ export component AedstSheet inherits Rectangle {
     // which the feature reads and passes in).
     in property <bool> reduce-motion: false;
     callback closed();
+    // Emitted after the sheet closed: the feature focuses the control that opened it.
+    callback restore-focus();
 
     private property <bool> rtl: AedstLayout.rtl;
     private property <bool> upright: root.side == AedstSheetSide.left || root.side == AedstSheetSide.right;
@@ -56,7 +62,9 @@ export component AedstSheet inherits Rectangle {
         root.drag-offset = 0px;
         root.dragging = false;
         if (root.open) {
-            focus.focus();
+            trap.focus-first();
+        } else {
+            root.restore-focus();
         }
     }
 
@@ -69,16 +77,10 @@ export component AedstSheet inherits Rectangle {
         }
     }
 
-    // Keys bubble from the focused control inside the panel up to this scope.
-    focus := FocusScope {
-        enabled: root.open;
-        key-pressed(event) => {
-            if (event.text == Key.Escape) {
-                root.close();
-                return accept;
-            }
-            return reject;
-        }
+    // Focus trap: Tab and Shift+Tab cycle inside the panel, Escape works from any control in it.
+    trap := AedstFocusTrap {
+        active: root.open;
+        escape => { root.close(); }
 
         panel := Rectangle {
             x: root.side == AedstSheetSide.right ? parent.width - self.width : 0px;
@@ -94,7 +96,7 @@ export component AedstSheet inherits Rectangle {
             accessible-label: root.title;
             accessible-description: root.description;
             animate y {
-                duration: (root.dragging || root.reduce-motion) ? 0ms : AedstTokens.motion-duration-normal;
+                duration: (root.dragging || root.reduce-motion) ? 0ms : AedstA11y.motion(AedstTokens.motion-duration-normal);
                 easing: ease-out;
             }
 

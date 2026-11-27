@@ -1,4 +1,7 @@
 import { AedstTokens } from "aedst_tokens.slint";
+import { AedstLayout } from "aedst_layout.slint";
+import { AedstA11y } from "aedst_a11y.slint";
+import { AedstSizes } from "aedst_sizes.slint";
 
 // Variants and sizes are the ones of ui-kit.yaml (web `buttonVariants`). Always write the enum
 // value qualified (`AedstButtonSize.icon`): a bare `icon` would resolve to the `icon` property.
@@ -13,16 +16,22 @@ export component AedstButton inherits Rectangle {
     in property <AedstButtonVariant> variant: AedstButtonVariant.default;
     in property <AedstButtonSize> size: AedstButtonSize.default;
     in property <bool> enabled: true;
+    // False when a group (toggle group, pagination, menubar) owns the keyboard focus for its items:
+    // the button is then not a tab stop and the group draws the ring through `show-focus`.
+    in property <bool> tab-stop: true;
+    in property <bool> show-focus: false;
     out property <bool> has-focus: focus.has-focus;
     out property <bool> pressed: touch.pressed;
+    out property <bool> hovered: touch.has-hover;
     callback clicked();
 
     private property <bool> square: root.size == AedstButtonSize.icon || root.size == AedstButtonSize.icon-xs
         || root.size == AedstButtonSize.icon-sm || root.size == AedstButtonSize.icon-lg;
-    private property <length> side: (root.size == AedstButtonSize.xs || root.size == AedstButtonSize.icon-xs) ? 24px
-        : (root.size == AedstButtonSize.sm || root.size == AedstButtonSize.icon-sm) ? 28px
-        : (root.size == AedstButtonSize.lg || root.size == AedstButtonSize.icon-lg) ? 36px
-        : 32px;
+    // The smallest size (xs) is the WCAG 2.5.8 minimum target, 24px (AedstSizes.target-min).
+    private property <length> side: (root.size == AedstButtonSize.xs || root.size == AedstButtonSize.icon-xs) ? AedstSizes.control-xs
+        : (root.size == AedstButtonSize.sm || root.size == AedstButtonSize.icon-sm) ? AedstSizes.control-sm
+        : (root.size == AedstButtonSize.lg || root.size == AedstButtonSize.icon-lg) ? AedstSizes.control-lg
+        : AedstSizes.control-md;
     private property <bool> hot: root.enabled && (touch.has-hover || touch.pressed);
     private property <color> fill: root.variant == AedstButtonVariant.default ? (root.hot ? AedstTokens.primary.transparentize(0.2) : AedstTokens.primary)
         : root.variant == AedstButtonVariant.outline ? (root.hot ? AedstTokens.muted : AedstTokens.background)
@@ -44,7 +53,7 @@ export component AedstButton inherits Rectangle {
     border-radius: AedstTokens.radius-md;
     background: root.fill;
     border-width: root.variant == AedstButtonVariant.outline ? 1px : 0px;
-    border-color: AedstTokens.border;
+    border-color: AedstA11y.border;
     opacity: root.enabled ? 1.0 : 0.5;
     forward-focus: focus;
     accessible-role: button;
@@ -53,7 +62,7 @@ export component AedstButton inherits Rectangle {
     accessible-action-default => { if (root.enabled) { root.clicked(); } }
 
     focus := FocusScope {
-        enabled: root.enabled;
+        enabled: root.enabled && root.tab-stop;
         key-pressed(event) => {
             if (event.text == " " || event.text == "\n") {
                 root.clicked();
@@ -69,22 +78,36 @@ export component AedstButton inherits Rectangle {
         padding-right: root.square ? 0px : AedstTokens.spacing-md;
         spacing: AedstTokens.spacing-xs;
         alignment: center;
-        if root.icon.width > 0: VerticalLayout {
+        // The icon sits at the reading start: before the text in LTR, after it in RTL (Slint cannot
+        // reverse a layout, so the text is declared once and the icon on either side).
+        if root.icon.width > 0 && !AedstLayout.rtl: VerticalLayout {
             alignment: center;
             Image {
                 source: root.icon;
                 colorize: root.ink;
                 width: root.side / 2;
                 height: root.side / 2;
+                accessible-role: AccessibleRole.none;
             }
         }
         if root.text != "": Text {
             text: root.text;
             color: root.ink;
-            font-size: root.side < 32px ? AedstTokens.typography-label-medium-font-size : AedstTokens.typography-label-large-font-size;
+            font-size: root.side < AedstSizes.control-md ? AedstTokens.typography-label-medium-font-size : AedstTokens.typography-label-large-font-size;
             font-weight: AedstTokens.typography-label-large-font-weight;
             horizontal-alignment: center;
             vertical-alignment: center;
+            accessible-role: AccessibleRole.none;
+        }
+        if root.icon.width > 0 && AedstLayout.rtl: VerticalLayout {
+            alignment: center;
+            Image {
+                source: root.icon;
+                colorize: root.ink;
+                width: root.side / 2;
+                height: root.side / 2;
+                accessible-role: AccessibleRole.none;
+            }
         }
     }
 
@@ -99,8 +122,8 @@ export component AedstButton inherits Rectangle {
 
     // Visible keyboard focus ring.
     Rectangle {
-        border-width: focus.has-focus ? 2px : 0px;
-        border-color: AedstTokens.ring;
+        border-width: (focus.has-focus || root.show-focus) ? 2px : 0px;
+        border-color: AedstA11y.ring;
         border-radius: AedstTokens.radius-md;
     }
 

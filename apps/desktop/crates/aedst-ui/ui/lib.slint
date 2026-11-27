@@ -2,6 +2,10 @@
 // One file per component, named after the manifest entry (ui-kit.yaml). Component list: ../README.md.
 export { AedstTokens } from "aedst_tokens.slint";
 export { AedstLayout } from "aedst_layout.slint";
+// Hand-written globals (not generated tokens): OS accessibility preferences set from Rust
+// (`aedst_ui::a11y`) and the size stopgap (`aedst_sizes.slint`).
+export { AedstA11y } from "aedst_a11y.slint";
+export { AedstSizes } from "aedst_sizes.slint";
 
 export { AedstAccordion, AedstAccordionItem } from "aedst_accordion.slint";
 export { AedstActionRow } from "aedst_action_row.slint";

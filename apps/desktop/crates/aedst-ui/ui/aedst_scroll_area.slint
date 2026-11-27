@@ -1,5 +1,6 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 
 // A vertically scrolling region with a thin token-coloured scrollbar, built on the built-in
 // `Flickable` (the manifest allows the native `ScrollView` here; this adds the kit look and
@@ -66,7 +67,7 @@ export component AedstScrollArea inherits Rectangle {
         width: 4px;
         height: Math.max(24px, parent.height * (flick.height / flick.content-height));
         border-radius: 2px;
-        background: AedstTokens.border;
+        background: AedstA11y.border;
     }
 
     // Visible keyboard focus ring.

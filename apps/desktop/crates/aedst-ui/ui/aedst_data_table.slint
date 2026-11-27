@@ -32,7 +32,22 @@ export component AedstDataTable inherits Rectangle {
 
     // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored column.
     pure function at(slot: int) -> int {
-        return root.rtl ? root.columns.length - 1 - slot : slot;
+        return AedstLayout.mirror(slot, root.columns.length);
+    }
+    // One "Header: value." phrase of a row (empty past the last column), for example
+    // "Number: INV-2. Amount: 80." Slint has no loops in expressions, so the row label is the first
+    // eight columns; the next eight go to the description.
+    pure function part(cells: [string], index: int) -> string {
+        return (index < root.columns.length && index < cells.length)
+            ? ((index == 0 || index == 8 ? "" : " ") + root.columns[index].title + ": " + cells[index] + ".") : "";
+    }
+    pure function row-label(cells: [string]) -> string {
+        return root.part(cells, 0) + root.part(cells, 1) + root.part(cells, 2) + root.part(cells, 3)
+            + root.part(cells, 4) + root.part(cells, 5) + root.part(cells, 6) + root.part(cells, 7);
+    }
+    pure function row-description(cells: [string]) -> string {
+        return root.part(cells, 8) + root.part(cells, 9) + root.part(cells, 10) + root.part(cells, 11)
+            + root.part(cells, 12) + root.part(cells, 13) + root.part(cells, 14) + root.part(cells, 15);
     }
     pure function column-width(index: int) -> length {
         return root.columns[index].share > 0 ? root.width * root.columns[index].share : root.width / Math.max(1, root.columns.length);
@@ -148,7 +163,8 @@ export component AedstDataTable inherits Rectangle {
                     border-width: (body-focus.has-focus && root.current-row == index) ? 2px : 0px;
                     border-color: AedstTokens.ring;
                     accessible-role: list-item;
-                    accessible-label: cells[0];
+                    accessible-label: root.row-label(cells);
+                    accessible-description: root.row-description(cells);
                     accessible-item-selectable: true;
                     accessible-item-selected: root.current-row == index;
                     accessible-item-index: index;

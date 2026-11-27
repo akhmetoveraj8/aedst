@@ -23,12 +23,12 @@ export component AiCodePanel inherits Rectangle {
     scroller := Flickable {
         width: parent.width;
         height: parent.height;
-        viewport-width: self.width;
-        viewport-height: block.preferred-height;
+        content-width: self.width;
+        content-height: block.preferred-height;
         // Same construct as AedstMessageScroller (UNVERIFIED on Slint 1.19).
-        changed viewport-height => {
+        changed content-height => {
             if (root.follow-end) {
-                self.viewport-y = Math.min(0px, self.height - self.viewport-height);
+                self.content-y = Math.min(0px, self.height - self.content-height);
             }
         }
         block := AedstCodeBlock {

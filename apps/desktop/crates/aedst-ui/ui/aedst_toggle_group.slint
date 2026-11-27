@@ -4,6 +4,9 @@ import { AedstToggle, AedstToggleVariant, AedstToggleSize } from "aedst_toggle.s
 
 // A row of toggles. Single selection keeps `current-index` (-1: none); with `multiple` the state
 // of every item lives in `checked-items` (one bool per item). The first item sits at the reading start.
+// Keyboard (WAI-ARIA toolbar / radio-group pattern): the group is ONE tab stop; Left/Right follow
+// the reading direction (mirrored in RTL), Home/End jump to the ends, Space and Enter toggle the
+// item the ring is on.
 export component AedstToggleGroup inherits Rectangle {
     in property <[string]> items;
     in property <string> label;
@@ -13,35 +16,82 @@ export component AedstToggleGroup inherits Rectangle {
     in property <AedstToggleVariant> variant: AedstToggleVariant.default;
     in property <AedstToggleSize> size: AedstToggleSize.default;
     in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
     // The index of the item that was toggled.
     callback selected(int);
 
     private property <bool> rtl: AedstLayout.rtl;
+    // The item the keyboard ring is on (an item index, not a visual slot).
+    private property <int> active: 0;
 
     // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored item.
     pure function at(slot: int) -> int {
-        return root.rtl ? root.items.length - 1 - slot : slot;
+        return AedstLayout.mirror(slot, root.items.length);
+    }
+    function flip(index: int, value: bool) {
+        if (root.enabled && index >= 0 && index < root.items.length) {
+            if (root.multiple) {
+                root.checked-items[index] = value;
+            } else {
+                root.current-index = value ? index : -1;
+            }
+            root.selected(index);
+        }
+    }
+    pure function is-on(index: int) -> bool {
+        return root.multiple ? root.checked-items[index] : root.current-index == index;
+    }
+    // Moves the ring along the reading direction by `step` items (clamped).
+    function move(target: int) {
+        root.active = Math.max(0, Math.min(target, root.items.length - 1));
     }
 
+    forward-focus: focus;
     accessible-role: groupbox;
     accessible-label: root.label;
 
-    HorizontalLayout {
-        spacing: AedstTokens.spacing-xxs;
-        alignment: root.rtl ? end : start;
-        for slot in root.items.length: AedstToggle {
-            text: root.items[root.at(slot)];
-            checked: root.multiple ? root.checked-items[root.at(slot)] : root.current-index == root.at(slot);
-            variant: root.variant;
-            size: root.size;
-            enabled: root.enabled;
-            toggled(value) => {
-                if (root.multiple) {
-                    root.checked-items[root.at(slot)] = value;
-                } else {
-                    root.current-index = value ? root.at(slot) : -1;
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (AedstLayout.is-forward(event.text)) {
+                root.move(root.active + 1);
+                return accept;
+            }
+            if (AedstLayout.is-backward(event.text)) {
+                root.move(root.active - 1);
+                return accept;
+            }
+            if (event.text == Key.Home) {
+                root.move(0);
+                return accept;
+            }
+            if (event.text == Key.End) {
+                root.move(root.items.length - 1);
+                return accept;
+            }
+            if (event.text == " " || event.text == "\n") {
+                root.flip(root.active, !root.is-on(root.active));
+                return accept;
+            }
+            return reject;
+        }
+
+        HorizontalLayout {
+            spacing: AedstTokens.spacing-xxs;
+            alignment: root.rtl ? end : start;
+            for slot in root.items.length: AedstToggle {
+                text: root.items[root.at(slot)];
+                checked: root.is-on(root.at(slot));
+                variant: root.variant;
+                size: root.size;
+                enabled: root.enabled;
+                tab-stop: false;
+                show-focus: focus.has-focus && root.active == root.at(slot);
+                toggled(value) => {
+                    root.active = root.at(slot);
+                    focus.focus();
+                    root.flip(root.at(slot), value);
                 }
-                root.selected(root.at(slot));
             }
         }
     }

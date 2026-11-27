@@ -6,7 +6,8 @@
 //   D3  the same at source level: `aedst_<crate>` paths and `../aedst-<crate>` build paths in a feature
 //   D4  only the `aedst-desktop` binary composes features: no other crate names a feature in Cargo.toml,
 //       Rust code, a Slint import or build.rs (so a core crate never depends on a feature)
-//   D5  a feature `.slint` imports only its own `ui/` files and `@aedst-ui`; never `std-widgets.slint`
+//   D5  a feature `.slint` imports only its own `ui/` files and `@aedst-ui`; from `std-widgets.slint` only
+//       `ListView` (lazy rows need a `for` directly inside it, so the kit cannot wrap it; slint-rules M1)
 //   D6  layout: a feature crate is flat (one capability: `src/{domain,data,presentation}`, `ui/*.slint`)
 //       or split (`src/<feature>/{domain,data,presentation}`, `ui/<feature>/`, shared code in `src/shared`
 //       and `ui/shared`), never both; split features do not import each other and `shared` imports none
@@ -29,13 +30,15 @@ const SHELL = 'aedst-desktop';
 const FEATURE = /^aedst-feature-/;
 // Derived from the dependency graph of 2026-11-21. Extending either list is a decision: change it here and in
 // docs/content/desktop/boundaries.md in the same change.
-export const FEATURE_MAY_USE = ['aedst-api', 'aedst-common', 'aedst-contract', 'aedst-outbox'];
+export const FEATURE_MAY_USE = ['aedst-api', 'aedst-common', 'aedst-contract', 'aedst-outbox', 'aedst-slint-model'];
 export const FEATURE_TESTS_MAY_USE = ['aedst-persistence'];
 // The kit is reached from Slint (`@aedst-ui`) and from build.rs (`../aedst-ui/ui/lib.slint`), not as a Rust dependency.
 const KIT = 'aedst-ui';
 const LAYERS = ['domain', 'data', 'presentation'];
 const SHARED = 'shared';
 const SLINT_IMPORT = /\b(?:import|export)\b[^;"]*"([^"]+)"/g;
+// The only std-widgets import a feature may have (docs/content/desktop/slint-rules.md, M1).
+const LISTVIEW_ONLY = /^import\s*\{\s*ListView\s*\}\s*from\s*"std-widgets\.slint"$/;
 
 const posix = (file) => file.split(path.sep).join('/');
 const snake = (crate) => crate.replaceAll('-', '_');
@@ -117,7 +120,9 @@ function checkFeatureSlint(crate, report) {
     for (const { line, match } of matchesWithLines(code, SLINT_IMPORT)) {
       const target = match[1];
       if (target === 'std-widgets.slint') {
-        report('D5', `${file}:${line}`, `raw std-widgets import in a feature; use an ${KIT} component (the kit wraps std-widgets)`);
+        if (!LISTVIEW_ONLY.test(match[0])) {
+          report('D5', `${file}:${line}`, `raw std-widgets import in a feature; use an ${KIT} component (the kit wraps std-widgets; only \`import { ListView }\` is allowed)`);
+        }
       } else if (target.startsWith('@')) {
         if (target !== `@${KIT}`) report('D5', `${file}:${line}`, `unknown Slint library ${target}; features import @${KIT} only`);
       } else if (path.relative(ui, path.resolve(path.dirname(file), target)).startsWith('..')) {

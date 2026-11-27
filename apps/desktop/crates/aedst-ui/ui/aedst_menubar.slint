@@ -1,5 +1,6 @@
 import { AedstTokens } from "aedst_tokens.slint";
 import { AedstLayout } from "aedst_layout.slint";
+import { AedstA11y } from "aedst_a11y.slint";
 import { AedstButton, AedstButtonVariant, AedstButtonSize } from "aedst_button.slint";
 import { AedstMenuItem, AedstMenuList } from "aedst_dropdown_menu.slint";
 
@@ -8,45 +9,93 @@ export struct AedstMenubarMenu {
     items: [AedstMenuItem],
 }
 
-// A row of menus. Each title is a button (a tab stop; Enter and Space open its menu); the menu
-// itself is an AedstMenuList. The first menu sits at the reading start (the right in RTL).
+// A row of menus. WAI-ARIA menubar keys: the bar is ONE tab stop; Left/Right follow the reading
+// direction (mirrored in RTL) between the titles, Home/End jump to the ends, and Down, Enter or
+// Space open the menu the ring is on; the menu itself is an AedstMenuList (Up/Down, Escape).
+// The first menu sits at the reading start (the right in RTL).
 export component AedstMenubar inherits Rectangle {
     in property <[AedstMenubarMenu]> menus;
     in property <string> label;
     in property <length> menu-width: 192px;
+    out property <bool> has-focus: focus.has-focus;
     // The `id` of the activated entry.
     callback activated(string);
 
     private property <bool> rtl: AedstLayout.rtl;
     private property <int> open-menu: 0;
     private property <length> open-x;
+    // The menu index the keyboard ring is on.
+    private property <int> active: 0;
+    // Set by the keyboard to ask the matching title to open its menu at its own position.
+    private property <int> open-request: -1;
 
     // Slint cannot reverse a layout: in RTL the visual slot `slot` shows the mirrored menu.
     pure function at(slot: int) -> int {
-        return root.rtl ? root.menus.length - 1 - slot : slot;
+        return AedstLayout.mirror(slot, root.menus.length);
+    }
+    function move(index: int) {
+        root.active = Math.max(0, Math.min(index, root.menus.length - 1));
     }
 
     min-height: 36px;
     max-height: 36px;
     background: AedstTokens.background;
     border-radius: AedstTokens.radius-lg;
-    border-width: 1px;
-    border-color: AedstTokens.border;
+    border-width: AedstA11y.edge;
+    border-color: AedstA11y.border;
+    forward-focus: focus;
     accessible-role: groupbox;
     accessible-label: root.label;
 
-    HorizontalLayout {
-        padding: AedstTokens.spacing-xxs;
-        spacing: AedstTokens.spacing-xxs;
-        alignment: root.rtl ? end : start;
-        for slot in root.menus.length: head := AedstButton {
-            text: root.menus[root.at(slot)].title;
-            variant: AedstButtonVariant.ghost;
-            size: AedstButtonSize.sm;
-            clicked => {
-                root.open-menu = root.at(slot);
-                root.open-x = root.rtl ? head.x + head.width - root.menu-width : head.x;
-                popup.show();
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (AedstLayout.is-forward(event.text)) {
+                root.move(root.active + 1);
+                return accept;
+            }
+            if (AedstLayout.is-backward(event.text)) {
+                root.move(root.active - 1);
+                return accept;
+            }
+            if (event.text == Key.Home) {
+                root.move(0);
+                return accept;
+            }
+            if (event.text == Key.End) {
+                root.move(root.menus.length - 1);
+                return accept;
+            }
+            if (event.text == Key.DownArrow || event.text == " " || event.text == "\n") {
+                root.open-request = root.active;
+                return accept;
+            }
+            return reject;
+        }
+
+        HorizontalLayout {
+            padding: AedstTokens.spacing-xxs;
+            spacing: AedstTokens.spacing-xxs;
+            alignment: root.rtl ? end : start;
+            for slot in root.menus.length: head := AedstButton {
+                property <bool> wanted: root.open-request == root.at(slot);
+                text: root.menus[root.at(slot)].title;
+                variant: AedstButtonVariant.ghost;
+                size: AedstButtonSize.sm;
+                tab-stop: false;
+                show-focus: focus.has-focus && root.active == root.at(slot);
+                accessible-expandable: true;
+                clicked => {
+                    root.active = root.at(slot);
+                    root.open-request = root.at(slot);
+                }
+                changed wanted => {
+                    if (self.wanted) {
+                        root.open-request = -1;
+                        root.open-menu = root.at(slot);
+                        root.open-x = root.rtl ? head.x + head.width - root.menu-width : head.x;
+                        popup.show();
+                    }
+                }
             }
         }
     }

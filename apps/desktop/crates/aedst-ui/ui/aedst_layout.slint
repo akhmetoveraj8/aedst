@@ -4,4 +4,24 @@
 export global AedstLayout {
     // Set from the active locale at startup and on language change (ar is the only RTL locale).
     in-out property <bool> rtl: false;
+
+    // Slint cannot reverse a layout: in RTL the visual slot `slot` of `count` shows the mirrored item.
+    public pure function mirror(slot: int, count: int) -> int {
+        return root.rtl ? count - 1 - slot : slot;
+    }
+    // The key that moves "forward" along the reading direction (Right, or Left in RTL).
+    public pure function is-forward(key: string) -> bool {
+        return key == (root.rtl ? Key.LeftArrow : Key.RightArrow);
+    }
+    // The key that moves "back" along the reading direction (Left, or Right in RTL).
+    public pure function is-backward(key: string) -> bool {
+        return key == (root.rtl ? Key.RightArrow : Key.LeftArrow);
+    }
+    // A glyph for "next" (a chevron) that points the way the reading direction goes.
+    public pure function next-glyph() -> string {
+        return root.rtl ? "\u{2039}" : "\u{203a}";
+    }
+    public pure function previous-glyph() -> string {
+        return root.rtl ? "\u{203a}" : "\u{2039}";
+    }
 }

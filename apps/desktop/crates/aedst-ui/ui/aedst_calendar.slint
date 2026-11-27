@@ -131,11 +131,11 @@ export component AedstCalendar inherits Rectangle {
             min-height: 6 * 32px;
             focus := FocusScope {
                 key-pressed(event) => {
-                    if (event.text == (root.rtl ? Key.LeftArrow : Key.RightArrow)) {
+                    if (AedstLayout.is-forward(event.text)) {
                         root.move(1);
                         return accept;
                     }
-                    if (event.text == (root.rtl ? Key.RightArrow : Key.LeftArrow)) {
+                    if (AedstLayout.is-backward(event.text)) {
                         root.move(-1);
                         return accept;
                     }

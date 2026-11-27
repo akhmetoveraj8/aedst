@@ -10,6 +10,8 @@ export enum AedstAlertDialogSize { default, sm }
 
 // A confirmation dialog: the user must choose. Escape and the secondary button cancel; a click
 // outside does nothing. Place it as the LAST child of the view's root element (see AedstDialog).
+// It has the dialog's focus trap, focus move on open and `restore-focus()`. There is no alert-dialog
+// role in Slint 1.19: the panel is announced as a group with the title and the description.
 export component AedstAlertDialog inherits Rectangle {
     in-out property <bool> open;
     in property <string> title;
@@ -21,6 +23,8 @@ export component AedstAlertDialog inherits Rectangle {
     in property <bool> destructive: false;
     callback confirmed();
     callback cancelled();
+    // After the dialog closed by any route: focus the control that opened it (see AedstDialog).
+    callback restore-focus();
 
     private property <bool> small: root.size == AedstAlertDialogSize.sm;
     private property <AedstButtonVariant> confirm-variant: root.destructive ? AedstButtonVariant.destructive : AedstButtonVariant.default;
@@ -44,6 +48,7 @@ export component AedstAlertDialog inherits Rectangle {
         center-header: root.small;
         close-on-outside-click: false;
         closed => { root.cancelled(); }
+        restore-focus => { root.restore-focus(); }
 
         if !root.small: AedstActionRow {
             primary-text: root.confirm-text;
