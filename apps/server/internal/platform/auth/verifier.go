@@ -10,6 +10,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/lestrrat-go/jwx/v4/jwt"
 
@@ -37,6 +38,9 @@ type Claims struct {
 	// TenantID is the caller's tenant (organisation) id from the configured
 	// tenant claim; empty in a single-tenant deployment (ADR-0024).
 	TenantID string
+	// ExpiresAt is the token's "exp" (required, so never zero for a verified
+	// token). The realtime gateway closes a socket at this instant (ADR-0026).
+	ExpiresAt time.Time
 }
 
 const claimSessionID = "sid"

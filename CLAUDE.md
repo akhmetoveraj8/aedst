@@ -30,7 +30,7 @@ Agent map: `docs/agent/INDEX.md` (read only the rows for your platform and task)
 
 ## Verification status (be honest)
 
-Server and Web (profile Core) build and test and are the default working mode; `task` aggregates run Core only (`PROFILE=full` adds the rest). Android, Apple and Desktop are frozen: Android compiles (2026-11-25) but `assembleDebug`, part of the tests and device runs are UNVERIFIED, Apple was never compiled, Desktop is verified on Windows only. Gateway is EXPERIMENTAL (off by default, never compiled). Do not claim they build. Details and exit criteria: `docs/content/status.md`.
+Server and Web (profile Core) build and test and are the default working mode; `task` aggregates run Core only (`PROFILE=full` adds the rest). Android, Apple and Desktop are frozen: Android compiles (2026-11-25) but `assembleDebug`, part of the tests and device runs are UNVERIFIED, Apple was never compiled, Desktop is verified on Windows only. Gateway is EXPERIMENTAL (off by default; compiled and tested on Windows only, 2026-11-28; CI never green). Do not claim they build. Details and exit criteria: `docs/content/status.md`.
 
 ## Working rules
 

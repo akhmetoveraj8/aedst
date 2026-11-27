@@ -10,10 +10,14 @@
 // JetStream `Nats-Msg-Id`, which deduplicates inside the stream's duplicate
 // window; the gateway dedupes on the same id beyond it.
 //
-// Wire format: the message body is the Envelope below (the event as the
-// consumer's Handler sees it). The recipient is carried by the SUBJECT
-// (aedst.events.user.<user id>.<event type>), not the body, so the body
-// format is independent of routing. Only this package imports the NATS client.
+// Wire format: the message body is the Protobuf message
+// aedst.events.v1.EventEnvelope (api/proto/aedst/events/v1/envelope.proto) in
+// the binary encoding, with the header Content-Type: application/protobuf. The
+// gateway decodes it with code generated from the same file (ADR-0026), so the
+// contract is checked by `buf breaking`, not only by fixtures. The recipient is
+// carried by the SUBJECT (aedst.events.user.<user id>.<event type>), not the
+// body, so the body format is independent of routing. Only this package imports
+// the NATS client.
 package natsbridge
 
 import (
@@ -29,7 +33,10 @@ import (
 	"github.com/riverqueue/river"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
+	eventsv1 "github.com/aedst/server/gen/go/aedst/events/v1"
 	"github.com/aedst/server/internal/platform/events"
 	"github.com/aedst/server/internal/shared/ids"
 )
@@ -62,21 +69,14 @@ type Config struct {
 	Options []nats.Option
 }
 
-// Envelope is the JSON body of a forwarded event and of a gateway frame.
-type Envelope struct {
-	ID           string          `json:"id"`
-	Type         string          `json:"type"`
-	Version      uint32          `json:"version"`
-	OccurredAt   time.Time       `json:"occurred_at"`
-	PartitionKey string          `json:"partition_key"`
-	Payload      json.RawMessage `json:"payload"`
-}
+// ContentType is the Content-Type header of every forwarded message.
+const ContentType = "application/protobuf"
 
 // NewEnvelope builds the wire envelope of e.
-func NewEnvelope(e events.Event) Envelope {
-	return Envelope{
-		ID: e.ID.String(), Type: e.Type, Version: e.Version,
-		OccurredAt: e.OccurredAt.UTC(), PartitionKey: e.PartitionKey.String(), Payload: e.Payload,
+func NewEnvelope(e events.Event) *eventsv1.EventEnvelope {
+	return &eventsv1.EventEnvelope{
+		Id: e.ID.String(), Type: e.Type, Version: e.Version,
+		OccurredAt: timestamppb.New(e.OccurredAt.UTC()), PartitionKey: e.PartitionKey.String(), Payload: e.Payload,
 	}
 }
 
@@ -187,7 +187,7 @@ func (b *Bridge) Forward(ctx context.Context, e events.Event) error {
 	if err != nil {
 		return river.JobCancel(fmt.Errorf("natsbridge: %s %s: %w", e.Type, e.ID, err))
 	}
-	body, err := json.Marshal(NewEnvelope(e))
+	body, err := proto.Marshal(NewEnvelope(e))
 	if err != nil {
 		return river.JobCancel(fmt.Errorf("natsbridge: marshal: %w", err))
 	}
@@ -196,7 +196,7 @@ func (b *Bridge) Forward(ctx context.Context, e events.Event) error {
 	if err := b.ensureStream(ctx); err != nil {
 		return err
 	}
-	msg := &nats.Msg{Subject: Subject(recipient, e.Type), Data: body, Header: nats.Header{}}
+	msg := &nats.Msg{Subject: Subject(recipient, e.Type), Data: body, Header: nats.Header{"Content-Type": []string{ContentType}}}
 	otel.GetTextMapPropagator().Inject(ctx, headerCarrier(msg.Header))
 	if _, err := b.js.PublishMsg(ctx, msg, jetstream.WithMsgID(e.ID.String())); err != nil {
 		return fmt.Errorf("natsbridge: publish %s: %w", e.Type, err)

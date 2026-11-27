@@ -20,7 +20,7 @@ use opentelemetry::metrics::{Counter, Gauge};
 use thiserror::Error;
 use tokio_util::sync::CancellationToken;
 
-use crate::envelope::{EventMeta, SUBJECT_PREFIX, recipient_of};
+use crate::envelope::{SUBJECT_PREFIX, decode, recipient_of};
 use crate::hub::Hub;
 
 /// First retry delay; doubled on every further failure.
@@ -255,47 +255,68 @@ pub fn handle(hub: &Hub, subject: &str, payload: &[u8]) -> usize {
         tracing::warn!(subject, "event on a subject without a recipient dropped");
         return 0;
     };
-    let (Ok(meta), Ok(body)) = (
-        serde_json::from_slice::<EventMeta>(payload),
-        std::str::from_utf8(payload),
-    ) else {
-        tracing::warn!(subject, "malformed event dropped");
-        return 0;
+    let event = match decode(payload) {
+        Ok(event) => event,
+        Err(error) => {
+            tracing::warn!(subject, %error, "malformed event dropped");
+            return 0;
+        }
     };
-    let delivered = hub.dispatch(user, &meta.id, &Arc::from(body));
-    tracing::debug!(event_id = %meta.id, event_type = %meta.event_type, delivered, "event routed");
+    let delivered = hub.dispatch(user, &event.id, &Arc::from(event.frame.as_str()));
+    tracing::debug!(event_id = %event.id, event_type = %event.event_type, delivered, "event routed");
     delivered
 }
 
 #[cfg(test)]
 mod tests {
+    use buffa::{Message as _, MessageField};
+    use buffa_types::google::protobuf::Timestamp;
+
     use super::*;
     use crate::hub::Outbound;
+    use crate::proto::aedst::events::v1::EventEnvelope;
 
     const SUBJECT: &str = "aedst.events.user.u1.tasks.v1.TaskCompleted";
-    const BODY: &str = r#"{"id":"e1","type":"tasks.v1.TaskCompleted","version":1,"occurred_at":"2026-03-01T10:00:00Z","partition_key":"p","payload":{"user_id":"u1"}}"#;
+    const FRAME: &str = r#"{"id":"e1","type":"tasks.v1.TaskCompleted","version":1,"occurred_at":"2026-03-01T10:00:00Z","partition_key":"p","payload":{"user_id":"u1"}}"#;
+
+    fn body() -> Vec<u8> {
+        EventEnvelope {
+            id: "e1".into(),
+            r#type: "tasks.v1.TaskCompleted".into(),
+            version: 1,
+            occurred_at: MessageField::some(Timestamp::from_unix(1_772_359_200, 0)),
+            partition_key: "p".into(),
+            payload: br#"{"user_id":"u1"}"#.to_vec(),
+            ..Default::default()
+        }
+        .encode_to_vec()
+    }
 
     #[tokio::test]
-    async fn routes_the_unchanged_body_to_the_recipient() {
+    async fn routes_the_client_frame_to_the_recipient() {
         let hub = Hub::new(2, 16, 4);
         let mut conn = hub.register("u1").unwrap();
-        assert_eq!(handle(&hub, SUBJECT, BODY.as_bytes()), 1);
-        assert!(matches!(conn.rx.recv().await, Some(Outbound::Frame(f)) if &*f == BODY));
+        assert_eq!(handle(&hub, SUBJECT, &body()), 1);
+        assert!(matches!(conn.rx.recv().await, Some(Outbound::Frame(f)) if &*f == FRAME));
     }
 
     #[test]
     fn malformed_and_unaddressed_messages_are_dropped() {
         let hub = Hub::new(2, 16, 4);
         let _conn = hub.register("u1").unwrap();
-        assert_eq!(handle(&hub, SUBJECT, b"not json"), 0);
-        assert_eq!(handle(&hub, "aedst.events.other", BODY.as_bytes()), 0);
+        assert_eq!(handle(&hub, SUBJECT, b"not protobuf \xff"), 0);
+        assert_eq!(handle(&hub, "aedst.events.other", &body()), 0);
     }
 
     #[test]
     fn backoff_doubles_is_capped_and_jittered_within_half() {
         assert_eq!(backoff(0, 0), BACKOFF_BASE / 2);
         assert_eq!(backoff(1, 0), BACKOFF_BASE);
-        assert_eq!(backoff(40, 0), BACKOFF_CAP / 2, "the exponent does not overflow");
+        assert_eq!(
+            backoff(40, 0),
+            BACKOFF_CAP / 2,
+            "the exponent does not overflow"
+        );
         for random in [0, 1, 12_345, u64::MAX] {
             for attempt in 0..12 {
                 let delay = backoff(attempt, random);

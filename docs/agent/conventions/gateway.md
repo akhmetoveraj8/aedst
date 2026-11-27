@@ -2,16 +2,16 @@
 
 Part of [CONVENTIONS.md](../../../CONVENTIONS.md). Levels: **Must** = enforced (linter/CI), **Should** = needs a one-line PR justification to deviate, **Could** = preference.
 
-The gateway is one Rust package (`aedst-gateway`), not part of the Desktop workspace. It follows the same Rust rules as [Desktop](desktop.md); only the differences and the service-specific rules are listed here. Nothing below has been checked by a compiler yet: the gateway was written without a Rust toolchain ([status](../../content/status.md)).
+The gateway is one Rust package (`aedst-gateway`), not part of the Desktop workspace. It follows the same Rust rules as [Desktop](desktop.md); only the differences and the service-specific rules are listed here. Compiled, linted and tested on Windows with Rust 1.99.1 only; CI has never run green ([status](../../content/status.md)).
 
 | What | Rule | Example | Level |
 |---|---|---|---|
 | Rust file / module | `snake_case.rs`, one concern per module | `consumer.rs`, `hub.rs` | Must (`scripts/check-naming.sh`) |
 | Types, traits, enum variants | `PascalCase` | `Verifier`, `Outbound::Frame` | Must (rustc lint) |
-| Functions, variables | `snake_case` | `user_id_for`, `recipient_of` | Must (rustc lint) |
+| Functions, variables | `snake_case` | `principal_from`, `recipient_of` | Must (rustc lint) |
 | Constants | `SCREAMING_SNAKE_CASE`, with the unit in the doc comment | `WRITE_TIMEOUT`, `MAX_CLIENT_MESSAGE` | Must (rustc lint) |
 | Errors | one `thiserror` enum per module, named `<Module>Error` | `AuthError`, `HubError` | Should |
-| Environment variables | `AEDST_GATEWAY_*` for the gateway's own settings; `AEDST_OIDC_*` and `AEDST_NATS_*` keep the Go server's names and meaning | `AEDST_GATEWAY_SEND_QUEUE` | Must (reviewed; `config.rs` tests) |
+| Environment variables | `AEDST_GATEWAY_*` for the gateway's own settings (`AEDST_GATEWAY_API_URL` points at the Go server); `AEDST_NATS_*` keeps the Go server's names and meaning; no `AEDST_OIDC_*` (the gateway verifies no token, ADR-0026) | `AEDST_GATEWAY_SEND_QUEUE` | Must (reviewed; `config.rs` tests) |
 | WebSocket close codes | documented once, in the module doc of `ws.rs` and in the spec | `4401`, `4408`, `4429`, `1012` | Should |
 | Tests | unit tests in `#[cfg(test)] mod tests`; cross-language contract tests in `tests/<subject>.rs` reading the Go fixtures | `tests/envelope.rs` | Should |
 | Public items | every `pub` item has a doc comment (`missing_docs` is a warning and CI denies warnings) | | Must (rustc lint) |
@@ -19,7 +19,7 @@ The gateway is one Rust package (`aedst-gateway`), not part of the Desktop works
 ## Service rules (reviewed; the review checklist for a change here)
 
 - No `unwrap()`, `expect()`, `panic!` outside tests (clippy denies them); no `unsafe` (`forbid`).
-- Every network call has a timeout: JWKS fetch (`reqwest` client timeout), socket writes (`WRITE_TIMEOUT`), idle sockets (`AEDST_GATEWAY_IDLE_TIMEOUT_SECONDS`), shutdown (`AEDST_GATEWAY_SHUTDOWN_SECONDS`).
+- Every network call has a timeout: the authentication call to Go (`AEDST_GATEWAY_API_TIMEOUT_SECONDS`), socket writes (`WRITE_TIMEOUT`), idle sockets (`AEDST_GATEWAY_IDLE_TIMEOUT_SECONDS`), shutdown (`AEDST_GATEWAY_SHUTDOWN_SECONDS`).
 - Backpressure: a connection owns a bounded queue; `Hub::dispatch` never waits and evicts a slow connection. Nothing may block the NATS consumer.
 - Authentication happens before the upgrade (`auth::Verifier` only). The token arrives in `Authorization` or in the subprotocol `aedst.bearer.<token>` offered together with `aedst.v1`; the response selects `aedst.v1` only and never contains the token.
 - Origins fail closed: a request with `Origin` must match `AEDST_GATEWAY_ALLOWED_ORIGINS`; an empty list refuses every browser. `AEDST_GATEWAY_ALLOW_ANY_ORIGIN=true` is the local-development opt-out and is refused in staging and production.
@@ -33,6 +33,6 @@ The gateway is one Rust package (`aedst-gateway`), not part of the Desktop works
 |---|---|---|
 | `scripts/check-naming.sh` | no | `task check`, `policies-ci.yml` |
 | `scripts/rust/check-approved-crates.sh` (approved direct dependencies, versions shared with Desktop, lint and toolchain parity; rules in [desktop/boundaries](../../content/desktop/boundaries.md)) | no | `task check:boundaries`, `policies-ci.yml`, `gateway-ci.yml` job `dependency-policy` |
-| `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, `cargo deny check` | yes | `task gateway:lint gateway:test gateway:deny`, `gateway-ci.yml` (never run) |
+| `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, `cargo deny check` | yes | `task gateway:lint gateway:test gateway:deny`, `gateway-ci.yml` (never run on GitHub; passed locally on Windows, 2026-11-28) |
 
 The gateway has no feature level: it is one service with one capability (forwarding events to sockets).

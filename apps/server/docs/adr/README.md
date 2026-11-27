@@ -15,6 +15,8 @@ the ones below were written inside the app and keep their files here. Numbers ar
 | 0022 | Event forwarding across databases, per-database River clients, service identity, media remote hook (completes 0020) | [0022-event-forwarding-and-service-identity.md](0022-event-forwarding-and-service-identity.md) |
 | 0023 | Optional components, enablement criteria and scaling limits (idempotency_keys stays unpartitioned) | [0023-optional-components-and-scaling-limits.md](0023-optional-components-and-scaling-limits.md) |
 | 0024 | Tenant isolation: tenant claim, transaction-local scope and PostgreSQL row-level security | [0024-tenant-isolation-rls.md](0024-tenant-isolation-rls.md) |
+| 0025 | When a backend component may be written in Rust: profile first, tune Go, prefer an existing native component, admission criteria R1-R7 | [0025-rust-admission-criteria.md](0025-rust-admission-criteria.md) |
+| 0026 | The gateway asks Go who a client is (`RealtimeService`, no second OIDC verifier); the NATS envelope is Protobuf (amends 0021) | [0026-gateway-connection-access-and-protobuf-envelope.md](0026-gateway-connection-access-and-protobuf-envelope.md) |
 
 The table of recorded decisions with "revisit when" is
-[`docs/content/decisions/server.md`](../../../../docs/content/decisions/server.md). The next ADR is 0025.
+[`docs/content/decisions/server.md`](../../../../docs/content/decisions/server.md). The next ADR is 0027.

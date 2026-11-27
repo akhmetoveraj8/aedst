@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"slices"
+	"time"
 
 	"github.com/aedst/server/internal/shared/ids"
 )
@@ -32,6 +33,9 @@ type Identity struct {
 	// tenant claim, empty in a single-tenant deployment. Repositories pass it to
 	// tenancy.Apply so row-level security sees it (ADR-0024).
 	TenantID string
+	// ExpiresAt is when the access token expires (its "exp"). Only the realtime
+	// gateway's GetConnectionAccess reads it; nothing may extend it.
+	ExpiresAt time.Time
 }
 
 func (i Identity) HasRole(role string) bool {

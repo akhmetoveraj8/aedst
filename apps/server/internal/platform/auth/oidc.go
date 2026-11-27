@@ -142,6 +142,10 @@ func (v *OIDCVerifier) VerifyAccessToken(ctx context.Context, raw string) (Claim
 	}
 
 	sessionID, _ := ids.Parse(stringField(token, claimSessionID))
+	expiresAt, ok := token.Expiration()
+	if !ok { // parse requires exp; checked again because the realtime gateway relies on it
+		return Claims{}, errors.New("auth: oidc token has no expiry")
+	}
 	return Claims{
 		Issuer:    v.cfg.Issuer,
 		Subject:   subject,
@@ -150,6 +154,7 @@ func (v *OIDCVerifier) VerifyAccessToken(ctx context.Context, raw string) (Claim
 		Roles:     rolesFromToken(token, v.cfg.RolesClaim, v.cfg.RolesOrg),
 		Scopes:    scopesFromToken(token),
 		TenantID:  tenantID,
+		ExpiresAt: expiresAt,
 	}, nil
 }
 

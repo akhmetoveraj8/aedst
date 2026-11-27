@@ -36,14 +36,14 @@ Build every screen from the UI kit (`docs/content/ui-kit.md`, `ui-kit.yaml`): we
 - **File size**: keep hand-written files at or under 300 lines; over 500 fails `task check:file-size` (see CONVENTIONS.md).
 - **i18n, one JSON format on every platform (mandatory)**: translations are shared JSON files (`packages/i18n/<module>/<locale>.json`) used by all apps, so a translation from one platform works on another; native catalogs are generated, never hand-edited ([rule](docs/content/i18n.md#one-json-translation-format-on-every-platform-mandatory)).
 - **i18n**: strings live with their module; locales en, ru, tg (web calls Tajik `tj`), uz, ar must stay in parity (`task check:i18n`).
-- **Honesty about verification**: only Server and Web (the Core profile) are verified. Android, Apple and Desktop are frozen: no new features until each has one green CI run. Android compiles (2026-11-25) but `assembleDebug`, part of the tests and device runs are UNVERIFIED; Apple was never compiled; Desktop passes fmt, clippy, tests and cargo-deny on Windows only. Gateway (`apps/gateway`) is EXPERIMENTAL: off by default, never compiled. Do not claim they build or work. Status: [docs/content/status.md](docs/content/status.md).
+- **Honesty about verification**: only Server and Web (the Core profile) are verified. Android, Apple and Desktop are frozen: no new features until each has one green CI run. Android compiles (2026-11-25) but `assembleDebug`, part of the tests and device runs are UNVERIFIED; Apple was never compiled; Desktop passes fmt, clippy, tests and cargo-deny on Windows only. Gateway (`apps/gateway`) is EXPERIMENTAL: off by default, compiled and tested on Windows only (2026-11-28), CI never green. Do not claim they build or work. Status: [docs/content/status.md](docs/content/status.md).
 - **Docs are the source of truth**: when you change an architectural decision, update the Library-First page and the decisions page in the same change.
 
 ## Forbidden / do not re-propose (summary)
 
 Full list with rationale: [docs/agent/rules.md](docs/agent/rules.md) and the platform decision pages.
 
-- Server: `golang.org/x/image`, Redis (use DragonflyDB), Redlock, Kafka/RabbitMQ, NATS anywhere except `internal/platform/natsbridge` (ADR-0021), a hand-built outbox, a second JWT library, an ORM, chi or any third-party router, self-built identity features.
+- Server: `golang.org/x/image`, Redis (use DragonflyDB), Redlock, Kafka/RabbitMQ, NATS anywhere except `internal/platform/natsbridge` (ADR-0021), a hand-built outbox, a second JWT library or JWT verification outside `internal/platform/auth` (ADR-0026), backend Rust without the ADR-0025 criteria, an ORM, chi or any third-party router, self-built identity features.
 - Web: RxJS, ESLint/Prettier, a new third-party origin without a CSP update.
 - Android: any DI other than Metro (Koin, Dagger), `security-crypto`, Retrofit, `tv-foundation` lists, a JDK other than 21.
 - Apple: XcodeGen, SwiftData, swift-perception, a hand-written image loader, SwiftFormat/Periphery (nicklockwood).

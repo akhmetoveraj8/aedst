@@ -4,9 +4,9 @@ name: gateway-ci (experimental, non-blocking until first green run)
 on:
   push:
     branches: [main]
-    paths: ["apps/gateway/**", "apps/*/Cargo.toml", "scripts/rust/**", "docs/content/library-first/gateway.md", "apps/server/internal/platform/natsbridge/**", ".github/workflows/gateway-ci.yml"]
+    paths: ["apps/gateway/**", "apps/*/Cargo.toml", "scripts/rust/**", "docs/content/library-first/gateway.md", "apps/server/internal/platform/natsbridge/**", "apps/server/internal/platform/realtime/**", "apps/server/api/proto/aedst/events/**", "apps/server/api/proto/aedst/realtime/**", ".github/workflows/gateway-ci.yml"]
   pull_request:
-    paths: ["apps/gateway/**", "apps/*/Cargo.toml", "scripts/rust/**", "docs/content/library-first/gateway.md", "apps/server/internal/platform/natsbridge/**", ".github/workflows/gateway-ci.yml"]
+    paths: ["apps/gateway/**", "apps/*/Cargo.toml", "scripts/rust/**", "docs/content/library-first/gateway.md", "apps/server/internal/platform/natsbridge/**", "apps/server/internal/platform/realtime/**", "apps/server/api/proto/aedst/events/**", "apps/server/api/proto/aedst/realtime/**", ".github/workflows/gateway-ci.yml"]
   workflow_dispatch:
 
 permissions:
@@ -44,6 +44,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # Toolchain comes from rust-toolchain.toml (rustup is preinstalled on the runner).
+      # buf (pinned in the repo-root mise.toml) builds the descriptor set build.rs compiles (ADR-0026).
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: buf
+          cache: true
       - run: rustup show
       - run: cargo fmt --check
       - run: cargo clippy --all-targets -- -D warnings
@@ -53,6 +58,11 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # buf (pinned in the repo-root mise.toml) builds the descriptor set build.rs compiles (ADR-0026).
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: buf
+          cache: true
       - run: rustup show
       - run: cargo test
 
@@ -65,6 +75,10 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: apps/server/go.mod
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: buf
+          cache: true
       - run: rustup show
       - run: cargo build
       - name: Go -> NATS -> Rust -> WebSocket
@@ -78,6 +92,11 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # buf (pinned in the repo-root mise.toml) builds the descriptor set build.rs compiles (ADR-0026).
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+        with:
+          install_args: buf
+          cache: true
       - run: rustup show
       - run: cargo install --locked cargo-deny@${CARGO_DENY_VERSION}
       - run: cargo deny check
