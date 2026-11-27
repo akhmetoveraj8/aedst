@@ -7,6 +7,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import com.aedst.core.ui.a11y.LocalAedstReducedMotion
+import com.aedst.core.ui.a11y.rememberSystemReducedMotion
 
 private val LightColors = lightColorScheme(
     background = AedstLightPalette.background,
@@ -65,10 +67,14 @@ private val DarkColors = darkColorScheme(
 fun AedstTheme(useDarkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colorScheme = if (useDarkTheme) DarkColors else LightColors
     val extendedColors = if (useDarkTheme) AedstDarkExtendedColors else AedstLightExtendedColors
+    // One settings observer for the whole subtree; an outer override (tests, a forced preference) wins.
+    val outerReducedMotion = LocalAedstReducedMotion.current
+    val systemReducedMotion = rememberSystemReducedMotion(observe = outerReducedMotion == null)
 
     CompositionLocalProvider(
         LocalAedstExtendedColors provides extendedColors,
         LocalAedstDarkTheme provides useDarkTheme,
+        LocalAedstReducedMotion provides (outerReducedMotion ?: systemReducedMotion),
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

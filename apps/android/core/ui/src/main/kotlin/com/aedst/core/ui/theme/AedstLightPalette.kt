@@ -9,6 +9,8 @@ object AedstLightPalette {
     val accentForeground = Color(0xff171717)
     val background = Color(0xffffffff)
     val border = Color(0xffe5e5e5)
+    val bubbleTinted = Color(0xffe8e8e8)
+    val bubbleTintedHover = Color(0xffd7d7d7)
     val card = Color(0xffffffff)
     val cardForeground = Color(0xff0a0a0a)
     val chart1 = Color(0xffd4d4d4)

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-written: separators and joins of accessibility names; the shared JSON has no format-only keys yet (keys needed in packages/i18n/ui: a11y.labelValue, a11y.nameHint, a11y.plusMore, a11y.usageOf). -->
+<resources>
+    <string name="aedst_a11y_label_value">%1$s: %2$s</string>
+    <string name="aedst_a11y_name_hint">%1$s، %2$s</string>
+    <string name="aedst_a11y_plus_more">%1$s +%2$d</string>
+    <string name="aedst_a11y_usage_of">%1$s / %2$s</string>
+</resources>

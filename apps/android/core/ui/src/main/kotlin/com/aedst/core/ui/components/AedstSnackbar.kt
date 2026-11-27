@@ -3,6 +3,7 @@ package com.aedst.core.ui.components
 import android.content.res.Configuration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -33,18 +34,22 @@ fun AedstSnackbarHost(hostState: SnackbarHostState, modifier: Modifier = Modifie
 }
 
 /**
- * Thin convenience wrapper around [SnackbarHostState.showSnackbar]. It exists only so call sites
- * reach for `showAedstSnackbar` alongside the rest of the `Aedst*` component surface instead of
- * discovering the underlying Material3 API on their own; behavior is identical to `showSnackbar`.
+ * Shows a snackbar the accessible way (the Material 3 host already makes each one a polite live region with a
+ * dismiss action for TalkBack): a dismiss action by default ([withDismissAction]) and a finite [duration]
+ * ([SnackbarDuration.Long] when there is an action to reach, otherwise short). The host (Material 3 `SnackbarHost`)
+ * passes the duration through `AccessibilityManager.getRecommendedTimeoutMillis`, so the time on screen follows the
+ * user's "Time to take action" setting; an [SnackbarDuration.Indefinite] message needs the dismiss action.
  */
 suspend fun SnackbarHostState.showAedstSnackbar(
     message: String,
     actionLabel: String? = null,
-    withDismissAction: Boolean = false,
+    withDismissAction: Boolean = true,
+    duration: SnackbarDuration = if (actionLabel != null) SnackbarDuration.Long else SnackbarDuration.Short,
 ): SnackbarResult = showSnackbar(
     message = message,
     actionLabel = actionLabel,
     withDismissAction = withDismissAction,
+    duration = duration,
 )
 
 @Preview(name = "Light")

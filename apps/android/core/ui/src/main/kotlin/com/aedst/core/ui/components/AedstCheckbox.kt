@@ -17,6 +17,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import com.aedst.core.ui.a11y.aedstMinTouchHeight
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
@@ -50,7 +51,8 @@ fun AedstCheckbox(
                 enabled = enabled,
                 role = Role.Checkbox,
                 onValueChange = onCheckedChange,
-            ),
+            )
+            .aedstMinTouchHeight(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AedstSpacing.xs),
     ) {

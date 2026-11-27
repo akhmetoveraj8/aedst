@@ -9,6 +9,8 @@ object AedstDarkPalette {
     val accentForeground = Color(0xfffafafa)
     val background = Color(0xff0a0a0a)
     val border = Color(0x1affffff)
+    val bubbleTinted = Color(0xff2e2e2e)
+    val bubbleTintedHover = Color(0xff3a3a3a)
     val card = Color(0xff171717)
     val cardForeground = Color(0xfffafafa)
     val chart1 = Color(0xffd4d4d4)

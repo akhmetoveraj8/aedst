@@ -89,6 +89,7 @@ fun AedstAiContext(
     val percent = rememberAiNumberFormats().percent(value.ratio)
     var expanded by rememberSaveable { mutableStateOf(false) }
     val state = stringResource(if (expanded) R.string.aedst_a11y_expanded else R.string.aedst_a11y_collapsed)
+    val name = stringResource(R.string.aedst_a11y_label_value, label, percent)
     AedstPopover(
         expanded = expanded,
         onDismissRequest = { expanded = false },
@@ -98,7 +99,7 @@ fun AedstAiContext(
                 text = percent,
                 onClick = { expanded = !expanded },
                 modifier = Modifier.semantics {
-                    contentDescription = "$label: $percent"
+                    contentDescription = name
                     stateDescription = state
                 },
                 variant = AedstButtonVariant.OUTLINE,
@@ -116,6 +117,11 @@ fun AedstAiContext(
 fun AedstAiContextScope.AedstAiContextContentHeader(label: String, modifier: Modifier = Modifier) {
     val context = value
     val formats = rememberAiNumberFormats()
+    val usage = stringResource(
+        R.string.aedst_a11y_usage_of,
+        formats.tokens(context.usedTokens),
+        formats.tokens(context.maxTokens),
+    )
     Column(
         modifier = modifier.fillMaxWidth().padding(vertical = AedstSpacing.sm),
         verticalArrangement = Arrangement.spacedBy(AedstSpacing.sm),
@@ -126,7 +132,7 @@ fun AedstAiContextScope.AedstAiContextContentHeader(label: String, modifier: Mod
         ) {
             Text(label, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
             Text(
-                text = "${formats.tokens(context.usedTokens)} / ${formats.tokens(context.maxTokens)}",
+                text = usage,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

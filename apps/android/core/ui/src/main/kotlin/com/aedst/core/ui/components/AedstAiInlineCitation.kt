@@ -112,8 +112,12 @@ fun AedstAiInlineCitationCardTrigger(
 ) {
     val host = sources.firstOrNull()?.let(::citationHostname).orEmpty()
     val more = sources.size - 1
-    val visible = if (more > 0) "${ltr(host)} +$more" else ltr(host)
-    val name = if (more > 0 && moreLabel != null) "$host, $moreLabel" else visible
+    val visible = if (more > 0) stringResource(R.string.aedst_a11y_plus_more, ltr(host), more) else ltr(host)
+    val name = if (more > 0 && moreLabel != null) {
+        stringResource(R.string.aedst_a11y_name_hint, host, moreLabel)
+    } else {
+        visible
+    }
     val state = stringResource(if (expanded) R.string.aedst_a11y_expanded else R.string.aedst_a11y_collapsed)
     AedstButton(
         text = visible,
@@ -143,6 +147,7 @@ fun AedstAiInlineCitationSource(
 ) {
     val host = citationHostname(url)
     val uriHandler = LocalUriHandler.current
+    val linkName = stringResource(R.string.aedst_a11y_name_hint, host, newTabLabel)
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(AedstSpacing.xs)) {
         Text(text = title ?: ltr(host), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
         if (description != null) {
@@ -160,7 +165,7 @@ fun AedstAiInlineCitationSource(
                     isWebUrl(url) -> uriHandler.openUri(url)
                 }
             },
-            modifier = Modifier.semantics { contentDescription = "$host, $newTabLabel" },
+            modifier = Modifier.semantics { contentDescription = linkName },
             variant = AedstButtonVariant.LINK,
             size = AedstButtonSize.XS,
         )
@@ -173,7 +178,7 @@ fun AedstAiInlineCitationQuote(text: String, modifier: Modifier = Modifier) {
     Row(modifier = modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(AedstSpacing.md)) {
         Box(
             modifier = Modifier
-                .width(2.dp) // web border-s-2
+                .width(AedstSpacing.xxs) // web border-s-2
                 .fillMaxHeight()
                 .background(MaterialTheme.colorScheme.outlineVariant),
         )

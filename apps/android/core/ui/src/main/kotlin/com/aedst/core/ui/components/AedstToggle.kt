@@ -26,7 +26,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -39,9 +39,9 @@ enum class AedstToggleVariant {
 
 /** Sizing of [AedstToggle], mirroring web's `toggle.tsx` `size` prop. The touch target stays 48dp for every size. */
 enum class AedstToggleSize(internal val minSize: Dp) {
-    DEFAULT(40.dp),
-    SM(32.dp),
-    LG(48.dp),
+    DEFAULT(AedstSpacing.huge),
+    SM(AedstSpacing.xxxl),
+    LG(AedstSpacing.massive),
 }
 
 /**
@@ -67,7 +67,7 @@ fun AedstToggle(
         shape = AedstShapesScale.medium,
         color = if (pressed) colorScheme.surfaceVariant else Color.Transparent,
         contentColor = if (pressed) colorScheme.onSurface else colorScheme.onSurfaceVariant,
-        border = if (variant == AedstToggleVariant.OUTLINE) BorderStroke(1.dp, colorScheme.outline) else null,
+        border = if (variant == AedstToggleVariant.OUTLINE) BorderStroke(AedstHairline, colorScheme.outline) else null,
     ) {
         Row(
             modifier = Modifier

@@ -26,8 +26,8 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
+import com.aedst.core.ui.a11y.rememberReducedMotion
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 import kotlinx.coroutines.launch
@@ -46,6 +46,10 @@ fun AedstCarousel(
 ) {
     val state = rememberPagerState(initialPage = initialPage) { pageCount }
     val scope = rememberCoroutineScope()
+    val reducedMotion = rememberReducedMotion()
+    val goTo: (Int) -> Unit = { target ->
+        scope.launch { if (reducedMotion) state.scrollToPage(target) else state.animateScrollToPage(target) }
+    }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(AedstSpacing.sm)) {
         HorizontalPager(state = state, modifier = Modifier.fillMaxWidth(), pageSpacing = AedstSpacing.sm) { index ->
             page(index)
@@ -56,7 +60,7 @@ fun AedstCarousel(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AedstIconButton(
-                onClick = { scope.launch { state.animateScrollToPage(state.currentPage - 1) } },
+                onClick = { goTo(state.currentPage - 1) },
                 contentDescription = stringResource(R.string.aedst_a11y_previous),
                 enabled = state.currentPage > 0,
                 variant = AedstIconButtonVariant.OUTLINE,
@@ -70,7 +74,7 @@ fun AedstCarousel(
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
             AedstIconButton(
-                onClick = { scope.launch { state.animateScrollToPage(state.currentPage + 1) } },
+                onClick = { goTo(state.currentPage + 1) },
                 contentDescription = stringResource(R.string.aedst_a11y_next),
                 enabled = state.currentPage < pageCount - 1,
                 variant = AedstIconButtonVariant.OUTLINE,
@@ -89,7 +93,10 @@ private fun AedstCarouselPreview() {
         Surface {
             AedstCarousel(pageCount = 3, modifier = Modifier.padding(AedstSpacing.lg)) { index ->
                 AedstCard {
-                    Box(modifier = Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().height(AedstSpacing.giant * 2),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         Text("Slide ${index + 1}")
                     }
                 }

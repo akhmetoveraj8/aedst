@@ -27,10 +27,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aedst.core.ui.R
 import com.aedst.core.ui.components.support.rememberHighlightedCode
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -64,7 +64,7 @@ fun AedstCodeBlock(
         shape = AedstShapesScale.large,
         color = MaterialTheme.colorScheme.surfaceVariant,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = BorderStroke(AedstHairline, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column {
             if (filename != null || language != null || onCopy != null) {

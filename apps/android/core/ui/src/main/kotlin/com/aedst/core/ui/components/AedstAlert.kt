@@ -24,8 +24,8 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.theme.AedstDarkPalette
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstLightPalette
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
@@ -118,7 +118,7 @@ fun AedstAlert(
             .semantics { liveRegion = LiveRegionMode.Polite },
         shape = AedstShapesScale.medium,
         color = palette.container,
-        border = BorderStroke(1.dp, palette.border),
+        border = BorderStroke(AedstHairline, palette.border),
     ) {
         Row(
             modifier = Modifier.padding(AedstSpacing.md),
@@ -131,7 +131,7 @@ fun AedstAlert(
                     imageVector = defaultIconFor(variant, accent),
                     contentDescription = null,
                     tint = palette.icon,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(AedstSpacing.xl),
                 )
             }
             Column {

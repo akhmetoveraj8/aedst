@@ -30,7 +30,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -113,7 +112,7 @@ private fun RowScope.HeaderCell(header: String, sortable: Boolean, ascending: Bo
         modifier = Modifier
             .weight(1f)
             .then(click)
-            .heightIn(min = 48.dp)
+            .heightIn(min = AedstSpacing.massive)
             .padding(horizontal = AedstSpacing.sm)
             .semantics { heading() },
         horizontalArrangement = Arrangement.spacedBy(AedstSpacing.xs),
@@ -129,7 +128,7 @@ private fun RowScope.HeaderCell(header: String, sortable: Boolean, ascending: Bo
             Icon(
                 imageVector = if (ascending) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(AedstSpacing.lg),
             )
         }
     }

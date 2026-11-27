@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -25,8 +24,9 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
+import com.aedst.core.ui.a11y.AedstMinTouchTarget
+import com.aedst.core.ui.a11y.aedstMinTouchHeight
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
@@ -53,7 +53,7 @@ fun AedstBreadcrumb(items: List<AedstBreadcrumbItem>, modifier: Modifier = Modif
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(AedstSpacing.lg),
                 )
             }
             val onClick = item.onClick.takeUnless { isCurrent }
@@ -61,8 +61,8 @@ fun AedstBreadcrumb(items: List<AedstBreadcrumbItem>, modifier: Modifier = Modif
             Box(
                 modifier = click
                     .semantics { if (isCurrent) selected = true }
-                    .heightIn(min = 48.dp)
-                    .widthIn(min = if (onClick != null) 48.dp else 0.dp)
+                    .aedstMinTouchHeight()
+                    .widthIn(min = if (onClick != null) AedstMinTouchTarget else AedstSpacing.none)
                     .padding(horizontal = AedstSpacing.xs),
                 contentAlignment = Alignment.Center,
             ) {

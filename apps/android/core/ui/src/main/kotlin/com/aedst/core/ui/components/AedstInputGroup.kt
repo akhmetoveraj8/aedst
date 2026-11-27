@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -115,7 +116,7 @@ fun AedstInputGroup(
         shape = AedstShapesScale.medium,
         color = colorScheme.surface,
         contentColor = if (enabled) colorScheme.onSurface else colorScheme.onSurfaceVariant,
-        border = BorderStroke(1.dp, colorScheme.outline),
+        border = BorderStroke(AedstHairline, colorScheme.outline),
     ) {
         val padding = Modifier.heightIn(min = 48.dp).padding(horizontal = AedstSpacing.md, vertical = AedstSpacing.xs)
         when (align) {

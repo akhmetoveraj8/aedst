@@ -24,27 +24,68 @@ import androidx.core.net.toUri
 import com.aedst.core.ui.R
 import com.aedst.core.ui.adaptive.AedstWindowSizePreviews
 import com.aedst.core.ui.components.AedstButton
+import com.aedst.core.ui.components.support.isWebUrl
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
+import java.net.URI
+import java.util.Locale
 
 /**
  * Where the "update" button sends the user: the Play Store app via `market://`, falling back to the web listing when
- * no Play Store is installed. Pure functions so they are unit-tested without an Activity.
+ * no Play Store is installed. Pure functions so they are unit-tested without an Activity. Only these two exact link
+ * shapes are ever started ([isTrustedStoreUri]): the package name is validated and the market link is pinned to the
+ * Play Store app, so a malformed or hostile package name cannot turn the button into an arbitrary `ACTION_VIEW`.
  */
 object PlayStoreLinks {
+    private const val PLAY_STORE_PACKAGE = "com.android.vending"
+    private const val MARKET_SCHEME = "market"
+    private const val MARKET_HOST = "details"
+    private const val WEB_HOST = "play.google.com"
+    private const val WEB_PATH = "/store/apps/details"
+    private val PACKAGE_NAME = Regex("""[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+""")
+
     fun marketUri(packageName: String): String = "market://details?id=$packageName"
 
     fun webUri(packageName: String): String = "https://play.google.com/store/apps/details?id=$packageName"
+
+    /** True for a Java-style application id (`com.example.app`): letters, digits, underscore and dots, 2+ segments. */
+    fun isValidPackageName(packageName: String): Boolean = PACKAGE_NAME.matches(packageName)
+
+    /**
+     * True only for `market://details?id=<package>` and `https://play.google.com/store/apps/details?id=<package>`
+     * with a valid package, no extra query, fragment, user info or port. The https shape must also pass [isWebUrl].
+     */
+    fun isTrustedStoreUri(uri: String): Boolean {
+        val parsed = runCatching { URI(uri) }.getOrNull() ?: return false
+        val query = parsed.rawQuery.orEmpty()
+        val packageName = query.removePrefix("id=")
+        val shapeOk = query.startsWith("id=") &&
+            isValidPackageName(packageName) &&
+            parsed.rawFragment == null &&
+            parsed.rawUserInfo == null &&
+            parsed.port == -1
+        if (!shapeOk) return false
+        return when (parsed.scheme?.lowercase(Locale.ROOT)) {
+            MARKET_SCHEME -> parsed.host == MARKET_HOST && parsed.rawPath.isNullOrEmpty()
+            "https" -> isWebUrl(uri) && parsed.host == WEB_HOST && parsed.rawPath == WEB_PATH
+            else -> false
+        }
+    }
 
     /** Opens the store listing of [packageName]; returns false when neither the Play app nor a browser can handle it. */
     fun open(context: Context, packageName: String = context.packageName): Boolean =
         listOf(marketUri(packageName), webUri(packageName)).any { uri -> tryStart(context, uri) }
 
-    private fun tryStart(context: Context, uri: String): Boolean = try {
-        context.startActivity(Intent(Intent.ACTION_VIEW, uri.toUri()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        true
-    } catch (@Suppress("SwallowedException") e: ActivityNotFoundException) {
-        false
+    private fun tryStart(context: Context, uri: String): Boolean {
+        if (!isTrustedStoreUri(uri)) return false
+        val intent = Intent(Intent.ACTION_VIEW, uri.toUri()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (uri.startsWith("$MARKET_SCHEME:")) intent.setPackage(PLAY_STORE_PACKAGE)
+        return try {
+            context.startActivity(intent)
+            true
+        } catch (@Suppress("SwallowedException") e: ActivityNotFoundException) {
+            false
+        }
     }
 }
 

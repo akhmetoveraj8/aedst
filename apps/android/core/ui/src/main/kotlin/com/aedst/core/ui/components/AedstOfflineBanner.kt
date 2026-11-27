@@ -2,6 +2,8 @@ package com.aedst.core.ui.components
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
@@ -23,6 +25,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.aedst.core.ui.R
+import com.aedst.core.ui.a11y.rememberReducedMotion
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
@@ -32,10 +35,11 @@ import com.aedst.core.ui.theme.AedstTheme
  */
 @Composable
 fun AedstOfflineBanner(isOffline: Boolean, modifier: Modifier = Modifier) {
+    val reducedMotion = rememberReducedMotion()
     AnimatedVisibility(
         visible = isOffline,
-        enter = expandVertically(),
-        exit = shrinkVertically(),
+        enter = if (reducedMotion) EnterTransition.None else expandVertically(),
+        exit = if (reducedMotion) ExitTransition.None else shrinkVertically(),
         modifier = modifier,
     ) {
         Box(

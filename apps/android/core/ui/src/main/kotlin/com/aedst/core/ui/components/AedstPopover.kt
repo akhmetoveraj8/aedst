@@ -24,6 +24,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.aedst.core.ui.theme.AedstElevation
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -64,7 +65,7 @@ private fun PopoverSurface(modifier: Modifier = Modifier, content: @Composable C
         shape = AedstShapesScale.large,
         color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = BorderStroke(AedstHairline, MaterialTheme.colorScheme.outlineVariant),
         shadowElevation = AedstElevation.level3,
     ) {
         Column(modifier = Modifier.padding(AedstSpacing.md), content = content)

@@ -68,6 +68,7 @@ fun AedstErrorSnackbarEffect(
             val result = hostState.showSnackbar(
                 message = message,
                 actionLabel = retryLabel.takeIf { canRetry },
+                withDismissAction = true,
                 duration = if (canRetry) SnackbarDuration.Long else SnackbarDuration.Short,
             )
             currentOnShown()

@@ -19,6 +19,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -94,17 +96,24 @@ fun AedstAiMessageScope.AedstAiMessageContent(
 /**
  * The agent's reply (web `AiMessageResponse`). The kit ships no markdown renderer: pass [renderMarkdown] to render
  * [text] as markdown, otherwise it is plain text. While [streaming] the reply is marked busy (state "Loading"), the
- * equivalent of web's `aria-busy`.
+ * equivalent of web's `aria-busy`, and it is not a live region, so a screen reader is not flooded with every chunk.
+ * Set [announce] on the newest reply only: once it stops streaming it becomes a polite live region and the finished
+ * text is read once.
  */
 @Composable
 fun AedstAiMessageResponse(
     text: String,
     modifier: Modifier = Modifier,
     streaming: Boolean = false,
+    announce: Boolean = false,
     renderMarkdown: (@Composable (String) -> Unit)? = null,
 ) {
     val busy = stringResource(R.string.aedst_a11y_loading)
-    val semantics = if (streaming) modifier.semantics { stateDescription = busy } else modifier
+    val semantics = when {
+        streaming -> modifier.semantics { stateDescription = busy }
+        announce -> modifier.semantics { liveRegion = LiveRegionMode.Polite }
+        else -> modifier
+    }
     if (renderMarkdown != null) {
         Column(modifier = semantics) { renderMarkdown(text) }
     } else {

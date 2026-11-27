@@ -6,6 +6,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -229,7 +230,7 @@ class AiElementsATest {
             AedstTheme {
                 AedstAiTerminal(output = output, isStreaming = true, onClear = { output = "" }) {
                     AedstAiTerminalHeader {
-                        AedstAiTerminalTitle(title = "Running build")
+                        AedstAiTerminalTitle(title = "Running build", modifier = Modifier.weight(1f))
                         AedstAiTerminalActions { AedstAiTerminalClearButton(label = "Clear output") }
                     }
                     AedstAiTerminalContent()

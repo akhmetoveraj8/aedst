@@ -98,13 +98,14 @@ fun AedstAiModelSelectorTrigger(
     logo: (@Composable () -> Unit)? = null,
 ) {
     val state = stringResource(if (expanded) R.string.aedst_a11y_expanded else R.string.aedst_a11y_collapsed)
+    val described = label?.let { stringResource(R.string.aedst_a11y_label_value, it, name) }
     AedstButton(
         text = name,
         onClick = onClick,
         modifier = modifier.semantics {
             role = Role.DropdownList
             stateDescription = state
-            if (label != null) contentDescription = "$label: $name"
+            if (described != null) contentDescription = described
         },
         variant = AedstButtonVariant.GHOST,
         size = AedstButtonSize.SM,
@@ -117,7 +118,7 @@ fun AedstAiModelSelectorTrigger(
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
-                modifier = Modifier.size(14.dp), // web size-3.5
+                modifier = Modifier.size(MODEL_CHEVRON), // web size-3.5
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
@@ -215,7 +216,7 @@ fun AedstAiModelSelectorShortcut(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun AedstAiModelSelectorLogo(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Box(
-        modifier = modifier.size(16.dp).clearAndSetSemantics {}, // web size-4
+        modifier = modifier.size(AedstSpacing.lg).clearAndSetSemantics {}, // web size-4
         contentAlignment = Alignment.Center,
         content = content,
     )
@@ -237,6 +238,8 @@ fun AedstAiModelSelectorLogoGroup(modifier: Modifier = Modifier, content: @Compo
 fun AedstAiModelSelectorName(text: String, modifier: Modifier = Modifier) {
     Text(text = text, modifier = modifier, maxLines = 1, overflow = TextOverflow.Ellipsis)
 }
+
+private val MODEL_CHEVRON = 14.dp // allow-dp: web size-3.5
 
 @Preview(name = "Light", showBackground = true)
 @Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)

@@ -32,6 +32,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -114,11 +115,11 @@ private fun NativeSelectField(
         shape = if (compact) AedstShapesScale.small else AedstShapesScale.medium,
         color = colorScheme.surface,
         contentColor = if (enabled) colorScheme.onSurface else colorScheme.onSurfaceVariant,
-        border = BorderStroke(1.dp, colorScheme.outline),
+        border = BorderStroke(AedstHairline, colorScheme.outline),
     ) {
         Row(
             modifier = Modifier.heightIn(
-                min = 48.dp,
+                min = AedstSpacing.massive,
             ).padding(horizontal = if (compact) AedstSpacing.sm else AedstSpacing.md),
             horizontalArrangement = Arrangement.spacedBy(AedstSpacing.sm),
             verticalAlignment = Alignment.CenterVertically,

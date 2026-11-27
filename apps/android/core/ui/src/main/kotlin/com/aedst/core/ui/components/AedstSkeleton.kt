@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,43 +23,55 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.a11y.rememberReducedMotion
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
 /**
  * Shimmering loading placeholder. The caller controls size entirely through [modifier] (no
- * default height is imposed) so this can stand in for anything from a text line to an avatar.
+ * default height is imposed) so this can stand in for anything from a text line to an avatar. With the system
+ * "remove animations" setting on, it is a static block (no looping shimmer).
  */
 @Composable
 fun AedstSkeleton(modifier: Modifier = Modifier, shape: Shape = AedstShapesScale.medium) {
     val baseColor = MaterialTheme.colorScheme.surfaceVariant
+    Box(modifier = modifier.clip(shape)) {
+        if (rememberReducedMotion()) {
+            Box(modifier = Modifier.fillMaxSize().background(baseColor))
+        } else {
+            SkeletonShimmer(baseColor)
+        }
+    }
+}
+
+@Composable
+private fun SkeletonShimmer(baseColor: Color) {
     val highlightColor = baseColor.copy(alpha = 0.4f)
     val transition = rememberInfiniteTransition(label = "aedstSkeletonShimmer")
     val translateAnim by transition.animateFloat(
         initialValue = 0f,
-        targetValue = 1000f,
+        targetValue = SHIMMER_TRAVEL,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = LinearEasing),
+            animation = tween(durationMillis = SHIMMER_MILLIS, easing = LinearEasing),
             repeatMode = RepeatMode.Restart,
         ),
         label = "aedstSkeletonShimmerTranslate",
     )
     val brush = Brush.linearGradient(
         colors = listOf(baseColor, highlightColor, baseColor),
-        start = Offset(translateAnim - 200f, 0f),
-        end = Offset(translateAnim, 200f),
+        start = Offset(translateAnim - SHIMMER_BAND, 0f),
+        end = Offset(translateAnim, SHIMMER_BAND),
     )
-
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .background(brush),
-    )
+    Box(modifier = Modifier.fillMaxSize().background(brush))
 }
+
+private const val SHIMMER_TRAVEL = 1000f
+private const val SHIMMER_BAND = 200f
+private const val SHIMMER_MILLIS = 1200
 
 /**
  * Paragraph-style placeholder: stacks [lines] skeleton bars, with the last line trimmed to ~60%
@@ -75,7 +88,7 @@ fun AedstSkeletonText(modifier: Modifier = Modifier, lines: Int = 1) {
             AedstSkeleton(
                 modifier = Modifier
                     .fillMaxWidth(if (isTrailingLine) 0.6f else 1f)
-                    .height(14.dp),
+                    .height(AedstSpacing.md),
             )
         }
     }
@@ -94,7 +107,7 @@ private fun AedstSkeletonPreview() {
                 AedstSkeleton(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(16.dp),
+                        .height(AedstSpacing.lg),
                 )
                 AedstSkeletonText(lines = 3)
             }

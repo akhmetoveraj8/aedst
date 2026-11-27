@@ -2,6 +2,8 @@ package com.aedst.core.ui.components
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -44,6 +46,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
+import com.aedst.core.ui.a11y.rememberReducedMotion
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -103,6 +106,7 @@ fun AedstMessageScroller(
     content: LazyListScope.() -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val reducedMotion = rememberReducedMotion()
     val listState = state.listState
     LaunchedEffect(state) {
         listState.interactionSource.interactions.collect { interaction ->
@@ -135,12 +139,12 @@ fun AedstMessageScroller(
         AnimatedVisibility(
             visible = !state.isAtEnd,
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = AedstSpacing.lg),
-            enter = fadeIn() + scaleIn(initialScale = HIDDEN_SCALE),
-            exit = fadeOut() + scaleOut(targetScale = HIDDEN_SCALE),
+            enter = if (reducedMotion) EnterTransition.None else fadeIn() + scaleIn(initialScale = HIDDEN_SCALE),
+            exit = if (reducedMotion) ExitTransition.None else fadeOut() + scaleOut(targetScale = HIDDEN_SCALE),
         ) {
             AedstButton(
                 text = scrollToEndLabel,
-                onClick = { scope.launch { state.scrollToEnd(animated = true) } },
+                onClick = { scope.launch { state.scrollToEnd(animated = !reducedMotion) } },
                 variant = AedstButtonVariant.SECONDARY,
                 size = AedstButtonSize.ICON_SM,
                 leadingIcon = { Icon(Icons.Default.ArrowDownward, contentDescription = null) },

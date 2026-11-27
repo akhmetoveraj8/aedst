@@ -55,7 +55,7 @@ class ComponentCatalogCoverageTest {
     }
 
     private companion object {
-        /** A top-level, public (no modifier) function whose name is PascalCase and has no receiver. */
-        val PUBLIC_FUNCTION = Regex("""fun (?:<[^>]+> )?([A-Z]\w*)\(.*""")
+        /** A top-level, public (no modifier) function whose name is PascalCase; an optional receiver (`Scope.`) is skipped. */
+        val PUBLIC_FUNCTION = Regex("""fun (?:<[^>]+> )?(?:[A-Z]\w*\.)?([A-Z]\w*)\(.*""")
     }
 }

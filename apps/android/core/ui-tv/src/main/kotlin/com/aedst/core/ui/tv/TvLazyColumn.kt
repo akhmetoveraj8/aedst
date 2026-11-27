@@ -1,12 +1,14 @@
 package com.aedst.core.ui.tv
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRestorer
 import com.aedst.core.ui.theme.AedstSpacing
 
 /**
@@ -14,18 +16,21 @@ import com.aedst.core.ui.theme.AedstSpacing
  * focus). Since Compose Foundation 1.7 the standard [LazyColumn] handles
  * D-pad focus traversal itself, and `androidx.tv:tv-foundation`'s
  * `TvLazyColumn` is deprecated in its favour — so this is a thin wrapper that
- * only applies the AEDST spacing default. See [TvLazyRow] for the horizontal axis.
+ * applies the AEDST spacing default and restores focus to the item that had it when focus returns to the list
+ * (`focusRestorer`; also a focus group). Use [contentPadding] for overscan-safe margins. See [TvLazyRow] for the horizontal axis.
  */
 @Composable
 fun TvLazyColumn(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(AedstSpacing.none),
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(AedstSpacing.md),
     content: LazyListScope.() -> Unit,
 ) {
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier.focusRestorer(),
         state = state,
+        contentPadding = contentPadding,
         verticalArrangement = verticalArrangement,
         content = content,
     )

@@ -16,24 +16,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.a11y.AedstMinTouchTarget
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
 /**
  * One-time-code input drawn as [length] cells, mirroring web's `input-otp.tsx`. It is a single text field (one
- * accessibility node named by [label], one IME session, paste and SMS autofill work), not [length] separate fields.
- * Only digits are kept; [onValueChange] never receives more than [length] characters. Digits are always laid out
- * left to right, also in RTL locales. [errorMessage] marks the field invalid for accessibility services.
+ * accessibility node named by [label], one IME session, paste works), not [length] separate fields. The node is
+ * marked `ContentType.SmsOtpCode`, so the platform autofill service can offer the code from an SMS. Only digits are
+ * kept; [onValueChange] never receives more than [length] characters. Digits are always laid out left to right, also
+ * in RTL locales. [errorMessage] marks the field invalid for accessibility services. With [masked] the cells show a
+ * dot instead of each digit and the node is a password field (screen readers do not echo it); the code itself is
+ * never logged or stored by this component.
  */
 @Composable
 fun AedstInputOtp(
@@ -44,6 +51,7 @@ fun AedstInputOtp(
     length: Int = 6,
     enabled: Boolean = true,
     errorMessage: String? = null,
+    masked: Boolean = false,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     BasicTextField(
@@ -51,6 +59,8 @@ fun AedstInputOtp(
         onValueChange = { input -> onValueChange(input.filter(Char::isDigit).take(length)) },
         modifier = modifier.semantics {
             contentDescription = label
+            contentType = ContentType.SmsOtpCode
+            if (masked) password()
             if (!enabled) disabled()
             if (errorMessage != null) this.error(errorMessage)
         },
@@ -69,13 +79,15 @@ fun AedstInputOtp(
                             else -> colorScheme.outline
                         }
                         Surface(
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier.size(AedstMinTouchTarget),
                             shape = AedstShapesScale.medium,
-                            border = BorderStroke(if (isNext) 2.dp else 1.dp, borderColor),
+                            border = BorderStroke(if (isNext) AedstSpacing.xxs else AedstHairline, borderColor),
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text(
-                                    text = value.getOrNull(index)?.toString().orEmpty(),
+                                    text = value.getOrNull(index)?.let {
+                                        if (masked) MASK else it.toString()
+                                    }.orEmpty(),
                                     style = MaterialTheme.typography.titleLarge,
                                 )
                             }
@@ -86,6 +98,8 @@ fun AedstInputOtp(
         },
     )
 }
+
+private const val MASK = "•"
 
 @Preview(name = "Light", showBackground = true)
 @Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)

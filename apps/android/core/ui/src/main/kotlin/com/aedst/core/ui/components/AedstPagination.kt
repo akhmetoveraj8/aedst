@@ -29,7 +29,6 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
@@ -109,7 +108,7 @@ private fun PageButton(page: Int, selected: Boolean, onClick: () -> Unit) {
         color = if (selected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
-        Box(modifier = Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.size(AedstSpacing.huge), contentAlignment = Alignment.Center) {
             Text(text = page.toString(), style = MaterialTheme.typography.labelLarge)
         }
     }

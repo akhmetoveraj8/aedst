@@ -15,10 +15,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.aedst.core.ui.R
+import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
+import com.aedst.core.ui.theme.AedstTypeScale
 
 /** Diameter of [AedstAvatar]: web `avatar.tsx` `size` (sm 24, default 32, lg 40 dp). */
 enum class AedstAvatarSize {
@@ -28,15 +28,15 @@ enum class AedstAvatarSize {
 }
 
 private fun AedstAvatarSize.toDp() = when (this) {
-    AedstAvatarSize.SM -> 24.dp
-    AedstAvatarSize.DEFAULT -> 32.dp
-    AedstAvatarSize.LG -> 40.dp
+    AedstAvatarSize.SM -> AedstSpacing.xxl
+    AedstAvatarSize.DEFAULT -> AedstSpacing.xxxl
+    AedstAvatarSize.LG -> AedstSpacing.huge
 }
 
 private fun AedstAvatarSize.toFontSize() = when (this) {
-    AedstAvatarSize.SM -> 12.sp
-    AedstAvatarSize.DEFAULT -> 14.sp
-    AedstAvatarSize.LG -> 14.sp
+    AedstAvatarSize.SM -> AedstTypeScale.labelMediumFontSize
+    AedstAvatarSize.DEFAULT -> AedstTypeScale.labelLargeFontSize
+    AedstAvatarSize.LG -> AedstTypeScale.labelLargeFontSize
 }
 
 /**
@@ -82,7 +82,7 @@ private fun AedstAvatarPreview() {
     AedstTheme {
         Surface {
             androidx.compose.foundation.layout.Row(
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(AedstSpacing.md),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.background(MaterialTheme.colorScheme.background),
             ) {

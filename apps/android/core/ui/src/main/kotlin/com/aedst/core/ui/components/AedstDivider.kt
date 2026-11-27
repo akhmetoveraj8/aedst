@@ -15,7 +15,6 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
@@ -57,7 +56,7 @@ private fun AedstDividerPreview() {
                 Text("Above")
                 AedstDivider(modifier = Modifier.padding(vertical = AedstSpacing.sm))
                 Text("Below")
-                Row(modifier = Modifier.height(24.dp).padding(top = AedstSpacing.sm)) {
+                Row(modifier = Modifier.height(AedstSpacing.xxl).padding(top = AedstSpacing.sm)) {
                     Text("Left")
                     AedstDivider(
                         orientation = AedstDividerOrientation.VERTICAL,

@@ -30,6 +30,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -70,7 +71,7 @@ fun AedstChart(
         ) {
             val max = series.maxOfOrNull { it.values.maxOrNull() ?: 0f }?.takeIf { it > 0f } ?: return@Canvas
             val shown = series.take(colors.size)
-            drawLine(grid, Offset(0f, size.height), Offset(size.width, size.height), strokeWidth = 1.dp.toPx())
+            drawLine(grid, Offset(0f, size.height), Offset(size.width, size.height), strokeWidth = AedstHairline.toPx())
             // Categories run from the start edge: mirror the whole plot in RTL.
             scale(scaleX = if (isRtl) -1f else 1f, scaleY = 1f) {
                 shown.forEachIndexed { index, item ->
@@ -87,7 +88,7 @@ fun AedstChart(
                     horizontalArrangement = Arrangement.spacedBy(AedstSpacing.xs),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Box(Modifier.size(8.dp).background(colors[index], AedstShapesScale.small))
+                    Box(Modifier.size(AedstSpacing.sm).background(colors[index], AedstShapesScale.small))
                     Text(
                         text = item.label,
                         style = MaterialTheme.typography.labelMedium,
@@ -119,7 +120,7 @@ private fun DrawScope.drawSeriesLine(values: List<Float>, max: Float, color: Col
         )
     }
     points.zipWithNext().forEach { (from, to) ->
-        drawLine(color, from, to, strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round)
+        drawLine(color, from, to, strokeWidth = AedstSpacing.xxs.toPx(), cap = StrokeCap.Round)
     }
 }
 

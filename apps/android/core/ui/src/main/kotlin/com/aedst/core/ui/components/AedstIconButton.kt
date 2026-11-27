@@ -20,7 +20,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.theme.AedstHairline
+import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
 /** Visual treatment of [AedstIconButton], mirroring web's icon-only `Button` variants. */
@@ -73,7 +74,7 @@ fun AedstIconButton(
             onClick = onClick,
             modifier = buttonModifier,
             enabled = enabled,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            border = BorderStroke(AedstHairline, MaterialTheme.colorScheme.outlineVariant),
             content = icon,
         )
 
@@ -96,8 +97,8 @@ private fun AedstIconButtonPreview() {
     AedstTheme {
         Surface {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(AedstSpacing.md),
+                modifier = Modifier.padding(AedstSpacing.md),
             ) {
                 AedstIconButtonVariant.entries.forEach { variant ->
                     AedstIconButton(

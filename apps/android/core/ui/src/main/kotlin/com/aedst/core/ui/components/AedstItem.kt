@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -47,9 +47,9 @@ enum class AedstItemMediaVariant {
 
 /** Density of [AedstItem], mirroring web's `item.tsx` `size` prop; also sizes an `IMAGE` media slot. */
 enum class AedstItemSize(internal val padding: Dp, internal val imageSize: Dp) {
-    DEFAULT(12.dp, 40.dp),
-    SM(8.dp, 32.dp),
-    XS(4.dp, 24.dp),
+    DEFAULT(AedstSpacing.md, AedstSpacing.huge),
+    SM(AedstSpacing.sm, AedstSpacing.xxxl),
+    XS(AedstSpacing.xs, AedstSpacing.xxl),
 }
 
 /**
@@ -74,12 +74,18 @@ fun AedstItem(
         shape = AedstShapesScale.large,
         color = if (variant == AedstItemVariant.MUTED) colorScheme.surfaceVariant else Color.Transparent,
         contentColor = colorScheme.onSurface,
-        border = if (variant == AedstItemVariant.OUTLINE) BorderStroke(1.dp, colorScheme.outlineVariant) else null,
+        border = if (variant ==
+            AedstItemVariant.OUTLINE
+        ) {
+            BorderStroke(AedstHairline, colorScheme.outlineVariant)
+        } else {
+            null
+        },
     ) {
         val click = if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier
         Row(
             modifier = click
-                .heightIn(min = 48.dp)
+                .heightIn(min = AedstSpacing.massive)
                 .padding(horizontal = AedstSpacing.md, vertical = size.padding),
             horizontalArrangement = Arrangement.spacedBy(AedstSpacing.md),
             verticalAlignment = Alignment.CenterVertically,
@@ -110,7 +116,7 @@ fun AedstItem(
 private fun ItemMedia(variant: AedstItemMediaVariant, size: AedstItemSize, media: @Composable () -> Unit) {
     val modifier = when (variant) {
         AedstItemMediaVariant.DEFAULT -> Modifier
-        AedstItemMediaVariant.ICON -> Modifier.size(16.dp)
+        AedstItemMediaVariant.ICON -> Modifier.size(AedstSpacing.lg)
         AedstItemMediaVariant.IMAGE -> Modifier.size(size.imageSize).clip(AedstShapesScale.small)
     }
     Box(modifier = modifier, contentAlignment = Alignment.Center) { media() }

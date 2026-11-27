@@ -34,6 +34,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
+import com.aedst.core.ui.a11y.rememberDisclosureEnter
+import com.aedst.core.ui.a11y.rememberDisclosureExit
 import com.aedst.core.ui.components.support.AI_LINE_ICON_SIZE
 import com.aedst.core.ui.components.support.AiStatusIcon
 import com.aedst.core.ui.components.support.AiStepRow
@@ -133,7 +135,11 @@ fun AedstAiDisclosureScope.AedstAiChainOfThoughtContent(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val holder = rememberSaveableStateHolder()
-    AnimatedVisibility(visible = disclosure.isExpanded) {
+    AnimatedVisibility(
+        visible = disclosure.isExpanded,
+        enter = rememberDisclosureEnter(),
+        exit = rememberDisclosureExit(),
+    ) {
         holder.SaveableStateProvider(CONTENT_KEY) {
             Column(
                 modifier = modifier

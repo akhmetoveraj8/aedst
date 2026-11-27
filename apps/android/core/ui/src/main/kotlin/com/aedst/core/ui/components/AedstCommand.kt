@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -57,7 +57,7 @@ fun AedstCommand(
     Surface(
         modifier = modifier,
         shape = AedstShapesScale.large,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = BorderStroke(AedstHairline, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column(modifier = Modifier.padding(AedstSpacing.sm)) {
             AedstTextField(

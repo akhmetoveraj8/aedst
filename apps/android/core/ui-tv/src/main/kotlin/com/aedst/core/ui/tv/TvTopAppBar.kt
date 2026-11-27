@@ -1,5 +1,6 @@
 package com.aedst.core.ui.tv
 
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
@@ -20,7 +23,8 @@ import androidx.tv.material3.MaterialTheme as TvMaterialTheme
  * own (unlike Material3) — the row/padding layout below is genuinely custom,
  * but every visual primitive it's built from ([Surface], [Text]) is a
  * `tv-material3` component so focus/overscan behave the TV-idiomatic way.
- * Not a duplicate of `core.ui`'s [com.aedst.core.ui.components.AedstTopAppBar],
+ * The title is a heading for screen readers and the actions are one focus group, so D-pad focus enters and leaves
+ * them together (left / right follow the layout direction). Not a duplicate of `core.ui`'s [com.aedst.core.ui.components.AedstTopAppBar],
  * which wraps Material3's phone-oriented `TopAppBar` — see this module's README.
  */
 @Composable
@@ -36,9 +40,10 @@ fun TvTopAppBar(title: String, modifier: Modifier = Modifier, actions: @Composab
             Text(
                 text = title,
                 style = TvMaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(end = AedstSpacing.md),
+                modifier = Modifier.padding(end = AedstSpacing.md).semantics { heading() },
             )
             Row(
+                modifier = Modifier.focusGroup(),
                 horizontalArrangement = Arrangement.spacedBy(AedstSpacing.sm),
                 verticalAlignment = Alignment.CenterVertically,
                 content = actions,

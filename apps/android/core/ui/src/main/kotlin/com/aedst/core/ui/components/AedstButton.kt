@@ -24,7 +24,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
+import com.aedst.core.ui.theme.AedstSpacing
 import androidx.compose.material3.Button as Material3Button
 
 /** Visual treatment of [AedstButton], mirroring web's `button.tsx` `variant` prop. */
@@ -47,14 +49,14 @@ enum class AedstButtonSize(
     internal val horizontalPadding: Dp,
     internal val iconOnly: Boolean,
 ) {
-    DEFAULT(40.dp, 16.dp, false),
-    XS(28.dp, 8.dp, false),
-    SM(32.dp, 12.dp, false),
-    LG(48.dp, 24.dp, false),
-    ICON(40.dp, 0.dp, true),
-    ICON_XS(28.dp, 0.dp, true),
-    ICON_SM(32.dp, 0.dp, true),
-    ICON_LG(48.dp, 0.dp, true),
+    DEFAULT(AedstSpacing.huge, AedstSpacing.lg, false),
+    XS(28.dp, AedstSpacing.sm, false),
+    SM(AedstSpacing.xxxl, AedstSpacing.md, false),
+    LG(AedstSpacing.massive, AedstSpacing.xxl, false),
+    ICON(AedstSpacing.huge, AedstSpacing.none, true),
+    ICON_XS(28.dp, AedstSpacing.none, true),
+    ICON_SM(AedstSpacing.xxxl, AedstSpacing.none, true),
+    ICON_LG(AedstSpacing.massive, AedstSpacing.none, true),
 }
 
 /**
@@ -137,7 +139,7 @@ fun AedstButton(
             enabled = isEnabled,
             shape = shape,
             contentPadding = contentPadding,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            border = BorderStroke(AedstHairline, MaterialTheme.colorScheme.outlineVariant),
             content = { label() },
         )
 
@@ -154,7 +156,7 @@ fun AedstButton(
             onClick = onClick,
             modifier = modifier.semantics { if (!isEnabled) disabled() },
             enabled = isEnabled,
-            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
+            contentPadding = PaddingValues(horizontal = AedstSpacing.xs, vertical = AedstSpacing.xs),
             content = {
                 Text(text, textDecoration = TextDecoration.Underline)
             },
@@ -171,14 +173,14 @@ private fun ButtonContent(
 ) {
     if (loading) {
         CircularProgressIndicator(
-            modifier = Modifier.size(16.dp),
-            strokeWidth = 2.dp,
+            modifier = Modifier.size(AedstSpacing.lg),
+            strokeWidth = AedstSpacing.xxs,
             color = LocalContentColor.current,
         )
         return
     }
     androidx.compose.foundation.layout.Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(AedstSpacing.sm),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     ) {
         leadingIcon?.invoke(this)

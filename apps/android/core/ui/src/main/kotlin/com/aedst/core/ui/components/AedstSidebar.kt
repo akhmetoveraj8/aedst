@@ -31,6 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -44,8 +45,8 @@ enum class AedstSidebarMenuButtonVariant {
 
 /** Height of [AedstSidebarMenuButton], mirroring web's `sidebarMenuButtonVariants` `size`. */
 enum class AedstSidebarMenuButtonSize(internal val minHeight: Dp) {
-    DEFAULT(48.dp),
-    SM(48.dp),
+    DEFAULT(AedstSpacing.massive),
+    SM(AedstSpacing.massive),
     LG(56.dp),
 }
 
@@ -66,7 +67,7 @@ fun AedstSidebar(
         modifier = modifier.width(SIDEBAR_WIDTH).fillMaxHeight(),
         color = colors.sidebar,
         contentColor = colors.sidebarForeground,
-        border = BorderStroke(1.dp, colors.sidebarBorder),
+        border = BorderStroke(AedstHairline, colors.sidebarBorder),
     ) {
         Column(modifier = Modifier.padding(AedstSpacing.sm)) {
             if (header != null) header()
@@ -103,7 +104,7 @@ fun AedstSidebarMenuButton(
         color = if (selected) colors.sidebarAccent else Color.Transparent,
         contentColor = if (selected) colors.sidebarAccentForeground else colors.sidebarForeground,
         border = if (variant == AedstSidebarMenuButtonVariant.OUTLINE) {
-            BorderStroke(1.dp, colors.sidebarBorder)
+            BorderStroke(AedstHairline, colors.sidebarBorder)
         } else {
             null
         },

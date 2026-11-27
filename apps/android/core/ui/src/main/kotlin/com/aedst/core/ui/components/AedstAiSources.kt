@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -31,8 +30,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
+import com.aedst.core.ui.a11y.aedstMinTouchHeight
 import com.aedst.core.ui.components.support.citationHostname
 import com.aedst.core.ui.components.support.isWebUrl
 import com.aedst.core.ui.theme.AedstShapesScale
@@ -100,11 +99,11 @@ fun AedstAiSource(
 ) {
     val uriHandler = LocalUriHandler.current
     val text = title ?: "⁦${citationHostname(href)}⁩" // isolate: a host name stays LTR in RTL text
-    val name = "$text, $newTabLabel"
+    val name = stringResource(R.string.aedst_a11y_name_hint, text, newTabLabel)
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 48.dp)
+            .aedstMinTouchHeight()
             .clip(AedstShapesScale.medium)
             .clickable(role = Role.Button) {
                 when {
@@ -118,7 +117,7 @@ fun AedstAiSource(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val tint = MaterialTheme.colorScheme.onSurfaceVariant
-        if (icon != null) Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = tint)
+        if (icon != null) Icon(icon, contentDescription = null, modifier = Modifier.size(AedstSpacing.lg), tint = tint)
         Text(
             text = text,
             modifier = Modifier.weight(1f, fill = false),
@@ -130,7 +129,7 @@ fun AedstAiSource(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.OpenInNew, // mirrored in right-to-left layouts
             contentDescription = null,
-            modifier = Modifier.size(16.dp),
+            modifier = Modifier.size(AedstSpacing.lg),
             tint = tint,
         )
     }

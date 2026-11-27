@@ -151,3 +151,5 @@ Compose:
       - LocalAedstExtendedColors
       # Which palette AedstTheme chose; read by components that pick palette tokens (AedstAlert), never the system flag.
       - LocalAedstDarkTheme
+      # Reduced-motion override (system animation scales by default); provided once by AedstTheme, set in tests.
+      - LocalAedstReducedMotion

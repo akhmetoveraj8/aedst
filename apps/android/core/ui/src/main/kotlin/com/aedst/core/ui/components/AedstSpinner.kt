@@ -12,8 +12,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
+import com.aedst.core.ui.a11y.rememberReducedMotion
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
@@ -26,14 +26,25 @@ fun AedstSpinner(
     modifier: Modifier = Modifier,
     contentDescription: String = stringResource(R.string.aedst_a11y_loading),
 ) {
-    CircularProgressIndicator(
-        modifier = modifier
-            .size(16.dp)
-            .semantics { this.contentDescription = contentDescription },
-        strokeWidth = 2.dp,
-        color = LocalContentColor.current,
-    )
+    val sized = modifier
+        .size(SPINNER_SIZE)
+        .semantics { this.contentDescription = contentDescription }
+    if (rememberReducedMotion()) {
+        // A static three-quarter ring instead of the endless rotation.
+        CircularProgressIndicator(
+            progress = { STATIC_ARC },
+            modifier = sized,
+            strokeWidth = SPINNER_STROKE,
+            color = LocalContentColor.current,
+        )
+    } else {
+        CircularProgressIndicator(modifier = sized, strokeWidth = SPINNER_STROKE, color = LocalContentColor.current)
+    }
 }
+
+private val SPINNER_SIZE = AedstSpacing.lg
+private val SPINNER_STROKE = AedstSpacing.xxs
+private const val STATIC_ARC = 0.75f
 
 @Preview(name = "Light", showBackground = true)
 @Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)

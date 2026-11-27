@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -29,8 +28,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
+import com.aedst.core.ui.a11y.aedstMinTouchHeight
+import com.aedst.core.ui.a11y.rememberDisclosureEnter
+import com.aedst.core.ui.a11y.rememberDisclosureExit
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
 
@@ -55,7 +56,7 @@ fun AedstCollapsible(
                 .fillMaxWidth()
                 .clickable(enabled = enabled, role = Role.Button) { onExpandedChange(!expanded) }
                 .semantics { stateDescription = state }
-                .heightIn(min = 48.dp)
+                .aedstMinTouchHeight()
                 .padding(horizontal = AedstSpacing.sm),
             horizontalArrangement = Arrangement.spacedBy(AedstSpacing.sm),
             verticalAlignment = Alignment.CenterVertically,
@@ -68,7 +69,7 @@ fun AedstCollapsible(
                 modifier = Modifier.rotate(if (expanded) 180f else 0f),
             )
         }
-        AnimatedVisibility(visible = expanded) {
+        AnimatedVisibility(visible = expanded, enter = rememberDisclosureEnter(), exit = rememberDisclosureExit()) {
             Column(
                 modifier = Modifier.padding(horizontal = AedstSpacing.sm, vertical = AedstSpacing.xs),
                 content = content,

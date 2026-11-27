@@ -23,7 +23,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -60,7 +59,7 @@ fun AedstEmpty(
                 AedstEmptyVariant.DEFAULT -> media()
                 AedstEmptyVariant.ICON -> Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(AedstSpacing.huge)
                         .background(MaterialTheme.colorScheme.surfaceVariant, AedstShapesScale.large),
                     contentAlignment = Alignment.Center,
                 ) {

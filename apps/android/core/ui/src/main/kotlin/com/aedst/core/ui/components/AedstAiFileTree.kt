@@ -38,6 +38,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
+import com.aedst.core.ui.a11y.rememberDisclosureEnter
+import com.aedst.core.ui.a11y.rememberDisclosureExit
 import com.aedst.core.ui.components.support.AI_LINE_ICON_SIZE
 import com.aedst.core.ui.components.support.AiFileTreeState
 import com.aedst.core.ui.components.support.aiDisclosureStateText
@@ -114,7 +116,7 @@ fun AedstAiFileTreeScope.AedstAiFileTreeFolder(
             AedstAiFileTreeIcon(if (isOpen) Icons.Outlined.FolderOpen else Icons.Outlined.Folder)
             AedstAiFileTreeName(name, modifier = Modifier.weight(1f, fill = false))
         }
-        AnimatedVisibility(visible = isOpen) {
+        AnimatedVisibility(visible = isOpen, enter = rememberDisclosureEnter(), exit = rememberDisclosureExit()) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

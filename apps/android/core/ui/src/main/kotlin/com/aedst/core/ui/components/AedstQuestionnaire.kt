@@ -34,11 +34,11 @@ import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.aedst.core.ui.R
 import com.aedst.core.ui.components.support.QuestionnaireActions
 import com.aedst.core.ui.components.support.QuestionnaireItem
 import com.aedst.core.ui.components.support.QuestionnaireLabels
+import com.aedst.core.ui.theme.AedstHairline
 import com.aedst.core.ui.theme.AedstShapesScale
 import com.aedst.core.ui.theme.AedstSpacing
 import com.aedst.core.ui.theme.AedstTheme
@@ -233,11 +233,14 @@ fun AedstQuestionnaireChoice(
         shape = AedstShapesScale.medium,
         color = if (selected) scheme.surfaceVariant else scheme.surface,
         contentColor = if (enabled) scheme.onSurface else scheme.onSurfaceVariant,
-        border = BorderStroke(1.dp, if (selected) scheme.primary.copy(alpha = SELECTED_BORDER) else scheme.outline),
+        border = BorderStroke(
+            AedstHairline,
+            if (selected) scheme.primary.copy(alpha = SELECTED_BORDER) else scheme.outline,
+        ),
     ) {
         Row(
             modifier = interaction.heightIn(
-                min = 48.dp,
+                min = AedstSpacing.massive,
             ).padding(horizontal = AedstSpacing.md, vertical = AedstSpacing.xs),
             horizontalArrangement = Arrangement.spacedBy(AedstSpacing.sm),
             verticalAlignment = Alignment.CenterVertically,
