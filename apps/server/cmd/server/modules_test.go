@@ -14,6 +14,7 @@ import (
 
 	capabilitiesv1 "github.com/aedst/server/gen/go/aedst/capabilities/v1"
 	capabilitiesv1connect "github.com/aedst/server/gen/go/aedst/capabilities/v1/capabilitiesv1connect"
+	realtimev1connect "github.com/aedst/server/gen/go/aedst/realtime/v1/realtimev1connect"
 	"github.com/aedst/server/internal/platform/config"
 	"github.com/aedst/server/internal/platform/httpserver"
 	"github.com/aedst/server/internal/platform/modulekit"
@@ -93,6 +94,32 @@ func TestMountedServicesAreKnownAndAdminIsClosedByDefault(t *testing.T) {
 	}
 	if err := httpserver.ValidateRolePolicy(roles, known, public); err != nil {
 		t.Errorf("built-in role policy invalid: %v", err)
+	}
+}
+
+// RealtimeService exists only with the NATS bridge (ADR-0026), is known to the
+// role policy, and is never public: the gateway forwards the client's token and
+// the auth interceptor must verify it.
+func TestRealtimeServiceIsMountedWithTheBridgeAndNeedsAToken(t *testing.T) {
+	for _, natsURL := range []string{"", "nats://127.0.0.1:4222"} {
+		var cfg config.Config
+		cfg.NATS.URL = natsURL
+		a := testApp(t, cfg)
+		rpc := modulekit.NewMounter(http.NewServeMux(), nil, nil, 1<<20, true)
+		if err := a.mountModules(rpc); err != nil {
+			t.Fatal(err)
+		}
+		public, _, known := a.rpcSurface()
+		if err := rpc.VerifyKnown(known); err != nil {
+			t.Fatal(err)
+		}
+		mounted := slices.Contains(rpc.Services(), realtimev1connect.RealtimeServiceName)
+		if mounted != (natsURL != "") {
+			t.Errorf("AEDST_NATS_URL=%q: RealtimeService mounted = %v", natsURL, mounted)
+		}
+		if public[realtimev1connect.RealtimeServiceGetConnectionAccessProcedure] {
+			t.Error("GetConnectionAccess must require a token")
+		}
 	}
 }
 

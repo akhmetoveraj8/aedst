@@ -22,7 +22,7 @@ use axum::response::{IntoResponse, Response};
 use axum::routing::get;
 use tokio_util::sync::CancellationToken;
 
-use crate::auth::{AuthError, Principal, Verifier, now_secs};
+use crate::auth::{AuthError, Authenticator, Principal, now_secs};
 use crate::config::Config;
 use crate::consumer::{ConsumerHealth, ConsumerState};
 use crate::hub::{Hub, HubError, Outbound, Registration};
@@ -31,6 +31,8 @@ use crate::hub::{Hub, HubError, Outbound, Registration};
 pub const PROTOCOL: &str = "aedst.v1";
 /// Subprotocol prefix browsers use to carry the token (they cannot set `Authorization` on a WebSocket).
 pub const BEARER_PROTOCOL: &str = "aedst.bearer.";
+/// Forwarded to the API unchanged (see `auth`).
+const X_FORWARDED_FOR: &str = "x-forwarded-for";
 /// Largest message accepted from a client (clients send nothing meaningful).
 const MAX_CLIENT_MESSAGE: usize = 4096;
 /// Longest a single write to a socket may take. A peer that stopped reading must not hold the task (and its
@@ -41,8 +43,8 @@ const WRITE_TIMEOUT: Duration = Duration::from_secs(10);
 pub struct AppState {
     /// Settings.
     pub cfg: Config,
-    /// Token verifier.
-    pub verifier: Verifier,
+    /// Asks the Go server who a client is (ADR-0026).
+    pub auth: Authenticator,
     /// Live connections.
     pub hub: Arc<Hub>,
     /// State of the JetStream consumer.
@@ -156,13 +158,20 @@ async fn upgrade(
         Ok(token) => token,
         Err(status) => return status.into_response(),
     };
-    let principal = match st.verifier.verify(&token).await {
+    let forwarded_for = headers
+        .get(X_FORWARDED_FOR)
+        .and_then(|value| value.to_str().ok());
+    let principal = match st.auth.authenticate(&token, forwarded_for).await {
         Ok(principal) => principal,
-        Err(AuthError::Keys(error)) => {
-            tracing::error!(%error, "identity provider keys unavailable");
+        Err(AuthError::Throttled(reason)) => {
+            tracing::info!(%reason, "websocket refused: too many failed authentications");
+            return StatusCode::TOO_MANY_REQUESTS.into_response();
+        }
+        Err(AuthError::Unavailable(error)) => {
+            tracing::error!(%error, "the api could not authenticate a websocket");
             return StatusCode::SERVICE_UNAVAILABLE.into_response();
         }
-        Err(AuthError::Invalid(reason)) => {
+        Err(AuthError::Refused(reason)) => {
             tracing::info!(%reason, "websocket token refused");
             return StatusCode::UNAUTHORIZED.into_response();
         }
@@ -250,8 +259,7 @@ mod tests {
 
     fn config(extra: &[(&str, &str)]) -> Config {
         let base = [
-            ("AEDST_OIDC_ISSUER", "http://localhost:8085"),
-            ("AEDST_OIDC_AUDIENCE", "1"),
+            ("AEDST_GATEWAY_API_URL", "http://localhost:8080"),
             ("AEDST_NATS_URL", "nats://localhost:4222"),
         ];
         Config::from_lookup(|key| {
@@ -309,7 +317,10 @@ mod tests {
         let native = headers(&[]);
 
         let closed = config(&[]);
-        assert!(!origin_allowed(&closed, &browser), "empty list fails closed");
+        assert!(
+            !origin_allowed(&closed, &browser),
+            "empty list fails closed"
+        );
         assert!(origin_allowed(&closed, &native), "no Origin: not a browser");
 
         let listed = config(&[("AEDST_GATEWAY_ALLOWED_ORIGINS", "https://app.example")]);

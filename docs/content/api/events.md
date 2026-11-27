@@ -84,3 +84,29 @@ Response (`200`):
   "created": true
 }
 ```
+
+## Types
+
+### EventEnvelope
+
+EventEnvelope is the body of an integration event that leaves the Go server
+on NATS JetStream for a service written in another language (today the Rust
+realtime gateway, apps/gateway; ADR-0021, ADR-0026). The Go bridge
+(internal/platform/natsbridge) encodes it in the binary Protobuf format; the
+gateway decodes it with code generated from this file at build time, so the
+two sides cannot drift without `buf breaking` noticing.
+
+The recipient is not in the envelope: it travels in the NATS subject
+(aedst.events.user.<user id>.<event type>), so routing never changes the body.
+
+Compatibility: fields are only added. A consumer ignores fields it does not
+know (Protobuf does that by itself).
+
+| Field | Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `string` | — | Event id (UUIDv7). Stable across redeliveries: it is the JetStream Nats-Msg-Id and the key every consumer and client dedupes on. |
+| `type` | `string` | — | Event type, e.g. "tasks.v1.TaskCompleted". |
+| `version` | `uint32` | — | Version of the payload format of this event type (starts at 1). |
+| `occurred_at` | `google.protobuf.Timestamp` | — | When the producing transaction recorded the event (UTC). |
+| `partition_key` | `string` | — | Aggregate id (UUID) the event is partitioned by, e.g. the task id. It is not the recipient. |
+| `payload` | `bytes` | — | The event payload exactly as the producing module serialised it: a UTF-8 JSON object, pinned by that module's golden fixtures. It stays JSON because clients receive it unchanged. |

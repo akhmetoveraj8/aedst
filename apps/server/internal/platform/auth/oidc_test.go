@@ -185,6 +185,10 @@ func TestOIDCVerifier_AcceptsValidToken(t *testing.T) {
 	if len(claims.Roles) != 1 || claims.Roles[0] != "admin" {
 		t.Errorf("roles = %v, want [admin]", claims.Roles)
 	}
+	// The token's exp (one hour ahead in the fake IdP) bounds a realtime socket (ADR-0026).
+	if until := time.Until(claims.ExpiresAt); until < 59*time.Minute || until > time.Hour {
+		t.Errorf("ExpiresAt = %s, want the token's exp about one hour ahead", claims.ExpiresAt)
+	}
 }
 
 func TestOIDCVerifier_RejectsWrongAudienceIssuerAndExpiry(t *testing.T) {

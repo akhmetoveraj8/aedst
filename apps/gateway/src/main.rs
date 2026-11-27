@@ -4,7 +4,7 @@ use std::process::ExitCode;
 use std::sync::Arc;
 use std::time::Duration;
 
-use aedst_gateway::auth::Verifier;
+use aedst_gateway::auth::Authenticator;
 use aedst_gateway::config::Config;
 use aedst_gateway::consumer::ConsumerHealth;
 use aedst_gateway::hub::Hub;
@@ -32,7 +32,7 @@ async fn main() -> ExitCode {
 
 async fn run() -> Result<(), String> {
     let cfg = Config::from_env().map_err(|e| e.to_string())?;
-    let verifier = Verifier::new(cfg.oidc.clone()).map_err(|e| e.to_string())?;
+    let auth = Authenticator::new(&cfg.api_url, cfg.api_timeout).map_err(|e| e.to_string())?;
     let listener = tokio::net::TcpListener::bind(cfg.addr)
         .await
         .map_err(|e| format!("bind {}: {e}", cfg.addr))?;
@@ -60,7 +60,7 @@ async fn run() -> Result<(), String> {
     };
     let state = Arc::new(ws::AppState {
         cfg,
-        verifier,
+        auth,
         hub: Arc::clone(&hub),
         consumer: health,
         shutdown: shutdown.clone(),

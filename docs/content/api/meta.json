@@ -5,6 +5,7 @@
     "webhooks",
     "events",
     "events-openapi",
-    "..."
+    "...",
+    "realtime-openapi"
   ]
 }

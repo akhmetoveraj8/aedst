@@ -1,10 +1,9 @@
-//! Configuration from the environment. OIDC variables mean exactly what they mean for the Go server
-//! (`apps/server/internal/platform/config`), so one set of values configures both resource servers.
+//! Configuration from the environment. The gateway has no OIDC settings: it asks the Go server who a
+//! client is (`AEDST_GATEWAY_API_URL`, ADR-0026).
 
 use std::net::SocketAddr;
 use std::time::Duration;
 
-use jsonwebtoken::Algorithm;
 use thiserror::Error;
 
 /// A configuration problem, reported once at startup.
@@ -19,23 +18,6 @@ fn invalid(message: impl Into<String>) -> ConfigError {
     ConfigError::Invalid(message.into())
 }
 
-/// OIDC resource-server settings (`AEDST_OIDC_*`).
-#[derive(Debug, Clone)]
-pub struct OidcConfig {
-    /// `AEDST_OIDC_ISSUER`.
-    pub issuer: String,
-    /// `AEDST_OIDC_AUDIENCE`.
-    pub audience: String,
-    /// `AEDST_OIDC_JWKS_URL`; empty means discovery from the issuer.
-    pub jwks_url: Option<String>,
-    /// `AEDST_OIDC_ALGORITHMS` (asymmetric only).
-    pub algorithms: Vec<Algorithm>,
-    /// `AEDST_OIDC_TOKEN_TYPES`: accepted JOSE `typ` values.
-    pub token_types: Vec<String>,
-    /// `AEDST_OIDC_CLOCK_SKEW_SECONDS`.
-    pub clock_skew: Duration,
-}
-
 /// The whole gateway configuration.
 #[derive(Debug, Clone)]
 pub struct Config {
@@ -45,8 +27,11 @@ pub struct Config {
     pub nats_url: String,
     /// `AEDST_NATS_STREAM`.
     pub nats_stream: String,
-    /// OIDC settings.
-    pub oidc: OidcConfig,
+    /// `AEDST_GATEWAY_API_URL`: base URL of the Go server, whose `RealtimeService` authenticates
+    /// every connecting client. Plain `http://` inside the cluster (TLS is the service mesh's job).
+    pub api_url: String,
+    /// `AEDST_GATEWAY_API_TIMEOUT_SECONDS`: bound on one authentication call.
+    pub api_timeout: Duration,
     /// `AEDST_GATEWAY_MAX_CONNS`: open sockets of this replica, all users together.
     pub max_conns: usize,
     /// `AEDST_GATEWAY_MAX_CONNS_PER_USER`.
@@ -136,6 +121,14 @@ fn is_origin(value: &str) -> bool {
         .any(|host| !host.is_empty() && !host.contains(['/', '?', '#', '*', ' ']))
 }
 
+/// True for `http://host[:port]` with nothing after the authority. The Go server is reached inside
+/// the cluster; `https` would need a TLS client the gateway deliberately does not carry.
+fn is_http_base(value: &str) -> bool {
+    value
+        .strip_prefix("http://")
+        .is_some_and(|host| !host.is_empty() && !host.contains(['/', '?', '#', '@', ' ']))
+}
+
 impl Config {
     /// Reads the process environment.
     ///
@@ -155,32 +148,19 @@ impl Config {
             env.text("AEDST_ENV").as_deref(),
             Some("staging" | "production")
         );
-        let issuer = env.require("AEDST_OIDC_ISSUER")?;
-        if !issuer.starts_with("https://") && (deployed || !issuer.starts_with("http://")) {
-            return Err(invalid(
-                "AEDST_OIDC_ISSUER must use https (http is allowed only outside staging/production)",
-            ));
-        }
-        let mut algorithms = Vec::new();
-        for name in env.list("AEDST_OIDC_ALGORITHMS", "RS256,ES256,EdDSA") {
-            let algorithm: Algorithm = name.parse().map_err(|_| {
-                invalid(format!("AEDST_OIDC_ALGORITHMS: unknown algorithm {name:?}"))
-            })?;
-            if matches!(
-                algorithm,
-                Algorithm::HS256 | Algorithm::HS384 | Algorithm::HS512
-            ) {
-                return Err(invalid(format!(
-                    "AEDST_OIDC_ALGORITHMS must not include {name:?} (asymmetric algorithms only)"
-                )));
-            }
-            algorithms.push(algorithm);
+        let api_url = env.require("AEDST_GATEWAY_API_URL")?;
+        if !is_http_base(&api_url) {
+            return Err(invalid(format!(
+                "AEDST_GATEWAY_API_URL {api_url:?} must be http://host[:port] (the Go server inside the cluster)"
+            )));
         }
         let addr = env
             .text("AEDST_GATEWAY_ADDR")
             .unwrap_or_else(|| "0.0.0.0:8090".to_owned());
         let addr = addr.parse().map_err(|_| {
-            invalid(format!("AEDST_GATEWAY_ADDR {addr:?} is not a socket address"))
+            invalid(format!(
+                "AEDST_GATEWAY_ADDR {addr:?} is not a socket address"
+            ))
         })?;
         let allowed_origins = env.list("AEDST_GATEWAY_ALLOWED_ORIGINS", "");
         if let Some(bad) = allowed_origins.iter().find(|origin| !is_origin(origin)) {
@@ -203,14 +183,8 @@ impl Config {
             nats_stream: env
                 .text("AEDST_NATS_STREAM")
                 .unwrap_or_else(|| "AEDST_EVENTS".to_owned()),
-            oidc: OidcConfig {
-                issuer,
-                audience: env.require("AEDST_OIDC_AUDIENCE")?,
-                jwks_url: env.text("AEDST_OIDC_JWKS_URL"),
-                algorithms,
-                token_types: env.list("AEDST_OIDC_TOKEN_TYPES", "at+jwt,JWT"),
-                clock_skew: Duration::from_secs(env.number("AEDST_OIDC_CLOCK_SKEW_SECONDS", 30)?),
-            },
+            api_url,
+            api_timeout: env.seconds("AEDST_GATEWAY_API_TIMEOUT_SECONDS", 3)?,
             max_conns: env.size("AEDST_GATEWAY_MAX_CONNS", 10_000)?,
             max_conns_per_user: env.size("AEDST_GATEWAY_MAX_CONNS_PER_USER", 8)?,
             max_handshakes: env.size("AEDST_GATEWAY_MAX_HANDSHAKES", 1024)?,
@@ -244,21 +218,16 @@ mod tests {
         load(&pairs)
     }
 
-    const BASE: [(&str, &str); 3] = [
-        ("AEDST_OIDC_ISSUER", "http://localhost:8085"),
-        ("AEDST_OIDC_AUDIENCE", "1"),
+    const BASE: [(&str, &str); 2] = [
+        ("AEDST_GATEWAY_API_URL", "http://aedst-server:8080"),
         ("AEDST_NATS_URL", "nats://localhost:4222"),
     ];
 
     #[test]
-    fn defaults_match_the_go_server() {
+    fn defaults() {
         let cfg = load(&BASE).unwrap();
-        assert_eq!(cfg.oidc.clock_skew, Duration::from_secs(30));
-        assert_eq!(cfg.oidc.token_types, ["at+jwt", "JWT"]);
-        assert_eq!(
-            cfg.oidc.algorithms,
-            [Algorithm::RS256, Algorithm::ES256, Algorithm::EdDSA]
-        );
+        assert_eq!(cfg.api_url, "http://aedst-server:8080");
+        assert_eq!(cfg.api_timeout, Duration::from_secs(3));
         assert_eq!(cfg.nats_stream, "AEDST_EVENTS");
     }
 
@@ -279,8 +248,8 @@ mod tests {
     }
 
     #[test]
-    fn missing_issuer_audience_or_nats_is_an_error() {
-        for skip in ["AEDST_OIDC_ISSUER", "AEDST_OIDC_AUDIENCE", "AEDST_NATS_URL"] {
+    fn missing_api_url_or_nats_is_an_error() {
+        for skip in ["AEDST_GATEWAY_API_URL", "AEDST_NATS_URL"] {
             let pairs: Vec<_> = BASE.iter().copied().filter(|(k, _)| *k != skip).collect();
             assert!(
                 load(&pairs).unwrap_err().to_string().contains(skip),
@@ -290,9 +259,17 @@ mod tests {
     }
 
     #[test]
-    fn symmetric_algorithms_and_plain_http_in_production_are_refused() {
-        assert!(with(&[("AEDST_OIDC_ALGORITHMS", "HS256")]).is_err());
-        assert!(with(&[("AEDST_ENV", "production")]).is_err());
+    fn the_api_url_is_a_plain_http_base() {
+        assert!(with(&[("AEDST_GATEWAY_API_URL", "http://127.0.0.1:8080")]).is_ok());
+        for bad in [
+            "https://api.example",
+            "http://",
+            "http://host/path",
+            "http://user@host",
+            "aedst-server:8080",
+        ] {
+            assert!(with(&[("AEDST_GATEWAY_API_URL", bad)]).is_err(), "{bad}");
+        }
     }
 
     #[test]
@@ -327,8 +304,7 @@ mod tests {
         for env in ["staging", "production"] {
             let deployed = [
                 ("AEDST_ENV", env),
-                ("AEDST_OIDC_ISSUER", "https://idp.example"),
-                ("AEDST_OIDC_AUDIENCE", "1"),
+                ("AEDST_GATEWAY_API_URL", "http://aedst-server:8080"),
                 ("AEDST_NATS_URL", "nats://nats:4222"),
             ];
             assert!(load(&deployed).is_ok(), "{env}");

@@ -2,6 +2,8 @@
 
 Status: Accepted (owner decision, 2026-11-18). Amends [ADR-0014](../../../../docs/content/decisions/0014-river-insert-tx-as-outbox.md) (its "NATS is not adopted now" clause) and replaces the realtime transport proposal of [ADR-0008](../../../../docs/content/decisions/0008-realtime-and-media-extraction.md). Spec: [`specs/realtime/ws-gateway.md`](../../specs/realtime/ws-gateway.md).
 
+> **Amended 2026-11-28 by [ADR-0026](0026-gateway-connection-access-and-protobuf-envelope.md):** the gateway no longer verifies tokens (it calls the Go `RealtimeService.GetConnectionAccess`; the "Auth exception" below is void and the gateway has no `AEDST_OIDC_*`, `jsonwebtoken` or owner-id mirror), and the message body is the Protobuf `aedst.events.v1.EventEnvelope` instead of JSON (the client frame is unchanged). When to write backend code in Rust at all: [ADR-0025](0025-rust-admission-criteria.md).
+
 ## Context
 
 The owner decided that CPU-heavy, latency-critical and systems parts may be written in Rust (1.100.0), that WebSocket is served by Rust rather than `coder/websocket`, and that NATS JetStream may carry events to that Rust gateway. ADR-0014 had reserved exactly this seam: "the bridge to a broker is itself a River-delivered consumer; `events.Publisher` is the seam; never a dual write".

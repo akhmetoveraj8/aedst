@@ -9,9 +9,12 @@ import (
 
 	eventsv1 "github.com/aedst/server/gen/go/aedst/events/v1"
 	eventsv1connect "github.com/aedst/server/gen/go/aedst/events/v1/eventsv1connect"
+	realtimev1 "github.com/aedst/server/gen/go/aedst/realtime/v1"
+	realtimev1connect "github.com/aedst/server/gen/go/aedst/realtime/v1/realtimev1connect"
 	"github.com/aedst/server/internal/platform/events/ingest"
 	"github.com/aedst/server/internal/platform/httpserver"
 	"github.com/aedst/server/internal/platform/modulekit"
+	"github.com/aedst/server/internal/platform/realtime"
 )
 
 // bindRemoteModules runs the Remote hook of every unit this process does not host
@@ -59,6 +62,18 @@ func (a *app) mountEventIngest(rpc *modulekit.Mounter) {
 		eventsv1connect.EventIngestServiceHandler(ingest.NewHandler(a.env.Events, a.env.Jobs)), ingestRequestBytes)
 }
 
+// mountRealtime mounts RealtimeService when the NATS bridge is enabled
+// (AEDST_NATS_URL): the realtime gateway asks it who a connecting client is, so
+// the gateway verifies no token itself (ADR-0026). Any signed-in caller may
+// call it; it reveals only the caller's own id and token expiry.
+func (a *app) mountRealtime(rpc *modulekit.Mounter) {
+	if a.cfg.NATS.URL == "" {
+		return
+	}
+	modulekit.Mount(rpc, realtimev1connect.RegisterRealtimeServiceHandler,
+		realtimev1connect.RealtimeServiceHandler(realtime.Handler{}), realtime.MaxRequestBytes)
+}
+
 // mountModules mounts every module's API services through the one sanctioned
 // mounter (modulekit.Mount).
 func (a *app) mountModules(rpc *modulekit.Mounter) error {
@@ -71,6 +86,7 @@ func (a *app) mountModules(rpc *modulekit.Mounter) error {
 		}
 	}
 	a.mountEventIngest(rpc)
+	a.mountRealtime(rpc)
 	return nil
 }
 
@@ -122,6 +138,9 @@ func (a *app) rpcSurface() (public map[string]bool, defaultRoles map[string][]st
 		// The ingest endpoint is closed to users: only the machine identity may call it.
 		defaultRoles[eventIngestPolicy] = []string{"internal"}
 		files = append(files, eventsv1.File_aedst_events_v1_events_proto)
+	}
+	if a.cfg.NATS.URL != "" {
+		files = append(files, realtimev1.File_aedst_realtime_v1_realtime_proto)
 	}
 	return public, defaultRoles, httpserver.ProceduresOf(files...)
 }

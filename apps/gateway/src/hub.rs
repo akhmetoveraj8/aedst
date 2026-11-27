@@ -232,7 +232,11 @@ mod tests {
         let hub = Hub::new(2, 16, 1);
         let mut slow = hub.register("a").unwrap();
         assert_eq!(hub.dispatch("a", "e1", &frame("1")), 1);
-        assert_eq!(hub.dispatch("a", "e2", &frame("2")), 0, "queue of 1 is full");
+        assert_eq!(
+            hub.dispatch("a", "e2", &frame("2")),
+            0,
+            "queue of 1 is full"
+        );
         assert!(hub.is_empty());
         assert!(
             slow.rx.recv().await.is_some(),

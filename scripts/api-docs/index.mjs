@@ -16,7 +16,7 @@ import { renderModule } from "./render.mjs";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 // Proto packages served by platform code (apps/server/internal/platform), which has no module section.
-export const PLATFORM_PACKAGES = new Set(["events"]);
+export const PLATFORM_PACKAGES = new Set(["events", "realtime"]);
 
 export const pagePath = (module) =>
   PLATFORM_PACKAGES.has(module) ? `docs/content/api/${module}.md` : `docs/content/modules/${module}/api.md`;

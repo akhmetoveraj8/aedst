@@ -50,7 +50,8 @@ from a request handler on its own, and do not add Kafka or RabbitMQ. NATS JetStr
 exists for one purpose (ADR-0021): `internal/platform/natsbridge` forwards allowlisted
 event types (`AEDST_NATS_FORWARD_TYPES`) to the Rust realtime gateway (`apps/gateway`)
 as a River-delivered consumer (no dual write, the event id is the `Nats-Msg-Id`); only
-that package imports the NATS client, and Go consumers still use River. Deferred or scheduled work of a module's
+that package imports the NATS client, and Go consumers still use River. The body is the Protobuf
+`aedst.events.v1.EventEnvelope` (ADR-0026); a new backend component in Rust needs the criteria of ADR-0025. Deferred or scheduled work of a module's
 own is a plain River job of its own kind (`internal/platform/jobs`). See
 `internal/modules/tasks/features/completion/infrastructure/postgres/postgres.go`'s `Complete`
 method for the reference implementation.
@@ -176,7 +177,8 @@ Handlers never verify tokens: `httpserver.AuthInterceptor` does, through
 `platformauth.Verifier` (the OIDC resource-server verifier, ADR-0017 and
 ADR-0019). Read the caller with `platformauth.FromContext`. The server has no
 `auth` module and issues no tokens: do not add a second token format, password
-hashing or session storage, and do not verify JWTs anywhere else in Go (the Rust gateway `apps/gateway` is the one other resource server, ADR-0021); identity
+hashing or session storage, and do not verify JWTs anywhere else, in Go or in Rust: the realtime gateway (`apps/gateway`) asks
+`RealtimeService.GetConnectionAccess` (`internal/platform/realtime`, ADR-0026) who a client is; identity
 features (sign-in, MFA, recovery, the user directory) belong in the IdP.
 
 ## Observability

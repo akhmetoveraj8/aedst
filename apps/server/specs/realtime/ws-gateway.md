@@ -42,12 +42,12 @@ client->server messages, resume from a cursor (see Open questions).
 
 **Happy path**
 
-- Given a client holds a valid access token (issuer, audience, alg, `typ` per the same
-  `AEDST_OIDC_*` as the Go server) and the gateway is subscribed to JetStream stream
-  `AEDST_EVENTS`
+- Given a client holds an access token the Go server accepts and the gateway is subscribed
+  to JetStream stream `AEDST_EVENTS`
 - When the client connects `GET /v1/ws` (WebSocket upgrade) with
   `Authorization: Bearer <jwt>` (or subprotocols `aedst.v1` + `aedst.bearer.<jwt>` for browsers)
-- Then the gateway verifies the token, registers the connection under the token's `sub`,
+- Then the gateway asks the Go server (`RealtimeService.GetConnectionAccess` with the client's
+  token as bearer, ADR-0026), registers the connection under the returned owner id,
   and every event whose `partition_key` equals that user id is sent as one text frame
   containing the unchanged event JSON envelope.
 
@@ -67,7 +67,10 @@ client->server messages, resume from a cursor (see Open questions).
   retry the worker does itself); beyond that window the Rust gateway dedups per
   connection on event id (bounded LRU). Clients are told delivery is at-least-once and
   must dedupe on `id`.
-- Invalid/expired token at upgrade: 401, no upgrade. Token expires while connected:
+- Invalid/expired token at upgrade: the Go server answers `unauthenticated`, the gateway answers
+  401, no upgrade. Client over its failed-authentication budget (Go `resource_exhausted`; the
+  gateway forwards `X-Forwarded-For` unchanged so the budget is per client): 429. Go unreachable or
+  slow (`AEDST_GATEWAY_API_TIMEOUT_SECONDS`): 503. Token expires while connected:
   server closes with code 4401 at `exp`; client reconnects with a fresh token.
 - Slow client: bounded per-connection queue (default 256 frames); overflow closes the
   connection with 4429 (client resyncs through the normal API). Never blocks the NATS consumer.
@@ -108,15 +111,18 @@ Frame (text, UTF-8 JSON, identical to the event as stored in the River job):
 | `partition_key` | string (UUID) | yes | routing key; the owner user id for user events |
 | `payload` | object | yes | producer's JSON, untouched |
 
-The NATS message body is this same JSON: **the format does not change**. Golden tests: a
+The NATS message body is the Protobuf `aedst.events.v1.EventEnvelope` (since 2026-11-28, ADR-0026;
+the client frame above did not change). Fixtures: `natsbridge/testdata/frame.v1.json` (the frame) and
+`envelope.v1.binpb` (its body). The paragraph below is the original 2026-11-18 text.
+Originally the NATS message body was this same JSON: **the format does not change**. Golden tests: a
 Go test serialises the envelope via `eventstest`/`goldentest` fixtures
 (`architecturetest/event_fixtures_test.go` already guards the payloads) and a Rust test
 parses the same files from `apps/server/testdata` so both sides are pinned to one fixture.
 Note: the existing `Event` struct has no envelope JSON today (River job args are the
 nearest shape); the envelope is defined here and frozen by the new golden file.
 
-Config (env, `AEDST_` prefix): `AEDST_OIDC_{ISSUER,AUDIENCE,JWKS_URL,ALGORITHMS,TOKEN_TYPES,CLOCK_SKEW_SECONDS}`
-(same meaning and defaults as Go), `AEDST_NATS_URL`, `AEDST_NATS_STREAM` (default
+Config (env, `AEDST_` prefix): `AEDST_GATEWAY_API_URL` (required, `http://host[:port]` of the Go server;
+replaced the `AEDST_OIDC_*` set on 2026-11-28, ADR-0026), `AEDST_NATS_URL`, `AEDST_NATS_STREAM` (default
 `AEDST_EVENTS`), `AEDST_GATEWAY_ADDR`, `AEDST_GATEWAY_*` limits (table below), `OTEL_EXPORTER_OTLP_*`.
 Go adds `AEDST_NATS_URL` (optional: empty = no forward consumer, nothing changes for
 deployments without the gateway).
@@ -126,6 +132,8 @@ Gateway settings (all optional; numbers must be positive):
 | Variable | Default | Meaning |
 | -------- | ------- | ------- |
 | `AEDST_GATEWAY_ADDR` | `0.0.0.0:8090` | listen address |
+| `AEDST_GATEWAY_API_URL` | (required) | base URL of the Go server, `http://host[:port]`; its `RealtimeService` authenticates every upgrade |
+| `AEDST_GATEWAY_API_TIMEOUT_SECONDS` | `3` | bound on that call; a timeout answers 503 |
 | `AEDST_GATEWAY_ALLOWED_ORIGINS` | (empty) | comma-separated browser origins (`scheme://host[:port]`) that may open a socket. Empty refuses every request that carries `Origin`; clients without `Origin` are authenticated by the token alone. Invalid entries stop the start |
 | `AEDST_GATEWAY_ALLOW_ANY_ORIGIN` | `false` | local development opt-out of the origin check; the gateway refuses to start with it in `staging` or `production` |
 | `AEDST_GATEWAY_MAX_CONNS` | `10000` | open sockets per replica (503 above it) |
@@ -202,3 +210,9 @@ appears. Android, Apple and Desktop are untouched and not claimed to build.
 - **Framework:** axum 0.8.9 (open question 2).
 - **Verification:** open question 4 stands: no Rust toolchain was installed, so the Rust side is not compiled. The Go side and the shared fixtures are tested.
 - **Not done:** per-IP connection limits, connection and delivery metrics (only the two consumer metrics exist), resume from a cursor, load test.
+- **2026-11-28, ADR-0026 (owner):** the gateway no longer verifies tokens. On every upgrade it calls the Go
+  `aedst.realtime.v1.RealtimeService/GetConnectionAccess` with the client's token as bearer (generated
+  `connectrpc` client); Go returns the owner id and the token's `exp`. The `AEDST_OIDC_*` settings, the JWKS
+  cache and the owner-id mirror (`user_id_vectors.json`) are gone from the gateway. The NATS body became the
+  Protobuf `aedst.events.v1.EventEnvelope`; the client frame and the handshake are unchanged. The end-to-end
+  test puts the real OIDC interceptor in front of `RealtimeService`.
