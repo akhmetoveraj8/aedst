@@ -11,24 +11,30 @@ export struct MediaRowData {
     openable: bool,
 }
 
+// The screens' states, typed: a mistyped state is a compile error in Slint and in the glue.
+export enum MediaPhase { idle, loading, ready, failed }
+export enum MediaUploadState { idle, running, failed }
+export enum MediaUploadStage { validating, creating, uploading, completing }
+export enum MediaUploadCleanup { not-needed, removed, failed }
+export enum MediaViewerPhase { closed, loading, ready, failed, not-ready, video-unavailable, no-preview, too-large, undecodable }
+
 export global MediaStore {
     in property <[MediaRowData]> rows;
-    in property <string> phase: "idle";            // idle | loading | ready | failed
+    in property <MediaPhase> phase: MediaPhase.idle;
     in property <string> error-kind;               // phase == failed, or a delete/page failed
     in property <bool> has-more;
     in property <string> confirm-delete-id;        // the row whose delete awaits confirmation
     in property <bool> deleting;
 
-    in property <string> upload-state: "idle";     // idle | running | failed
-    in property <string> upload-stage: "validating"; // validating | creating | uploading | completing
+    in property <MediaUploadState> upload-state: MediaUploadState.idle;
+    in property <MediaUploadStage> upload-stage: MediaUploadStage.validating;
     in property <string> upload-file-name;
     in property <int> upload-percent;
     in property <string> upload-reason;            // a validation key or an error kind
     in property <bool> upload-reason-is-validation;
-    in property <string> upload-cleanup: "notNeeded"; // notNeeded | removed | failed
+    in property <MediaUploadCleanup> upload-cleanup: MediaUploadCleanup.not-needed;
 
-    // closed | loading | ready | failed | notReady | videoUnavailable | noPreview | tooLarge | undecodable
-    in property <string> viewer-phase: "closed";
+    in property <MediaViewerPhase> viewer-phase: MediaViewerPhase.closed;
     in property <string> viewer-title;
     in property <string> viewer-error-kind;
     in property <image> viewer-image;

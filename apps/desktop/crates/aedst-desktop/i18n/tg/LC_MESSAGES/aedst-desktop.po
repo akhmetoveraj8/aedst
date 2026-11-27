@@ -8,92 +8,122 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "desktop"
 msgid "Tasks"
 msgstr "Вазифаҳо"
 
+msgctxt "desktop"
 msgid "Search"
 msgstr "Ҷустуҷӯ"
 
+msgctxt "desktop"
 msgid "Notifications"
 msgstr "Огоҳиномаҳо"
 
+msgctxt "desktop"
 msgid "Files"
 msgstr "Файлҳо"
 
+msgctxt "desktop"
 msgid "Admin"
 msgstr "Маъмурият"
 
+msgctxt "desktop"
 msgid "Sign out"
 msgstr "Баромад"
 
+msgctxt "desktop"
 msgid "Inbox"
 msgstr "Воридот"
 
+msgctxt "desktop"
 msgid "Preferences"
 msgstr "Танзимот"
 
+msgctxt "desktop"
 msgid "Starting..."
 msgstr "Оғоз шуда истодааст..."
 
+msgctxt "desktop"
 msgid "Sign in to continue"
 msgstr "Барои идома ворид шавед"
 
+msgctxt "desktop"
 msgid "Continue in browser"
 msgstr "Дар браузер идома диҳед"
 
+msgctxt "desktop"
 msgid "Waiting for the browser..."
 msgstr "Интизори браузер..."
 
+msgctxt "desktop"
 msgid "Cancel"
 msgstr "Бекор кардан"
 
+msgctxt "desktop"
 msgid "Sign-in failed. Please try again."
 msgstr "Ворид нашуд. Бори дигар кӯшиш кунед."
 
+msgctxt "desktop"
 msgid "Could not reach the identity provider."
 msgstr "Ба хидмати ворид шудан пайваст нашуд."
 
+msgctxt "desktop"
 msgid "Secure storage is not available on this device."
 msgstr "Захирагоҳи бехатар дар ин дастгоҳ дастнорас аст."
 
+msgctxt "desktop"
 msgid "Sign-in timed out."
 msgstr "Мӯҳлати ворид шудан гузашт."
 
+msgctxt "desktop"
 msgid "Sign-in is not configured."
 msgstr "Ворид шудан танзим нашудааст."
 
+msgctxt "desktop"
 msgid "Privacy"
 msgstr "Махфият"
 
+msgctxt "desktop"
 msgid "Nothing is sent unless you choose it here. Personal data is removed before anything leaves this device."
 msgstr "Чизе фиристода намешавад, то шумо дар ин ҷо иҷозат надиҳед. Маълумоти шахсӣ пеш аз фиристодан тоза карда мешавад."
 
+msgctxt "desktop"
 msgid "Send crash reports"
 msgstr "Фиристодани ҳисоботҳои хатогӣ"
 
+msgctxt "desktop"
 msgid "Technical details about a failure, so it can be fixed."
 msgstr "Маълумоти техникӣ дар бораи хатогӣ барои ислоҳи он."
 
+msgctxt "desktop"
 msgid "Share anonymous usage statistics"
 msgstr "Мубодилаи омори беному истифода"
 
+msgctxt "desktop"
 msgid "Which features are used, never what you type."
 msgstr "Кадом хусусиятҳо истифода мешаванд, на он чӣ шумо менависед."
 
+msgctxt "desktop"
 msgid "Not available in this build."
 msgstr "Дар ин нусха дастнорас аст."
 
+msgctxt "desktop"
 msgid "A new version is available"
 msgstr "Версияи нав мавҷуд аст"
 
+msgctxt "desktop"
 msgid "Downloading the update: {}%"
 msgstr "Боркунии навсозӣ: {}%"
 
+msgctxt "desktop"
 msgid "Restart to update"
 msgstr "Барои навсозӣ аз нав оғоз кунед"
 
+msgctxt "desktop"
 msgid "Update required"
 msgstr "Навсозӣ лозим аст"
 
+msgctxt "desktop"
 msgid "This version of the app is too old for the server. Please update it to continue."
 msgstr "Ин версияи барнома барои сервер хеле кӯҳна аст. Барои идома додан онро навсозӣ кунед."

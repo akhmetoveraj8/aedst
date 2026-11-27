@@ -53,6 +53,9 @@ impl AdminController {
     pub(super) fn update<T>(&self, work: impl FnOnce(&mut AdminView) -> T) -> T {
         let mut state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
         let result = work(&mut state);
+        state.overview.sync();
+        state.tasks.sync();
+        state.audit.sync();
         let view = state.clone();
         drop(state);
         self.published.send_replace(view);
@@ -60,10 +63,14 @@ impl AdminController {
     }
 
     /// Clears everything and shows "no access" (not an operator, or the server said `Forbidden`).
+    /// The lists keep counting epochs, so an answer still in flight cannot fill them again.
     pub(super) fn deny(view: &mut AdminView) {
         *view = AdminView {
             tab: view.tab,
             no_access: true,
+            overview: view.overview.cleared(),
+            tasks: view.tasks.cleared(),
+            audit: view.audit.cleared(),
             ..AdminView::default()
         };
     }
@@ -193,17 +200,15 @@ impl AdminController {
         let started = self.update(|v| {
             let s = pick(v);
             if first {
-                s.epoch += 1;
                 s.phase = Phase::Loading;
                 s.page_error = None;
-                return Some((s.epoch, None));
+                return Some((s.cursor.begin_first(), None));
             }
-            if s.loading_more || s.phase != Phase::Ready {
+            if s.phase != Phase::Ready {
                 return None;
             }
-            let token = s.next_token.clone()?;
-            s.loading_more = true;
-            Some((s.epoch, Some(token)))
+            let (epoch, token) = s.cursor.begin_more()?;
+            Some((epoch, Some(token)))
         });
         let Some((epoch, page_token)) = started else {
             return;
@@ -211,31 +216,35 @@ impl AdminController {
         let append = page_token.is_some();
         let result = fetch(PageRequest { page_token }).await;
         self.update(|v| {
-            if pick(v).epoch != epoch {
+            if !pick(v).cursor.is_current(epoch) {
                 return; // a newer load started while this one was in flight
             }
             if result.as_ref().err() == Some(&ErrorKind::Forbidden) {
                 return Self::deny(v);
             }
             let s = pick(v);
-            s.loading_more = false;
             match result {
                 Ok(page) => {
                     if append {
+                        s.cursor.finish_more(epoch, page.next_page_token);
                         s.rows.extend(page.items);
                     } else {
+                        s.cursor.finish_first(epoch, page.next_page_token);
                         s.rows = page.items;
                     }
-                    s.has_more = page.next_page_token.is_some();
-                    s.next_token = page.next_page_token;
                     s.phase = Phase::Ready;
                 }
                 Err(ErrorKind::Cancelled) => {
-                    if !append {
+                    if append {
+                        s.cursor.fail_more(epoch);
+                    } else {
                         s.phase = Phase::Idle;
                     }
                 }
-                Err(kind) if append => s.page_error = Some(kind),
+                Err(kind) if append => {
+                    s.cursor.fail_more(epoch);
+                    s.page_error = Some(kind);
+                }
                 Err(kind) => s.phase = Phase::Failed(kind),
             }
         });

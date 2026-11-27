@@ -3,7 +3,10 @@
 
 mod support;
 
-use std::sync::{Arc, atomic::Ordering};
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
 
 use aedst_oidc::{
     OidcError, OidcSession, Revocation,
@@ -105,6 +108,60 @@ async fn restore_refreshes_and_concurrent_forced_refreshes_share_one_request() {
         idp.refresh_calls.load(Ordering::SeqCst),
         2,
         "restore + one shared refresh"
+    );
+}
+
+/// Reads work; writes fail while `fail_saves` is set (a keychain that is locked mid-session).
+#[derive(Default)]
+struct SaveFailingStore {
+    inner: MemoryStore,
+    fail_saves: AtomicBool,
+}
+
+impl RefreshTokenStore for SaveFailingStore {
+    fn load(&self) -> Result<Option<StoredSession>, OidcError> {
+        self.inner.load()
+    }
+
+    fn save(&self, session: &StoredSession) -> Result<(), OidcError> {
+        if self.fail_saves.load(Ordering::SeqCst) {
+            return Err(OidcError::Keychain("locked".into()));
+        }
+        self.inner.save(session)
+    }
+
+    fn clear(&self) -> Result<(), OidcError> {
+        self.inner.clear()
+    }
+}
+
+#[tokio::test]
+async fn a_failed_keychain_write_keeps_the_rotated_refresh_token_in_memory() {
+    let idp = Idp::start(TokenBehavior::Normal).await;
+    let store = Arc::new(SaveFailingStore::default());
+    store.inner.save(&stored("RT0")).unwrap();
+    store.fail_saves.store(true, Ordering::SeqCst);
+    let session = OidcSession::new(idp.config.clone(), store.clone()).unwrap();
+
+    assert_eq!(session.restore().await.unwrap(), Some("user-1".into()));
+    assert_eq!(session.access_token().await.unwrap().expose(), "AT-R1");
+
+    // The next refresh must send the rotated token, never the one the provider already replaced.
+    assert_eq!(
+        session.refresh_after_rejection().await.unwrap().expose(),
+        "AT-R2"
+    );
+    assert_eq!(
+        idp.last_refresh_token.lock().unwrap().as_deref(),
+        Some("RT-R1")
+    );
+
+    // Once the keychain works again, the newest token is stored.
+    store.fail_saves.store(false, Ordering::SeqCst);
+    session.refresh_after_rejection().await.unwrap();
+    assert_eq!(
+        store.load().unwrap().unwrap().refresh_token.as_str(),
+        "RT-R3"
     );
 }
 

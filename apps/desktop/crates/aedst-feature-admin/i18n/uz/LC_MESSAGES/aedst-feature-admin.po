@@ -8,194 +8,258 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "admin"
 msgid "Administration"
 msgstr "Boshqaruv"
 
+msgctxt "admin"
 msgid "Overview"
 msgstr "Umumiy ko‘rinish"
 
+msgctxt "admin"
 msgid "Broadcast"
 msgstr "Xabar tarqatish"
 
+msgctxt "admin"
 msgid "Audit log"
 msgstr "Audit jurnali"
 
+msgctxt "admin"
 msgid "Tasks"
 msgstr "Vazifalar"
 
+msgctxt "admin"
 msgid "Push devices"
 msgstr "Push qurilmalari"
 
+msgctxt "admin"
 msgid "Title"
 msgstr "Nomi"
 
+msgctxt "admin"
 msgid "In progress"
 msgstr "Jarayonda"
 
+msgctxt "admin"
 msgid "Done"
 msgstr "Bajarildi"
 
+msgctxt "admin"
 msgid "Delete"
 msgstr "O‘chirish"
 
+msgctxt "admin"
 msgid "Reason"
 msgstr "Sabab"
 
+msgctxt "admin"
 msgid "Cancel"
 msgstr "Bekor qilish"
 
+msgctxt "admin"
 msgid "Delete task"
 msgstr "Vazifani o‘chirish"
 
+msgctxt "admin"
 msgid "Enter a title."
 msgstr "Sarlavha kiriting."
 
+msgctxt "admin"
 msgid "Message"
 msgstr "Xabar"
 
+msgctxt "admin"
 msgid "Link"
 msgstr "Havola"
 
+msgctxt "admin"
 msgid "Owner id"
 msgstr "Ega identifikatori"
 
+msgctxt "admin"
 msgid "Show only the tasks of one owner (id)"
 msgstr "Faqat bitta eganing vazifalarini ko'rsatish (id)"
 
+msgctxt "admin"
 msgid "Apply"
 msgstr "Qo'llash"
 
+msgctxt "admin"
 msgid "No access"
 msgstr "Ruxsat yo'q"
 
+msgctxt "admin"
 msgid "This screen is for operators only."
 msgstr "Bu ekran faqat operatorlar uchun."
 
+msgctxt "admin"
 msgid "Loading..."
 msgstr "Yuklanmoqda..."
 
+msgctxt "admin"
 msgid "Could not load"
 msgstr "Yuklab bo'lmadi"
 
+msgctxt "admin"
 msgid "Try again"
 msgstr "Qayta urinib ko'ring"
 
+msgctxt "admin"
 msgid "Nothing to show here."
 msgstr "Bu yerda hozircha hech narsa yo'q."
 
+msgctxt "admin"
 msgid "Load more"
 msgstr "Yana yuklash"
 
+msgctxt "admin"
 msgid "Owner: {}"
 msgstr "Egasi: {}"
 
+msgctxt "admin"
 msgid "Target: {}"
 msgstr "Obyekt: {}"
 
+msgctxt "admin"
 msgid "By: {}"
 msgstr "Kim tomonidan: {}"
 
+msgctxt "admin"
 msgid "Delete task \"{}\"?"
 msgstr "\"{}\" vazifasi o'chirilsinmi?"
 
+msgctxt "admin"
 msgid "The reason is recorded in the audit log (3 to 500 characters)."
 msgstr "Sabab audit jurnaliga yoziladi (3 dan 500 gacha belgi)."
 
+msgctxt "admin"
 msgid "Reason for deleting"
 msgstr "O'chirish sababi"
 
+msgctxt "admin"
 msgid "Deleting..."
 msgstr "O'chirilmoqda..."
 
+msgctxt "admin"
 msgid "Recipient id"
 msgstr "Qabul qiluvchi identifikatori"
 
+msgctxt "admin"
 msgid "Recipient id (empty: everyone)"
 msgstr "Qabul qiluvchi identifikatori (bo'sh: hamma)"
 
+msgctxt "admin"
 msgid "Link (optional, for example /tasks)"
 msgstr "Havola (ixtiyoriy, masalan /tasks)"
 
+msgctxt "admin"
 msgid "Sent. Recipients reached: {}"
 msgstr "Yuborildi. Qabul qiluvchilar soni: {}"
 
+msgctxt "admin"
 msgid "Sending..."
 msgstr "Yuborilmoqda..."
 
+msgctxt "admin"
 msgid "Send notification"
 msgstr "Bildirishnoma yuborish"
 
+msgctxt "admin"
 msgid "You are offline."
 msgstr "Siz oflayndasiz."
 
+msgctxt "admin"
 msgid "The server is not available right now."
 msgstr "Server hozir mavjud emas."
 
+msgctxt "admin"
 msgid "The request took too long."
 msgstr "So'rov juda uzoq davom etdi."
 
+msgctxt "admin"
 msgid "Too many requests. Try again in a moment."
 msgstr "So'rovlar juda ko'p. Birozdan keyin qayta urinib ko'ring."
 
+msgctxt "admin"
 msgid "Please sign in again."
 msgstr "Iltimos, qayta kiring."
 
+msgctxt "admin"
 msgid "You do not have access to this."
 msgstr "Sizda bunga ruxsat yo'q."
 
+msgctxt "admin"
 msgid "This item no longer exists."
 msgstr "Bu element endi mavjud emas."
 
+msgctxt "admin"
 msgid "The server did not accept this input."
 msgstr "Server bu ma'lumotni qabul qilmadi."
 
+msgctxt "admin"
 msgid "This item was changed elsewhere."
 msgstr "Bu element boshqa joyda o'zgartirilgan."
 
+msgctxt "admin"
 msgid "Please update the app to continue."
 msgstr "Davom etish uchun ilovani yangilang."
 
+msgctxt "admin"
 msgid "Something went wrong."
 msgstr "Nimadir xato ketdi."
 
+msgctxt "admin"
 msgid "Enter a valid user id or leave it empty."
 msgstr "To'g'ri foydalanuvchi identifikatorini kiriting yoki maydonni bo'sh qoldiring."
 
+msgctxt "admin"
 msgid "The title is too long (120 characters at most)."
 msgstr "Sarlavha juda uzun (ko'pi bilan 120 belgi)."
 
+msgctxt "admin"
 msgid "The message is too long (1000 characters at most)."
 msgstr "Xabar juda uzun (ko'pi bilan 1000 belgi)."
 
+msgctxt "admin"
 msgid "The link must be an in-app path such as /tasks."
 msgstr "Havola ilova ichidagi yo'l bo'lishi kerak, masalan /tasks."
 
+msgctxt "admin"
 msgid "Enter a reason (3 characters at least)."
 msgstr "Sababni kiriting (kamida 3 belgi)."
 
+msgctxt "admin"
 msgid "The reason is too long (500 characters at most)."
 msgstr "Sabab juda uzun (ko'pi bilan 500 belgi)."
 
+msgctxt "admin"
 msgid "To do"
 msgstr "Bajarish kerak"
 
+msgctxt "admin"
 msgid "Unknown"
 msgstr "Noma'lum"
 
+msgctxt "admin"
 msgid "Tasks done"
 msgstr "Bajarilgan vazifalar"
 
+msgctxt "admin"
 msgid "Tasks overdue"
 msgstr "Muddati o'tgan vazifalar"
 
+msgctxt "admin"
 msgid "Media files"
 msgstr "Media fayllar"
 
+msgctxt "admin"
 msgid "Media size"
 msgstr "Media hajmi"
 
+msgctxt "admin"
 msgid "Oldest waiting job (seconds)"
 msgstr "Eng eski kutayotgan ish (soniya)"
 
+msgctxt "admin"
 msgid "Jobs pending"
 msgstr "Navbatdagi ishlar"

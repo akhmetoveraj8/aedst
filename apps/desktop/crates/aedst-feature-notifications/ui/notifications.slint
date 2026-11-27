@@ -2,6 +2,7 @@
 // (`NotificationPreferencesView`). Stateless: they render `NotificationsStore` and call its
 // callbacks; Rust (`ui_glue.rs`) owns the state. Only `aedst-ui` components are used.
 import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstBadge, AedstCheckbox, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
+import { ListView } from "std-widgets.slint"; // rows are created lazily only directly inside a ListView (slint-rules M1)
 
 export struct NotificationRowData {
     id: string,
@@ -12,15 +13,19 @@ export struct NotificationRowData {
     read: bool,
 }
 
+// The screens' states, typed: a mistyped state is a compile error in Slint and in the glue.
+export enum NotificationsPhase { idle, loading, ready, failed }
+export enum NotificationsDemoScreen { inbox, preferences }
+
 export global NotificationsStore {
     in property <[NotificationRowData]> rows;
-    in property <string> phase: "idle";        // idle | loading | ready | failed
+    in property <NotificationsPhase> phase: NotificationsPhase.idle;
     in property <string> error-kind;           // set when phase == failed, or a mark/page action failed
     in property <bool> unread-only;
     in property <int> unread-count;
     in property <bool> has-more;
     in property <bool> marking-all;
-    in property <string> prefs-phase: "idle";  // idle | loading | ready | failed
+    in property <NotificationsPhase> prefs-phase: NotificationsPhase.idle;
     in property <string> prefs-error-kind;     // load failure or save failure
     in property <bool> push-enabled;
     in property <bool> task-completed;
@@ -38,26 +43,26 @@ export global NotificationsStore {
 // Every message is the translated text of a KIND, never a raw server message.
 export global NotificationsTexts {
     public pure function error-text(kind: string) -> string {
-        if (kind == "offline") { return @tr("" => "You are offline. Try again when you are connected."); }
-        if (kind == "unavailable") { return @tr("" => "The server is not available right now."); }
-        if (kind == "timeout") { return @tr("" => "The request took too long."); }
-        if (kind == "rateLimited") { return @tr("" => "Too many requests. Try again in a moment."); }
-        if (kind == "unauthenticated") { return @tr("" => "Please sign in again."); }
-        if (kind == "forbidden") { return @tr("" => "You do not have access to this."); }
-        if (kind == "notFound") { return @tr("" => "This notification no longer exists."); }
-        if (kind == "invalidInput") { return @tr("" => "The server did not accept this input."); }
-        if (kind == "conflict") { return @tr("" => "This was changed elsewhere."); }
-        if (kind == "upgradeRequired") { return @tr("" => "Please update the app to continue."); }
-        if (kind == "storage") { return @tr("" => "Could not save on this device."); }
-        return @tr("" => "Something went wrong.");
+        if (kind == "offline") { return @tr("notifications" => "You are offline. Try again when you are connected."); }
+        if (kind == "unavailable") { return @tr("notifications" => "The server is not available right now."); }
+        if (kind == "timeout") { return @tr("notifications" => "The request took too long."); }
+        if (kind == "rateLimited") { return @tr("notifications" => "Too many requests. Try again in a moment."); }
+        if (kind == "unauthenticated") { return @tr("notifications" => "Please sign in again."); }
+        if (kind == "forbidden") { return @tr("notifications" => "You do not have access to this."); }
+        if (kind == "notFound") { return @tr("notifications" => "This notification no longer exists."); }
+        if (kind == "invalidInput") { return @tr("notifications" => "The server did not accept this input."); }
+        if (kind == "conflict") { return @tr("notifications" => "This was changed elsewhere."); }
+        if (kind == "upgradeRequired") { return @tr("notifications" => "Please update the app to continue."); }
+        if (kind == "storage") { return @tr("notifications" => "Could not save on this device."); }
+        return @tr("notifications" => "Something went wrong.");
     }
 
     public pure function kind-text(kind: string) -> string {
-        if (kind == "task-completed") { return @tr("" => "Task completed"); }
-        if (kind == "task-due-soon") { return @tr("" => "Task due soon"); }
-        if (kind == "media-ready") { return @tr("" => "Media ready"); }
-        if (kind == "system") { return @tr("" => "System"); }
-        return @tr("" => "Other");
+        if (kind == "task-completed") { return @tr("notifications" => "Task completed"); }
+        if (kind == "task-due-soon") { return @tr("notifications" => "Task due soon"); }
+        if (kind == "media-ready") { return @tr("notifications" => "Media ready"); }
+        if (kind == "system") { return @tr("notifications" => "System"); }
+        return @tr("notifications" => "Other");
     }
 }
 
@@ -95,7 +100,7 @@ component NotificationRow inherits Rectangle {
     border-width: root.data.read ? 1px : 2px;
     border-color: root.data.read ? AedstTokens.border : AedstTokens.primary;
     accessible-role: button;
-    accessible-label: root.data.read ? root.data.title : @tr("" => "Unread: {}", root.data.title);
+    accessible-label: root.data.read ? root.data.title : @tr("notifications" => "Unread: {}", root.data.title);
     accessible-action-default => { NotificationsStore.open(root.data.id); }
 
     if !AedstLayout.rtl: HorizontalLayout {
@@ -148,7 +153,7 @@ component InboxHeader inherits HorizontalLayout {
         VerticalLayout {
             alignment: center;
             AedstLabel {
-                text: @tr("" => "Notifications");
+                text: @tr("notifications" => "Notifications");
                 font-size: AedstTokens.typography-title-large-font-size;
                 font-weight: AedstTokens.typography-title-large-font-weight;
                 wrap: no-wrap;
@@ -157,13 +162,13 @@ component InboxHeader inherits HorizontalLayout {
         VerticalLayout {
             alignment: center;
             if NotificationsStore.unread-count > 0: AedstBadge {
-                text: @tr("" => "{} unread", NotificationsStore.unread-count);
+                text: @tr("notifications" => "{} unread", NotificationsStore.unread-count);
                 variant: AedstBadgeVariant.destructive;
             }
         }
         Rectangle { horizontal-stretch: 1; }
         AedstButton {
-            text: NotificationsStore.marking-all ? @tr("" => "Marking...") : @tr("" => "Mark all as read");
+            text: NotificationsStore.marking-all ? @tr("notifications" => "Marking...") : @tr("notifications" => "Mark all as read");
             variant: AedstButtonVariant.secondary;
             enabled: !NotificationsStore.marking-all && NotificationsStore.unread-count > 0;
             clicked => { NotificationsStore.mark-all-read(); }
@@ -173,7 +178,7 @@ component InboxHeader inherits HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
         horizontal-stretch: 1;
         AedstButton {
-            text: NotificationsStore.marking-all ? @tr("" => "Marking...") : @tr("" => "Mark all as read");
+            text: NotificationsStore.marking-all ? @tr("notifications" => "Marking...") : @tr("notifications" => "Mark all as read");
             variant: AedstButtonVariant.secondary;
             enabled: !NotificationsStore.marking-all && NotificationsStore.unread-count > 0;
             clicked => { NotificationsStore.mark-all-read(); }
@@ -182,14 +187,14 @@ component InboxHeader inherits HorizontalLayout {
         VerticalLayout {
             alignment: center;
             if NotificationsStore.unread-count > 0: AedstBadge {
-                text: @tr("" => "{} unread", NotificationsStore.unread-count);
+                text: @tr("notifications" => "{} unread", NotificationsStore.unread-count);
                 variant: AedstBadgeVariant.destructive;
             }
         }
         VerticalLayout {
             alignment: center;
             AedstLabel {
-                text: @tr("" => "Notifications");
+                text: @tr("notifications" => "Notifications");
                 font-size: AedstTokens.typography-title-large-font-size;
                 font-weight: AedstTokens.typography-title-large-font-weight;
                 wrap: no-wrap;
@@ -205,12 +210,12 @@ component FilterBar inherits HorizontalLayout {
     if !AedstLayout.rtl: HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
         AedstButton {
-            text: @tr("" => "All");
+            text: @tr("notifications" => "All");
             variant: !NotificationsStore.unread-only ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { NotificationsStore.set-unread-only(false); }
         }
         AedstButton {
-            text: @tr("" => "Unread");
+            text: @tr("notifications" => "Unread");
             variant: NotificationsStore.unread-only ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { NotificationsStore.set-unread-only(true); }
         }
@@ -218,12 +223,12 @@ component FilterBar inherits HorizontalLayout {
     if AedstLayout.rtl: HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
         AedstButton {
-            text: @tr("" => "Unread");
+            text: @tr("notifications" => "Unread");
             variant: NotificationsStore.unread-only ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { NotificationsStore.set-unread-only(true); }
         }
         AedstButton {
-            text: @tr("" => "All");
+            text: @tr("notifications" => "All");
             variant: !NotificationsStore.unread-only ? AedstButtonVariant.default : AedstButtonVariant.secondary;
             clicked => { NotificationsStore.set-unread-only(false); }
         }
@@ -240,46 +245,45 @@ export component NotificationsListView inherits Rectangle {
         InboxHeader {}
         FilterBar {}
 
-        if NotificationsStore.phase == "loading": AedstLabel {
-            text: @tr("" => "Loading...");
+        if NotificationsStore.phase == NotificationsPhase.loading: AedstLabel {
+            text: @tr("notifications" => "Loading...");
             color: AedstTokens.muted-foreground;
             vertical-stretch: 0;
         }
-        if NotificationsStore.phase == "failed": VerticalLayout {
+        if NotificationsStore.phase == NotificationsPhase.failed: VerticalLayout {
             spacing: AedstTokens.spacing-sm;
             alignment: start;
             vertical-stretch: 0;
-            AedstLabel { text: @tr("" => "Could not load notifications"); font-weight: 600; }
+            AedstLabel { text: @tr("notifications" => "Could not load notifications"); font-weight: 600; }
             AedstLabel { text: NotificationsTexts.error-text(NotificationsStore.error-kind); color: AedstTokens.destructive; }
-            AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { NotificationsStore.reload(); } }
+            AedstButton { text: @tr("notifications" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { NotificationsStore.reload(); } }
         }
-        if NotificationsStore.phase == "ready" && NotificationsStore.rows.length == 0: VerticalLayout {
+        if NotificationsStore.phase == NotificationsPhase.ready && NotificationsStore.rows.length == 0: VerticalLayout {
             alignment: start;
             vertical-stretch: 0;
             AedstLabel {
-                text: NotificationsStore.unread-only ? @tr("" => "No unread notifications") : @tr("" => "No notifications yet");
+                text: NotificationsStore.unread-only ? @tr("notifications" => "No unread notifications") : @tr("notifications" => "No notifications yet");
                 font-weight: 600;
             }
-            AedstLabel { text: @tr("" => "You are all caught up."); color: AedstTokens.muted-foreground; }
+            AedstLabel { text: @tr("notifications" => "You are all caught up."); color: AedstTokens.muted-foreground; }
         }
-        if NotificationsStore.phase == "ready" && NotificationsStore.error-kind != "": AedstLabel {
+        if NotificationsStore.phase == NotificationsPhase.ready && NotificationsStore.error-kind != "": AedstLabel {
             text: NotificationsTexts.error-text(NotificationsStore.error-kind);
             color: AedstTokens.destructive;
             vertical-stretch: 0;
         }
 
-        Flickable {
+        ListView {
             vertical-stretch: 1;
             min-height: 160px;
-            content-height: rows.preferred-height;
-            rows := VerticalLayout {
-                spacing: AedstTokens.spacing-xs;
-                for row in NotificationsStore.rows: NotificationRow { data: row; }
+            for row in NotificationsStore.rows: VerticalLayout {
+                padding-bottom: AedstTokens.spacing-xs;
+                NotificationRow { data: row; }
             }
         }
 
         if NotificationsStore.has-more: AedstButton {
-            text: @tr("" => "Load more");
+            text: @tr("notifications" => "Load more");
             variant: AedstButtonVariant.secondary;
             vertical-stretch: 0;
             clicked => { NotificationsStore.load-more(); }
@@ -342,52 +346,52 @@ export component NotificationPreferencesView inherits Rectangle {
         alignment: start;
 
         AedstLabel {
-            text: @tr("" => "Notification preferences");
+            text: @tr("notifications" => "Notification preferences");
             font-size: AedstTokens.typography-title-large-font-size;
             font-weight: AedstTokens.typography-title-large-font-weight;
         }
 
-        if NotificationsStore.prefs-phase == "loading": AedstLabel {
-            text: @tr("" => "Loading...");
+        if NotificationsStore.prefs-phase == NotificationsPhase.loading: AedstLabel {
+            text: @tr("notifications" => "Loading...");
             color: AedstTokens.muted-foreground;
         }
-        if NotificationsStore.prefs-phase == "failed": VerticalLayout {
+        if NotificationsStore.prefs-phase == NotificationsPhase.failed: VerticalLayout {
             spacing: AedstTokens.spacing-sm;
-            AedstLabel { text: @tr("" => "Could not load preferences"); font-weight: 600; }
+            AedstLabel { text: @tr("notifications" => "Could not load preferences"); font-weight: 600; }
             AedstLabel { text: NotificationsTexts.error-text(NotificationsStore.prefs-error-kind); color: AedstTokens.destructive; }
-            AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { NotificationsStore.reload-preferences(); } }
+            AedstButton { text: @tr("notifications" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { NotificationsStore.reload-preferences(); } }
         }
-        if NotificationsStore.prefs-phase == "ready": VerticalLayout {
+        if NotificationsStore.prefs-phase == NotificationsPhase.ready: VerticalLayout {
             spacing: AedstTokens.spacing-sm;
             AedstLabel {
-                text: @tr("" => "Choose which notifications you receive.");
+                text: @tr("notifications" => "Choose which notifications you receive.");
                 color: AedstTokens.muted-foreground;
             }
             PreferenceRow {
                 key: "push-enabled";
-                label: @tr("" => "Show notifications");
+                label: @tr("notifications" => "Show notifications");
                 checked: NotificationsStore.push-enabled;
             }
             PreferenceRow {
                 key: "task-completed";
-                label: @tr("" => "Task completed");
+                label: @tr("notifications" => "Task completed");
                 checked: NotificationsStore.task-completed;
                 enabled: NotificationsStore.push-enabled;
             }
             PreferenceRow {
                 key: "task-due-soon";
-                label: @tr("" => "Task due soon");
+                label: @tr("notifications" => "Task due soon");
                 checked: NotificationsStore.task-due-soon;
                 enabled: NotificationsStore.push-enabled;
             }
             PreferenceRow {
                 key: "media-ready";
-                label: @tr("" => "Media ready");
+                label: @tr("notifications" => "Media ready");
                 checked: NotificationsStore.media-ready;
                 enabled: NotificationsStore.push-enabled;
             }
             if NotificationsStore.prefs-error-kind != "": AedstLabel {
-                text: @tr("" => "Could not save the setting. {}", NotificationsTexts.error-text(NotificationsStore.prefs-error-kind));
+                text: @tr("notifications" => "Could not save the setting. {}", NotificationsTexts.error-text(NotificationsStore.prefs-error-kind));
                 color: AedstTokens.destructive;
             }
         }
@@ -399,8 +403,8 @@ export component NotificationPreferencesView inherits Rectangle {
 export component NotificationsDemoWindow inherits Window {
     in-out property <bool> rtl <=> AedstLayout.rtl;
     in-out property <bool> dark <=> AedstTokens.dark;
-    in-out property <string> screen: "inbox"; // inbox | preferences
-    title: @tr("" => "Notifications");
+    in-out property <NotificationsDemoScreen> screen: NotificationsDemoScreen.inbox;
+    title: @tr("notifications" => "Notifications");
     background: AedstTokens.background;
     min-width: 640px;
     min-height: 560px;
@@ -408,7 +412,7 @@ export component NotificationsDemoWindow inherits Window {
     preferred-height: 560px;
 
     VerticalLayout {
-        if root.screen == "inbox": NotificationsListView {}
-        if root.screen == "preferences": NotificationPreferencesView {}
+        if root.screen == NotificationsDemoScreen.inbox: NotificationsListView {}
+        if root.screen == NotificationsDemoScreen.preferences: NotificationPreferencesView {}
     }
 }

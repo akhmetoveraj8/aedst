@@ -8,119 +8,158 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 
+msgctxt "tasks"
 msgid "Tasks"
 msgstr "Задачи"
 
+msgctxt "tasks"
 msgid "In progress"
 msgstr "В работе"
 
+msgctxt "tasks"
 msgid "No tasks yet"
 msgstr "Пока нет задач"
 
+msgctxt "tasks"
 msgid "Done"
 msgstr "Выполнено"
 
+msgctxt "tasks"
 msgid "Unknown"
 msgstr "Неизвестно"
 
+msgctxt "tasks"
 msgid "Low"
 msgstr "Низкий"
 
+msgctxt "tasks"
 msgid "Medium"
 msgstr "Средний"
 
+msgctxt "tasks"
 msgid "High"
 msgstr "Высокий"
 
+msgctxt "tasks"
 msgid "Urgent"
 msgstr "Срочный"
 
+msgctxt "tasks"
 msgid "Choose a priority."
 msgstr "Выберите приоритет."
 
+msgctxt "tasks"
 msgid "Pending sync"
 msgstr "Ожидает синхронизации"
 
+msgctxt "tasks"
 msgid "Enter a title."
 msgstr "Введите название."
 
+msgctxt "tasks"
 msgid "You are offline. Changes will sync later."
 msgstr "Вы не в сети. Изменения синхронизируются позже."
 
+msgctxt "tasks"
 msgid "The server is not available right now."
 msgstr "Сервер сейчас недоступен."
 
+msgctxt "tasks"
 msgid "The request took too long."
 msgstr "Запрос выполнялся слишком долго."
 
+msgctxt "tasks"
 msgid "Too many requests. Try again in a moment."
 msgstr "Слишком много запросов. Повторите чуть позже."
 
+msgctxt "tasks"
 msgid "Please sign in again."
 msgstr "Войдите снова."
 
+msgctxt "tasks"
 msgid "You do not have access to this."
 msgstr "У вас нет доступа к этому."
 
+msgctxt "tasks"
 msgid "This task no longer exists."
 msgstr "Эта задача больше не существует."
 
+msgctxt "tasks"
 msgid "The server did not accept this input."
 msgstr "Сервер не принял эти данные."
 
+msgctxt "tasks"
 msgid "This task was changed elsewhere."
 msgstr "Эта задача была изменена в другом месте."
 
+msgctxt "tasks"
 msgid "Please update the app to continue."
 msgstr "Обновите приложение, чтобы продолжить."
 
+msgctxt "tasks"
 msgid "Could not save on this device."
 msgstr "Не удалось сохранить на этом устройстве."
 
+msgctxt "tasks"
 msgid "Something went wrong."
 msgstr "Что-то пошло не так."
 
+msgctxt "tasks"
 msgid "The title is too long (200 characters at most)."
 msgstr "Название слишком длинное (не более 200 символов)."
 
+msgctxt "tasks"
 msgid "The description is too long."
 msgstr "Описание слишком длинное."
 
+msgctxt "tasks"
 msgid "To do"
 msgstr "К выполнению"
 
+msgctxt "tasks"
 msgid "{} in total"
 msgstr "Всего: {}"
 
+msgctxt "tasks"
 msgid "Waiting to sync: {}"
 msgstr "Ожидает синхронизации: {}"
 
+msgctxt "tasks"
 msgid "New task title"
 msgstr "Название новой задачи"
 
+msgctxt "tasks"
 msgid "What needs to be done?"
 msgstr "Что нужно сделать?"
 
+msgctxt "tasks"
 msgid "Adding..."
 msgstr "Добавление..."
 
+msgctxt "tasks"
 msgid "Add task"
 msgstr "Добавить задачу"
 
+msgctxt "tasks"
 msgid "Loading..."
 msgstr "Загрузка..."
 
+msgctxt "tasks"
 msgid "Could not load tasks"
 msgstr "Не удалось загрузить задачи"
 
+msgctxt "tasks"
 msgid "Try again"
 msgstr "Повторить"
 
+msgctxt "tasks"
 msgid "Add your first task above."
 msgstr "Добавьте первую задачу выше."
 
+msgctxt "tasks"
 msgid "Mark \"{}\" as done"
 msgstr "Отметить «{}» выполненной"
 
+msgctxt "tasks"
 msgid "Load more"
 msgstr "Загрузить ещё"

@@ -1,6 +1,7 @@
 // The Search screen. Stateless: it renders `SearchStore` and calls its callbacks; Rust
 // (`ui_glue.rs`) owns the state. Only `aedst-ui` components are used; no raw std-widgets control.
 import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstInput, AedstBadge, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
+import { ListView } from "std-widgets.slint"; // rows are created lazily only directly inside a ListView (slint-rules M1)
 
 export struct HitRowData {
     kind: string,    // task | media | unknown
@@ -9,11 +10,14 @@ export struct HitRowData {
     openable: bool,
 }
 
+// The screen's state, typed: a mistyped state is a compile error in Slint and in the glue.
+export enum SearchPhase { idle, loading, ready, failed }
+
 export global SearchStore {
     in property <[HitRowData]> rows;
     in property <[string]> suggestions;
     in-out property <string> query;     // the text box content
-    in property <string> phase: "idle"; // idle | loading | ready | failed
+    in property <SearchPhase> phase: SearchPhase.idle;
     in property <string> error-kind;    // set when phase == failed, or loading a later page failed
     in property <int> total: -1;
     in property <bool> has-more;
@@ -28,24 +32,24 @@ export global SearchStore {
 // Every message is the translated text of a KIND, never a raw server message.
 export global SearchTexts {
     public pure function kind-text(kind: string) -> string {
-        if (kind == "offline") { return @tr("" => "You are offline. Search needs a connection."); }
-        if (kind == "unavailable") { return @tr("" => "The server is not available right now."); }
-        if (kind == "timeout") { return @tr("" => "The request took too long."); }
-        if (kind == "rateLimited") { return @tr("" => "Too many requests. Try again in a moment."); }
-        if (kind == "unauthenticated") { return @tr("" => "Please sign in again."); }
-        if (kind == "forbidden") { return @tr("" => "You do not have access to this."); }
-        if (kind == "notFound") { return @tr("" => "Nothing was found at this address."); }
-        if (kind == "invalidInput") { return @tr("" => "The server did not accept this search."); }
-        if (kind == "conflict") { return @tr("" => "The data was changed elsewhere."); }
-        if (kind == "upgradeRequired") { return @tr("" => "Please update the app to continue."); }
-        if (kind == "storage") { return @tr("" => "Could not read data on this device."); }
-        return @tr("" => "Something went wrong.");
+        if (kind == "offline") { return @tr("search" => "You are offline. Search needs a connection."); }
+        if (kind == "unavailable") { return @tr("search" => "The server is not available right now."); }
+        if (kind == "timeout") { return @tr("search" => "The request took too long."); }
+        if (kind == "rateLimited") { return @tr("search" => "Too many requests. Try again in a moment."); }
+        if (kind == "unauthenticated") { return @tr("search" => "Please sign in again."); }
+        if (kind == "forbidden") { return @tr("search" => "You do not have access to this."); }
+        if (kind == "notFound") { return @tr("search" => "Nothing was found at this address."); }
+        if (kind == "invalidInput") { return @tr("search" => "The server did not accept this search."); }
+        if (kind == "conflict") { return @tr("search" => "The data was changed elsewhere."); }
+        if (kind == "upgradeRequired") { return @tr("search" => "Please update the app to continue."); }
+        if (kind == "storage") { return @tr("search" => "Could not read data on this device."); }
+        return @tr("search" => "Something went wrong.");
     }
 
     public pure function document-kind-text(kind: string) -> string {
-        if (kind == "task") { return @tr("" => "Task"); }
-        if (kind == "media") { return @tr("" => "File"); }
-        return @tr("" => "Other");
+        if (kind == "task") { return @tr("search" => "Task"); }
+        if (kind == "media") { return @tr("search" => "File"); }
+        return @tr("search" => "Other");
     }
 }
 
@@ -127,23 +131,23 @@ export component SearchListView inherits Rectangle {
             if !AedstLayout.rtl: HorizontalLayout {
                 spacing: AedstTokens.spacing-sm;
                 AedstLabel {
-                    text: @tr("" => "Search");
+                    text: @tr("search" => "Search");
                     font-size: AedstTokens.typography-title-large-font-size;
                     font-weight: AedstTokens.typography-title-large-font-weight;
                 }
-                if SearchStore.phase == "ready" && SearchStore.total > 0: AedstBadge {
-                    text: @tr("" => "About {} results", SearchStore.total);
+                if SearchStore.phase == SearchPhase.ready && SearchStore.total > 0: AedstBadge {
+                    text: @tr("search" => "About {} results", SearchStore.total);
                     variant: AedstBadgeVariant.secondary;
                 }
             }
             if AedstLayout.rtl: HorizontalLayout {
                 spacing: AedstTokens.spacing-sm;
-                if SearchStore.phase == "ready" && SearchStore.total > 0: AedstBadge {
-                    text: @tr("" => "About {} results", SearchStore.total);
+                if SearchStore.phase == SearchPhase.ready && SearchStore.total > 0: AedstBadge {
+                    text: @tr("search" => "About {} results", SearchStore.total);
                     variant: AedstBadgeVariant.secondary;
                 }
                 AedstLabel {
-                    text: @tr("" => "Search");
+                    text: @tr("search" => "Search");
                     font-size: AedstTokens.typography-title-large-font-size;
                     font-weight: AedstTokens.typography-title-large-font-weight;
                 }
@@ -152,18 +156,18 @@ export component SearchListView inherits Rectangle {
 
         AedstInput {
             text <=> SearchStore.query;
-            label: @tr("" => "Search");
-            placeholder: @tr("" => "Search tasks and files");
+            label: @tr("search" => "Search");
+            placeholder: @tr("search" => "Search tasks and files");
             vertical-stretch: 0;
             edited(text) => { SearchStore.query-edited(text); }
             accepted => { SearchStore.submit(); }
         }
 
         // Suggestions: while the first page loads, and when nothing was found.
-        if SearchStore.suggestions.length > 0 && (SearchStore.phase == "loading" || (SearchStore.phase == "ready" && SearchStore.rows.length == 0)): VerticalLayout {
+        if SearchStore.suggestions.length > 0 && (SearchStore.phase == SearchPhase.loading || (SearchStore.phase == SearchPhase.ready && SearchStore.rows.length == 0)): VerticalLayout {
             spacing: AedstTokens.spacing-xs;
             vertical-stretch: 0;
-            AedstLabel { text: @tr("" => "Suggestions"); color: AedstTokens.muted-foreground; }
+            AedstLabel { text: @tr("search" => "Suggestions"); color: AedstTokens.muted-foreground; }
             for suggestion[i] in SearchStore.suggestions: SuggestionRow {
                 suggestion: suggestion;
                 visible: i < 5;
@@ -171,49 +175,48 @@ export component SearchListView inherits Rectangle {
             }
         }
 
-        if SearchStore.phase == "idle": VerticalLayout {
+        if SearchStore.phase == SearchPhase.idle: VerticalLayout {
             alignment: start;
             vertical-stretch: 0;
-            AedstLabel { text: @tr("" => "Search your tasks and files"); font-weight: 600; }
-            AedstLabel { text: @tr("" => "Results appear as you type."); color: AedstTokens.muted-foreground; }
+            AedstLabel { text: @tr("search" => "Search your tasks and files"); font-weight: 600; }
+            AedstLabel { text: @tr("search" => "Results appear as you type."); color: AedstTokens.muted-foreground; }
         }
-        if SearchStore.phase == "loading" && SearchStore.rows.length == 0: AedstLabel {
-            text: @tr("" => "Searching...");
+        if SearchStore.phase == SearchPhase.loading && SearchStore.rows.length == 0: AedstLabel {
+            text: @tr("search" => "Searching...");
             color: AedstTokens.muted-foreground;
             vertical-stretch: 0;
         }
-        if SearchStore.phase == "failed": VerticalLayout {
+        if SearchStore.phase == SearchPhase.failed: VerticalLayout {
             spacing: AedstTokens.spacing-sm;
             alignment: start;
             vertical-stretch: 0;
-            AedstLabel { text: @tr("" => "Could not search"); font-weight: 600; }
+            AedstLabel { text: @tr("search" => "Could not search"); font-weight: 600; }
             AedstLabel { text: SearchTexts.kind-text(SearchStore.error-kind); color: AedstTokens.destructive; }
-            AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { SearchStore.submit(); } }
+            AedstButton { text: @tr("search" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { SearchStore.submit(); } }
         }
-        if SearchStore.phase == "ready" && SearchStore.rows.length == 0: VerticalLayout {
+        if SearchStore.phase == SearchPhase.ready && SearchStore.rows.length == 0: VerticalLayout {
             alignment: start;
             vertical-stretch: 0;
-            AedstLabel { text: @tr("" => "No results"); font-weight: 600; }
-            AedstLabel { text: @tr("" => "Try a different word or check the spelling."); color: AedstTokens.muted-foreground; }
+            AedstLabel { text: @tr("search" => "No results"); font-weight: 600; }
+            AedstLabel { text: @tr("search" => "Try a different word or check the spelling."); color: AedstTokens.muted-foreground; }
         }
-        if SearchStore.phase == "ready" && SearchStore.error-kind != "": AedstLabel {
+        if SearchStore.phase == SearchPhase.ready && SearchStore.error-kind != "": AedstLabel {
             text: SearchTexts.kind-text(SearchStore.error-kind);
             color: AedstTokens.destructive;
             vertical-stretch: 0;
         }
 
-        Flickable {
+        ListView {
             vertical-stretch: 1;
             min-height: 160px;
-            content-height: results.preferred-height;
-            results := VerticalLayout {
-                spacing: AedstTokens.spacing-xs;
-                for row[i] in SearchStore.rows: HitRow { data: row; index: i; }
+            for row[i] in SearchStore.rows: VerticalLayout {
+                padding-bottom: AedstTokens.spacing-xs;
+                HitRow { data: row; index: i; }
             }
         }
 
         if SearchStore.has-more: AedstButton {
-            text: SearchStore.loading-more ? @tr("" => "Loading...") : @tr("" => "Load more");
+            text: SearchStore.loading-more ? @tr("search" => "Loading...") : @tr("search" => "Load more");
             enabled: !SearchStore.loading-more;
             variant: AedstButtonVariant.secondary;
             vertical-stretch: 0;
@@ -227,7 +230,7 @@ export component SearchListView inherits Rectangle {
 export component SearchDemoWindow inherits Window {
     in-out property <bool> rtl <=> AedstLayout.rtl;
     in-out property <bool> dark <=> AedstTokens.dark;
-    title: @tr("" => "Search");
+    title: @tr("search" => "Search");
     background: AedstTokens.background;
     min-width: 640px;
     min-height: 560px;

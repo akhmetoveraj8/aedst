@@ -8,188 +8,250 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "media"
 msgid "Failed"
 msgstr "Xato"
 
+msgctxt "media"
 msgid "Delete"
 msgstr "O'chirish"
 
+msgctxt "media"
 msgid "Upload file"
 msgstr "Fayl yuklash"
 
+msgctxt "media"
 msgid "Uploading... {}%"
 msgstr "Yuklanmoqda... {}%"
 
+msgctxt "media"
 msgid "Dismiss"
 msgstr "Yopish"
 
+msgctxt "media"
 msgid "Media"
 msgstr "Media"
 
+msgctxt "media"
 msgid "Loading..."
 msgstr "Yuklanmoqda..."
 
+msgctxt "media"
 msgid "Could not load media"
 msgstr "Mediani yuklab bo'lmadi"
 
+msgctxt "media"
 msgid "Try again"
 msgstr "Qayta urinish"
 
+msgctxt "media"
 msgid "No files yet"
 msgstr "Hozircha fayl yo'q"
 
+msgctxt "media"
 msgid "Upload your first file above."
 msgstr "Birinchi faylingizni yuqorida yuklang."
 
+msgctxt "media"
 msgid "Load more"
 msgstr "Yana ko'rsatish"
 
+msgctxt "media"
 msgid "Back"
 msgstr "Orqaga"
 
+msgctxt "media"
 msgid "View"
 msgstr "Ko'rish"
 
+msgctxt "media"
 msgid "Delete this file?"
 msgstr "Bu fayl o'chirilsinmi?"
 
+msgctxt "media"
 msgid "Cancel"
 msgstr "Bekor qilish"
 
+msgctxt "media"
 msgid "You are offline. Try again when you are connected."
 msgstr "Siz oflayn rejimdasiz. Ulanganingizda qayta urinib ko'ring."
 
+msgctxt "media"
 msgid "The server is not available right now."
 msgstr "Server hozir mavjud emas."
 
+msgctxt "media"
 msgid "The request took too long."
 msgstr "So'rov juda uzoq davom etdi."
 
+msgctxt "media"
 msgid "Too many requests. Try again in a moment."
 msgstr "So'rovlar juda ko'p. Birozdan keyin qayta urinib ko'ring."
 
+msgctxt "media"
 msgid "Please sign in again."
 msgstr "Iltimos, qaytadan kiring."
 
+msgctxt "media"
 msgid "You do not have access to this."
 msgstr "Sizda bunga ruxsat yo'q."
 
+msgctxt "media"
 msgid "This file no longer exists."
 msgstr "Bu fayl endi mavjud emas."
 
+msgctxt "media"
 msgid "The server did not accept this file."
 msgstr "Server bu faylni qabul qilmadi."
 
+msgctxt "media"
 msgid "This file was changed elsewhere."
 msgstr "Bu fayl boshqa joyda o'zgartirilgan."
 
+msgctxt "media"
 msgid "Please update the app to continue."
 msgstr "Davom etish uchun ilovani yangilang."
 
+msgctxt "media"
 msgid "Could not read the file on this device."
 msgstr "Faylni bu qurilmada o'qib bo'lmadi."
 
+msgctxt "media"
 msgid "Something went wrong."
 msgstr "Nimadir xato ketdi."
 
+msgctxt "media"
 msgid "The file is empty."
 msgstr "Fayl bo'sh."
 
+msgctxt "media"
 msgid "The file is too large."
 msgstr "Fayl juda katta."
 
+msgctxt "media"
 msgid "This type of file is not supported."
 msgstr "Bu turdagi fayl qo'llab-quvvatlanmaydi."
 
+msgctxt "media"
 msgid "The file name is empty or too long."
 msgstr "Fayl nomi bo'sh yoki juda uzun."
 
+msgctxt "media"
 msgid "The task for this file is not valid."
 msgstr "Bu fayl uchun vazifa yaroqsiz."
 
+msgctxt "media"
 msgid "Image"
 msgstr "Rasm"
 
+msgctxt "media"
 msgid "Video"
 msgstr "Video"
 
+msgctxt "media"
 msgid "Audio"
 msgstr "Audio"
 
+msgctxt "media"
 msgid "Document"
 msgstr "Hujjat"
 
+msgctxt "media"
 msgid "Unknown"
 msgstr "Noma'lum"
 
+msgctxt "media"
 msgid "Uploading"
 msgstr "Yuklanmoqda"
 
+msgctxt "media"
 msgid "Processing"
 msgstr "Qayta ishlanmoqda"
 
+msgctxt "media"
 msgid "Ready"
 msgstr "Tayyor"
 
+msgctxt "media"
 msgid "The uploaded size did not match the file."
 msgstr "Yuklangan hajm fayl hajmiga mos kelmadi."
 
+msgctxt "media"
 msgid "The content did not match the file type."
 msgstr "Tarkib fayl turiga mos kelmadi."
 
+msgctxt "media"
 msgid "The file could not be processed."
 msgstr "Faylni qayta ishlab bo'lmadi."
 
+msgctxt "media"
 msgid "{} B"
 msgstr "{} B"
 
+msgctxt "media"
 msgid "{} KB"
 msgstr "{} KB"
 
+msgctxt "media"
 msgid "{} MB"
 msgstr "{} MB"
 
+msgctxt "media"
 msgid "Checking the file..."
 msgstr "Fayl tekshirilmoqda..."
 
+msgctxt "media"
 msgid "Requesting the upload..."
 msgstr "Yuklash so'ralmoqda..."
 
+msgctxt "media"
 msgid "Uploading..."
 msgstr "Yuklanmoqda..."
 
+msgctxt "media"
 msgid "Finishing..."
 msgstr "Yakunlanmoqda..."
 
+msgctxt "media"
 msgid "This file cannot be uploaded."
 msgstr "Bu faylni yuklab bo'lmaydi."
 
+msgctxt "media"
 msgid "Could not start the upload."
 msgstr "Yuklashni boshlab bo'lmadi."
 
+msgctxt "media"
 msgid "Could not send the file."
 msgstr "Faylni yuborib bo'lmadi."
 
+msgctxt "media"
 msgid "Could not finish the upload."
 msgstr "Yuklashni yakunlab bo'lmadi."
 
+msgctxt "media"
 msgid "The unfinished upload was removed from the server."
 msgstr "Tugallanmagan yuklash serverdan o'chirildi."
 
+msgctxt "media"
 msgid "An unfinished upload may remain on the server and will expire."
 msgstr "Tugallanmagan yuklash serverda qolishi mumkin va vaqt o'tib bekor bo'ladi."
 
+msgctxt "media"
 msgid "This file is not ready yet."
 msgstr "Bu fayl hali tayyor emas."
 
+msgctxt "media"
 msgid "Video playback is not available yet."
 msgstr "Videoni ijro etish hozircha mavjud emas."
 
+msgctxt "media"
 msgid "No preview is available for this kind of file."
 msgstr "Bu turdagi fayl uchun ko'rib chiqish mavjud emas."
 
+msgctxt "media"
 msgid "This image is too large to show."
 msgstr "Bu rasm ko'rsatish uchun juda katta."
 
+msgctxt "media"
 msgid "This image could not be shown."
 msgstr "Bu rasmni ko'rsatib bo'lmadi."

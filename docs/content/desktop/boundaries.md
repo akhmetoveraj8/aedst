@@ -13,7 +13,7 @@ Cross-platform shape: [module, then feature](/architecture/modules-and-features)
 
 | Crate | May depend on (our crates) |
 |---|---|
-| `aedst-feature-<module>` (production code) | `aedst-api`, `aedst-common`, `aedst-contract`, `aedst-outbox` |
+| `aedst-feature-<module>` (production code) | `aedst-api`, `aedst-common`, `aedst-contract`, `aedst-outbox`, `aedst-slint-model` (added 2026-11-28: `ui_glue.rs` updates list models in place, [rule M3](/desktop/slint-rules)) |
 | `aedst-feature-<module>` (tests, examples) | the same plus `aedst-persistence` |
 | `aedst-feature-<module>` (Slint) | its own `ui/` files and the `@aedst-ui` library (`build.rs` passes `../aedst-ui/ui/lib.slint`) |
 | Core crates (everything else except the binary) | other core crates; never a feature |
@@ -29,10 +29,10 @@ The feature allowlist was derived from the dependency graph of 2026-11-21, not d
 | D2 | A feature has a path dependency outside the allowlist, or `aedst-persistence` as a normal dependency |
 | D3 | The same at source level: `aedst_<crate>::` in a feature's code, or a `../aedst-<crate>` path in its `build.rs` |
 | D4 | A crate other than `aedst-desktop` names a feature in `Cargo.toml`, Rust code, a Slint import or `build.rs` |
-| D5 | A feature `.slint` imports `std-widgets.slint`, an unknown `@library`, or a file outside its own `ui/` |
+| D5 | A feature `.slint` imports anything from `std-widgets.slint` other than exactly `import { ListView }` (allowed since 2026-11-28: lazy rows need the `for` directly inside a `ListView`, so the kit cannot wrap it, [rule M1](/desktop/slint-rules)), an unknown `@library`, or a file outside its own `ui/` |
 | D6 | The layout rule of the next section |
 
-Comments are ignored (a doc comment may name `aedst_navigation::Router`). Crates listed under `exclude` in the workspace `Cargo.toml` are not checked (`aedst-spike`). Layer rules inside a crate (`domain` is pure, `data` and `presentation` do not know each other) stay in each crate's `tests/layers.rs`, which needs cargo.
+Comments are ignored (a doc comment may name `aedst_navigation::Router`). Crates listed under `exclude` in the workspace `Cargo.toml` are not checked (none today; `aedst-spike` was deleted 2026-11-28). Layer rules inside a crate (`domain` is pure, `data` and `presentation` do not know each other) stay in each crate's `tests/layers.rs`, which needs cargo.
 
 ## The feature level inside a crate (rule D6)
 
@@ -40,7 +40,7 @@ A module is one crate. A crate with **one capability stays flat**:
 
 ```text
 crates/aedst-feature-search/
-  src/{domain,data,presentation}/   lib.rs   ui_glue.rs
+  src/{domain,data,presentation}/   lib.rs   ui_glue.rs   ui_glue_body.rs
   ui/search.slint
 ```
 

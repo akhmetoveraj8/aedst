@@ -10,7 +10,7 @@ use std::{
     time::Duration,
 };
 
-use aedst_common::ErrorKind;
+use aedst_common::{ErrorKind, PageCursor};
 use tokio::sync::watch;
 
 use super::search_state::{HitRow, Phase, SearchView};
@@ -26,12 +26,11 @@ struct Inner {
     raw: String,
     /// The normalised query of the last search; `load_more` continues it.
     active: String,
-    next_token: Option<String>,
     /// Bumped by every keystroke and submit; a pending debounce with an older value is dropped.
     typing_epoch: u64,
-    /// Bumped by every first-page search and every clear.
-    search_epoch: u64,
-    /// Bumped like `search_epoch`, for the suggestions.
+    /// The hits' paging; its epoch moves with every first-page search and every clear.
+    cursor: PageCursor,
+    /// Bumped like the cursor's epoch, for the suggestions.
     suggest_epoch: u64,
 }
 
@@ -40,8 +39,7 @@ impl Inner {
     fn clear(&mut self) {
         self.view = SearchView::default();
         self.active.clear();
-        self.next_token = None;
-        self.search_epoch += 1;
+        self.cursor.reset();
         self.suggest_epoch += 1;
     }
 }
@@ -75,6 +73,8 @@ impl SearchController {
     fn update<T>(&self, work: impl FnOnce(&mut Inner) -> T) -> T {
         let mut inner = self.inner.lock().unwrap_or_else(PoisonError::into_inner);
         let result = work(&mut inner);
+        inner.view.loading_more = inner.cursor.loading_more();
+        inner.view.has_more = inner.cursor.has_more();
         let view = inner.view.clone();
         drop(inner);
         self.published.send_replace(view);
@@ -127,13 +127,12 @@ impl SearchController {
             if query.is_empty() {
                 return None;
             }
-            i.search_epoch += 1;
+            let search_epoch = i.cursor.begin_first();
             i.suggest_epoch += 1;
             i.active.clone_from(&query);
             i.view.phase = Phase::Loading;
             i.view.action_error = None;
-            i.view.loading_more = false;
-            Some((i.search_epoch, i.suggest_epoch, query))
+            Some((search_epoch, i.suggest_epoch, query))
         });
         let Some((search_epoch, suggest_epoch, query)) = started else {
             return;
@@ -148,23 +147,21 @@ impl SearchController {
     async fn run_search(&self, epoch: u64, query: &str) {
         let result = self.service.search(query, None).await;
         self.update(|i| {
-            if i.search_epoch != epoch {
+            if !i.cursor.is_current(epoch) {
                 return; // a newer search started, or the query was cleared
             }
             match result {
                 Ok(Some(page)) => {
                     i.view.hits = page.hits.iter().map(HitRow::from_hit).collect();
                     i.view.total_estimate = page.total_estimate;
-                    i.view.has_more = page.next_page_token.is_some();
-                    i.next_token = page.next_page_token;
+                    i.cursor.finish_first(epoch, page.next_page_token);
                     i.view.phase = Phase::Ready;
                 }
                 Ok(None) => i.clear(),
                 Err(ErrorKind::Cancelled) => i.view.phase = Phase::Idle,
                 Err(kind) => {
                     i.view.hits.clear();
-                    i.view.has_more = false;
-                    i.next_token = None;
+                    i.cursor.finish_first(epoch, None);
                     i.view.phase = Phase::Failed(kind);
                 }
             }
@@ -187,31 +184,30 @@ impl SearchController {
     /// Loads the next page of the current search, echoing the page token back.
     pub async fn load_more(&self) {
         let started = self.update(|i| {
-            let token = i.next_token.clone()?;
-            if i.view.loading_more || i.view.phase != Phase::Ready {
+            if i.view.phase != Phase::Ready {
                 return None;
             }
-            i.view.loading_more = true;
+            let (epoch, token) = i.cursor.begin_more()?;
             i.view.action_error = None;
-            Some((i.search_epoch, i.active.clone(), token))
+            Some((epoch, i.active.clone(), token))
         });
         let Some((epoch, query, token)) = started else {
             return;
         };
         let result = self.service.search(&query, Some(&token)).await;
-        self.update(|i| {
-            if i.search_epoch != epoch {
-                return;
-            }
-            i.view.loading_more = false;
-            match result {
-                Ok(Some(page)) => {
+        self.update(|i| match result {
+            Ok(Some(page)) => {
+                if i.cursor.finish_more(epoch, page.next_page_token) {
                     i.view.hits.extend(page.hits.iter().map(HitRow::from_hit));
-                    i.view.has_more = page.next_page_token.is_some();
-                    i.next_token = page.next_page_token;
                 }
-                Ok(None) | Err(ErrorKind::Cancelled) => {}
-                Err(kind) => i.view.action_error = Some(kind),
+            }
+            Ok(None) | Err(ErrorKind::Cancelled) => {
+                i.cursor.fail_more(epoch);
+            }
+            Err(kind) => {
+                if i.cursor.fail_more(epoch) {
+                    i.view.action_error = Some(kind);
+                }
             }
         });
     }

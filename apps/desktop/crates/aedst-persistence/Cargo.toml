@@ -1,18 +1,21 @@
 [package]
 name = "aedst-persistence"
 version = "0.0.0"
-description = "Local SQLite database on one dedicated thread, versioned migrations frozen by hash, a small key-value table"
+description = "Local SQLite database on one dedicated thread, versioned migrations frozen by hash, a small key-value table, AES-256-GCM sealing of stored values"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 publish.workspace = true
 
 [dependencies]
+aes-gcm = { workspace = true }
+rand = { workspace = true }
 rusqlite = { workspace = true }
 sha2 = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
+zeroize = { workspace = true }
 
 [lints]
 workspace = true

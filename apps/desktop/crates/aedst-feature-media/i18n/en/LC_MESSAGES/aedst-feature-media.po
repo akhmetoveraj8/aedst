@@ -8,188 +8,250 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "media"
 msgid "Failed"
 msgstr "Failed"
 
+msgctxt "media"
 msgid "Delete"
 msgstr "Delete"
 
+msgctxt "media"
 msgid "Upload file"
 msgstr "Upload file"
 
+msgctxt "media"
 msgid "Uploading... {}%"
 msgstr "Uploading... {}%"
 
+msgctxt "media"
 msgid "Dismiss"
 msgstr "Dismiss"
 
+msgctxt "media"
 msgid "Media"
 msgstr "Media"
 
+msgctxt "media"
 msgid "Loading..."
 msgstr "Loading..."
 
+msgctxt "media"
 msgid "Could not load media"
 msgstr "Could not load media"
 
+msgctxt "media"
 msgid "Try again"
 msgstr "Try again"
 
+msgctxt "media"
 msgid "No files yet"
 msgstr "No files yet"
 
+msgctxt "media"
 msgid "Upload your first file above."
 msgstr "Upload your first file above."
 
+msgctxt "media"
 msgid "Load more"
 msgstr "Load more"
 
+msgctxt "media"
 msgid "Back"
 msgstr "Back"
 
+msgctxt "media"
 msgid "View"
 msgstr "View"
 
+msgctxt "media"
 msgid "Delete this file?"
 msgstr "Delete this file?"
 
+msgctxt "media"
 msgid "Cancel"
 msgstr "Cancel"
 
+msgctxt "media"
 msgid "You are offline. Try again when you are connected."
 msgstr "You are offline. Try again when you are connected."
 
+msgctxt "media"
 msgid "The server is not available right now."
 msgstr "The server is not available right now."
 
+msgctxt "media"
 msgid "The request took too long."
 msgstr "The request took too long."
 
+msgctxt "media"
 msgid "Too many requests. Try again in a moment."
 msgstr "Too many requests. Try again in a moment."
 
+msgctxt "media"
 msgid "Please sign in again."
 msgstr "Please sign in again."
 
+msgctxt "media"
 msgid "You do not have access to this."
 msgstr "You do not have access to this."
 
+msgctxt "media"
 msgid "This file no longer exists."
 msgstr "This file no longer exists."
 
+msgctxt "media"
 msgid "The server did not accept this file."
 msgstr "The server did not accept this file."
 
+msgctxt "media"
 msgid "This file was changed elsewhere."
 msgstr "This file was changed elsewhere."
 
+msgctxt "media"
 msgid "Please update the app to continue."
 msgstr "Please update the app to continue."
 
+msgctxt "media"
 msgid "Could not read the file on this device."
 msgstr "Could not read the file on this device."
 
+msgctxt "media"
 msgid "Something went wrong."
 msgstr "Something went wrong."
 
+msgctxt "media"
 msgid "The file is empty."
 msgstr "The file is empty."
 
+msgctxt "media"
 msgid "The file is too large."
 msgstr "The file is too large."
 
+msgctxt "media"
 msgid "This type of file is not supported."
 msgstr "This type of file is not supported."
 
+msgctxt "media"
 msgid "The file name is empty or too long."
 msgstr "The file name is empty or too long."
 
+msgctxt "media"
 msgid "The task for this file is not valid."
 msgstr "The task for this file is not valid."
 
+msgctxt "media"
 msgid "Image"
 msgstr "Image"
 
+msgctxt "media"
 msgid "Video"
 msgstr "Video"
 
+msgctxt "media"
 msgid "Audio"
 msgstr "Audio"
 
+msgctxt "media"
 msgid "Document"
 msgstr "Document"
 
+msgctxt "media"
 msgid "Unknown"
 msgstr "Unknown"
 
+msgctxt "media"
 msgid "Uploading"
 msgstr "Uploading"
 
+msgctxt "media"
 msgid "Processing"
 msgstr "Processing"
 
+msgctxt "media"
 msgid "Ready"
 msgstr "Ready"
 
+msgctxt "media"
 msgid "The uploaded size did not match the file."
 msgstr "The uploaded size did not match the file."
 
+msgctxt "media"
 msgid "The content did not match the file type."
 msgstr "The content did not match the file type."
 
+msgctxt "media"
 msgid "The file could not be processed."
 msgstr "The file could not be processed."
 
+msgctxt "media"
 msgid "{} B"
 msgstr "{} B"
 
+msgctxt "media"
 msgid "{} KB"
 msgstr "{} KB"
 
+msgctxt "media"
 msgid "{} MB"
 msgstr "{} MB"
 
+msgctxt "media"
 msgid "Checking the file..."
 msgstr "Checking the file..."
 
+msgctxt "media"
 msgid "Requesting the upload..."
 msgstr "Requesting the upload..."
 
+msgctxt "media"
 msgid "Uploading..."
 msgstr "Uploading..."
 
+msgctxt "media"
 msgid "Finishing..."
 msgstr "Finishing..."
 
+msgctxt "media"
 msgid "This file cannot be uploaded."
 msgstr "This file cannot be uploaded."
 
+msgctxt "media"
 msgid "Could not start the upload."
 msgstr "Could not start the upload."
 
+msgctxt "media"
 msgid "Could not send the file."
 msgstr "Could not send the file."
 
+msgctxt "media"
 msgid "Could not finish the upload."
 msgstr "Could not finish the upload."
 
+msgctxt "media"
 msgid "The unfinished upload was removed from the server."
 msgstr "The unfinished upload was removed from the server."
 
+msgctxt "media"
 msgid "An unfinished upload may remain on the server and will expire."
 msgstr "An unfinished upload may remain on the server and will expire."
 
+msgctxt "media"
 msgid "This file is not ready yet."
 msgstr "This file is not ready yet."
 
+msgctxt "media"
 msgid "Video playback is not available yet."
 msgstr "Video playback is not available yet."
 
+msgctxt "media"
 msgid "No preview is available for this kind of file."
 msgstr "No preview is available for this kind of file."
 
+msgctxt "media"
 msgid "This image is too large to show."
 msgstr "This image is too large to show."
 
+msgctxt "media"
 msgid "This image could not be shown."
 msgstr "This image could not be shown."

@@ -25,6 +25,7 @@ description: "apps/desktop: crates, layers, the Slint shell, sign-in, persistenc
 | observability | `aedst-telemetry` | One PII scrubber, consent, redacted logs, Sentry, analytics port |
 | updates | `aedst-update`, `aedst-release` | Signed manifest, Velopack installer; release signing tool |
 | shared | `aedst-common` | The thirteen error kinds |
+| shared (UI glue) | `aedst-slint-model` | `sync_rows` / `apply_rows`: keep one `VecModel` per list property and change it row by row ([rule M3](/desktop/slint-rules)) |
 | composition root | `aedst-desktop` | Binary: services, window, flows |
 
 ## The boundary rule
@@ -33,7 +34,7 @@ A feature depends on core crates only, never on another feature. `tests/layers.r
 
 ## UI
 
-Declarative `.slint` views are stateless; logic lives in `presentation` and reaches Slint through properties and callbacks in `ui_glue.rs` (the only Slint-aware Rust of a feature). Slint-generated code sits in a `mod generated { slint::include_modules!(); }` with lints relaxed on that module only (`unsafe_code` is `deny`, because `forbid` breaks generated code). The shell compiles the window and the five feature views in ONE Slint compilation; each feature's `ui_glue.rs` is compiled into the shell by `build.rs` with its `generated` module replaced, so no glue is copied.
+Declarative `.slint` views are stateless; logic lives in `presentation` and reaches Slint through properties and callbacks in `ui_glue_body.rs` (the only Slint-aware Rust of a feature; `ui_glue.rs` includes it against the feature's own generated types, the shell against its own). Screen states are Slint enums, not strings. Per-user controllers and background work live in the shell's session scope (`session.rs`), created empty at start and after sign-out and started at sign-in; app-wide services (database, sealed storage, session, capabilities, connectivity, updates) live in `services.rs`, and the one feature table is `features.rs`. Slint-generated code sits in a `mod generated { slint::include_modules!(); }` with lints relaxed on that module only (`unsafe_code` is `deny`, because `forbid` breaks generated code). The shell compiles the window and the five feature views in ONE Slint compilation; each feature's `ui_glue.rs` is compiled into the shell by `build.rs` with its `generated` module replaced, so no glue is copied.
 
 Design tokens come from `packages/design-tokens` (Style Dictionary output `aedst/slint-globals`) into the generated `aedst_tokens.slint`. Components: the 60 entries of the kit manifest (`ui-kit.yaml`: 59 shadcn names plus `trace` and `code-block`), one `aedst_<name>.slint` file each exporting `Aedst<Name>` with its variant and size enums, plus the extension `AedstActionRow`. The list, the rules (tokens only, RTL in one place, accessibility, no `std-widgets` in features, every string a property because the kit has no catalogue) and the unverified spots are in the [kit README](../../../apps/desktop/crates/aedst-ui/README.md). Six components (`AedstLabel`, `AedstButton`, `AedstInput` (was `AedstTextField`), `AedstCheckbox`, `AedstBadge`, `AedstActionRow`) were built and tested on Windows before 2026-11-21; `AedstButton` and `AedstBadge` were then changed to variant and size enums, and the other 55 components were added the same day **without a Rust toolchain: written, not compiled, tests never run**.
 

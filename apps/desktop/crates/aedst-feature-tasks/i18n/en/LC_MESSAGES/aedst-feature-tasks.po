@@ -8,119 +8,158 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "tasks"
 msgid "Tasks"
 msgstr "Tasks"
 
+msgctxt "tasks"
 msgid "In progress"
 msgstr "In progress"
 
+msgctxt "tasks"
 msgid "No tasks yet"
 msgstr "No tasks yet"
 
+msgctxt "tasks"
 msgid "Done"
 msgstr "Done"
 
+msgctxt "tasks"
 msgid "Unknown"
 msgstr "Unknown"
 
+msgctxt "tasks"
 msgid "Low"
 msgstr "Low"
 
+msgctxt "tasks"
 msgid "Medium"
 msgstr "Medium"
 
+msgctxt "tasks"
 msgid "High"
 msgstr "High"
 
+msgctxt "tasks"
 msgid "Urgent"
 msgstr "Urgent"
 
+msgctxt "tasks"
 msgid "Choose a priority."
 msgstr "Choose a priority."
 
+msgctxt "tasks"
 msgid "Pending sync"
 msgstr "Pending sync"
 
+msgctxt "tasks"
 msgid "Enter a title."
 msgstr "Enter a title."
 
+msgctxt "tasks"
 msgid "You are offline. Changes will sync later."
 msgstr "You are offline. Changes will sync later."
 
+msgctxt "tasks"
 msgid "The server is not available right now."
 msgstr "The server is not available right now."
 
+msgctxt "tasks"
 msgid "The request took too long."
 msgstr "The request took too long."
 
+msgctxt "tasks"
 msgid "Too many requests. Try again in a moment."
 msgstr "Too many requests. Try again in a moment."
 
+msgctxt "tasks"
 msgid "Please sign in again."
 msgstr "Please sign in again."
 
+msgctxt "tasks"
 msgid "You do not have access to this."
 msgstr "You do not have access to this."
 
+msgctxt "tasks"
 msgid "This task no longer exists."
 msgstr "This task no longer exists."
 
+msgctxt "tasks"
 msgid "The server did not accept this input."
 msgstr "The server did not accept this input."
 
+msgctxt "tasks"
 msgid "This task was changed elsewhere."
 msgstr "This task was changed elsewhere."
 
+msgctxt "tasks"
 msgid "Please update the app to continue."
 msgstr "Please update the app to continue."
 
+msgctxt "tasks"
 msgid "Could not save on this device."
 msgstr "Could not save on this device."
 
+msgctxt "tasks"
 msgid "Something went wrong."
 msgstr "Something went wrong."
 
+msgctxt "tasks"
 msgid "The title is too long (200 characters at most)."
 msgstr "The title is too long (200 characters at most)."
 
+msgctxt "tasks"
 msgid "The description is too long."
 msgstr "The description is too long."
 
+msgctxt "tasks"
 msgid "To do"
 msgstr "To do"
 
+msgctxt "tasks"
 msgid "{} in total"
 msgstr "{} in total"
 
+msgctxt "tasks"
 msgid "Waiting to sync: {}"
 msgstr "Waiting to sync: {}"
 
+msgctxt "tasks"
 msgid "New task title"
 msgstr "New task title"
 
+msgctxt "tasks"
 msgid "What needs to be done?"
 msgstr "What needs to be done?"
 
+msgctxt "tasks"
 msgid "Adding..."
 msgstr "Adding..."
 
+msgctxt "tasks"
 msgid "Add task"
 msgstr "Add task"
 
+msgctxt "tasks"
 msgid "Loading..."
 msgstr "Loading..."
 
+msgctxt "tasks"
 msgid "Could not load tasks"
 msgstr "Could not load tasks"
 
+msgctxt "tasks"
 msgid "Try again"
 msgstr "Try again"
 
+msgctxt "tasks"
 msgid "Add your first task above."
 msgstr "Add your first task above."
 
+msgctxt "tasks"
 msgid "Mark \"{}\" as done"
 msgstr "Mark \"{}\" as done"
 
+msgctxt "tasks"
 msgid "Load more"
 msgstr "Load more"

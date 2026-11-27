@@ -14,7 +14,7 @@ fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
-/// Every `@tr("" => "text"` source string of the screen, as written in the catalogs.
+/// Every `@tr("media" => "text"` source string (context = the module) of the screen, as written in the catalogs.
 fn source_strings() -> BTreeSet<String> {
     // The screen is split over several .slint files; every one of them counts.
     let mut source = String::new();
@@ -24,7 +24,7 @@ fn source_strings() -> BTreeSet<String> {
             source.push_str(&std::fs::read_to_string(path).unwrap());
         }
     }
-    let marker = "@tr(\"\" => \"";
+    let marker = "@tr(\"media\" => \"";
     let mut found = BTreeSet::new();
     let mut rest = source.as_str();
     while let Some(start) = rest.find(marker) {

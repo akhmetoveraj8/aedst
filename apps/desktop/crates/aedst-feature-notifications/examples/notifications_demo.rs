@@ -20,7 +20,10 @@ use aedst_feature_notifications::{
         NotificationsRepository, NotificationsService, Preferences,
     },
     presentation::{InboxController, PreferencesController, UnreadCounter},
-    ui_glue::{Controllers, NotificationsDemoWindow, bind, language_is_rtl, select_language},
+    ui_glue::{
+        Controllers, NotificationsDemoScreen, NotificationsDemoWindow, bind, language_is_rtl,
+        select_language,
+    },
 };
 use futures::future::BoxFuture;
 use slint::ComponentHandle;
@@ -198,7 +201,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ui.set_rtl(language_is_rtl(lang));
     ui.set_dark(flag("--dark"));
     if flag("--prefs") {
-        ui.set_screen("preferences".into());
+        ui.set_screen(NotificationsDemoScreen::Preferences);
     }
     bind(&ui, &controllers, runtime.handle());
     runtime.spawn({

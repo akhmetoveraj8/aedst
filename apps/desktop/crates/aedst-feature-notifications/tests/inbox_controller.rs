@@ -220,3 +220,35 @@ async fn mark_all_read_updates_rows_and_badge_and_rolls_back_on_failure() {
     assert!(view.rows.iter().all(|r| r.read));
     assert_eq!((view.action_error, rig.counter.current()), (None, 0));
 }
+
+#[tokio::test]
+async fn a_reload_during_load_more_does_not_block_the_next_page() {
+    let rig = rig();
+    rig.repo.pages.lock().unwrap().extend([
+        Ok(page(&[("a", false)], Some("t2"))),
+        Ok(page(&[("stale", false)], None)),
+        Ok(page(&[("a", false)], Some("t3"))),
+        Ok(page(&[("c", false)], None)),
+    ]);
+    let inbox = InboxController::new(rig.service.clone(), rig.counter.clone());
+    inbox.load_first().await;
+
+    let (release, gate) = oneshot::channel();
+    *rig.repo.gate.lock().unwrap() = Some(gate);
+    let stale = tokio::spawn({
+        let inbox = inbox.clone();
+        async move { inbox.load_more().await }
+    });
+    tokio::task::yield_now().await;
+    inbox.load_first().await; // the reload makes the page load above stale
+    release.send(()).unwrap();
+    stale.await.unwrap();
+
+    inbox.load_more().await;
+    let view = inbox.subscribe().borrow().clone();
+    let ids: Vec<&str> = view.rows.iter().map(|r| r.id.as_str()).collect();
+    assert_eq!(ids, ["a", "c"]);
+    assert!(!view.loading_more);
+    let queries = rig.repo.queries.lock().unwrap().clone();
+    assert_eq!(queries[3].page_token.as_deref(), Some("t3"));
+}

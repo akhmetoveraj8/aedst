@@ -116,7 +116,11 @@ export function appleFile(mod, byLocale, enOrder, local = {}) {
 
 export const applePath = (mod) => `apple/${mod}/Localizable.xcstrings`;
 
-/** Gettext catalogue for one locale. The English text is the msgid (Slint `@tr`); there is no msgctxt. `local`: hand-written entries kept verbatim. */
+/**
+ * Gettext catalogue for one locale. The English text is the msgid and the module name is the msgctxt (Slint
+ * `@tr("<module>" => "English")`): the Desktop shell compiles every feature view into ONE catalog, so the context
+ * keeps two modules that translate the same English text differently apart. `local`: hand-written entries kept verbatim.
+ */
 export function poFile(mod, locale, byLocale, enOrder, local = {}) {
   const forms = PO_FORMS[locale];
   const fmt = () => '{}';
@@ -137,10 +141,11 @@ export function poFile(mod, locale, byLocale, enOrder, local = {}) {
     const segs = byLocale[locale][key];
     const p = pluralOf(segs);
     const ep = pluralOf(enSegs);
-    // Slint looks entries up by `@tr("" => "English")`: the msgid is the English text and there is no msgctxt.
+    // Slint looks entries up by `@tr("<module>" => "English")`: msgctxt is the module, msgid the English text.
     const id = render(enSegs, enOrder[key], (t) => t, fmt);
     if (seen.has(id)) throw new Error(`${mod}: two keys have the same English text "${id}" on Desktop (key ${key})`);
     seen.add(id);
+    out.push(`msgctxt "${po(mod)}"`);
     if (!p) {
       out.push(`msgid "${po(render(enSegs, enOrder[key], (s) => s, fmt))}"`, `msgstr "${po(render(segs, enOrder[key], (s) => s, fmt))}"`);
     } else {

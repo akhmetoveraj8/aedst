@@ -8,7 +8,9 @@ use std::sync::Arc;
 use aedst_common::ErrorKind;
 use aedst_feature_media::{
     domain::{MediaKind, MediaStatus, VariantKind},
-    presentation::{DecodeError, MAX_PIXELS, ViewerController, ViewerPhase, decode},
+    presentation::{
+        DecodeError, MAX_DISPLAY_EDGE, MAX_PIXELS, ViewerController, ViewerPhase, decode,
+    },
 };
 use support::{FakeFetcher, image, media, png, with_variant};
 use tokio::sync::oneshot;
@@ -222,4 +224,18 @@ fn decoding_respects_the_pixel_cap_and_rejects_garbage() {
     bmp.extend_from_slice(&24_u16.to_le_bytes());
     bmp.extend_from_slice(&[0; 24]);
     assert_eq!(decode(&bmp).unwrap_err(), DecodeError::TooLarge);
+}
+
+#[test]
+fn a_large_picture_is_downscaled_to_the_display_cap_keeping_its_aspect() {
+    let wide = decode(&png(MAX_DISPLAY_EDGE * 2, 10)).unwrap();
+    assert_eq!((wide.width, wide.height), (MAX_DISPLAY_EDGE, 5));
+    assert_eq!(wide.rgba.len(), (wide.width * wide.height * 4) as usize);
+
+    let small = decode(&png(7, 3)).unwrap();
+    assert_eq!(
+        (small.width, small.height),
+        (7, 3),
+        "small pictures keep their size"
+    );
 }

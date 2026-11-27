@@ -8,119 +8,158 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "tasks"
 msgid "Tasks"
 msgstr "Вазифаҳо"
 
+msgctxt "tasks"
 msgid "In progress"
 msgstr "Дар ҷараён"
 
+msgctxt "tasks"
 msgid "No tasks yet"
 msgstr "Ҳанӯз вазифае нест"
 
+msgctxt "tasks"
 msgid "Done"
 msgstr "Иҷрошуда"
 
+msgctxt "tasks"
 msgid "Unknown"
 msgstr "Номаълум"
 
+msgctxt "tasks"
 msgid "Low"
 msgstr "Паст"
 
+msgctxt "tasks"
 msgid "Medium"
 msgstr "Миёна"
 
+msgctxt "tasks"
 msgid "High"
 msgstr "Баланд"
 
+msgctxt "tasks"
 msgid "Urgent"
 msgstr "Таъҷилӣ"
 
+msgctxt "tasks"
 msgid "Choose a priority."
 msgstr "Афзалиятро интихоб кунед."
 
+msgctxt "tasks"
 msgid "Pending sync"
 msgstr "Мунтазири ҳамоҳангсозӣ"
 
+msgctxt "tasks"
 msgid "Enter a title."
 msgstr "Номро ворид кунед."
 
+msgctxt "tasks"
 msgid "You are offline. Changes will sync later."
 msgstr "Шумо оффлайн ҳастед. Тағйирот баъдтар ҳамоҳанг мешавад."
 
+msgctxt "tasks"
 msgid "The server is not available right now."
 msgstr "Сервер ҳоло дастнорас аст."
 
+msgctxt "tasks"
 msgid "The request took too long."
 msgstr "Дархост хеле тӯл кашид."
 
+msgctxt "tasks"
 msgid "Too many requests. Try again in a moment."
 msgstr "Дархостҳо аз ҳад зиёданд. Каме баъдтар такрор кунед."
 
+msgctxt "tasks"
 msgid "Please sign in again."
 msgstr "Лутфан, дубора ворид шавед."
 
+msgctxt "tasks"
 msgid "You do not have access to this."
 msgstr "Шумо ба ин дастрасӣ надоред."
 
+msgctxt "tasks"
 msgid "This task no longer exists."
 msgstr "Ин вазифа дигар вуҷуд надорад."
 
+msgctxt "tasks"
 msgid "The server did not accept this input."
 msgstr "Сервер ин маълумотро қабул накард."
 
+msgctxt "tasks"
 msgid "This task was changed elsewhere."
 msgstr "Ин вазифа дар ҷои дигар тағйир дода шуд."
 
+msgctxt "tasks"
 msgid "Please update the app to continue."
 msgstr "Барои идома додан барномаро навсозӣ кунед."
 
+msgctxt "tasks"
 msgid "Could not save on this device."
 msgstr "Дар ин дастгоҳ захира карда нашуд."
 
+msgctxt "tasks"
 msgid "Something went wrong."
 msgstr "Чизе нодуруст рафт."
 
+msgctxt "tasks"
 msgid "The title is too long (200 characters at most)."
 msgstr "Сарлавҳа хеле дароз аст (на зиёда аз 200 аломат)."
 
+msgctxt "tasks"
 msgid "The description is too long."
 msgstr "Тавсиф хеле дароз аст."
 
+msgctxt "tasks"
 msgid "To do"
 msgstr "Барои иҷро"
 
+msgctxt "tasks"
 msgid "{} in total"
 msgstr "Ҳамагӣ: {}"
 
+msgctxt "tasks"
 msgid "Waiting to sync: {}"
 msgstr "Мунтазири ҳамоҳангсозӣ: {}"
 
+msgctxt "tasks"
 msgid "New task title"
 msgstr "Сарлавҳаи вазифаи нав"
 
+msgctxt "tasks"
 msgid "What needs to be done?"
 msgstr "Чӣ бояд иҷро шавад?"
 
+msgctxt "tasks"
 msgid "Adding..."
 msgstr "Илова шуда истодааст..."
 
+msgctxt "tasks"
 msgid "Add task"
 msgstr "Илова кардани вазифа"
 
+msgctxt "tasks"
 msgid "Loading..."
 msgstr "Бор шуда истодааст..."
 
+msgctxt "tasks"
 msgid "Could not load tasks"
 msgstr "Вазифаҳо бор нашуданд"
 
+msgctxt "tasks"
 msgid "Try again"
 msgstr "Дубора кӯшиш кунед"
 
+msgctxt "tasks"
 msgid "Add your first task above."
 msgstr "Вазифаи аввалинро дар боло илова кунед."
 
+msgctxt "tasks"
 msgid "Mark \"{}\" as done"
 msgstr "Вазифаи «{}»-ро иҷрошуда қайд кунед"
 
+msgctxt "tasks"
 msgid "Load more"
 msgstr "Бештар бор кардан"

@@ -1,4 +1,5 @@
-// Reads Desktop gettext catalogues (.po, msgid = English source text, no msgctxt, no plurals) for import-desktop.mjs.
+// Reads Desktop gettext catalogues (.po, msgid = English source text, no plurals) for import-desktop.mjs. The
+// msgctxt line (the module, one per crate catalogue) is skipped: a catalogue holds one module.
 import { readFileSync } from 'node:fs';
 
 const unq = (s) => s.replace(/\\(["\\n])/g, (_, c) => (c === 'n' ? '\n' : c));
@@ -14,7 +15,7 @@ export function parsePo(file) {
     else if (mstr && id !== null) {
       if (id !== '') out.set(id, unq(mstr[1]));
       id = null;
-    } else if (/^(msgid_plural|msgctxt|msgstr\[)/.test(line)) throw new Error(`${file}: unsupported entry (plural or context): ${line}`);
+    } else if (/^(msgid_plural|msgstr\[)/.test(line)) throw new Error(`${file}: unsupported entry (plural): ${line}`);
   }
   return out;
 }

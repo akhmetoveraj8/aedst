@@ -20,4 +20,7 @@ pub enum PersistenceError {
     /// The file could not be opened or prepared.
     #[error("cannot open database: {0}")]
     Open(String),
+    /// A sealed value could not be opened: it was changed, truncated or sealed with another key.
+    #[error("a stored value cannot be decrypted")]
+    Sealed,
 }

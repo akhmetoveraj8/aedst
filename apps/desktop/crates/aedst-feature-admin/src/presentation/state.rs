@@ -1,6 +1,6 @@
 //! What the admin screen shows. Plain data, no UI types: the Slint glue copies it into the view.
 
-use aedst_common::ErrorKind;
+use aedst_common::{ErrorKind, PageCursor};
 
 use crate::domain::{AdminTask, AuditEntry, Overview, ValidationError};
 
@@ -68,10 +68,27 @@ pub struct Section<T> {
     pub loading_more: bool,
     /// A later page failed; `Cancelled` is never stored.
     pub page_error: Option<ErrorKind>,
-    /// Token of the next page, echoed back exactly.
-    pub next_token: Option<String>,
-    /// Bumped by every first-page load; a result carrying an older value is dropped.
-    pub epoch: u64,
+    /// Epoch, page load in flight and next token (echoed back exactly); `has_more` and
+    /// `loading_more` are copied from it on every publish.
+    pub(crate) cursor: PageCursor,
+}
+
+impl<T> Section<T> {
+    /// Copies the cursor's flags into the published fields.
+    pub(crate) fn sync(&mut self) {
+        self.has_more = self.cursor.has_more();
+        self.loading_more = self.cursor.loading_more();
+    }
+
+    /// An empty section whose cursor makes every answer still in flight stale.
+    pub(crate) fn cleared(&self) -> Self {
+        let mut cursor = self.cursor.clone();
+        cursor.reset();
+        Self {
+            cursor,
+            ..Self::default()
+        }
+    }
 }
 
 impl<T> Default for Section<T> {
@@ -82,8 +99,7 @@ impl<T> Default for Section<T> {
             has_more: false,
             loading_more: false,
             page_error: None,
-            next_token: None,
-            epoch: 0,
+            cursor: PageCursor::default(),
         }
     }
 }

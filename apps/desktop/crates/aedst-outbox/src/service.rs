@@ -2,8 +2,9 @@
 //!
 //! One run at a time; a trigger during a run schedules exactly one more. After a retryable
 //! failure the next run waits 2 s, doubling, capped at 5 min, with equal jitter. Nothing here knows
-//! about connectivity: the host calls [`OutboxService::trigger`] after `enqueue`, at session start,
-//! and when the network comes back (so Outbox does not depend on a connectivity crate).
+//! about connectivity: the host calls [`OutboxService::trigger`] at session start and when the
+//! network comes back (so Outbox does not depend on a connectivity crate), and runs
+//! [`OutboxService::trigger_on_enqueue`] for the session so an `enqueue` starts a run by itself.
 
 use std::{
     sync::{
@@ -12,6 +13,8 @@ use std::{
     },
     time::Duration,
 };
+
+use tokio::sync::watch;
 
 use crate::{
     drainer::{Handlers, RunResult, run},
@@ -89,6 +92,28 @@ impl OutboxService {
     /// Database errors.
     pub async fn pending_count(&self) -> Result<u64, aedst_persistence::PersistenceError> {
         self.queue.pending_count().await
+    }
+
+    /// The pending count as it changes (see [`SqliteOutbox::subscribe_pending`]).
+    #[must_use]
+    pub fn subscribe_pending(&self) -> watch::Receiver<u64> {
+        self.queue.subscribe_pending()
+    }
+
+    /// Starts a run whenever the pending count goes up, so a queued write is delivered at once
+    /// instead of on the next periodic trigger. Deliveries and parking lower the count and start
+    /// nothing. Runs until the task is aborted (the queue lives as long as the service): spawn it
+    /// per session and abort it on sign-out.
+    pub async fn trigger_on_enqueue(self: Arc<Self>) {
+        // Watch values coalesce (an enqueue followed by a delivery can look like no change), so any
+        // change that leaves something pending triggers; a trigger during a run costs one empty pass.
+        let mut pending = self.queue.subscribe_pending();
+        pending.borrow_and_update();
+        while pending.changed().await.is_ok() {
+            if *pending.borrow_and_update() > 0 {
+                self.trigger();
+            }
+        }
     }
 }
 

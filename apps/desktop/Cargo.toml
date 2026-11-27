@@ -1,8 +1,6 @@
 [workspace]
 resolver = "3"
 members = ["crates/*"]
-# Superseded by the aedst-ui gallery; its files are still on disk until the lead deletes them.
-exclude = ["crates/aedst-spike"]
 
 [workspace.package]
 edition = "2024"
@@ -15,7 +13,12 @@ publish = false
 # scripts/rust/check-approved-crates.sh (direct dependencies; it also fails when a version shared with
 # apps/gateway/Cargo.toml drifts). cargo-deny (deny.toml) covers licences, advisories, sources and bans.
 [workspace.dependencies]
-slint = "1.19.1"
+# Features chosen explicitly (docs/content/desktop/slint-rules.md, R1-R5) instead of the defaults, which add
+# `system-tray` (unused) and a platform-dependent backend set. Kept: `std`, `compat-1-2` (mandatory to stay
+# compatible, it pulls `compat-1-18`), `accessibility` (UI Automation / AT-SPI), the winit backend (X11 and
+# Wayland), FemtoVG (OpenGL) and the software renderer as the no-GPU fallback. The GPU renderer (FemtoVG or
+# Skia) is a pending decision (decisions/desktop.md); switching means swapping `renderer-femtovg` here.
+slint = { version = "1.19.1", default-features = false, features = ["std", "compat-1-2", "accessibility", "backend-winit", "renderer-femtovg", "renderer-software"] }
 slint-build = "1.19.1"
 # Internal Slint crate (no semver): MUST be pinned with `=` and must equal the slint version. Test-only.
 i-slint-backend-testing = "=1.19.1"
@@ -96,6 +99,15 @@ opt-level = 3
 
 [profile.dev.package.rsa]
 opt-level = 3
+
+# Release (slint-rules B2): thin LTO and one codegen unit for a smaller, faster binary; line tables kept for
+# crash symbolication but split out of the executable (PDB on Windows, .dwp on Linux), never shipped inside
+# it. `panic` stays `unwind`: the crash reporter's panic hook and the crash-loop guard rely on it.
+[profile.release]
+lto = "thin"
+codegen-units = 1
+debug = "line-tables-only"
+split-debuginfo = "packed"
 
 # Debug builds of this workspace (Slint, connectrpc, SQLite) reached 46 GB with incremental builds and full
 # debug info. Line tables are enough for backtraces; incremental is off to keep `target` small.

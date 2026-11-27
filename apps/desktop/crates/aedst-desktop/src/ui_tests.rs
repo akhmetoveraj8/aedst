@@ -9,7 +9,7 @@ use std::{cell::Cell, rc::Rc};
 use i_slint_backend_testing::{AccessibleRole, ElementHandle};
 use slint::ComponentHandle;
 
-use crate::generated::{AppWindow, ShellState};
+use crate::generated::{AppWindow, ShellScreen, ShellState, SignInError};
 
 fn login_window() -> AppWindow {
     i_slint_backend_testing::init_no_event_loop();
@@ -17,7 +17,8 @@ fn login_window() -> AppWindow {
     // The labels are looked up by their English text; the OS locale must not decide. The catalogs
     // are registered when the first window is created.
     slint::select_bundled_translation("en").expect("english catalog");
-    ui.global::<ShellState>().set_screen("login".into());
+    ui.global::<ShellState>().set_screen(ShellScreen::Login);
+    ui.global::<ShellState>().set_sign_in_available(true);
     ui.show().expect("show");
     ui
 }
@@ -69,7 +70,7 @@ fn pressing_the_button_requests_the_browser_sign_in() {
 fn an_unconfigured_build_disables_sign_in() {
     let ui = login_window();
     ui.global::<ShellState>()
-        .set_sign_in_error("unconfigured".into());
+        .set_sign_in_error(SignInError::Unconfigured);
     let buttons = with_label(&ui, "Continue in browser");
     assert_eq!(buttons.len(), 1);
     assert_eq!(buttons[0].accessible_enabled(), Some(false));

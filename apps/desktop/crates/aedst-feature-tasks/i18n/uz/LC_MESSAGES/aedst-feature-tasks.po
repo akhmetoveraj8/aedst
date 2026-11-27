@@ -8,119 +8,158 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "tasks"
 msgid "Tasks"
 msgstr "Vazifalar"
 
+msgctxt "tasks"
 msgid "In progress"
 msgstr "Jarayonda"
 
+msgctxt "tasks"
 msgid "No tasks yet"
 msgstr "Hali vazifalar yo'q"
 
+msgctxt "tasks"
 msgid "Done"
 msgstr "Bajarilgan"
 
+msgctxt "tasks"
 msgid "Unknown"
 msgstr "Noma’lum"
 
+msgctxt "tasks"
 msgid "Low"
 msgstr "Past"
 
+msgctxt "tasks"
 msgid "Medium"
 msgstr "O'rta"
 
+msgctxt "tasks"
 msgid "High"
 msgstr "Yuqori"
 
+msgctxt "tasks"
 msgid "Urgent"
 msgstr "Shoshilinch"
 
+msgctxt "tasks"
 msgid "Choose a priority."
 msgstr "Ustuvorlikni tanlang."
 
+msgctxt "tasks"
 msgid "Pending sync"
 msgstr "Sinxronlash kutilmoqda"
 
+msgctxt "tasks"
 msgid "Enter a title."
 msgstr "Nomini kiriting."
 
+msgctxt "tasks"
 msgid "You are offline. Changes will sync later."
 msgstr "Siz oflaynsiz. O'zgarishlar keyinroq sinxronlanadi."
 
+msgctxt "tasks"
 msgid "The server is not available right now."
 msgstr "Server hozir mavjud emas."
 
+msgctxt "tasks"
 msgid "The request took too long."
 msgstr "So'rov juda uzoq davom etdi."
 
+msgctxt "tasks"
 msgid "Too many requests. Try again in a moment."
 msgstr "So'rovlar juda ko'p. Birozdan keyin qayta urinib ko'ring."
 
+msgctxt "tasks"
 msgid "Please sign in again."
 msgstr "Iltimos, qaytadan kiring."
 
+msgctxt "tasks"
 msgid "You do not have access to this."
 msgstr "Sizda bunga ruxsat yo'q."
 
+msgctxt "tasks"
 msgid "This task no longer exists."
 msgstr "Bu vazifa endi mavjud emas."
 
+msgctxt "tasks"
 msgid "The server did not accept this input."
 msgstr "Server bu ma'lumotni qabul qilmadi."
 
+msgctxt "tasks"
 msgid "This task was changed elsewhere."
 msgstr "Bu vazifa boshqa joyda o'zgartirilgan."
 
+msgctxt "tasks"
 msgid "Please update the app to continue."
 msgstr "Davom etish uchun ilovani yangilang."
 
+msgctxt "tasks"
 msgid "Could not save on this device."
 msgstr "Bu qurilmada saqlab bo'lmadi."
 
+msgctxt "tasks"
 msgid "Something went wrong."
 msgstr "Nimadir xato ketdi."
 
+msgctxt "tasks"
 msgid "The title is too long (200 characters at most)."
 msgstr "Sarlavha juda uzun (ko'pi bilan 200 belgi)."
 
+msgctxt "tasks"
 msgid "The description is too long."
 msgstr "Tavsif juda uzun."
 
+msgctxt "tasks"
 msgid "To do"
 msgstr "Bajarilishi kerak"
 
+msgctxt "tasks"
 msgid "{} in total"
 msgstr "Jami: {}"
 
+msgctxt "tasks"
 msgid "Waiting to sync: {}"
 msgstr "Sinxronlash kutilmoqda: {}"
 
+msgctxt "tasks"
 msgid "New task title"
 msgstr "Yangi vazifa sarlavhasi"
 
+msgctxt "tasks"
 msgid "What needs to be done?"
 msgstr "Nima qilish kerak?"
 
+msgctxt "tasks"
 msgid "Adding..."
 msgstr "Qo'shilmoqda..."
 
+msgctxt "tasks"
 msgid "Add task"
 msgstr "Vazifa qo'shish"
 
+msgctxt "tasks"
 msgid "Loading..."
 msgstr "Yuklanmoqda..."
 
+msgctxt "tasks"
 msgid "Could not load tasks"
 msgstr "Vazifalarni yuklab bo'lmadi"
 
+msgctxt "tasks"
 msgid "Try again"
 msgstr "Qayta urinib ko'ring"
 
+msgctxt "tasks"
 msgid "Add your first task above."
 msgstr "Birinchi vazifani yuqorida qo'shing."
 
+msgctxt "tasks"
 msgid "Mark \"{}\" as done"
 msgstr "“{}” vazifasini bajarilgan deb belgilash"
 
+msgctxt "tasks"
 msgid "Load more"
 msgstr "Yana yuklash"

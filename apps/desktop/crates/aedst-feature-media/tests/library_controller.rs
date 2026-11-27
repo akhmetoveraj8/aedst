@@ -416,3 +416,36 @@ async fn the_full_record_of_a_listed_file_is_available_for_the_viewer() {
     assert!(c.media("zzz").is_none());
     let _ = ticket("unused");
 }
+
+#[tokio::test]
+async fn a_reload_during_load_more_does_not_block_the_next_page() {
+    let rig = rig();
+    // The fake takes its page after the gate opens, so the reload's page comes second.
+    rig.repo.pages.lock().unwrap().extend([
+        Ok(page(&["a"], Some("t2"))),
+        Ok(page(&["a"], Some("t3"))),
+        Ok(page(&["stale"], None)),
+        Ok(page(&["c"], None)),
+    ]);
+    let library = controller(&rig, Vec::new());
+    library.load_first().await;
+
+    let (release, gate) = oneshot::channel();
+    *rig.repo.gate.lock().unwrap() = Some(gate);
+    let stale = tokio::spawn({
+        let library = library.clone();
+        async move { library.load_more().await }
+    });
+    tokio::task::yield_now().await;
+    library.load_first().await; // the reload makes the page load above stale
+    release.send(()).unwrap();
+    stale.await.unwrap();
+
+    library.load_more().await;
+    let view = library.subscribe().borrow().clone();
+    let ids: Vec<&str> = view.rows.iter().map(|r| r.id.as_str()).collect();
+    assert_eq!(ids, ["a", "c"]);
+    assert!(!view.loading_more);
+    let queries = rig.repo.queries.lock().unwrap().clone();
+    assert_eq!(queries[3].page_token.as_deref(), Some("t3"));
+}

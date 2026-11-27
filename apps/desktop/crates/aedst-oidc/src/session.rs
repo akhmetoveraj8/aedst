@@ -30,6 +30,8 @@ use crate::{
 
 /// Refresh this long before the access token expires.
 const EXPIRY_SKEW: Duration = Duration::from_secs(60);
+/// Lifetime assumed for an access token whose response has no `expires_in`.
+const DEFAULT_ACCESS_LIFETIME: Duration = Duration::from_secs(300);
 /// Token endpoint requests are not retried; this bounds each one.
 pub(crate) const HTTP_TIMEOUT: Duration = Duration::from_secs(20);
 
@@ -162,13 +164,37 @@ impl OidcSession {
         expires_in: Option<Duration>,
         stored: Option<StoredSession>,
     ) {
-        let expires_at = Instant::now() + expires_in.unwrap_or(Duration::from_secs(300));
+        let expires_at = Instant::now() + expires_in.unwrap_or(DEFAULT_ACCESS_LIFETIME);
         self.with_state(|s| {
             s.access = Some((AccessToken(Zeroizing::new(access.to_owned())), expires_at));
             if stored.is_some() {
                 s.stored = stored;
             }
         });
+    }
+
+    /// [`Self::install`] unless a sign-out happened since `epoch` was read, returning the installed
+    /// token. The check runs under the state lock, so a sign-out either is seen here or clears the
+    /// installed state after it.
+    fn install_if_current(
+        &self,
+        epoch: u64,
+        access: &str,
+        expires_in: Option<Duration>,
+        stored: Option<StoredSession>,
+    ) -> Option<AccessToken> {
+        let expires_at = Instant::now() + expires_in.unwrap_or(DEFAULT_ACCESS_LIFETIME);
+        let token = AccessToken(Zeroizing::new(access.to_owned()));
+        self.with_state(|s| {
+            if self.epoch() != epoch {
+                return None;
+            }
+            s.access = Some((token.clone(), expires_at));
+            if stored.is_some() {
+                s.stored = stored;
+            }
+            Some(token)
+        })
     }
 
     fn fresh_access(&self) -> Option<AccessToken> {
@@ -248,23 +274,43 @@ impl OidcSession {
                 return Err(e);
             }
         };
-        if self.epoch() != epoch {
-            return Err(OidcError::Cancelled); // signed out meanwhile: discard the result
-        }
         let rotated = response.refresh_token().map(|t| StoredSession {
             refresh_token: Zeroizing::new(t.secret().clone()),
             subject: stored.subject.clone(),
         });
-        if let Some(rotated) = rotated.clone() {
-            self.blocking_store(move |s| s.save(&rotated)).await?;
+        // Memory first: the provider has already rotated the refresh token, so the new one must not
+        // be lost to a failed keychain write. Sending the old one again makes a provider with reuse
+        // detection revoke the whole token family and end the session.
+        if response.expires_in().is_some_and(|lifetime| lifetime.is_zero()) {
+            return Err(OidcError::Security(
+                "provider issued an already expired token".into(),
+            ));
         }
-        self.install(
+        let Some(token) = self.install_if_current(
+            epoch,
             response.access_token().secret(),
             response.expires_in(),
-            rotated,
-        );
-        self.fresh_access()
-            .ok_or_else(|| OidcError::Security("provider issued an already expired token".into()))
+            rotated.clone(),
+        ) else {
+            return Err(OidcError::Cancelled); // signed out meanwhile: discard the result
+        };
+        if let Some(rotated) = rotated {
+            if let Err(error) = self.blocking_store(move |s| s.save(&rotated)).await {
+                // The session goes on in memory and the next refresh writes again; only a restart
+                // before that falls back to the older stored token.
+                tracing::warn!(%error, "could not store the rotated refresh token");
+            }
+            if self.epoch() != epoch {
+                // Signed out while the token was written: it must not stay in the keychain.
+                if let Err(error) = self.blocking_store(|s| s.clear()).await {
+                    tracing::warn!(%error, "could not clear the keychain entry");
+                }
+                return Err(OidcError::Cancelled);
+            }
+        }
+        // The token just issued, even when its lifetime is shorter than the refresh skew (such a
+        // token is refreshed again on the next call instead of failing this one).
+        Ok(token)
     }
 
     /// Clears memory and the keychain without telling the provider.

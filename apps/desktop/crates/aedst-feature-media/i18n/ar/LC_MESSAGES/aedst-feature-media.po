@@ -8,188 +8,250 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
 
+msgctxt "media"
 msgid "Failed"
 msgstr "فشل"
 
+msgctxt "media"
 msgid "Delete"
 msgstr "حذف"
 
+msgctxt "media"
 msgid "Upload file"
 msgstr "رفع ملف"
 
+msgctxt "media"
 msgid "Uploading... {}%"
 msgstr "جارٍ الرفع... {}%"
 
+msgctxt "media"
 msgid "Dismiss"
 msgstr "إغلاق"
 
+msgctxt "media"
 msgid "Media"
 msgstr "الوسائط"
 
+msgctxt "media"
 msgid "Loading..."
 msgstr "جارٍ التحميل..."
 
+msgctxt "media"
 msgid "Could not load media"
 msgstr "تعذّر تحميل الوسائط"
 
+msgctxt "media"
 msgid "Try again"
 msgstr "حاول مرة أخرى"
 
+msgctxt "media"
 msgid "No files yet"
 msgstr "لا توجد ملفات بعد"
 
+msgctxt "media"
 msgid "Upload your first file above."
 msgstr "ارفع ملفك الأول أعلاه."
 
+msgctxt "media"
 msgid "Load more"
 msgstr "عرض المزيد"
 
+msgctxt "media"
 msgid "Back"
 msgstr "رجوع"
 
+msgctxt "media"
 msgid "View"
 msgstr "عرض"
 
+msgctxt "media"
 msgid "Delete this file?"
 msgstr "هل تريد حذف هذا الملف؟"
 
+msgctxt "media"
 msgid "Cancel"
 msgstr "إلغاء"
 
+msgctxt "media"
 msgid "You are offline. Try again when you are connected."
 msgstr "أنت غير متصل. حاول مرة أخرى عند الاتصال."
 
+msgctxt "media"
 msgid "The server is not available right now."
 msgstr "الخادم غير متاح حاليًا."
 
+msgctxt "media"
 msgid "The request took too long."
 msgstr "استغرق الطلب وقتًا طويلًا."
 
+msgctxt "media"
 msgid "Too many requests. Try again in a moment."
 msgstr "طلبات كثيرة جدًا. حاول مرة أخرى بعد قليل."
 
+msgctxt "media"
 msgid "Please sign in again."
 msgstr "يرجى تسجيل الدخول مرة أخرى."
 
+msgctxt "media"
 msgid "You do not have access to this."
 msgstr "ليس لديك صلاحية الوصول إلى هذا."
 
+msgctxt "media"
 msgid "This file no longer exists."
 msgstr "هذا الملف لم يعد موجودًا."
 
+msgctxt "media"
 msgid "The server did not accept this file."
 msgstr "لم يقبل الخادم هذا الملف."
 
+msgctxt "media"
 msgid "This file was changed elsewhere."
 msgstr "تم تغيير هذا الملف في مكان آخر."
 
+msgctxt "media"
 msgid "Please update the app to continue."
 msgstr "يرجى تحديث التطبيق للمتابعة."
 
+msgctxt "media"
 msgid "Could not read the file on this device."
 msgstr "تعذّرت قراءة الملف على هذا الجهاز."
 
+msgctxt "media"
 msgid "Something went wrong."
 msgstr "حدث خطأ ما."
 
+msgctxt "media"
 msgid "The file is empty."
 msgstr "الملف فارغ."
 
+msgctxt "media"
 msgid "The file is too large."
 msgstr "الملف كبير جدًا."
 
+msgctxt "media"
 msgid "This type of file is not supported."
 msgstr "هذا النوع من الملفات غير مدعوم."
 
+msgctxt "media"
 msgid "The file name is empty or too long."
 msgstr "اسم الملف فارغ أو طويل جدًا."
 
+msgctxt "media"
 msgid "The task for this file is not valid."
 msgstr "المهمة الخاصة بهذا الملف غير صالحة."
 
+msgctxt "media"
 msgid "Image"
 msgstr "صورة"
 
+msgctxt "media"
 msgid "Video"
 msgstr "فيديو"
 
+msgctxt "media"
 msgid "Audio"
 msgstr "صوت"
 
+msgctxt "media"
 msgid "Document"
 msgstr "مستند"
 
+msgctxt "media"
 msgid "Unknown"
 msgstr "غير معروف"
 
+msgctxt "media"
 msgid "Uploading"
 msgstr "جارٍ الرفع"
 
+msgctxt "media"
 msgid "Processing"
 msgstr "قيد المعالجة"
 
+msgctxt "media"
 msgid "Ready"
 msgstr "جاهز"
 
+msgctxt "media"
 msgid "The uploaded size did not match the file."
 msgstr "حجم الملف المرفوع لا يطابق حجم الملف."
 
+msgctxt "media"
 msgid "The content did not match the file type."
 msgstr "المحتوى لا يطابق نوع الملف."
 
+msgctxt "media"
 msgid "The file could not be processed."
 msgstr "تعذّرت معالجة الملف."
 
+msgctxt "media"
 msgid "{} B"
 msgstr "{} بايت"
 
+msgctxt "media"
 msgid "{} KB"
 msgstr "{} ك.ب"
 
+msgctxt "media"
 msgid "{} MB"
 msgstr "{} م.ب"
 
+msgctxt "media"
 msgid "Checking the file..."
 msgstr "جارٍ فحص الملف..."
 
+msgctxt "media"
 msgid "Requesting the upload..."
 msgstr "جارٍ طلب الرفع..."
 
+msgctxt "media"
 msgid "Uploading..."
 msgstr "جارٍ الرفع..."
 
+msgctxt "media"
 msgid "Finishing..."
 msgstr "جارٍ الإنهاء..."
 
+msgctxt "media"
 msgid "This file cannot be uploaded."
 msgstr "لا يمكن رفع هذا الملف."
 
+msgctxt "media"
 msgid "Could not start the upload."
 msgstr "تعذّر بدء الرفع."
 
+msgctxt "media"
 msgid "Could not send the file."
 msgstr "تعذّر إرسال الملف."
 
+msgctxt "media"
 msgid "Could not finish the upload."
 msgstr "تعذّر إنهاء الرفع."
 
+msgctxt "media"
 msgid "The unfinished upload was removed from the server."
 msgstr "تمت إزالة الرفع غير المكتمل من الخادم."
 
+msgctxt "media"
 msgid "An unfinished upload may remain on the server and will expire."
 msgstr "قد يبقى رفع غير مكتمل على الخادم وستنتهي صلاحيته."
 
+msgctxt "media"
 msgid "This file is not ready yet."
 msgstr "هذا الملف ليس جاهزًا بعد."
 
+msgctxt "media"
 msgid "Video playback is not available yet."
 msgstr "تشغيل الفيديو غير متاح بعد."
 
+msgctxt "media"
 msgid "No preview is available for this kind of file."
 msgstr "لا تتوفر معاينة لهذا النوع من الملفات."
 
+msgctxt "media"
 msgid "This image is too large to show."
 msgstr "هذه الصورة كبيرة جدًا للعرض."
 
+msgctxt "media"
 msgid "This image could not be shown."
 msgstr "تعذّر عرض هذه الصورة."

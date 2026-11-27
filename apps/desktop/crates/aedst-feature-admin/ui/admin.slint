@@ -1,15 +1,16 @@
 // The Admin screen. Stateless: it renders `AdminStore` and calls its callbacks; Rust
 // (`ui_glue.rs`) owns the state. Only `aedst-ui` components are used.
 import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstInput, AedstButtonVariant } from "@aedst-ui";
-import { AdminStore } from "admin_store.slint";
+import { ListView } from "std-widgets.slint"; // rows are created lazily only directly inside a ListView (slint-rules M1)
+import { AdminStore, AdminTab, AdminPhase, AdminDeleteState } from "admin_store.slint";
 import { AdminTexts } from "admin_texts.slint";
 import { OverviewRow, TaskRow, AuditRow, DeleteConfirm, BroadcastForm } from "admin_parts.slint";
 
-export { AdminStore, OverviewItemData, AdminTaskRowData, AuditRowData } from "admin_store.slint";
+export { AdminStore, OverviewItemData, AdminTaskRowData, AuditRowData, AdminTab, AdminPhase, AdminDeleteState, AdminBroadcastState } from "admin_store.slint";
 export { AdminTexts } from "admin_texts.slint";
 
 component TabButton inherits AedstButton {
-    in property <string> key;
+    in property <AdminTab> key;
     variant: AdminStore.tab == root.key ? AedstButtonVariant.default : AedstButtonVariant.secondary;
     min-width: 72px;
     clicked => { AdminStore.select-tab(root.key); }
@@ -21,17 +22,17 @@ component TabStrip inherits HorizontalLayout {
     vertical-stretch: 0;
     if !AedstLayout.rtl: HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
-        TabButton { key: "overview"; text: @tr("" => "Overview"); }
-        TabButton { key: "tasks"; text: @tr("" => "Tasks"); }
-        TabButton { key: "audit"; text: @tr("" => "Audit log"); }
-        TabButton { key: "broadcast"; text: @tr("" => "Broadcast"); }
+        TabButton { key: AdminTab.overview; text: @tr("admin" => "Overview"); }
+        TabButton { key: AdminTab.tasks; text: @tr("admin" => "Tasks"); }
+        TabButton { key: AdminTab.audit; text: @tr("admin" => "Audit log"); }
+        TabButton { key: AdminTab.broadcast; text: @tr("admin" => "Broadcast"); }
     }
     if AedstLayout.rtl: HorizontalLayout {
         spacing: AedstTokens.spacing-sm;
-        TabButton { key: "broadcast"; text: @tr("" => "Broadcast"); }
-        TabButton { key: "audit"; text: @tr("" => "Audit log"); }
-        TabButton { key: "tasks"; text: @tr("" => "Tasks"); }
-        TabButton { key: "overview"; text: @tr("" => "Overview"); }
+        TabButton { key: AdminTab.broadcast; text: @tr("admin" => "Broadcast"); }
+        TabButton { key: AdminTab.audit; text: @tr("admin" => "Audit log"); }
+        TabButton { key: AdminTab.tasks; text: @tr("admin" => "Tasks"); }
+        TabButton { key: AdminTab.overview; text: @tr("admin" => "Overview"); }
     }
 }
 
@@ -39,14 +40,14 @@ component OwnerFilter inherits HorizontalLayout {
     spacing: AedstTokens.spacing-sm;
     vertical-stretch: 0;
     field := AedstInput {
-        label: @tr("" => "Owner id");
-        placeholder: @tr("" => "Show only the tasks of one owner (id)");
+        label: @tr("admin" => "Owner id");
+        placeholder: @tr("admin" => "Show only the tasks of one owner (id)");
         invalid: AdminStore.filter-invalid;
         horizontal-stretch: 1;
         accepted => { AdminStore.filter-owner(self.text); }
     }
     AedstButton {
-        text: @tr("" => "Apply");
+        text: @tr("admin" => "Apply");
         variant: AedstButtonVariant.secondary;
         clicked => { AdminStore.filter-owner(field.text); }
     }
@@ -60,7 +61,7 @@ export component AdminListView inherits Rectangle {
         spacing: AedstTokens.spacing-md;
 
         AedstLabel {
-            text: @tr("" => "Administration");
+            text: @tr("admin" => "Administration");
             font-size: AedstTokens.typography-title-large-font-size;
             font-weight: AedstTokens.typography-title-large-font-weight;
             vertical-stretch: 0;
@@ -70,9 +71,9 @@ export component AdminListView inherits Rectangle {
             alignment: start;
             vertical-stretch: 1;
             spacing: AedstTokens.spacing-sm;
-            AedstLabel { text: @tr("" => "No access"); font-weight: 600; }
+            AedstLabel { text: @tr("admin" => "No access"); font-weight: 600; }
             AedstLabel {
-                text: @tr("" => "This screen is for operators only.");
+                text: @tr("admin" => "This screen is for operators only.");
                 color: AedstTokens.muted-foreground;
             }
         }
@@ -81,64 +82,74 @@ export component AdminListView inherits Rectangle {
             spacing: AedstTokens.spacing-md;
             TabStrip {}
 
-            if AdminStore.tab == "tasks": OwnerFilter {}
-            if AdminStore.tab == "tasks" && AdminStore.filter-invalid: AedstLabel {
+            if AdminStore.tab == AdminTab.tasks: OwnerFilter {}
+            if AdminStore.tab == AdminTab.tasks && AdminStore.filter-invalid: AedstLabel {
                 text: AdminTexts.validation-text("idInvalid");
                 color: AedstTokens.destructive;
                 vertical-stretch: 0;
             }
-            if AdminStore.tab == "tasks" && AdminStore.delete-state != "idle": DeleteConfirm { vertical-stretch: 0; }
+            if AdminStore.tab == AdminTab.tasks && AdminStore.delete-state != AdminDeleteState.idle: DeleteConfirm { vertical-stretch: 0; }
 
-            if AdminStore.tab != "broadcast" && AdminStore.phase == "loading": AedstLabel {
-                text: @tr("" => "Loading...");
+            if AdminStore.tab != AdminTab.broadcast && AdminStore.phase == AdminPhase.loading: AedstLabel {
+                text: @tr("admin" => "Loading...");
                 color: AedstTokens.muted-foreground;
                 vertical-stretch: 0;
             }
-            if AdminStore.tab != "broadcast" && AdminStore.phase == "failed": VerticalLayout {
+            if AdminStore.tab != AdminTab.broadcast && AdminStore.phase == AdminPhase.failed: VerticalLayout {
                 spacing: AedstTokens.spacing-sm;
                 alignment: start;
                 vertical-stretch: 0;
-                AedstLabel { text: @tr("" => "Could not load"); font-weight: 600; }
+                AedstLabel { text: @tr("admin" => "Could not load"); font-weight: 600; }
                 AedstLabel { text: AdminTexts.kind-text(AdminStore.error-kind); color: AedstTokens.destructive; }
-                AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { AdminStore.reload(); } }
+                AedstButton { text: @tr("admin" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { AdminStore.reload(); } }
             }
-            if AdminStore.tab != "broadcast" && AdminStore.phase == "ready" && AdminStore.error-kind != "": AedstLabel {
+            if AdminStore.tab != AdminTab.broadcast && AdminStore.phase == AdminPhase.ready && AdminStore.error-kind != "": AedstLabel {
                 text: AdminTexts.kind-text(AdminStore.error-kind);
                 color: AedstTokens.destructive;
                 vertical-stretch: 0;
             }
-            if AdminStore.phase == "ready" && ((AdminStore.tab == "tasks" && AdminStore.tasks.length == 0)
-                || (AdminStore.tab == "audit" && AdminStore.audit.length == 0)): AedstLabel {
-                text: @tr("" => "Nothing to show here.");
+            if AdminStore.phase == AdminPhase.ready && ((AdminStore.tab == AdminTab.tasks && AdminStore.tasks.length == 0)
+                || (AdminStore.tab == AdminTab.audit && AdminStore.audit.length == 0)): AedstLabel {
+                text: @tr("admin" => "Nothing to show here.");
                 color: AedstTokens.muted-foreground;
                 vertical-stretch: 0;
             }
 
-            Flickable {
+            // The overview (a fixed handful of rows) and the broadcast form scroll as one page; the two
+            // paged lists are ListViews so only their visible rows exist (slint-rules M1).
+            if AdminStore.tab == AdminTab.overview || AdminStore.tab == AdminTab.broadcast: Flickable {
                 vertical-stretch: 1;
                 min-height: 160px;
-                content-height: content.preferred-height;
-                content := VerticalLayout {
+                content-height: page.preferred-height;
+                page := VerticalLayout {
                     spacing: AedstTokens.spacing-xs;
                     alignment: start;
-                    if AdminStore.tab == "overview": VerticalLayout {
+                    if AdminStore.tab == AdminTab.overview: VerticalLayout {
                         spacing: AedstTokens.spacing-xs;
                         for item in AdminStore.overview-items: OverviewRow { data: item; }
                     }
-                    if AdminStore.tab == "tasks": VerticalLayout {
-                        spacing: AedstTokens.spacing-xs;
-                        for task in AdminStore.tasks: TaskRow { data: task; }
-                    }
-                    if AdminStore.tab == "audit": VerticalLayout {
-                        spacing: AedstTokens.spacing-xs;
-                        for entry in AdminStore.audit: AuditRow { data: entry; }
-                    }
-                    if AdminStore.tab == "broadcast": BroadcastForm {}
+                    if AdminStore.tab == AdminTab.broadcast: BroadcastForm {}
+                }
+            }
+            if AdminStore.tab == AdminTab.tasks: ListView {
+                vertical-stretch: 1;
+                min-height: 160px;
+                for task in AdminStore.tasks: VerticalLayout {
+                    padding-bottom: AedstTokens.spacing-xs;
+                    TaskRow { data: task; }
+                }
+            }
+            if AdminStore.tab == AdminTab.audit: ListView {
+                vertical-stretch: 1;
+                min-height: 160px;
+                for entry in AdminStore.audit: VerticalLayout {
+                    padding-bottom: AedstTokens.spacing-xs;
+                    AuditRow { data: entry; }
                 }
             }
 
-            if AdminStore.has-more && AdminStore.tab != "overview" && AdminStore.tab != "broadcast": AedstButton {
-                text: AdminStore.loading-more ? @tr("" => "Loading...") : @tr("" => "Load more");
+            if AdminStore.has-more && AdminStore.tab != AdminTab.overview && AdminStore.tab != AdminTab.broadcast: AedstButton {
+                text: AdminStore.loading-more ? @tr("admin" => "Loading...") : @tr("admin" => "Load more");
                 variant: AedstButtonVariant.secondary;
                 vertical-stretch: 0;
                 clicked => { AdminStore.load-more(); }
@@ -152,7 +163,7 @@ export component AdminListView inherits Rectangle {
 export component AdminDemoWindow inherits Window {
     in-out property <bool> rtl <=> AedstLayout.rtl;
     in-out property <bool> dark <=> AedstTokens.dark;
-    title: @tr("" => "Administration");
+    title: @tr("admin" => "Administration");
     background: AedstTokens.background;
     min-width: 720px;
     min-height: 640px;

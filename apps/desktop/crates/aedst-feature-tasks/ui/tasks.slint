@@ -1,6 +1,7 @@
 // The Tasks list screen. Stateless: it renders `TasksStore` and calls its callbacks; Rust
 // (`ui_glue.rs`) owns the state. Only `aedst-ui` components are used; no raw std-widgets control.
 import { AedstTokens, AedstLayout, AedstLabel, AedstButton, AedstInput, AedstBadge, AedstCheckbox, AedstButtonVariant, AedstBadgeVariant } from "@aedst-ui";
+import { ListView } from "std-widgets.slint"; // rows are created lazily only directly inside a ListView (slint-rules M1)
 
 export struct TaskRowData {
     id: string,
@@ -11,11 +12,15 @@ export struct TaskRowData {
     pending: bool,
 }
 
+// The screen's states, typed: a mistyped state is a compile error in Slint and in the glue.
+export enum TasksPhase { idle, loading, ready, failed }
+export enum TasksCreateState { idle, sending, invalid, failed }
+
 export global TasksStore {
     in property <[TaskRowData]> rows;
-    in property <string> phase: "idle";        // idle | loading | ready | failed
+    in property <TasksPhase> phase: TasksPhase.idle;
     in property <string> error-kind;           // set when phase == failed, or a row action failed
-    in property <string> create-state: "idle"; // idle | sending | invalid | failed
+    in property <TasksCreateState> create-state: TasksCreateState.idle;
     in property <string> create-error;         // a validation key or an error kind
     in property <int> total: -1;
     in property <bool> has-more;
@@ -30,40 +35,40 @@ export global TasksStore {
 // Every message is the translated text of a KIND, never a raw server message.
 export global TaskTexts {
     public pure function kind-text(kind: string) -> string {
-        if (kind == "offline") { return @tr("" => "You are offline. Changes will sync later."); }
-        if (kind == "unavailable") { return @tr("" => "The server is not available right now."); }
-        if (kind == "timeout") { return @tr("" => "The request took too long."); }
-        if (kind == "rateLimited") { return @tr("" => "Too many requests. Try again in a moment."); }
-        if (kind == "unauthenticated") { return @tr("" => "Please sign in again."); }
-        if (kind == "forbidden") { return @tr("" => "You do not have access to this."); }
-        if (kind == "notFound") { return @tr("" => "This task no longer exists."); }
-        if (kind == "invalidInput") { return @tr("" => "The server did not accept this input."); }
-        if (kind == "conflict") { return @tr("" => "This task was changed elsewhere."); }
-        if (kind == "upgradeRequired") { return @tr("" => "Please update the app to continue."); }
-        if (kind == "storage") { return @tr("" => "Could not save on this device."); }
-        return @tr("" => "Something went wrong.");
+        if (kind == "offline") { return @tr("tasks" => "You are offline. Changes will sync later."); }
+        if (kind == "unavailable") { return @tr("tasks" => "The server is not available right now."); }
+        if (kind == "timeout") { return @tr("tasks" => "The request took too long."); }
+        if (kind == "rateLimited") { return @tr("tasks" => "Too many requests. Try again in a moment."); }
+        if (kind == "unauthenticated") { return @tr("tasks" => "Please sign in again."); }
+        if (kind == "forbidden") { return @tr("tasks" => "You do not have access to this."); }
+        if (kind == "notFound") { return @tr("tasks" => "This task no longer exists."); }
+        if (kind == "invalidInput") { return @tr("tasks" => "The server did not accept this input."); }
+        if (kind == "conflict") { return @tr("tasks" => "This task was changed elsewhere."); }
+        if (kind == "upgradeRequired") { return @tr("tasks" => "Please update the app to continue."); }
+        if (kind == "storage") { return @tr("tasks" => "Could not save on this device."); }
+        return @tr("tasks" => "Something went wrong.");
     }
     
     public pure function validation-text(key: string) -> string {
-        if (key == "titleRequired") { return @tr("" => "Enter a title."); }
-        if (key == "titleTooLong") { return @tr("" => "The title is too long (200 characters at most)."); }
-        if (key == "descriptionTooLong") { return @tr("" => "The description is too long."); }
-        return @tr("" => "Choose a priority.");
+        if (key == "titleRequired") { return @tr("tasks" => "Enter a title."); }
+        if (key == "titleTooLong") { return @tr("tasks" => "The title is too long (200 characters at most)."); }
+        if (key == "descriptionTooLong") { return @tr("tasks" => "The description is too long."); }
+        return @tr("tasks" => "Choose a priority.");
     }
     
     public pure function status-text(status: string) -> string {
-        if (status == "todo") { return @tr("" => "To do"); }
-        if (status == "in-progress") { return @tr("" => "In progress"); }
-        if (status == "done") { return @tr("" => "Done"); }
-        return @tr("" => "Unknown");
+        if (status == "todo") { return @tr("tasks" => "To do"); }
+        if (status == "in-progress") { return @tr("tasks" => "In progress"); }
+        if (status == "done") { return @tr("tasks" => "Done"); }
+        return @tr("tasks" => "Unknown");
     }
     
     public pure function priority-text(priority: string) -> string {
-        if (priority == "low") { return @tr("" => "Low"); }
-        if (priority == "medium") { return @tr("" => "Medium"); }
-        if (priority == "high") { return @tr("" => "High"); }
-        if (priority == "urgent") { return @tr("" => "Urgent"); }
-        return @tr("" => "Unknown");
+        if (priority == "low") { return @tr("tasks" => "Low"); }
+        if (priority == "medium") { return @tr("tasks" => "Medium"); }
+        if (priority == "high") { return @tr("tasks" => "High"); }
+        if (priority == "urgent") { return @tr("tasks" => "Urgent"); }
+        return @tr("tasks" => "Unknown");
     }
 }
 
@@ -77,8 +82,8 @@ component PriorityChoice inherits AedstButton {
 
 component AddTaskButton inherits AedstButton {
     callback submit();
-    text: TasksStore.create-state == "sending" ? @tr("" => "Adding...") : @tr("" => "Add task");
-    enabled: TasksStore.create-state != "sending";
+    text: TasksStore.create-state == TasksCreateState.sending ? @tr("tasks" => "Adding...") : @tr("tasks" => "Add task");
+    enabled: TasksStore.create-state != TasksCreateState.sending;
     clicked => { root.submit(); }
 }
 
@@ -122,7 +127,7 @@ component TaskRow inherits Rectangle {
         AedstCheckbox {
             checked: root.data.done;
             enabled: !root.data.pending;
-            label: @tr("" => "Mark \"{}\" as done", root.data.title);
+            label: @tr("tasks" => "Mark \"{}\" as done", root.data.title);
             toggled => { TasksStore.toggle(root.data.id); }
         }
         AedstLabel { text: root.data.title; vertical-alignment: center; horizontal-stretch: 1; }
@@ -131,12 +136,12 @@ component TaskRow inherits Rectangle {
             text: TaskTexts.status-text(root.data.status);
             variant: root.data.status == "done" ? AedstBadgeVariant.success : AedstBadgeVariant.secondary;
         }
-        if root.data.pending: AedstBadge { text: @tr("" => "Pending sync"); variant: AedstBadgeVariant.destructive; }
+        if root.data.pending: AedstBadge { text: @tr("tasks" => "Pending sync"); variant: AedstBadgeVariant.destructive; }
     }
     if AedstLayout.rtl: HorizontalLayout {
         padding: AedstTokens.spacing-sm;
         spacing: AedstTokens.spacing-sm;
-        if root.data.pending: AedstBadge { text: @tr("" => "Pending sync"); variant: AedstBadgeVariant.destructive; }
+        if root.data.pending: AedstBadge { text: @tr("tasks" => "Pending sync"); variant: AedstBadgeVariant.destructive; }
         AedstBadge {
             text: TaskTexts.status-text(root.data.status);
             variant: root.data.status == "done" ? AedstBadgeVariant.success : AedstBadgeVariant.secondary;
@@ -146,7 +151,7 @@ component TaskRow inherits Rectangle {
         AedstCheckbox {
             checked: root.data.done;
             enabled: !root.data.pending;
-            label: @tr("" => "Mark \"{}\" as done", root.data.title);
+            label: @tr("tasks" => "Mark \"{}\" as done", root.data.title);
             toggled => { TasksStore.toggle(root.data.id); }
         }
     }
@@ -167,17 +172,17 @@ export component TasksListView inherits Rectangle {
             if !AedstLayout.rtl: HorizontalLayout {
                 spacing: AedstTokens.spacing-sm;
                 AedstLabel {
-                    text: @tr("" => "Tasks");
+                    text: @tr("tasks" => "Tasks");
                     font-size: AedstTokens.typography-title-large-font-size;
                     font-weight: AedstTokens.typography-title-large-font-weight;
                 }
-                if TasksStore.total >= 0: AedstBadge { variant: AedstBadgeVariant.secondary; text: @tr("" => "{} in total", TasksStore.total); }
+                if TasksStore.total >= 0: AedstBadge { variant: AedstBadgeVariant.secondary; text: @tr("tasks" => "{} in total", TasksStore.total); }
             }
             if AedstLayout.rtl: HorizontalLayout {
                 spacing: AedstTokens.spacing-sm;
-                if TasksStore.total >= 0: AedstBadge { variant: AedstBadgeVariant.secondary; text: @tr("" => "{} in total", TasksStore.total); }
+                if TasksStore.total >= 0: AedstBadge { variant: AedstBadgeVariant.secondary; text: @tr("tasks" => "{} in total", TasksStore.total); }
                 AedstLabel {
-                    text: @tr("" => "Tasks");
+                    text: @tr("tasks" => "Tasks");
                     font-size: AedstTokens.typography-title-large-font-size;
                     font-weight: AedstTokens.typography-title-large-font-weight;
                 }
@@ -185,7 +190,7 @@ export component TasksListView inherits Rectangle {
         }
 
         if TasksStore.pending-count > 0: AedstBadge {
-            text: @tr("" => "Waiting to sync: {}", TasksStore.pending-count);
+            text: @tr("tasks" => "Waiting to sync: {}", TasksStore.pending-count);
             variant: AedstBadgeVariant.destructive;
             vertical-stretch: 0;
         }
@@ -195,62 +200,61 @@ export component TasksListView inherits Rectangle {
             spacing: AedstTokens.spacing-sm;
             vertical-stretch: 0;
             title-field := AedstInput {
-                label: @tr("" => "New task title");
-                placeholder: @tr("" => "What needs to be done?");
-                invalid: TasksStore.create-state == "invalid";
+                label: @tr("tasks" => "New task title");
+                placeholder: @tr("tasks" => "What needs to be done?");
+                invalid: TasksStore.create-state == TasksCreateState.invalid;
                 accepted => { TasksStore.create(self.text, TasksStore.priority); }
             }
             PriorityBar {
                 submit => {
                     TasksStore.create(title-field.text, TasksStore.priority);
-                    if (TasksStore.create-state != "invalid") { title-field.text = ""; }
+                    if (TasksStore.create-state != TasksCreateState.invalid) { title-field.text = ""; }
                 }
             }
-            if TasksStore.create-state == "invalid": AedstLabel {
+            if TasksStore.create-state == TasksCreateState.invalid: AedstLabel {
                 text: TaskTexts.validation-text(TasksStore.create-error);
                 color: AedstTokens.destructive;
             }
-            if TasksStore.create-state == "failed": AedstLabel {
+            if TasksStore.create-state == TasksCreateState.failed: AedstLabel {
                 text: TaskTexts.kind-text(TasksStore.create-error);
                 color: AedstTokens.destructive;
             }
         }
 
-        if TasksStore.phase == "loading": AedstLabel {
-            text: @tr("" => "Loading...");
+        if TasksStore.phase == TasksPhase.loading: AedstLabel {
+            text: @tr("tasks" => "Loading...");
             color: AedstTokens.muted-foreground;
         }
-        if TasksStore.phase == "failed": VerticalLayout {
+        if TasksStore.phase == TasksPhase.failed: VerticalLayout {
             spacing: AedstTokens.spacing-sm;
             alignment: start;
             vertical-stretch: 0;
-            AedstLabel { text: @tr("" => "Could not load tasks"); font-weight: 600; }
+            AedstLabel { text: @tr("tasks" => "Could not load tasks"); font-weight: 600; }
             AedstLabel { text: TaskTexts.kind-text(TasksStore.error-kind); color: AedstTokens.destructive; }
-            AedstButton { text: @tr("" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { TasksStore.reload(); } }
+            AedstButton { text: @tr("tasks" => "Try again"); variant: AedstButtonVariant.secondary; clicked => { TasksStore.reload(); } }
         }
-        if TasksStore.phase == "ready" && TasksStore.rows.length == 0: VerticalLayout {
+        if TasksStore.phase == TasksPhase.ready && TasksStore.rows.length == 0: VerticalLayout {
             alignment: start;
             vertical-stretch: 0;
-            AedstLabel { text: @tr("" => "No tasks yet"); font-weight: 600; }
-            AedstLabel { text: @tr("" => "Add your first task above."); color: AedstTokens.muted-foreground; }
+            AedstLabel { text: @tr("tasks" => "No tasks yet"); font-weight: 600; }
+            AedstLabel { text: @tr("tasks" => "Add your first task above."); color: AedstTokens.muted-foreground; }
         }
-        if TasksStore.phase == "ready" && TasksStore.error-kind != "": AedstLabel {
+        if TasksStore.phase == TasksPhase.ready && TasksStore.error-kind != "": AedstLabel {
             text: TaskTexts.kind-text(TasksStore.error-kind);
             color: AedstTokens.destructive;
         }
 
-        Flickable {
+        ListView {
             vertical-stretch: 1;
             min-height: 160px;
-            content-height: rows.preferred-height;
-            rows := VerticalLayout {
-                spacing: AedstTokens.spacing-xs;
-                for row in TasksStore.rows: TaskRow { data: row; }
+            for row in TasksStore.rows: VerticalLayout {
+                padding-bottom: AedstTokens.spacing-xs;
+                TaskRow { data: row; }
             }
         }
 
         if TasksStore.has-more: AedstButton {
-            text: @tr("" => "Load more");
+            text: @tr("tasks" => "Load more");
             variant: AedstButtonVariant.secondary;
             vertical-stretch: 0;
             clicked => { TasksStore.load-more(); }
@@ -263,7 +267,7 @@ export component TasksListView inherits Rectangle {
 export component TasksDemoWindow inherits Window {
     in-out property <bool> rtl <=> AedstLayout.rtl;
     in-out property <bool> dark <=> AedstTokens.dark;
-    title: @tr("" => "Tasks");
+    title: @tr("tasks" => "Tasks");
     background: AedstTokens.background;
     min-width: 640px;
     min-height: 560px;
