@@ -1,7 +1,7 @@
 // Merges the hand-written Desktop gettext catalogues into the shared JSON (migration tool, like import-android.mjs).
 //   node import-desktop.mjs            report only
 //   node import-desktop.mjs --apply    write shared JSON, targets.json and <module>/desktop-local.json
-// Desktop has no key names: its msgid is the English text that `@tr("" => "...")` in the Slint sources must keep
+// Desktop has no key names: its msgid is the English text that `@tr("<module>" => "...")` in the Slint sources must keep
 // matching. A string is shared when a key with the SAME English text already exists in the module (existing
 // translations win); otherwise it becomes a Desktop-only key named after its first words. Entries that cannot be
 // expressed (a locale missing, braces, mismatching `{}` count) stay hand-written in desktop-local.json.

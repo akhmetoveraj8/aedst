@@ -1,0 +1,26 @@
+{
+  "size": {
+    "$type": "dimension",
+    "$description": "Control, target, icon and row sizes (logical px). Consumed by the desktop client only (AedstSizes in aedst_sizes.slint); web, Android and Apple size controls with their own platform scales.",
+    "control": {
+      "xs": { "$value": { "value": 24, "unit": "px" } },
+      "sm": { "$value": { "value": 28, "unit": "px" } },
+      "md": { "$value": { "value": 32, "unit": "px" } },
+      "lg": { "$value": { "value": 36, "unit": "px" } }
+    },
+    "target": {
+      "min": {
+        "$description": "WCAG 2.5.8 (Target Size, Minimum): every pointer target is at least this large in both directions.",
+        "$value": { "value": 24, "unit": "px" }
+      }
+    },
+    "icon": {
+      "sm": { "$value": { "value": 12, "unit": "px" } },
+      "md": { "$value": { "value": 16, "unit": "px" } }
+    },
+    "row": {
+      "sm": { "$value": { "value": 28, "unit": "px" } },
+      "md": { "$value": { "value": 36, "unit": "px" } }
+    }
+  }
+}

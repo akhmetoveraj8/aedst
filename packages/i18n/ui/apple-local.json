@@ -297,5 +297,180 @@
         }
       }
     }
+  },
+  "dsDecrease": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "تقليل"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Decrease"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Уменьшить"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Кам кардан"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Kamaytirish"
+        }
+      }
+    }
+  },
+  "dsDismissNotification": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "إغلاق الإشعار"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Dismiss notification"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Закрыть уведомление"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Пӯшидани огоҳинома"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Bildirishnomani yopish"
+        }
+      }
+    }
+  },
+  "dsIncrease": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "زيادة"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Increase"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Увеличить"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Зиёд кардан"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Oshirish"
+        }
+      }
+    }
+  },
+  "dsOTPDigits %@ %@": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "تم إدخال %1$@ من %2$@ أرقام"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "%1$@ of %2$@ digits entered"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Введено цифр: %1$@ из %2$@"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "%1$@ аз %2$@ рақам ворид шуд"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "%1$@ / %2$@ raqam kiritildi"
+        }
+      }
+    }
+  },
+  "dsShowActions": {
+    "extractionState": "manual",
+    "localizations": {
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "إظهار الإجراءات"
+        }
+      },
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Show actions"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Показать действия"
+        }
+      },
+      "tg": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Намоиши амалҳо"
+        }
+      },
+      "uz": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Amallarni ko‘rsatish"
+        }
+      }
+    }
   }
 }

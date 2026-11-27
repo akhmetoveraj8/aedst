@@ -38,6 +38,9 @@ const kebab = (s) =>
 const isColor = (t) => t.path[0] === 'color';
 const mode = (m) => (t) => isColor(t) && t.path[1] === m;
 const group = (g) => (t) => t.path[0] === g;
+// Desktop-only groups: not emitted to tokens.css or into the AedstTokens global.
+const DESKTOP_ONLY = ['size', 'contrast'];
+const notDesktopOnly = (t) => !DESKTOP_ONLY.includes(t.path[0]);
 /** Collapse runs of blank lines, trim trailing whitespace, end with exactly one newline. */
 const normalise = (s) =>
   s
@@ -101,7 +104,7 @@ StyleDictionary.registerFormat({
     const light = all.filter(mode('light'));
     const dark = all.filter(mode('dark')).map((t) => ({ ...t, name: t.name.slice(DARK_PREFIX.length) }));
     // Breakpoints are a desktop-window concept (the web uses CSS media queries): not emitted into tokens.css.
-    const scales = all.filter((t) => !isColor(t) && t.path[0] !== 'breakpoint');
+    const scales = all.filter((t) => !isColor(t) && t.path[0] !== 'breakpoint' && notDesktopOnly(t));
     // Trim trailing zeros (0.1450 -> 0.145, 0.00 -> 0) so the file is stable under Biome's CSS formatter.
     const trimZeros = (s) =>
       s.replace(/(\d+)\.(\d*?)0+(?=[\s)\/;a-z])/g, (_m, i, f) => (f ? `${i}.${f}` : i));
@@ -165,12 +168,39 @@ StyleDictionary.registerFormat({
         `    out property <color> ${kebab(camel(dark.path.slice(2)))}: root.dark ? ${dark.$value} : ${light.$value};`,
       );
     }
-    for (const t of all.filter((x) => !isColor(x))) {
+    for (const t of all.filter((x) => !isColor(x) && notDesktopOnly(x))) {
       const [type, value] = scalar(t);
       lines.push(`    out property <${type}> ${kebab(camel(t.path))}: ${value};`);
     }
     const body = ['    in-out property <bool> dark: false;', ...lines].join('\n');
     return normalise(`// ${HEADER}\n\nexport global AedstTokens {\n${body}\n}\n`);
+  },
+});
+
+// Desktop: `AedstSizes` (size.* tokens) keeps the member names components use (control-xs, target-min, ...).
+StyleDictionary.registerFormat({
+  name: 'aedst/slint-sizes',
+  format: async ({ dictionary }) => {
+    const lines = dictionary.allTokens
+      .filter(group('size'))
+      .map((t) => `    out property <length> ${kebab(camel(t.path.slice(1)))}: ${t.original.$value.value}px;`);
+    return normalise(['// ' + HEADER, '', 'export global AedstSizes {', ...lines, '}'].join('\n'));
+  },
+});
+// Desktop: `AedstContrast` (contrast.* tokens): the high-contrast colour set, light/dark resolved through
+// AedstTokens.dark. The hand-written AedstA11y picks these when the OS asks for high contrast.
+StyleDictionary.registerFormat({
+  name: 'aedst/slint-contrast',
+  format: async ({ dictionary }) => {
+    const all = dictionary.allTokens.filter(group('contrast'));
+    const lines = all
+      .filter((t) => t.path[1] === 'dark')
+      .map((dark) => {
+        const light = all.find((t) => t.path[1] === 'light' && t.path[2] === dark.path[2]);
+        return `    out property <color> ${kebab(dark.path[2])}: AedstTokens.dark ? ${dark.$value} : ${light.$value};`;
+      });
+    const head = ['// ' + HEADER, '', 'import { AedstTokens } from "aedst_tokens.slint";', ''];
+    return normalise([...head, 'export global AedstContrast {', ...lines, '}'].join('\n'));
   },
 });
 
@@ -265,7 +295,11 @@ const sd = new StyleDictionary({
     desktopRs: {
       buildPath: OUT.desktopRs,
       transforms: ['aedst/name/slint', 'color/hex'],
-      files: [{ destination: 'aedst_tokens.slint', format: 'aedst/slint-globals' }],
+      files: [
+        { destination: 'aedst_tokens.slint', format: 'aedst/slint-globals' },
+        { destination: 'aedst_sizes.slint', format: 'aedst/slint-sizes' },
+        { destination: 'aedst_contrast.slint', format: 'aedst/slint-contrast' },
+      ],
     },
   }),
 });

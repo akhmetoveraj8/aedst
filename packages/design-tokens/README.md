@@ -72,6 +72,10 @@ To override the web CSS variable name of a token set
   `syntaxPunctuation` (2026-11-26) colour code in `code-block` and the AI terminal and stack trace on every
   platform (Shiki theme of CSS variables on web, token-mapped spans natively). Each is in sRGB and measured at
   5.7:1 or more against `background` and `muted`, light and dark (WCAG AA asks 4.5:1).
+- `size.json` and `contrast.json` (2026-11-28) are desktop-only: they generate `aedst_sizes.slint` (`AedstSizes`) and
+  `aedst_contrast.slint` (`AedstContrast`, the high-contrast colours the hand-written `AedstA11y` selects) and are not
+  emitted to the web, Android or Apple outputs. `bubbleTinted` / `bubbleTintedHover` (light and dark) are normal colours
+  (web `bubble.tsx` uses `--bubble-tinted`); the native bubbles still derive tinted as primary at 12% alpha.
 - The spacing scale is Android's 4px scale plus `xxs`. Apple call sites were remapped by name so their pixel values are unchanged.
 - Typography is the Material-style scale used on Android plus `small`/`mono` (desktop). Apple keeps Dynamic Type
   text styles (`AedstTypography`) on purpose; `AedstTypeScale` there is reference-only.

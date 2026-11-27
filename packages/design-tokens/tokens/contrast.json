@@ -1,0 +1,20 @@
+{
+  "contrast": {
+    "$type": "color",
+    "$description": "High-contrast override colours (forced-colors style: pure black/white, yellow/blue ring). Consumed by the desktop client only (AedstContrast, read by AedstA11y when the OS asks for high contrast). Light and dark define the same names.",
+    "light": {
+      "border": { "$value": { "colorSpace": "srgb", "components": [0, 0, 0] } },
+      "input": { "$value": { "colorSpace": "srgb", "components": [0, 0, 0] } },
+      "ring": { "$value": { "colorSpace": "srgb", "components": [0, 0, 0.933333333] } },
+      "mutedForeground": { "$value": { "colorSpace": "srgb", "components": [0, 0, 0] } },
+      "track": { "$value": { "colorSpace": "srgb", "components": [0.752941176, 0.752941176, 0.752941176] } }
+    },
+    "dark": {
+      "border": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1] } },
+      "input": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1] } },
+      "ring": { "$value": { "colorSpace": "srgb", "components": [1, 1, 0] } },
+      "mutedForeground": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1] } },
+      "track": { "$value": { "colorSpace": "srgb", "components": [0.250980392, 0.250980392, 0.250980392] } }
+    }
+  }
+}
