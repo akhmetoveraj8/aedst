@@ -124,21 +124,15 @@ export component AedstCheckbox inherits Rectangle {
     in property <bool> checked;
     in property <string> label;
     in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
     callback toggled();
 }
 ```
 
-**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_messages.slint`):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_a11y.slint`):
 
 ```qml title="Slint"
-AedstCheckbox {
-    checked: root.accepted;
-    label: "Accept the terms";
-    toggled => {
-        root.accepted = !root.accepted;
-        GalleryState.log(root.accepted ? "checkbox:on" : "checkbox:off");
-    }
-}
+AedstCheckbox { label: "Accept the terms"; checked: true; }
 ```
 
 </Tab>

@@ -212,20 +212,27 @@ export component AedstDialog inherits Rectangle {
     in property <length> panel-width: 420px;
     in property <bool> center-header: false;
     callback closed();
+    callback restore-focus();
     public function close();
+    public function focus-first();
 }
 ```
 
-**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_overlays.slint`):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_a11y.slint`):
 
 ```qml title="Slint"
-AedstDialog {
-    open <=> GalleryState.dialog-open;
-    title: "Rename project";
-    description: "The new name is visible to everyone.";
-    close-label: "Close dialog";
-    closed => { GalleryState.log("dialog:closed"); }
-    AedstInput { label: "Project name"; placeholder: "Name"; }
+trap-dialog := AedstDialog {
+    open <=> GalleryState.trap-open;
+    title: "Trap dialog";
+    description: "Tab stays in here.";
+    close-label: "Close trap dialog";
+    closed => { GalleryState.log("trap:closed"); }
+    restore-focus => { GalleryState.log("trap:restore"); }
+    HorizontalLayout {
+        spacing: AedstTokens.spacing-sm;
+        AedstButton { text: "First trap action"; clicked => { GalleryState.log("trap:first"); } }
+        AedstButton { text: "Second trap action"; clicked => { GalleryState.log("trap:second"); } }
+    }
 }
 ```
 

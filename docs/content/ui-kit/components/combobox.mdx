@@ -52,8 +52,6 @@ import {
   useComboboxAnchor,
 } from "@/shared/ui/combobox";
 
-function ComboboxValue({ ...props }: ComboboxPrimitive.Value.Props)
-
 function ComboboxTrigger({
   className,
   children,
@@ -66,10 +64,16 @@ function ComboboxInput({
   disabled = false,
   showTrigger = true,
   showClear = false,
+  triggerLabel,
+  clearLabel,
   ...props
 }: ComboboxPrimitive.Input.Props & {
   showTrigger?: boolean;
   showClear?: boolean;
+  /** Accessible name of the open button (an icon); the kit hardcodes no text. */
+  triggerLabel?: string;
+  /** Accessible name of the clear button (an icon). */
+  clearLabel?: string;
 })
 
 function ComboboxContent({
@@ -86,29 +90,11 @@ function ComboboxContent({
     "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
   >)
 
-function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props)
-
 function ComboboxItem({
   className,
   children,
   ...props
 }: ComboboxPrimitive.Item.Props)
-
-function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props)
-
-function ComboboxLabel({
-  className,
-  ...props
-}: ComboboxPrimitive.GroupLabel.Props)
-
-function ComboboxCollection({ ...props }: ComboboxPrimitive.Collection.Props)
-
-function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props)
-
-function ComboboxSeparator({
-  className,
-  ...props
-}: ComboboxPrimitive.Separator.Props)
 
 function ComboboxChips({
   className,
@@ -120,15 +106,13 @@ function ComboboxChip({
   className,
   children,
   showRemove = true,
+  removeLabel,
   ...props
 }: ComboboxPrimitive.Chip.Props & {
   showRemove?: boolean;
+  /** Accessible name of the remove button (an icon), e.g. "Remove Ada". */
+  removeLabel?: string;
 })
-
-function ComboboxChipsInput({
-  className,
-  ...props
-}: ComboboxPrimitive.Input.Props)
 
 function useComboboxAnchor()
 ```
@@ -137,7 +121,11 @@ function useComboboxAnchor()
 
 ```tsx
 <Combobox items={frameworks} defaultOpen>
-  <ComboboxInput aria-label="Framework" placeholder="Select a framework" />
+  <ComboboxInput
+    aria-label="Framework"
+    triggerLabel="Show options"
+    placeholder="Select a framework"
+  />
   <ComboboxContent>
     <ComboboxEmpty>No items found.</ComboboxEmpty>
     <ComboboxList>

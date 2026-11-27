@@ -88,7 +88,7 @@ AedstTheme {
 ```swift
 public enum AedstToastSeverity { case info, success, warning, destructive }
 
-public struct AedstToastData: Equatable {
+public struct AedstToastData: Equatable, Sendable {
     public init(title: String, message: String? = nil, severity: AedstToastSeverity = .info)
 }
 
@@ -136,21 +136,25 @@ export struct AedstToast {
 export component AedstToaster inherits Rectangle {
     in property <[AedstToast]> toasts;
     in property <string> dismiss-label;
+    in property <string> region-label;
     in property <duration> auto-dismiss: 4s;
+    out property <bool> has-focus: stack-focus.has-focus;
     callback dismissed(string);
     callback action(string);
+    public function focus-stack();
 }
 ```
 
-**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_overlays.slint`):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_a11y.slint`):
 
 ```qml title="Slint"
-AedstToaster {
-    toasts: GalleryState.toasts;
-    dismiss-label: "Dismiss notification";
+toaster := AedstToaster {
+    toasts: GalleryState.a11y-toasts;
+    dismiss-label: "Dismiss alert toast";
+    region-label: "Alert notifications";
     auto-dismiss: 0ms;
-    dismissed(id) => { GalleryState.log("toast-dismissed:" + id); }
-    action(id) => { GalleryState.log("toast-action:" + id); }
+    dismissed(id) => { GalleryState.log("a11y-toast-dismissed:" + id); }
+    action(id) => { GalleryState.log("a11y-toast-action:" + id); }
 }
 ```
 

@@ -51,10 +51,13 @@ import {
   QuestionnaireTitle,
 } from "@/shared/ui/questionnaire";
 
-function Questionnaire({
-  className,
-  ...props
-}: React.ComponentProps<typeof QuestionnairePrimitive.Root>)
+type NavButtonProps = Pick<
+  React.ComponentProps<typeof Button>,
+  "size" | "variant"
+> & {
+  /** The visible text, worded by the caller (the kit hardcodes none). */
+  children: React.ReactNode;
+};
 
 function QuestionnaireProgress({
   className,
@@ -63,51 +66,16 @@ function QuestionnaireProgress({
   ...props
 }: React.ComponentProps<typeof QuestionnairePrimitive.Progress>)
 
-function QuestionnaireItem({
-  className,
-  ...props
-}: React.ComponentProps<typeof QuestionnairePrimitive.Item>)
-
-function QuestionnaireTitle({
-  className,
-  ...props
-}: React.ComponentProps<typeof QuestionnairePrimitive.Title>)
-
-function QuestionnaireDescription({
-  className,
-  ...props
-}: React.ComponentProps<typeof QuestionnairePrimitive.Description>)
-
-function QuestionnaireChoices({
-  className,
-  ...props
-}: React.ComponentProps<typeof QuestionnairePrimitive.Choices>)
-
 function QuestionnaireChoice({
   children,
   className,
   ...props
 }: React.ComponentProps<typeof QuestionnairePrimitive.Choice>)
 
-function QuestionnaireChoiceDescription({
-  className,
-  ...props
-}: React.ComponentProps<"span">)
-
 function QuestionnaireInput({
   className,
   ...props
 }: React.ComponentProps<typeof QuestionnairePrimitive.Input>)
-
-function QuestionnaireError({
-  className,
-  ...props
-}: React.ComponentProps<typeof QuestionnairePrimitive.Error>)
-
-function QuestionnaireActions({
-  className,
-  ...props
-}: React.ComponentProps<"div">)
 
 function QuestionnairePrevious({
   children,
@@ -116,7 +84,7 @@ function QuestionnairePrevious({
   variant = "outline",
   ...props
 }: React.ComponentProps<typeof QuestionnairePrimitive.Previous> &
-  Pick<React.ComponentProps<typeof Button>, "size" | "variant">)
+  NavButtonProps)
 
 function QuestionnaireSkip({
   children,
@@ -124,8 +92,7 @@ function QuestionnaireSkip({
   size = "default",
   variant = "outline",
   ...props
-}: React.ComponentProps<typeof QuestionnairePrimitive.Skip> &
-  Pick<React.ComponentProps<typeof Button>, "size" | "variant">)
+}: React.ComponentProps<typeof QuestionnairePrimitive.Skip> & NavButtonProps)
 
 function QuestionnaireNext({
   children,
@@ -133,8 +100,7 @@ function QuestionnaireNext({
   size = "default",
   variant = "default",
   ...props
-}: React.ComponentProps<typeof QuestionnairePrimitive.Next> &
-  Pick<React.ComponentProps<typeof Button>, "size" | "variant">)
+}: React.ComponentProps<typeof QuestionnairePrimitive.Next> & NavButtonProps)
 
 function QuestionnaireSubmit({
   children,
@@ -143,7 +109,7 @@ function QuestionnaireSubmit({
   variant = "default",
   ...props
 }: React.ComponentProps<typeof QuestionnairePrimitive.Submit> &
-  Pick<React.ComponentProps<typeof Button>, "size" | "variant">)
+  NavButtonProps)
 ```
 
 **Usage** (from the `Default` story):
@@ -170,10 +136,10 @@ function QuestionnaireSubmit({
     <QuestionnaireError />
   </QuestionnaireItem>
   <QuestionnaireActions>
-    <QuestionnairePrevious />
-    <QuestionnaireSkip />
-    <QuestionnaireNext />
-    <QuestionnaireSubmit />
+    <QuestionnairePrevious>Previous</QuestionnairePrevious>
+    <QuestionnaireSkip>Skip</QuestionnaireSkip>
+    <QuestionnaireNext>Next</QuestionnaireNext>
+    <QuestionnaireSubmit>Submit</QuestionnaireSubmit>
   </QuestionnaireActions>
 </Questionnaire>
 ```

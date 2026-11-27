@@ -84,7 +84,7 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props)
 fun AedstLinearProgressIndicator(progress: Float?, modifier: Modifier = Modifier)
 
 @Composable
-fun AedstCircularProgressIndicator(progress: Float?, modifier: Modifier = Modifier, strokeWidth: Dp = 4.dp)
+fun AedstCircularProgressIndicator(progress: Float?, modifier: Modifier = Modifier, strokeWidth: Dp = AedstSpacing.xs)
 ```
 
 **Usage** (from the `@Preview` function `AedstProgressIndicatorPreview`):

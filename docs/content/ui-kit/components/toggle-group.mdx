@@ -197,18 +197,19 @@ export component AedstToggleGroup inherits Rectangle {
     in property <AedstToggleVariant> variant: AedstToggleVariant.default;
     in property <AedstToggleSize> size: AedstToggleSize.default;
     in property <bool> enabled: true;
+    out property <bool> has-focus: focus.has-focus;
     callback selected(int);
 }
 ```
 
-**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_forms.slint`):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_a11y.slint`):
 
 ```qml title="Slint"
-AedstToggleGroup {
-    label: "Alignment";
-    items: ["Start", "Middle", "End"];
-    current-index <=> GalleryState.group-index;
-    selected(index) => { GalleryState.log("toggle-group:\{index}"); }
+align := AedstToggleGroup {
+    label: "Text alignment";
+    items: ["Start", "Center", "End"];
+    current-index <=> GalleryState.align-index;
+    selected(index) => { GalleryState.log("align:\{index}"); }
 }
 ```
 

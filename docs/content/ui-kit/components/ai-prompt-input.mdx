@@ -46,8 +46,6 @@ import {
   useAiPromptInput,
 } from "@/shared/ui/ai-prompt-input";
 
-type AiPromptInputStatus = "ready" | "submitted" | "streaming" | "error";
-
 type AiPromptInputProps = Omit<React.ComponentProps<"div">, "onSubmit"> & {
   /** Gets the trimmed text and files; a rejected promise keeps the draft. */
   onSubmit: (message: AiPromptInputMessage) => void | Promise<void>;
@@ -73,8 +71,6 @@ type AiPromptInputSubmitProps = AiPromptInputButtonProps & {
   /** Stops the reply; makes the button a stop button while streaming. */
   onStop?: () => void;
 };
-
-function useAiPromptInput(): AiPromptInputValue
 
 function AiPromptInput({
   onSubmit,

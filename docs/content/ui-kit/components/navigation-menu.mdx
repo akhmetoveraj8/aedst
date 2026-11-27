@@ -247,6 +247,7 @@ export component AedstNavigationMenu inherits Rectangle {
     in property <string> label;
     in property <string> current-id;
     in property <length> panel-width: 280px;
+    out property <bool> has-focus: focus.has-focus;
     callback navigate(string);
 }
 ```

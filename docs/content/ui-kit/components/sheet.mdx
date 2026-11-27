@@ -216,6 +216,7 @@ export component AedstSheet inherits Rectangle {
     in property <string> handle-label;
     in property <bool> reduce-motion: false;
     callback closed();
+    callback restore-focus();
     public function close();
 }
 ```

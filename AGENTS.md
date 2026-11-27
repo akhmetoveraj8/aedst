@@ -24,7 +24,7 @@ Approved stack per platform: Web (React Hook Form, Zod, date-fns, dnd-kit, shadc
 
 ## UI: kit components only
 
-Build every screen from the UI kit (`docs/content/ui-kit.md`, `ui-kit.yaml`): web `apps/web/shared/ui`, Android `core/ui` (`Aedst*`), Apple `AedstDesignSystem`, Desktop `aedst-ui`. Never write a raw `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>`, `<form>`, `<table>`, `<dialog>` on web, never a raw Material 3 / SwiftUI control or `std-widgets` import in feature code, and never re-create a kit component by hand. If the kit lacks what you need, add it to the kit first (manifest, web, then the other platforms), not to the feature. Gate: `task check:ui-kit-only` (plus Biome `noRestrictedElements` on web).
+Build every screen from the UI kit (`docs/content/ui-kit.md`, `ui-kit.yaml`): web `apps/web/shared/ui`, Android `core/ui` (`Aedst*`), Apple `AedstDesignSystem`, Desktop `aedst-ui`. Never write a raw `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>`, `<form>`, `<table>`, `<dialog>` on web, never a raw Material 3 / SwiftUI control or `std-widgets` import in feature code (sole Desktop exception: `import { ListView }`, see `docs/content/desktop/slint-rules.md` M1), and never re-create a kit component by hand. If the kit lacks what you need, add it to the kit first (manifest, web, then the other platforms), not to the feature. Gate: `task check:ui-kit-only` (plus Biome `noRestrictedElements` on web).
 
 ## Process rules
 

@@ -191,6 +191,7 @@ AedstButton("Dimensions", variant: .outline, fillsWidth: false) { isPresented = 
 ```qml title="Slint"
 export component AedstPopover inherits PopupWindow {
     in property <string> label;
+    callback popup-closed();
 }
 ```
 

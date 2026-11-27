@@ -110,7 +110,7 @@ and screenshot tests, behaviour by each platform's tests.
 
 ## Feature code uses the kit only
 
-The kit is closed in one direction: screens are composed from kit components and nothing else. `task check:ui-kit-only` (`scripts/check-ui-kit-only.mjs`, in `task check`, lefthook and `policies-ci`) fails on a raw control in feature code: web `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>`, `<form>`, `<table>`, `<dialog>` and friends, and direct imports of the libraries behind the kit; Android Material 3 controls outside `core/ui`; SwiftUI controls and `.sheet`/`.alert` outside `AedstDesignSystem`; `std-widgets.slint` outside `aedst-ui`. Layout primitives, text and icons are not kit components. Web is also enforced while editing by Biome `noRestrictedElements`. Apple has recorded debt in `scripts/ui-kit-only.baseline` (a per-file ratchet that may only go down; new files get 0). A one-line exemption is a `ui-kit-ignore: <reason>` comment.
+The kit is closed in one direction: screens are composed from kit components and nothing else. `task check:ui-kit-only` (`scripts/check-ui-kit-only.mjs`, in `task check`, lefthook and `policies-ci`) fails on a raw control in feature code: web `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>`, `<form>`, `<table>`, `<dialog>` and friends, and direct imports of the libraries behind the kit; Android Material 3 controls outside `core/ui`; SwiftUI controls and `.sheet`/`.alert` outside `AedstDesignSystem`; `std-widgets.slint` outside `aedst-ui`, except exactly `import { ListView }` in a Desktop feature (Slint creates rows lazily only for a `for` written directly inside `ListView`, so the kit cannot wrap it; [rule M1](/desktop/slint-rules)). Layout primitives, text and icons are not kit components. Web is also enforced while editing by Biome `noRestrictedElements`. Apple has recorded debt in `scripts/ui-kit-only.baseline` (a per-file ratchet that may only go down; new files get 0). A one-line exemption is a `ui-kit-ignore: <reason>` comment.
 
 ## Component reference
 
@@ -238,7 +238,7 @@ recorded deviations of a native kit from the canonical variants and sizes.
 | Web | `form`, `loading-skeleton`, `locale-select`, `mode-toggle` |
 | Android | `AedstAiDisclosureScope`, `AedstCountBadge`, `AedstFab`, `AedstFilterChip`, `AedstForm`, `AedstIconButton`, `AedstOfflineBanner`, `AedstTopAppBar`, `ErrorMessages`, `LoadingIndicator` |
 | Apple | `AedstErrorPresenter`, `AedstForm`, `AedstIconButton` |
-| Desktop | `aedst_action_row`, `aedst_form` |
+| Desktop | `aedst_action_row`, `aedst_form`, `aedst_a11y`, `aedst_sizes`, `aedst_contrast` |
 
 | Component | Platform | Axis | Platform values | Reason for the deviation |
 |---|---|---|---|---|

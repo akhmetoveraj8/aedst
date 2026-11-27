@@ -82,6 +82,7 @@ fun AedstInputOtp(
     length: Int = 6,
     enabled: Boolean = true,
     errorMessage: String? = null,
+    masked: Boolean = false,
 )
 ```
 
@@ -154,6 +155,7 @@ export component AedstInputOtp inherits Rectangle {
     in property <bool> numeric-only: true;
     in property <bool> invalid: false;
     in property <bool> enabled: true;
+    in property <bool> masked: false;
     out property <string> value: root.cells[0] + root.cells[1] + root.cells[2] + root.cells[3] + root.cells[4] + root.cells[5] + root.cells[6] + root.cells[7];
     out property <bool> has-focus: focus.has-focus;
     callback value-changed(string);
@@ -162,13 +164,14 @@ export component AedstInputOtp inherits Rectangle {
 }
 ```
 
-**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_forms.slint`):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_a11y.slint`):
 
 ```qml title="Slint"
-code := AedstInputOtp {
-    label: "Verification code";
+secret := AedstInputOtp {
+    label: "Secret code";
+    masked: true;
     digits: 4;
-    completed(entered) => { GalleryState.log("otp:" + entered); }
+    completed(code) => { GalleryState.log("secret:" + code); }
 }
 ```
 

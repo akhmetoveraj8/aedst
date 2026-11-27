@@ -705,3 +705,6 @@ extensions:
   desktop:
     - aedst_action_row.slint
     - aedst_form.slint
+    - aedst_a11y.slint         # reduce-motion / high-contrast flags set from Rust (Slint cannot detect them); high-contrast colours are generated (aedst_contrast.slint)
+    - aedst_sizes.slint        # GENERATED size tokens (size.* in packages/design-tokens); desktop-only
+    - aedst_contrast.slint     # GENERATED high-contrast colours (contrast.* in packages/design-tokens); desktop-only

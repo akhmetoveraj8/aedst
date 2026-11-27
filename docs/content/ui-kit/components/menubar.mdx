@@ -275,6 +275,7 @@ export component AedstMenubar inherits Rectangle {
     in property <[AedstMenubarMenu]> menus;
     in property <string> label;
     in property <length> menu-width: 192px;
+    out property <bool> has-focus: focus.has-focus;
     callback activated(string);
 }
 ```

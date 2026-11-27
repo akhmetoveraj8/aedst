@@ -179,17 +179,18 @@ export struct AedstAccordionItem {
 export component AedstAccordion inherits Rectangle {
     in property <[AedstAccordionItem]> items;
     in-out property <int> open-index: -1;
+    out property <bool> has-focus: focus.has-focus;
     callback toggled(int);
 }
 ```
 
-**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_navigation.slint`):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_a11y.slint`):
 
 ```qml title="Slint"
-AedstAccordion {
-    items: [{ title: "Shipping", content: "Ships in two days." }, { title: "Returns", content: "Thirty days." }];
-    open-index <=> GalleryState.accordion-index;
-    toggled(index) => { GalleryState.log("accordion:\{index}"); }
+faq := AedstAccordion {
+    items: [{ title: "Shipping", content: "Two days." }, { title: "Refunds", content: "Thirty days." }, { title: "Support", content: "Always." }];
+    open-index <=> GalleryState.faq-index;
+    toggled(index) => { GalleryState.log("faq:\{index}"); }
 }
 ```
 

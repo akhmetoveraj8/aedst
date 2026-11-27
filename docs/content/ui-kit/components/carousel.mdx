@@ -137,7 +137,10 @@ AedstTheme {
     Surface {
         AedstCarousel(pageCount = 3, modifier = Modifier.padding(AedstSpacing.lg)) { index ->
             AedstCard {
-                Box(modifier = Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(AedstSpacing.giant * 2),
+                    contentAlignment = Alignment.Center,
+                ) {
                     Text("Slide ${index + 1}")
                 }
             }
@@ -199,24 +202,25 @@ export component AedstCarousel inherits Rectangle {
     in property <string> label;
     in property <string> previous-label;
     in property <string> next-label;
+    in property <bool> reverse-in-rtl: false;
     out property <bool> has-focus: focus.has-focus;
     callback index-changed(int);
 }
 ```
 
-**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_display.slint`):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_a11y.slint`):
 
 ```qml title="Slint"
 slides := AedstCarousel {
-    label: "Tips";
-    previous-label: "Previous tip";
-    next-label: "Next tip";
-    count: 2;
-    height: 140px;
-    current-index <=> GalleryState.carousel-index;
-    index-changed(index) => { GalleryState.log("carousel:\{index}"); }
-    AedstCard { title: "Tip 1"; description: "Press Ctrl+K to search."; }
-    AedstCard { title: "Tip 2"; description: "Drag the handle to resize."; }
+    label: "Mirrored slides";
+    count: 3;
+    previous-label: "Earlier slide";
+    next-label: "Later slide";
+    reverse-in-rtl: true;
+    current-index <=> GalleryState.mirror-index;
+    Rectangle { accessible-role: text; accessible-label: "Slide three"; }
+    Rectangle { accessible-role: text; accessible-label: "Slide two"; }
+    Rectangle { accessible-role: text; accessible-label: "Slide one"; }
 }
 ```
 

@@ -186,21 +186,22 @@ export component AedstPagination inherits Rectangle {
     in property <string> previous-text;
     in property <string> next-text;
     in property <string> page-label;
+    out property <bool> has-focus: focus.has-focus;
     callback page-changed(int);
 }
 ```
 
-**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_navigation.slint`):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_a11y.slint`):
 
 ```qml title="Slint"
-AedstPagination {
-    label: "Pages";
-    previous-text: "Previous";
-    next-text: "Next";
-    page-label: "Page";
-    page-count: 9;
-    page <=> GalleryState.page-number;
-    page-changed(page) => { GalleryState.log("page:\{page}"); }
+pager := AedstPagination {
+    label: "Result pages";
+    page-label: "Result page";
+    previous-text: "Back";
+    next-text: "Forward";
+    page-count: 6;
+    page <=> GalleryState.pager-page;
+    page-changed(page) => { GalleryState.log("pager:\{page}"); }
 }
 ```
 

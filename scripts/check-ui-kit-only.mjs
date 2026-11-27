@@ -65,6 +65,9 @@ const APPLE_CTRL = ['Button', 'TextField', 'SecureField', 'TextEditor', 'Toggle'
 const APPLE_RE = new RegExp(`(?<![\\w.])(?:${APPLE_CTRL.join('|')})\\s*(?:\\(|\\{)|\\.(?:sheet|fullScreenCover|alert|confirmationDialog|popover|contextMenu|swipeActions)\\s*\\(`);
 
 const SLINT_RE = /^\s*import\s*\{[^}]*\}\s*from\s*"std-widgets\.slint"/;
+// The one std-widgets import a Desktop feature may have: Slint creates rows lazily only for a `for` written
+// directly inside an element named ListView, so a kit wrapper cannot do it (docs/content/desktop/slint-rules.md, M1).
+const SLINT_LISTVIEW_ONLY = /^\s*import\s*\{\s*ListView\s*\}\s*from\s*"std-widgets\.slint"/;
 
 const RULES = {
   web: {
@@ -92,7 +95,7 @@ const RULES = {
   desktop: {
     exts: ['slint'],
     exempt: /^apps\/desktop\/crates\/aedst-ui\//,
-    test: (line) => (SLINT_RE.test(line) ? 'std-widgets import -> use aedst_*.slint from crates/aedst-ui' : null),
+    test: (line) => (SLINT_RE.test(line) && !SLINT_LISTVIEW_ONLY.test(line) ? 'std-widgets import -> use aedst_*.slint from crates/aedst-ui (only `import { ListView }` is allowed)' : null),
   },
 };
 

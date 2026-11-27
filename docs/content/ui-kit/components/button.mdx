@@ -166,19 +166,19 @@ export component AedstButton inherits Rectangle {
     in property <AedstButtonVariant> variant: AedstButtonVariant.default;
     in property <AedstButtonSize> size: AedstButtonSize.default;
     in property <bool> enabled: true;
+    in property <bool> tab-stop: true;
+    in property <bool> show-focus: false;
     out property <bool> has-focus: focus.has-focus;
     out property <bool> pressed: touch.pressed;
+    out property <bool> hovered: touch.has-hover;
     callback clicked();
 }
 ```
 
-**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_ai.slint`):
+**Usage** (from the kit gallery, `apps/desktop/crates/aedst-ui/ui/gallery/gallery_a11y.slint`):
 
 ```qml title="Slint"
-AedstButton {
-    text: root.thinking ? "Finish thinking" : "Think again";
-    clicked => { root.thinking = !root.thinking; }
-}
+AedstButton { text: "Open trap dialog"; clicked => { GalleryState.trap-open = true; } }
 ```
 
 </Tab>
